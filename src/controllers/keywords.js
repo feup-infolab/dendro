@@ -65,9 +65,9 @@ exports.preprocessing = function (req, res)
                 comparision = text[j];
                 if (comparision.pos.charAt(0) === "N" && /^[a-zA-Z\/\-]+$/.test(comparision.lemma))
                 {
-                    if (comparision.lemma.toString().length < 3 && stopwords.indexOf(comparision.lemma.toString() < 0))
+                    if (stopwords.indexOf(comparision.lemma.toLowerCase()) > -1 || comparision.lemma.toString().length < 3)
                     {
-                        // console.log(comparision.word);
+                        // console.log(comparision.lemma.toString());
                     }
                     else
                     {
@@ -77,8 +77,9 @@ exports.preprocessing = function (req, res)
                             comparision = text[index2];
                             if (comparision.pos.charAt(0) === "N" && /^[a-zA-Z\/\-]+$/.test(comparision.lemma))
                             {
-                                if (comparision.lemma.toString().length < 3 && stopwords.indexOf(comparision.lemma.toString() < 0))
+                                if (stopwords.indexOf(comparision.lemma.toLowerCase()) > -1 || comparision.lemma.toString().length < 3)
                                 {
+                                    // console.log(comparision.lemma.toString());
                                     break;
                                 }
                                 current_word += (" " + comparision.lemma);
@@ -98,9 +99,9 @@ exports.preprocessing = function (req, res)
             for (let j = 0; j < text.length; j++)
             {
                 comparision = text[j];
-                if (comparision.pos.charAt(0) === "N" || comparision.pos.charAt(0) === "J")
+                if ((comparision.pos.charAt(0) === "N" || comparision.pos.charAt(0) === "J") && /^[a-zA-Z\/\-]+$/.test(comparision.lemma))
                 {
-                    if (comparision.lemma.toString().length < 3)
+                    if (stopwords.indexOf(comparision.lemma.toLowerCase()) > -1 || comparision.lemma.toString().length < 3)
                     {
                         // console.log(comparision.word);
                     }
@@ -110,22 +111,22 @@ exports.preprocessing = function (req, res)
                         for (let index2 = j + 1; index2 < text.length; index2++)
                         {
                             comparision = text[index2];
-                            if (comparision.pos.charAt(0) === "N")
+                            if (comparision.pos.charAt(0) === "N" && /^[a-zA-Z\/\-]+$/.test(comparision.lemma))
                             {
-                                if (comparision.lemma.toString().length < 3)
+                                if (stopwords.indexOf(comparision.lemma.toLowerCase()) > -1 || comparision.lemma.toString().length < 3)
                                 {
                                     break;
                                 }
                                 current_word += (" " + comparision.lemma);
                                 multiterm.push(current_word.toLowerCase());
                             }
-                            else if (comparision.pos.charAt(0) === "J")
+                            else if (comparision.pos.charAt(0) === "J" && /^[a-zA-Z\/\-]+$/.test(comparision.lemma))
                             {
-                                if (comparision.lemma.toString().length < 3)
+                                if (stopwords.indexOf(comparision.lemma.toLowerCase()) > -1 || comparision.lemma.toString().length < 3)
                                 {
                                     break;
                                 }
-                                if (text[(index2 + 1)].pos.charAt(0) === "N" || text[(index2 + 1)].pos.charAt(0) === "J")
+                                if ((text[(index2 + 1)].pos.charAt(0) === "N" || text[(index2 + 1)].pos.charAt(0) === "J") && /^[a-zA-Z\/\-]+$/.test(text[(index2 + 1)].lemma))
                                 {
                                     current_word += (" " + comparision.lemma);
                                 }
@@ -252,7 +253,7 @@ exports.preprocessing = function (req, res)
                         }
                     }
                 }
-                nounphraselist = nounphraselist.concat(nounphrase("nn", JSON.parse(JSON.stringify(sent.sentences[i])).tokens, null));
+                nounphraselist = nounphraselist.concat(nounphrase("jj", JSON.parse(JSON.stringify(sent.sentences[i])).tokens, null));
             }
             nounphraselist = [...new Set(nounphraselist.map(obj => JSON.stringify(obj)))]
                 .map(str => JSON.parse(str));
@@ -516,7 +517,7 @@ exports.termextraction = function (req, res)
             // DESC -> b.length - a.length
             return b.ncvalue - a.ncvalue;
         });
-        return ncvaluelist;
+        return ncvaluelist.frequency;
     };
 
     const uploader = new Uploader();
@@ -659,7 +660,7 @@ exports.termextraction = function (req, res)
                     nounphrasesimple = ngrams;
                     var cvaluengrams = cvalue(ngrams, documents, tokenizer.tokenize(ngrams[0]).length);
                     var ncvaluegrams = ncvalue(cvaluengrams, cvaluengrams.length);
-                    console.log(ncvaluegrams);
+                    // console.log(ncvaluegrams);
 
                     /* for (var a = 0; a < documents.length; a++)
                     {
@@ -840,12 +841,12 @@ exports.termextraction = function (req, res)
                     dbpediaterms = {
                         keywords: []
                     };
-                    for (var index = 0; index < cvaluengrams.length; index++)
+                    for (var index = 0; index < ncvaluegrams.length; index++)
                     {
                         // console.log(dbsearch[i]);
                         dbpediaterms.keywords.push({
-                            words: cvaluengrams[index].word,
-                            score: cvaluengrams[index].cvalue
+                            words: ncvaluegrams[index].word,
+                            score: ncvaluegrams[index].ncvalue
                         });
                     }
 
@@ -882,7 +883,7 @@ exports.dbpedialookup = function (req, res)
     req.setTimeout(2500000);
     var search = function (lookup, cb)
     {
-        // console.log("searching : " + lookup.words);
+        console.log("searching : " + lookup.words);
         baseRequest("http://lookup.dbpedia.org/api/search/PrefixSearch?QueryClass=&MaxHits=25&QueryString=" + lookup.words, function getResponse (error, response, body)
         // baseRequest("http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=&QueryString=" + lookup.words, function getResponse (error, response, body)
         {
@@ -950,6 +951,7 @@ exports.dbpedialookup = function (req, res)
                     // console.log("results for word : " + dbpediaresults[i].words + " undefined");
                     dbpediauri.result.push({
                         searchterm: dbpediaresults[i].words,
+                        score: dbpediaresults[i].score,
                         error: "undefined term in dbpedia"
                     });
                 }

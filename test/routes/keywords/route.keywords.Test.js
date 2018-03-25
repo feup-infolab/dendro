@@ -4,7 +4,9 @@ const should = chai.should();
 const _ = require("underscore");
 chai.use(chaiHttp);
 const md5 = require("md5");
-const fs = require("fs");;
+const fs = require("fs");
+var async = require("async");
+const csvWriter = require("csv-write-stream");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -172,83 +174,49 @@ describe("Searches DBpedia for important terms", function (done)
 
     describe("[GET] Complete path using all 5 files", function ()
     {
+        var loadfiles = function (lookup, cb)
+        {
+            fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, lookup, function (err, res)
+            {
+                res.statusCode.should.equal(200);
+                res.body.should.be.instanceof(Object);
+                res.body.should.be.instanceof(Array);
+                res.body.length.should.equal(1);
+                const newResourceUri = res.body[0].uri;
+                itemUtils.getItemMetadataByUri(true, agent, newResourceUri, function (error, res)
+                {
+                    res.statusCode.should.equal(200);
+                    res.body.descriptors.should.be.instanceof(Array);
+                    // artigos.push(JSON.parse(res.text).descriptors[7].value);
+                    cb(null, JSON.parse(res.text).descriptors[7].value);
+                });
+            });
+
+        };
+        var processfiles = function (lookup, cb)
+        {
+            keywordsUtils.preprocessing(lookup, agent, function (err, res) {
+                res.statusCode.should.equal(200);
+                cb(null, [res.text,JSON.parse(res.text).text]);
+
+                // console.log(artigos[0]);
+            });
+        };
         var artigos = [];
         var textprocessado = [];
         var preprocessing = [];
+        var doclist = [BusPerformance, SimulatingVehicle, driverattitude, RegenerativeBraking, RoutePlanning];
         it("Should load every pdf and extract their content", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, BusPerformance, function (err, res)
+                async.mapSeries(doclist, loadfiles, function (err, results)
                 {
-                    res.statusCode.should.equal(200);
-                    res.body.should.be.instanceof(Object);
-                    res.body.should.be.instanceof(Array);
-                    res.body.length.should.equal(1);
-                    const newResourceUri = res.body[0].uri;
-                    itemUtils.getItemMetadataByUri(true, agent, newResourceUri, function (error, res)
+                    for (let i = 0; i < results.length; i++)
                     {
-                        res.statusCode.should.equal(200);
-                        res.body.descriptors.should.be.instanceof(Array);
-                        artigos.push(JSON.parse(res.text).descriptors[7].value);
-                        fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, SimulatingVehicle, function (err, res)
-                        {
-                            res.statusCode.should.equal(200);
-                            res.body.should.be.instanceof(Object);
-                            res.body.should.be.instanceof(Array);
-                            res.body.length.should.equal(1);
-                            const newResourceUri = res.body[0].uri;
-                            itemUtils.getItemMetadataByUri(true, agent, newResourceUri, function (error, res)
-                            {
-                                res.statusCode.should.equal(200);
-                                res.body.descriptors.should.be.instanceof(Array);
-                                artigos.push(JSON.parse(res.text).descriptors[7].value);
-                                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, driverattitude, function (err, res)
-                                {
-                                    res.statusCode.should.equal(200);
-                                    res.body.should.be.instanceof(Object);
-                                    res.body.should.be.instanceof(Array);
-                                    res.body.length.should.equal(1);
-                                    const newResourceUri = res.body[0].uri;
-                                    itemUtils.getItemMetadataByUri(true, agent, newResourceUri, function (error, res)
-                                    {
-                                        res.statusCode.should.equal(200);
-                                        res.body.descriptors.should.be.instanceof(Array);
-                                        artigos.push(JSON.parse(res.text).descriptors[7].value);
-                                        fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, RegenerativeBraking, function (err, res)
-                                        {
-                                            res.statusCode.should.equal(200);
-                                            res.body.should.be.instanceof(Object);
-                                            res.body.should.be.instanceof(Array);
-                                            res.body.length.should.equal(1);
-                                            const newResourceUri = res.body[0].uri;
-                                            itemUtils.getItemMetadataByUri(true, agent, newResourceUri, function (error, res)
-                                            {
-                                                res.statusCode.should.equal(200);
-                                                res.body.descriptors.should.be.instanceof(Array);
-                                                artigos.push(JSON.parse(res.text).descriptors[7].value);
-                                                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, RoutePlanning, function (err, res)
-                                                {
-                                                    res.statusCode.should.equal(200);
-                                                    res.body.should.be.instanceof(Object);
-                                                    res.body.should.be.instanceof(Array);
-                                                    res.body.length.should.equal(1);
-                                                    const newResourceUri = res.body[0].uri;
-                                                    itemUtils.getItemMetadataByUri(true, agent, newResourceUri, function (error, res)
-                                                    {
-                                                        res.statusCode.should.equal(200);
-                                                        res.body.descriptors.should.be.instanceof(Array);
-                                                        artigos.push(JSON.parse(res.text).descriptors[7].value);
-                                                        done();
-                                                    });
-                                                });
-                                            });
-                                        });
-                                    });
-                                });
-                            });
-                        });
-                    });
+                        artigos.push(results[i]);
+                    }
+                    done();
                 });
             });
         });
@@ -256,56 +224,14 @@ describe("Searches DBpedia for important terms", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                keywordsUtils.preprocessing(artigos[0], agent, function (err, res)
+                async.mapSeries(artigos, processfiles, function (err, results)
                 {
-                    res.statusCode.should.equal(200);
-                    // res.text.should.contain("Introduction");
-                    // console.log(artigos[0]);
-                    // console.log(JSON.parse(res.text).text);
-                    preprocessing.push(res.text);
-                    textprocessado.push(JSON.parse(res.text).text);
-                    // console.log(artigos[0]);
-                    keywordsUtils.preprocessing(artigos[1], agent, function (err, res)
+                    for (let i = 0; i < results.length; i++)
                     {
-                        res.statusCode.should.equal(200);
-                        // res.text.should.contain("Introduction");
-                        // console.log(artigos[1]);
-                        // console.log(res.text);
-                        preprocessing.push(res.text);
-                        textprocessado.push(JSON.parse(res.text).text);
-                        // console.log(artigos[1]);
-                        keywordsUtils.preprocessing(artigos[2], agent, function (err, res)
-                        {
-                            res.statusCode.should.equal(200);
-                            // res.text.should.contain("Introduction");
-                            // console.log(artigos[2]);
-                            // console.log(res.text);
-                            preprocessing.push(res.text);
-                            textprocessado.push(JSON.parse(res.text).text);
-                            // console.log(artigos[2]);
-                            keywordsUtils.preprocessing(artigos[3], agent, function (err, res)
-                            {
-                                res.statusCode.should.equal(200);
-                                // res.text.should.contain("Introduction");
-                                // console.log(artigos[3]);
-                                // console.log(res.text);
-                                preprocessing.push(res.text);
-                                textprocessado.push(JSON.parse(res.text).text);
-                                // console.log(artigos[3]);
-                                keywordsUtils.preprocessing(artigos[4], agent, function (err, res)
-                                {
-                                    res.statusCode.should.equal(200);
-                                    // res.text.should.contain("Introduction");
-                                    // console.log(artigos[4]);
-                                    // console.log(res.text);
-                                    preprocessing.push(res.text);
-                                    textprocessado.push(JSON.parse(res.text).text);
-                                    // console.log(artigos[4]);
-                                    done();
-                                });
-                            });
-                        });
-                    });
+                        preprocessing.push(results[i][0]);
+                        textprocessado.push(results[i][1]);
+                    }
+                    done();
                 });
             });
         });
@@ -336,6 +262,21 @@ describe("Searches DBpedia for important terms", function (done)
                 db.statusCode.should.equal(200);
                 dbpediaconcepts = db.body.dbpediauri.result;
                 console.log(dbpediaconcepts);
+                var writer = csvWriter();
+                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/dpbediaconcepts.csv")))
+                {
+                    writer = csvWriter({ separator: ",", headers: [ "searchterm", "score", "uri", "label", "description" ]});
+                }
+                else
+                {
+                    writer = csvWriter({sendHeaders: false});
+                }
+                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/dpbediaconcepts.csv"), {flags: "a"}));
+                for (var i = 0; i < dbpediaconcepts.length; i++)
+                {
+                    writer.write(dbpediaconcepts[i]);
+                }
+                writer.end();
                 done();
             });
         });
@@ -346,10 +287,21 @@ describe("Searches DBpedia for important terms", function (done)
             {
                 // console.log(err);
                 db.statusCode.should.equal(200);
+                var writer = csvWriter();
+                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/dbpediaproperties.csv")))
+                {
+                    writer = csvWriter({ headers: ["property", "frequency"]});
+                }
+                else
+                {
+                    writer = csvWriter({separator: ",", sendHeaders: false});
+                }
+                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/dbpediaproperties.csv"), {flags: "a"}));
                 for (var i = 0; i < db.body.dbpediaproperties.result.length; i++)
                 {
-                    console.log(db.body.dbpediaproperties.result[i]);
+                    writer.write(db.body.dbpediaproperties.result[i]);
                 }
+                writer.end();
                 done();
             });
         });
