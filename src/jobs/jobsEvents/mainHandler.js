@@ -10,25 +10,25 @@ const getJobsFromMongoDbAndScheduleAgain = function (callback) {
     async.waterfall([
         function (callback)
         {
-            //TODO change name of each require to jobtitle_fetchFromMongo or something like that
-            require(Pathfinder.absPathInSrcFolder("/jobs/jobsEvents/importProjectHandler.js")).init(function (err, info) {
+            //TODO get all jobs from mongodb and schedule them again
+            require(Pathfinder.absPathInSrcFolder("/jobs/jobsStartup/fetchFromMongoDB/importProjectJob.js")).init(function (err, info) {
                 callback(err, info);
             });
+
         }
     ], function (err, results)
     {
-        //TODO the agenda only starts at this point because only here all the jobs were fetched from mongodb and scheduled
+        //Agenda only starts at this point because only here all the jobs were fetched from mongodb and scheduled
         Config.agenda.start();
         Logger.log("info", "Agenda is now started!");
         callback(err, results);
     });
 };
 
-if(!isNull(Config.jobTypes) && Config.jobTypes.length) {
+if(!isNull(Config.jobTypes) && Config.jobTypes.length > 0) {
     Config.agenda.on("ready", function() {
         getJobsFromMongoDbAndScheduleAgain(function (err, info) {
             //TODO register all job events handlers here
-            //remove the init from this
             require(Pathfinder.absPathInSrcFolder("/jobs/jobsEvents/importProjectHandler.js"));
         });
     });
