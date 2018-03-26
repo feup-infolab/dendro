@@ -108,7 +108,8 @@ DendroMySQLClient.prototype.checkAndCreateInteractionsTable = function (tablenam
 {
     const self = this;
 
-    self.getConnection(function(err, connection){
+    self.getConnection(function (err, connection)
+    {
         connection.query("SHOW TABLES LIKE '" + tablename + "';", function (err, result, fields)
         {
             if (isNull(err))

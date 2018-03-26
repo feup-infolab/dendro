@@ -57,31 +57,18 @@ class StorageB2Drop extends Storage
 
         if (!isNull(self.connection))
         {
-            self.connection.login(function (err, response)
+            self.connection.createFolder(self.prefix, function (err, result)
             {
                 if (isNull(err))
                 {
-                    self.connection.createFolder(self.prefix, function (err, result)
-                    {
-                        if (isNull(err))
-                        {
-                            callback(err, self);
-                        }
-                        else
-                        {
-                            Logger.log("error", "Unable to create root folder in B2Drop!");
-                            Logger.log("error", err);
-                            Logger.log("error", result);
-                            return callback(err, response);
-                        }
-                    });
+                    callback(err, self);
                 }
                 else
                 {
-                    Logger.log("error", "Error opening connection to b2drop storage!");
+                    Logger.log("error", "Unable to create root folder in B2Drop!");
                     Logger.log("error", err);
-                    Logger.log("error", response);
-                    callback(err, self);
+                    Logger.log("error", result);
+                    return callback(err, result);
                 }
             });
         }
