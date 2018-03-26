@@ -12,9 +12,15 @@ const getJobsFromMongoDbAndScheduleAgain = function (callback) {
         {
             //TODO get all jobs from mongodb and schedule them again
             require(Pathfinder.absPathInSrcFolder("/jobs/jobsStartup/fetchFromMongoDB/importProjectJob.js")).init(function (err, info) {
-                callback(err, info);
+                callback(err);
             });
 
+        },
+        function (callback)
+        {
+            require(Pathfinder.absPathInSrcFolder("/jobs/jobsStartup/fetchFromMongoDB/testJob.js")).init(function (err, info) {
+                callback(err);
+            });
         }
     ], function (err, results)
     {
@@ -30,6 +36,7 @@ if(!isNull(Config.jobTypes) && Config.jobTypes.length > 0) {
         getJobsFromMongoDbAndScheduleAgain(function (err, info) {
             //TODO register all job events handlers here
             require(Pathfinder.absPathInSrcFolder("/jobs/jobsEvents/importProjectHandler.js"));
+            require(Pathfinder.absPathInSrcFolder("/jobs/jobsEvents/testJobHandler.js"));
         });
     });
 }

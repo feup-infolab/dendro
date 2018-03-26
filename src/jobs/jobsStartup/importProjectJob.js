@@ -80,23 +80,6 @@ module.exports = function (agenda) {
                     userAndSessionInfo,
                     function (err, valid, absPathOfDataRootFolder, absPathOfUnzippedBagIt)
                     {
-                        /*
-                        const parentPath = path.resolve(uploadedBackupAbsPath, "..");
-                        if(!isNull(parentPath))
-                        {
-                            File.deleteOnLocalFileSystem(parentPath, function (err, result)
-                            {
-                                if (!isNull(err))
-                                {
-                                    Logger.log("error", "Error occurred while deleting backup zip file at " + parentPath + " : " + JSON.stringify(result));
-                                }
-                            });
-                        }
-                        else
-                        {
-                            Logger.log("error", "Could not calculate parent path of: " + uploadedBackupAbsPath);
-                        }*/
-
                         if (isNull(err))
                         {
                             if (valid)
@@ -118,7 +101,6 @@ module.exports = function (agenda) {
                                                 {
                                                     if (isNull(err))
                                                     {
-                                                        //newProject.restoreFromFolder(absPathOfDataRootFolder, req.user, true, true, function (err, result)
                                                         createdProject.restoreFromFolder(absPathOfDataRootFolder, userAndSessionInfo.user, true, true, function (err, result)
                                                         {
                                                             File.deleteOnLocalFileSystem(absPathOfUnzippedBagIt, function (err, result)
@@ -275,33 +257,12 @@ module.exports = function (agenda) {
                 Logger.log("info", "Project with uri: " + newProject.uri + " was successfully restored");
                 Logger.log("info", "Will remove job");
                 done();
-                /*job.remove(function(err) {
-                    if(isNull(err))
-                    {
-                        Logger.log("info", 'Successfully removed job from collection');
-                    }
-                    else
-                    {
-                        Logger.log("error", 'Could not remove job from collection');
-                    }
-                    done();
-                });*/
             }
             else
             {
                 Logger.log("error", "Error restoring a project with uri: " + newProject.uri + ", error: " + JSON.stringify(info));
                 if(!isNull(newProject))
                 {
-                    /*delete newProject.ddr.is_being_imported;
-                    newProject.ddr.hasErrors = "There was an error during a project restore, error message : " + JSON.stringify(info);
-                    newProject.save(function (err, result)
-                    {
-                        if (!isNull(err))
-                        {
-                            Logger.log("error", "Error when saving a project error message from a restore operation, error: " + JSON.stringify(result));
-                        }
-                        done(JSON.stringify(info))
-                    });*/
                     Project.findByUri(newProject.uri, function (err, createdProject) {
                         if(isNull(err))
                         {

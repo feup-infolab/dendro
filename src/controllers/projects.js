@@ -1866,6 +1866,224 @@ exports.requestAccess = function (req, res)
     }
 };
 
+
+module.exports.processImport = function (createdProject, uploadedBackupAbsPath, callback)
+{
+    const getMetadata = function (absPathOfBagItBackupRootFolder, callback)
+    {
+        const bagItMetadataFileAbsPath = path.join(absPathOfBagItBackupRootFolder, "bag-info.txt");
+        const projectDescriptors = [];
+
+        const lineReader = require("readline").createInterface({
+            input: require("fs").createReadStream(bagItMetadataFileAbsPath)
+        });
+
+        const getDescriptor = function (line)
+        {
+            const fieldMatcher = {
+                "Source-Organization": "dcterms:publisher",
+                "Organization-Address": "schema:address",
+                "Contact-Name": "schema:provider",
+                "Contact-Phone": "schema:telephone",
+                "External-Description": "dcterms:description",
+                "Contact-Email": "schema:email"
+            };
+
+            const separator = line.indexOf(":");
+
+            if (separator)
+            {
+                const bagitField = line.substring(0, separator);
+                const bagitValue = line.substring(separator + 2); // 2 extra char after index of : must be rejected, which is the space.
+                const descriptor = fieldMatcher[bagitField];
+
+                if (descriptor)
+                {
+                    return new Descriptor({
+                        prefixedForm: descriptor,
+                        value: bagitValue
+                    });
+                }
+                return null;
+            }
+            return null;
+        };
+
+        lineReader.on("line", function (line)
+        {
+            if (!isNull(line))
+            {
+                const descriptor = getDescriptor(line);
+                if (descriptor)
+                {
+                    projectDescriptors.push(descriptor);
+                }
+            }
+        });
+
+        lineReader.on("close", function (line)
+        {
+            callback(projectDescriptors);
+        });
+    };
+
+    if (path.extname(uploadedBackupAbsPath) === ".zip")
+    {
+        Project.unzipAndValidateBagItBackupStructure(
+            uploadedBackupAbsPath,
+            Config.maxProjectSize,
+            req,
+            function (err, valid, absPathOfDataRootFolder, absPathOfUnzippedBagIt)
+            {
+                const parentPath = path.resolve(uploadedBackupAbsPath, "..");
+                if (!isNull(parentPath))
+                {
+                    File.deleteOnLocalFileSystem(parentPath, function (err, result)
+                    {
+                        if (!isNull(err))
+                        {
+                            Logger.log("error", "Error occurred while deleting backup zip file at " + parentPath + " : " + JSON.stringify(result));
+                        }
+                    });
+                }
+                else
+                {
+                    Logger.log("error", "Could not calculate parent path of: " + uploadedBackupAbsPath);
+                }
+
+                if (isNull(err))
+                {
+                    if (valid)
+                    {
+                        getMetadata(absPathOfUnzippedBagIt, function (descriptors)
+                        {
+                            // by default the project is private on import
+                            newProject.updateDescriptors(descriptors);
+
+                            // all imported projects will use default storage by default.
+                            // later we will add parameters for storage in the import screen
+                            // and projects can be imported directly to any kind of storage
+                            Project.createAndInsertFromObject(newProject, function (err, newProject)
+                            {
+                                if (isNull(err))
+                                {
+                                    newProject.restoreFromFolder(absPathOfDataRootFolder, req.user, true, true, function (err, result)
+                                    {
+                                        File.deleteOnLocalFileSystem(absPathOfUnzippedBagIt, function (err, result)
+                                        {
+                                            if (!isNull(err))
+                                            {
+                                                Logger.log("error", "Error occurred while deleting absPathOfUnzippedBagIt at " + absPathOfUnzippedBagIt + " : " + JSON.stringify(result));
+                                            }
+                                        });
+
+                                        if (isNull(err))
+                                        {
+                                            delete newProject.ddr.is_being_imported;
+                                            newProject.save(function (err, result)
+                                            {
+                                                if (isNull(err))
+                                                {
+                                                    callback(null,
+                                                        {
+                                                            result: "ok",
+                                                            message: "Project imported successfully.",
+                                                            new_project: newProject.uri
+                                                        }
+                                                    );
+                                                }
+                                                else
+                                                {
+                                                    callback(500,
+                                                        {
+                                                            result: "error",
+                                                            message: "Error marking project restore as complete.",
+                                                            error: result
+                                                        }
+                                                    );
+                                                }
+                                            });
+                                        }
+                                        else
+                                        {
+                                            callback(500,
+                                                {
+                                                    result: "error",
+                                                    message: "Error restoring project contents from unzipped backup folder",
+                                                    error: result
+                                                }
+                                            );
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    File.deleteOnLocalFileSystem(absPathOfUnzippedBagIt, function (err, result)
+                                    {
+                                        if (!isNull(err))
+                                        {
+                                            Logger.log("error", "Error occurred while deleting absPathOfUnzippedBagIt at " + absPathOfUnzippedBagIt + " : " + JSON.stringify(result));
+                                        }
+                                    });
+
+                                    callback(500,
+                                        {
+                                            result: "error",
+                                            message: "Error creating new project record before import operation could start",
+                                            error: result
+                                        }
+                                    );
+                                }
+                            });
+                        });
+                    }
+                    else
+                    {
+                        File.deleteOnLocalFileSystem(absPathOfUnzippedBagIt, function (err, result)
+                        {
+                            if (!isNull(err))
+                            {
+                                Logger.log("error", "Error occurred while deleting absPathOfUnzippedBagIt at " + absPathOfUnzippedBagIt + " : " + JSON.stringify(result));
+                            }
+                        });
+                        callback(400,
+                            {
+                                result: "error",
+                                message: "Invalid project structure. Is this a BagIt-format Zip file?",
+                                error: result
+                            }
+                        );
+                    }
+                }
+                else
+                {
+                    File.deleteOnLocalFileSystem(absPathOfUnzippedBagIt, function (err, result)
+                    {
+                        if (!isNull(err))
+                        {
+                            Logger.log("error", "Error occurred while deleting absPathOfUnzippedBagIt at " + absPathOfUnzippedBagIt + " : " + JSON.stringify(result));
+                        }
+                    });
+
+                    const msg = "Error restoring zip file to folder : " + valid;
+                    Logger.log("error", msg);
+
+                    callback(500, {
+                        result: "error",
+                        message: msg
+                    });
+                }
+            });
+    }
+    else
+    {
+        callback(400, {
+            result: "error",
+            message: "Backup file is not a .zip file"
+        });
+    }
+};
+
 exports.import = function (req, res)
 {
     let acceptsHTML = req.accepts("html");
@@ -2287,6 +2505,7 @@ exports.import = function (req, res)
                         newProject: createdProject
                     };
                     Config.agenda.now("import project", jobData);
+                    Config.agenda.now("test job");
                     callback(null, null);
                 };
 
