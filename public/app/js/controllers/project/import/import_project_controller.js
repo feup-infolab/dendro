@@ -57,7 +57,7 @@ angular.module("dendroApp.controllers")
                 {
                     file.imported_project_handle = imported_project_handle;
                     file.imported_project_title = imported_project_title;
-                    file.isAsync = true;
+                    file.runAsJob = true;
 
                     projectsService.get_project_info_by_handle(file.imported_project_handle)
                         .then(function (response)

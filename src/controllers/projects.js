@@ -1867,7 +1867,7 @@ exports.requestAccess = function (req, res)
 };
 
 
-module.exports.processImport = function (createdProject, uploadedBackupAbsPath, callback)
+exports.processImport = function (newProjectUri, uploadedBackupAbsPath, userAndSessionInfo, callback, runningAsJob)
 {
     const getMetadata = function (absPathOfBagItBackupRootFolder, callback)
     {
@@ -1932,25 +1932,9 @@ module.exports.processImport = function (createdProject, uploadedBackupAbsPath, 
         Project.unzipAndValidateBagItBackupStructure(
             uploadedBackupAbsPath,
             Config.maxProjectSize,
-            req,
+            userAndSessionInfo,
             function (err, valid, absPathOfDataRootFolder, absPathOfUnzippedBagIt)
             {
-                const parentPath = path.resolve(uploadedBackupAbsPath, "..");
-                if (!isNull(parentPath))
-                {
-                    File.deleteOnLocalFileSystem(parentPath, function (err, result)
-                    {
-                        if (!isNull(err))
-                        {
-                            Logger.log("error", "Error occurred while deleting backup zip file at " + parentPath + " : " + JSON.stringify(result));
-                        }
-                    });
-                }
-                else
-                {
-                    Logger.log("error", "Could not calculate parent path of: " + uploadedBackupAbsPath);
-                }
-
                 if (isNull(err))
                 {
                     if (valid)
@@ -1958,81 +1942,165 @@ module.exports.processImport = function (createdProject, uploadedBackupAbsPath, 
                         getMetadata(absPathOfUnzippedBagIt, function (descriptors)
                         {
                             // by default the project is private on import
-                            newProject.updateDescriptors(descriptors);
-
-                            // all imported projects will use default storage by default.
-                            // later we will add parameters for storage in the import screen
-                            // and projects can be imported directly to any kind of storage
-                            Project.createAndInsertFromObject(newProject, function (err, newProject)
-                            {
-                                if (isNull(err))
+                            Project.findByUri(newProjectUri, function (err, createdProject) {
+                                if(isNull(err))
                                 {
-                                    newProject.restoreFromFolder(absPathOfDataRootFolder, req.user, true, true, function (err, result)
+                                    if(!isNull(createdProject))
                                     {
-                                        File.deleteOnLocalFileSystem(absPathOfUnzippedBagIt, function (err, result)
+                                        createdProject.updateDescriptors(descriptors);
+
+                                        // all imported projects will use default storage by default.
+                                        // later we will add parameters for storage in the import screen
+                                        // and projects can be imported directly to any kind of storage
+                                        Project.createAndInsertFromObject(createdProject, function (err, createdProject)
                                         {
-                                            if (!isNull(err))
+                                            if (isNull(err))
                                             {
-                                                Logger.log("error", "Error occurred while deleting absPathOfUnzippedBagIt at " + absPathOfUnzippedBagIt + " : " + JSON.stringify(result));
+                                                createdProject.restoreFromFolder(absPathOfDataRootFolder, userAndSessionInfo.user, true, true, function (err, result)
+                                                {
+                                                    File.deleteOnLocalFileSystem(absPathOfUnzippedBagIt, function (err, result)
+                                                    {
+                                                        if (!isNull(err))
+                                                        {
+                                                            Logger.log("error", "Error occurred while deleting absPathOfUnzippedBagIt at " + absPathOfUnzippedBagIt + " : " + JSON.stringify(result));
+                                                        }
+                                                    });
+
+                                                    if (isNull(err))
+                                                    {
+                                                        delete createdProject.ddr.is_being_imported;
+                                                        createdProject.save(function (err, result)
+                                                        {
+                                                            if (isNull(err))
+                                                            {
+                                                                callback(null,
+                                                                    {
+                                                                        result: "ok",
+                                                                        message: "Project imported successfully.",
+                                                                        new_project: createdProject.uri
+                                                                    }
+                                                                );
+                                                            }
+                                                            else
+                                                            {
+                                                                callback(500,
+                                                                    {
+                                                                        result: "error",
+                                                                        message: "Error marking project restore as complete.",
+                                                                        error: result
+                                                                    }
+                                                                );
+                                                            }
+                                                        });
+                                                    }
+                                                    else
+                                                    {
+                                                        callback(500,
+                                                            {
+                                                                result: "error",
+                                                                message: "Error restoring project contents from unzipped backup folder",
+                                                                error: result
+                                                            }
+                                                        );
+                                                    }
+                                                });
+                                            }
+                                            else
+                                            {
+                                                File.deleteOnLocalFileSystem(absPathOfUnzippedBagIt, function (err, result)
+                                                {
+                                                    if (!isNull(err))
+                                                    {
+                                                        Logger.log("error", "Error occurred while deleting absPathOfUnzippedBagIt at " + absPathOfUnzippedBagIt + " : " + JSON.stringify(result));
+                                                    }
+                                                });
+
+                                                callback(500,
+                                                    {
+                                                        result: "error",
+                                                        message: "Error creating new project record before import operation could start",
+                                                        error: createdProject
+                                                    }
+                                                );
                                             }
                                         });
-
-                                        if (isNull(err))
+                                    }
+                                    else
+                                    {
+                                        if(!isNull(runningAsJob) && runningAsJob === true)
                                         {
-                                            delete newProject.ddr.is_being_imported;
-                                            newProject.save(function (err, result)
-                                            {
-                                                if (isNull(err))
+                                            let errorMsg = "Error at importProjectJob, project with uri: " + newProjectUri +  " does not exist";
+                                            Logger.log("error", errorMsg);
+                                            Logger.log("error", "Will remove job");
+                                            job.remove(function(err) {
+                                                if(isNull(err))
                                                 {
-                                                    callback(null,
-                                                        {
-                                                            result: "ok",
-                                                            message: "Project imported successfully.",
-                                                            new_project: newProject.uri
-                                                        }
-                                                    );
+                                                    Logger.log("info", 'Successfully removed job from collection');
                                                 }
                                                 else
                                                 {
-                                                    callback(500,
-                                                        {
-                                                            result: "error",
-                                                            message: "Error marking project restore as complete.",
-                                                            error: result
-                                                        }
-                                                    );
+                                                    Logger.log("error", 'Could not remove job from collection');
                                                 }
-                                            });
+                                                callback(500,
+                                                    {
+                                                        result: "error",
+                                                        message: errorMsg,
+                                                        error: errorMsg
+                                                    }
+                                                );
+                                            })
                                         }
                                         else
                                         {
-                                            callback(500,
+                                            let errorMsg = "Error at importProject, project with uri: " + newProjectUri +  " does not exist";
+                                            Logger.log("error", errorMsg);
+                                            callback(404,
                                                 {
                                                     result: "error",
-                                                    message: "Error restoring project contents from unzipped backup folder",
-                                                    error: result
+                                                    message: errorMsg,
+                                                    error: errorMsg
                                                 }
                                             );
                                         }
-                                    });
+                                    }
                                 }
                                 else
                                 {
-                                    File.deleteOnLocalFileSystem(absPathOfUnzippedBagIt, function (err, result)
+                                    if(!isNull(runningAsJob) && runningAsJob === true)
                                     {
-                                        if (!isNull(err))
-                                        {
-                                            Logger.log("error", "Error occurred while deleting absPathOfUnzippedBagIt at " + absPathOfUnzippedBagIt + " : " + JSON.stringify(result));
-                                        }
-                                    });
-
-                                    callback(500,
-                                        {
-                                            result: "error",
-                                            message: "Error creating new project record before import operation could start",
-                                            error: result
-                                        }
-                                    );
+                                        let errorMsg = "Error at importProjectJob, error: " + JSON.stringify(createdProject);
+                                        Logger.log("error", errorMsg);
+                                        Logger.log("error", "Will remove job");
+                                        job.remove(function(err) {
+                                            if(isNull(err))
+                                            {
+                                                Logger.log("info", 'Successfully removed job from collection');
+                                            }
+                                            else
+                                            {
+                                                Logger.log("error", 'Could not remove job from collection');
+                                            }
+                                            callback(500,
+                                                {
+                                                    result: "error",
+                                                    message: errorMsg,
+                                                    error: errorMsg
+                                                }
+                                            );
+                                        });
+                                    }
+                                    else
+                                    {
+                                        let errorMsg = "Error at importProject, error: " + JSON.stringify(createdProject);
+                                        Logger.log("error", errorMsg);
+                                        callback(500,
+                                            {
+                                                result: "error",
+                                                message: errorMsg,
+                                                error: errorMsg
+                                            }
+                                        );
+                                    }
                                 }
                             });
                         });
@@ -2050,7 +2118,7 @@ module.exports.processImport = function (createdProject, uploadedBackupAbsPath, 
                             {
                                 result: "error",
                                 message: "Invalid project structure. Is this a BagIt-format Zip file?",
-                                error: result
+                                error: valid
                             }
                         );
                     }
@@ -2088,7 +2156,7 @@ exports.import = function (req, res)
 {
     let acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
-    const isAsync = req.query.isAsync;
+    const runAsJob = req.query.runAsJob === "true" || req.query.runAsJob === true;
     let newProject;
 
     if (req.originalMethod === "GET" && JSON.stringify(req.query) === JSON.stringify({}))
@@ -2143,7 +2211,7 @@ exports.import = function (req, res)
                 }
                 const uploadedBackupAbsPath = result[0].path;
 
-                const checkIfRequestIsAsync = function (callback)
+                const addStorageConfigurationToProject = function (callback)
                 {
                     // by default the project is private on import
                     newProject = new Project({
@@ -2175,7 +2243,7 @@ exports.import = function (req, res)
                             newProject.ddr.hasStorageConfig = newStorageConf.uri;
                             newProject.save(function (err, nProject)
                             {
-                                if (isNull(isAsync) || isAsync === false)
+                                if (isNull(runAsJob) || runAsJob === false)
                                 {
                                     if (isNull(err))
                                     {
@@ -2223,7 +2291,7 @@ exports.import = function (req, res)
                         }
                         else
                         {
-                            if (isNull(isAsync) || isAsync === false)
+                            if (isNull(runAsJob) || runAsJob === false)
                             {
                                 callback(500,
                                     {
@@ -2274,227 +2342,7 @@ exports.import = function (req, res)
                     });
                 };
 
-                /*
-                const processImport = function (createdProject, callback)
-                {
-                    const getMetadata = function (absPathOfBagItBackupRootFolder, callback)
-                    {
-                        const bagItMetadataFileAbsPath = path.join(absPathOfBagItBackupRootFolder, "bag-info.txt");
-                        const projectDescriptors = [];
-
-                        const lineReader = require("readline").createInterface({
-                            input: require("fs").createReadStream(bagItMetadataFileAbsPath)
-                        });
-
-                        const getDescriptor = function (line)
-                        {
-                            const fieldMatcher = {
-                                "Source-Organization": "dcterms:publisher",
-                                "Organization-Address": "schema:address",
-                                "Contact-Name": "schema:provider",
-                                "Contact-Phone": "schema:telephone",
-                                "External-Description": "dcterms:description",
-                                "Contact-Email": "schema:email"
-                            };
-
-                            const separator = line.indexOf(":");
-
-                            if (separator)
-                            {
-                                const bagitField = line.substring(0, separator);
-                                const bagitValue = line.substring(separator + 2); // 2 extra char after index of : must be rejected, which is the space.
-                                const descriptor = fieldMatcher[bagitField];
-
-                                if (descriptor)
-                                {
-                                    return new Descriptor({
-                                        prefixedForm: descriptor,
-                                        value: bagitValue
-                                    });
-                                }
-                                return null;
-                            }
-                            return null;
-                        };
-
-                        lineReader.on("line", function (line)
-                        {
-                            if (!isNull(line))
-                            {
-                                const descriptor = getDescriptor(line);
-                                if (descriptor)
-                                {
-                                    projectDescriptors.push(descriptor);
-                                }
-                            }
-                        });
-
-                        lineReader.on("close", function (line)
-                        {
-                            callback(projectDescriptors);
-                        });
-                    };
-
-                    if (path.extname(uploadedBackupAbsPath) === ".zip")
-                    {
-                        Project.unzipAndValidateBagItBackupStructure(
-                            uploadedBackupAbsPath,
-                            Config.maxProjectSize,
-                            req,
-                            function (err, valid, absPathOfDataRootFolder, absPathOfUnzippedBagIt)
-                            {
-                                const parentPath = path.resolve(uploadedBackupAbsPath, "..");
-                                if (!isNull(parentPath))
-                                {
-                                    File.deleteOnLocalFileSystem(parentPath, function (err, result)
-                                    {
-                                        if (!isNull(err))
-                                        {
-                                            Logger.log("error", "Error occurred while deleting backup zip file at " + parentPath + " : " + JSON.stringify(result));
-                                        }
-                                    });
-                                }
-                                else
-                                {
-                                    Logger.log("error", "Could not calculate parent path of: " + uploadedBackupAbsPath);
-                                }
-
-                                if (isNull(err))
-                                {
-                                    if (valid)
-                                    {
-                                        getMetadata(absPathOfUnzippedBagIt, function (descriptors)
-                                        {
-                                            // by default the project is private on import
-                                            newProject.updateDescriptors(descriptors);
-
-                                            // all imported projects will use default storage by default.
-                                            // later we will add parameters for storage in the import screen
-                                            // and projects can be imported directly to any kind of storage
-                                            Project.createAndInsertFromObject(newProject, function (err, newProject)
-                                            {
-                                                if (isNull(err))
-                                                {
-                                                    newProject.restoreFromFolder(absPathOfDataRootFolder, req.user, true, true, function (err, result)
-                                                    {
-                                                        File.deleteOnLocalFileSystem(absPathOfUnzippedBagIt, function (err, result)
-                                                        {
-                                                            if (!isNull(err))
-                                                            {
-                                                                Logger.log("error", "Error occurred while deleting absPathOfUnzippedBagIt at " + absPathOfUnzippedBagIt + " : " + JSON.stringify(result));
-                                                            }
-                                                        });
-
-                                                        if (isNull(err))
-                                                        {
-                                                            delete newProject.ddr.is_being_imported;
-                                                            newProject.save(function (err, result)
-                                                            {
-                                                                if (isNull(err))
-                                                                {
-                                                                    callback(null,
-                                                                        {
-                                                                            result: "ok",
-                                                                            message: "Project imported successfully.",
-                                                                            new_project: newProject.uri
-                                                                        }
-                                                                    );
-                                                                }
-                                                                else
-                                                                {
-                                                                    callback(500,
-                                                                        {
-                                                                            result: "error",
-                                                                            message: "Error marking project restore as complete.",
-                                                                            error: result
-                                                                        }
-                                                                    );
-                                                                }
-                                                            });
-                                                        }
-                                                        else
-                                                        {
-                                                            callback(500,
-                                                                {
-                                                                    result: "error",
-                                                                    message: "Error restoring project contents from unzipped backup folder",
-                                                                    error: result
-                                                                }
-                                                            );
-                                                        }
-                                                    });
-                                                }
-                                                else
-                                                {
-                                                    File.deleteOnLocalFileSystem(absPathOfUnzippedBagIt, function (err, result)
-                                                    {
-                                                        if (!isNull(err))
-                                                        {
-                                                            Logger.log("error", "Error occurred while deleting absPathOfUnzippedBagIt at " + absPathOfUnzippedBagIt + " : " + JSON.stringify(result));
-                                                        }
-                                                    });
-
-                                                    callback(500,
-                                                        {
-                                                            result: "error",
-                                                            message: "Error creating new project record before import operation could start",
-                                                            error: result
-                                                        }
-                                                    );
-                                                }
-                                            });
-                                        });
-                                    }
-                                    else
-                                    {
-                                        File.deleteOnLocalFileSystem(absPathOfUnzippedBagIt, function (err, result)
-                                        {
-                                            if (!isNull(err))
-                                            {
-                                                Logger.log("error", "Error occurred while deleting absPathOfUnzippedBagIt at " + absPathOfUnzippedBagIt + " : " + JSON.stringify(result));
-                                            }
-                                        });
-                                        callback(400,
-                                            {
-                                                result: "error",
-                                                message: "Invalid project structure. Is this a BagIt-format Zip file?",
-                                                error: result
-                                            }
-                                        );
-                                    }
-                                }
-                                else
-                                {
-                                    File.deleteOnLocalFileSystem(absPathOfUnzippedBagIt, function (err, result)
-                                    {
-                                        if (!isNull(err))
-                                        {
-                                            Logger.log("error", "Error occurred while deleting absPathOfUnzippedBagIt at " + absPathOfUnzippedBagIt + " : " + JSON.stringify(result));
-                                        }
-                                    });
-
-                                    const msg = "Error restoring zip file to folder : " + valid;
-                                    Logger.log("error", msg);
-
-                                    callback(500, {
-                                        result: "error",
-                                        message: msg
-                                    });
-                                }
-                            });
-                    }
-                    else
-                    {
-                        callback(400, {
-                            result: "error",
-                            message: "Backup file is not a .zip file"
-                        });
-                    }
-                };*/
-
-                const launchImportJob = function (createdProject, callback) {
-                    //const agenda = require(Pathfinder.absPathInSrcFolder("/jobs/worker.js"));
-                    //const agenda = require(Pathfinder.absPathInSrcFolder("/jobs/lib/agenda.js"));
+                const executeImport = function (createdProject, callback) {
                     let userAndSessionInfo = {
                       user: req.user,
                       session: req.session
@@ -2504,19 +2352,83 @@ exports.import = function (req, res)
                         userAndSessionInfo: userAndSessionInfo,
                         newProject: createdProject
                     };
-                    Config.agenda.now("import project", jobData);
-                    Config.agenda.now("test job");
-                    callback(null, null);
+                    if(!isNull(runAsJob) && runAsJob === true)
+                    {
+                        Config.agenda.now("import project", jobData);
+                        Config.agenda.now("test job");
+                        callback(null, null);
+                    }
+                    else
+                    {
+                        exports.processImport(newProject.uri, uploadedBackupAbsPath, userAndSessionInfo, function (err, info){
+                            if (isNull(err))
+                            {
+                                Logger.log("info", "Project with uri: " + newProject.uri + " was successfully restored");
+                                callback(null);
+                            }
+                            else
+                            {
+                                Logger.log("error", "Error restoring a project with uri: " + newProject.uri + ", error: " + JSON.stringify(info));
+                                if(!isNull(newProject))
+                                {
+                                    Project.findByUri(newProject.uri, function (err, createdProject) {
+                                        if(isNull(err))
+                                        {
+                                            if(!isNull(createdProject))
+                                            {
+                                                delete createdProject.ddr.is_being_imported;
+                                                createdProject.ddr.hasErrors = "There was an error during a project restore, error message : " + JSON.stringify(info);
+                                                createdProject.save(function (err, result)
+                                                {
+                                                    if (!isNull(err))
+                                                    {
+                                                        Logger.log("error", "Error when saving a project error message from a restore operation, error: " + JSON.stringify(result));
+                                                    }
+                                                    callback(500, {
+                                                        result: "error",
+                                                        message: JSON.stringify(info)
+                                                    });
+                                                });
+                                            }
+                                            else
+                                            {
+                                                let errorMsg = "Error at importProject, project with uri: " + newProject.uri +  " does not exist";
+                                                Logger.log("error", errorMsg);
+                                                callback(500, {
+                                                    result: "error",
+                                                    message: JSON.stringify(info)
+                                                });
+                                            }
+                                        }
+                                        else
+                                        {
+                                            Logger.log("error", "Error at importProject, error: " + JSON.stringify(createdProject));
+                                            callback(500, {
+                                                result: "error",
+                                                message: JSON.stringify(info)
+                                            });
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    callback(500, {
+                                        result: "error",
+                                        message: JSON.stringify(info)
+                                    });
+                                }
+                            }
+                        }, false);
+                    }
                 };
 
                 async.waterfall([
                     projectHandleCannotExist,
-                    checkIfRequestIsAsync,
-                    launchImportJob
-                    //processImport
+                    addStorageConfigurationToProject,
+                    executeImport
                 ], function (err, results)
                 {
-                    if (isNull(isAsync) || isAsync === false)
+                    if (isNull(runAsJob) || runAsJob === false)
                     {
                         if (isNull(err))
                         {
@@ -2538,40 +2450,6 @@ exports.import = function (req, res)
                             Logger.log("error", "Error starting import job for a project with handle: " + req.query.imported_project_handle + ", error: " + JSON.stringify(results));
                         }
                     }
-
-                    /*if(isNull(isAsync) || isAsync === false)
-                    {
-                        if (isNull(err))
-                        {
-                            res.json(results);
-                        }
-                        else
-                        {
-                            res.status(err).json(results);
-                        }
-                    }
-                    else
-                    {
-                        if (isNull(err))
-                        {
-                            Logger.log("info", "Project with handle: " + req.query.imported_project_handle + " was successfully restored");
-                            return;
-                        }
-
-                        Logger.log("error", "Error restoring a project with handle: " + req.query.imported_project_handle + ", error: " + JSON.stringify(results));
-                        if (!isNull(newProject))
-                        {
-                            delete newProject.ddr.is_being_imported;
-                            newProject.ddr.hasErrors = "There was an error during a project restore, error message : " + JSON.stringify(results);
-                            newProject.save(function (err, result)
-                            {
-                                if (!isNull(err))
-                                {
-                                    Logger.log("error", "Error when saving a project error message from a restore operation, error: " + JSON.stringify(result));
-                                }
-                            });
-                        }
-                    }*/
                 });
             }
             else

@@ -163,7 +163,6 @@ describe("Import projects", function (done)
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 should.equal(err, null);
-
                 async.mapSeries(projectsData, function (projectData, callback)
                 {
                     projectUtils.importProject(true, agent, projectData, function (err, res)
