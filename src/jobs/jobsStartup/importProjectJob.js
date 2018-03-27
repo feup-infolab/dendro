@@ -8,6 +8,9 @@ const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descripto
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
+//TODO Class ImportProjectJob
+//TODO Job.js(class) na raiz pasta jobs
+    //TODO methods start, finish
 module.exports = function (agenda) {
     agenda.define("import project", function (job, done) {
         let uploadedBackupAbsPath = job.attrs.data.uploadedBackupAbsPath;
