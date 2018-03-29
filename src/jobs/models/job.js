@@ -30,8 +30,6 @@ class Job
             Config.jobTypes = process.env.JOB_TYPES ? process.env.JOB_TYPES.split(',') : [];
             Job._agenda = agenda;
             Config.jobTypes.forEach(function(type) {
-                //TODO change this para um for para tudo o que está dentro DA PASTA
-                //require(Pathfinder.absPathInSrcFolder("/jobs/jobsStartup/" + type))(agenda);
                 let JobType = require(Pathfinder.absPathInSrcFolder("/jobs/models/" + type))[type];
                 JobType.callDefine();
                 JobType.registerJobEvents();
@@ -66,14 +64,6 @@ class Job
 
     constructor (name, jobData)
     {
-        /*
-        let self = this;
-        self.jobData = jobData;
-        if(isNull(Job._types[this.name]))
-        {
-            Job._types[this.name] = self;
-        }
-        */
         let self = this;
         self.jobData = jobData;
         self.name = name;
