@@ -160,7 +160,7 @@ Deposit.createQuery = function(params, callback){
     if(params.offset){
         variables.push({
             type: Elements.types.string,
-            value: params.offset * params.limit
+            value: (params.offset * params.limit).toString()
         });
     } else{
         variables.push({
@@ -257,10 +257,8 @@ Deposit.validatePlatformUri = function(deposit, callback){
     switch(platform){
       case "EUDAT B2Share":
         return https + url + "/api/records/";
-        break;
       case "CKAN":
         return https + url + "/dataset/";
-        break;
       case "Figshare":
         break;
       case "Zenodo":

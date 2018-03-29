@@ -3,8 +3,16 @@
 
         <section class="content">
             <h3>Latest deposits</h3>
+            <!--TODO show warning if no deposit is available-->
 
-            <div class="row">
+            <div ng-if="totalDeposits === 0" class="jumbotron jumbotron-fluid">
+                <div class="container">
+                    <h1 class="display-3">No deposits listed! </h1>
+                    <p class="lead">There are no registries you have access to.</p>
+                </div>
+            </div>
+
+            <div ng-if="totalDeposits !== 0" class="row">
                 <div class="col-md-4">
                     <% include deposits_sidebar.ejs%>
                 </div>

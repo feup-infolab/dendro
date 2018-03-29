@@ -22,7 +22,7 @@ angular.module("dendroApp.factories")
               callback(response.data, change);
             }
           }).catch(function (error) {
-            if (error.message != null)
+            if (error != null)
             {
               $scope.show_popup("error", "Error", error.message);
             }
