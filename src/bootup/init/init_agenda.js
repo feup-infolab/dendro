@@ -3,7 +3,7 @@ const Pathfinder = global.Pathfinder;
 const path = require("path");
 const Config = require(Pathfinder.absPathInSrcFolder(path.join("models", "meta", "config.js"))).Config;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Job = require(Pathfinder.absPathInSrcFolder("/jobs/models/job.js")).Job;
+const Job = require(Pathfinder.absPathInSrcFolder("/jobs/models/Job.js")).Job;
 
 const init = function (app, callback) {
     /*

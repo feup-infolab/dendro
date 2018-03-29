@@ -7,7 +7,7 @@ const Pathfinder = global.Pathfinder;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
-const Job = require(Pathfinder.absPathInSrcFolder("/jobs/models/job.js")).Job;
+const Job = require(Pathfinder.absPathInSrcFolder("/jobs/models/Job.js")).Job;
 const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
