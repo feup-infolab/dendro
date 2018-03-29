@@ -1360,7 +1360,7 @@ Elements.ontologies.ddr = {
   },
     exportedToRepository:
   {
-      type: Elements.types.resource,
+      type: Elements.types.string,
       api_readable: true,
       control: Controls.url_box
   },
