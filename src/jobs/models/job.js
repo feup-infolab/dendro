@@ -1,38 +1,90 @@
 const Pathfinder = global.Pathfinder;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const MongoClient = require("mongodb").MongoClient;
+const Agenda = require("agenda");
 
 class Job
 {
-    static _types = {};
-    static _agenda;
-    static _jobsStorageClient;
-
-    static initDependencies ()
+    static initDependencies (callback)
     {
-        //TODO init _agenda and _jobsStorageClient
+        const initMongoClient = function (callback) {
+            Logger.log_boot_message("Connecting to MongoDB Jobs storage running on " + Config.mongoDBHost + ":" + Config.mongoDbPort);
+            const url = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + Config.mongoJobCollectionName;
+
+            MongoClient.connect(url, function (err, db)
+            {
+                if (err)
+                {
+                    return callback("[ERROR] Connecting to MongoDB Jobs storage running on " + Config.mongoDBHost + ":" + Config.mongoDbPort + "\n Error description : " + JSON.stringify(db));
+                }
+                Logger.log_boot_message("Connected to MongoDB Jobs storage running on " + Config.mongoDBHost + ":" + Config.mongoDbPort);
+                Job._jobsStorageClient = db;
+                callback(null);
+            });
+        };
+
+        const initAgenda = function (callback) {
+            let agenda = new Agenda({mongo: Job._jobsStorageClient});
+            Config.jobTypes = process.env.JOB_TYPES ? process.env.JOB_TYPES.split(',') : [];
+            Job._agenda = agenda;
+            Config.jobTypes.forEach(function(type) {
+                //TODO change this para um for para tudo o que está dentro DA PASTA
+                //require(Pathfinder.absPathInSrcFolder("/jobs/jobsStartup/" + type))(agenda);
+                let JobType = require(Pathfinder.absPathInSrcFolder("/jobs/models/" + type))[type];
+                JobType.callDefine();
+                JobType.registerJobEvents();
+            });
+            callback(null);
+        };
+
+
+        initMongoClient(function (err) {
+            if(isNull(err))
+            {
+                initAgenda(function (err) {
+                   if(isNull(err))
+                   {
+                       Logger.log("info", "Job dependencies are now set!");
+                       callback(null);
+                   }
+                   else
+                   {
+                       Logger.log("error", "Job dependencies Agenda error: "  + JSON.stringify(err));
+                       callback(err);
+                   }
+                });
+            }
+            else
+            {
+                Logger.log("error", "Job dependencies MongoClient error: "  + JSON.stringify(err));
+                callback(err);
+            }
+        });
     }
 
-    static fetchAndRestartJobsFromMongo ()
+    constructor (name, jobData)
     {
-
-    }
-
-    constructor ()
-    {
+        /*
+        let self = this;
+        self.jobData = jobData;
         if(isNull(Job._types[this.name]))
         {
-            Job._types[this.name] = this;
+            Job._types[this.name] = self;
         }
+        */
+        let self = this;
+        self.jobData = jobData;
+        self.name = name;
     }
 
-    init ()
+    start (callback)
     {
-        Job._agenda.define(this.name, this.handler);
-    }
-    start ()
-    {
-        Job._agenda.now(this.name, this.jobData);
+        let self = this;
+        Job._agenda.now(self.name, self.jobData, function (info) {
+            callback(null);
+        });
     }
 }
 

@@ -18,6 +18,7 @@ const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConne
 const Uploader = require(Pathfinder.absPathInSrcFolder("/utils/uploader.js")).Uploader;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const ImportProjectJob = require(Pathfinder.absPathInSrcFolder("/jobs/models/ImportProjectJob.js")).ImportProjectJob;
 
 const nodemailer = require("nodemailer");
 const flash = require("connect-flash");
@@ -2355,9 +2356,22 @@ exports.import = function (req, res)
                     if(!isNull(runAsJob) && runAsJob === true)
                     {
                         //TODO Agenda.startJob("nome do job", jobData);
-                        Config.agenda.now("import project", jobData);
-                        Config.agenda.now("test job");
-                        callback(null, null);
+                        //Config.agenda.now("import project", jobData);
+                        //Config.agenda.now("test job");
+                        /*
+                        let importProjectJob = new ImportProjectJob(jobData);
+                        importProjectJob.init(function (err) {
+                            importProjectJob.registerJobEvents(function (err) {
+                                importProjectJob.start(function (err) {
+                                    callback(null, null);
+                                });
+                            });
+                        });
+                        */
+                        let importProjectJob = new ImportProjectJob(jobData);
+                        importProjectJob.start(function (err) {
+                            callback(err);
+                        });
                     }
                     else
                     {
