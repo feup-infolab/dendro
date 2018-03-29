@@ -130,7 +130,8 @@ angular.module('dendroApp.controllers')
 
                 var depositsSet =[deposit,deposit2,deposit3,deposit4,deposit5,deposit6,deposit7,deposit7,deposit7,deposit7,deposit7,deposit7,deposit3,deposit4,deposit5];
                 setTimeline(depositsSet);
-                setGraphs(depositsSet);
+               // setGraphs(depositsSet);
+                setUserGraphs(depositsSet);
 
                 //$scope.startDeposits();
 
@@ -256,6 +257,22 @@ angular.module('dendroApp.controllers')
             }
 
             $scope.events = [];
+
+            function setUserGraphs(deposits) {
+                var depositers = new Map();
+
+                for (let i =0; i < deposits.length; i++){
+                    depositers.set(deposits[i].user, 0);
+                }
+                for (var [key, value] of depositers.entries()) {
+                    $scope.labels.push(key);
+                    $scope.data.push(value);
+
+                }
+                console.log($scope.labels);
+
+                console.log($scope.data);
+            }
 
 
             function setGraphs(deposits) {
