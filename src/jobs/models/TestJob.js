@@ -37,8 +37,7 @@ class TestJob extends Job
 
     static fetchJobsStillInMongoAndRestartThem ()
     {
-        Logger.log("info", "Attempting to restart any test job remaining in mongodb");
-        Job._agenda.jobs({name: "TestJob"}, function(err, jobs) {
+        super.fetchJobsStillInMongoAndRestartThem("TestJob", function (err, jobs) {
             if(!isNull(jobs) && jobs.length > 0)
             {
                 let errorMessages = [];

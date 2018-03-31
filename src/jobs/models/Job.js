@@ -76,6 +76,14 @@ class Job
             callback(null);
         });
     }
+
+    static fetchJobsStillInMongoAndRestartThem (jobName, callback)
+    {
+        Logger.log("info", "Attempting to restart any " + jobName +" remaining in mongodb");
+        Job._agenda.jobs({name: jobName}, function(err, jobs) {
+            callback(err, jobs);
+        });
+    };
 }
 
 module.exports.Job = Job;

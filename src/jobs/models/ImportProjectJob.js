@@ -218,9 +218,7 @@ class ImportProjectJob extends Job
                     }
                 });
         };
-
-        Logger.log("info", "Attempting to restart any ImportProjectJob remaining in mongodb");
-        Job._agenda.jobs({name: "ImportProjectJob"}, function(err, jobs) {
+        super.fetchJobsStillInMongoAndRestartThem("ImportProjectJob", function (err, jobs) {
             if(!isNull(jobs) && jobs.length > 0)
             {
                 let errorMessages = [];

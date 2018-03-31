@@ -19,6 +19,7 @@ const Uploader = require(Pathfinder.absPathInSrcFolder("/utils/uploader.js")).Up
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const ImportProjectJob = require(Pathfinder.absPathInSrcFolder("/jobs/models/ImportProjectJob.js")).ImportProjectJob;
+const TestJob = require(Pathfinder.absPathInSrcFolder("/jobs/models/TestJob.js")).TestJob;
 
 const nodemailer = require("nodemailer");
 const flash = require("connect-flash");
@@ -2368,9 +2369,13 @@ exports.import = function (req, res)
                             });
                         });
                         */
+                        let testJob = new TestJob(null);
                         let importProjectJob = new ImportProjectJob(jobData);
                         importProjectJob.start(function (err) {
-                            callback(err);
+                            //callback(err);
+                            testJob.start(function (err) {
+                               callback(err);
+                            });
                         });
                     }
                     else
