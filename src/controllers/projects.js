@@ -1869,7 +1869,7 @@ exports.requestAccess = function (req, res)
 };
 
 
-exports.processImport = function (newProjectUri, uploadedBackupAbsPath, userAndSessionInfo, callback, runningAsJob)
+exports.processImport = function (newProjectUri, uploadedBackupAbsPath, userAndSessionInfo, callback, job)
 {
     const getMetadata = function (absPathOfBagItBackupRootFolder, callback)
     {
@@ -2029,7 +2029,7 @@ exports.processImport = function (newProjectUri, uploadedBackupAbsPath, userAndS
                                     }
                                     else
                                     {
-                                        if(!isNull(runningAsJob) && runningAsJob === true)
+                                        if(!isNull(job))
                                         {
                                             let errorMsg = "Error at importProjectJob, project with uri: " + newProjectUri +  " does not exist";
                                             Logger.log("error", errorMsg);
@@ -2068,7 +2068,7 @@ exports.processImport = function (newProjectUri, uploadedBackupAbsPath, userAndS
                                 }
                                 else
                                 {
-                                    if(!isNull(runningAsJob) && runningAsJob === true)
+                                    if(!isNull(job))
                                     {
                                         let errorMsg = "Error at importProjectJob, error: " + JSON.stringify(createdProject);
                                         Logger.log("error", errorMsg);
@@ -2356,19 +2356,6 @@ exports.import = function (req, res)
                     };
                     if(!isNull(runAsJob) && runAsJob === true)
                     {
-                        //TODO Agenda.startJob("nome do job", jobData);
-                        //Config.agenda.now("import project", jobData);
-                        //Config.agenda.now("test job");
-                        /*
-                        let importProjectJob = new ImportProjectJob(jobData);
-                        importProjectJob.init(function (err) {
-                            importProjectJob.registerJobEvents(function (err) {
-                                importProjectJob.start(function (err) {
-                                    callback(null, null);
-                                });
-                            });
-                        });
-                        */
                         let testJob = new TestJob(null);
                         let importProjectJob = new ImportProjectJob(jobData);
                         importProjectJob.start(function (err) {

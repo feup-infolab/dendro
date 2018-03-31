@@ -21,7 +21,6 @@ class ImportProjectJob extends Job
             let uploadedBackupAbsPath = job.attrs.data.uploadedBackupAbsPath;
             let userAndSessionInfo = job.attrs.data.userAndSessionInfo;
             let newProject = job.attrs.data.newProject;
-            let runAsJob = true;
             projects.processImport(newProject.uri, uploadedBackupAbsPath, userAndSessionInfo, function (err, info) {
                 if (isNull(err))
                 {
@@ -84,7 +83,7 @@ class ImportProjectJob extends Job
                         });
                     }
                 }
-            }, runAsJob);
+            }, job);
         });
     }
 
