@@ -10,14 +10,14 @@ const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const Job = require(Pathfinder.absPathInSrcFolder("/jobs/models/Job.js")).Job;
 const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const projects = require(Pathfinder.absPathInSrcFolder("/controllers/projects.js"));
+const name = path.parse(__filename).name;
 
 class ImportProjectJob extends Job
 {
     static callDefine ()
     {
-        Job._agenda.define("ImportProjectJob", function (job, done) {
+        Job._agenda.define(name, function (job, done) {
             let uploadedBackupAbsPath = job.attrs.data.uploadedBackupAbsPath;
             let userAndSessionInfo = job.attrs.data.userAndSessionInfo;
             let newProject = job.attrs.data.newProject;
@@ -26,7 +26,7 @@ class ImportProjectJob extends Job
                 if (isNull(err))
                 {
                     Logger.log("info", "Project with uri: " + newProject.uri + " was successfully restored");
-                    Logger.log("info", "Will remove job");
+                    Logger.log("info", "Will remove "  + name + "job");
                     done();
                 }
                 else
@@ -52,32 +52,32 @@ class ImportProjectJob extends Job
                                 }
                                 else
                                 {
-                                    Logger.log("error", "Error at importProjectJob, project with uri: " + newProject.uri +  " does not exist");
-                                    Logger.log("error", "Will remove job");
+                                    Logger.log("error", "Error at " + name +" , project with uri: " + newProject.uri +  " does not exist");
+                                    Logger.log("error", "Will remove " + name + " job");
                                     job.remove(function(err) {
                                         if(isNull(err))
                                         {
-                                            Logger.log("info", 'Successfully removed job from collection');
+                                            Logger.log("info", "Successfully removed " + name + " job from collection");
                                         }
                                         else
                                         {
-                                            Logger.log("error", 'Could not remove job from collection');
+                                            Logger.log("error", "Could not remove " + name +" job from collection");
                                         }
                                     })
                                 }
                             }
                             else
                             {
-                                Logger.log("error", "Error at importProjectJob, error: " + JSON.stringify(createdProject));
-                                Logger.log("error", "Will remove job");
+                                Logger.log("error", "Error at " + name + " , error: " + JSON.stringify(createdProject));
+                                Logger.log("error", "Will remove " + name + " job");
                                 job.remove(function(err) {
                                     if(isNull(err))
                                     {
-                                        Logger.log("info", 'Successfully removed job from collection');
+                                        Logger.log("info", "Successfully removed " + name + " job from collection");
                                     }
                                     else
                                     {
-                                        Logger.log("error", 'Could not remove job from collection');
+                                        Logger.log("error", "Could not remove " + name + " job from collection");
                                     }
                                 })
                             }
@@ -90,7 +90,7 @@ class ImportProjectJob extends Job
 
     static registerJobEvents ()
     {
-        Job._agenda.on("success:ImportProjectJob", function(job) {
+        Job._agenda.on("success:" + name, function(job) {
             Logger.log("info", "Imported project Successfully");
             const parentPath = path.resolve(job.attrs.data.uploadedBackupAbsPath, "..");
             if(!isNull(parentPath))
@@ -110,17 +110,17 @@ class ImportProjectJob extends Job
             job.remove(function(err) {
                 if(isNull(err))
                 {
-                    Logger.log("info", 'Successfully removed job from collection');
+                    Logger.log("info", "Successfully removed " + name + " job from collection");
                 }
                 else
                 {
-                    Logger.log("error", 'Could not remove job from collection');
+                    Logger.log("error", "Could not remove " + name + " job from collection");
                 }
             });
         });
 
-        Job._agenda.on('fail:ImportProjectJob', function(err, job) {
-            Logger.log("info", "Import project job failed, error: " + JSON.stringify(err));
+        Job._agenda.on("fail:" + name, function(err, job) {
+            Logger.log("info", name + " job failed, error: " + JSON.stringify(err));
             const parentPath = path.resolve(job.attrs.data.uploadedBackupAbsPath, "..");
             if(!isNull(parentPath))
             {
@@ -218,7 +218,8 @@ class ImportProjectJob extends Job
                     }
                 });
         };
-        super.fetchJobsStillInMongoAndRestartThem("ImportProjectJob", function (err, jobs) {
+
+        super.fetchJobsStillInMongoAndRestartThem(name, function (err, jobs) {
             if(!isNull(jobs) && jobs.length > 0)
             {
                 let errorMessages = [];
@@ -235,16 +236,16 @@ class ImportProjectJob extends Job
                         {
                             const errorMsg = "Cannot attempt to import project " + job.attrs.data.newProject.uri  + "again";
                             Logger.log("error", errorMsg);
-                            Logger.log("info", "Removing job from mongodb!");
+                            Logger.log("info", "Removing " + name + " job from mongodb!");
                             errorMessages.push(errorMsg);
                             job.remove(function(err) {
                                 if(isNull(err))
                                 {
-                                    Logger.log("info", "Successfully removed job from collection");
+                                    Logger.log("info", "Successfully removed " + name + " job from collection");
                                 }
                                 else
                                 {
-                                    const errorMessage = "Could not remove job from collection";
+                                    const errorMessage = "Could not remove " + name +  " job from collection";
                                     Logger.log("error", errorMessage);
                                     errorMessages.push(errorMessage);
                                 }
@@ -254,21 +255,20 @@ class ImportProjectJob extends Job
                 });
 
                 let hasErrors = errorMessages.length > 0;
-                let message = hasErrors === true ? JSON.stringify(errorMessages) : "There are " + jobs.length + " of type Import Project that will attempt running again!";
-                //callback(hasErrors, message);
+                let message = hasErrors === true ? JSON.stringify(errorMessages) : "There are " + jobs.length + " of type " + name + " that will attempt running again!";
+                Logger.log("info", message);
             }
             else
             {
-                const msg = "No import project jobs in mongodb to attempt running again!";
+                const msg = "No " + name  + " jobs in mongodb to attempt running again!";
                 Logger.log("info", msg);
-                //callback(null, msg);
             }
         });
     }
 
     constructor (jobData)
     {
-        super("ImportProjectJob", jobData);
+        super(name, jobData);
     }
 
     start (callback)
