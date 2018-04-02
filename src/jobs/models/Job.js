@@ -8,56 +8,58 @@ const fs = require("fs");
 
 class Job
 {
+    //STATIC METHODS
     static initDependencies (callback)
     {
-        const initMongoClient = function (callback) {
-            Logger.log_boot_message("Connecting to MongoDB Jobs storage running on " + Config.mongoDBHost + ":" + Config.mongoDbPort);
-            const url = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + Config.mongoJobCollectionName;
-
-            MongoClient.connect(url, function (err, db)
-            {
-                if (err)
-                {
-                    return callback("[ERROR] Connecting to MongoDB Jobs storage running on " + Config.mongoDBHost + ":" + Config.mongoDbPort + "\n Error description : " + JSON.stringify(db));
-                }
-                Logger.log_boot_message("Connected to MongoDB Jobs storage running on " + Config.mongoDBHost + ":" + Config.mongoDbPort);
-                Job._jobsStorageClient = db;
-                callback(null);
-            });
-        };
-
         const initAgenda = function (callback) {
-            let agenda = new Agenda({mongo: Job._jobsStorageClient});
-            Config.jobTypes = process.env.JOB_TYPES ? process.env.JOB_TYPES.split(',') : [];
-            Job._agenda = agenda;
-            Config.jobTypes.forEach(function(type) {
-                let JobType = require(Pathfinder.absPathInSrcFolder("/jobs/models/" + type))[type];
-                JobType.callDefine();
-                JobType.registerJobEvents();
-            });
-            callback(null);
-        };
-
-
-        initMongoClient(function (err) {
-            if(isNull(err))
+            const url = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + Config.mongoJobCollectionName;
+            try
             {
-                initAgenda(function (err) {
-                   if(isNull(err))
-                   {
-                       Logger.log("info", "Job dependencies are now set!");
-                       callback(null);
-                   }
-                   else
-                   {
-                       Logger.log("error", "Job dependencies Agenda error: "  + JSON.stringify(err));
-                       callback(err);
-                   }
+                Logger.log_boot_message("Connecting to MongoDB Jobs storage running on " + Config.mongoDBHost + ":" + Config.mongoDbPort);
+                let agenda = new Agenda({db: {address: url}});
+                Job._agenda = agenda;
+            }
+            catch (error)
+            {
+                const errorMsg = "Error connecting to MongoDB Jobs storage, error: " + JSON.stringify(error);
+                Logger.log("error", errorMsg);
+                return callback(errorMsg);
+            }
+            try
+            {
+                Job._jobTypes = Config.jobTypes ? Config.jobTypes.split(',') : [];
+            }
+            catch(error)
+            {
+                Job._jobTypes = [];
+            }
+
+            if(!isNull(Job._jobTypes) && Job._jobTypes.length > 0)
+            {
+                Job._jobTypes.forEach(function(type) {
+                    let JobType = require(Pathfinder.absPathInSrcFolder("/jobs/models/" + type))[type];
+                    JobType.callDefine();
+                    JobType.registerJobEvents();
                 });
             }
             else
             {
-                Logger.log("error", "Job dependencies MongoClient error: "  + JSON.stringify(err));
+                Logger.log("info", "There are no Jobs set to run in the deployment_config file!");
+            }
+            callback(null);
+        };
+
+
+        initAgenda(function (err)
+        {
+            if(isNull(err))
+            {
+                Logger.log("info", "Job dependencies are now set!");
+                callback(null);
+            }
+            else
+            {
+                Logger.log("error", "Job dependencies Agenda error: "  + JSON.stringify(err));
                 callback(err);
             }
         });
@@ -81,21 +83,6 @@ class Job
         });
     }
 
-    constructor (name, jobData)
-    {
-        let self = this;
-        self.jobData = jobData;
-        self.name = name;
-    }
-
-    start (callback)
-    {
-        let self = this;
-        Job._agenda.now(self.name, self.jobData, function (info) {
-            callback(null);
-        });
-    }
-
     static fetchJobsStillInMongoAndRestartThem (jobName, restartJobFunction)
     {
         Logger.log("info", "Attempting to restart any " + jobName +" remaining in mongodb");
@@ -108,6 +95,22 @@ class Job
             {
                 Logger.log("error", "Error at fetchJobsStillInMongoAndRestartThem: " + JSON.stringify(err));
             }
+        });
+    }
+
+    //INSTANCE METHODS
+    constructor (name, jobData)
+    {
+        let self = this;
+        self.jobData = jobData;
+        self.name = name;
+    }
+
+    start (callback)
+    {
+        let self = this;
+        Job._agenda.now(self.name, self.jobData, function (info) {
+            callback(null);
         });
     }
 }

@@ -8,6 +8,7 @@ const name = path.parse(__filename).name;
 
 class TestJob extends Job
 {
+    //STATIC METHODS
     static callDefine ()
     {
         const jobDefinitionFunction = function (job, done)
@@ -67,6 +68,7 @@ class TestJob extends Job
         super.fetchJobsStillInMongoAndRestartThem(name, restartJobFunction);
     }
 
+    //INSTANCE METHODS
     constructor (jobData)
     {
         super(name, jobData);

@@ -15,6 +15,7 @@ const name = path.parse(__filename).name;
 
 class ImportProjectJob extends Job
 {
+    //STATIC METHODS
     static callDefine ()
     {
         const jobDefinitionFunction = function (job, done) {
@@ -237,21 +238,35 @@ class ImportProjectJob extends Job
                         }
                         else
                         {
-                            const errorMsg = "Cannot attempt to import project " + job.attrs.data.newProject.uri  + "again";
+                            const errorMsg = "Cannot attempt to import project " + job.attrs.data.newProject.uri  + "again, the backup zip no longer exists!";
                             Logger.log("error", errorMsg);
                             Logger.log("info", "Removing " + name + " job from mongodb!");
                             errorMessages.push(errorMsg);
-                            job.remove(function(err) {
-                                if(isNull(err))
+                            Project.findByUri(job.attrs.data.newProject.uri, function (err, project)
+                            {
+                                if(isNull(err) && !isNull(project))
                                 {
-                                    Logger.log("info", "Successfully removed " + name + " job from collection");
+                                    delete project.ddr.is_being_imported;
+                                    project.ddr.hasErrors = errorMsg;
+                                    project.save(function (err, info) {
+                                        if(!isNull(err))
+                                        {
+                                            Logger.log("error", JSON.stringify(err));
+                                        }
+                                    });
                                 }
-                                else
-                                {
-                                    const errorMessage = "Could not remove " + name +  " job from collection";
-                                    Logger.log("error", errorMessage);
-                                    errorMessages.push(errorMessage);
-                                }
+                                job.remove(function(err) {
+                                    if(isNull(err))
+                                    {
+                                        Logger.log("info", "Successfully removed " + name + " job from collection");
+                                    }
+                                    else
+                                    {
+                                        const errorMessage = "Could not remove " + name +  " job from collection";
+                                        Logger.log("error", errorMessage);
+                                        errorMessages.push(errorMessage);
+                                    }
+                                });
                             });
                         }
                     });
@@ -270,6 +285,7 @@ class ImportProjectJob extends Job
         super.fetchJobsStillInMongoAndRestartThem(name, restartJobFunction);
     }
 
+    //INSTANCE METHODS
     constructor (jobData)
     {
         super(name, jobData);
