@@ -10,15 +10,17 @@ class TestJob extends Job
 {
     static callDefine ()
     {
-        Job._agenda.define(name, function (job, done) {
+        const jobDefinitionFunction = function (job, done)
+        {
             Logger.log("info", "This is a test job, Hello!!!");
             done();
-        });
+        };
+        super.callDefine(name, jobDefinitionFunction);
     }
 
     static registerJobEvents ()
     {
-        Job._agenda.on("success:" + name, function(job) {
+        const successHandlerFunction = function (job) {
             Logger.log("info", name + " executed Successfully");
             job.remove(function(err) {
                 if(isNull(err))
@@ -30,16 +32,20 @@ class TestJob extends Job
                     Logger.log("error", "Could not remove " + name + " job from collection");
                 }
             });
-        });
+        };
 
-        Job._agenda.on("fail:" + name, function(err, job) {
+        const errorHandlerFunction = function (job)
+        {
             Logger.log("info", name + " job failed, error: " + JSON.stringify(err));
-        });
+        };
+
+        super.registerJobEvents(name, successHandlerFunction, errorHandlerFunction);
     }
 
     static fetchJobsStillInMongoAndRestartThem ()
     {
-        super.fetchJobsStillInMongoAndRestartThem(name, function (err, jobs) {
+        const restartJobFunction = function (jobs)
+        {
             if(!isNull(jobs) && jobs.length > 0)
             {
                 let errorMessages = [];
@@ -57,7 +63,8 @@ class TestJob extends Job
                 const msg = "No " + name +  " jobs in mongodb to attempt running again!";
                 Logger.log("info", msg);
             }
-        });
+        };
+        super.fetchJobsStillInMongoAndRestartThem(name, restartJobFunction);
     }
 
     constructor (jobData)

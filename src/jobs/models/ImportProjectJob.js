@@ -17,7 +17,7 @@ class ImportProjectJob extends Job
 {
     static callDefine ()
     {
-        Job._agenda.define(name, function (job, done) {
+        const jobDefinitionFunction = function (job, done) {
             let uploadedBackupAbsPath = job.attrs.data.uploadedBackupAbsPath;
             let userAndSessionInfo = job.attrs.data.userAndSessionInfo;
             let newProject = job.attrs.data.newProject;
@@ -84,12 +84,13 @@ class ImportProjectJob extends Job
                     }
                 }
             }, job);
-        });
+        };
+        super.callDefine(name, jobDefinitionFunction);
     }
 
     static registerJobEvents ()
     {
-        Job._agenda.on("success:" + name, function(job) {
+        const successHandlerFunction = function (job) {
             Logger.log("info", "Imported project Successfully");
             const parentPath = path.resolve(job.attrs.data.uploadedBackupAbsPath, "..");
             if(!isNull(parentPath))
@@ -116,10 +117,11 @@ class ImportProjectJob extends Job
                     Logger.log("error", "Could not remove " + name + " job from collection");
                 }
             });
-        });
+        };
 
-        Job._agenda.on("fail:" + name, function(err, job) {
-            Logger.log("info", name + " job failed, error: " + JSON.stringify(err));
+        const errorHandlerFunction = function (job)
+        {
+            Logger.log("info", name + " job failed, error: " + JSON.stringify(job));
             const parentPath = path.resolve(job.attrs.data.uploadedBackupAbsPath, "..");
             if(!isNull(parentPath))
             {
@@ -135,90 +137,92 @@ class ImportProjectJob extends Job
             {
                 Logger.log("error", "Could not calculate parent path of: " + job.attrs.data.uploadedBackupAbsPath);
             }
-        });
+        };
+
+        super.registerJobEvents(name, successHandlerFunction, errorHandlerFunction);
     }
 
     static fetchJobsStillInMongoAndRestartThem ()
     {
-        const canImportProjectJobRestart = function (job, callback) {
+        const restartJobFunction = function (jobs) {
+            const canImportProjectJobRestart = function (job, callback) {
 
-            const mainZipFileExists = function (job, callback)
-            {
-                if (fs.existsSync(job.attrs.data.uploadedBackupAbsPath))
+                const mainZipFileExists = function (job, callback)
                 {
-                    callback(null, true);
-                }
-                else
-                {
-                    callback(true, false);
-                }
-            };
-
-            const projectAndStorageConfigurationExist = function (job, callback)
-            {
-                Project.findByUri(job.attrs.data.newProject.uri, function (err, project)
-                {
-                    if(isNull(err))
-                    {
-                        if(isNull(project))
-                        {
-                            const errorMessage = "Project specified in job.attrs.data.newProject.uri does not exist";
-                            Logger.log("error", errorMessage);
-                            return callback(true, false);
-                        }
-                        else
-                        {
-                            project.getActiveStorageConfig(function (err, config)
-                            {
-                                if (isNull(err) && !isNull(config))
-                                {
-                                    return callback(null, true);
-                                }
-                                else
-                                {
-                                    const errorMessage = "There was an error when looking for the project storage configuration specified in job.attrs.data.newProject.uri, error: " + JSON.stringify(config);
-                                    Logger.log("error", errorMessage);
-                                    return callback(true, false);
-                                }
-                            });
-                        }
-                    }
-                    else
-                    {
-                        const errorMessage = "There was an error when looking for the project specified in job.attrs.data.newProject.uri, error: " + JSON.stringify(project);
-                        Logger.log("error", errorMessage);
-                        return callback(true, false);
-                    }
-                });
-            };
-
-            async.waterfall([
-                    function (callback)
-                    {
-                        mainZipFileExists(job, function (err, result) {
-                            callback(err);
-                        });
-                    },
-                    function (callback)
-                    {
-                        projectAndStorageConfigurationExist(job, function (err, result) {
-                            callback(err);
-                        });
-                    }],
-                function (err, results)
-                {
-                    if(!isNull(err))
-                    {
-                        callback(true, false);
-                    }
-                    else
+                    if (fs.existsSync(job.attrs.data.uploadedBackupAbsPath))
                     {
                         callback(null, true);
                     }
-                });
-        };
+                    else
+                    {
+                        callback(true, false);
+                    }
+                };
 
-        super.fetchJobsStillInMongoAndRestartThem(name, function (err, jobs) {
+                const projectAndStorageConfigurationExist = function (job, callback)
+                {
+                    Project.findByUri(job.attrs.data.newProject.uri, function (err, project)
+                    {
+                        if(isNull(err))
+                        {
+                            if(isNull(project))
+                            {
+                                const errorMessage = "Project specified in job.attrs.data.newProject.uri does not exist";
+                                Logger.log("error", errorMessage);
+                                return callback(true, false);
+                            }
+                            else
+                            {
+                                project.getActiveStorageConfig(function (err, config)
+                                {
+                                    if (isNull(err) && !isNull(config))
+                                    {
+                                        return callback(null, true);
+                                    }
+                                    else
+                                    {
+                                        const errorMessage = "There was an error when looking for the project storage configuration specified in job.attrs.data.newProject.uri, error: " + JSON.stringify(config);
+                                        Logger.log("error", errorMessage);
+                                        return callback(true, false);
+                                    }
+                                });
+                            }
+                        }
+                        else
+                        {
+                            const errorMessage = "There was an error when looking for the project specified in job.attrs.data.newProject.uri, error: " + JSON.stringify(project);
+                            Logger.log("error", errorMessage);
+                            return callback(true, false);
+                        }
+                    });
+                };
+
+                async.waterfall([
+                        function (callback)
+                        {
+                            mainZipFileExists(job, function (err, result) {
+                                callback(err);
+                            });
+                        },
+                        function (callback)
+                        {
+                            projectAndStorageConfigurationExist(job, function (err, result) {
+                                callback(err);
+                            });
+                        }],
+                    function (err, results)
+                    {
+                        if(!isNull(err))
+                        {
+                            callback(true, false);
+                        }
+                        else
+                        {
+                            callback(null, true);
+                        }
+                    });
+            };
+
             if(!isNull(jobs) && jobs.length > 0)
             {
                 let errorMessages = [];
@@ -262,7 +266,8 @@ class ImportProjectJob extends Job
                 const msg = "No " + name  + " jobs in mongodb to attempt running again!";
                 Logger.log("info", msg);
             }
-        });
+        };
+        super.fetchJobsStillInMongoAndRestartThem(name, restartJobFunction);
     }
 
     constructor (jobData)
@@ -272,7 +277,6 @@ class ImportProjectJob extends Job
 
     start (callback)
     {
-        let self = this;
         super.start(function (err) {
             callback(err);
         });

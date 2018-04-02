@@ -4,6 +4,7 @@ const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const MongoClient = require("mongodb").MongoClient;
 const Agenda = require("agenda");
+const fs = require("fs");
 
 class Job
 {
@@ -62,6 +63,24 @@ class Job
         });
     }
 
+    static registerJobEvents (jobName, successHandlerFunction, errorHandlerFunction)
+    {
+        Job._agenda.on("success:" + jobName, function(job) {
+            successHandlerFunction(job);
+        });
+
+        Job._agenda.on("fail:" + jobName, function(err, job) {
+            errorHandlerFunction(job);
+        });
+    }
+
+    static callDefine (jobName, jobDefinitionFunction)
+    {
+        Job._agenda.define(jobName, function (job, done) {
+            jobDefinitionFunction(job, done);
+        });
+    }
+
     constructor (name, jobData)
     {
         let self = this;
@@ -77,13 +96,20 @@ class Job
         });
     }
 
-    static fetchJobsStillInMongoAndRestartThem (jobName, callback)
+    static fetchJobsStillInMongoAndRestartThem (jobName, restartJobFunction)
     {
         Logger.log("info", "Attempting to restart any " + jobName +" remaining in mongodb");
         Job._agenda.jobs({name: jobName}, function(err, jobs) {
-            callback(err, jobs);
+            if(isNull(err))
+            {
+                restartJobFunction(jobs);
+            }
+            else
+            {
+                Logger.log("error", "Error at fetchJobsStillInMongoAndRestartThem: " + JSON.stringify(err));
+            }
         });
-    };
+    }
 }
 
 module.exports.Job = Job;
