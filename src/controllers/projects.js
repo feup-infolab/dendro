@@ -1941,6 +1941,12 @@ exports.processImport = function (newProjectUri, uploadedBackupAbsPath, userAndS
                 {
                     if (valid)
                     {
+                        if(!isNull(job))
+                        {
+                            job.attrs.data.absPathOfUnzippedBagIt = absPathOfUnzippedBagIt;
+                            job.save();
+                        }
+
                         getMetadata(absPathOfUnzippedBagIt, function (descriptors)
                         {
                             // by default the project is private on import

@@ -146,6 +146,21 @@ class ImportProjectJob extends Job
     static fetchJobsStillInMongoAndRestartThem ()
     {
         const restartJobFunction = function (jobs) {
+
+            const clearTempFolderDependenciesForPreviousJobTry = function (job)
+            {
+                if(!isNull(job) && !isNull(job.attrs) && !isNull(job.attrs.data) && !isNull(job.attrs.data.absPathOfUnzippedBagIt) && fs.existsSync(job.attrs.data.absPathOfUnzippedBagIt))
+                {
+                    File.deleteOnLocalFileSystem(job.attrs.data.absPathOfUnzippedBagIt, function (err, result)
+                    {
+                        if (!isNull(err))
+                        {
+                            Logger.log("error", "Error occurred while deleting job.attrs.data.absPathOfUnzippedBagIt : " + JSON.stringify(result));
+                        }
+                    });
+                }
+            };
+
             const canImportProjectJobRestart = function (job, callback) {
 
                 const mainZipFileExists = function (job, callback)
@@ -229,6 +244,7 @@ class ImportProjectJob extends Job
                 let errorMessages = [];
                 jobs.forEach(function (job) {
                     canImportProjectJobRestart(job, function (err, canIt) {
+                        clearTempFolderDependenciesForPreviousJobTry(job);
                         if(isNull(err) && canIt === true)
                         {
                             Logger.log("info", "Will attempt to import project " + job.attrs.data.newProject.uri  + " again");
