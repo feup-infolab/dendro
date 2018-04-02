@@ -9,14 +9,14 @@ const name = path.parse(__filename).name;
 class TestJob extends Job
 {
     //STATIC METHODS
-    static callDefine ()
+    static defineJob ()
     {
         const jobDefinitionFunction = function (job, done)
         {
             Logger.log("info", "This is a test job, Hello!!!");
             done();
         };
-        super.callDefine(name, jobDefinitionFunction);
+        super.defineJob(name, jobDefinitionFunction);
     }
 
     static registerJobEvents ()
@@ -38,6 +38,16 @@ class TestJob extends Job
         const errorHandlerFunction = function (job)
         {
             Logger.log("info", name + " job failed, error: " + JSON.stringify(err));
+            job.remove(function(err) {
+                if(isNull(err))
+                {
+                    Logger.log("info", "Successfully removed " + name + " job from collection");
+                }
+                else
+                {
+                    Logger.log("error", "Could not remove " + name + " job from collection");
+                }
+            });
         };
 
         super.registerJobEvents(name, successHandlerFunction, errorHandlerFunction);

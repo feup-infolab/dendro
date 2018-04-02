@@ -38,7 +38,7 @@ class Job
             {
                 Job._jobTypes.forEach(function(type) {
                     let JobType = require(Pathfinder.absPathInSrcFolder("/jobs/models/" + type))[type];
-                    JobType.callDefine();
+                    JobType.defineJob();
                     JobType.registerJobEvents();
                 });
             }
@@ -76,7 +76,7 @@ class Job
         });
     }
 
-    static callDefine (jobName, jobDefinitionFunction)
+    static defineJob (jobName, jobDefinitionFunction)
     {
         Job._agenda.define(jobName, function (job, done) {
             jobDefinitionFunction(job, done);

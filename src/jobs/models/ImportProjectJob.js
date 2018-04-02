@@ -16,7 +16,7 @@ const name = path.parse(__filename).name;
 class ImportProjectJob extends Job
 {
     //STATIC METHODS
-    static callDefine ()
+    static defineJob ()
     {
         const jobDefinitionFunction = function (job, done) {
             let uploadedBackupAbsPath = job.attrs.data.uploadedBackupAbsPath;
@@ -86,7 +86,7 @@ class ImportProjectJob extends Job
                 }
             }, job);
         };
-        super.callDefine(name, jobDefinitionFunction);
+        super.defineJob(name, jobDefinitionFunction);
     }
 
     static registerJobEvents ()
