@@ -1420,7 +1420,8 @@
             "destroy_all_graphs": true,
             "destroy_all_indexes": true,
             "destroy_datastore": true,
-            "destroy_files_store": true
+            "destroy_files_store": true,
+            "destroy_mysql_database": true
         },
         "baselines": {},
         "logging": {

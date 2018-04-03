@@ -45,6 +45,7 @@ else if (recommendation_mode === "standalone")
 }
 else if (recommendation_mode === "project_descriptors")
 {
+    //TODO apply in this controller the favorites and hidden flags
     recommendation = require(Pathfinder.absPathInSrcFolder("/controllers/project_descriptors_recommendation"));
 }
 else if (recommendation_mode === "none")

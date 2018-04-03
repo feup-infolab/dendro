@@ -6,6 +6,7 @@ const md5 = require("md5");
 const fs = require("fs");
 const path = require("path");
 chai.use(chaiHttp);
+const expect = chai.expect;
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
@@ -722,7 +723,27 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] hide_descriptor
                                 info[0].recommendationCallId.should.equal(demouser1InteractionObj.recommendationCallId);
                                 should.exist(info[0].uri);
                                 info[0].uri.should.contain("interaction");
-                                done();
+                                descriptorUtils.getResourceDescriptorsFromOntology(true, agent, demouser1InteractionObj.recommendedFor, dctermsPrefix, function (err, res)
+                                {
+                                    should.equal(err, null);
+                                    should.exist(res);
+                                    should.exist(res.body);
+                                    should.exist(res.body.descriptors);
+                                    expect(res.body.descriptors).to.be.an('array');
+                                    let demouser1DescriptorIndex = _.findIndex(res.body.descriptors, function(descriptor) { return descriptor.uri === demouser1InteractionObj.uri; });
+                                    should.exist(demouser1DescriptorIndex);
+                                    expect(demouser1DescriptorIndex).to.be.above(-1);
+                                    expect(res.body.descriptors.length).to.be.above(demouser1DescriptorIndex);
+                                    res.body.descriptors[demouser1DescriptorIndex].recommendation_types.user_hidden.should.equal(true);
+
+                                    let demouser2DescriptorIndex = _.findIndex(res.body.descriptors, function(descriptor) { return descriptor.uri === demouser2InteractionObj.uri; });
+                                    should.exist(demouser2DescriptorIndex);
+                                    expect(demouser2DescriptorIndex).to.be.above(-1);
+                                    demouser2DescriptorIndex.should.not.equal(demouser1DescriptorIndex);
+                                    expect(res.body.descriptors.length).to.be.above(demouser2DescriptorIndex);
+                                    should.equal(res.body.descriptors[demouser2DescriptorIndex].recommendation_types.user_hidden, undefined);
+                                    done();
+                                });
                             });
                         });
                     });
@@ -766,7 +787,29 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] hide_descriptor
                                 info[0].recommendationCallId.should.equal(demouser2InteractionObj.recommendationCallId);
                                 should.exist(info[0].uri);
                                 info[0].uri.should.contain("interaction");
-                                done();
+                                descriptorUtils.getResourceDescriptorsFromOntology(true, agent, demouser1InteractionObj.recommendedFor, dctermsPrefix, function (err, res)
+                                {
+                                    should.equal(err, null);
+                                    should.exist(res);
+                                    should.exist(res.body);
+                                    should.exist(res.body.descriptors);
+                                    expect(res.body.descriptors).to.be.an('array');
+                                    let demouser1DescriptorIndex = _.findIndex(res.body.descriptors, function(descriptor) { return descriptor.uri === demouser1InteractionObj.uri; });
+                                    should.exist(demouser1DescriptorIndex);
+                                    expect(demouser1DescriptorIndex).to.be.above(-1);
+                                    expect(res.body.descriptors.length).to.be.above(demouser1DescriptorIndex);
+                                    //because this descriptor was only hidden for demouser1 and the logged in user in this test is the demouser2
+                                    should.equal(res.body.descriptors[demouser1DescriptorIndex].recommendation_types.user_hidden, undefined);
+
+                                    let demouser2DescriptorIndex = _.findIndex(res.body.descriptors, function(descriptor) { return descriptor.uri === demouser2InteractionObj.uri; });
+                                    should.exist(demouser2DescriptorIndex);
+                                    expect(demouser2DescriptorIndex).to.be.above(-1);
+                                    demouser2DescriptorIndex.should.not.equal(demouser1DescriptorIndex);
+                                    expect(res.body.descriptors.length).to.be.above(demouser2DescriptorIndex);
+                                    //because this descriptor was hidden only for demouser2 and the logged user in this test is the demouser2
+                                    res.body.descriptors[demouser2DescriptorIndex].recommendation_types.user_hidden.should.equal(true);
+                                    done();
+                                });
                             });
                         });
                     });
