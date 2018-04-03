@@ -588,6 +588,7 @@ const export_to_repository_zenodo = function (req, res)
                                         try
                                         {
                                             const accessTocken = targetRepository.ddr.hasAccessToken;
+                                            const hasExternalUri = targetRepository.ddr.hasExternalUri;
 
                                             let title;
                                             if (Array.isArray(folder.dcterms.title))
@@ -614,7 +615,24 @@ const export_to_repository_zenodo = function (req, res)
                                                 creator: folder.dcterms.creator
                                             };
 
-                                            const zenodo = new Zenodo(accessTocken);
+                                            let zenodo = null;
+                                            try
+                                            {
+                                                zenodo = new Zenodo(accessTocken, hasExternalUri);
+                                            }
+                                            catch(error)
+                                            {
+                                                generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
+                                                const msg = "Error creating Zenodo client, error: " + error.message;
+                                                Logger.log("error", msg);
+                                                return res.status(500).json(
+                                                    {
+                                                        result: "error",
+                                                        message: msg
+                                                    }
+                                                );
+                                            }
+
                                             zenodo.createDeposition(data, function (err, deposition)
                                             {
                                                 if (err)
@@ -649,7 +667,7 @@ const export_to_repository_zenodo = function (req, res)
                                                         }
                                                         else
                                                         {
-                                                            zenodo.depositionPublish(depositionID, function (err)
+                                                            zenodo.depositionPublish(depositionID, function (err, data)
                                                             {
                                                                 if (err)
                                                                 {
@@ -670,7 +688,8 @@ const export_to_repository_zenodo = function (req, res)
                                                                     res.json(
                                                                         {
                                                                             result: "OK",
-                                                                            message: msg
+                                                                            message: msg,
+                                                                            data: data
                                                                         }
                                                                     );
                                                                 }
