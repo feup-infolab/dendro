@@ -5,6 +5,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const MongoClient = require("mongodb").MongoClient;
 const Agenda = require("agenda");
 const fs = require("fs");
+const slug = require("slug");
 
 class Job
 {
@@ -12,7 +13,8 @@ class Job
     static initDependencies (callback)
     {
         const initAgenda = function (callback) {
-            const url = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + Config.mongoJobCollectionName;
+            const mongoDBJobCollectionDBName = slug(Config.mongoJobCollectionName, "_");
+            const url = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + mongoDBJobCollectionDBName;
             try
             {
                 Logger.log_boot_message("Connecting to MongoDB Jobs storage running on " + Config.mongoDBHost + ":" + Config.mongoDbPort);
