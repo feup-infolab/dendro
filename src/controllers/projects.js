@@ -2431,7 +2431,7 @@ exports.import = function (req, res)
                                     });
                                 }
                             }
-                        }, false);
+                        }, null);
                     }
                 };
 
