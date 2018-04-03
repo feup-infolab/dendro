@@ -32,16 +32,14 @@ const initMySQL = function (app, callback)
                 {
                     return callback(null, data);
                 })
-                    .catch(err =>
-                    {
-                        console.log(err);
-                        Logger.log("error", "Error creating database in MySQL: " + Config.mySQLDBName);
-                        return callback(err, null);
-                    });
+                .catch(err =>
+                {
+                    Logger.log("error", "Error creating database in MySQL: " + Config.mySQLDBName);
+                    return callback(err, null);
+                });
             })
             .catch(err =>
             {
-                console.log(err);
                 return callback(err, null);
             });
 
@@ -79,9 +77,9 @@ const initMySQL = function (app, callback)
     {
         if (!isNull(err))
         {
-            return callback(err, result);
+            return callback(err);
         }
-
+        //return callback(null);
         // run migrations
         const sequelize = new Sequelize(Config.mySQLDBName, Config.mySQLAuth.user, Config.mySQLAuth.password, {
             dialect: 'mysql',
@@ -95,7 +93,6 @@ const initMySQL = function (app, callback)
             },
             operatorsAliases: false
         });
-
         var umzug = new Umzug({
             storage: 'sequelize',
             storageOptions: { sequelize: sequelize },
@@ -105,6 +102,9 @@ const initMySQL = function (app, callback)
         });
         return umzug.up().then(function (migrations) {
             return callback(null);
+        }).catch(err => {
+            console.log(err);
+            return callback(err);
         });
 
         /*const tableName = Config.recommendation.getTargetTable();

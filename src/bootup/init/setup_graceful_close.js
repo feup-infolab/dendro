@@ -150,7 +150,16 @@ const setupGracefulClose = function (app, server, callback)
 
                 cb(err, null);
             });*/
-            Config.getMySQLByID().sequelize.close().then(() => {
+            /*Config.getMySQLByID().sequelize.close().then(() => {
+                Logger.log("info", "Closed MySQL connection pool");
+                cb(null, null);
+            }).catch(err => {
+                Logger.log("error", "Error closing MySQL connection pool");
+                cb(err, null);
+            });*/
+
+            const db = require(Pathfinder.absPathInSrcFolder("mysql_models"));
+            db.sequelize.close().then(() => {
                 Logger.log("info", "Closed MySQL connection pool");
                 cb(null, null);
             }).catch(err => {

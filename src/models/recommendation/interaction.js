@@ -12,7 +12,7 @@ const moment = require("moment");
 const async = require("async");
 const db = Config.getDBByID();
 
-const mysql = Config.getMySQLByID();
+const dbMySQL = require(Pathfinder.absPathInSrcFolder("mysql_models"));
 
 let Interaction = function (object)
 {
@@ -289,7 +289,7 @@ Interaction.prototype.saveToMySQL = function (callback/*, overwrite*/)
             Logger.log("INSERT INTO interactions table");
         }
 
-        mysql.sequelize.interactions
+        dbMySQL.interactions
             .findOrCreate({where: {uri: self.uri}, defaults: insert})
             .spread((interaction, created) => {
                 if (!created)

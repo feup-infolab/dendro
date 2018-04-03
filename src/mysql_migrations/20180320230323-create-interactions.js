@@ -11,6 +11,9 @@ module.exports = {
             uri: {
                 type: Sequelize.STRING
             },
+            projectUri: {
+                type: Sequelize.STRING
+            },
             performedBy: {
                 type: Sequelize.STRING
             },
@@ -53,7 +56,9 @@ module.exports = {
             queryInterface.addIndex('interactions', ['interactionType']);
             queryInterface.addIndex('interactions', ['executedOver']);
             queryInterface.addIndex('interactions', ['originallyRecommendedFor']);
-            queryInterface.renameColumn('interactions', 'createdAt', 'created');
+            queryInterface.addIndex('interactions', ['projectUri', 'interactionType', 'executedOver']);
+            queryInterface.addIndex('interactions', ['performedBy', 'interactionType', 'executedOver']);
+            queryInterface.renameColumn('interactions', 'createdAt', 'created').then(() => { queryInterface.addIndex('interactions', ['created']); });
             return queryInterface.renameColumn('interactions', 'updatedAt', 'modified');
         });
     },

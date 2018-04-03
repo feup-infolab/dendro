@@ -19,6 +19,8 @@ const _ = require("underscore");
 const db = Config.getDBByID();
 const gfs = Config.getGFSByID();
 
+const dbMySQL = require(Pathfinder.absPathInSrcFolder("mysql_models"));
+
 function User (object)
 {
     const self = this;
@@ -396,9 +398,68 @@ User.prototype.hiddenDescriptors = function (maxResults, callback, allowedOntolo
     const targetTable = Config.recommendation.getTargetTable();
     let userHiddenDescriptorsList = [];
 
-    let queryUserHiddenDescriptors = "call " + Config.mySQLDBName + ".getUserHiddenDescriptors(?);";
+    let queryUserHiddenDescriptors = "call " + Config.mySQLDBName + ".getUserHiddenDescriptors(:uri);";
 
-    mysql.pool.getConnection(function (err, connection)
+    dbMySQL.sequelize
+        .query(queryUserHiddenDescriptors,
+            {replacements: { uri: self.uri }})
+        .then(result => {
+            if(isNull(result) || isNull(result[0]))
+            {
+                return callback(err, []);
+            }
+            else
+            {
+                async.mapSeries(result[0], function (row, callback)
+                {
+                    Descriptor.findByUri(row.executedOver, function (err, descriptor) {
+                        if(isNull(err))
+                        {
+                            if(!isNull(descriptor))
+                            {
+                                if(descriptor.recommendation_types != null)
+                                {
+                                    descriptor.recommendation_types.user_hidden = true;
+                                }
+                                else
+                                {
+                                    descriptor.recommendation_types = {};
+                                    descriptor.recommendation_types.user_hidden = true;
+                                }
+                                userHiddenDescriptorsList.push(descriptor);
+                                callback(null, null);
+                            }
+                            else
+                            {
+                                const errorMsg = "Descriptor with uri: " + row.executedOver + " does not exist!";
+                                Logger.log("error", errorMsg);
+                                callback(true, errorMsg);
+                            }
+                        }
+                        else
+                        {
+                            Logger.log("error", JSON.stringify(descriptor));
+                            callback(true, JSON.stringify(descriptor));
+                        }
+                    });
+                }, function (err, results)
+                {
+                    if(isNull(err))
+                    {
+                        return callback(err, userHiddenDescriptorsList);
+                    }
+                    else
+                    {
+                        return callback(err, results);
+                    }
+                });
+            }
+        })
+        .catch(err => {
+            return callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database.");
+        });
+
+    /*mysql.pool.getConnection(function (err, connection)
     {
         if (isNull(err))
         {
@@ -472,7 +533,7 @@ User.prototype.hiddenDescriptors = function (maxResults, callback, allowedOntolo
             Logger.log("error", err.stack);
             return callback(1, msg);
         }
-    });
+    });*/
 
     /*
     const self = this;
@@ -678,9 +739,68 @@ User.prototype.favoriteDescriptors = function (maxResults, callback, allowedOnto
     //USING THE user uri
     //query all the interactions of the interactions types "favorite_descriptor_from_manual_list_for_user" and "favorite_descriptor_from_quick_list_for_user" where the performedBy is done by the user
 
-    let queryUserDescriptorFavorites = "call " + Config.mySQLDBName + ".getUserFavoriteDescriptors(?);";
+    let queryUserDescriptorFavorites = "call " + Config.mySQLDBName + ".getUserFavoriteDescriptors(:uri);";
 
-    mysql.pool.getConnection(function (err, connection)
+    dbMySQL.sequelize
+        .query(queryUserDescriptorFavorites,
+            {replacements: { uri: self.uri }})
+        .then(result => {
+            if(isNull(result) || isNull(result[0]))
+            {
+                return callback(err, []);
+            }
+            else
+            {
+                async.mapSeries(result[0], function (row, callback)
+                {
+                    Descriptor.findByUri(row.executedOver, function (err, descriptor) {
+                        if(isNull(err))
+                        {
+                            if(!isNull(descriptor))
+                            {
+                                if(descriptor.recommendation_types != null)
+                                {
+                                    descriptor.recommendation_types.user_favorite = true;
+                                }
+                                else
+                                {
+                                    descriptor.recommendation_types = {};
+                                    descriptor.recommendation_types.user_favorite = true;
+                                }
+                                userFavoriteDescriptorsList.push(descriptor);
+                                callback(null, null);
+                            }
+                            else
+                            {
+                                const errorMsg = "Descriptor with uri: " + row.executedOver + " does not exist!";
+                                Logger.log("error", errorMsg);
+                                callback(true, errorMsg);
+                            }
+                        }
+                        else
+                        {
+                            Logger.log("error", JSON.stringify(descriptor));
+                            callback(true, JSON.stringify(descriptor));
+                        }
+                    });
+                }, function (err, results)
+                {
+                    if(isNull(err))
+                    {
+                        return callback(err, userFavoriteDescriptorsList);
+                    }
+                    else
+                    {
+                        return callback(err, results);
+                    }
+                });
+            }
+        })
+        .catch(err => {
+            return callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database.");
+    });
+
+    /*mysql.pool.getConnection(function (err, connection)
     {
         if (isNull(err))
         {
@@ -755,7 +875,7 @@ User.prototype.favoriteDescriptors = function (maxResults, callback, allowedOnto
             Logger.log("error", err.stack);
             return callback(1, msg);
         }
-    });
+    });*/
     /*
     mysql.pool.getConnection(function (err, connection)
     {

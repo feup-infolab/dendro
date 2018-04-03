@@ -4,9 +4,12 @@ module.exports = (sequelize, DataTypes) => {
         userURI: DataTypes.STRING,
         postURI: DataTypes.STRING,
         projectURI: DataTypes.STRING
+    }, {
+        createdAt: 'timestamp',
+        updatedAt: 'modified'
     });
     events.associate = function(models) {
-        events.belongsTo(models.type);
+        events.belongsTo(models.types);
     };
     return events;
 };
