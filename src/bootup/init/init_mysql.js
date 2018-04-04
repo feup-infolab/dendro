@@ -66,7 +66,7 @@ const initMySQL = function (app, callback)
             storageOptions: { sequelize: sequelize },
             migrations: {
                 params: [sequelize.getQueryInterface(), Sequelize],
-                path: 'src/mysql_migrations'}
+                path: Pathfinder.absPathInSrcFolder("/mysql_migrations")}
         });
 
         return umzug.up().then(function () {
