@@ -9,7 +9,7 @@
 
 <div class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.hasExternalUrl && valid_url(new_repository.ddr.hasExternalUrl), 'has-warning' : new_repository.ddr.hasExternalUrl && !valid_url(new_repository.ddr.hasExternalUrl)}">
     <label for="new_dspace_repository_url">External repository address</label>
-    <input type="text" ng-model="new_repository.ddr.hasExternalUrl" class="form-control" id="new_dspace_repository_url" placeholder="Title" required>
+    <input type="text" ng-model="new_repository.ddr.hasExternalUrl" class="form-control" id="new_dspace_repository_url" placeholder="Repository Url" required>
     <p class="help-block">The base address of the repository you wish to upload to. Example: <a href="http://demo.dspace.org">http://demo.dspace.org</a> .</p>
     <span ng-show="new_repository.ddr.hasExternalUrl && valid_url(new_repository.ddr.hasExternalUrl)" class="glyphicon glyphicon-ok form-control-feedback"></span>
     <span ng-show="!new_repository.ddr.hasExternalUrl" class="glyphicon glyphicon-remove form-control-feedback"></span>
