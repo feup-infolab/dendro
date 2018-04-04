@@ -389,7 +389,13 @@
         },
         "numCPUs": 4,
         "docker": {
-          "active": false
+          "active": false,
+          "reuse_checkpoints": true
+        },
+        "virtualbox": {
+          "active": true,
+          "reuse_shapshots": true,
+          "vmName": "dendroVagrantDemo"
         }
     },
     "test": {
@@ -777,7 +783,13 @@
         },
         "numCPUs": 1,
         "docker": {
-          "active": false
+          "active": false,
+          "reuse_checkpoints": true
+        },
+        "virtualbox": {
+          "active": true,
+          "reuse_shapshots": true,
+          "vmName": "dendroVagrantDemo"
         }
     },
     "jenkins_buildserver_test": {
@@ -1165,7 +1177,13 @@
         },
         "numCPUs": 1,
         "docker": {
-          "active": false
+          "active": false,
+          "reuse_checkpoints": true
+        },
+        "virtualbox": {
+          "active": true,
+          "reuse_shapshots": true,
+          "vmName": "dendroVagrantDemo"
         }
     },
     "travis": {
@@ -1555,6 +1573,11 @@
         "docker": {
           "active": false,
           "reuse_checkpoints": true
+        },
+        "virtualbox": {
+          "active": true,
+          "reuse_shapshots": true,
+          "vmName": "dendroVagrantDemo"
         }
     }
 }

@@ -193,7 +193,12 @@ class App
 
         if (!self._connectionsUp || force)
         {
-            async.waterfall([
+            async.series([
+                function (callback)
+                {
+                    // start VirtualBox VM
+                    require(Pathfinder.absPathInSrcFolder("bootup/init/init_virtualbox.js")).initVirtualBoxVM(self.app, callback);
+                },
                 function (callback)
                 {
                     // start docker containers

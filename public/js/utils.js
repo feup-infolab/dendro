@@ -197,3 +197,12 @@ Utils.anyToString = function(value)
     else
         return value;
 };
+
+Utils.bufferToString = function (buffer)
+{
+    const { StringDecoder } = require("string_decoder");
+    const decoder = new StringDecoder("utf8");
+
+    const cent = Buffer.from(buffer);
+    return decoder.write(cent);
+};

@@ -39,7 +39,7 @@ describe("[File Cut / Move] [B2Drop project] cutFiles ?paste", function ()
             {
                 should.equal(err, null);
                 done();
-            });
+            }, true);
         });
 
         afterEach(function (done)

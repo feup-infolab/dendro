@@ -876,6 +876,12 @@ Config.regex_routes = {
 Config.authentication = getConfigParameter("authentication");
 Config.numCPUs = getConfigParameter("numCPUs");
 Config.docker = getConfigParameter("docker");
+Config.virtualbox = getConfigParameter("virtualbox");
+
+if (Config.docker.active && Config.virtualbox.active)
+{
+    throw new Error("Cannot have docker and virtualbox flags active at the same time in the deployment config!");
+}
 
 if (process.env.NODE_ENV === "production")
 {

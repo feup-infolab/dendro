@@ -18,10 +18,10 @@ class TestUnit
         callback(null);
     }
 
-    static setup (callback)
+    static setup (callback, forceLoad)
     {
         const self = this;
-        unitUtils.setup(self, callback);
+        unitUtils.setup(self, callback, forceLoad);
     }
 }
 

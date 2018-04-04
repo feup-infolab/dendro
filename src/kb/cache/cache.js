@@ -94,6 +94,7 @@ Cache.initConnections = function (callback, deleteAllCachedRecords)
                                         if (err)
                                         {
                                             Logger.log("error", "[ERROR] Unable to connect to MongoDB instance with ID: " + mongoCacheConfig.id + " running on " + mongoCacheConfig.host + ":" + mongoCacheConfig.port + " : " + err);
+                                            Logger.log("error", newMongoCacheConnection);
                                         }
                                         else
                                         {
@@ -171,7 +172,7 @@ Cache.initConnections = function (callback, deleteAllCachedRecords)
                 return callback(null);
             }
 
-            throw new Error("[ERROR] Unable to setup some cache instances." + JSON.stringify(results));
+            throw new Error("[ERROR] Unable to setup some cache instances. Is the MongoDB server online?\n" + JSON.stringify(results));
         }
     );
 };
