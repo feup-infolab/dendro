@@ -108,8 +108,8 @@ Zenodo.prototype.uploadFileToDeposition = function (depositionID, file, callback
     {
         if (r.statusCode !== 201)
         {
-            Logger.log("error", e);
-            return callback(true);
+            Logger.log("error", r.body.message);
+            return callback(r.body.message);
         }
         return callback(false);
     });
@@ -127,7 +127,7 @@ Zenodo.prototype.uploadMultipleFilesToDeposition = function (depositionID, files
         {
             if (err)
             {
-                return callback(true);
+                return callback(err);
             } return callback(false);
         });
     },
@@ -135,7 +135,7 @@ Zenodo.prototype.uploadMultipleFilesToDeposition = function (depositionID, files
     {
         if (err)
         {
-            return callback(true);
+            return callback(err);
         }
         return callback(false);
     });

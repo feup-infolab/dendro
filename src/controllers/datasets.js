@@ -587,7 +587,7 @@ const export_to_repository_zenodo = function (req, res)
 
                                         try
                                         {
-                                            const accessTocken = targetRepository.ddr.hasAccessToken;
+                                            const accessToken = targetRepository.ddr.hasAccessToken;
                                             const hasExternalUri = targetRepository.ddr.hasExternalUri;
 
                                             let title;
@@ -618,7 +618,7 @@ const export_to_repository_zenodo = function (req, res)
                                             let zenodo = null;
                                             try
                                             {
-                                                zenodo = new Zenodo(accessTocken, hasExternalUri);
+                                                zenodo = new Zenodo(accessToken, hasExternalUri);
                                             }
                                             catch(error)
                                             {
@@ -656,7 +656,7 @@ const export_to_repository_zenodo = function (req, res)
                                                         if (err)
                                                         {
                                                             generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
-                                                            const msg = "Error uploading multiple files to deposition in Zenodo";
+                                                            const msg = "Error uploading multiple files to deposition in Zenodo, error: " + JSON.stringify(err);
                                                             Logger.log("error", msg);
                                                             res.status(500).json(
                                                                 {
