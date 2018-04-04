@@ -46,7 +46,8 @@ SwordConnection.sendFile = function (repositoryType, filePath, collectionRef, se
 {
     const option = "send-file";
     let command = "java -jar " + jarPath + " " + option + " " + repositoryType + " " + this.user + " " + this.password + " " + this.serviceDocRef;
-    command += " " + filePath + " " + collectionRef + " " + sendMetadata;
+    //command += " " + filePath + " " + collectionRef + " " + sendMetadata;
+    command += " " + "'" + filePath  + "'" + " " + collectionRef + " " + sendMetadata;
     if (sendMetadata)
     {
         command += " " + metadataJsonRef;
