@@ -683,7 +683,8 @@ const export_to_repository_zenodo = function (req, res)
                                                                 else
                                                                 {
                                                                     generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
-                                                                    const msg = "Folder " + folder.nie.title + " successfully exported from Dendro platform. ";
+                                                                    let msg = "Folder " + folder.nie.title + " successfully exported from Dendro platform. ";
+                                                                    msg = msg + "<br/><br/><a href='" + data.links.record_html + "'>Click to see your published dataset<\/a>";
                                                                     Logger.log(msg);
                                                                     res.json(
                                                                         {
