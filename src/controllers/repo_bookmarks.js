@@ -334,7 +334,7 @@ exports.my = function (req, res)
             {
                 if(isNull(myRepositoryBookmark))
                 {
-                    return callback(err, []);
+                    return callback(null, []);
                 }
                 else
                 {
