@@ -332,19 +332,26 @@ exports.my = function (req, res)
         {
             const getPlatformDetails = function (myRepositoryBookmark, callback)
             {
-                RepositoryPlatform.findByUri(myRepositoryBookmark.ddr.hasPlatform, function (err, platform)
+                if(isNull(myRepositoryBookmark))
                 {
-                    if (isNull(err))
+                    return callback(err, []);
+                }
+                else
+                {
+                    RepositoryPlatform.findByUri(myRepositoryBookmark.ddr.hasPlatform, function (err, platform)
                     {
-                        if (!isNull(platform))
+                        if (isNull(err))
                         {
-                            myRepositoryBookmark.ddr.hasPlatform = platform;
-                        }
+                            if (!isNull(platform))
+                            {
+                                myRepositoryBookmark.ddr.hasPlatform = platform;
+                            }
 
-                        return callback(null, myRepositoryBookmark);
-                    }
-                    return callback(err, platform);
-                });
+                            return callback(null, myRepositoryBookmark);
+                        }
+                        return callback(err, platform);
+                    });
+                }
             };
 
             async.mapSeries(myRepositoryBookmarks, getPlatformDetails, function (err, bookmarksWithPlatforms)
@@ -415,7 +422,7 @@ exports.all = function (req, res)
 
 exports.delete = function (req, res)
 {
-    const requestedResourceUri = Config.baseUri + req.originalUrl;
+    const requestedResourceUri = req.originalUrl;
 
     if (req.originalMethod === "DELETE")
     {
