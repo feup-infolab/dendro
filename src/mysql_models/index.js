@@ -8,6 +8,35 @@ var env       = process.env.NODE_ENV || 'development';
 var config    = require(__dirname + '/../../conf/sequelize_config.json')[env];
 var db        = {};
 
+
+/*
+
+{
+  "development": {
+    "username": "root",
+    "password": "r00t_p4ssw0rd",
+    "database": "dendroVagrantDemo",
+    "host": "192.168.56.249",
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "root",
+    "password": "r00t_p4ssw0rd",
+    "database": "dendroVagrantDemo",
+    "host": "192.168.56.249",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "root",
+    "password": "r00t_p4ssw0rd",
+    "database": "dendroVagrantDemo",
+    "host": "192.168.56.249",
+    "dialect": "mysql"
+  }
+}
+
+ */
+
 if (config.use_env_variable) {
     var sequelize = new Sequelize(process.env[config.use_env_variable], config);
 } else {

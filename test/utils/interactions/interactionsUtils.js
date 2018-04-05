@@ -1,6 +1,7 @@
 const Pathfinder = global.Pathfinder;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const dbMySQL = require(Pathfinder.absPathInSrcFolder("mysql_models"));
 
 exports.recordInteraction = function (jsonOnly, folderUri, projectHandle, interactionData, agent, cb)
 {
@@ -939,60 +940,40 @@ exports.deleteAll = function (jsonOnly, agent, cb)
 
 exports.getLatestInteractionInDB = function (callback)
 {
-    Config.mysql.default.pool.getConnection(function (err, connection)
-    {
-        if (isNull(err))
-        {
-            const countInteractionsQuery = "SELECT * FROM interactions ORDER BY ID DESC LIMIT 1" + ";\n";
-            connection.query(
-                countInteractionsQuery,
-                function (err, result, fields)
-                {
-                    connection.release();
-                    if (isNull(err))
-                    {
-                        callback(err, result);
-                    }
-                    else
-                    {
-                        return callback(true, "[ERROR] Unable get the latest interaction info on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
-                    }
-                }
-            );
-        }
-        else
-        {
-            return callback(true, "[ERROR] Unable to connect to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
-        }
-    });
+    const latestInteractionQuery = "SELECT * FROM interactions ORDER BY ID DESC LIMIT 1" + ";\n";
+    dbMySQL.sequelize
+        .query(latestInteractionQuery, { type: dbMySQL.sequelize.QueryTypes.SELECT})
+        .then(result => {
+            if(isNull(result))
+            {
+                return callback(null, []);
+            }
+            else
+            {
+                return callback(null, result);
+            }
+        })
+        .catch(err => {
+            return callback(true, "[ERROR] Unable get the latest interaction info on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
+        })
 };
 
 exports.getNumberOfInteractionsInDB = function (callback)
 {
-    Config.mysql.default.pool.getConnection(function (err, connection)
-    {
-        if (isNull(err))
-        {
-            const countInteractionsQuery = "SELECT count(*) as nInteractions FROM interactions" + ";\n";
-            connection.query(
-                countInteractionsQuery,
-                function (err, result, fields)
-                {
-                    connection.release();
-                    if (isNull(err))
-                    {
-                        callback(err, result);
-                    }
-                    else
-                    {
-                        return callback(true, "[ERROR] Unable to count the number of interations on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
-                    }
-                }
-            );
-        }
-        else
-        {
-            return callback(true, "[ERROR] Unable to connect to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
-        }
-    });
+    const countInteractionsQuery = "SELECT count(*) as nInteractions FROM interactions" + ";\n";
+    dbMySQL.sequelize
+        .query(countInteractionsQuery, { type: dbMySQL.sequelize.QueryTypes.SELECT})
+        .then(result => {
+            if(isNull(result))
+            {
+                return callback(null, []);
+            }
+            else
+            {
+                return callback(null, result);
+            }
+        })
+        .catch(err => {
+            return callback(true, "[ERROR] Unable to count the number of interations on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "and dbName: " + Config.mySQLDBName +  "\n Error description : " + err);
+        })
 };

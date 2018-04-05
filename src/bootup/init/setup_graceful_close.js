@@ -158,6 +158,7 @@ const setupGracefulClose = function (app, server, callback)
                 cb(err, null);
             });*/
 
+            /*
             const db = require(Pathfinder.absPathInSrcFolder("mysql_models"));
             db.sequelize.close().then(() => {
                 Logger.log("info", "Closed MySQL connection pool");
@@ -166,6 +167,8 @@ const setupGracefulClose = function (app, server, callback)
                 Logger.log("error", "Error closing MySQL connection pool");
                 cb(err, null);
             });
+            */
+            callback(null, null);
         };
 
         const haltHTTPServer = function (cb)
@@ -201,7 +204,47 @@ const setupGracefulClose = function (app, server, callback)
             cb(null);
         };
 
+        const waitForPendingConnectionsToFinishup = function (cb)
+        {
+            let count = 0;
+            //if (!isNull(self.server))
+            if (!isNull(server))
+            {
+                Logger.log("Waiting for pending connections to finish up...");
+                async.during(function (callback)
+                    {
+                        if (count > 20)
+                        {
+                            Logger.log("warn", "Still pending connections even after " + count + " attempts!");
+                            callback(null);
+                        }
+                        else
+                        {
+                            //self.server.getConnections(function (err, connections)
+                            server.getConnections(function (err, connections)
+                            {
+                                callback(err, (connections > 0));
+                            });
+                        }
+                    },
+                    function (callback)
+                    {
+                        count++;
+                        setTimeout(callback, 1000);
+                    },
+                    function (err, result)
+                    {
+                        cb(err, result);
+                    });
+            }
+            else
+            {
+                cb(null);
+            }
+        };
+
         async.series([
+            waitForPendingConnectionsToFinishup,
             closeVirtuosoConnections,
             closeCacheConnections,
             closeGridFSConnections,
