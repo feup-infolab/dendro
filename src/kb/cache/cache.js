@@ -203,7 +203,7 @@ Cache.closeConnections = function (cb)
                     Logger.log("error", JSON.stringify(result));
                 }
                 cb(err, result);
-                self.caches[cacheKey] = null;
+                // self.caches[cacheKey] = null;
             });
         }
         else

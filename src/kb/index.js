@@ -241,19 +241,21 @@ IndexConnection.prototype.ensureIndexIsReady = function (callback)
                 {
                     if(result.status === "green")
                     {
-                        // try a query to see if it gives 503 error (stupid garbage!)
-                        self.client.count({
-                            index: self.short_name,
-                        }, function (error, response) {
-                            if(isNull(error))
-                            {
-                                callback(null, true);
-                            }
-                            else
-                            {
-                                callback(error, false)
-                            }
-                        });
+                        // // try a query to see if it gives 503 error (stupid garbage!)
+                        // self.client.count({
+                        //     index: self.short_name,
+                        // }, function (error, response) {
+                        //     if(isNull(error))
+                        //     {
+                        //         callback(null, true);
+                        //     }
+                        //     else
+                        //     {
+                        //         callback(error, false)
+                        //     }
+                        // });
+
+                        callback(null, true);
                     }
                     else
                     {
@@ -710,7 +712,7 @@ IndexConnection.prototype.create_new_index = function (deleteIfExists, callback,
                                         }
                                         else
                                         {
-                                            if (!isNull(data) && !isNull(data.error) && data.error.type === "index_already_exists_exception")
+                                            if (!isNull(data) && !isNull(data.error) && data.error.type === "resource_already_exists_exception")
                                             {
                                                 Logger.log("Index with name " + indexName + " already exists, no need to create.");
                                                 callback(null);
@@ -766,11 +768,11 @@ IndexConnection.prototype.delete_index = function (callback)
                             }
                             else
                             {
-                                if(!isNull(data))
+                                if (!isNull(data) && !isNull(data.error) && data.error.type === "index_not_found_exception")
                                 {
-                                    const error = "Error deleting index : " + JSON.stringify(data);
-                                    Logger.log("error", error);
-                                    callback(error, data.error);
+                                    const error = "Index "+self.short_name+" does not exist, no need to delete.";
+                                    Logger.log("info", error);
+                                    callback(null, error);
                                 }
                                 else
                                 {

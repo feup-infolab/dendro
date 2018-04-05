@@ -14,24 +14,41 @@ const VirtualBoxManager = function ()
 VirtualBoxManager.vmName = Config.virtualbox.vmName;
 VirtualBoxManager.reuseCheckpoints = Config.virtualbox.reuseCheckpoints;
 VirtualBoxManager._destroyedSnapshotsOnce = false;
+VirtualBoxManager._deletedSnapshots = {};
 
 VirtualBoxManager.stopVM = function (callback)
 {
     if (Config.virtualbox && Config.virtualbox.active)
     {
-        Logger.log("Stopping Virtualbox VM.");
-
-        virtualbox.stop(VirtualBoxManager.vmName, function startCallback (error)
+        virtualbox.isRunning(VirtualBoxManager.vmName, function (error, running)
         {
             if (isNull(error))
             {
-                Logger.log("Stopped VM");
-                callback(error);
+                if (running)
+                {
+                    Logger.log("Stopping Virtualbox VM.");
+                    virtualbox.stop(VirtualBoxManager.vmName, function startCallback (error)
+                    {
+                        if (isNull(error))
+                        {
+                            Logger.log("Stopped VM");
+                        }
+                        else
+                        {
+                            Logger.log("Failed to stop VM");
+                            Logger.log("error", error);
+                        }
+
+                        callback(error);
+                    });
+                }
+                else
+                {
+                    callback(null);
+                }
             }
             else
             {
-                Logger.log("Failed to stop VM");
-                Logger.log("error", error);
                 callback(error);
             }
         });
@@ -42,12 +59,56 @@ VirtualBoxManager.stopVM = function (callback)
     }
 };
 
+VirtualBoxManager.destroySnapshot = function (snapshotName, callback, onlyOnce)
+{
+    if (!(VirtualBoxManager._deletedSnapshots[snapshotName] && onlyOnce) || isNull(onlyOnce))
+    {
+        virtualbox.snapshotList(VirtualBoxManager.vmName, function (error, snapshotList, currentSnapshotUUID)
+        {
+            if (snapshotList && snapshotList instanceof Array)
+            {
+                const snapshotExists = _.filter(snapshotList, function (snapshot)
+                {
+                    return snapshot.name === snapshotName;
+                }).length > 0;
+
+                if (snapshotExists)
+                {
+                    virtualbox.snapshotDelete(VirtualBoxManager.vmName, snapshotName, function (error)
+                    {
+                        if (error) throw error;
+                        else
+                        {
+                            VirtualBoxManager._deletedSnapshots[snapshotName] = true;
+                            Logger.log("Snapshot " + snapshotName + " has been deleted!");
+                            callback(error);
+                        }
+                    });
+                }
+                else
+                {
+                    callback(null);
+                }
+            }
+            else
+            {
+                callback(null);
+            }
+        });
+    }
+    else
+    {
+        callback(null);
+    }
+};
+
 VirtualBoxManager.destroyAllSnapshots = function (callback, onlyOnce)
 {
     if (Config.virtualbox && Config.virtualbox.active)
     {
-        if(onlyOnce && VirtualBoxManager._destroyedSnapshotsOnce)
+        if (onlyOnce && VirtualBoxManager._destroyedSnapshotsOnce)
         {
+            Logger.log("Already deleted Virtualbox Snapshots once, skipping...");
             callback(null);
         }
         else
@@ -62,12 +123,11 @@ VirtualBoxManager.destroyAllSnapshots = function (callback, onlyOnce)
                     const async = require("async");
                     async.mapSeries(snapshotList, function (snapshot, cb)
                     {
-                        virtualbox.snapshotDelete(VirtualBoxManager.vmName, snapshot.name, function (error)
-                        {
-                            if (error) throw error;
-                            Logger.log("Snapshot has been deleted!");
-                            callback(error);
-                        });
+
+                    }, function (err, results)
+                    {
+                        VirtualBoxManager._destroyedSnapshotsOnce = true;
+                        callback(err, results);
                     });
                 }
                 else
@@ -94,19 +154,7 @@ VirtualBoxManager.startVM = function (callback)
             if (isNull(error))
             {
                 Logger.log("Started VM");
-
-                if (!Config.virtualbox.reuse_shapshots)
-                {
-                    VirtualBoxManager.destroyAllSnapshots(function (err, result)
-                    {
-                        callback(err, result);
-                    });
-                }
-                else
-                {
-                    Logger.log("Reusing VM snapshots...");
-                    callback(null);
-                }
+                callback(null);
             }
             else
             {
@@ -128,15 +176,23 @@ VirtualBoxManager.checkpointExists = function (checkpointName, callback)
     {
         virtualbox.snapshotList(VirtualBoxManager.vmName, function (error, snapshotList, currentSnapshotUUID)
         {
-            if (snapshotList && snapshotList instanceof Array)
+            if (isNull(error))
             {
-                const matchingSnapshots = _.filter(snapshotList, function(snapshot){
-                    return snapshot.name === checkpointName;
-                });
-
-                if (matchingSnapshots.length > 0)
+                if (snapshotList && snapshotList instanceof Array)
                 {
-                    callback(null, true);
+                    const matchingSnapshots = _.filter(snapshotList, function (snapshot)
+                    {
+                        return snapshot.name === checkpointName;
+                    });
+
+                    if (matchingSnapshots.length > 0)
+                    {
+                        callback(null, true);
+                    }
+                    else
+                    {
+                        callback(null, false);
+                    }
                 }
                 else
                 {
@@ -145,7 +201,9 @@ VirtualBoxManager.checkpointExists = function (checkpointName, callback)
             }
             else
             {
-                callback(null, false);
+                const msg = "Error retrieving list of snapshots of virtual machine " + VirtualBoxManager.vmName;
+                Logger.log("error", msg);
+                callback(error, msg);
             }
         });
     }
@@ -190,23 +248,64 @@ VirtualBoxManager.restoreCheckpoint = function (checkpointName, callback)
 {
     if (Config.virtualbox && Config.virtualbox.active)
     {
-        virtualbox.snapshotRestore(VirtualBoxManager.vmName, checkpointName, function (error, uuid)
+        VirtualBoxManager.stopVM(function (err, result)
         {
-            if (error)
+            if (isNull(err))
             {
-                callback(1, "Error restoring snapshot!");
+                VirtualBoxManager.checkpointExists(checkpointName, function (err, exists)
+                {
+                    if (isNull(err))
+                    {
+                        if (exists)
+                        {
+                            virtualbox.snapshotRestore(VirtualBoxManager.vmName, checkpointName, function (err, output)
+                            {
+                                if (isNull(err))
+                                {
+                                    VirtualBoxManager.startVM(function (err, result)
+                                    {
+                                        if (isNull(err))
+                                        {
+                                            console.log("Snapshot has been restored!");
+                                            console.log("UUID: ", output);
+                                            callback(null);
+                                        }
+                                        else
+                                        {
+                                            Logger.log("error", err);
+                                            Logger.log("error", result);
+                                            callback(err);
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    Logger.log("error", err);
+                                    Logger.log("error", output);
+                                    callback(1, "Error restoring snapshot!");
+                                }
+                            });
+                        }
+                        else
+                        {
+                            Logger.log("error", err);
+                            Logger.log("error", exists);
+                            callback(err, exists);
+                        }
+                    }
+                    else
+                    {
+                        Logger.log("error", err);
+                        Logger.log("error", exists);
+                        callback(err, exists);
+                    }
+                });
             }
             else
             {
-                if (uuid)
-                {
-                    console.log("Snapshot has been restored!");
-                    console.log("UUID: ", uuid);
-                }
-                else
-                {
-                    callback(2, "Null uuid returned when restoring a snapshot!");
-                }
+                Logger.log("error", err);
+                Logger.log("error", result);
+                callback(3, "Unable to stop virtual machine ");
             }
         });
     }

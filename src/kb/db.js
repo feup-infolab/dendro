@@ -321,7 +321,7 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
                         }
                         else
                         {
-                            Logger.log("error", "Error releasing JDBC connection on pool of database " + self.id);
+                            Logger.log("error", "Error releasing JDBC connection on pool of database " + self.handle);
                             Logger.log("error", JSON.stringify(err));
                             Logger.log("error", JSON.stringify(connection));
                             callback(err, connection);
@@ -330,7 +330,7 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
                 }
                 else
                 {
-                    Logger.log("error", "Error committing changes made by JDBC connection on pool of database " + self.id);
+                    Logger.log("error", "Error committing changes made by JDBC connection on pool of database " + self.handle);
                     Logger.log("error", JSON.stringify(err));
                     Logger.log("error", JSON.stringify(connection));
                     callback(err, connection);
@@ -1044,9 +1044,16 @@ DbConnection.prototype.close = function (callback)
             {
                 if (self.pendingRequests.hasOwnProperty(queryID))
                 {
-                    if (!isNull(self.pendingRequests[queryID]) && typeof self.pendingRequests[queryID] === "function")
+                    if (!isNull(self.pendingRequests[queryID]) && self.pendingRequests[queryID].conn)
                     {
-                        self.pendingRequests[queryID].cancel(cb);
+                        self.pendingRequests[queryID].conn.close(function (err, result)
+                        {
+                            cb(err, result);
+                        });
+                    }
+                    else
+                    {
+                        cb(null);
                     }
                 }
                 else
@@ -1756,7 +1763,7 @@ DbConnection.prototype.commit = function (callback)
                         }
                         else
                         {
-                            const msg = "Error releasing Virtuoso connection after committing changes made by connection " + self.id;
+                            const msg = "Error releasing Virtuoso connection after committing changes made by connection " + self.handle;
                             Logger.log("error", msg);
                             callback(2, msg);
                         }
@@ -1765,7 +1772,7 @@ DbConnection.prototype.commit = function (callback)
             }
             else
             {
-                const msg = "Error reserving Virtuoso connection for committing changes made by connection " + self.id;
+                const msg = "Error reserving Virtuoso connection for committing changes made by connection " + self.handle;
                 Logger.log("error", msg);
                 callback(2, msg);
             }
@@ -1773,7 +1780,7 @@ DbConnection.prototype.commit = function (callback)
     }
     else
     {
-        const msg = "No pool open when trying to commit changes to Virtuoso connection " + self.id;
+        const msg = "No pool open when trying to commit changes to Virtuoso connection " + self.handle;
         Logger.log("error", msg);
         callback(1, msg);
     }

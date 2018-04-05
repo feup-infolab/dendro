@@ -564,12 +564,49 @@ class App
             });
         }
 
+        const waitForPendingConnectionsToFinishup = function (cb)
+        {
+            let count = 0;
+            if (!isNull(self.server))
+            {
+                Logger.log("Waiting for pending connections to finish up...");
+                async.during(function (callback)
+                {
+                    if (count > 20)
+                    {
+                        Logger.log("warn", "Still pending connections even after " + count + " attempts!");
+                        callback(null);
+                    }
+                    else
+                    {
+                        self.server.getConnections(function (err, connections)
+                        {
+                            callback(err, (connections > 0));
+                        });
+                    }
+                },
+                function (callback)
+                {
+                    count++;
+                    setTimeout(callback, 1000);
+                },
+                function (err, result)
+                {
+                    cb(err, result);
+                });
+            }
+            else
+            {
+                cb(null);
+            }
+        };
+
         const closeVirtuosoConnections = function (cb)
         {
             const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
             DbConnection.finishUpAllConnectionsAndClose(function ()
             {
-                const timeout = 0;
+                const timeout = 2000;
                 Logger.log("Waiting " + timeout + "ms for virtuoso to flush the buffers...");
                 setTimeout(cb, timeout);
             });
@@ -658,12 +695,9 @@ class App
 
         const haltHTTPServer = function (cb)
         {
-            if (!isNull(self.server))
-            {
-                Logger.log("Halting server...");
-                self.server.close();
-                self.server.destroy();
-            }
+            Logger.log("Halting server...");
+            self.server.close();
+            self.server.destroy();
             cb(null);
         };
 
@@ -715,6 +749,7 @@ class App
         };
 
         async.series([
+            waitForPendingConnectionsToFinishup,
             closeVirtuosoConnections,
             closeCacheConnections,
             closeIndexConnections,
