@@ -1181,13 +1181,13 @@ Project.prototype.getFavoriteDescriptors = function (maxResults, callback, allow
         .query(queryProjectDescriptorFavorites,
             {replacements: { uri: self.uri }})
         .then(result => {
-            if(isNull(result) || isNull(result[0]))
+            if(isNull(result))
             {
-                return callback(err, []);
+                return callback(null, []);
             }
             else
             {
-                async.mapSeries(result[0], function (row, callback)
+                async.mapSeries(result, function (row, callback)
                 {
                     Descriptor.findByUri(row.executedOver, function (err, descriptor) {
                         if(isNull(err))
@@ -1324,13 +1324,13 @@ Project.prototype.getHiddenDescriptors = function (maxResults, callback, allowed
         .query(queryProjectHiddenDescriptors,
             {replacements: { uri: self.uri }})
         .then(result => {
-            if(isNull(result) || isNull(result[0]))
+            if(isNull(result))
             {
-                return callback(err, []);
+                return callback(null, []);
             }
             else
             {
-                async.mapSeries(result[0], function (row, callback)
+                async.mapSeries(result, function (row, callback)
                 {
                     Descriptor.findByUri(row.executedOver, function (err, descriptor) {
                         if(isNull(err))
