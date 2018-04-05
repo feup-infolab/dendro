@@ -194,6 +194,10 @@ exports.checkpointExists = function (checkpointIdentifier, callback)
     {
         VirtualBoxManager.checkpointExists(checkpointIdentifier, callback);
     }
+    else
+    {
+        callback(null, false);
+    }
 };
 
 exports.loadCheckpoint = function (checkpointIdentifier, callback)
@@ -224,19 +228,39 @@ exports.loadCheckpoint = function (checkpointIdentifier, callback)
                     }
                     else if (Config.virtualbox.active)
                     {
-                        VirtualBoxManager.restoreCheckpoint(checkpointIdentifier, function (err, result)
-                        {
-                            if (isNull(err))
+                        async.series([
+                            function (callback)
                             {
-                                callback(null, checkpointIdentifier);
-                            }
-                            else
+                                if (!Config.virtualbox.reuseCheckpoints)
+                                {
+                                    Logger.log("Destroying VM checkpoint " + checkpointIdentifier + "...");
+                                    VirtualBoxManager.destroySnapshot(checkpointIdentifier, function (err, result)
+                                    {
+                                        callback(err, result);
+                                    }, true);
+                                }
+                                else
+                                {
+                                    callback(null);
+                                }
+                            },
+                            function (callback)
                             {
-                                Logger.log("error", err);
-                                Logger.log("error", result);
-                                callback(err, "Error occurred while restoring the snapshot of VM with identifier " + checkpointIdentifier);
+                                VirtualBoxManager.restoreCheckpoint(checkpointIdentifier, function (err, result)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        callback(null, checkpointIdentifier);
+                                    }
+                                    else
+                                    {
+                                        Logger.log("error", err);
+                                        Logger.log("error", result);
+                                        callback(err, "Error occurred while restoring the snapshot of VM with identifier " + checkpointIdentifier);
+                                    }
+                                });
                             }
-                        });
+                        ]);
                     }
                 }
                 else
@@ -574,16 +598,10 @@ exports.setup = function (targetUnit, callback, forceLoad)
         }
         else if (Config.virtualbox.active)
         {
-            if (!Config.virtualbox.reuseCheckpoints)
+            exports.loadCheckpoint(checkpointIdentifier, function (err, result)
             {
-                VirtualBoxManager.destroySnapshot(checkpointIdentifier, function (err, result){
-                    Logger.log("Trying to recover checkpoint " + checkpointIdentifier + "...");
-                    exports.loadCheckpoint(checkpointIdentifier, function (err, result)
-                    {
-                        callback(err, result);
-                    });
-                }, true);
-            }
+                callback(err, result);
+            });
         }
         else
         {

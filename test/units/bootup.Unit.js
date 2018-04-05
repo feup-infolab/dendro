@@ -48,9 +48,9 @@ class BootupUnit extends TestUnit
         });
     }
 
-    static setup (callback)
+    static setup (callback, forceLoad)
     {
-        super.setup(callback);
+        super.setup(callback, forceLoad);
     }
 
     static init (callback)

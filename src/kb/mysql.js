@@ -17,6 +17,22 @@ function DendroMySQLClient (host, port, db, username, password)
     self._databaseExists = false;
 }
 
+DendroMySQLClient.prototype.releaseConnection = function (connection, callback)
+{
+    const self = this;
+    connection.end(function (err, result)
+    {
+        if (err)
+        {
+            Logger.log("error", "Error releasing connection to MySQL on database " + self.hostname + ":" + self.port + " " + self.db);
+            Logger.log("error", err);
+            Logger.log("error", result);
+        }
+
+        callback(err, result);
+    });
+};
+
 DendroMySQLClient.prototype.getConnection = function (callback)
 {
     const self = this;
@@ -93,9 +109,12 @@ DendroMySQLClient.prototype.createDatabaseIfNotExists = function (callback)
             {
                 Logger.log("error", "Error creating database in MySQL: " + self.db);
             }
-            connection.end();
-            self._databaseExists = true;
-            callback(err, result);
+
+            self.releaseConnection(connection, function (err, result)
+            {
+                self._databaseExists = true;
+                callback(err, result);
+            });
         });
     }
     else

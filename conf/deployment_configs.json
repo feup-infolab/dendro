@@ -393,7 +393,7 @@
           "reuse_checkpoints": true
         },
         "virtualbox": {
-          "active": true,
+          "active": false,
           "reuse_shapshots": true,
           "vmName": "dendroVagrantDemo"
         }
@@ -784,10 +784,10 @@
         "numCPUs": 1,
         "docker": {
           "active": false,
-          "reuse_checkpoints": true
+          "reuse_checkpoints": false
         },
         "virtualbox": {
-          "active": true,
+          "active": false,
           "reuse_shapshots": true,
           "vmName": "dendroVagrantDemo"
         }
@@ -1181,7 +1181,7 @@
           "reuse_checkpoints": true
         },
         "virtualbox": {
-          "active": true,
+          "active": false,
           "reuse_shapshots": true,
           "vmName": "dendroVagrantDemo"
         }
@@ -1575,7 +1575,7 @@
           "reuse_checkpoints": true
         },
         "virtualbox": {
-          "active": true,
+          "active": false,
           "reuse_shapshots": true,
           "vmName": "dendroVagrantDemo"
         }

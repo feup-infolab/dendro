@@ -217,7 +217,7 @@ class App
                 function (callback)
                 {
                     // create search indexes on elasticsearch if needed
-                    require(Pathfinder.absPathInSrcFolder("bootup/load/create_indexes.js")).createIndexes(self.app, callback);
+                    require(Pathfinder.absPathInSrcFolder("bootup/init/connect_to_indexes.js")).connectToIndexes(self.app, callback);
                 },
                 function (callback)
                 {
@@ -509,6 +509,11 @@ class App
             {
                 // destroy graphs if needed
                 self.runIfMaster(require(Pathfinder.absPathInSrcFolder("bootup/load/destroy_all_graphs.js")).destroyAllGraphs, self.app, callback);
+            },
+            function (callback)
+            {
+                // delete and recreate search indexes on elasticsearch if needed
+                require(Pathfinder.absPathInSrcFolder("bootup/load/create_indexes.js")).createIndexes(self.app, callback);
             },
             function (callback)
             {

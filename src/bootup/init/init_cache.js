@@ -13,7 +13,7 @@ const initCache = function (app, callback)
         Cache.initConnections(function (err, result)
         {
             callback(err);
-        }, Config.startup.clear_caches);
+        });
     }
     else
     {

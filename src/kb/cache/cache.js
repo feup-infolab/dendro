@@ -12,7 +12,7 @@ const Cache = function ()
 
 };
 
-Cache.initConnections = function (callback, deleteAllCachedRecords)
+Cache.initConnections = function (callback)
 {
     const _ = require("underscore");
 

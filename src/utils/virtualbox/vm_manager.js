@@ -12,7 +12,7 @@ const VirtualBoxManager = function ()
 };
 
 VirtualBoxManager.vmName = Config.virtualbox.vmName;
-VirtualBoxManager.reuseCheckpoints = Config.virtualbox.reuseCheckpoints;
+VirtualBoxManager.reuseCheckpoints = Config.virtualbox.reuse_shapshots;
 VirtualBoxManager._destroyedSnapshotsOnce = false;
 VirtualBoxManager._deletedSnapshots = {};
 
@@ -248,15 +248,15 @@ VirtualBoxManager.restoreCheckpoint = function (checkpointName, callback)
 {
     if (Config.virtualbox && Config.virtualbox.active)
     {
-        VirtualBoxManager.stopVM(function (err, result)
+        VirtualBoxManager.checkpointExists(checkpointName, function (err, exists)
         {
             if (isNull(err))
             {
-                VirtualBoxManager.checkpointExists(checkpointName, function (err, exists)
+                if (exists)
                 {
-                    if (isNull(err))
+                    VirtualBoxManager.stopVM(function (err, result)
                     {
-                        if (exists)
+                        if (isNull(err))
                         {
                             virtualbox.snapshotRestore(VirtualBoxManager.vmName, checkpointName, function (err, output)
                             {
@@ -289,23 +289,23 @@ VirtualBoxManager.restoreCheckpoint = function (checkpointName, callback)
                         else
                         {
                             Logger.log("error", err);
-                            Logger.log("error", exists);
-                            callback(err, exists);
+                            Logger.log("error", result);
+                            callback(3, "Unable to stop virtual machine ");
                         }
-                    }
-                    else
-                    {
-                        Logger.log("error", err);
-                        Logger.log("error", exists);
-                        callback(err, exists);
-                    }
-                });
+                    });
+                }
+                else
+                {
+                    Logger.log("warn", err);
+                    Logger.log("warn", exists);
+                    callback(null, "Virtualbox checkpoint " + checkpointName + " not found. Continuing...");
+                }
             }
             else
             {
                 Logger.log("error", err);
-                Logger.log("error", result);
-                callback(3, "Unable to stop virtual machine ");
+                Logger.log("error", exists);
+                callback(err, exists);
             }
         });
     }
