@@ -24,11 +24,25 @@ const initMySQL = function (app, callback)
             {
                 if (err)
                 {
-                    return callback("Unable to create interactions table " + Config.recommendation.getTargetTable() + " in MySQL ");
+                    callback("Unable to create interactions table " + Config.recommendation.getTargetTable() + " in MySQL ");
                 }
-
-                Logger.log("Connected to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort);
-                return callback(null);
+                else
+                {
+                    if(Config.getMySQLByID().connection)
+                    {
+                        Config.getMySQLByID().connection.releaseAllConnections(function(){
+                            Config.getMySQLByID().connection = client;
+                            Logger.log("ReConnected to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort);
+                            return callback(null);
+                        });
+                    }
+                    else
+                    {
+                        Config.getMySQLByID().connection = client;
+                        Logger.log("Connected to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort);
+                        return callback(null);
+                    }
+                }
             });
         }
         else
