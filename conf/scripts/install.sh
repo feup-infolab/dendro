@@ -3,12 +3,18 @@
 INITIAL_DIR=`pwd`
 NODE_VERSION=`cat .nvmrc`
 
-# install text extraction dependencies
-if [ "$(uname)" == "Darwin" ]; then
-    brew cask install xquartz && brew install ghostscript xpdf tesseract imagemagick && brew cask install pdftotext
-elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-    echo "I need your sudo password for installing text extraction dependencies..."
-    sudo apt-get -y -f install poppler-utils antiword unrtf tesseract-ocr
+# check to see if text extraction tools need to be installed
+if [[ tesseract > /dev/null ]]
+then
+    # install text extraction dependencies
+    if [ "$(uname)" == "Darwin" ]; then
+        brew cask install xquartz && brew install ghostscript xpdf tesseract imagemagick && brew cask install pdftotext
+        brew tap caskroom/versions
+        brew cask install java8
+    elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+        echo "I need your sudo password for installing text extraction dependencies..."
+        sudo apt-get -y -f install poppler-utils antiword unrtf tesseract-ocr
+    fi
 fi
 
 echo "Installing Dendro in $INITIAL_DIR with username $(whoami) and Node $NODE_VERSION"
