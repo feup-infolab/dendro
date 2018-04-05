@@ -4859,6 +4859,7 @@ exports.select_ontology_manually = function (req, res)
                 // ontology uri
                 if (!isNull(req.body.uri))
                 {
+                    console.log("ontology to find is : " + req.body.uri);
                     Ontology.findByUri(req.body.uri, function (err, ontology)
                     {
                         if (isNull(err))
