@@ -36,7 +36,7 @@ before_script:
 
   - docker build -t virtuoso-dendro:virtuoso-7.2.4-loaded-with-ontologies ./conf/dockerfiles/virtuoso-7.2.4-loaded-with-ontologies
   - docker run --name virtuoso-dendro -p 8890:8890 -p 1111:1111 -e SPARQL_UPDATE=true -d virtuoso-dendro:virtuoso-7.2.4-loaded-with-ontologies
-  - sleep 60s
+  - sleep 30s
   - docker exec virtuoso-dendro /bin/bash -c "isql-v -U dba -P dba < \$HOME/dendro-install/scripts/SQLCommands/interactive_sql_commands.sql"
 
 script:
