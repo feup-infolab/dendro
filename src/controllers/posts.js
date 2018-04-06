@@ -867,7 +867,7 @@ exports.new = function (req, res)
                                     {
                                         if (!err)
                                         {
-                                            event = new Event("post", manualPost.uri, currentUserUri, req.body.newPostProjectUri);
+                                            let event = new Event("post", manualPost.uri, currentUserUri, req.body.newPostProjectUri);
                                             event.saveToMySQL(function (err) {
                                                 if (isNull(err))
                                                 {
@@ -1080,7 +1080,7 @@ exports.share = function (req, res)
                             {
                                 if (isNull(err))
                                 {
-                                    event = new Event("share", post.uri, currentUser.uri, post.ddr.projectUri);
+                                    let event = new Event("share", post.uri, currentUser.uri, post.ddr.projectUri);
                                     event.saveToMySQL(function (err) {
                                         if (isNull(err))
                                         {
@@ -1246,7 +1246,7 @@ exports.comment = function (req, res)
                     {
                         if (isNull(err))
                         {
-                            event = new Event("comment", post.uri, currentUser.uri, post.ddr.projectUri);
+                            let event = new Event("comment", post.uri, currentUser.uri, post.ddr.projectUri);
                             event.saveToMySQL(function (err) {
                                 if (isNull(err))
                                 {
@@ -1383,6 +1383,17 @@ exports.like = function (req, res)
                 if (likeExists)
                 {
                     // like was removed
+                    let event = new Event("like", req.body.postID, currentUser.uri, "");
+                    event.deleteFromMySQL(function (err) {
+                        if (isNull(err))
+                        {
+                            Logger.log("Event \"like\" deleted from MySQL");
+                        }
+                        else
+                        {
+                            Logger.log("error", err);
+                        }
+                    });
                     res.json({
                         result: "OK",
                         message: "Like was removed"
@@ -1423,7 +1434,7 @@ exports.like = function (req, res)
                             {
                                 if (isNull(err))
                                 {
-                                    event = new Event("like", post.uri, currentUser.uri, post.ddr.projectUri);
+                                    let event = new Event("like", post.uri, currentUser.uri, post.ddr.projectUri);
                                     event.saveToMySQL(function (err) {
                                         if (isNull(err))
                                         {
