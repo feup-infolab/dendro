@@ -28,9 +28,10 @@ const initMySQL = function (app, callback)
                 }
                 else
                 {
-                    if(Config.getMySQLByID().connection)
+                    if (Config.getMySQLByID().connection)
                     {
-                        Config.getMySQLByID().connection.releaseAllConnections(function(){
+                        Config.getMySQLByID().connection.releaseAllConnections(function ()
+                        {
                             Config.getMySQLByID().connection = client;
                             Logger.log("ReConnected to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort);
                             return callback(null);

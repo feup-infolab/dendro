@@ -204,9 +204,8 @@ MongoDBCache.prototype.getByQuery = function (query, callback)
                     }
                     Logger.log("error", "Error running query: " + JSON.stringify(query, null, 4));
                     Logger.log("error", err.stack);
-                    return callback(err, "Unable to execute query " + JSON.stringify(query) + " from mongodb cache.");
-
                     cursor.close();
+                    return callback(err, "Unable to execute query " + JSON.stringify(query) + " from mongodb cache.");
                 });
             }
             else

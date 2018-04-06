@@ -1311,7 +1311,7 @@
         "mySQLDBName": "TRAVISTESTSdendroVagrantDemo",
         "maxUploadSize": 2147483648,
         "maxProjectSize": 5368709120,
-        "maxSimultaneousConnectionsToDb": 10,
+        "maxSimultaneousConnectionsToDb": 2,
         "dbOperationTimeout": 16000,
         "tempFilesDir": "temp",
         "tempUploadsDir": "temp_uploads",
