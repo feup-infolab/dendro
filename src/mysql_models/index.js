@@ -1,18 +1,22 @@
 'use strict';
 
-var fs        = require('fs');
-var path      = require('path');
-var Sequelize = require('sequelize');
-var basename  = path.basename(__filename);
-var env       = process.env.NODE_ENV || 'development';
-var config    = require(__dirname + '/../../conf/sequelize_config.json')[env];
-var db        = {};
+let fs        = require("fs");
+let path      = require("path");
+let Sequelize = require("sequelize");
+let basename  = path.basename(__filename);
+let db        = {};
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-if (config.use_env_variable) {
-    var sequelize = new Sequelize(process.env[config.use_env_variable], config);
-} else {
-    var sequelize = new Sequelize(config.database, config.username, config.password, config);
-}
+let config = {
+    "username": Config.mySQLAuth.user,
+    "password": Config.mySQLAuth.password,
+    "database": Config.mySQLDBName,
+    "host": Config.mySQLHost,
+    "dialect": "mysql"
+};
+
+var sequelize = new Sequelize(config.database, config.username, config.password, config);
 
 fs
     .readdirSync(__dirname)

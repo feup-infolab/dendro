@@ -272,7 +272,8 @@ Interaction.prototype.saveToMySQL = function (callback/*, overwrite*/)
             originallyRecommendedFor: self.ddr.originallyRecommendedFor,
             rankingPosition: self.ddr.rankingPosition,
             pageNumber: (isNull(self.ddr.pageNumber) ? -1 : self.ddr.pageNumber),
-            recommendationCallId: self.ddr.recommendationCallId
+            recommendationCallId: self.ddr.recommendationCallId,
+            projectUri: self.ddr.projectUri
         }
 
         if (!isNull(self.ddr.recommendationCallTimeStamp) && typeof self.ddr.recommendationCallTimeStamp.slice(0, 19) !== "undefined")
