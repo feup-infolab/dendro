@@ -14,6 +14,8 @@ const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 const interactionsUtils = require(Pathfinder.absPathInTestsFolder("utils/interactions/interactionsUtils.js"));
+const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils"));
+const descriptorUtils = require(Pathfinder.absPathInTestsFolder("utils/descriptor/descriptorUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
@@ -27,8 +29,14 @@ let projectRootData = null;
 let dctermsUri = "http://purl.org/dc/terms/";
 let foafUri = "http://xmlns.com/foaf/0.1/";
 
-let demouser1InteractionObj = {uri: dctermsUri};
-let demouser2InteractionObj = {uri: foafUri};
+//let demouser1InteractionObj = {uri: dctermsUri};
+//let demouser2InteractionObj = {uri: foafUri};
+
+let demouser1InteractionObj = {};
+let demouser2InteractionObj = {};
+
+let dctermsPrefix = "dcterms";
+let foafPrefix = "foaf";
 
 describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] select_ontology_manually", function ()
 {
@@ -53,7 +61,23 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] select_ontology
                     demouser2InteractionObj.interactionType = "select_ontology_manually";
                     demouser2InteractionObj.recommendedFor = projectRootData[0].uri;
                     demouser2InteractionObj.rankingPosition = 0;
-                    done();
+                    descriptorUtils.getDescriptorsFromOntology(true, agent, dctermsPrefix, function (err, res)
+                    {
+                        should.equal(err, null);
+                        should.exist(res);
+                        should.exist(res.body.descriptors);
+                        should.exist(res.body.descriptors[0].ontology);
+                        demouser1InteractionObj.uri = res.body.descriptors[0].ontology;
+                        descriptorUtils.getDescriptorsFromOntology(true, agent, foafPrefix, function (err, res)
+                        {
+                            should.equal(err, null);
+                            should.exist(res);
+                            should.exist(res.body.descriptors);
+                            should.exist(res.body.descriptors[0].ontology);
+                            demouser2InteractionObj.uri = res.body.descriptors[0].ontology;
+                            done();
+                        });
+                    });
                 });
             });
         });
