@@ -4860,11 +4860,31 @@ exports.select_ontology_manually = function (req, res)
                 if (!isNull(req.body.uri))
                 {
                     console.log("ontology to find is : " + req.body.uri);
-                    Ontology.findByUri(req.body.uri, function (err, ontology)
-                    {
-                        if (isNull(err))
+                    Ontology.all(function (err, ontologies) {
+                        console.log("There are " + ontologies.length + " ontologies");
+                        ontologies.forEach(function (ontology)
                         {
-                            if (isNull(ontology))
+                            console.log("Ontology uri is: " + ontology.uri + "\n");
+                        });
+                        console.log("No more ontologies");
+                        Ontology.findByUri(req.body.uri, function (err, ontology)
+                        {
+                            if (isNull(err))
+                            {
+                                if (isNull(ontology))
+                                {
+                                    let errorObj = {
+                                        statusCode: 500,
+                                        message: "Interaction type " + Interaction.types.select_ontology_manually.key + " requires a valid ontology 'uri' in the request's body. It represents the ontology to be selected."
+                                    };
+                                    callback(errorObj);
+                                }
+                                else
+                                {
+                                    callback(null);
+                                }
+                            }
+                            else
                             {
                                 let errorObj = {
                                     statusCode: 500,
@@ -4872,19 +4892,7 @@ exports.select_ontology_manually = function (req, res)
                                 };
                                 callback(errorObj);
                             }
-                            else
-                            {
-                                callback(null);
-                            }
-                        }
-                        else
-                        {
-                            let errorObj = {
-                                statusCode: 500,
-                                message: "Interaction type " + Interaction.types.select_ontology_manually.key + " requires a valid ontology 'uri' in the request's body. It represents the ontology to be selected."
-                            };
-                            callback(errorObj);
-                        }
+                        });
                     });
                     // callback(null);
                 }
