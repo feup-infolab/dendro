@@ -21,6 +21,108 @@ angular.module('dendroApp.controllers')
                   projectsService,
                   metricsService,
                   $interval) {
+            let deposit = {
+                creator : null,
+                date : "2017-12-28T19:54:56+00:00",
+                folder : "/r/folder/e5ccb0da-743d-4aff-88c9-8728db99339b",
+                folderName : "gravimetry01",
+                label : "B2Share Metrics",
+                platformsUsed : "CKAN",
+                privacy : "private",
+                projectTitle : "Gravimetry run campaign over the Azores",
+                projused : "/r/project/84ab852f-322c-485d-a7a9-0513ab55c6ea",
+                repository : "http://demo.ckan.org",
+                uri : "/r/deposit/1f22e7d9-9db5-494b-ae84-feb0bd6c906c",
+                user : "demouser1"
+            };
+
+            let deposit2 = {
+                creator : null,
+                date : "2017-12-28T19:54:56+00:00",
+                folder : "/r/folder/e5ccb0da-743d-4aff-88c9-8728db99339b",
+                folderName : "gravimetry01",
+                label : "B2Share Metrics",
+                platformsUsed : "DSpace",
+                privacy : "private",
+                projectTitle : "Gravimetry run campaign over the Azores",
+                projused : "/r/project/84ab852f-322c-485d-a7a9-0513ab55c6ea",
+                repository : "http://demo.dspace.org ",
+                uri : "/r/deposit/1f22e7d9-9db5-494b-ae84-feb0bd6c906c",
+                user : "demouser1"
+            };
+            let deposit3 = {
+                creator : null,
+                date : "2017-9-28T19:54:56+00:00",
+                folder : "/r/folder/e5ccb0da-743d-4aff-88c9-8728db99339b",
+                folderName : "gravimetry01",
+                label : "B2Share Metrics",
+                platformsUsed : "EUDAT B2Share",
+                privacy : "private",
+                projectTitle : "Gravimetry run campaign over the Azores",
+                projused : "/r/project/84ab852f-322c-485d-a7a9-0513ab55c6ea",
+                repository : "trng-b2share.eudat.eu",
+                uri : "/r/deposit/1f22e7d9-9db5-494b-ae84-feb0bd6c906c",
+                user : "demouser2"
+            };
+            let deposit4 = {
+                creator : null,
+                date : "2017-10-28T19:54:56+00:00",
+                folder : "/r/folder/e5ccb0da-743d-4aff-88c9-8728db99339b",
+                folderName : "gravimetry01",
+                label : "B2Share Metrics",
+                platformsUsed : "Zenodo",
+                privacy : "private",
+                projectTitle : "Gravimetry run campaign over the Azores",
+                projused : "/r/project/84ab852f-322c-485d-a7a9-0513ab55c6ea",
+                repository : "http://www.zenodo.org/",
+                uri : "/r/deposit/1f22e7d9-9db5-494b-ae84-feb0bd6c906c",
+                user : "demouser1"
+            };
+            let deposit5 = {
+                creator : null,
+                date : "2017-11-28T19:54:56+00:00",
+                folder : "/r/folder/e5ccb0da-743d-4aff-88c9-8728db99339b",
+                folderName : "gravimetry01",
+                label : "Ckan demo",
+                platformsUsed : "CKAN",
+                privacy : "private",
+                projectTitle : "Gravimetry run campaign over the Azores",
+                projused : "/r/project/84ab852f-322c-485d-a7a9-0513ab55c6ea",
+                repository : "http://demo.ckan.org",
+                uri : "/r/deposit/1f22e7d9-9db5-494b-ae84-feb0bd6c906c",
+                user : "demouser4"
+            };
+            let deposit6 = {
+                creator : null,
+                date : "2017-11-28T19:54:56+00:00",
+                folder : "/r/folder/e5ccb0da-743d-4aff-88c9-8728db99339b",
+                folderName : "gravimetry01",
+                label : "figshare demo",
+                platformsUsed : "Figshare",
+                privacy : "private",
+                projectTitle : "Gravimetry run campaign over the Azores",
+                projused : "/r/project/84ab852f-322c-485d-a7a9-0513ab55c6ea",
+                repository : "http://figshare.org",
+                uri : "/r/deposit/1f22e7d9-9db5-494b-ae84-feb0bd6c906c",
+                user : "demouser4"
+            };
+            let deposit7 = {
+                creator : null,
+                date : "2017-09-15T19:54:56+00:00",
+                folder : "/r/folder/e5ccb0da-743d-4aff-88c9-8728db99339b",
+                folderName : "gravimetry01",
+                label : "figshare demo",
+                platformsUsed : "EPrints",
+                privacy : "private",
+                projectTitle : "Gravimetry run campaign over the Azores",
+                projused : "/r/project/84ab852f-322c-485d-a7a9-0513ab55c6ea",
+                repository : "http://eprints.org",
+                uri : "/r/deposit/1f22e7d9-9db5-494b-ae84-feb0bd6c906c",
+                user : "demouser4"
+            };
+
+            var depositsSet =[deposit,deposit2,deposit3,deposit4,deposit5,deposit6,deposit7,deposit7,deposit7,deposit7,deposit7,deposit7,deposit3,deposit4,deposit5];
+
 
 
             $scope.init = function () {
@@ -28,107 +130,6 @@ angular.module('dendroApp.controllers')
                // $scope.getOwner();
 
 
-                let deposit = {
-                    creator : null,
-                    date : "2017-12-28T19:54:56+00:00",
-                    folder : "/r/folder/e5ccb0da-743d-4aff-88c9-8728db99339b",
-                    folderName : "gravimetry01",
-                    label : "B2Share Metrics",
-                    platformsUsed : "CKAN",
-                    privacy : "private",
-                    projectTitle : "Gravimetry run campaign over the Azores",
-                    projused : "/r/project/84ab852f-322c-485d-a7a9-0513ab55c6ea",
-                    repository : "http://demo.ckan.org",
-                    uri : "/r/deposit/1f22e7d9-9db5-494b-ae84-feb0bd6c906c",
-                    user : "demouser1"
-                };
-
-                let deposit2 = {
-                    creator : null,
-                    date : "2017-12-28T19:54:56+00:00",
-                    folder : "/r/folder/e5ccb0da-743d-4aff-88c9-8728db99339b",
-                    folderName : "gravimetry01",
-                    label : "B2Share Metrics",
-                    platformsUsed : "DSpace",
-                    privacy : "private",
-                    projectTitle : "Gravimetry run campaign over the Azores",
-                    projused : "/r/project/84ab852f-322c-485d-a7a9-0513ab55c6ea",
-                    repository : "http://demo.dspace.org ",
-                    uri : "/r/deposit/1f22e7d9-9db5-494b-ae84-feb0bd6c906c",
-                    user : "demouser1"
-                };
-                let deposit3 = {
-                    creator : null,
-                    date : "2017-9-28T19:54:56+00:00",
-                    folder : "/r/folder/e5ccb0da-743d-4aff-88c9-8728db99339b",
-                    folderName : "gravimetry01",
-                    label : "B2Share Metrics",
-                    platformsUsed : "EUDAT B2Share",
-                    privacy : "private",
-                    projectTitle : "Gravimetry run campaign over the Azores",
-                    projused : "/r/project/84ab852f-322c-485d-a7a9-0513ab55c6ea",
-                    repository : "trng-b2share.eudat.eu",
-                    uri : "/r/deposit/1f22e7d9-9db5-494b-ae84-feb0bd6c906c",
-                    user : "demouser2"
-                };
-                let deposit4 = {
-                    creator : null,
-                    date : "2017-10-28T19:54:56+00:00",
-                    folder : "/r/folder/e5ccb0da-743d-4aff-88c9-8728db99339b",
-                    folderName : "gravimetry01",
-                    label : "B2Share Metrics",
-                    platformsUsed : "Zenodo",
-                    privacy : "private",
-                    projectTitle : "Gravimetry run campaign over the Azores",
-                    projused : "/r/project/84ab852f-322c-485d-a7a9-0513ab55c6ea",
-                    repository : "http://www.zenodo.org/",
-                    uri : "/r/deposit/1f22e7d9-9db5-494b-ae84-feb0bd6c906c",
-                    user : "demouser1"
-                };
-                let deposit5 = {
-                    creator : null,
-                    date : "2017-11-28T19:54:56+00:00",
-                    folder : "/r/folder/e5ccb0da-743d-4aff-88c9-8728db99339b",
-                    folderName : "gravimetry01",
-                    label : "Ckan demo",
-                    platformsUsed : "CKAN",
-                    privacy : "private",
-                    projectTitle : "Gravimetry run campaign over the Azores",
-                    projused : "/r/project/84ab852f-322c-485d-a7a9-0513ab55c6ea",
-                    repository : "http://demo.ckan.org",
-                    uri : "/r/deposit/1f22e7d9-9db5-494b-ae84-feb0bd6c906c",
-                    user : "demouser4"
-                };
-                let deposit6 = {
-                    creator : null,
-                    date : "2017-11-28T19:54:56+00:00",
-                    folder : "/r/folder/e5ccb0da-743d-4aff-88c9-8728db99339b",
-                    folderName : "gravimetry01",
-                    label : "figshare demo",
-                    platformsUsed : "Figshare",
-                    privacy : "private",
-                    projectTitle : "Gravimetry run campaign over the Azores",
-                    projused : "/r/project/84ab852f-322c-485d-a7a9-0513ab55c6ea",
-                    repository : "http://figshare.org",
-                    uri : "/r/deposit/1f22e7d9-9db5-494b-ae84-feb0bd6c906c",
-                    user : "demouser4"
-                };
-                let deposit7 = {
-                    creator : null,
-                    date : "2017-09-15T19:54:56+00:00",
-                    folder : "/r/folder/e5ccb0da-743d-4aff-88c9-8728db99339b",
-                    folderName : "gravimetry01",
-                    label : "figshare demo",
-                    platformsUsed : "EPrints",
-                    privacy : "private",
-                    projectTitle : "Gravimetry run campaign over the Azores",
-                    projused : "/r/project/84ab852f-322c-485d-a7a9-0513ab55c6ea",
-                    repository : "http://eprints.org",
-                    uri : "/r/deposit/1f22e7d9-9db5-494b-ae84-feb0bd6c906c",
-                    user : "demouser4"
-                };
-
-                var depositsSet =[deposit,deposit2,deposit3,deposit4,deposit5,deposit6,deposit7,deposit7,deposit7,deposit7,deposit7,deposit7,deposit3,deposit4,deposit5];
                 setTimeline(depositsSet);
                // setGraphs(depositsSet);
                 setUserGraphs(depositsSet);
@@ -136,6 +137,20 @@ angular.module('dendroApp.controllers')
                 //$scope.startDeposits();
 
             };
+
+            $scope.initsplash = function () {
+                //$scope.loadData();
+                // $scope.getOwner();
+
+
+                setTimeline(depositsSet);
+                setGraphs(depositsSet);
+               // setUserGraphs(depositsSet);
+
+                //$scope.startDeposits();
+
+            };
+
 
 
             $scope.updateData = function () {
@@ -264,6 +279,9 @@ angular.module('dendroApp.controllers')
                 for (let i =0; i < deposits.length; i++){
                     depositers.set(deposits[i].user, 0);
                 }
+                for (let j = 0; j < deposits.length; j++){
+                    depositers.set(deposits[j].user,depositers.get(deposits[j].user) + 1)
+                }
                 for (var [key, value] of depositers.entries()) {
                     $scope.labels.push(key);
                     $scope.data.push(value);
@@ -301,7 +319,7 @@ angular.module('dendroApp.controllers')
             }
 
 
-            $interval($scope.updateData, 5000);
+            $interval($scope.updateData, 10000);
 
 
 

@@ -48,6 +48,13 @@
       </div>
 
         <%- include registry/deposits_listing.ejs %>
+        <div  id="splashmetrics" ng-controller="metricsController">
+            <div ng-init="initsplash()">
+                <div class="col-lg-12">
+                    <%- include metrics/splash_metrics.ejs %>
+                </div>
+            </div>
+        </div>
     </div>
     <!-- /Services -->
 

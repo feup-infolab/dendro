@@ -1,0 +1,52 @@
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+        <div class="metrics" >
+            <canvas id="repos" width="200" height="100" class="chart-base" chart-type= "type" chart-data="data" chart-labels="labels" chart-colors="colors">
+            </canvas>
+        </div>
+        <!--        <button type="button" class="btn btn-primary pull-left" ng-click="updateData()">Toggle</button>-->
+    </div>
+
+    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+        <div class="metrics" >
+            <canvas id="depos" width="200" height="100" class="chart-bar" chart-data="data2" chart-dataset-override="datasetOverride"  chart-labels="labels2" chart-colors="depositscolors" chart-options="options">
+            </canvas>
+        </div>
+    </div>
+</div>
+
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <h4>Deposits Timeline</h4>
+    </div>
+    <div class="panel-body">
+        <div class="container">
+            <div class="row">
+                <timeline>
+                    <timeline-event ng-repeat="event in events" side="">
+                        <timeline-badge class="{{event.badgeClass}}">
+                            <i class="glyphicon {{event.badgeIconClass}}"></i>
+                            <!--                        <span class="timeline-balloon-date-day">"{{event.shortDate}}"</span>-->
+
+                        </timeline-badge>
+
+                        <timeline-panel class="{{event.badgeClass}}">
+                            <timeline-heading>
+                                <h4>{{event.title}}</h4>
+                            </timeline-heading>
+                            <p>{{event.content}}</p>
+                            <a href={{event.depositAnchor}}>Check deposit</a>
+                            <p ng-if="event.when" class="ng-scope">
+                                <img class="img-responsive pull-right" src={{event.image}} height="30px" width="30px" alt="">
+                                <small class="text-muted ng-binding"><i class="glyphicon glyphicon-time"></i>{{event.when}}</small>
+                            </p>
+
+                        </timeline-panel>
+                    </timeline-event>
+                </timeline>
+            </div>
+        </div>
+    </div>
+</div>
