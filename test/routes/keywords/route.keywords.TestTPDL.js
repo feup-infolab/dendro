@@ -50,6 +50,7 @@ const doc12 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/d
 const doc13 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc13.js"));
 const doc14 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc14.js"));
 const doc15 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc15.js"));
+const doc16 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc15.js"));
 
 const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
 const addContributorsToProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
@@ -90,9 +91,7 @@ describe("Searches DBpedia for important terms", function (done)
                         res.body.descriptors.should.be.instanceof(Array);
                         artigo = JSON.parse(res.text).descriptors[7].value;
                         descriptorUtils.noPrivateDescriptors(JSON.parse(res.text).descriptors).should.equal(true);
-                        descriptorUtils.containsAllMetadata(
-                            doc1.metadata,
-                            JSON.parse(res.text).descriptors
+                        descriptorUtils.containsAllMetadata(doc1.metadata,JSON.parse(res.text).descriptors
                         );
 
                         done();
@@ -102,15 +101,15 @@ describe("Searches DBpedia for important terms", function (done)
         });
     });
 
-    describe("[GET] Complete path using all 15 files", function ()
+    describe("[GET] Complete path using all 16 files", function ()
     {
         var artigos = [];
         var textprocessado = [];
         var preprocessing = [];
-        var doclist = [doc1, doc2, doc3, doc4, doc5, doc6, doc7, doc8, doc9, doc10, doc11, doc12, doc13, doc14, doc15];
+        var doclist = [doc1, doc2, doc3, doc4, doc5, doc6, doc7, doc8, doc9, doc10, doc11, doc12, doc13, doc14, doc15, doc16];
         var loadfiles = function (lookup, cb)
         {
-            fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, lookup, function (err, res)
+            fileUtils.uploadFile(true, agent, privateProject.handle, testFolder2.name, lookup, function (err, res)
             {
                 res.statusCode.should.equal(200);
                 res.body.should.be.instanceof(Object);
@@ -194,7 +193,7 @@ describe("Searches DBpedia for important terms", function (done)
                 dbpediaconcepts = db.body.dbpediauri.result;
                 console.log(dbpediaconcepts);
                 var writer = csvWriter();
-                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/dpbediaconcepts.csv")))
+                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/chemistry-CVALUE-JJ2.csv")))
                 {
                     writer = csvWriter({ separator: ",", headers: ["searchterm", "score", "uri", "label", "description" ]});
                 }
@@ -202,7 +201,7 @@ describe("Searches DBpedia for important terms", function (done)
                 {
                     writer = csvWriter({sendHeaders: false});
                 }
-                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/dpbediaconcepts.csv"), {flags: "a"}));
+                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/chemistry-CVALUE-JJ2.csv"), {flags: "a"}));
                 for( var i = 0; i < dbpediaconcepts.length; i++) {
                     writer.write(dbpediaconcepts[i]);
                 }

@@ -21,7 +21,7 @@ global.tests = {};
 // Import projects tests
 // require(Pathfinder.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));
 
-require(Pathfinder.absPathInTestsFolder("/routes/keywords/route.keywords.TestTPDL.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/keywords/route.keywords.Test.js"));
 
 // ERROS
 // Delete a project

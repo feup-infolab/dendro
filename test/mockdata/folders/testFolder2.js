@@ -25,6 +25,7 @@ let folderData = {
         require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc13.js")),
         require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc14.js")),
         require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc15.js")),
+        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc16.js")),
         require(Pathfinder.absPathInTestsFolder("mockdata/files/pngMockFile.js")),
         require(Pathfinder.absPathInTestsFolder("mockdata/files/xlsxMockFile.js"))
     ],

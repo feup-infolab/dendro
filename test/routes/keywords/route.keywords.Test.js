@@ -191,13 +191,13 @@ describe("Searches DBpedia for important terms", function (done)
                     cb(null, JSON.parse(res.text).descriptors[7].value);
                 });
             });
-
         };
         var processfiles = function (lookup, cb)
         {
-            keywordsUtils.preprocessing(lookup, agent, function (err, res) {
+            keywordsUtils.preprocessing(lookup, agent, function (err, res)
+            {
                 res.statusCode.should.equal(200);
-                cb(null, [res.text,JSON.parse(res.text).text]);
+                cb(null, [res.text, JSON.parse(res.text).text]);
 
                 // console.log(artigos[0]);
             });
@@ -263,15 +263,15 @@ describe("Searches DBpedia for important terms", function (done)
                 dbpediaconcepts = db.body.dbpediauri.result;
                 console.log(dbpediaconcepts);
                 var writer = csvWriter();
-                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/dpbediaconcepts.csv")))
+                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/vehicle-lov.csv")))
                 {
-                    writer = csvWriter({ separator: ",", headers: [ "searchterm", "score", "uri", "label", "description" ]});
+                    writer = csvWriter({ separator: ",", headers: [ "searchterm", "score", "lovscore", "lovvocabulary", "lovuri", "lovlabel", "dbpedialabel", "dbpediauri", "dbpediadescription" ]});
                 }
                 else
                 {
                     writer = csvWriter({sendHeaders: false});
                 }
-                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/dpbediaconcepts.csv"), {flags: "a"}));
+                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/vehicle-lov.csv"), {flags: "a"}));
                 for (var i = 0; i < dbpediaconcepts.length; i++)
                 {
                     writer.write(dbpediaconcepts[i]);
@@ -280,7 +280,7 @@ describe("Searches DBpedia for important terms", function (done)
                 done();
             });
         });
-        it("Get properties from DBpedia", function (done)
+        /* it("Get properties from DBpedia", function (done)
         {
             this.timeout(1500000);
             keywordsUtils.dbpediaproperties(dbpediaconcepts, agent, function (err, db)
@@ -304,7 +304,7 @@ describe("Searches DBpedia for important terms", function (done)
                 writer.end();
                 done();
             });
-        });
+        });*/
     });
 
     after(function (done)
