@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 module.exports = {
     up: (queryInterface, Sequelize) => {
@@ -12,7 +12,7 @@ module.exports = {
                 "(hiddenInfo.created = (SELECT MAX(created) FROM interactions WHERE projectUri = projectUri AND interactions.interactionType in ('hide_descriptor_from_quick_list_for_project', 'unhide_descriptor_from_quick_list_for_project') AND hiddenInfo.interactionType in ('hide_descriptor_from_quick_list_for_project') AND unhiddenInfo.interactionType in ('hide_descriptor_from_quick_list_for_project') AND unhiddenInfo.executedOver = hiddenInfo.executedOver AND interactions.executedOver = hiddenInfo.executedOver)) \n" +
                 "OR (hiddenInfo.created = (SELECT MAX(created) FROM interactions WHERE projectUri = projectUri AND interactions.interactionType in ('hide_descriptor_from_quick_list_for_project', 'unhide_descriptor_from_quick_list_for_project') AND hiddenInfo.interactionType in ('hide_descriptor_from_quick_list_for_project') AND unhiddenInfo.interactionType in ('unhide_descriptor_from_quick_list_for_project') AND unhiddenInfo.executedOver = hiddenInfo.executedOver AND interactions.executedOver = hiddenInfo.executedOver AND  unhiddenInfo.created < hiddenInfo.created)); \n" +
                 "END");
-        })
+        });
     },
 
     down: (queryInterface, Sequelize) => {

@@ -18,17 +18,17 @@ global.tests = {};
 require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 
 // test file moving
-//require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/a_filename/__cut/routes.project.privateProject.data.testFolder1.a_filename.__cut.Test.js"));
+// require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/a_filename/__cut/routes.project.privateProject.data.testFolder1.a_filename.__cut.Test.js"));
 
 // interaction tests
 
 // /interactions/favorite_descriptor_from_quick_list_for_project
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/favorite_descriptor_from_quick_list_for_project/routes.interactions.favoriteDescriptorFromQuickListForProject.Test.js"));
 
-//favorite_descriptor_from_manual_list_for_project
+// favorite_descriptor_from_manual_list_for_project
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/favorite_descriptor_from_manual_list_for_project/routes.interactions.favoriteDescriptorFromManualListForProject.Test.js"));
 
-//favorite_descriptor_from_manual_list_for_user
+// favorite_descriptor_from_manual_list_for_user
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/favorite_descriptor_from_manual_list_for_user/routes.interactions.favoriteDescriptorFromManualListForUser.Test.js"));
 
 // favorite_descriptor_from_quick_list_for_user
@@ -64,10 +64,10 @@ require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_descriptor_
 
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_descriptor_from_manual_list_while_it_was_a_project_favorite/routes.interactions.acceptDescriptorFromManualListWhileItWasAProjectFavorite.Test.js"));
 
-//accept_descriptor_from_manual_list_while_it_was_a_user_favorite
+// accept_descriptor_from_manual_list_while_it_was_a_user_favorite
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_favorite/routes.interactions.acceptDescriptorFromManualListWhileItWasAUserFavorite.Test.js"));
 
-//accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite
+// accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite/routes.interactions.acceptDescriptorFromManualListWhileItWasAUserAndProjectFavorite.Test.js"));
 
 // /interactions/accept_descriptor_from_autocomplete

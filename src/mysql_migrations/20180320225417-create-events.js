@@ -1,7 +1,7 @@
-'use strict';
+"use strict";
 module.exports = {
     up: (queryInterface, Sequelize) => {
-        return queryInterface.createTable('events', {
+        return queryInterface.createTable("events", {
             id: {
                 allowNull: false,
                 autoIncrement: true,
@@ -28,19 +28,20 @@ module.exports = {
             typeId: {
                 type: Sequelize.INTEGER,
                 references: {
-                    model: 'types',
-                    key: 'id'
+                    model: "types",
+                    key: "id"
                 }
             }
         }).then(() => {
-            queryInterface.addIndex('events', ['userURI']);
-            queryInterface.addIndex('events', ['postURI']);
-            queryInterface.addIndex('events', ['projectURI']);
-            queryInterface.renameColumn('events', 'createdAt', 'timestamp');
-            return queryInterface.renameColumn('events', 'updatedAt', 'modified');
+            queryInterface.addIndex("events", ["userURI"]);
+            queryInterface.addIndex("events", ["postURI"]);
+            queryInterface.addIndex("events", ["projectURI"]);
+            queryInterface.renameColumn("events", "createdAt", "timestamp");
+            return queryInterface.renameColumn("events", "updatedAt", "modified");
         });
     },
-    down: (queryInterface, Sequelize) => {
-        return queryInterface.dropTable('events');
+    down: (queryInterface, Sequelize) =>
+    {
+        return queryInterface.dropTable("events");
     }
 };

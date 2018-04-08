@@ -1,1 +1,0 @@
- goes as expected, I would pleased if you could send us in advance any form of media content that you will be using during the presentation(slides, videos, etc..).

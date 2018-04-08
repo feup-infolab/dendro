@@ -1,6 +1,6 @@
-'use strict';
+"use strict";
 module.exports = (sequelize, DataTypes) => {
-    var interactions = sequelize.define('interactions', {
+    var interactions = sequelize.define("interactions", {
         uri: DataTypes.STRING,
         projectUri: DataTypes.STRING,
         performedBy: DataTypes.STRING,
@@ -12,21 +12,21 @@ module.exports = (sequelize, DataTypes) => {
         recommendationCallId: { type: DataTypes.TEXT, defaultValue: null },
         recommendationCallTimeStamp: { type: DataTypes.DATE, defaultValue: null }
     }, {
-        createdAt: 'created',
-        updatedAt: 'modified',
+        createdAt: "created",
+        updatedAt: "modified",
         indexes: [
-            { fields: ['uri'] },
-            { fields: ['performedBy'] },
-            { fields: ['interactionType'] },
-            { fields: ['executedOver'] },
-            { fields: ['originallyRecommendedFor'] },
-            { fields: ['projectUri', 'interactionType', 'executedOver'] },
-            { fields: ['performedBy', 'interactionType', 'executedOver'] },
-            { fields: ['created'] }
+            { fields: ["uri"] },
+            { fields: ["performedBy"] },
+            { fields: ["interactionType"] },
+            { fields: ["executedOver"] },
+            { fields: ["originallyRecommendedFor"] },
+            { fields: ["projectUri", "interactionType", "executedOver"] },
+            { fields: ["performedBy", "interactionType", "executedOver"] },
+            { fields: ["created"] }
         ]
     }, {
-        createdAt: 'created',
-        updatedAt: 'modified'
+        createdAt: "created",
+        updatedAt: "modified"
     });
     interactions.associate = function(models) {
         // associations can be defined here
