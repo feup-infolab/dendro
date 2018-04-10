@@ -239,6 +239,11 @@ const startApp = function ()
             },
             function (callback)
             {
+                // init Job storage
+                require(Pathfinder.absPathInSrcFolder("bootup/init/init_jobs_db.js")).initJobsDb(self.app, callback);
+            },
+            function (callback)
+            {
                 // init MySQL Connection pool
                 require(Pathfinder.absPathInSrcFolder("bootup/init/init_mysql.js")).initMySQL(self.app, callback);
             },
@@ -375,6 +380,13 @@ const startApp = function ()
             {
                 // add graceful closing methods to release connections on server shutdown, for example
                 require(Pathfinder.absPathInSrcFolder("bootup/init/setup_graceful_close.js")).setupGracefulClose(self.app, self.server, callback);
+            },
+            function (callback)
+            {
+                // init Job storage
+                Logger.log("info", "Now initializing Agenda!");
+                //require(Pathfinder.absPathInSrcFolder("/jobs/lib/agenda.js")).init(self.app, callback);
+                require(Pathfinder.absPathInSrcFolder("bootup/init/init_agenda.js")).init(self.app, callback);
             },
             function (callback)
             {

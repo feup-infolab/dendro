@@ -102,6 +102,7 @@
         "mongoDbPort": "27017",
         "mongoDbCollectionName": "127.0.0.1:3001_files",
         "mongoDBSessionStoreCollection": "127.0.0.1:3001_sessions",
+        "mongoJobCollectionName": "devJobCollectionName",
         "mongoDbVersion": "",
         "mongoDBAuth": {
             "user": "",
@@ -205,7 +206,7 @@
                 "log_all_restore_operations": true,
                 "log_delete_operations": true,
                 "log_file_fetches": true,
-                "delete_temp_folder_on_startup": true,
+                "delete_temp_folder_on_startup": false,
                 "log_file_version_fetches": false,
                 "log_temp_file_writes": false,
                 "log_temp_file_reads": false
@@ -493,6 +494,7 @@
         "mongoDbPort": "27017",
         "mongoDbCollectionName": "127.0.0.1:3002_files",
         "mongoDBSessionStoreCollection": "127.0.0.1:3002_sessions",
+        "mongoJobCollectionName": "testJobCollectionName",
         "mongoDbVersion": "",
         "mongoDBAuth": {
             "user": "",
@@ -879,6 +881,7 @@
         "mongoDbPort": "27017",
         "mongoDbCollectionName": "127.0.0.1:3002_files",
         "mongoDBSessionStoreCollection": "127.0.0.1:3002_sessions",
+        "mongoJobCollectionName": "jenkinsJobCollectionName",
         "mongoDbVersion": "",
         "mongoDBAuth": {
             "user": "",
@@ -1265,6 +1268,7 @@
         "mongoDbPort": "27017",
         "mongoDbCollectionName": "127.0.0.1:3002_files",
         "mongoDBSessionStoreCollection": "127.0.0.1:3002_sessions",
+        "mongoJobCollectionName": "travisJobCollectionName",
         "mongoDbVersion": "",
         "mongoDBAuth": {
             "user": "",

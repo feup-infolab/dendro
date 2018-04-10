@@ -7,6 +7,7 @@ NODE_VERSION=`cat .nvmrc`
 if [ "$(uname)" == "Darwin" ]; then
     brew cask install xquartz && brew install ghostscript xpdf tesseract imagemagick && brew cask install pdftotext
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    echo "I need your sudo password for installing text extraction dependencies..."
     sudo apt-get -y -f install poppler-utils antiword unrtf tesseract-ocr
 fi
 
@@ -17,7 +18,6 @@ then
     echo "Unable to determine the version of NodeJS to install!"
     exit 1
 else
-    chown -R "$(whoami)" "$HOME/.avn"
     chown -R "$(whoami)" "$HOME/.nvm"
 
     #install NVM, Node, Node Automatic Version switcher
@@ -32,15 +32,10 @@ else
     echo "Installing Node Version $NODE_VERSION during install script!!"
     nvm install $NODE_VERSION &&
     nvm use $NODE_VERSION &&
-    npm install -g avn avn-nvm avn-n &&
-    avn setup &&
-
-    [[ -s "$HOME/.avn/bin/avn.sh" ]] && source "$HOME/.avn/bin/avn.sh" && # load avn
-
-    echo "loaded NVM and AVN."
+    echo "loaded NVM."
 
     #update npm
-    npm install npm
+    npm install npm@latest -g
 
     #clear npm cache
     npm cache clean --force
@@ -49,7 +44,6 @@ else
     rm -rf node_modules
     rm -rf package-lock.json
 
-    chown -R "$(whoami)" "$HOME/.avn"
     chown -R "$(whoami)" "$HOME/.nvm"
 
     #install preliminary dependencies

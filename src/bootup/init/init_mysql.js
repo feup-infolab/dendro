@@ -157,7 +157,11 @@ const initMySQL = function (app, callback)
             }
             else
             {
-                return callback("[ERROR] Unable to connect to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
+                const msg = "[ERROR] Unable to connect to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err;
+                Logger.log("error", msg);
+                Logger.log("error", err);
+                Logger.log("error", connection);
+                return callback(msg);
             }
         });
     });
