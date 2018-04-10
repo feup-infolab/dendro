@@ -40,8 +40,7 @@ module.exports = {
             return queryInterface.renameColumn("events", "updatedAt", "modified");
         });
     },
-    down: (queryInterface, Sequelize) =>
-    {
+    down: (queryInterface, Sequelize) => {
         return queryInterface.dropTable("events");
     }
 };
