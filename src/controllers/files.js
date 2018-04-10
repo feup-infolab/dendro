@@ -848,7 +848,7 @@ exports.upload = function (req, res)
                 {
                     if (isNull(err))
                     {
-                        event = new Event("post", fileSystemPost.uri, fileSystemPost.dcterms.creator, fileSystemPost.ddr.projectUri);
+                        let event = new Event("post", fileSystemPost.uri, fileSystemPost.dcterms.creator, fileSystemPost.ddr.projectUri);
                         event.saveToMySQL(function (err) {
                             if (isNull(err))
                             {
@@ -1365,7 +1365,7 @@ exports.rm = function (req, res)
                 {
                     if (isNull(error))
                     {
-                        event = new Event("post", post.uri, post.dcterms.creator, post.ddr.projectUri);
+                        let event = new Event("post", post.uri, post.dcterms.creator, post.ddr.projectUri);
                         event.saveToMySQL(function (err) {
                             if (isNull(err))
                             {
@@ -1423,7 +1423,7 @@ exports.rm = function (req, res)
                 {
                     if (isNull(err))
                     {
-                        event = new Event("post", post.uri, post.dcterms.creator, post.ddr.projectUri);
+                        let event = new Event("post", post.uri, post.dcterms.creator, post.ddr.projectUri);
                         event.saveToMySQL(function (err) {
                             if (isNull(err))
                             {
@@ -2099,7 +2099,7 @@ exports.mkdir = function (req, res)
                     {
                         if (!err)
                         {
-                            event = new Event("post", post.uri, post.dcterms.creator, post.ddr.projectUri);
+                            let event = new Event("post", post.uri, post.dcterms.creator, post.ddr.projectUri);
                             event.saveToMySQL(function (err) {
                                 if (isNull(err))
                                 {
