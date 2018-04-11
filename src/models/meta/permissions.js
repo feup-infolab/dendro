@@ -336,8 +336,10 @@ const checkUsersRoleInPostsProject = function (req, user, role, postUri, callbac
     }
 };
 
-const checkUsersRoleInArrayOfPostsProject = function (req, user, role, arrayOfPostsUris, callback)
+const checkUsersRoleInArrayOfPostsProject = function (req, user, roles, arrayOfPostsUris, splitRolesOperator, callback)
 {
+    let rolesPredicate = roles.predicate.split(splitRolesOperator);
+    /*
     if (!isNull(user))
     {
         async.mapSeries(arrayOfPostsUris, function (postUri, cb)
@@ -377,6 +379,79 @@ const checkUsersRoleInArrayOfPostsProject = function (req, user, role, arrayOfPo
         }, function (err, results)
         {
             return callback(err, true);
+        });
+    }
+    else
+    {
+        callback(null, false);
+    }
+    */
+
+    if (!isNull(user))
+    {
+        async.mapSeries(arrayOfPostsUris, function (postUri, cb)
+        {
+            getPostsProject(postUri, function (err, project)
+            {
+                if (isNull(err))
+                {
+                    if (project instanceof Project)
+                    {
+                        async.eachSeries(rolesPredicate, function(predicate, cb) {
+                            let role = {
+                                predicate: predicate
+                            };
+                            checkUsersRoleInProject(req, user, role, project, function (err, hasRole)
+                            {
+                                if (isNull(err))
+                                {
+                                    if (hasRole === true)
+                                    {
+                                        return callback(err, hasRole);
+                                    }
+                                    cb(err, hasRole);
+                                }
+                                else
+                                {
+                                    return callback(err, false);
+                                }
+                            });
+                        }, function(err) {
+                            return callback(null, false);
+                        });
+
+                        /*
+                        checkUsersRoleInProject(req, user, role, project, function (err, hasRole)
+                        {
+                            if (isNull(err))
+                            {
+                                if (hasRole === true)
+                                {
+                                    return callback(err, hasRole);
+                                }
+                                cb(err, hasRole);
+                            }
+                            else
+                            {
+                                return callback(err, false);
+                            }
+                        });
+                        */
+                    }
+                    else
+                    {
+                        return callback(null, false);
+                    }
+                }
+                else
+                {
+                    return callback(null, false);
+                }
+            });
+        }, function (err, results)
+        {
+            //return callback(err, true);
+            return callback(null, false);
         });
     }
     else
@@ -479,6 +554,7 @@ Permissions.types = {
         validator: checkUsersRoleInPostsProject
     },
     role_in_array_of_posts_project: {
+        operator: "||",
         validator: checkUsersRoleInArrayOfPostsProject
     },
     role_in_notification_s_resource: {
@@ -562,6 +638,7 @@ Permissions.settings = {
                 error_message_api: "Unauthorized access. Must be signed on as a contributor or creator of the project the post belongs to."
             }
         },
+        /*
         in_array_of_posts_project: {
             creator: {
                 type: Permissions.types.role_in_array_of_posts_project,
@@ -575,6 +652,12 @@ Permissions.settings = {
                 error_message_user: "You are not a contributor or creator of the project to which these posts belongs to.",
                 error_message_api: "Unauthorized access. Must be signed on as a contributor or creator of the project these posts belong to."
             }
+        }*/
+        in_array_of_posts_project: {
+            type: Permissions.types.role_in_array_of_posts_project,
+            predicate: "dcterms:contributor||dcterms:creator",
+            error_message_user: "You are not a contributor or creator of the project to which these posts belongs to.",
+            error_message_api: "Unauthorized access. Must be signed on as a contributor or creator of the project these posts belong to."
         }
     },
     privacy: {
@@ -702,7 +785,10 @@ Permissions.check = function (permissionsRequired, req, callback)
             }
             else if (permission.type === Permissions.types.role_in_array_of_posts_project)
             {
-                Permissions.types.role_in_array_of_posts_project.validator(req, user, permission, req.query.postsQueryInfo, function (err, result)
+                //let permissionsCopy = JSON.parse(JSON.stringify(permission));
+                //permissionsCopy.predicate = permissionsCopy.predicate.split(Permissions.types.role_in_array_of_posts_project.operator);
+                //Permissions.types.role_in_array_of_posts_project.validator(req, user, permission, req.query.postsQueryInfo, function (err, result)
+                Permissions.types.role_in_array_of_posts_project.validator(req, user, permission, req.query.postsQueryInfo, Permissions.types.role_in_array_of_posts_project.operator, function (err, result)
                 {
                     cb(err, {authorized: result, role: permission});
                 });
