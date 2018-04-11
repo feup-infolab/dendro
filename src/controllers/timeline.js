@@ -3,10 +3,14 @@ let postController = require("../controllers/posts");
 
 exports.my = function (req, res)
 {
-    var acceptsHTML = req.accepts("html");
-    var acceptsJSON = req.accepts("json");
-
-    postController.getUserPostsUris(req.user.uri, 1, function (err, postUris)
+    let acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
+    let useRank = false;
+    if (req.query.rank === "true")
+    {
+        useRank = true;
+    }
+    postController.getUserPostsUris(req.user.uri, 1, useRank, function (err, postUris)
     {
         if (!err)
         {

@@ -26,6 +26,8 @@ const db = Config.getDBByID();
 const db_social = Config.getDBByID("social");
 const db_notifications = Config.getDBByID("notifications");
 
+const dbMySQL = require(Pathfinder.absPathInSrcFolder("mysql_models"));
+
 const app = require("../app");
 
 /**
@@ -92,7 +94,52 @@ const getAllPosts = function (projectUrisArray, callback, startingResultPosition
     }
 };
 
-exports.getUserPostsUris = function (userUri, currentPage, callback)
+const getRankedPosts = function (projectUrisArray, callback, userUri, startingResultPosition, maxResults)
+{
+    if (projectUrisArray && projectUrisArray.length > 0)
+    {
+        async.mapSeries(projectUrisArray, function (uri, cb1)
+        {
+            cb1(null, "'" + uri + "'");
+        }, function (err, fullProjects)
+        {
+            const projectsUris = fullProjects.join(",");
+            let queryEngagement = "call " + Config.mySQLDBName + ".countEngagement(:user, :projects);";
+            let queryProjectInteractions = "call " + Config.mySQLDBName + ".countProjectInteractions(:user, :projects);";
+
+            dbMySQL.sequelize
+                .query(queryEngagement,
+                    {replacements: { user: "'" + userUri + "'", projects: projectsUris }, type: dbMySQL.sequelize.QueryTypes.SELECT})
+                .spread((posts, interactions) => {
+                    let postsArray = Object.keys(posts).map(function (k) { return posts[k]; });
+                    console.log(postsArray);
+                    console.log(interactions);
+                    return callback(err, postsArray);
+                    /* return dbMySQL.sequelize
+                        .query(queryProjectInteractions,
+                            {replacements: { user: "'" + userUri + "'", projects: projectsUris }})
+                        .then(projectInteractions => {
+                            console.log(projectInteractions);
+                            return callback(err, posts);
+                        })
+                        .catch(err => {
+                            return callback(true, "Error fetching posts in project interactions");
+                        }); */
+                })
+                .catch(err => {
+                    return callback(true, "Error fetching posts in getAllPosts");
+                });
+        });
+    }
+    else
+    {
+        // User has no projects
+        const results = [];
+        return callback(null, results);
+    }
+};
+
+exports.getUserPostsUris = function (userUri, currentPage, useRank, callback)
 {
     const index = currentPage === 1 ? 0 : (currentPage * 5) - 5;
     const maxResults = 5;
@@ -105,19 +152,38 @@ exports.getUserPostsUris = function (userUri, currentPage, callback)
                 cb1(null, project.uri);
             }, function (err, fullProjectsUris)
             {
-                getAllPosts(fullProjectsUris, function (err, results)
+                if (!useRank)
                 {
-                    if (!err)
+                    getAllPosts(fullProjectsUris, function (err, results)
                     {
-                        callback(err, results);
-                    }
-                    else
+                        if (!err)
+                        {
+                            callback(err, results);
+                        }
+                        else
+                        {
+                            Logger.log("error", "Error getting a user post");
+                            Logger.log("error", err);
+                            callback(err, results);
+                        }
+                    }, index, maxResults);
+                }
+                else
+                {
+                    getRankedPosts(fullProjectsUris, function (err, results)
                     {
-                        Logger.log("error", "Error getting a user post");
-                        Logger.log("error", err);
-                        callback(err, results);
-                    }
-                }, index, maxResults);
+                        if (!err)
+                        {
+                            callback(err, results);
+                        }
+                        else
+                        {
+                            Logger.log("error", "Error getting a user post");
+                            Logger.log("error", err);
+                            callback(err, results);
+                        }
+                    }, userUri, index, maxResults);
+                }
             });
         }
         else
