@@ -94,6 +94,24 @@ const getAllPosts = function (projectUrisArray, callback, startingResultPosition
     }
 };
 
+const getProjectInteractions = function (array, projectURI)
+{
+    let project = array.find(function (element)
+    {
+        return element.projectURI === projectURI;
+    });
+    return project.interactions;
+};
+
+const scorePost = function (projectInteractionsArray, post)
+{
+    let likes = post.likes;
+    let comments = post.comments;
+    let shares = post.shares;
+    let projectInteractions = getProjectInteractions(projectInteractionsArray, post.projectURI);
+    return comments * 3 + shares * 2 + likes + projectInteractions;
+};
+
 const getRankedPosts = function (projectUrisArray, callback, userUri, startingResultPosition, maxResults)
 {
     if (projectUrisArray && projectUrisArray.length > 0)
@@ -105,29 +123,30 @@ const getRankedPosts = function (projectUrisArray, callback, userUri, startingRe
         {
             const projectsUris = fullProjects.join(",");
             let queryEngagement = "call " + Config.mySQLDBName + ".countEngagement(:user, :projects);";
-            let queryProjectInteractions = "call " + Config.mySQLDBName + ".countProjectInteractions(:user, :projects);";
 
             dbMySQL.sequelize
                 .query(queryEngagement,
                     {replacements: { user: "'" + userUri + "'", projects: projectsUris }, type: dbMySQL.sequelize.QueryTypes.SELECT})
                 .spread((posts, interactions) => {
                     let postsArray = Object.keys(posts).map(function (k) { return posts[k]; });
+                    let interactionsArray = Object.keys(interactions).map(function (k) { return interactions[k]; });
+                    postsArray.sort(function (post1, post2)
+                    {
+                        post1.score = scorePost(interactionsArray, post1);
+                        post2.score = scorePost(interactionsArray, post2);
+                        let diff = post2.score - post1.score;
+                        if (diff === 0)
+                        {
+                            return post2.created - post2.created;
+                        }
+                        return diff;
+                    });
                     console.log(postsArray);
-                    console.log(interactions);
                     return callback(err, postsArray);
-                    /* return dbMySQL.sequelize
-                        .query(queryProjectInteractions,
-                            {replacements: { user: "'" + userUri + "'", projects: projectsUris }})
-                        .then(projectInteractions => {
-                            console.log(projectInteractions);
-                            return callback(err, posts);
-                        })
-                        .catch(err => {
-                            return callback(true, "Error fetching posts in project interactions");
-                        }); */
                 })
                 .catch(err => {
-                    return callback(true, "Error fetching posts in getAllPosts");
+                    console.log(err);
+                    return callback(true, "Error fetching posts in getRankedPosts");
                 });
         });
     }
