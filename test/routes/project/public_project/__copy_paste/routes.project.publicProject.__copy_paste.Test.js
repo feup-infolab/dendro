@@ -25,6 +25,9 @@ const project = require(Pathfinder.absPathInTestsFolder("mockdata/projects/publi
 const invalidProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/invalidProject.js"));
 
 const Project = require(Pathfinder.absPathInSrcFolder("models/project.js")).Project;
+const Folder = require(Pathfinder.absPathInSrcFolder("models/directory_structure/folder.js")).Folder;
+
+const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
 
 const createFilesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/files/createFiles.Unit.js"));
 
@@ -40,23 +43,72 @@ describe("Backup Public project", function ()
     });
   });
 
-  describe("[PUBLIC PROJECT] /project/" + project.handle + "?bagit", function ()
+  describe("[PUBLIC PROJECT] /project/" + project.handle + "?copy_paste", function ()
   {
     it("Should create a copy from an existing folder", function (done)
     {
       userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
       {
-        Project.findByHandle(publicProject.handle, function(err, project){
-          const a = 2;
+        userUtils.getLoggedUserDetails(true, agent, function(err, user){
 
+          Project.findByHandle(publicProject.handle, function(err, project){
+            Folder.findByUri(project.ddr.rootFolder, function(err, folder){
+              folder.getChildrenRecursive(function (err, children) {
+                const folderUri = children[0].uri;
+                const folderDestUri = children[1].uri;
+                Folder.findByUri(folderUri, function (err, srcFolder) {
+                  folder.download({includeMetadata: false, user: user, destinationFolderUri: folderDestUri}, function(err, writtenPath){
+
+                  });
+                });
+              });
+            });
+
+          });
         });
       });
+
     });
+/*
 
     it("Should NOT create a copy when the source uri does not point to anything", function (done)
     {
+      userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+      {
+        userUtils.getLoggedUserDetails(true, agent, function(err, user){
 
+          Project.findByHandle(publicProject.handle, function(err, project){
+            Folder.findByUri(project.ddr.rootFolder, function(err, folder){
+              folder.getChildrenRecursive(function (err, children) {
+                const folderUri = children[0].uri;
+                const folderDestUri = children[1].uri;
+                fileUtils.downloadFileByUri(true, agent, children[12].uri, function(err, file){
+                  Folder.findByUri(folderUri, function (err, srcFolder) {
+                    srcFolder.zipAndDownload(false, function(err, writtenPath){
+                      const zipLocation = writtenPath;
+                      Folder.findByUri(folderDestUri, function(err, folder){
+                        folder.restoreFromLocalBackupZipFile(zipLocation, user, function(err, destFolder){
+                          const f = srcFolder;
+                          const a = 2;
+
+
+                          //testing
+                          //TODO verify content of both folders
+                        });
+                      })
+                    });
+                  });
+                })
+
+
+              });
+            });
+
+          });
+        });
+      });
     });
+*/
 
     it("Should NOT give an error and produce a proper backup when the user is authenticated, even though not as a creator nor contributor of the project, because the project is public", function (done)
     {

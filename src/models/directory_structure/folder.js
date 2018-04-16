@@ -443,6 +443,35 @@ Folder.prototype.zipAndDownload = function (includeMetadata, callback, bagItOpti
     });
 };
 
+Folder.prototype.download = function ({includeMetadata, user, destinationFolderUri}, callback)
+{
+  const self = this;
+  self.createTempFolderWithContents(includeMetadata, false, false, function (err, parentFolderPath, absolutePathOfFinishedFolder, metadata) {
+    if (isNull(err)) {
+      Logger.log("Preparing to copy paste contents of folder : " + absolutePathOfFinishedFolder);
+      Folder.findByUri(destinationFolderUri, function(err, folder){
+        folder.restoreFromFolder(absolutePathOfFinishedFolder, user, true, true, function(err, result)
+        {
+          if (isNull(err))
+          {
+            folder.getChildrenRecursive(function (err, listing) {
+              const a = listing;
+            });
+            //self.undelete(callback, userRestoringTheFolder.uri, true);
+            // return callback(null, result);
+          }
+          else
+          {
+            return callback(err, "Unable to restore folder " + self.uri + " from local folder " + unzippedContentsLocation);
+          }
+        }, true);
+      });
+
+
+    }
+  });
+};
+
 // bag folder according to the Bagit 0.97 Spec
 Folder.prototype.bagit = function (bagItOptions, callback)
 {

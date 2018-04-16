@@ -1322,31 +1322,61 @@ exports.restore = function (req, res)
 //TODO not done yet
 exports.copy_paste = function (req, res) {
   const requestedResourceURI = req.params.requestedResourceUri;
-  //create backup from selected folder
-  InformationElement.findByUri(requestedResourceURI,
-    function (err, ie) {
-      if (isNull(err)) {
-        const path = require("path");
-        if (ie.isA(File)) {
-          File.findByUri(requestedResourceURI, function (err, file) {
+  const folderDestination = req.params.destination;
+
+  function downloadFile(srcFileLocation, destLocation){
+    //File.download
+  }
+
+  function downloadFolder(srcFolder, destFolder){
+
+    Folder.findByUri(srcFolder, function(err, folder){
+      if(isNull(err)){
+          folder.createTempFolderWithContents(includeMetadata, false, false, function (err, parentFolderPath, absolutePathOfFinishedFolder, metadata)
+          {
             if (isNull(err)) {
-              const mimeType = Config.mimeType(file.ddr.fileExtension);
+              if (includeMetadata) {
+                const fs = require("fs");
 
-              file.writeToTempFile(function (err, writtenFilePath) {
-                if (isNull(err)) {
-                  if (!isNull(writtenFilePath)) {
+                const outputFilename = path.join(absolutePathOfFinishedFolder, Config.packageMetadataFileName);
 
-                    //then create folder for inputting the pasted values?
-                    //restore the zip created from the backup function
+                Logger.log("FINAL METADATA : " + JSON.stringify(metadata));
 
+                fs.writeFile(outputFilename, JSON.stringify(metadata, null, 4), "utf-8", function (err) {
+                  if (err) {
+                    Logger.log(err);
+                    cb(err);
                   }
-                }
-              });
+                  else {
+                    const msg = "JSON saved to " + outputFilename;
+                    Logger.log(msg);
+                    cb(null);
+                  }
+                });
+              }
+              else {
+                cb(null);
+              }
             }
           });
-        }
       }
+
     });
+  }
+
+  //create backup from selected folder
+  InformationElement.findByUri(requestedResourceURI, function (err, ie) {
+    if (isNull(err)) {
+      const path = require("path");
+      if (ie.isA(File)) {
+        downloadFile(requestedResourceURI, folderDestination);
+      }else if(ie.isA(Folder)){
+        downloadFolder(requestedResourceURI, folderDestination);
+      }else {
+        //error warning
+      }
+    }
+  });
 };
 
 exports.rm = function (req, res)
