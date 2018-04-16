@@ -1090,14 +1090,8 @@ const loadRoutes = function (app, callback)
         processRequest(req.query.postID);
     });
 
-    /*
     const defaultSocialDendroArrayOfPostsPermissions = [
-        Permissions.settings.role.in_array_of_posts_project.creator,
-        Permissions.settings.role.in_array_of_posts_project.contributor
-    ];
-    */
-    const defaultSocialDendroArrayOfPostsPermissions = [
-        Permissions.settings.role.in_array_of_posts_project,
+        Permissions.settings.role.user_role_in_array_of_posts_project,
     ];
     app.get("/posts/posts", function (req, res, next)
     {
