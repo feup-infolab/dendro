@@ -1324,41 +1324,16 @@ exports.copy_paste = function (req, res) {
   const requestedResourceURI = req.params.requestedResourceUri;
   const folderDestination = req.params.destination;
 
-  function downloadFile(srcFileLocation, destLocation){
+  function downloadFile(srcFileLocation, destFolder){
     //File.download
+    File.copyPaste({destinationFolder: destFolder, });
   }
 
   function downloadFolder(srcFolder, destFolder){
 
     Folder.findByUri(srcFolder, function(err, folder){
       if(isNull(err)){
-          folder.createTempFolderWithContents(includeMetadata, false, false, function (err, parentFolderPath, absolutePathOfFinishedFolder, metadata)
-          {
-            if (isNull(err)) {
-              if (includeMetadata) {
-                const fs = require("fs");
 
-                const outputFilename = path.join(absolutePathOfFinishedFolder, Config.packageMetadataFileName);
-
-                Logger.log("FINAL METADATA : " + JSON.stringify(metadata));
-
-                fs.writeFile(outputFilename, JSON.stringify(metadata, null, 4), "utf-8", function (err) {
-                  if (err) {
-                    Logger.log(err);
-                    cb(err);
-                  }
-                  else {
-                    const msg = "JSON saved to " + outputFilename;
-                    Logger.log(msg);
-                    cb(null);
-                  }
-                });
-              }
-              else {
-                cb(null);
-              }
-            }
-          });
       }
 
     });

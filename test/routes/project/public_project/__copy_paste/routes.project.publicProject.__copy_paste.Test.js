@@ -26,6 +26,7 @@ const invalidProject = require(Pathfinder.absPathInTestsFolder("mockdata/project
 
 const Project = require(Pathfinder.absPathInSrcFolder("models/project.js")).Project;
 const Folder = require(Pathfinder.absPathInSrcFolder("models/directory_structure/folder.js")).Folder;
+const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 
 const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
 
@@ -54,12 +55,15 @@ describe("Backup Public project", function ()
           Project.findByHandle(publicProject.handle, function(err, project){
             Folder.findByUri(project.ddr.rootFolder, function(err, folder){
               folder.getChildrenRecursive(function (err, children) {
-                const folderUri = children[0].uri;
+                const fileUri = children[26].uri;
                 const folderDestUri = children[1].uri;
-                Folder.findByUri(folderUri, function (err, srcFolder) {
-                  folder.download({includeMetadata: false, user: user, destinationFolderUri: folderDestUri}, function(err, writtenPath){
+                File.findByUri(fileUri, function (err, file) {
+                  Folder.findByUri(folderDestUri, function (err, destFolder) {
+                    file.copyPaste({user: user, destinationFolder: destFolder}, function(err, writtenPath){
 
-                  });
+                    });
+                  })
+
                 });
               });
             });

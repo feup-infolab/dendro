@@ -224,6 +224,39 @@ File.prototype.autorename = function ()
     return self.nie.title;
 };
 
+File.prototype.copyPaste = function ({destinationFolder}, callback)
+{
+  const self = this;
+  self.writeToTempFile(function (err, writtenFilePath)
+  {
+    const newFile = new File({
+      nie: {
+        title: self.nie.title,
+        isLogicalPartOf: destinationFolder.uri
+      }
+    });
+
+    newFile.saveWithFileAndContents(writtenFilePath, function (err, newFile)
+    {
+      if (isNull(err))
+      {
+        return callback(null, {
+          result: "success",
+          message: "File copied successfully.",
+          uri: newFile.uri
+        });
+      }
+      const msg = "Error [" + err + "] reindexing file [" + newFile.uri + "]in GridFS :" + newFile;
+      return callback(500, {
+        result: "error",
+        message: "Unable to save files after buffering: " + JSON.stringify(newFile),
+        files: files,
+        errors: newFile
+      });
+    });
+  });
+};
+
 File.prototype.save = function (callback, rename)
 {
     const self = this;

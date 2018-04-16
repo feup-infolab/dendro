@@ -443,31 +443,32 @@ Folder.prototype.zipAndDownload = function (includeMetadata, callback, bagItOpti
     });
 };
 
-Folder.prototype.download = function ({includeMetadata, user, destinationFolderUri}, callback)
+Folder.prototype.copyPaste = function ({includeMetadata, user, destinationFolderUri}, callback)
 {
   const self = this;
   self.createTempFolderWithContents(includeMetadata, false, false, function (err, parentFolderPath, absolutePathOfFinishedFolder, metadata) {
     if (isNull(err)) {
       Logger.log("Preparing to copy paste contents of folder : " + absolutePathOfFinishedFolder);
       Folder.findByUri(destinationFolderUri, function(err, folder){
-        folder.restoreFromFolder(absolutePathOfFinishedFolder, user, true, true, function(err, result)
+        folder.restoreFromFolder(absolutePathOfFinishedFolder, user, true, false, function(err, result)
         {
           if (isNull(err))
           {
-            folder.getChildrenRecursive(function (err, listing) {
-              const a = listing;
+            Folder.deleteOnLocalFileSystem(absolutePathOfFinishedFolder, function (err, result) {
+              //self.undelete(callback, userRestoringTheFolder.uri, true);
+              callback(null, "copied folder successfully.");
             });
-            //self.undelete(callback, userRestoringTheFolder.uri, true);
-            // return callback(null, result);
           }
           else
           {
-            return callback(err, "Unable to restore folder " + self.uri + " from local folder " + unzippedContentsLocation);
+            return callback(err, "Unable to copy folder " + self.uri + " to another folder.");
           }
         }, true);
       });
 
 
+    }else{
+        //callback()
     }
   });
 };
