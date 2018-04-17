@@ -115,7 +115,7 @@ exports.all = function (req, res)
 exports.my = function (req, res)
 {
     let viewVars = {
-    // title: "My projects"
+        // title: "My projects"
     };
 
     Project.findByCreatorOrContributor(req.user.uri, function (err, projects)
@@ -431,26 +431,26 @@ exports.show = function (req, res)
                 if (userIsLoggedIn)
                 {
                     go_up_options =
-          {
-              uri: "/projects/my",
-              title: "My Projects",
-              icons: [
-                  "/images/icons/folders.png",
-                  "/images/icons/bullet_user.png"
-              ]
-          };
+                        {
+                            uri: "/projects/my",
+                            title: "My Projects",
+                            icons: [
+                                "/images/icons/folders.png",
+                                "/images/icons/bullet_user.png"
+                            ]
+                        };
                 }
                 else
                 {
                     go_up_options =
-          {
-              uri: "/projects",
-              title: "Public Projects",
-              icons: [
-                  "/images/icons/folders.png",
-                  "/images/icons/bullet_world.png"
-              ]
-          };
+                        {
+                            uri: "/projects",
+                            title: "Public Projects",
+                            icons: [
+                                "/images/icons/folders.png",
+                                "/images/icons/bullet_world.png"
+                            ]
+                        };
                 }
 
                 viewVars.breadcrumbs.push(go_up_options);
@@ -904,132 +904,135 @@ exports.new = function (req, res)
                 let storageConf;
 
                 async.waterfall([
-                    function (callback)
-                    {
-                        if (req.body.storageConfig.hasStorageType === "local")
+                        function (callback)
                         {
-                            storageConf = new StorageConfig({
-                                ddr: {
-                                    hasStorageType: req.body.storageConfig.hasStorageType
-                                }
-                            });
-                            callback(null);
-                        }
-                        else if (req.body.storageConfig.hasStorageType === "b2drop")
-                        {
-                            new B2Drop(req.body.storageConfig.username, req.body.storageConfig.password).testConnection(function (err, resp)
+                            if (req.body.storageConfig.hasStorageType === "local")
                             {
-                                if (isNull(err))
-                                {
-                                    storageConf = new StorageConfig({
-                                        ddr: {
-                                            hasStorageType: req.body.storageConfig.hasStorageType,
-                                            username: req.body.storageConfig.username,
-                                            password: req.body.storageConfig.password
-                                        }
-                                    });
-                                    callback(null);
-                                }
-                                else
-                                {
-                                    callback("Invalid storage credentials", null);
-                                }
-                            });
-                        }
-                        else
-                        {
-                            callback("Invalid storage type specified : " + req.body.storageConfig.hasStorageType);
-                        }
-                    },
-
-                    function (callback)
-                    {
-                        storageConf.save(function (err, savedConfiguration)
-                        {
-                            if (isNull(err))
-                            {
-                                const projectData = {
-                                    dcterms: {
-                                        creator: req.user.uri,
-                                        title: req.body.title,
-                                        description: req.body.description,
-                                        publisher: req.body.publisher,
-                                        language: req.body.language,
-                                        coverage: req.body.coverage
-                                    },
+                                storageConf = new StorageConfig({
                                     ddr: {
-                                        handle: req.body.handle,
-                                        privacyStatus: req.body.privacy,
-                                        hasStorageConfig: savedConfiguration.uri,
-                                        hasStorageLimit: Config.maxProjectSize
-                                    },
-                                    schema: {
-                                        provider: req.body.contact_name,
-                                        telephone: req.body.contact_phone,
-                                        address: req.body.contact_address,
-                                        email: req.body.contact_email,
-                                        license: req.body.license
+                                        hasStorageType: req.body.storageConfig.hasStorageType
                                     }
-                                };
-
-                                Project.createAndInsertFromObject(projectData, function (err, result)
+                                });
+                                callback(null);
+                            }
+                            else if (req.body.storageConfig.hasStorageType === "b2drop")
+                            {
+                                new B2Drop(req.body.storageConfig.username, req.body.storageConfig.password).testConnection(function (err, resp)
                                 {
                                     if (isNull(err))
                                     {
-                                        storageConf.ddr.handlesStorageForProject = result.uri;
-                                        storageConf.save(function (err, result)
-                                        {
-                                            if (isNull(err))
-                                            {
-                                                req.flash("success", "New project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + " created successfully");
-                                                callback(null, true);
+                                        storageConf = new StorageConfig({
+                                            ddr: {
+                                                hasStorageType: req.body.storageConfig.hasStorageType,
+                                                username: req.body.storageConfig.username,
+                                                password: req.body.storageConfig.password
                                             }
-
-                                            req.flash("error", "Error updating storage configuration " + storageConf.uri + "for project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + "!");
-                                            callback(result, null);
                                         });
+                                        callback(null);
                                     }
                                     else
                                     {
-                                        req.flash("error", "Error creating project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + "!");
-                                        callback(result, null);
+                                        callback("Invalid storage credentials", null);
                                     }
                                 });
                             }
                             else
                             {
-                                req.flash("error", "Error creating storageConfig " + storageConf.ddr.host);
-                                callback(err, null);
+                                callback("Invalid storage type specified : " + req.body.storageConfig.hasStorageType);
                             }
-                        });
-                    }
-                ],
-                function (err, result)
-                {
-                    if (!isNull(err))
-                    {
-                        const msg = "Invalid parameters provided when setting up the storage for the new project. ";
-                        if (acceptsJSON && !acceptsHTML)
+                        },
+
+                        function (callback)
                         {
-                            return res.status(400).json({
-                                result: "error",
-                                message: msg + err,
-                                error: err
+                            storageConf.save(function (err, savedConfiguration)
+                            {
+                                if (isNull(err))
+                                {
+                                    const projectData = {
+                                        dcterms: {
+                                            creator: req.user.uri,
+                                            title: req.body.title,
+                                            description: req.body.description,
+                                            publisher: req.body.publisher,
+                                            language: req.body.language,
+                                            coverage: req.body.coverage
+                                        },
+                                        ddr: {
+                                            handle: req.body.handle,
+                                            privacyStatus: req.body.privacy,
+                                            hasStorageConfig: savedConfiguration.uri,
+                                            hasStorageLimit: Config.maxProjectSize
+                                        },
+                                        schema: {
+                                            provider: req.body.contact_name,
+                                            telephone: req.body.contact_phone,
+                                            address: req.body.contact_address,
+                                            email: req.body.contact_email,
+                                            license: req.body.license
+                                        }
+                                    };
+
+                                    Project.createAndInsertFromObject(projectData, function (err, result)
+                                    {
+                                        if (isNull(err))
+                                        {
+                                            storageConf.ddr.handlesStorageForProject = result.uri;
+                                            storageConf.save(function (err, result)
+                                            {
+                                                if (isNull(err))
+                                                {
+                                                    req.flash("success", "New project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + " created successfully");
+                                                    callback(null, true);
+                                                }
+                                                else
+                                                {
+                                                    req.flash("error", "Error updating storage configuration " + storageConf.uri + "for project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + "!");
+                                                    callback(result, null);
+                                                }
+
+                                            });
+                                        }
+                                        else
+                                        {
+                                            req.flash("error", "Error creating project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + "!");
+                                            callback(result, null);
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    req.flash("error", "Error creating storageConfig " + storageConf.ddr.host);
+                                    callback(err, null);
+                                }
                             });
                         }
-
-                        return res.status(400).render("projects/new",
-                            {
-                                // title : "Register on Dendro",
-                                error_messages: [msg]
-                            }
-                        );
-                    }
-                    if (!isNull(result))
+                    ],
+                    function (err, result)
                     {
-                        res.redirect("/projects/my");
-                    }
-                });
+                        if (!isNull(err))
+                        {
+                            const msg = "Invalid parameters provided when setting up the storage for the new project. ";
+                            if (acceptsJSON && !acceptsHTML)
+                            {
+                                return res.status(400).json({
+                                    result: "error",
+                                    message: msg + err,
+                                    error: err
+                                });
+                            }
+
+                            return res.status(400).render("projects/new",
+                                {
+                                    // title : "Register on Dendro",
+                                    error_messages: [msg]
+                                }
+                            );
+                        }
+                        if (!isNull(result))
+                        {
+                            res.redirect("/projects/my");
+                        }
+                    });
             }
             else
             {
@@ -1149,15 +1152,15 @@ exports.administer = function (req, res)
 
                             switch (req.body.privacy)
                             {
-                            case "public":
-                                project.ddr.privacyStatus = "public";
-                                break;
-                            case "private":
-                                project.ddr.privacyStatus = "private";
-                                break;
-                            case "metadata_only":
-                                project.ddr.privacyStatus = "metadata_only";
-                                break;
+                                case "public":
+                                    project.ddr.privacyStatus = "public";
+                                    break;
+                                case "private":
+                                    project.ddr.privacyStatus = "private";
+                                    break;
+                                case "metadata_only":
+                                    project.ddr.privacyStatus = "metadata_only";
+                                    break;
                             }
                         }
 
@@ -1235,15 +1238,15 @@ exports.administer = function (req, res)
                                                     {
                                                         switch (config.ddr.hasStorageType)
                                                         {
-                                                        case "local":
-                                                            project.ddr.hasStorageLimit = Math.min(req.body.storage_limit, Config.maxProjectSize);
-                                                            break;
-                                                        case "b2drop":
-                                                            project.ddr.hasStorageLimit = Math.min(req.body.storage_limit, Config.maxProjectSize, Config.maxB2DropProjectSize);
-                                                            break;
-                                                        default:
-                                                            Logger.log("error", "Storage" + config.ddr.hasStorageType + " needs to be configured in update storage limit");
-                                                            return callback(true, "Invalid storaged stored");
+                                                            case "local":
+                                                                project.ddr.hasStorageLimit = Math.min(req.body.storage_limit, Config.maxProjectSize);
+                                                                break;
+                                                            case "b2drop":
+                                                                project.ddr.hasStorageLimit = Math.min(req.body.storage_limit, Config.maxProjectSize, Config.maxB2DropProjectSize);
+                                                                break;
+                                                            default:
+                                                                Logger.log("error", "Storage" + config.ddr.hasStorageType + " needs to be configured in update storage limit");
+                                                                return callback(true, "Invalid storaged stored");
                                                         }
                                                     }
                                                     else
@@ -1662,105 +1665,105 @@ exports.stats = function (req, res)
             const limit = parseInt(req.query.limit);
 
             async.waterfall([
-                function (callback)
-                {
-                    project.getRevisionsCount(function (err, revisionsCount)
+                    function (callback)
                     {
-                        if (isNull(err))
+                        project.getRevisionsCount(function (err, revisionsCount)
                         {
-                            return callback(err, revisionsCount);
-                        }
-                        return callback(1,
+                            if (isNull(err))
                             {
-                                result: "error",
-                                message: "Error calculating calculating number of revisions in project . Error reported : " + JSON.stringify(err) + "."
-                            });
-                    });
-                },
-                function (revisionsCount, callback)
-                {
-                    project.getFoldersCount(function (err, foldersCount)
+                                return callback(err, revisionsCount);
+                            }
+                            return callback(1,
+                                {
+                                    result: "error",
+                                    message: "Error calculating calculating number of revisions in project . Error reported : " + JSON.stringify(err) + "."
+                                });
+                        });
+                    },
+                    function (revisionsCount, callback)
                     {
-                        if (isNull(err))
+                        project.getFoldersCount(function (err, foldersCount)
                         {
-                            return callback(err, revisionsCount, foldersCount);
-                        }
-                        return callback(1,
+                            if (isNull(err))
                             {
-                                result: "error",
-                                message: "Error calculating calculating number of folders in project . Error reported : " + JSON.stringify(err) + "."
-                            });
-                    });
-                },
-                function (revisionsCount, foldersCount, callback)
-                {
-                    project.getFilesCount(function (err, filesCount)
+                                return callback(err, revisionsCount, foldersCount);
+                            }
+                            return callback(1,
+                                {
+                                    result: "error",
+                                    message: "Error calculating calculating number of folders in project . Error reported : " + JSON.stringify(err) + "."
+                                });
+                        });
+                    },
+                    function (revisionsCount, foldersCount, callback)
                     {
-                        if (isNull(err))
+                        project.getFilesCount(function (err, filesCount)
                         {
-                            return callback(err, revisionsCount, foldersCount, filesCount);
-                        }
-                        return callback(1,
+                            if (isNull(err))
                             {
-                                result: "error",
-                                message: "Error calculating calculating number of files in project . Error reported : " + JSON.stringify(err) + "."
-                            });
-                    });
-                },
-                function (revisionsCount, foldersCount, filesCount, callback)
-                {
-                    project.getMembersCount(function (err, membersCount)
+                                return callback(err, revisionsCount, foldersCount, filesCount);
+                            }
+                            return callback(1,
+                                {
+                                    result: "error",
+                                    message: "Error calculating calculating number of files in project . Error reported : " + JSON.stringify(err) + "."
+                                });
+                        });
+                    },
+                    function (revisionsCount, foldersCount, filesCount, callback)
                     {
-                        if (isNull(err))
+                        project.getMembersCount(function (err, membersCount)
                         {
-                            return callback(err, revisionsCount, foldersCount, filesCount, membersCount);
-                        }
-                        return callback(1,
+                            if (isNull(err))
                             {
-                                result: "error",
-                                message: "Error calculating calculating number of members of the project . Error reported : " + JSON.stringify(err) + "."
-                            });
-                    });
-                },
-                function (revisionsCount, foldersCount, filesCount, membersCount, callback)
-                {
-                    project.getStorageSize(function (err, storageSize)
+                                return callback(err, revisionsCount, foldersCount, filesCount, membersCount);
+                            }
+                            return callback(1,
+                                {
+                                    result: "error",
+                                    message: "Error calculating calculating number of members of the project . Error reported : " + JSON.stringify(err) + "."
+                                });
+                        });
+                    },
+                    function (revisionsCount, foldersCount, filesCount, membersCount, callback)
                     {
-                        if (isNull(err))
+                        project.getStorageSize(function (err, storageSize)
+                        {
+                            if (isNull(err))
 
-                        {
-                            return callback(err, revisionsCount, foldersCount, filesCount, membersCount, storageSize);
-                        }
-                        return callback(1,
                             {
-                                result: "error",
-                                message: "Error calculating size of project : " + req.params.requestedResourceUri + " . Error reported : " + JSON.stringify(err) + ".",
-                                solution: "Did you install mongodb via apt-get? YOU NEED MONGODB 10GEN to run this, or it will give errors. Install the latest mongodb by .deb package instead of apt-get."
-                            });
-                    });
-                },
-                function (revisionsCount, foldersCount, filesCount, membersCount, storageSize)
-                {
-                    const humanize = require("humanize");
+                                return callback(err, revisionsCount, foldersCount, filesCount, membersCount, storageSize);
+                            }
+                            return callback(1,
+                                {
+                                    result: "error",
+                                    message: "Error calculating size of project : " + req.params.requestedResourceUri + " . Error reported : " + JSON.stringify(err) + ".",
+                                    solution: "Did you install mongodb via apt-get? YOU NEED MONGODB 10GEN to run this, or it will give errors. Install the latest mongodb by .deb package instead of apt-get."
+                                });
+                        });
+                    },
+                    function (revisionsCount, foldersCount, filesCount, membersCount, storageSize)
+                    {
+                        const humanize = require("humanize");
 
-                    res.json({
-                        size: storageSize,
-                        max_size: project.ddr.hasStorageLimit,
-                        percent_full: Math.round((storageSize / Config.maxProjectSize) * 100),
-                        members_count: membersCount,
-                        folders_count: foldersCount,
-                        files_count: filesCount,
-                        revisions_count: revisionsCount
-                    });
-                }
-            ],
-            function (err, result)
-            {
-                if (err)
+                        res.json({
+                            size: storageSize,
+                            max_size: project.ddr.hasStorageLimit,
+                            percent_full: Math.round((storageSize / Config.maxProjectSize) * 100),
+                            members_count: membersCount,
+                            folders_count: foldersCount,
+                            files_count: filesCount,
+                            revisions_count: revisionsCount
+                        });
+                    }
+                ],
+                function (err, result)
                 {
-                    res.status(500).json(result);
-                }
-            });
+                    if (err)
+                    {
+                        res.status(500).json(result);
+                    }
+                });
         }
         else
         {
@@ -2406,8 +2409,8 @@ exports.import = function (req, res)
 
                 const executeImport = function (createdProject, callback) {
                     let userAndSessionInfo = {
-                      user: req.user,
-                      session: req.session
+                        user: req.user,
+                        session: req.session
                     };
                     let jobData = {
                         uploadedBackupAbsPath: uploadedBackupAbsPath,
@@ -2803,39 +2806,39 @@ exports.storage = function (req, res)
                                 else if (storageType === "b2drop")
                                 {
                                     validateB2Drop(req.body.storageConfig.username, req.body.storageConfig.password, function (err, msg)
-                                    {
-                                        if (isNull(err))
                                         {
-                                            currentConfigOfTypeInProject.ddr.password = req.body.storageConfig.password;
-                                            currentConfigOfTypeInProject.ddr.username = req.body.storageConfig.username;
-
-                                            currentConfigOfTypeInProject.save(function (err, result)
+                                            if (isNull(err))
                                             {
-                                                if (!err)
+                                                currentConfigOfTypeInProject.ddr.password = req.body.storageConfig.password;
+                                                currentConfigOfTypeInProject.ddr.username = req.body.storageConfig.username;
+
+                                                currentConfigOfTypeInProject.save(function (err, result)
                                                 {
-                                                    updateProjectStorageConfig(project, callback);
-                                                }
-                                                else
-                                                {
-                                                    const msg = "Error updating storage configuration! " + JSON.stringify(result);
-                                                    Logger.log("error", msg);
-                                                    res.status(500).json({
-                                                        result: "ok",
-                                                        title: "Error",
-                                                        message: msg
-                                                    });
-                                                }
-                                            });
+                                                    if (!err)
+                                                    {
+                                                        updateProjectStorageConfig(project, callback);
+                                                    }
+                                                    else
+                                                    {
+                                                        const msg = "Error updating storage configuration! " + JSON.stringify(result);
+                                                        Logger.log("error", msg);
+                                                        res.status(500).json({
+                                                            result: "ok",
+                                                            title: "Error",
+                                                            message: msg
+                                                        });
+                                                    }
+                                                });
+                                            }
+                                            else
+                                            {
+                                                res.status(400).json({
+                                                    result: "error",
+                                                    title: "Error",
+                                                    message: msg
+                                                });
+                                            }
                                         }
-                                        else
-                                        {
-                                            res.status(400).json({
-                                                result: "error",
-                                                title: "Error",
-                                                message: msg
-                                            });
-                                        }
-                                    }
                                     );
                                 }
                             }
