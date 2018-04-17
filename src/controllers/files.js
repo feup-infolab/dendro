@@ -51,95 +51,95 @@ exports.download = function (req, res)
                 const async = require("async");
 
                 async.series([
-                    function (cb)
-                    {
-                        if (bagIt)
+                        function (cb)
                         {
-                            const bagitOptions = {
-                                cryptoMethod: "sha256"
-                            };
-
-                            folderToDownload.bagit(bagitOptions, function (err, result, absolutePathOfFinishedFolder, parentFolderPath)
+                            if (bagIt)
                             {
-                                const path = require("path");
+                                const bagitOptions = {
+                                    cryptoMethod: "sha256"
+                                };
 
-                                const finishedZipFileName = "bagit_backup.zip";
-                                const finishedZipFileAbsPath = path.join(parentFolderPath, finishedZipFileName);
-
-                                Folder.zip(absolutePathOfFinishedFolder, finishedZipFileAbsPath, function (err, zipFileFullPath)
+                                folderToDownload.bagit(bagitOptions, function (err, result, absolutePathOfFinishedFolder, parentFolderPath)
                                 {
-                                    cb(err, zipFileFullPath);
-                                }, finishedZipFileName, true);
-                            });
-                        }
-                        else
-                        {
-                            folderToDownload.zipAndDownload(includeMetadata, function (err, writtenFilePath)
-                            {
-                                cb(err, writtenFilePath);
-                            });
-                        }
-                    }
-                ],
-                function (err, results)
-                {
-                    if (isNull(err))
-                    {
-                        if (!isNull(results) && !isNull(results[0]))
-                        {
-                            var writtenFilePath = results[0];
+                                    const path = require("path");
 
-                            const fs = require("fs");
-                            const fileStream = fs.createReadStream(writtenFilePath);
-                            const parentPath = path.resolve(writtenFilePath, "..");
+                                    const finishedZipFileName = "bagit_backup.zip";
+                                    const finishedZipFileAbsPath = path.join(parentFolderPath, finishedZipFileName);
 
-                            res.on("finish", function ()
-                            {
-                                if (!isNull(parentPath))
-                                {
-                                    File.deleteOnLocalFileSystem(parentPath, function (err, stdout, stderr)
+                                    Folder.zip(absolutePathOfFinishedFolder, finishedZipFileAbsPath, function (err, zipFileFullPath)
                                     {
-                                        if (err)
-                                        {
-                                            Logger.log("error", "Unable to delete " + parentPath);
-                                        }
-                                        else
-                                        {
-                                            Logger.log("Deleted " + parentPath);
-                                        }
-                                    });
-                                }
-                                else
+                                        cb(err, zipFileFullPath);
+                                    }, finishedZipFileName, true);
+                                });
+                            }
+                            else
+                            {
+                                folderToDownload.zipAndDownload(includeMetadata, function (err, writtenFilePath)
                                 {
-                                    Logger.log("error", "Could not calculate parent path of: " + writtenFilePath);
-                                }
-                            });
-
-                            fileStream.pipe(res);
+                                    cb(err, writtenFilePath);
+                                });
+                            }
                         }
-                        else
-                        {
-                            const error = "There was an error attempting to fetch the requested resource : " + requestedResourceURI;
-                            Logger.log("error", error);
-                            res.status(500).write("Error : " + error + "\n");
-                            res.end();
-                        }
-                    }
-                    else
+                    ],
+                    function (err, results)
                     {
-                        if (err === 404)
+                        if (isNull(err))
                         {
-                            const error = "There was already a prior attempt to delete this folder. The folder is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
-                            Logger.log("error", error);
-                            res.writeHead(404, error);
-                            res.end();
+                            if (!isNull(results) && !isNull(results[0]))
+                            {
+                                var writtenFilePath = results[0];
+
+                                const fs = require("fs");
+                                const fileStream = fs.createReadStream(writtenFilePath);
+                                const parentPath = path.resolve(writtenFilePath, "..");
+
+                                res.on("finish", function ()
+                                {
+                                    if (!isNull(parentPath))
+                                    {
+                                        File.deleteOnLocalFileSystem(parentPath, function (err, stdout, stderr)
+                                        {
+                                            if (err)
+                                            {
+                                                Logger.log("error", "Unable to delete " + parentPath);
+                                            }
+                                            else
+                                            {
+                                                Logger.log("Deleted " + parentPath);
+                                            }
+                                        });
+                                    }
+                                    else
+                                    {
+                                        Logger.log("error", "Could not calculate parent path of: " + writtenFilePath);
+                                    }
+                                });
+
+                                fileStream.pipe(res);
+                            }
+                            else
+                            {
+                                const error = "There was an error attempting to fetch the requested resource : " + requestedResourceURI;
+                                Logger.log("error", error);
+                                res.status(500).write("Error : " + error + "\n");
+                                res.end();
+                            }
                         }
                         else
                         {
-                            Logger.log("error", "Unable to produce temporary file to download " + self.uri + " Error returned : " + JSON.stringify(results));
+                            if (err === 404)
+                            {
+                                const error = "There was already a prior attempt to delete this folder. The folder is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
+                                Logger.log("error", error);
+                                res.writeHead(404, error);
+                                res.end();
+                            }
+                            else
+                            {
+                                Logger.log("error", "Unable to produce temporary file to download " + self.uri + " Error returned : " + JSON.stringify(results));
+                            }
                         }
-                    }
-                });
+                    });
             }
             else
             {
@@ -1023,13 +1023,25 @@ exports.upload = function (req, res)
                                                                             uri: newFile.uri
                                                                         });
                                                                     }
-                                                                    const msg = "Error [" + err + "] reindexing file [" + newFile.uri + "]in GridFS :" + newFile;
-                                                                    return callback(500, {
-                                                                        result: "error",
-                                                                        message: "Unable to save files after buffering: " + JSON.stringify(newFile),
-                                                                        files: files,
-                                                                        errors: newFile
-                                                                    });
+
+                                                                    if(!isNull(err.status) && err.status === 401) //TODO
+                                                                    {
+                                                                        return callback(err.status, {
+                                                                            result: "error",
+                                                                            message: "Check B2Drop Credentials"
+                                                                        })
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        const msg = "Error [" + err + "] reindexing file [" + newFile.uri + "]in GridFS :" + newFile;
+                                                                        return callback(500, {
+                                                                            result: "error",
+                                                                            message: "Unable to save files after buffering: " + JSON.stringify(newFile),
+                                                                            files: files,
+                                                                            errors: newFile
+                                                                        });
+                                                                    }
+
                                                                 });
                                                             }
                                                             else
@@ -1985,50 +1997,50 @@ exports.mkdir = function (req, res)
 
                     // save parent folder
                     parentFolder.insertDescriptors([new Descriptor({
-                        prefixedForm: "nie:hasLogicalPart",
-                        value: newChildFolder.uri
-                    })
-                    ],
-                    function (err, result)
-                    {
-                        if (isNull(err))
+                            prefixedForm: "nie:hasLogicalPart",
+                            value: newChildFolder.uri
+                        })
+                        ],
+                        function (err, result)
                         {
-                            newChildFolder.save(function (err, result)
+                            if (isNull(err))
                             {
-                                if (isNull(err))
+                                newChildFolder.save(function (err, result)
                                 {
-                                    return callback(null, newChildFolder);
-                                }
+                                    if (isNull(err))
+                                    {
+                                        return callback(null, newChildFolder);
+                                    }
+                                    return callback({
+                                        statusCode: 500,
+                                        error: {
+                                            result: "error",
+                                            message: "error 1 saving new folder :" + result
+                                        }
+                                    });
+                                });
+                            }
+                            else
+                            {
                                 return callback({
                                     statusCode: 500,
                                     error: {
                                         result: "error",
-                                        message: "error 1 saving new folder :" + result
+                                        message: "error 2 saving new folder :" + result
                                     }
                                 });
-                            });
-                        }
-                        else
-                        {
-                            return callback({
-                                statusCode: 500,
-                                error: {
-                                    result: "error",
-                                    message: "error 2 saving new folder :" + result
-                                }
-                            });
-                        }
-                    });
+                            }
+                        });
                 }
                 else
                 {
                     return callback({
-                        statusCode: 500,
-                        error: {
-                            result: "error",
-                            message: "error 3 saving new folder :" + parentFolder
+                            statusCode: 500,
+                            error: {
+                                result: "error",
+                                message: "error 3 saving new folder :" + parentFolder
+                            }
                         }
-                    }
                     );
                 }
             });

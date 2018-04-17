@@ -74,7 +74,7 @@ class StorageB2Drop extends Storage
                             Logger.log("error", "Unable to create root folder in B2Drop!");
                             Logger.log("error", err);
                             Logger.log("error", result);
-                            return callback(err, response);
+                            callback(err, response);
                         }
                     });
                 }
@@ -108,7 +108,7 @@ class StorageB2Drop extends Storage
             const targetFilePath = self._getB2DropPath(file);
             const parentFolder = path.dirname(targetFilePath);
 
-            self.open(function ()
+            self.open(function (err,response)
             {
                 if (isNull(err))
                 {
@@ -219,6 +219,11 @@ class StorageB2Drop extends Storage
                         }
                     ]);
                 }
+                else
+                {
+                    Logger.log("error", "B2drop: Wrong Credentials");
+                    callback(err,self);
+                }
             });
         });
     }
@@ -293,14 +298,14 @@ class StorageB2Drop extends Storage
         const self = this;
 
         self.connection.getQuota(function (err, resp)
-        {
-            if (isNull(err))
             {
-                return callback(err, {limit: resp.avaiable});
-            }
+                if (isNull(err))
+                {
+                    return callback(err, {limit: resp.avaiable});
+                }
 
-            return callback(err, null);
-        }
+                return callback(err, null);
+            }
         );
     }
 }
