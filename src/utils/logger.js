@@ -267,6 +267,31 @@ Logger.log_boot_message = function (message)
 
 Logger.log = function (type, message, printStack)
 {
+    if (!isNull(type) && !isNull(message))
+    {
+        if (type === "error")
+        {
+            console.log(`${type.red}: ${message}`);
+        }
+        else if (type === "info")
+        {
+            console.log(`${type.cyan}: ${message}`);
+        }
+        else if (type === "warn")
+        {
+            console.log(`${type.yellow}: ${message}`);
+        }
+        else
+        {
+            console.log(`${type.grey}: ${message}`);
+        }
+    }
+    else
+    {
+        console.log(`${"info".cyan}: ${type}`);
+    }
+
+    return;
     // special case for when the message is null and we are logging an error
     if (type === "error")
     {

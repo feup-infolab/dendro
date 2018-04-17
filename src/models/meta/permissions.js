@@ -338,50 +338,67 @@ const checkUsersRoleInPostsProject = function (req, user, role, postUri, callbac
 
 const checkUsersRoleInArrayOfPostsProject = function (req, user, role, arrayOfPostsUris, callback)
 {
-    if (!isNull(user))
+    let predicateRoles = null;
+    if(isNull(role) || isNull(role.predicates) || !(role.predicates instanceof  Array))
     {
-        async.mapSeries(arrayOfPostsUris, function (postUri, cb)
+        Logger.log("error", "Error at checkUsersRoleInArrayOfPostsProject, 'role' object should exist and 'role.predicates' must be an array!");
+        callback(null, false);
+    }
+    else
+    {
+        predicateRoles = role.predicates;
+        if (!isNull(user))
         {
-            getPostsProject(postUri, function (err, project)
+            async.mapSeries(arrayOfPostsUris, function (postUri, cb)
             {
-                if (isNull(err))
+                getPostsProject(postUri, function (err, project)
                 {
-                    if (project instanceof Project)
+                    if (isNull(err))
                     {
-                        checkUsersRoleInProject(req, user, role, project, function (err, hasRole)
+                        if (project instanceof Project)
                         {
-                            if (isNull(err))
-                            {
-                                if (hasRole === false)
+                            async.eachSeries(predicateRoles, function(predicate, cb) {
+                                let role = {
+                                    predicate: predicate
+                                };
+                                checkUsersRoleInProject(req, user, role, project, function (err, hasRole)
                                 {
-                                    return callback(err, hasRole);
-                                }
-                                cb(err, hasRole);
-                            }
-                            else
-                            {
-                                return callback(err, false);
-                            }
-                        });
+                                    if (isNull(err))
+                                    {
+                                        if (hasRole === true)
+                                        {
+                                            return callback(err, hasRole);
+                                        }
+                                        cb(err, hasRole);
+                                    }
+                                    else
+                                    {
+                                        return callback(err, false);
+                                    }
+                                });
+                            }, function(err) {
+                                return callback(null, false);
+                            });
+                        }
+                        else
+                        {
+                            return callback(null, false);
+                        }
                     }
                     else
                     {
                         return callback(null, false);
                     }
-                }
-                else
-                {
-                    return callback(null, false);
-                }
+                });
+            }, function (err, results)
+            {
+                return callback(null, false);
             });
-        }, function (err, results)
+        }
+        else
         {
-            return callback(err, true);
-        });
-    }
-    else
-    {
-        callback(null, false);
+            callback(null, false);
+        }
     }
 };
 
@@ -478,7 +495,7 @@ Permissions.types = {
     role_in_post_s_project: {
         validator: checkUsersRoleInPostsProject
     },
-    role_in_array_of_posts_project: {
+    user_role_in_array_of_posts_project: {
         validator: checkUsersRoleInArrayOfPostsProject
     },
     role_in_notification_s_resource: {
@@ -562,19 +579,14 @@ Permissions.settings = {
                 error_message_api: "Unauthorized access. Must be signed on as a contributor or creator of the project the post belongs to."
             }
         },
-        in_array_of_posts_project: {
-            creator: {
-                type: Permissions.types.role_in_array_of_posts_project,
-                predicate: "dcterms:creator",
-                error_message_user: "You are not a contributor or creator of the project to which these posts belongs to.",
-                error_message_api: "Unauthorized access. Must be signed on as a contributor or creator of the project these posts belong to."
-            },
-            contributor: {
-                type: Permissions.types.role_in_array_of_posts_project,
-                predicate: "dcterms:contributor",
-                error_message_user: "You are not a contributor or creator of the project to which these posts belongs to.",
-                error_message_api: "Unauthorized access. Must be signed on as a contributor or creator of the project these posts belong to."
-            }
+        user_role_in_array_of_posts_project: {
+            type: Permissions.types.user_role_in_array_of_posts_project,
+            predicates: [
+                "dcterms:contributor",
+                "dcterms:creator"
+            ],
+            error_message_user: "You are not a contributor or creator of all the projects to which these posts belongs to.",
+            error_message_api: "Unauthorized access. Must be signed on as a contributor or creator of all the projects these posts belong to."
         }
     },
     privacy: {
@@ -700,9 +712,9 @@ Permissions.check = function (permissionsRequired, req, callback)
                     cb(err, {authorized: result, role: permission});
                 });
             }
-            else if (permission.type === Permissions.types.role_in_array_of_posts_project)
+            else if (permission.type === Permissions.types.user_role_in_array_of_posts_project)
             {
-                Permissions.types.role_in_array_of_posts_project.validator(req, user, permission, req.query.postsQueryInfo, function (err, result)
+                Permissions.types.user_role_in_array_of_posts_project.validator(req, user, permission, req.query.postsQueryInfo, function (err, result)
                 {
                     cb(err, {authorized: result, role: permission});
                 });
