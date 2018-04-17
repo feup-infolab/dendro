@@ -66,7 +66,7 @@ describe("Get information on an array of posts(given an array of post URIs) test
                     socialDendroUtils.getPostsArrayInfo(true, agent, JSON.stringify(demouser1PostURIsArray), function (err, res)
                     {
                         res.statusCode.should.equal(401);
-                        res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the posts belongs to.");
+                        res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the posts belong to.");
                         done();
                     });
                 });
@@ -117,7 +117,7 @@ describe("Get information on an array of posts(given an array of post URIs) test
                 socialDendroUtils.getPostsArrayInfo(true, agent, JSON.stringify(demouser1PostURIsArray), function (err, res)
                 {
                     res.statusCode.should.equal(401);
-                    res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the posts belongs to.");
+                    res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the posts belong to.");
                     done();
                 });
             });
@@ -157,14 +157,14 @@ describe("Get information on an array of posts(given an array of post URIs) test
                 socialDendroUtils.getPostsArrayInfo(true, agent, JSON.stringify(invalidPostURIsArray), function (err, res)
                 {
                     res.statusCode.should.equal(401);
-                    res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the posts belongs to.");
+                    res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the posts belong to.");
                     done();
                 });
             });
         });
 
 
-        it("[For demouser2, a collaborator in all projects] Should report an invalid post uri error on posts from the list that do not exist", function (done)
+        it("[For demouser2, a collaborator in all projects] Should give the posts information for a user even if said user is a collaborator and creator on different dendro projects", function (done)
         {
             //this test was added because of issue https://github.com/feup-infolab/dendro/issues/362
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
