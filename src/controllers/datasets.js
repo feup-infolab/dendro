@@ -587,7 +587,8 @@ const export_to_repository_zenodo = function (req, res)
 
                                         try
                                         {
-                                            const accessTocken = targetRepository.ddr.hasAccessToken;
+                                            const accessToken = targetRepository.ddr.hasAccessToken;
+                                            const hasExternalUri = targetRepository.ddr.hasExternalUri;
 
                                             let title;
                                             if (Array.isArray(folder.dcterms.title))
@@ -614,7 +615,24 @@ const export_to_repository_zenodo = function (req, res)
                                                 creator: folder.dcterms.creator
                                             };
 
-                                            const zenodo = new Zenodo(accessTocken);
+                                            let zenodo = null;
+                                            try
+                                            {
+                                                zenodo = new Zenodo(accessToken, hasExternalUri);
+                                            }
+                                            catch(error)
+                                            {
+                                                generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
+                                                const msg = "Error creating Zenodo client, error: " + error.message;
+                                                Logger.log("error", msg);
+                                                return res.status(500).json(
+                                                    {
+                                                        result: "error",
+                                                        message: msg
+                                                    }
+                                                );
+                                            }
+
                                             zenodo.createDeposition(data, function (err, deposition)
                                             {
                                                 if (err)
@@ -638,7 +656,7 @@ const export_to_repository_zenodo = function (req, res)
                                                         if (err)
                                                         {
                                                             generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
-                                                            const msg = "Error uploading multiple files to deposition in Zenodo";
+                                                            const msg = "Error uploading multiple files to deposition in Zenodo, error: " + JSON.stringify(err);
                                                             Logger.log("error", msg);
                                                             res.status(500).json(
                                                                 {
@@ -649,7 +667,7 @@ const export_to_repository_zenodo = function (req, res)
                                                         }
                                                         else
                                                         {
-                                                            zenodo.depositionPublish(depositionID, function (err)
+                                                            zenodo.depositionPublish(depositionID, function (err, data)
                                                             {
                                                                 if (err)
                                                                 {
@@ -665,12 +683,14 @@ const export_to_repository_zenodo = function (req, res)
                                                                 else
                                                                 {
                                                                     generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
-                                                                    const msg = "Folder " + folder.nie.title + " successfully exported from Dendro platform. ";
+                                                                    let msg = "Folder " + folder.nie.title + " successfully exported from Dendro platform. ";
+                                                                    msg = msg + "<br/><br/><a href='" + data.links.record_html + "'>Click to see your published dataset<\/a>";
                                                                     Logger.log(msg);
                                                                     res.json(
                                                                         {
                                                                             result: "OK",
-                                                                            message: msg
+                                                                            message: msg,
+                                                                            data: data
                                                                         }
                                                                     );
                                                                 }
