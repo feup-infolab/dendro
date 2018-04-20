@@ -564,7 +564,7 @@ File.prototype.writeToTempFile = function (callback)
                             {
                                 return callback(null, tempFilePath);
                             }
-                            return callback(1, result);
+                            return callback(err, result);
                         });
                     }
                     else

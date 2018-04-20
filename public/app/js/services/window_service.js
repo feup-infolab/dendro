@@ -104,6 +104,7 @@ angular.module("dendroApp.services")
                     var hiddenIFrameID = "hiddenDownloader_" + guid();
                     var iframe = document.getElementById(hiddenIFrameID);
 
+
                     if (iframe === null || typeof iframe === "undefined")
                     {
                         iframe = document.createElement("iframe");
@@ -112,7 +113,26 @@ angular.module("dendroApp.services")
                         document.body.appendChild(iframe);
                     }
 
+
+
+                   iframe.addEventListener("load",function(err) {
+                           new PNotify({
+                               title: "Failed to download resource",
+                               text: "If you are using B2DROP, check credentetials or file dont exist on storage",
+                               type: "error",
+                               opacity: 1.0,
+                               delay: 5000,
+                               addclass: "stack-bar-top",
+                               cornerclass: "",
+                               stack: stack_topright
+                           });
+                       }
+                    , false);
+
                     iframe.src = url;
+
+
+
                 };
 
                 this.register_server_side_event_source = function (event_name, handler, url)

@@ -137,6 +137,9 @@ exports.download = function (req, res)
                         else
                         {
                             Logger.log("error", "Unable to produce temporary file to download " + self.uri + " Error returned : " + JSON.stringify(results));
+                            //return last error
+                            res.writeHead(405, results.pop());
+                            res.end();
                         }
                     }
                 });
@@ -212,6 +215,13 @@ exports.download = function (req, res)
                             Logger.log("error", error);
                             res.writeHead(404, error);
                             res.end();
+                        }
+                        else if(!isNull(err.status) && err.status === 401)
+                        {
+                            const error = "Check B2drop Credentials";
+                            Logger.log("error", error);
+                            res.writeHead(405, error);
+                            res.end(); //TODO
                         }
                         else
                         {
@@ -1023,13 +1033,25 @@ exports.upload = function (req, res)
                                                                             uri: newFile.uri
                                                                         });
                                                                     }
-                                                                    const msg = "Error [" + err + "] reindexing file [" + newFile.uri + "]in GridFS :" + newFile;
-                                                                    return callback(500, {
-                                                                        result: "error",
-                                                                        message: "Unable to save files after buffering: " + JSON.stringify(newFile),
-                                                                        files: files,
-                                                                        errors: newFile
-                                                                    });
+                                                                    //Authentication errors
+                                                                    if(!isNull(err.status) && err.status === 401)
+                                                                    {
+                                                                        return callback(405, {
+                                                                            result: "error",
+                                                                            message: "Check B2drop credentials",
+                                                                            errors: newFile
+                                                                        });
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        // other errors, default response
+                                                                        return callback(500, {
+                                                                            result: "error",
+                                                                            message: "Unable to save files after buffering: " + JSON.stringify(newFile),
+                                                                            files: files,
+                                                                            errors: newFile
+                                                                        });
+                                                                    }
                                                                 });
                                                             }
                                                             else
@@ -1086,7 +1108,8 @@ exports.upload = function (req, res)
                                                             }
                                                             else
                                                             {
-                                                                return callback(err, results);
+                                                                //return the last result -> the error that ocurred in the async series
+                                                                return callback(err, results.pop());
                                                             }
                                                         });
                                                     }
