@@ -108,7 +108,6 @@ class StorageB2Drop extends Storage
             const targetFilePath = self._getB2DropPath(file);
             const parentFolder = path.dirname(targetFilePath);
 
-
             const async = require("async");
             async.series([
                 function (cb)
@@ -185,7 +184,8 @@ class StorageB2Drop extends Storage
                                         {
                                             cb(null);
                                         }
-                                        else {
+                                        else
+                                        {
                                             cb(err, response);
                                         }
                                     });
@@ -230,7 +230,8 @@ class StorageB2Drop extends Storage
         const self = this;
         self.open(function (err, response)
         {
-            if(isNull(err)) {
+            if (isNull(err))
+            {
                 self.connection.get(self._getB2DropPath(file), outputStream, function (err, result)
                 {
                     callback(err, result);
@@ -238,9 +239,8 @@ class StorageB2Drop extends Storage
             }
             else
             {
-                callback(err, response)
+                callback(err, response);
             }
-
         });
     }
 
@@ -302,14 +302,14 @@ class StorageB2Drop extends Storage
         const self = this;
 
         self.connection.getQuota(function (err, resp)
+        {
+            if (isNull(err))
             {
-                if (isNull(err))
-                {
-                    return callback(err, {limit: resp.avaiable});
-                }
-
-                return callback(err, null);
+                return callback(err, {limit: resp.avaiable});
             }
+
+            return callback(err, null);
+        }
         );
     }
 }
