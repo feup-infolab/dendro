@@ -14,6 +14,7 @@ const FileSystemPost = require(Pathfinder.absPathInSrcFolder("/models/social/fil
 const Uploader = require(Pathfinder.absPathInSrcFolder("/utils/uploader.js")).Uploader;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const Post = require(Pathfinder.absPathInSrcFolder("/models/post.js")).Post;
+const Event = require(Pathfinder.absPathInSrcFolder("/models/event.js")).Event;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const contentDisposition = require("content-disposition");
 
@@ -859,6 +860,17 @@ exports.upload = function (req, res)
                                 Logger.log("error", err);
                             }
                         });
+                        let event = new Event("post", fileSystemPost.uri, fileSystemPost.dcterms.creator);
+                        event.saveToMySQL(function (err) {
+                            if (isNull(err))
+                            {
+                                Logger.log("Event \"post\" saved to MySQL");
+                            }
+                            else
+                            {
+                                Logger.log("error", err);
+                            }
+                        });
                         callback(err, fileSystemPost);
                     }
                     else
@@ -1376,6 +1388,17 @@ exports.rm = function (req, res)
                                 Logger.log("error", err);
                             }
                         });
+                        let event = new Event("post", post.uri, post.dcterms.creator);
+                        event.saveToMySQL(function (err) {
+                            if (isNull(err))
+                            {
+                                Logger.log("Event \"post\" saved to MySQL");
+                            }
+                            else
+                            {
+                                Logger.log("error", err);
+                            }
+                        });
                         /* res.status(200).json({
                             "result" : "success",
                             "message" : "Successfully deleted " + resourceToDelete
@@ -1428,6 +1451,17 @@ exports.rm = function (req, res)
                             if (isNull(err))
                             {
                                 Logger.log("Post \"rmdir\" saved to MySQL");
+                            }
+                            else
+                            {
+                                Logger.log("error", err);
+                            }
+                        });
+                        let event = new Event("post", post.uri, post.dcterms.creator);
+                        event.saveToMySQL(function (err) {
+                            if (isNull(err))
+                            {
+                                Logger.log("Event \"post\" saved to MySQL");
                             }
                             else
                             {
@@ -2104,6 +2138,17 @@ exports.mkdir = function (req, res)
                                 if (isNull(err))
                                 {
                                     Logger.log("Post \"mkdir\" saved to MySQL");
+                                }
+                                else
+                                {
+                                    Logger.log("error", err);
+                                }
+                            });
+                            let event = new Event("post", post.uri, post.dcterms.creator);
+                            event.saveToMySQL(function (err) {
+                                if (isNull(err))
+                                {
+                                    Logger.log("Event \"post\" saved to MySQL");
                                 }
                                 else
                                 {

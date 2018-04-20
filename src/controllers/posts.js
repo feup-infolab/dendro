@@ -964,6 +964,17 @@ exports.new = function (req, res)
                                                     Logger.log("error", err);
                                                 }
                                             });
+                                            let event = new Event("post", manualPost.uri, currentUserUri);
+                                            event.saveToMySQL(function (err) {
+                                                if (isNull(err))
+                                                {
+                                                    Logger.log("Event \"post\" saved to MySQL");
+                                                }
+                                                else
+                                                {
+                                                    Logger.log("error", err);
+                                                }
+                                            });
                                             res.status(200).json({
                                                 result: "OK",
                                                 message: "Manual Post " + manualPost.uri + " successfully created"
