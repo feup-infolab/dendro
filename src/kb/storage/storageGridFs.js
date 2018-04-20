@@ -120,7 +120,7 @@ class StorageGridFs extends Storage
 
     getStorageLimit (callback)
     {
-        return callback(null, {limit: 1073741824}) //TODO
+        return callback(null, {limit: 1073741824}); // TODO
     }
 }
 

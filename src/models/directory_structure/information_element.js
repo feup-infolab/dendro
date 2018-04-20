@@ -1091,9 +1091,9 @@ InformationElement.prototype.refreshChildrenHumanReadableUris = function (callba
     {
         Folder.findByUri(self.uri, function (err, folder)
         {
-            if(isNull(err))
+            if (isNull(err))
             {
-                if(!isNull(folder))
+                if (!isNull(folder))
                 {
                     folder.refreshChildrenHumanReadableUris(callback, customGraphUri);
                 }

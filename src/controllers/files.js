@@ -29,6 +29,12 @@ exports.download = function (req, res)
 
     let requestedResourceURI = req.params.requestedResourceUri;
 
+    // const error = "There was an error streaming the requested resource : " + requestedResourceURI;
+    // Logger.log("error", error);f
+    // res.writeHead(500, error);
+    // res.end();
+    // return;
+
     const downloadFolder = function (requestedResourceURI, res)
     {
         Folder.findByUri(requestedResourceURI, function (err, folderToDownload)
@@ -137,7 +143,7 @@ exports.download = function (req, res)
                         else
                         {
                             Logger.log("error", "Unable to produce temporary file to download " + self.uri + " Error returned : " + JSON.stringify(results));
-                            //return last error
+                            // return last error
                             res.writeHead(405, results.pop());
                             res.end();
                         }
@@ -216,12 +222,12 @@ exports.download = function (req, res)
                             res.writeHead(404, error);
                             res.end();
                         }
-                        else if(!isNull(err.status) && err.status === 401)
+                        else if (!isNull(err.status) && err.status === 401)
                         {
                             const error = "Check B2drop Credentials";
                             Logger.log("error", error);
                             res.writeHead(405, error);
-                            res.end(); //TODO
+                            res.end(); // TODO
                         }
                         else
                         {
@@ -1033,8 +1039,8 @@ exports.upload = function (req, res)
                                                                             uri: newFile.uri
                                                                         });
                                                                     }
-                                                                    //Authentication errors
-                                                                    if(!isNull(err.status) && err.status === 401)
+                                                                    // Authentication errors
+                                                                    if (!isNull(err.status) && err.status === 401)
                                                                     {
                                                                         return callback(405, {
                                                                             result: "error",
@@ -1042,16 +1048,14 @@ exports.upload = function (req, res)
                                                                             errors: newFile
                                                                         });
                                                                     }
-                                                                    else
-                                                                    {
-                                                                        // other errors, default response
-                                                                        return callback(500, {
-                                                                            result: "error",
-                                                                            message: "Unable to save files after buffering: " + JSON.stringify(newFile),
-                                                                            files: files,
-                                                                            errors: newFile
-                                                                        });
-                                                                    }
+
+                                                                    // other errors, default response
+                                                                    return callback(500, {
+                                                                        result: "error",
+                                                                        message: "Unable to save files after buffering: " + JSON.stringify(newFile),
+                                                                        files: files,
+                                                                        errors: newFile
+                                                                    });
                                                                 });
                                                             }
                                                             else
@@ -1108,7 +1112,7 @@ exports.upload = function (req, res)
                                                             }
                                                             else
                                                             {
-                                                                //return the last result -> the error that ocurred in the async series
+                                                                // return the last result -> the error that ocurred in the async series
                                                                 return callback(err, results.pop());
                                                             }
                                                         });

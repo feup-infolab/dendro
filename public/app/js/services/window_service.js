@@ -83,7 +83,7 @@ angular.module("dendroApp.services")
 
                 this.download_url = function (url, parametersString)
                 {
-                    if (url != null && parametersString != null)
+                    if (url !== null && parametersString !== null)
                     {
                         url = url + parametersString;
                     }
@@ -104,7 +104,6 @@ angular.module("dendroApp.services")
                     var hiddenIFrameID = "hiddenDownloader_" + guid();
                     var iframe = document.getElementById(hiddenIFrameID);
 
-
                     if (iframe === null || typeof iframe === "undefined")
                     {
                         iframe = document.createElement("iframe");
@@ -113,26 +112,30 @@ angular.module("dendroApp.services")
                         document.body.appendChild(iframe);
                     }
 
-
-
-                   iframe.addEventListener("load",function(err) {
-                           new PNotify({
-                               title: "Failed to download resource",
-                               text: "If you are using B2DROP, check credentetials or file dont exist on storage",
-                               type: "error",
-                               opacity: 1.0,
-                               delay: 5000,
-                               addclass: "stack-bar-top",
-                               cornerclass: "",
-                               stack: stack_topright
-                           });
-                       }
-                    , false);
-
-                    iframe.src = url;
-
-
-
+                    $(function ()
+                    {
+                        $.ajax({
+                            url: url,
+                            //timeout: 5000,
+                            success: function ()
+                            {
+                                $("#" + hiddenIFrameID).attr("src", url);
+                            },
+                            error: function (err)
+                            {
+                                new PNotify({
+                                    title: "Failed to download resource",
+                                    text: "If you are using B2DROP, check credentials or file dont exist on storage",
+                                    type: "error",
+                                    opacity: 1.0,
+                                    delay: 5000,
+                                    addclass: "stack-bar-top",
+                                    cornerclass: "",
+                                    stack: stack_topright
+                                });
+                            }
+                        });
+                    });
                 };
 
                 this.register_server_side_event_source = function (event_name, handler, url)

@@ -264,7 +264,6 @@ exports.show = function (req, res)
                                         result.descriptors.splice(i, 1);
                                     }
                                 }
-
                             }
                             res.send(serializer(result));
                         }
@@ -984,9 +983,11 @@ exports.new = function (req, res)
                                                 req.flash("success", "New project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + " created successfully");
                                                 callback(null, true);
                                             }
-
-                                            req.flash("error", "Error updating storage configuration " + storageConf.uri + "for project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + "!");
-                                            callback(result, null);
+                                            else
+                                            {
+                                                req.flash("error", "Error updating storage configuration " + storageConf.uri + "for project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + "!");
+                                                callback(result, null);
+                                            }
                                         });
                                     }
                                     else
