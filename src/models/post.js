@@ -3,24 +3,25 @@ const db = require(Pathfinder.absPathInSrcFolder("mysql_models"));
 
 let typeName;
 
-let Event = function (type, postURI, userURI)
+let Post = function (type, postURI, userURI, projectURI)
 {
     typeName = type;
     this.postURI = postURI;
     this.userURI = userURI;
+    this.projectURI = projectURI;
     return this;
 };
 
-Event.prototype.saveToMySQL = function (callback)
+Post.prototype.saveToMySQL = function (callback)
 {
     const self = this;
-    db.event_types.findAll({
+    db.post_types.findAll({
         where: {
             name: typeName
         }
     }).then(res => {
         self.typeId = res[0].dataValues.id;
-        db.events.create(self).then(() => {
+        db.posts.create(self).then(() => {
             return callback(null);
         }).catch(err => {
             return callback(err);
@@ -28,16 +29,16 @@ Event.prototype.saveToMySQL = function (callback)
     });
 };
 
-Event.prototype.deleteFromMySQL = function (callback)
+Post.prototype.deleteFromMySQL = function (callback)
 {
     const self = this;
-    db.event_types.findAll({
+    db.post_types.findAll({
         where: {
             name: typeName
         }
     }).then(res => {
         self.typeId = res[0].dataValues.id;
-        db.events.destroy({
+        db.posts.destroy({
             where: {
                 postURI: self.postURI,
                 userURI: self.userURI,
@@ -51,4 +52,4 @@ Event.prototype.deleteFromMySQL = function (callback)
     });
 };
 
-module.exports.Event = Event;
+module.exports.Post = Post;

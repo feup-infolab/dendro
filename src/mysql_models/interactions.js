@@ -28,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
         createdAt: "created",
         updatedAt: "modified"
     });
-    interactions.associate = function(models) {
+    interactions.associate = function (models) {
         // associations can be defined here
     };
     return interactions;

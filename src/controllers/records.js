@@ -5,7 +5,7 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Event = require(Pathfinder.absPathInSrcFolder("/models/event.js")).Event;
+const Post = require(Pathfinder.absPathInSrcFolder("/models/post.js")).Post;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
 const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
@@ -470,11 +470,11 @@ exports.update = function (req, res)
                         {
                             if (isNull(err))
                             {
-                                event = new Event("post", post.uri, post.dcterms.creator, post.ddr.projectUri);
-                                event.saveToMySQL(function (err) {
+                                let postObj = new Post("metadata_change", post.uri, post.dcterms.creator, post.ddr.projectUri);
+                                postObj.saveToMySQL(function (err) {
                                     if (isNull(err))
                                     {
-                                        Logger.log("Event \"post\" saved to MySQL");
+                                        Logger.log("Post \"metadata_change\" saved to MySQL");
                                     }
                                     else
                                     {

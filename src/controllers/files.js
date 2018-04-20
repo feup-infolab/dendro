@@ -13,7 +13,7 @@ const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const FileSystemPost = require(Pathfinder.absPathInSrcFolder("/models/social/fileSystemPost.js")).FileSystemPost;
 const Uploader = require(Pathfinder.absPathInSrcFolder("/utils/uploader.js")).Uploader;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Event = require(Pathfinder.absPathInSrcFolder("/models/event.js")).Event;
+const Post = require(Pathfinder.absPathInSrcFolder("/models/post.js")).Post;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const contentDisposition = require("content-disposition");
 
@@ -848,11 +848,11 @@ exports.upload = function (req, res)
                 {
                     if (isNull(err))
                     {
-                        let event = new Event("post", fileSystemPost.uri, fileSystemPost.dcterms.creator, fileSystemPost.ddr.projectUri);
-                        event.saveToMySQL(function (err) {
+                        let post = new Post("file_upload", fileSystemPost.uri, fileSystemPost.dcterms.creator, fileSystemPost.ddr.projectUri);
+                        post.saveToMySQL(function (err) {
                             if (isNull(err))
                             {
-                                Logger.log("Event \"post\" saved to MySQL");
+                                Logger.log("Post \"file_upload\" saved to MySQL");
                             }
                             else
                             {
@@ -1365,11 +1365,11 @@ exports.rm = function (req, res)
                 {
                     if (isNull(error))
                     {
-                        let event = new Event("post", post.uri, post.dcterms.creator, post.ddr.projectUri);
-                        event.saveToMySQL(function (err) {
+                        let postObj = new Post("file_delete", post.uri, post.dcterms.creator, post.ddr.projectUri);
+                        postObj.saveToMySQL(function (err) {
                             if (isNull(err))
                             {
-                                Logger.log("Event \"post\" saved to MySQL");
+                                Logger.log("Post \"file_delete\" saved to MySQL");
                             }
                             else
                             {
@@ -1423,11 +1423,11 @@ exports.rm = function (req, res)
                 {
                     if (isNull(err))
                     {
-                        let event = new Event("post", post.uri, post.dcterms.creator, post.ddr.projectUri);
-                        event.saveToMySQL(function (err) {
+                        let postObj = new Post("rmdir", post.uri, post.dcterms.creator, post.ddr.projectUri);
+                        postObj.saveToMySQL(function (err) {
                             if (isNull(err))
                             {
-                                Logger.log("Event \"post\" saved to MySQL");
+                                Logger.log("Post \"rmdir\" saved to MySQL");
                             }
                             else
                             {
@@ -2099,11 +2099,11 @@ exports.mkdir = function (req, res)
                     {
                         if (!err)
                         {
-                            let event = new Event("post", post.uri, post.dcterms.creator, post.ddr.projectUri);
-                            event.saveToMySQL(function (err) {
+                            let postObj = new Post("mkdir", post.uri, post.dcterms.creator, post.ddr.projectUri);
+                            postObj.saveToMySQL(function (err) {
                                 if (isNull(err))
                                 {
-                                    Logger.log("Event \"post\" saved to MySQL");
+                                    Logger.log("Post \"mkdir\" saved to MySQL");
                                 }
                                 else
                                 {

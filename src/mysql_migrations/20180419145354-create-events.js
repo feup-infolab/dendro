@@ -11,11 +11,19 @@ module.exports = {
             userURI: {
                 type: Sequelize.STRING
             },
-            postURI: {
-                type: Sequelize.STRING
+            typeId: {
+                type: Sequelize.INTEGER,
+                references: {
+                    model: "event_types",
+                    key: "id"
+                }
             },
-            projectURI: {
-                type: Sequelize.STRING
+            postURI: {
+                type: Sequelize.STRING,
+                references: {
+                    model: "posts",
+                    key: "postURI"
+                }
             },
             createdAt: {
                 allowNull: false,
@@ -24,20 +32,7 @@ module.exports = {
             updatedAt: {
                 allowNull: false,
                 type: Sequelize.DATE
-            },
-            typeId: {
-                type: Sequelize.INTEGER,
-                references: {
-                    model: "types",
-                    key: "id"
-                }
             }
-        }).then(() => {
-            queryInterface.addIndex("events", ["userURI"]);
-            queryInterface.addIndex("events", ["postURI"]);
-            queryInterface.addIndex("events", ["projectURI"]);
-            queryInterface.renameColumn("events", "createdAt", "timestamp");
-            return queryInterface.renameColumn("events", "updatedAt", "modified");
         });
     },
     down: (queryInterface, Sequelize) => {
