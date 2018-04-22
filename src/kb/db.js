@@ -1029,7 +1029,8 @@ DbConnection.prototype.close = function (callback)
         {
             async.map(self.pool._pool, function (connection, cb)
             {
-                self.pool.release(connection, function(err, result){
+                self.pool.release(connection, function (err, result)
+                {
                     cb(null);
                 });
             }, function (err, results)

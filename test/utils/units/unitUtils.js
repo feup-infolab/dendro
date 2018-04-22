@@ -190,7 +190,7 @@ exports.checkpointExists = function (checkpointIdentifier, callback)
     {
         callback(null, DockerCheckpointManager.checkpointExists(checkpointIdentifier));
     }
-    else if (Config.virtualbox.active)
+    else if (Config.virtualbox && Config.virtualbox.active)
     {
         VirtualBoxManager.checkpointExists(checkpointIdentifier, callback);
     }
@@ -226,7 +226,7 @@ exports.loadCheckpoint = function (checkpointIdentifier, callback)
                             callback(1, "Error restoring Docker Checkpoint " + checkpointIdentifier);
                         }
                     }
-                    else if (Config.virtualbox.active)
+                    else if (Config.virtualbox && Config.virtualbox.active)
                     {
                         async.series([
                             function (callback)
@@ -414,7 +414,7 @@ exports.runLoadFunctionsFromExistingCheckpointUntilUnit = function (checkpointed
                                 cb(err);
                             });
                         }
-                        else if (Config.virtualbox.active)
+                        else if (Config.virtualbox && Config.virtualbox.active)
                         {
                             Logger.log("Halting app after loading databases for creating checkpoint: " + checkpointIdentifier);
 
@@ -596,7 +596,7 @@ exports.setup = function (targetUnit, callback, forceLoad)
                 callback(err, result);
             });
         }
-        else if (Config.virtualbox.active)
+        else if (Config.virtualbox && Config.virtualbox.active)
         {
             exports.loadCheckpoint(checkpointIdentifier, function (err, result)
             {

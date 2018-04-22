@@ -5,7 +5,7 @@ const VirtualBoxManager = require(Pathfinder.absPathInSrcFolder("utils/virtualbo
 
 const initVirtualBoxVM = function (app, callback)
 {
-    if (Config.virtualbox.active)
+    if (Config.virtualbox && Config.virtualbox.active)
     {
         try
         {

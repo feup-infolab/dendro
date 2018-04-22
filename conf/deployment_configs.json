@@ -1571,8 +1571,8 @@
         },
         "numCPUs": 1,
         "docker": {
-          "active": false,
-          "reuse_checkpoints": true
+          "active": true,
+          "reuse_checkpoints": false
         },
         "virtualbox": {
           "active": false,
