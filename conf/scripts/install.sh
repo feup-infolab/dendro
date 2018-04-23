@@ -33,11 +33,11 @@ else
 
     source $HOME/.bash_profile
     nvm install "$NODE_VERSION"
-    nvm use "$NODE_VERSION"
+    nvm use --delete-prefix "$NODE_VERSION" --silent
 
     echo "Installing Node Version $NODE_VERSION during install script!!"
     nvm install $NODE_VERSION &&
-    nvm use $NODE_VERSION &&
+    nvm use --delete-prefix $NODE_VERSION --silent &&
     echo "loaded NVM."
 
     #update npm
