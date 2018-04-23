@@ -67,6 +67,7 @@ fi
 function wait_for_server_to_boot_on_port()
 {
     local ip=$1
+    local sentenceToFindInResponse=$2
 
     if [[ $ip == "" ]]; then
       ip="127.0.0.1"
@@ -79,10 +80,16 @@ function wait_for_server_to_boot_on_port()
 
     # curl -s $URL 2>&1 > /dev/null
     # nc "$ip" "$port" < /dev/null > /dev/null
-    while curl -s "$ip:$port" > /dev/null && [[ $attempts < $max_attempts ]]  ; do
+
+    response=$(curl -s $ip:$port)
+    echo $response
+    while [[ $response =~ .*"$sentenceToFindInResponse".* ]] && [[ $attempts < $max_attempts ]]  ; do
         attempts=$((attempts+1))
-        sleep 1;
+        response=$(curl -s $ip:$port)
+
+        echo $response
         echo "waiting... (${attempts}/${max_attempts})"
+        sleep 1;
     done
 
     if (( $attempts == $max_attempts ));
@@ -113,7 +120,7 @@ function container_running
 
 ## ELASTICSEARCH
 
-echo $RUNNING_FOLDER
+echo "Running folder: $RUNNING_FOLDER"
 
 printf "\n\n"
 if container_running "$ELASTICSEARCH_CONTAINER_NAME" == 0
@@ -138,8 +145,8 @@ then
     fi
 fi
 
-wait_for_server_to_boot_on_port "$ELASTICSEARCH_IP" 9200
-wait_for_server_to_boot_on_port "$ELASTICSEARCH_IP" 9300
+wait_for_server_to_boot_on_port "$ELASTICSEARCH_IP" 9200 "You Know, for Search"
+wait_for_server_to_boot_on_port "$ELASTICSEARCH_IP" 9300 "You Know, for Search"
 # docker ps -a
 
 ## VIRTUOSO
@@ -197,7 +204,7 @@ then
     fi
 fi
 
-wait_for_server_to_boot_on_port "$MYSQL_IP" 3306
+wait_for_server_to_boot_on_port "$MYSQL_IP" 3306 "Got packets out of order"
 # docker ps -a
 
 ## MONGODB
@@ -221,5 +228,5 @@ then
     fi
 fi
 
-wait_for_server_to_boot_on_port "$MONGODB_IP" 27017
+wait_for_server_to_boot_on_port "$MONGODB_IP" 27017 "It looks like you are trying to access MongoDB over HTTP on the native driver port"
 # docker ps -a

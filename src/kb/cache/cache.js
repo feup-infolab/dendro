@@ -53,6 +53,7 @@ Cache.initConnections = function (callback)
                                     },
                                     function (callback)
                                     {
+                                        Logger.log("debug", "Trying to connect to MongoDB Cache " + cacheId);
                                         newMongoCacheConnection.open(function (err, mongoDBConnection)
                                         {
                                             if (!isNull(err))
@@ -169,10 +170,12 @@ Cache.initConnections = function (callback)
             if (isNull(err))
             {
                 Logger.log_boot_message("All Cache instances are up and running!");
-                return callback(null);
+                callback(null);
             }
-
-            throw new Error("[ERROR] Unable to setup some cache instances. Is the MongoDB server online?\n" + JSON.stringify(results));
+            else
+            {
+                throw new Error("[ERROR] Unable to setup some cache instances. Is the MongoDB server online?\n" + JSON.stringify(results));
+            }
         }
     );
 };
