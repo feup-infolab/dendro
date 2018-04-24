@@ -1260,13 +1260,14 @@ prepareFilesForUploadToB2share = function (files, fileBucketID, b2shareClient, c
         const info = {fileBucketID: fileBucketID, absFilePath: file};
         b2shareClient.uploadFileIntoDraftRecord(info, function (err, data)
         {
-            if(!isNull(err))
+            if(isNull(err))
             {
-                return cb(err, data);
+                callback(err, data);
             }
             else
             {
-                callback(err, data);
+                Logger.log("error", "Error at prepareFilesForUploadToB2share: " + JSON.stringify(data));
+                return cb(err, data);
             }
         });
     }, function (error, data)
