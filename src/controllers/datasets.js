@@ -942,7 +942,7 @@ export_to_repository_b2share = function (req, res)
                                                 }
                                                 b2shareClient.createADraftRecord(draftData, function (err, body)
                                                 {
-                                                    if (err)
+                                                    if (!isNull(err))
                                                     {
                                                         generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                                                         const msg = "Error creating new draft resource in B2Share";
@@ -978,7 +978,7 @@ export_to_repository_b2share = function (req, res)
                                                             {
                                                                 b2shareClient.listUploadedFilesInRecord(fileBucketID, function (err, info)
                                                                 {
-                                                                    if(err)
+                                                                    if(!isNull(err))
                                                                     {
                                                                         const msg = "Could not compare the Number of files uploaded to B2SHARE with files in Dendro, will not publish the draft!";
                                                                         Logger.log("error", msg);
@@ -1007,7 +1007,7 @@ export_to_repository_b2share = function (req, res)
                                                                         {
                                                                             b2shareClient.submitDraftRecordForPublication(recordIDToUpdate, function (err, body)
                                                                             {
-                                                                                if (err)
+                                                                                if (!isNull(err))
                                                                                 {
                                                                                     const msg = "Error publishing a draft in B2Share";
                                                                                     Logger.log("error", msg);
