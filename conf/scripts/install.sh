@@ -32,8 +32,8 @@ else
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && # This loads nvm
 
     source $HOME/.bash_profile
-    nvm install "$NODE_VERSION"
-    nvm use --delete-prefix "$NODE_VERSION" --silent
+#    nvm install "$NODE_VERSION"
+#    nvm use --delete-prefix "$NODE_VERSION" --silent
 
     echo "Installing Node Version $NODE_VERSION during install script!!"
     nvm install $NODE_VERSION &&
