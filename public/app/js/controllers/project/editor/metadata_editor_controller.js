@@ -227,6 +227,55 @@ angular.module("dendroApp.controllers")
             }
         };
 
+        $scope.import_metadata = function () {
+            const removeImproperDescriptors = function (descriptors) {
+                var allowedDescriptorsToImport = _.reject(descriptors, function (descriptor) {
+                    return (descriptor.locked === true || descriptor.private === true);
+                });
+                return allowedDescriptorsToImport;
+            };
+
+            const markDescriptorsAsJustAdded = function (descriptors) {
+                return _.map(descriptors, function (descriptor) {
+                    descriptor.just_added = true;
+                    return descriptor;
+                });
+            };
+
+            var file = document.getElementById("metadataFile").files[0];
+            var reader = new FileReader();
+
+            reader.onloadend = function (ev) {
+              var data = ev.target.result;
+              var metadataAsJSON = null;
+              try{
+                  metadataAsJSON = JSON.parse(data);
+                  if(metadataAsJSON !== null && metadataAsJSON.descriptors !== null && metadataAsJSON.descriptors instanceof Array && metadataAsJSON.descriptors.length > 0)
+                  {
+                      var allowedDescriptorsToImport = removeImproperDescriptors(metadataAsJSON.descriptors);
+                      if(allowedDescriptorsToImport !== null && allowedDescriptorsToImport instanceof Array && allowedDescriptorsToImport.length > 0)
+                      {
+                          allowedDescriptorsToImport = markDescriptorsAsJustAdded(allowedDescriptorsToImport);
+                          //load them into $scope.shared.metadata
+                          $scope.add_all_descriptors(allowedDescriptorsToImport);
+                          $scope.$apply();
+                          windowService.show_popup("success", "Completed", "Imported " + allowedDescriptorsToImport.length);
+                      }
+                      else
+                      {
+                          windowService.show_popup("info", "Could not import metadata", "There were no valid desciptors to import");
+                      }
+                  }
+              }
+              catch(error)
+              {
+                  windowService.show_popup("error", "Error", "Are you sure the metadata file is a valid JSON?");
+              }
+            };
+
+            reader.readAsText(file)
+        };
+
         $scope.clear_metadata = function ()
         {
             bootbox.confirm("Clear metadata?", function (confirmed)
