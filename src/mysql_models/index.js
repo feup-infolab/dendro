@@ -13,7 +13,8 @@ let config = {
     password: Config.mySQLAuth.password,
     database: Config.mySQLDBName,
     host: Config.mySQLHost,
-    dialect: "mysql"
+    dialect: "mysql",
+    operatorsAliases: false
 };
 
 var sequelize = new Sequelize(config.database, config.username, config.password, config);

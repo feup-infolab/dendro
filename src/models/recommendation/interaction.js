@@ -281,7 +281,7 @@ Interaction.prototype.saveToMySQL = function (callback/*, overwrite*/)
             insert.recommendationCallTimeStamp = moment(self.ddr.recommendationCallTimeStamp, moment.ISO_8601).format("YYYY-MM-DD HH:mm:ss");
         }
         else
-            {
+        {
             insert.recommendationCallTimeStamp = null;
         }
 

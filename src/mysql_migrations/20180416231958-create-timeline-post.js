@@ -14,9 +14,6 @@ module.exports = {
             postURI: {
                 type: Sequelize.TEXT
             },
-            timestamp: {
-                type: Sequelize.DATE
-            },
             position: {
                 type: Sequelize.INTEGER
             },

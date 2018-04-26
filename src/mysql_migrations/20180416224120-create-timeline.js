@@ -14,9 +14,10 @@ module.exports = {
             },
             lastAccess: {
                 allowNull: false,
+                defaultValue: queryInterface.sequelize.fn("NOW"),
                 type: Sequelize.DATE
             },
-            lastPosition: {
+            nextPosition: {
                 allowNull: false,
                 defaultValue: 0,
                 type: Sequelize.INTEGER

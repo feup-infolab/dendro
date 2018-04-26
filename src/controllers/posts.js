@@ -104,17 +104,66 @@ const getProjectInteractions = function (array, projectURI)
     return project.interactions;
 };
 
-const scorePost = function (projectInteractionsArray, post)
+const getPostScore = function (projectInteractionsArray, post)
 {
     let likes = post.likes;
     let comments = post.comments;
     let shares = post.shares;
     let projectInteractions = getProjectInteractions(projectInteractionsArray, post.projectURI);
+    let postType = post.postType;
     return comments * 3 + shares * 2 + likes + projectInteractions;
 };
 
-const getRankedPosts = function (projectUrisArray, callback, userUri, startingResultPosition, maxResults)
+const addPostsToTimeline = function (posts, nextPosition, userURI, callback)
 {
+    let insertArray = [];
+    let itemsProcessed = 0;
+    const insertInTimeline = function (posts, nextPosition)
+    {
+        return dbMySQL.sequelize.transaction(function (t)
+        {
+            return dbMySQL.timeline_post.bulkCreate(posts, {transaction: t}).then(function ()
+            {
+                return dbMySQL.timeline.update({ nextPosition: nextPosition }, { where: { userURI: userURI } }, {transaction: t});
+            });
+        }).then(function ()
+        {
+            return callback();
+        }).catch(function (err)
+        {
+            console.log(err);
+        });
+    };
+    const createInsertArray = function (post, index, array)
+    {
+        insertArray.push({userURI: userURI, postURI: post.uri, position: nextPosition});
+        nextPosition++;
+        itemsProcessed++;
+        if (itemsProcessed === array.length)
+        {
+            return insertInTimeline(insertArray, nextPosition);
+        }
+    };
+    posts.forEach(createInsertArray);
+};
+
+const getRankedPosts = function (projectUrisArray, callback, userUri, nextPosition, lastAccess, startingResultPosition, maxResults)
+{
+    const getPostsPerPage = function ()
+    {
+        return dbMySQL.timeline_post.findAll({
+            raw: true,
+            where: { userURI: userUri },
+            attributes: [ ["postURI", "uri"], "position" ],
+            order: [ ["position", "DESC"] ],
+            offset: startingResultPosition,
+            limit: maxResults
+        }).then(function (posts)
+        {
+            console.log(posts);
+            return callback(null, posts);
+        });
+    };
     if (projectUrisArray && projectUrisArray.length > 0)
     {
         async.mapSeries(projectUrisArray, function (uri, cb1)
@@ -122,19 +171,19 @@ const getRankedPosts = function (projectUrisArray, callback, userUri, startingRe
             cb1(null, "'" + uri + "'");
         }, function (err, fullProjects)
         {
-            const projectsUris = fullProjects.join(",");
-            let queryEngagement = "call " + Config.mySQLDBName + ".countEngagement(:user, :projects);";
+            let projectsUris = fullProjects.join(",");
+            let queryEngagement = "call " + Config.mySQLDBName + ".countEngagement(:user, :projects, :lastAccess);";
 
             dbMySQL.sequelize
                 .query(queryEngagement,
-                    {replacements: { user: "'" + userUri + "'", projects: projectsUris }, type: dbMySQL.sequelize.QueryTypes.SELECT})
+                    {replacements: { user: "'" + userUri + "'", projects: projectsUris, lastAccess: "'" + lastAccess.toISOString() + "'"}, type: dbMySQL.sequelize.QueryTypes.SELECT})
                 .spread((posts, interactions) => {
-                    let postsArray = Object.keys(posts).map(function (k) { return posts[k]; });
+                    let newPosts = Object.keys(posts).map(function (k) { return posts[k]; });
                     let interactionsArray = Object.keys(interactions).map(function (k) { return interactions[k]; });
-                    postsArray.sort(function (post1, post2)
+                    newPosts.sort(function (post1, post2)
                     {
-                        post1.score = scorePost(interactionsArray, post1);
-                        post2.score = scorePost(interactionsArray, post2);
+                        post1.score = getPostScore(interactionsArray, post1);
+                        post2.score = getPostScore(interactionsArray, post2);
                         let diff = post2.score - post1.score;
                         if (diff === 0)
                         {
@@ -142,8 +191,12 @@ const getRankedPosts = function (projectUrisArray, callback, userUri, startingRe
                         }
                         return diff;
                     });
-                    console.log(postsArray);
-                    return callback(err, postsArray);
+                    if (newPosts.length > 0)
+                    {
+                        return addPostsToTimeline(newPosts, nextPosition, userUri, getPostsPerPage);
+                    }
+                    // else
+                    getPostsPerPage();
                 })
                 .catch(err => {
                     console.log(err);
@@ -159,10 +212,23 @@ const getRankedPosts = function (projectUrisArray, callback, userUri, startingRe
     }
 };
 
-exports.getUserPostsUris = function (userUri, currentPage, useRank, callback)
+exports.getUserPostsUris = function (userUri, currentPage, useRank, lastPosition, lastAccess, callback)
 {
     const index = currentPage === 1 ? 0 : (currentPage * 5) - 5;
     const maxResults = 5;
+    const cb = function (err, results)
+    {
+        if (!err)
+        {
+            callback(err, results);
+        }
+        else
+        {
+            Logger.log("error", "Error getting a user post");
+            Logger.log("error", err);
+            callback(err, results);
+        }
+    };
     Project.findByCreatorOrContributor(userUri, function (err, projects)
     {
         if (!err)
@@ -174,35 +240,11 @@ exports.getUserPostsUris = function (userUri, currentPage, useRank, callback)
             {
                 if (!useRank)
                 {
-                    getAllPosts(fullProjectsUris, function (err, results)
-                    {
-                        if (!err)
-                        {
-                            callback(err, results);
-                        }
-                        else
-                        {
-                            Logger.log("error", "Error getting a user post");
-                            Logger.log("error", err);
-                            callback(err, results);
-                        }
-                    }, index, maxResults);
+                    getAllPosts(fullProjectsUris, cb, index, maxResults);
                 }
                 else
                 {
-                    getRankedPosts(fullProjectsUris, function (err, results)
-                    {
-                        if (!err)
-                        {
-                            callback(err, results);
-                        }
-                        else
-                        {
-                            Logger.log("error", "Error getting a user post");
-                            Logger.log("error", err);
-                            callback(err, results);
-                        }
-                    }, userUri, index, maxResults);
+                    getRankedPosts(fullProjectsUris, cb, userUri, lastPosition, lastAccess, index, maxResults);
                 }
             });
         }
