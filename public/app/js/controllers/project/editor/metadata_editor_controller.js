@@ -20,7 +20,8 @@ angular.module("dendroApp.controllers")
         ontologiesService,
         storageService,
         recommendationService,
-        descriptorsService
+        descriptorsService,
+        usSpinnerService
     )
     {
         $scope.recover_metadata = function ()
@@ -227,6 +228,22 @@ angular.module("dendroApp.controllers")
             }
         };
 
+        $scope.closeImportMetadataFileModal = function () {
+            var fileElement = angular.element("#metadataFile");
+            angular.element(fileElement).val(null);
+            angular.element("#importMetadataFileModal").modal("hide");
+        };
+
+        $scope.startUploadMetadataFileSpinner = function () {
+            usSpinnerService.spin("upload-metadata-file-spinner");
+        };
+
+        $scope.stopUploadMetadataFileSpinner = function () {
+            $timeout(function() {
+                usSpinnerService.stop("upload-metadata-file-spinner");
+            }, 2000);
+        };
+
         $scope.import_metadata = function () {
             const removeImproperDescriptors = function (descriptors) {
                 var allowedDescriptorsToImport = _.reject(descriptors, function (descriptor) {
@@ -260,20 +277,34 @@ angular.module("dendroApp.controllers")
                           $scope.add_all_descriptors(allowedDescriptorsToImport);
                           $scope.$apply();
                           windowService.show_popup("success", "Completed", "Imported " + allowedDescriptorsToImport.length);
+                          $scope.closeImportMetadataFileModal();
+                          $scope.stopUploadMetadataFileSpinner();
                       }
                       else
                       {
                           windowService.show_popup("info", "Could not import metadata", "There were no valid desciptors to import");
+                          $scope.closeImportMetadataFileModal();
+                          $scope.stopUploadMetadataFileSpinner();
                       }
                   }
               }
               catch(error)
               {
                   windowService.show_popup("error", "Error", "Are you sure the metadata file is a valid JSON?");
+                  $scope.closeImportMetadataFileModal();
+                  $scope.stopUploadMetadataFileSpinner();
               }
             };
 
-            reader.readAsText(file)
+            if(file instanceof  Blob)
+            {
+                $scope.startUploadMetadataFileSpinner();
+                reader.readAsText(file)
+            }
+            else
+            {
+                windowService.show_popup("info", "No JSON file detected", "Please upload a valid JSON file!");
+            }
         };
 
         $scope.clear_metadata = function ()
