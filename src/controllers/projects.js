@@ -1285,13 +1285,21 @@ exports.administer = function (req, res)
                             {
                                 if (isNull(err))
                                 {
-                                    // all users were invalid
-                                    if (_.without(contributors, null).length === 0)
+                                    if(req.body.contributors.length === 0)
                                     {
-                                        return callback(true, project);
+                                        project.dcterms.contributor = [];
+                                        return callback(null, project);
                                     }
-                                    project.dcterms.contributor = _.without(contributors, null);
-                                    return callback(null, project);
+                                    else
+                                    {
+                                        // all users were invalid
+                                        if (_.without(contributors, null).length === 0)
+                                        {
+                                            return callback(true, project);
+                                        }
+                                        project.dcterms.contributor = _.without(contributors, null);
+                                        return callback(null, project);
+                                    }
                                 }
                                 return callback(err, contributors);
                             });
