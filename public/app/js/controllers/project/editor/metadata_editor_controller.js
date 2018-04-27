@@ -235,7 +235,7 @@ angular.module("dendroApp.controllers")
                     return metadata.just_inherited === true;
                 });
 
-                if(sharedMetadataClearedOfInheritedDescriptors instanceof Array && sharedMetadataClearedOfInheritedDescriptors.length > 0)
+                if(sharedMetadataClearedOfInheritedDescriptors instanceof Array)
                 {
                     $scope.shared.metadata = sharedMetadataClearedOfInheritedDescriptors;
                 }
