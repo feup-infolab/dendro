@@ -228,6 +228,20 @@ angular.module("dendroApp.controllers")
             }
         };
 
+        $scope.clear_inherited = function () {
+            if ($scope.shared.metadata != null && $scope.shared.metadata instanceof Array && $scope.shared.metadata.length > 0)
+            {
+                var sharedMetadataClearedOfInheritedDescriptors = _.reject($scope.shared.metadata, function (metadata) {
+                    return metadata.just_inherited === true;
+                });
+
+                if(sharedMetadataClearedOfInheritedDescriptors instanceof Array && sharedMetadataClearedOfInheritedDescriptors.length > 0)
+                {
+                    $scope.shared.metadata = sharedMetadataClearedOfInheritedDescriptors;
+                }
+            }
+        };
+
         $scope.closeImportMetadataFileModal = function () {
             var fileElement = angular.element("#metadataFile");
             angular.element(fileElement).val(null);
@@ -325,18 +339,18 @@ angular.module("dendroApp.controllers")
 
             return $http
                 .get(requestUri)
-                .then(function (data)
+                .then(function (response)
                 {
-                    if (data.descriptors != null && data.descriptors instanceof Array && data.descriptors.length > 0)
+                    if (response.data.descriptors != null && response.data.descriptors instanceof Array && response.data.descriptors.length > 0)
                     {
-                        for (var i = 0; i < data.descriptors.length; i++)
+                        for (var i = 0; i < response.data.descriptors.length; i++)
                         {
-                            data.descriptors[i].just_inherited = true;
+                            response.data.descriptors[i].just_inherited = true;
                         }
 
-                        $scope.add_all_descriptors(data.descriptors);
+                        $scope.add_all_descriptors(response.data.descriptors);
 
-                        windowService.show_popup("success", "Completed", "Copied " + data.descriptors.length + " descriptors from parent folder.");
+                        windowService.show_popup("success", "Completed", "Copied " + response.data.descriptors.length + " descriptors from parent folder.");
 
                         return $scope.shared.metadata;
                     }
