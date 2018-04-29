@@ -147,23 +147,24 @@ const addPostsToTimeline = function (posts, nextPosition, userURI, callback)
     posts.forEach(createInsertArray);
 };
 
+const getRankedPostsPerPage = function (userUri, startingResultPosition, maxResults, callback)
+{
+    return dbMySQL.timeline_post.findAll({
+        raw: true,
+        where: { userURI: userUri },
+        attributes: [ ["postURI", "uri"], "position" ],
+        order: [ ["position", "DESC"] ],
+        offset: startingResultPosition,
+        limit: maxResults
+    }).then(function (posts)
+    {
+        console.log(posts);
+        return callback(null, posts);
+    });
+};
+
 const getRankedPosts = function (projectUrisArray, callback, userUri, nextPosition, lastAccess, startingResultPosition, maxResults)
 {
-    const getPostsPerPage = function ()
-    {
-        return dbMySQL.timeline_post.findAll({
-            raw: true,
-            where: { userURI: userUri },
-            attributes: [ ["postURI", "uri"], "position" ],
-            order: [ ["position", "DESC"] ],
-            offset: startingResultPosition,
-            limit: maxResults
-        }).then(function (posts)
-        {
-            console.log(posts);
-            return callback(null, posts);
-        });
-    };
     if (projectUrisArray && projectUrisArray.length > 0)
     {
         async.mapSeries(projectUrisArray, function (uri, cb1)
@@ -193,10 +194,13 @@ const getRankedPosts = function (projectUrisArray, callback, userUri, nextPositi
                     });
                     if (newPosts.length > 0)
                     {
-                        return addPostsToTimeline(newPosts, nextPosition, userUri, getPostsPerPage);
+                        return addPostsToTimeline(newPosts, nextPosition, userUri, function ()
+                        {
+                            getRankedPostsPerPage(userUri, startingResultPosition, maxResults, callback);
+                        });
                     }
                     // else
-                    getPostsPerPage();
+                    getRankedPostsPerPage(userUri, startingResultPosition, maxResults, callback);
                 })
                 .catch(err => {
                     console.log(err);
@@ -212,7 +216,7 @@ const getRankedPosts = function (projectUrisArray, callback, userUri, nextPositi
     }
 };
 
-exports.getUserPostsUris = function (userUri, currentPage, useRank, lastPosition, lastAccess, callback)
+exports.getUserPostsUris = function (userUri, currentPage, useRank, nextPosition, lastAccess, callback)
 {
     const index = currentPage === 1 ? 0 : (currentPage * 5) - 5;
     const maxResults = 5;
@@ -244,7 +248,7 @@ exports.getUserPostsUris = function (userUri, currentPage, useRank, lastPosition
                 }
                 else
                 {
-                    getRankedPosts(fullProjectsUris, cb, userUri, lastPosition, lastAccess, index, maxResults);
+                    getRankedPosts(fullProjectsUris, cb, userUri, nextPosition, lastAccess, index, maxResults);
                 }
             });
         }
@@ -913,11 +917,26 @@ exports.all = function (req, res)
     const acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
     const currentPage = req.query.currentPage;
+    const useRank = req.query.currentPage;
     const index = currentPage === 1 ? 0 : (currentPage * 5) - 5;
     const maxResults = 5;
 
-    // TODO receber filters aqui para os posts da timeline de acordo com (order by numLikes, project, all my projects, etc)
+    const cb = function (err, results)
+    {
+        if (isNull(err))
+        {
+            res.json(results);
+        }
+        else
+        {
+            res.status(500).json({
+                result: "Error",
+                message: "Error getting posts. " + JSON.stringify(err)
+            });
+        }
+    };
 
+    // TODO receber filters aqui para os posts da timeline de acordo com (order by numLikes, project, all my projects, etc)
     if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
     {
         Project.findByCreatorOrContributor(currentUser.uri, function (err, projects)
@@ -929,20 +948,28 @@ exports.all = function (req, res)
                     cb1(null, project.uri);
                 }, function (err, fullProjectsUris)
                 {
-                    getAllPosts(fullProjectsUris, function (err, results)
+                    if (!useRank)
                     {
-                        if (isNull(err))
+                        getAllPosts(fullProjectsUris, cb, index, maxResults);
+                    }
+                    else
+                    {
+                        if (currentPage === 1)
                         {
-                            res.json(results);
+                            dbMySQL.timeline
+                                .findOne({where: {userURI: currentUser.uri}, raw: true})
+                                .then((timeline) => {
+                                    console.log(timeline);
+                                    getRankedPosts(fullProjectsUris, cb, currentUser.uri, timeline.nextPosition, timeline.lastAccess, index, maxResults);
+                                }).catch(err => {
+                                    console.log(err);
+                                });
                         }
                         else
                         {
-                            res.status(500).json({
-                                result: "Error",
-                                message: "Error getting posts. " + JSON.stringify(err)
-                            });
+                            getRankedPostsPerPage(currentUser.uri, index, maxResults, cb);
                         }
-                    }, index, maxResults);
+                    }
                 });
             }
             else

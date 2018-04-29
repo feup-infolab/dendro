@@ -5,7 +5,7 @@
                   spinner-start-active="true"></span>
 </div>
 
-<div ng-controller="timelineCtrl" ng-init="initTimeline('<%= posts %>');get_logged_user();">
+<div ng-controller="timelineCtrl" ng-init="initTimeline('<%= posts %>', '<%= useRank %>');get_logged_user();">
     <div ng-cloak>
         <div class="container">
             <h3 class="text-center">Social Dendro</h3>
@@ -47,7 +47,7 @@
 
         <div ng-show="!doingARequest">
             <div class="text-center">
-                <dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)"
+                <dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber, useRank)"
                                          template-url="/bower_components/angular-utils-pagination/dirPagination.tpl.html"></dir-pagination-controls>
             </div>
         </div>

@@ -37,7 +37,7 @@ angular.module("dendroApp.services")
             });
         };
 
-        this.get_all_posts = function (currentPage)
+        this.get_all_posts = function (currentPage, useRank)
         {
             var requestUri = "/posts/all";
 
@@ -46,7 +46,7 @@ angular.module("dendroApp.services")
                 url: requestUri,
                 contentType: "application/json",
                 headers: {Accept: "application/json"},
-                params: {currentPage: currentPage}
+                params: {currentPage: currentPage, useRank: useRank}
             });
         };
 

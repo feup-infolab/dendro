@@ -6,15 +6,16 @@ const dbMySQL = require(Pathfinder.absPathInSrcFolder("mysql_models"));
 
 exports.my = function (req, res)
 {
-    const getURIsAndRender = function (useRank, lastPosition, lastAccess)
+    const getURIsAndRender = function (useRank, nextPosition, lastAccess)
     {
-        postController.getUserPostsUris(req.user.uri, 1, useRank, lastPosition, lastAccess, function (err, postUris)
+        postController.getUserPostsUris(req.user.uri, 1, useRank, nextPosition, lastAccess, function (err, postUris)
         {
             if (!err)
             {
                 let postURIS_stringified = JSON.stringify(postUris);
                 res.render("social/timeline", {
-                    posts: postURIS_stringified
+                    posts: postURIS_stringified,
+                    useRank: useRank
                 });
             }
             else
