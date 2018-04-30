@@ -19,8 +19,6 @@ We provide a [Docker image](https://hub.docker.com/r/joaorosilva/dendro/) for ge
 
 ### Docker
 
-[Docker image](https://github.com/feup-infolab/dendro-install)
-
 To install Dendro using Docker, do the following:
 
 1. Install [Docker](https://docs.docker.com/docker-for-windows/install/)
