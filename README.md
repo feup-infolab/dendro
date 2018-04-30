@@ -21,9 +21,23 @@ We provide a [Docker image](https://hub.docker.com/r/joaorosilva/dendro/) for ge
 
 [Docker image](https://github.com/feup-infolab/dendro-install)
 
+To install Dendro using Docker, do the following:
+
+1. Install [Docker](https://docs.docker.com/docker-for-windows/install/)
+2. Clone the Dendro Docker installation repository
+````bash
+git clone https://github.com/feup-infolab/dendro-install-docker dendro-install docker
+````
+3. Run the installation command and wait until no more text is printed. It can take several minutes.
+````bash
+cd dendro-install docker
+docker-compose up
+````
+4. Access your dendro installation at [127.0.0.1:3001](http://127.0.0.1:3001) in your browser.
+
 ### Installation scripts
 
-[Installation scripts for production machines](https://github.com/feup-infolab/dendro-install)
+[Installation scripts for production machines](https://github.com/feup-infolab/dendro-install) (this is recommended for IT professionals).
 
 
 ## Description
