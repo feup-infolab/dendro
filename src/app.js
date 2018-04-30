@@ -51,7 +51,7 @@ if (process.env.NODE_ENV === "production")
             }
             else
             {
-                const msg = "Unable to kill existing PM2 instances of " + Config.pm2AppName + ": " + JSON.stringify(err);
+                const msg = "Unable to kill existing PM2 instances of " + Config.pm2AppName + ": " + JSON.stringify(err); 
                 Logger.log("debug", msg);
             }
         });
