@@ -1571,12 +1571,12 @@
         },
         "numCPUs": 1,
         "docker": {
-          "active": true,
+          "active": false,
           "reuse_checkpoints": false
         },
         "virtualbox": {
           "active": false,
-          "reuse_shapshots": true,
+          "reuse_shapshots": false,
           "vmName": "dendroVagrantDemo"
         }
     }
