@@ -562,7 +562,7 @@ exports.init = function (callback)
                 }
                 else
                 {
-                    Logger.log("error", "Error seeding databases!");
+                    Logger.log("error", "Error starting Dendro App!");
                     Logger.log("error", JSON.stringify(err));
                     callback(err);
                 }

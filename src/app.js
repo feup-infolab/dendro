@@ -68,7 +68,13 @@ if (process.env.NODE_ENV === "production")
         else
         {
             Logger.log(`Starting slave process with PID ${process.pid}...`);
-            dendroInstance.startApp();
+            dendroInstance.startApp(function (err, result)
+            {
+                if (err)
+                {
+                    throw err;
+                }
+            });
         }
     }
 }
@@ -77,6 +83,12 @@ else if (process.env.NODE_ENV !== "test")
 {
     dendroInstance.killPM2InstancesIfRunning(function (err)
     {
-        dendroInstance.startApp();
+        dendroInstance.startApp(function (err)
+        {
+            if (err)
+            {
+                throw err;
+            }
+        });
     });
 }

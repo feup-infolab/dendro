@@ -339,7 +339,7 @@ const checkUsersRoleInPostsProject = function (req, user, role, postUri, callbac
 const checkUsersRoleInArrayOfPostsProject = function (req, user, role, arrayOfPostsUris, callback)
 {
     let predicateRoles = null;
-    if(isNull(role) || isNull(role.predicates) || !(role.predicates instanceof  Array) || isNull(arrayOfPostsUris) || !(arrayOfPostsUris instanceof  Array))
+    if (isNull(role) || isNull(role.predicates) || !(role.predicates instanceof Array) || isNull(arrayOfPostsUris) || !(arrayOfPostsUris instanceof Array))
     {
         Logger.log("error", "Error at checkUsersRoleInArrayOfPostsProject, 'role' object should exist and 'role.predicates' and arrayOfPostsUris must be an array!");
         callback(null, false);
@@ -349,7 +349,7 @@ const checkUsersRoleInArrayOfPostsProject = function (req, user, role, arrayOfPo
         predicateRoles = role.predicates;
         if (!isNull(user))
         {
-            if(arrayOfPostsUris.length > 0)
+            if (arrayOfPostsUris.length > 0)
             {
                 async.mapSeries(arrayOfPostsUris, function (postUri, cb)
                 {
@@ -359,7 +359,8 @@ const checkUsersRoleInArrayOfPostsProject = function (req, user, role, arrayOfPo
                         {
                             if (project instanceof Project)
                             {
-                                async.eachSeries(predicateRoles, function(predicate, cb) {
+                                async.eachSeries(predicateRoles, function (predicate, cb)
+                                {
                                     let role = {
                                         predicate: predicate
                                     };
@@ -378,7 +379,8 @@ const checkUsersRoleInArrayOfPostsProject = function (req, user, role, arrayOfPo
                                             return callback(err, false);
                                         }
                                     });
-                                }, function(err) {
+                                }, function (err)
+                                {
                                     return callback(null, false);
                                 });
                             }
@@ -399,7 +401,7 @@ const checkUsersRoleInArrayOfPostsProject = function (req, user, role, arrayOfPo
             }
             else
             {
-                //when there are no posts in the timeline it is always allowed to check the "empty" timeline
+                // when there are no posts in the timeline it is always allowed to check the "empty" timeline
                 return callback(null, true);
             }
         }
