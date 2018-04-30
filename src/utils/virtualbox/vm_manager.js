@@ -347,12 +347,41 @@ VirtualBoxManager.deleteVM = function (onlyOnce, evenCurrentState, callback)
 
 VirtualBoxManager.restartVM = function (onlyOnce, callback)
 {
-    Logger.log("Restarting all Virtualbox containers.");
+    Logger.log("Restarting Virtualbox VM " + VirtualBoxManager.vmName);
     if (Config.virtualbox && Config.virtualbox.active)
     {
-        const performOperation = function ()
+        const performOperation = function (callback)
         {
-            Logger.log("Restarted VM.");
+            Logger.log("Restarting VM " + VirtualBoxManager.vmName);
+
+            virtualbox.acpipowerbutton(VirtualBoxManager.vmName, function (error)
+            {
+                if (error)
+                {
+                    Logger.log("error", "Virtual Machine " + VirtualBoxManager.vmName + "failed to stop");
+                    Logger.log("error", error);
+                    callback(error);
+                }
+                else
+                {
+                    Logger.log("Virtual Machine " + VirtualBoxManager.vmName + "has stopped");
+                    virtualbox.start(VirtualBoxManager.vmName, function (error)
+                    {
+                        if (!isNull(error))
+                        {
+                            Logger.log("error", "Virtual Machine " + VirtualBoxManager.vmName + "failed to stop");
+                            Logger.log("error", error);
+                            callback(error);
+                        }
+                        else
+                        {
+                            Logger.log("Virtual Machine " + VirtualBoxManager.vmName + "restarted.");
+                            Logger.log("error", error);
+                            callback(error);
+                        }
+                    });
+                }
+            });
         };
 
         if (onlyOnce)
@@ -365,7 +394,7 @@ VirtualBoxManager.restartVM = function (onlyOnce, callback)
         }
         else
         {
-            performOperation();
+            performOperation(callback);
         }
 
         Logger.log("Restarted VM.");

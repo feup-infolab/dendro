@@ -14,10 +14,6 @@ exports.my = function (req, res)
             res.render("social/timeline", {
                 posts: postURIS_stringified
             });
-
-            /* res.render('social/timeline', {
-                posts : postUris
-            }); */
         }
         else
         {

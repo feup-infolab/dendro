@@ -536,16 +536,16 @@ IndexConnection.prototype.indexDocument = function (type, document, callback)
                 {
                     if (isNull(err))
                     {
-                        if (!isNull(document._id))
-                        {
-                            msg = "Document successfully REindexed:\n" + JSON.stringify(document) + " with ID " + data._id;
-                        }
-                        else
-                        {
-                            msg = "Document successfully indexed:\n" + JSON.stringify(document) + " with ID " + data._id;
-                        }
-
-                        Logger.log("silly", msg);
+                        // if (!isNull(document._id))
+                        // {
+                        //     msg = "Document successfully REindexed:\n" + JSON.stringify(document) + " with ID " + data._id;
+                        // }
+                        // else
+                        // {
+                        //     msg = "Document successfully indexed:\n" + JSON.stringify(document) + " with ID " + data._id;
+                        // }
+                        //
+                        // Logger.log("silly", msg);
                         callback(null, msg);
                     }
                     else

@@ -470,7 +470,7 @@ exports.getPosts_controller = function (req, res)
             {
                 Post.findByUri(postQueryInfo.uri, function (err, post)
                 {
-                    if (!err && post != null)
+                    if (isNull(err) && !isNull(post))
                     {
                         async.series([
                             function (callback)
@@ -510,7 +510,7 @@ exports.getPosts_controller = function (req, res)
                                             {
                                                 // [editChanges, addChanges, deleteChanges]
                                                 /* post.changesInfo = changesInfo;
-                                                    callback(err); */
+                                                        callback(err); */
                                                 if (isNull(err))
                                                 {
                                                     post.changesInfo = changesInfo;
@@ -520,15 +520,15 @@ exports.getPosts_controller = function (req, res)
                                                 {
                                                     // typeof "foo" === "string"
                                                     /* if(typeof changesInfo === "string" && changesInfo === "Resource at getChangesFromMetadataChangePost resource does not exist")
-                                                        {
-                                                            post = null;
-                                                            delete post;
-                                                            callback(null, null);
-                                                        }
-                                                        else
-                                                        {
-                                                            callback(err, changesInfo);
-                                                        } */
+                                                            {
+                                                                post = null;
+                                                                delete post;
+                                                                callback(null, null);
+                                                            }
+                                                            else
+                                                            {
+                                                                callback(err, changesInfo);
+                                                            } */
                                                     callback(err, changesInfo);
                                                 }
                                             });
@@ -613,20 +613,32 @@ exports.getPosts_controller = function (req, res)
                                 }
                                 else
                                 {
-                                    callback(err, results);
+                                    callback(err, results[res]);
                                 }
                             }
                         });
                     }
                     else
                     {
-                        const errorMsg = "Invalid post uri";
+                        let errorMsg = isNull(post) ? "Invalid post uri: " + postQueryInfo.uri : "Error at getSharesOrPostsInfo: " + JSON.stringify(post);
                         callback(true, errorMsg);
                     }
                 }, null, db_social.graphUri, false, null, null);
             }, function (err, results)
             {
-                cb(err, postsInfo);
+                if (isNull(err))
+                {
+                    cb(err, postsInfo);
+                }
+                else
+                {
+                    // results.pop() returns the last element of the results array and also removes it.
+                    // in this case it is the error message, as async.mapSeries runs the functions above one at a time for each postUri
+                    // if one fails, it gets here instantly without running the functions for the remaining postUris
+                    // so the last element in the results array is the error message of the postUri that failed
+                    let errorMessage = results.pop();
+                    cb(err, errorMessage);
+                }
             });
         };
 
@@ -649,9 +661,13 @@ exports.getPosts_controller = function (req, res)
             }
             else
             {
+                if (!(typeof postInfo === "string" || postInfo instanceof String))
+                {
+                    postInfo = JSON.stringify(postInfo);
+                }
                 res.status(500).json({
                     result: "Error",
-                    message: "Error getting a post. " + JSON.stringify(postInfo)
+                    message: "Error getting a post. " + postInfo
                 });
             }
         });

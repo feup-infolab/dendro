@@ -1285,6 +1285,12 @@ exports.administer = function (req, res)
                             {
                                 if (isNull(err))
                                 {
+                                    if (req.body.contributors.length === 0)
+                                    {
+                                        project.dcterms.contributor = [];
+                                        return callback(null, project);
+                                    }
+
                                     // all users were invalid
                                     if (_.without(contributors, null).length === 0)
                                     {

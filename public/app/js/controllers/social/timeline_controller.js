@@ -222,6 +222,10 @@ angular.module("dendroApp.controllers")
                 .catch(function (error)
                 {
                     console.log("error", "Error at getPosts: " + JSON.stringify(error));
+                    if (error !== null && error.data !== null && error.data.message !== null)
+                    {
+                        Utils.show_popup("error", "Error getting posts information", error.data.message);
+                    }
                     $scope.doing_getPosts = false;
                     $scope.doingARequest = false;
                     usSpinnerService.stop("social-dendro-spinner");

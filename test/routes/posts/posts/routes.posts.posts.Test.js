@@ -24,8 +24,11 @@ const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
 const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
+const publicProjectForDemouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project_for_demouser2.js"));
+
 const createSocialDendroTimelineWithPostsAndSharesUnit = require(Pathfinder.absPathInTestsFolder("units/social/createSocialDendroTimelineWithPostsAndShares.Unit.js"));
 const db = require(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+
 const pageNumber = 1;
 let demouser1PostURIsArray;
 let invalidPostURIsArray = [];
@@ -64,7 +67,7 @@ describe("Get information on an array of posts(given an array of post URIs) test
                     socialDendroUtils.getPostsArrayInfo(true, agent, JSON.stringify(demouser1PostURIsArray), function (err, res)
                     {
                         res.statusCode.should.equal(401);
-                        res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the posts belongs to.");
+                        res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the posts belong to.");
                         done();
                     });
                 });
@@ -115,48 +118,80 @@ describe("Get information on an array of posts(given an array of post URIs) test
                 socialDendroUtils.getPostsArrayInfo(true, agent, JSON.stringify(demouser1PostURIsArray), function (err, res)
                 {
                     res.statusCode.should.equal(401);
-                    res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the posts belongs to.");
+                    res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the posts belong to.");
                     done();
                 });
             });
         });
 
-        it("[For demouser1, as the creator of all projects] Should report the not found error on posts from the list that do not exist", function (done)
+        it("[For demouser1, as the creator of all projects] Should report an invalid post uri error on posts from the list that do not exist", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 // THIS route expects a stringified array
                 socialDendroUtils.getPostsArrayInfo(true, agent, JSON.stringify(invalidPostURIsArray), function (err, res)
                 {
-                    res.statusCode.should.equal(401);
-                    res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the posts belongs to.");
+                    res.statusCode.should.equal(500);
+                    res.body.message.should.contain("Error getting a post. Invalid post uri:");
                     done();
                 });
             });
         });
 
-        it("[For demouser2, a collaborator in all projects] Should report the not found error on posts from the list that do not exist", function (done)
+        it("[For demouser2, a collaborator in all projects] Should report an invalid post uri error on posts from the list that do not exist", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
                 socialDendroUtils.getPostsArrayInfo(true, agent, JSON.stringify(invalidPostURIsArray), function (err, res)
                 {
-                    res.statusCode.should.equal(401);
-                    res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the posts belongs to.");
+                    res.statusCode.should.equal(500);
+                    res.body.message.should.contain("Error getting a post. Invalid post uri:");
                     done();
                 });
             });
         });
 
-        it("[For demouser3, is not a creator or collaborator in any projects] Should report the not found error on posts from the list that do not exist", function (done)
+        it("[For demouser3, is not a creator or collaborator in any projects] Should report a permission denied error on posts from the list that do not exist", function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
                 socialDendroUtils.getPostsArrayInfo(true, agent, JSON.stringify(invalidPostURIsArray), function (err, res)
                 {
                     res.statusCode.should.equal(401);
-                    res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the posts belongs to.");
+                    res.body.message.should.equal("Permission denied : You are not a contributor or creator of the project to which the posts belong to.");
                     done();
+                });
+            });
+        });
+
+        it("[For demouser2, a collaborator in all projects] Should give the posts information for a user even if said user is a collaborator and creator on different dendro projects", function (done)
+        {
+            // this test was added because of issue https://github.com/feup-infolab/dendro/issues/362
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
+            {
+                projectUtils.createNewProject(true, agent, publicProjectForDemouser2, function (err, res)
+                {
+                    res.statusCode.should.equal(200);
+                    projectUtils.createFolderInProjectRoot(true, agent, publicProjectForDemouser2.handle, "testFolderForDemouser2Project", function (err, res)
+                    {
+                        res.statusCode.should.equal(200);
+                        socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                        {
+                            res.statusCode.should.equal(200);
+                            res.body.length.should.equal(5);
+                            let demouser2PostURIsArray = res.body;
+                            socialDendroUtils.getPostsArrayInfo(true, agent, JSON.stringify(demouser2PostURIsArray), function (err, res)
+                            {
+                                res.statusCode.should.equal(200);
+                                JSON.stringify(res.body).should.contain(demouser2PostURIsArray[0].uri);
+                                JSON.stringify(res.body).should.contain(demouser2PostURIsArray[1].uri);
+                                JSON.stringify(res.body).should.contain(demouser2PostURIsArray[2].uri);
+                                JSON.stringify(res.body).should.contain(demouser2PostURIsArray[3].uri);
+                                JSON.stringify(res.body).should.contain(demouser2PostURIsArray[4].uri);
+                                done();
+                            });
+                        });
+                    });
                 });
             });
         });
