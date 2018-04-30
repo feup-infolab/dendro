@@ -339,9 +339,9 @@ const checkUsersRoleInPostsProject = function (req, user, role, postUri, callbac
 const checkUsersRoleInArrayOfPostsProject = function (req, user, role, arrayOfPostsUris, callback)
 {
     let predicateRoles = null;
-    if(isNull(role) || isNull(role.predicates) || !(role.predicates instanceof  Array))
+    if(isNull(role) || isNull(role.predicates) || !(role.predicates instanceof  Array) || isNull(arrayOfPostsUris) || !(arrayOfPostsUris instanceof  Array))
     {
-        Logger.log("error", "Error at checkUsersRoleInArrayOfPostsProject, 'role' object should exist and 'role.predicates' must be an array!");
+        Logger.log("error", "Error at checkUsersRoleInArrayOfPostsProject, 'role' object should exist and 'role.predicates' and arrayOfPostsUris must be an array!");
         callback(null, false);
     }
     else
@@ -349,51 +349,59 @@ const checkUsersRoleInArrayOfPostsProject = function (req, user, role, arrayOfPo
         predicateRoles = role.predicates;
         if (!isNull(user))
         {
-            async.mapSeries(arrayOfPostsUris, function (postUri, cb)
+            if(arrayOfPostsUris.length > 0)
             {
-                getPostsProject(postUri, function (err, project)
+                async.mapSeries(arrayOfPostsUris, function (postUri, cb)
                 {
-                    if (isNull(err))
+                    getPostsProject(postUri, function (err, project)
                     {
-                        if (project instanceof Project)
+                        if (isNull(err))
                         {
-                            async.eachSeries(predicateRoles, function(predicate, cb) {
-                                let role = {
-                                    predicate: predicate
-                                };
-                                checkUsersRoleInProject(req, user, role, project, function (err, hasRole)
-                                {
-                                    if (isNull(err))
+                            if (project instanceof Project)
+                            {
+                                async.eachSeries(predicateRoles, function(predicate, cb) {
+                                    let role = {
+                                        predicate: predicate
+                                    };
+                                    checkUsersRoleInProject(req, user, role, project, function (err, hasRole)
                                     {
-                                        if (hasRole === true)
+                                        if (isNull(err))
                                         {
-                                            return callback(err, hasRole);
+                                            if (hasRole === true)
+                                            {
+                                                return callback(err, hasRole);
+                                            }
+                                            cb(err, hasRole);
                                         }
-                                        cb(err, hasRole);
-                                    }
-                                    else
-                                    {
-                                        return callback(err, false);
-                                    }
+                                        else
+                                        {
+                                            return callback(err, false);
+                                        }
+                                    });
+                                }, function(err) {
+                                    return callback(null, false);
                                 });
-                            }, function(err) {
+                            }
+                            else
+                            {
                                 return callback(null, false);
-                            });
+                            }
                         }
                         else
                         {
                             return callback(null, false);
                         }
-                    }
-                    else
-                    {
-                        return callback(null, false);
-                    }
+                    });
+                }, function (err, results)
+                {
+                    return callback(null, false);
                 });
-            }, function (err, results)
+            }
+            else
             {
-                return callback(null, false);
-            });
+                //when there are no posts in the timeline it is always allowed to check the "empty" timeline
+                return callback(null, true);
+            }
         }
         else
         {
