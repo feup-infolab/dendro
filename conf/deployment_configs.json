@@ -393,9 +393,10 @@
           "reuse_checkpoints": true
         },
         "virtualbox": {
-          "active": false,
-          "reuse_shapshots": true,
-          "vmName": "dendroVagrantDemo"
+            "active": false,
+            "create_snapshots": true,
+            "reuse_shapshots": true,
+            "vmName": "dendroVagrantDemo"
         }
     },
     "test": {
@@ -787,8 +788,9 @@
           "reuse_checkpoints": false
         },
         "virtualbox": {
-          "active": false,
-          "reuse_shapshots": true,
+          "active": true,
+          "reuse_shapshots": false,
+          "create_snapshots": true,
           "vmName": "dendroVagrantDemo"
         }
     },
@@ -1183,6 +1185,7 @@
         "virtualbox": {
           "active": false,
           "reuse_shapshots": true,
+          "create_snapshots": true,
           "vmName": "dendroVagrantDemo"
         }
     },
@@ -1575,9 +1578,10 @@
           "reuse_checkpoints": false
         },
         "virtualbox": {
-          "active": true,
-          "reuse_shapshots": false,
-          "vmName": "dendroVagrantDemo"
+            "active": true,
+            "create_snapshots": true,
+            "reuse_shapshots": false,
+            "vmName": "dendroVagrantDemo"
         }
     }
 }

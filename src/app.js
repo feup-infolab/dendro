@@ -20,7 +20,12 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 let isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 let App = require(Pathfinder.absPathInSrcFolder("/bootup/app.js")).App;
-let dendroInstance = new App();
+
+const options = {
+    seed_databases: !isNull(argv.seed_databases)
+};
+
+let dendroInstance = new App(options);
 
 Config.pm2AppName = require(Pathfinder.absPathInApp("package.json")).name + "-" + require(Pathfinder.absPathInApp("package.json")).version;
 
@@ -51,7 +56,7 @@ if (process.env.NODE_ENV === "production")
             }
             else
             {
-                const msg = "Unable to kill existing PM2 instances of " + Config.pm2AppName + ": " + JSON.stringify(err); 
+                const msg = "Unable to kill existing PM2 instances of " + Config.pm2AppName + ": " + JSON.stringify(err);
                 Logger.log("debug", msg);
             }
         });
@@ -88,6 +93,22 @@ else if (process.env.NODE_ENV !== "test")
             if (err)
             {
                 throw err;
+            }
+            else
+            {
+                if(dendroInstance.seedDatabasesAndExit)
+                {
+                    dendroInstance.freeResources(function(err, result){
+                        if(!err)
+                        {
+                            process.exit(0);
+                        }
+                        else
+                        {
+                            throw err;
+                        }
+                    });
+                }
             }
         });
     });

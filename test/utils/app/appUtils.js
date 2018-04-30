@@ -11,9 +11,9 @@ const getDirName = require("path").dirname;
 // to try to cool down tests so that virtuoso does not clog up.
 let numberofTestsRun = 0;
 // 10 sec cooldown every 7 test files
-const testsBatchSizeBeforeCooldown = 7;
+const testsBatchSizeBeforeCooldown = 1;
 const testsCooldownTime = 10;
-const testsBetweenVirtualboxRestarts = 20;
+const testsBetweenVirtualboxRestarts = 1;
 
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 

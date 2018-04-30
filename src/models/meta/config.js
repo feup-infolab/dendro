@@ -182,8 +182,22 @@ Config.administrators = getConfigParameter("administrators");
 
 // load debug and startup settings
 Config.debug = getConfigParameter("debug");
-
 Config.startup = getConfigParameter("startup");
+
+if (argv.seed_databases)
+{
+    Logger.log("info", "Seeding databases parameter overriden by --seed-databases argument. Will load databases and exit.");
+    Config.startup.load_databases = true;
+    Config.startup.reload_administrators_on_startup = true;
+    Config.startup.reload_demo_users_on_startup = true;
+    Config.startup.reload_ontologies_on_startup = true;
+    Config.startup.clear_session_store = true;
+    Config.startup.destroy_all_graphs = true;
+    Config.startup.destroy_all_indexes = true;
+    Config.startup.destroy_datastore = true;
+    Config.startup.destroy_files_store = true;
+};
+
 Config.baselines = getConfigParameter("baselines");
 
 // load logger options

@@ -26,9 +26,11 @@ const DockerCheckpointManager = require(Pathfinder.absPathInSrcFolder("utils/doc
 
 Config.pm2AppName = require(Pathfinder.absPathInApp("package.json")).name + "-" + require(Pathfinder.absPathInApp("package.json")).version;
 
+const argv = require("yargs").argv;
+
 class App
 {
-    constructor ()
+    constructor (options)
     {
         const self = this;
         self.initLogger();
@@ -37,6 +39,12 @@ class App
         self.app = express();
 
         self.setupHandlers();
+
+        if (options.seed_databases)
+        {
+            Logger.log("info", "Seeding databases only...");
+            self.seedDatabasesAndExit = true;
+        }
     }
 
     setupHandlers ()
@@ -462,7 +470,7 @@ class App
             },
             function (cb)
             {
-                if (Config.startup.load_databases)
+                if (Config.startup.load_databases || self.seedDatabasesAndExit)
                 {
                     loadInitialUsersData(cb);
                 }
@@ -477,7 +485,14 @@ class App
             },
             function (cb)
             {
-                startWebServer(cb);
+                if(!self.seedDatabasesAndExit)
+                {
+                    startWebServer(cb);
+                }
+                else
+                {
+                    cb(null);
+                }
             }],
         function (err, result)
         {
@@ -699,8 +714,13 @@ class App
         const haltHTTPServer = function (cb)
         {
             Logger.log("Halting server...");
-            self.server.close();
-            self.server.destroy();
+
+            if(self.server)
+            {
+                self.server.close();
+                self.server.destroy();
+            }
+
             cb(null);
         };
 
@@ -774,7 +794,10 @@ class App
                 Logger.log("error", "Unable to free all resources, but we are halting Dendro Server anyway.");
             }
             // don't call cleanup handler again
-            callback(err, results);
+            if(!isNull(callback) && typeof callback === "function")
+            {
+                callback(err, results);
+            }
         });
     }
 }

@@ -226,7 +226,7 @@ exports.loadCheckpoint = function (checkpointIdentifier, callback)
                             callback(1, "Error restoring Docker Checkpoint " + checkpointIdentifier);
                         }
                     }
-                    else if (Config.virtualbox && Config.virtualbox.active)
+                    else if (Config.virtualbox && Config.virtualbox.active && Config.virtualbox.reuse_checkpoints)
                     {
                         async.series([
                             function (callback)
@@ -396,7 +396,7 @@ exports.runLoadFunctionsFromExistingCheckpointUntilUnit = function (checkpointed
                 {
                     if (isNull(err))
                     {
-                        if (Config.docker.active)
+                        if (Config.docker.active && Config.docker.active && Config.docker.reuse_checkpoints)
                         {
                             Logger.log("Halting app after loading databases for creating checkpoint: " + checkpointIdentifier);
 
@@ -414,7 +414,7 @@ exports.runLoadFunctionsFromExistingCheckpointUntilUnit = function (checkpointed
                                 cb(err);
                             });
                         }
-                        else if (Config.virtualbox && Config.virtualbox.active)
+                        else if (Config.virtualbox && Config.virtualbox.active && Config.virtualbox.reuse_checkpoints)
                         {
                             Logger.log("Halting app after loading databases for creating checkpoint: " + checkpointIdentifier);
 
@@ -594,14 +594,27 @@ exports.setup = function (targetUnit, callback, forceLoad)
             exports.loadCheckpoint(checkpointIdentifier, function (err, result)
             {
                 callback(err, result);
-            });
+            }, !forceLoad);
         }
-        else if (Config.virtualbox && Config.virtualbox.active)
+        else if (Config.virtualbox)
         {
-            exports.loadCheckpoint(checkpointIdentifier, function (err, result)
+            if (!Config.virtualbox.reuse_checkpoints)
             {
-                callback(err, result);
-            });
+                VirtualBoxManager.returnToBaselineCheckpoint(function (err, result)
+                {
+                    VirtualBoxManager.destroyAllSnapshots(function (err, result)
+                    {
+                        callback(err, result);
+                    }, !forceLoad);
+                }, !forceLoad);
+            }
+            else
+            {
+                VirtualBoxManager.restoreCheckpoint(checkpointIdentifier, function (err, result)
+                {
+                    callback(err, result);
+                });
+            }
         }
         else
         {

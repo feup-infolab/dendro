@@ -13,8 +13,12 @@ const VirtualBoxManager = function ()
 
 VirtualBoxManager.vmName = Config.virtualbox.vmName;
 VirtualBoxManager.reuseCheckpoints = Config.virtualbox.reuse_shapshots;
+VirtualBoxManager.createCheckpoints = Config.virtualbox.create_snapshots;
 VirtualBoxManager._destroyedSnapshotsOnce = false;
 VirtualBoxManager._deletedSnapshots = {};
+
+VirtualBoxManager.snapshotPrefix = "VirtualBoxManager_Snapshot_";
+VirtualBoxManager.baselineSnapshot = "VirtualBoxManager_Baseline";
 
 VirtualBoxManager.stopVM = function (callback)
 {
@@ -102,6 +106,49 @@ VirtualBoxManager.destroySnapshot = function (snapshotName, callback, onlyOnce)
     }
 };
 
+VirtualBoxManager.returnToBaselineCheckpoint = function (callback)
+{
+    if (Config.virtualbox && Config.virtualbox.active)
+    {
+        Logger.log("Checking if baseline snapshot exists...");
+        virtualbox.snapshotList(VirtualBoxManager.vmName, function (error, snapshotList, currentSnapshotUUID)
+        {
+            if (snapshotList && snapshotList instanceof Array)
+            {
+                Logger.log(JSON.stringify(snapshotList), JSON.stringify(currentSnapshotUUID));
+
+                const baselineSnapshotExists = _.find(snapshotList, function (snapshot)
+                {
+                    if (snapshot.name === VirtualBoxManager.baselineSnapshot)
+                    {
+                        return true;
+                    }
+
+                    return false;
+                });
+
+                // if there is no reference checkpoint, we will create a new one.
+                if (!baselineSnapshotExists)
+                {
+                    VirtualBoxManager.createCheckpoint(VirtualBoxManager.baselineSnapshot, callback, true);
+                }
+                else
+                {
+                    VirtualBoxManager.restoreCheckpoint(VirtualBoxManager.baselineSnapshot, callback, true);
+                }
+            }
+            else
+            {
+                callback(null);
+            }
+        });
+    }
+    else
+    {
+        callback(1, "Virtualbox flag not active in Deployment Config.");
+    }
+};
+
 VirtualBoxManager.destroyAllSnapshots = function (callback, onlyOnce)
 {
     if (Config.virtualbox && Config.virtualbox.active)
@@ -118,12 +165,19 @@ VirtualBoxManager.destroyAllSnapshots = function (callback, onlyOnce)
             {
                 if (snapshotList && snapshotList instanceof Array)
                 {
-                    console.log(JSON.stringify(snapshotList), JSON.stringify(currentSnapshotUUID));
+                    Logger.log(JSON.stringify(snapshotList), JSON.stringify(currentSnapshotUUID));
 
                     const async = require("async");
                     async.mapSeries(snapshotList, function (snapshot, cb)
                     {
-
+                        if (snapshot.name.startsWith(VirtualBoxManager.snapshotPrefix))
+                        {
+                            VirtualBoxManager.destroySnapshot(snapshot.name, cb);
+                        }
+                        else
+                        {
+                            cb(null);
+                        }
                     }, function (err, results)
                     {
                         VirtualBoxManager._destroyedSnapshotsOnce = true;
@@ -170,8 +224,13 @@ VirtualBoxManager.startVM = function (callback)
     }
 };
 
-VirtualBoxManager.checkpointExists = function (checkpointName, callback)
+VirtualBoxManager.checkpointExists = function (checkpointName, callback, dontAddPrefix)
 {
+    if (!dontAddPrefix)
+    {
+        checkpointName = VirtualBoxManager.snapshotPrefix + checkpointName;
+    }
+
     if (Config.virtualbox && Config.virtualbox.active)
     {
         virtualbox.snapshotList(VirtualBoxManager.vmName, function (error, snapshotList, currentSnapshotUUID)
@@ -213,9 +272,14 @@ VirtualBoxManager.checkpointExists = function (checkpointName, callback)
     }
 };
 
-VirtualBoxManager.createCheckpoint = function (checkpointName, callback)
+VirtualBoxManager.createCheckpoint = function (checkpointName, callback, dontAddPrefix)
 {
-    if (Config.virtualbox && Config.virtualbox.active)
+    if (!dontAddPrefix)
+    {
+        checkpointName = VirtualBoxManager.snapshotPrefix + checkpointName;
+    }
+
+    if (Config.virtualbox && Config.virtualbox.active && Config.virtualbox.create_snapshots)
     {
         virtualbox.snapshotTake(VirtualBoxManager.vmName, checkpointName, function (error, uuid)
         {
@@ -240,12 +304,17 @@ VirtualBoxManager.createCheckpoint = function (checkpointName, callback)
     }
     else
     {
-        callback(1, "Virtualbox flag not active in Deployment Config.");
+        callback(null, "Skipping checkpoint restore because \"virtualbox.create_snapshots\" is not active in Deployment Config.");
     }
 };
 
-VirtualBoxManager.restoreCheckpoint = function (checkpointName, callback)
+VirtualBoxManager.restoreCheckpoint = function (checkpointName, callback, dontAddPrefix)
 {
+    if (!dontAddPrefix)
+    {
+        checkpointName = VirtualBoxManager.snapshotPrefix + checkpointName;
+    }
+
     if (Config.virtualbox && Config.virtualbox.active)
     {
         VirtualBoxManager.checkpointExists(checkpointName, function (err, exists)
@@ -307,11 +376,11 @@ VirtualBoxManager.restoreCheckpoint = function (checkpointName, callback)
                 Logger.log("error", exists);
                 callback(err, exists);
             }
-        });
+        }, dontAddPrefix);
     }
     else
     {
-        callback(1, "Virtualbox flag not active in Deployment Config.");
+        callback(null, "Skipping checkpoint restore because \"virtualbox.reuse_shapshots\" is not active in Deployment Config.");
     }
 };
 
@@ -375,9 +444,8 @@ VirtualBoxManager.restartVM = function (onlyOnce, callback)
                         }
                         else
                         {
-                            Logger.log("Virtual Machine " + VirtualBoxManager.vmName + "restarted.");
-                            Logger.log("error", error);
-                            callback(error);
+                            Logger.log("Virtual Machine " + VirtualBoxManager.vmName + "restarted. ");
+                            callback(null);
                         }
                     });
                 }
