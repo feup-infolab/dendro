@@ -3,6 +3,7 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/28789e8562c4460280710d730bd65ca0)](https://www.codacy.com/app/silvae86/dendro?utm_source=github.com&utm_medium=referral&utm_content=feup-infolab/dendro&utm_campaign=Badge_Coverage)
 [![dependencies](https://david-dm.org/feup-infolab/dendro.svg)](https://david-dm.org/feup-infolab/dendro)
 [![Chat on gitter](https://img.shields.io/gitter/room/badges/shields.svg)](https://gitter.im/feup-infolab/dendro)
+[![](https://images.microbadger.com/badges/version/joaorosilva/dendro:master.svg)](https://microbadger.com/images/joaorosilva/dendro:master "Get your own version badge on microbadger.com")
 
 ## What is Dendro?
 
