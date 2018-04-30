@@ -13,6 +13,19 @@ Dendro is the software powering [INESC TEC](https://dendro.inesctec.pt) and the 
 
 ![dendro UI](https://raw.githubusercontent.com/feup-infolab/dendro/master/public/images/Screen%20Shot%202017-04-04%20at%2012.22.08.png "Dendro UI")
 
+## How to install
+
+We provide a [Docker image](https://hub.docker.com/r/joaorosilva/dendro/) for getting you up and running quickly. For deployment in a production server, however, we recommend you use the Dendro install scripts.
+
+### Docker
+
+[Docker image](https://github.com/feup-infolab/dendro-install)
+
+### Installation scripts
+
+[Installation scripts for production machines](https://github.com/feup-infolab/dendro-install)
+
+
 ## Description
 
 Dendro is a collaborative file storage and description platform designed to support users in collecting and describing data, with its roots in research data management. It does not intend to replace existing research data repositories, because it is placed before the moment of deposit in a data repository. 
@@ -46,10 +59,6 @@ The code is freely available online and we welcome more user testing scenarios, 
 [DEMO](http://dendro.fe.up.pt/demo)
 
 If it is down, please file an [issue](https://github.com/feup-infolab-rdm/dendro/issues/new).
-
-## How to install
-
-[Installation](https://github.com/feup-infolab/dendro-install)
 
 ## Who is building Dendro?
 
