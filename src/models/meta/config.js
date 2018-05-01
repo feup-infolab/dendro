@@ -50,7 +50,9 @@ const activeConfig = configs[activeConfigKey];
 
 if (isNull(activeConfig))
 {
-    Logger.log("error", "There is no configuration with key " + activeConfigKey + " in " + activeConfigFilePath + " ! The key is invalid or the file needs to be reconfigured.");
+    const noConfigPresentError = "There is no configuration with key " + activeConfigKey + " in " + activeConfigFilePath + " ! The key is invalid or the file needs to be reconfigured.";
+    Logger.log("error", noConfigPresentError);
+    throw new Error(noConfigPresentError);
 }
 
 const getConfigParameter = function (parameter, defaultValue)
