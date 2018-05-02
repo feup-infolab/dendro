@@ -2302,7 +2302,10 @@ exports.import = function (req, res)
                     {
                         if (isNull(err))
                         {
-                            Logger.log("info", "Project with handle: " + req.query.imported_project_handle + " was successfully restored");
+                            const message = "Project with handle: " + req.query.imported_project_handle + " was successfully restored";
+                            Logger.log("info", message);
+                            //TODO find a way to send only to a specific user(the person who imported the project)
+                            Config.io.emit("message", {message: message});
                             return;
                         }
 

@@ -16,9 +16,72 @@ angular.module("dendroApp.controllers")
         windowService,
         storageService,
         licensesService,
-        languagesService
+        languagesService,
+        usersService
     )
     {
+        $scope.socket = null;
+        $scope.userUri = null;
+
+        $scope.handleSocketSession = function()
+        {
+            var initSocketSession = function ()
+            {
+                $scope.socket = io();
+            };
+
+            var handleSocketConnectEvent = function () {
+                $scope.socket.on("connect", function () {
+                    console.log("client id is cenas: ", $scope.socket.id);
+                    $scope.socket.emit("identifyUser", { userUri: $scope.userUri });
+                    //TODO get req.session.socketID
+                    //TODO CHECK req.session.socketID and socket.id are the same
+                });
+
+                $scope.socket.on("identified", function (data) {
+                    console.log("user is now identified");
+                    console.log("data is : " + JSON.stringify(data));
+                });
+
+                $scope.socket.on("message", function (data) {
+                    Utils.show_popup("info", "Job Information", data.message);
+                });
+            };
+
+            usersService.get_logged_user()
+                .then(function (user)
+                {
+                    $scope.userUri = user.uri;
+                    initSocketSession();
+                    handleSocketConnectEvent();
+                })
+                .catch(function (error) {
+                    Utils.show_popup("error", "Socket Session", "Error getting logged user information");
+                });
+            /*
+            console.log('userUri:', userUri);
+            $scope.socket = io();
+            $scope.socket.on('connect', function () {
+                console.log('client id is cenas: ', $scope.socket.id);
+                //TODO get req.session.socketID
+                //TODO CHECK req.session.socketID and socket.id are the same
+            });
+            */
+
+            /*$scope.socket.on('identify', function (data) {
+                console.log('The data isss: ' + data.socketID);
+            });*/
+            /*
+            socket.on('chat message', function (data) {
+            console.log('The data is: ' + data);
+            //socket.emit('my other event', { my: 'data' });
+            });*/
+        };
+
+        $scope.destroySocketSession = function () {
+            $scope.socket.emit('forceDisconnect', { socketID: $scope.socket.id });
+        };
+
         $scope.get_current_url = function ()
         {
             var newURL = window.location.protocol + "//" + window.location.host + window.location.pathname;
