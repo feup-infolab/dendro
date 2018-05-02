@@ -6,6 +6,8 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 const uuid = require("uuid");
+const IO = require(Pathfinder.absPathInSrcFolder("bootup/models/io.js")).IO;
+const db_notifications = Config.getDBByID("notifications");
 
 function Notification (object)
 {
@@ -41,6 +43,33 @@ Notification.prototype.getHumanReadableUri = function (callback)
     {
         callback(null, self.ddr.humanReadableURI);
     }
+};
+
+const sendSocketNotificationToUser = function (userUri, notificationObject)
+{
+    const userSocketSession = IO.getUserSocketSession(userUri);
+    if(!isNull(userSocketSession))
+    {
+        userSocketSession.emitNotification(notificationObject);
+    }
+    else
+    {
+        console.log("Could not emit message to user: " + userUri);
+    }
+};
+
+
+Notification.prototype.save = function (callback) {
+    const self = this;
+    const notificationObject = JSON.parse(JSON.stringify(self));
+    self.baseConstructor.prototype.save.call(self, function (err, result)
+    {
+        if(isNull(err))
+        {
+            sendSocketNotificationToUser(notificationObject.ddr.resourceAuthorUri, notificationObject);
+        }
+        callback(err, result);
+    }, false, null, null, null, null, db_notifications.graphUri);
 };
 
 Notification = Class.extend(Notification, Resource, "ddr:Notification");

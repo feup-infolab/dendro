@@ -20,6 +20,7 @@ angular.module("dendroApp.controllers")
         usersService
     )
     {
+        /*
         $scope.socket = null;
         $scope.userUri = null;
 
@@ -34,8 +35,6 @@ angular.module("dendroApp.controllers")
                 $scope.socket.on("connect", function () {
                     console.log("client id is cenas: ", $scope.socket.id);
                     $scope.socket.emit("identifyUser", { userUri: $scope.userUri });
-                    //TODO get req.session.socketID
-                    //TODO CHECK req.session.socketID and socket.id are the same
                 });
 
                 $scope.socket.on("identified", function (data) {
@@ -45,6 +44,12 @@ angular.module("dendroApp.controllers")
 
                 $scope.socket.on("message", function (data) {
                     Utils.show_popup("info", "Job Information", data.message);
+                });
+
+                $scope.socket.on("notification", function (notificationData) {
+                    Utils.show_popup("info", "Notification Information", JSON.stringify(notificationData));
+                    //notificationCtrl.pushNotification(notificationData, notificationData.uri);
+                    notificationCtrl.createAlert(notificationData, notificationData.uri);
                 });
             };
 
@@ -58,29 +63,12 @@ angular.module("dendroApp.controllers")
                 .catch(function (error) {
                     Utils.show_popup("error", "Socket Session", "Error getting logged user information");
                 });
-            /*
-            console.log('userUri:', userUri);
-            $scope.socket = io();
-            $scope.socket.on('connect', function () {
-                console.log('client id is cenas: ', $scope.socket.id);
-                //TODO get req.session.socketID
-                //TODO CHECK req.session.socketID and socket.id are the same
-            });
-            */
-
-            /*$scope.socket.on('identify', function (data) {
-                console.log('The data isss: ' + data.socketID);
-            });*/
-            /*
-            socket.on('chat message', function (data) {
-            console.log('The data is: ' + data);
-            //socket.emit('my other event', { my: 'data' });
-            });*/
         };
 
         $scope.destroySocketSession = function () {
             $scope.socket.emit('forceDisconnect', { socketID: $scope.socket.id });
         };
+        */
 
         $scope.get_current_url = function ()
         {

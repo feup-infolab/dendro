@@ -20,6 +20,58 @@ angular.module("dendroApp.controllers")
             share: "share"
         };
 
+        $scope.socket = null;
+        $scope.userUri = null;
+
+        $scope.handleSocketSession = function()
+        {
+            var initSocketSession = function ()
+            {
+                $scope.socket = io();
+            };
+
+            var handleSocketConnectEvent = function () {
+                $scope.socket.on("connect", function () {
+                    console.log("client id is cenas: ", $scope.socket.id);
+                    $scope.socket.emit("identifyUser", { userUri: $scope.userUri });
+                });
+
+                $scope.socket.on("identified", function (data) {
+                    console.log("user is now identified");
+                    console.log("data is : " + JSON.stringify(data));
+                });
+
+                $scope.socket.on("message", function (data) {
+                    Utils.show_popup("info", "Job Information", data.message);
+                });
+
+                $scope.socket.on("notification", function (notificationData) {
+                    //Utils.show_popup("info", "Notification Information", JSON.stringify(notificationData));
+                    //Utils.show_popup("info", "Notification Information", JSON.stringify(notificationData));
+                    //$scope.pushNotification(notificationData, notificationData.uri);
+                    //$scope.pushNotification(notificationData.uri);
+                    Utils.show_popup("info", "Notification", "You have a new notification!");
+                    $scope.get_unread_notifications();
+                });
+            };
+
+            usersService.get_logged_user()
+                .then(function (user)
+                {
+                    $scope.userUri = user.uri;
+                    initSocketSession();
+                    handleSocketConnectEvent();
+                })
+                .catch(function (error) {
+                    Utils.show_popup("error", "Socket Session", "Error getting logged user information");
+                });
+        };
+
+        $scope.destroySocketSession = function () {
+            $scope.socket.emit('forceDisconnect', { socketID: $scope.socket.id });
+        };
+
+
         $scope.parseResourceTarget = function (resourceTargetUri)
         {
             let debug = resourceTargetUri.split("/")[2];
@@ -29,8 +81,8 @@ angular.module("dendroApp.controllers")
 
         $scope.parseActionType = function (notification)
         {
-            var actionType = $scope.actionTypeDictionary[notification.actionType];
-            var shareURL = actionType == "shared" ? "<" + "a href=" + "\"" + notification.shareURI + "\"" + ">" + actionType + "</a>" : actionType;
+            var actionType = $scope.actionTypeDictionary[notification.ddr.actionType];
+            var shareURL = actionType == "shared" ? "<" + "a href=" + "\"" + notification.ddr.shareURI + "\"" + ">" + actionType + "</a>" : actionType;
             return shareURL;
         };
 
@@ -42,24 +94,26 @@ angular.module("dendroApp.controllers")
         $scope.createAlert = function (notification, notificationUri)
         {
             let type = "info";
-            let shareURL = notification.actionType == "Share" ? notification.shareURI : null;
+            let shareURL = notification.ddr.actionType == "Share" ? notification.ddr.shareURI : null;
             let userInfo;
 
-            usersService.getUserInfo(notification.userWhoActed)
+            usersService.getUserInfo(notification.ddr.userWhoActed)
                 .then(function (response)
                 {
                     userInfo = response.data;
-                    var resourceURL = "<" + "a href=" + "\"" + notification.resourceTargetUri + "\"" + ">" + $scope.parseResourceTarget(notification.resourceTargetUri) + "</a>";
-                    var userWhoActedURL = "<" + "a href=" + "\"" + notification.userWhoActed + "\"" + ">" + userInfo.ddr.username + "</a>";
+                    var resourceURL = "<" + "a href=" + "\"" + notification.ddr.resourceTargetUri + "\"" + ">" + $scope.parseResourceTarget(notification.ddr.resourceTargetUri) + "</a>";
+                    var userWhoActedURL = "<" + "a href=" + "\"" + notification.ddr.userWhoActed + "\"" + ">" + userInfo.ddr.username + "</a>";
                     // var notificationMsg = notification.userWhoActed.split('/').pop() + " " + $scope.actionTypeDictionary[notification.actionType] + " your " + resourceUrl;
                     var notificationMsg = userWhoActedURL + " " + $scope.parseActionType(notification) + " your " + resourceURL;
 
                     $scope.msg = $sce.trustAsHtml(notificationMsg);
 
+                    var date = notification.ddr.modified || notification.ddr.created;
+
                     ngAlertsMngr.add({
                         msg: $scope.msg,
                         type: type,
-                        time: new Date(notification.modified),
+                        time: new Date(date),
                         id: notificationUri
                     });
                 })
@@ -117,6 +171,7 @@ angular.module("dendroApp.controllers")
         $scope.init = function ()
         {
             $scope.get_unread_notifications();
+            $scope.handleSocketSession();
             // $interval($scope.get_unread_notifications, 60000); //TODO DEACTIVATED FOR DEBUGGING JROCHA
         };
 
@@ -128,7 +183,8 @@ angular.module("dendroApp.controllers")
                     $scope.notifsData[notificationUri] = response.data;
                     // user {{notifsData[notifUri.uri][0].userWhoActed.split('/').pop()}}  {{notifsData[notifUri.uri][0].actionType}} your {{notifsData[notifUri.uri][0].resourceTargetUri.split('/')[3]}}
                     // var notificationMsg = "user "  + response.data[0].userWhoActed + " " + response.data[0].actionType + " your " + response.data[0].resourceTargetUri;
-                    var notification = response.data[0];
+                    //var notification = response.data[0];
+                    var notification = response.data;
                     $scope.createAlert(notification, notificationUri);
                 })
                 .catch(function (error)
@@ -137,12 +193,24 @@ angular.module("dendroApp.controllers")
                 });
         };
 
+        $scope.pushNotification = function (notificationUri) {
+            /*
+            $scope.notifsData[notificationUri] = notification;
+            $scope.notifsUris.push({uri:notificationUri});
+            $scope.createAlert(notification, notificationUri);
+            */
+            $scope.get_notification_info(notificationUri);
+            $scope.getAlerts()
+        };
+
         $scope.delete_notification = function (notificationUri)
         {
             notificationService.delete_notification(notificationUri)
                 .then(function (response)
                 {
                     // TODO check response to see if it was actually deleted or not
+                    $scope.get_unread_notifications();
+                    $scope.getAlerts()
                 })
                 .catch(function (error)
                 {
