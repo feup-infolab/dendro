@@ -790,7 +790,7 @@
         "virtualbox": {
           "active": true,
           "reuse_shapshots": false,
-          "create_snapshots": true,
+          "create_snapshots": false,
           "vmName": "dendroVagrantDemo"
         }
     },

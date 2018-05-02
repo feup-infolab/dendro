@@ -596,24 +596,31 @@ exports.setup = function (targetUnit, callback, forceLoad)
                 callback(err, result);
             }, !forceLoad);
         }
-        else if (Config.virtualbox)
+        else if (Config.virtualbox && Config.virtualbox.active)
         {
-            if (!Config.virtualbox.reuse_checkpoints)
+            if(Config.virtualbox.create_snapshots)
             {
-                VirtualBoxManager.returnToBaselineCheckpoint(function (err, result)
+                if (!Config.virtualbox.reuse_shapshots)
                 {
-                    VirtualBoxManager.destroyAllSnapshots(function (err, result)
+                    VirtualBoxManager.returnToBaselineCheckpoint(function (err, result)
+                    {
+                        VirtualBoxManager.destroyAllSnapshots(function (err, result)
+                        {
+                            callback(err, result);
+                        }, !forceLoad);
+                    }, !forceLoad);
+                }
+                else
+                {
+                    VirtualBoxManager.restoreCheckpoint(checkpointIdentifier, function (err, result)
                     {
                         callback(err, result);
-                    }, !forceLoad);
-                }, !forceLoad);
+                    });
+                }
             }
             else
             {
-                VirtualBoxManager.restoreCheckpoint(checkpointIdentifier, function (err, result)
-                {
-                    callback(err, result);
-                });
+                callback(null, false);
             }
         }
         else
