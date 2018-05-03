@@ -1,4 +1,5 @@
 const _ = require("underscore");
+const async = require("async");
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
@@ -108,7 +109,7 @@ VirtualBoxManager.destroySnapshot = function (snapshotName, callback, onlyOnce)
 
 VirtualBoxManager.returnToBaselineCheckpoint = function (callback)
 {
-    if (Config.virtualbox && Config.virtualbox.active)
+    if (Config.virtualbox && Config.virtualbox.active && Config.virtualbox.reuse_snapshots)
     {
         Logger.log("Checking if baseline snapshot exists...");
         virtualbox.snapshotList(VirtualBoxManager.vmName, function (error, snapshotList, currentSnapshotUUID)
@@ -134,12 +135,53 @@ VirtualBoxManager.returnToBaselineCheckpoint = function (callback)
                 }
                 else
                 {
-                    VirtualBoxManager.restoreCheckpoint(VirtualBoxManager.baselineSnapshot, callback, true);
+                    if(Config.virtualbox.reuse_shapshots)
+                    {
+                        VirtualBoxManager.restoreCheckpoint(VirtualBoxManager.baselineSnapshot, callback, true);
+                    }
+                    else
+                    {
+                        const baselineSnapshotPosition = snapshotList.findIndex(function(snapshot){
+                            return snapshot.name === VirtualBoxManager.baselineSnapshot;
+                        });
+
+                        if(baselineSnapshotPosition > -1)
+                        {
+                            const preExistingSnapshots = snapshotList.slice(0, baselineSnapshotPosition);
+                            const snapshotsCreatedAfterBaseline = snapshotList.slice(baselineSnapshotPosition, snapshotList.length);
+                            const lastPreExistingSnapshot = preExistingSnapshots[preExistingSnapshots.length - 1];
+
+                            async.series([
+                                function(cb)
+                                {
+                                    VirtualBoxManager.restoreCheckpoint(lastPreExistingSnapshot.name, cb, true);
+                                },
+                                function(cb)
+                                {
+                                    VirtualBoxManager.createCheckpoint(VirtualBoxManager.baselineSnapshot, cb, true);
+                                },
+                                function(cb)
+                                {
+                                    async.map(snapshotsCreatedAfterBaseline, function(snapshot, cb){
+                                        VirtualBoxManager.destroySnapshot(snapshot.name, cb, true);
+                                    }, cb);
+                                }
+                            ], function(err, result)
+                            {
+                                callback(err, false);
+                            });
+                        }
+                        else
+                        {
+                            Logger.log("info", "There are no previous checkpoints to restore, continuing...");
+                            callback(null, false);
+                        }
+                    }
                 }
             }
             else
             {
-                callback(null);
+                callback(null, false);
             }
         });
     }
@@ -203,18 +245,36 @@ VirtualBoxManager.startVM = function (callback)
     {
         Logger.log("Starting Virtualbox VM.");
 
-        virtualbox.start(VirtualBoxManager.vmName, function startCallback (error)
+        virtualbox.isRunning(VirtualBoxManager.vmName, function startCallback (error, running)
         {
-            if (isNull(error))
+            if(isNull(error))
             {
-                Logger.log("Started VM");
-                callback(null);
+                if(!running)
+                {
+                    virtualbox.start(VirtualBoxManager.vmName, function startCallback (error)
+                    {
+                        if (isNull(error))
+                        {
+                            Logger.log("Started VM");
+                            callback(null);
+                        }
+                        else
+                        {
+                            Logger.log("Failed to start VM");
+                            Logger.log("error", error);
+                            callback(error);
+                        }
+                    });
+                }
+                else
+                {
+                    callback(null, "VM "+VirtualBoxManager.vmName+" is already running, no need to start it.");
+                }
             }
             else
             {
-                Logger.log("Failed to start VM");
+                callback(error, "Error checking if VM "+VirtualBoxManager.vmName+" is already running!");
                 Logger.log("error", error);
-                callback(error);
             }
         });
     }

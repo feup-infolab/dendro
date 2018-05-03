@@ -40,7 +40,7 @@ class App
 
         self.setupHandlers();
 
-        if (!isNull(options))
+        if(!isNull(options))
         {
             if (options.seed_databases)
             {
@@ -694,24 +694,31 @@ class App
 
         const closeMySQLConnectionPool = function (cb)
         {
-            Config.getMySQLByID().connection.releaseAllConnections(function (err)
+            if(!isNull(Config.getMySQLByID().connection))
             {
-                if (isNull(err))
+                Config.getMySQLByID().connection.releaseAllConnections(function (err)
                 {
-                    err = null;
-                }
+                    if (isNull(err))
+                    {
+                        err = null;
+                    }
 
-                if (!err)
-                {
-                    Logger.log("Closed MySQL connection pool");
-                }
-                else
-                {
-                    Logger.log("error", "Error closing MySQL connection pool");
-                }
+                    if (!err)
+                    {
+                        Logger.log("Closed MySQL connection pool");
+                    }
+                    else
+                    {
+                        Logger.log("error", "Error closing MySQL connection pool");
+                    }
 
-                cb(err, null);
-            });
+                    cb(err, null);
+                });
+            }
+            else
+            {
+                cb(null, null);
+            }
         };
 
         const haltHTTPServer = function (cb)
