@@ -6,49 +6,60 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const _ = require("underscore");
 
 class UserSocketSession
 {
-    //static __userUri;
-    //static __socket;
-
     constructor (userUri, socket)
     {
         this.__userUri = userUri;
-        this.__socket = socket;
-        this.registerEvents();
+        this.__sockets = [socket];
+        //this.registerEvents();
     }
 
-    registerEvents ()
+
+    /*
+    registerEvents (socket)
     {
-        this.__socket.on("forceDisconnect", function (data) {
-            this.__socket.disconnect(true);
-            //console.log("disconnected socketID: ", data.socketID);
-        });
-
-        this.__socket.on("identifyUser", function (data) {
-            //console.log("user: " + data.userUri  + " identified!");
-            this.__socket.emit("identified", {socketID: this.__socket.id, userUri: this.__userUri});
-        });
-
-        this.__socket.on("message", function (data) {
+        this.__socket.on(this.__userUri +":message", function (data) {
             console.log("Received a message from the client: ", data.message);
         });
     }
+    */
+
+    addNewSocket (newSocket)
+    {
+        let connectedSockets = _.filter(this.__sockets, function(socket){ return socket.connected === true; });
+        this.__sockets = connectedSockets;
+        this.__sockets.push(newSocket);
+        console.log("Num connectedSockets for user " + this.__userUri + " : " + this.__sockets.length);
+    };
 
     emitMessage (message)
     {
-        this.__socket.emit("message", {message: message});
+        let self = this;
+        _.map(self.__sockets, function (socket) {
+            socket.emit(self.__userUri +":message", {message: message});
+        });
+        //this.__socket.emit(this.__userUri +":message", {message: message});
     }
 
     emitNotification (notificationObject)
     {
-        this.__socket.emit("notification", notificationObject);
+        let self = this;
+        //this.__socket.emit(this.__userUri + ":notification", notificationObject);
+        _.map(self.__sockets, function (socket) {
+            socket.emit(self.__userUri + ":notification", notificationObject);
+        });
     }
 
     disconnect ()
     {
-        this.__socket.disconnect(true);
+        //this.__socket.disconnect(true);
+        let self = this;
+        _.map(self.__sockets, function (socket) {
+            socket.disconnect(true);
+        });
     }
 }
 

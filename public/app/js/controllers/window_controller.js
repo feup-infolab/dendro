@@ -20,56 +20,6 @@ angular.module("dendroApp.controllers")
         usersService
     )
     {
-        /*
-        $scope.socket = null;
-        $scope.userUri = null;
-
-        $scope.handleSocketSession = function()
-        {
-            var initSocketSession = function ()
-            {
-                $scope.socket = io();
-            };
-
-            var handleSocketConnectEvent = function () {
-                $scope.socket.on("connect", function () {
-                    console.log("client id is cenas: ", $scope.socket.id);
-                    $scope.socket.emit("identifyUser", { userUri: $scope.userUri });
-                });
-
-                $scope.socket.on("identified", function (data) {
-                    console.log("user is now identified");
-                    console.log("data is : " + JSON.stringify(data));
-                });
-
-                $scope.socket.on("message", function (data) {
-                    Utils.show_popup("info", "Job Information", data.message);
-                });
-
-                $scope.socket.on("notification", function (notificationData) {
-                    Utils.show_popup("info", "Notification Information", JSON.stringify(notificationData));
-                    //notificationCtrl.pushNotification(notificationData, notificationData.uri);
-                    notificationCtrl.createAlert(notificationData, notificationData.uri);
-                });
-            };
-
-            usersService.get_logged_user()
-                .then(function (user)
-                {
-                    $scope.userUri = user.uri;
-                    initSocketSession();
-                    handleSocketConnectEvent();
-                })
-                .catch(function (error) {
-                    Utils.show_popup("error", "Socket Session", "Error getting logged user information");
-                });
-        };
-
-        $scope.destroySocketSession = function () {
-            $scope.socket.emit('forceDisconnect', { socketID: $scope.socket.id });
-        };
-        */
-
         $scope.get_current_url = function ()
         {
             var newURL = window.location.protocol + "//" + window.location.host + window.location.pathname;

@@ -10,59 +10,33 @@ const UserSocketSession = require(Pathfinder.absPathInSrcFolder("bootup/models/u
 
 class IO
 {
-    //static __usersSocketsSessions = {};
-    //static __io = null;
-
-    //constructor (server)
     constructor ()
     {
-        //IO.__io = require("socket.io")(server);
-        //this.registerIOConnection();
+
     }
 
-    static registerIOConnection (server)
+    static registerIOConnections (server)
     {
-        const registerUserSocketSession = function (userUri, socketSession)
+        const updateUserSocketSession = function (userUri, newSocket)
         {
-            console.log("socketSessionUsers is: " + IO.__usersSocketsSessions);
             if(!IO.__usersSocketsSessions.hasOwnProperty(userUri))
             {
-                let userSockeSession = new UserSocketSession(userUri, socketSession);
+                let userSockeSession = new UserSocketSession(userUri, newSocket);
                 IO.__usersSocketsSessions[userUri] = userSockeSession;
-                return true;
             }
             else
             {
-                IO.__usersSocketsSessions[userUri].disconnect();
-                delete IO.__usersSocketsSessions[userUri];
-                let userSockeSession = new UserSocketSession(userUri, socketSession);
-                IO.__usersSocketsSessions[userUri] = userSockeSession;
+                IO.__usersSocketsSessions[userUri].addNewSocket(newSocket);
             }
         };
 
-        IO.__io.on("connection", function (socket) {
-            /*
-            socket.on("forceDisconnect", function (data) {
-                //req.session.socketID = null;
-                //socket.disconnect(true);
-                //console.log("disconnected socketID: ", data.socketID);
-                if(!isNull(data) || isNull(data.userUri))
-                {
-                    this.destroyUserSocketSession(data.userUri);
-                }
-                else
-                {
-                    socket.disconnect(true);
-                }
-            });
-            */
-
-            socket.on("identifyUser", function (data) {
+        IO.__io.on("connection", function (clientSocket) {
+            clientSocket.on("identifyUser", function (data) {
                 if(!isNull(data.userUri))
                 {
-                    console.log("user: " + data.userUri  + " identified!");
-                    registerUserSocketSession(data.userUri, socket);
-                    socket.emit("identified", {socketID: socket.id, userUri: data.user});
+                    console.log("user: " + data.userUri  + " identified with socket iD: " + clientSocket.id);
+                    updateUserSocketSession(data.userUri, clientSocket);
+                    clientSocket.emit(data.userUri + ":identified", {socketID: clientSocket.id, userUri: data.user});
                 }
                 else
                 {
@@ -70,26 +44,12 @@ class IO
                 }
             });
         });
-    }
 
-    /*
-    static registerUserSocketSession (userUri, socketSession)
-    {
-        if(!IO.__usersSocketsSessions.hasOwnProperty(userUri))
-        {
-            let userSockeSession = new UserSocketSession(userUri, socketSession);
-            IO.__usersSocketsSessions[userUri] = userSockeSession;
-            return true;
-        }
-        else
-        {
-            IO.__usersSocketsSessions[userUri].disconnect();
-            delete IO.__usersSocketsSessions[userUri];
-            let userSockeSession = new UserSocketSession(userUri, socketSession);
-            IO.__usersSocketsSessions[userUri] = userSockeSession;
-        }
+        IO.__io.on("forceDisconnect", function (data) {
+            console.log("received a forced disconnect");
+            console.log("data is: " + JSON.stringify(data));
+        });
     }
-    */
 
     static getUserSocketSession (userUri)
     {
@@ -103,6 +63,7 @@ class IO
         }
     }
 
+    /*
     static destroyUserSocketSession (userUri)
     {
         if(IO.__usersSocketsSessions.hasOwnProperty(userUri))
@@ -116,6 +77,7 @@ class IO
             return false;
         }
     }
+    */
 }
 
 module.exports.IO = IO;

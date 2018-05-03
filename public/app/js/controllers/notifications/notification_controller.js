@@ -12,12 +12,14 @@ angular.module("dendroApp.controllers")
         $scope.actionTypeDictionary = {
             Like: "liked",
             Comment: "commented",
-            Share: "shared"
+            Share: "shared",
+            ImportProjectSuccess: "imported with success"
         };
 
         $scope.resourceTypeDictionary = {
             post: "post",
-            share: "share"
+            share: "share",
+            project: "project"
         };
 
         $scope.socket = null;
@@ -27,31 +29,34 @@ angular.module("dendroApp.controllers")
         {
             var initSocketSession = function ()
             {
-                $scope.socket = io();
+                var socket = io();
+                $scope.socket = socket;
             };
 
             var handleSocketConnectEvent = function () {
                 $scope.socket.on("connect", function () {
-                    console.log("client id is cenas: ", $scope.socket.id);
                     $scope.socket.emit("identifyUser", { userUri: $scope.userUri });
                 });
 
-                $scope.socket.on("identified", function (data) {
-                    console.log("user is now identified");
-                    console.log("data is : " + JSON.stringify(data));
+                $scope.socket.on($scope.userUri + ":identified", function (data) {
+                    console.log("user: " +  $scope.userUri + " is now identified");
                 });
 
-                $scope.socket.on("message", function (data) {
+                $scope.socket.on($scope.userUri + ":message", function (data) {
+                    console.log("received a message");
                     Utils.show_popup("info", "Job Information", data.message);
                 });
 
-                $scope.socket.on("notification", function (notificationData) {
-                    //Utils.show_popup("info", "Notification Information", JSON.stringify(notificationData));
-                    //Utils.show_popup("info", "Notification Information", JSON.stringify(notificationData));
-                    //$scope.pushNotification(notificationData, notificationData.uri);
-                    //$scope.pushNotification(notificationData.uri);
+                $scope.socket.on($scope.userUri + ":notification", function (notificationData) {
+                    console.log("received a notification");
                     Utils.show_popup("info", "Notification", "You have a new notification!");
                     $scope.get_unread_notifications();
+                });
+
+                $scope.socket.on("disconnect", function () {
+                    console.log("client session was disconnected");
+                    $scope.socket.emit("forceDisconnect", { socketID : $scope.socket.id, userUri: $scope.userUri });
+                    //$scope.socket = null;
                 });
             };
 
@@ -63,12 +68,13 @@ angular.module("dendroApp.controllers")
                     handleSocketConnectEvent();
                 })
                 .catch(function (error) {
+                    console.log("Error here:" + error);
                     Utils.show_popup("error", "Socket Session", "Error getting logged user information");
                 });
         };
 
         $scope.destroySocketSession = function () {
-            $scope.socket.emit('forceDisconnect', { socketID: $scope.socket.id });
+            $scope.socket.emit("forceDisconnect", { "userUri": $scope.userUri,  "socketID": $scope.socket.id });
         };
 
 
@@ -76,7 +82,6 @@ angular.module("dendroApp.controllers")
         {
             let debug = resourceTargetUri.split("/")[2];
             return $scope.resourceTypeDictionary[resourceTargetUri.split("/")[2]];
-            console.log("debug");
         };
 
         $scope.parseActionType = function (notification)

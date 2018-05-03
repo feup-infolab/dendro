@@ -18,7 +18,7 @@ const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConne
 const Uploader = require(Pathfinder.absPathInSrcFolder("/utils/uploader.js")).Uploader;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const IO = require(Pathfinder.absPathInSrcFolder("bootup/models/io.js")).IO;
+const Notification = require(Pathfinder.absPathInSrcFolder("/models/notifications/notification.js")).Notification;
 
 const nodemailer = require("nodemailer");
 const flash = require("connect-flash");
@@ -2305,16 +2305,23 @@ exports.import = function (req, res)
                         {
                             const message = "Project with handle: " + req.query.imported_project_handle + " was successfully restored";
                             Logger.log("info", message);
-                            //TODO find a way to send only to a specific user(the person who imported the project)
-                            //Config.io.emit("message", {message: message});
-                            const userSocketSession = IO.getUserSocketSession(req.user.uri);
-                            if(!isNull(userSocketSession))
+
+                            if(!isNull(newProject))
                             {
-                                userSocketSession.emitMessage(message);
-                            }
-                            else
-                            {
-                                console.log("Could not emit message to user: " + req.user.uri);
+                                const newNotification = new Notification({
+                                    ddr: {
+                                        userWhoActed: req.user.uri,
+                                        resourceTargetUri: newProject.uri,
+                                        actionType: "ImportProjectSuccess",
+                                        resourceAuthorUri: req.user.uri
+                                    },
+                                    foaf: {
+                                        status: "unread"
+                                    }
+                                });
+                                newNotification.save(function (err, info) {
+                                    Logger.log("info", "Imported project notification sent");
+                                });
                             }
                             return;
                         }
