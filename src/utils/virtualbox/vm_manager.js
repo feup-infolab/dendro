@@ -135,38 +135,40 @@ VirtualBoxManager.returnToBaselineCheckpoint = function (callback)
                 }
                 else
                 {
-                    if(Config.virtualbox.reuse_shapshots)
+                    if (Config.virtualbox.reuse_shapshots)
                     {
                         VirtualBoxManager.restoreCheckpoint(VirtualBoxManager.baselineSnapshot, callback, true);
                     }
                     else
                     {
-                        const baselineSnapshotPosition = snapshotList.findIndex(function(snapshot){
+                        const baselineSnapshotPosition = snapshotList.findIndex(function (snapshot)
+                        {
                             return snapshot.name === VirtualBoxManager.baselineSnapshot;
                         });
 
-                        if(baselineSnapshotPosition > -1)
+                        if (baselineSnapshotPosition > -1)
                         {
                             const preExistingSnapshots = snapshotList.slice(0, baselineSnapshotPosition);
                             const snapshotsCreatedAfterBaseline = snapshotList.slice(baselineSnapshotPosition, snapshotList.length);
                             const lastPreExistingSnapshot = preExistingSnapshots[preExistingSnapshots.length - 1];
 
                             async.series([
-                                function(cb)
+                                function (cb)
                                 {
                                     VirtualBoxManager.restoreCheckpoint(lastPreExistingSnapshot.name, cb, true);
                                 },
-                                function(cb)
+                                function (cb)
                                 {
                                     VirtualBoxManager.createCheckpoint(VirtualBoxManager.baselineSnapshot, cb, true);
                                 },
-                                function(cb)
+                                function (cb)
                                 {
-                                    async.map(snapshotsCreatedAfterBaseline, function(snapshot, cb){
+                                    async.map(snapshotsCreatedAfterBaseline, function (snapshot, cb)
+                                    {
                                         VirtualBoxManager.destroySnapshot(snapshot.name, cb, true);
                                     }, cb);
                                 }
-                            ], function(err, result)
+                            ], function (err, result)
                             {
                                 callback(err, false);
                             });
@@ -247,9 +249,9 @@ VirtualBoxManager.startVM = function (callback)
 
         virtualbox.isRunning(VirtualBoxManager.vmName, function startCallback (error, running)
         {
-            if(isNull(error))
+            if (isNull(error))
             {
-                if(!running)
+                if (!running)
                 {
                     virtualbox.start(VirtualBoxManager.vmName, function startCallback (error)
                     {
@@ -268,12 +270,12 @@ VirtualBoxManager.startVM = function (callback)
                 }
                 else
                 {
-                    callback(null, "VM "+VirtualBoxManager.vmName+" is already running, no need to start it.");
+                    callback(null, "VM " + VirtualBoxManager.vmName + " is already running, no need to start it.");
                 }
             }
             else
             {
-                callback(error, "Error checking if VM "+VirtualBoxManager.vmName+" is already running!");
+                callback(error, "Error checking if VM " + VirtualBoxManager.vmName + " is already running!");
                 Logger.log("error", error);
             }
         });
@@ -497,13 +499,13 @@ VirtualBoxManager.restartVM = function (onlyOnce, callback)
                 {
                     if (!isNull(error))
                     {
-                        Logger.log("error", "Virtual Machine " + VirtualBoxManager.vmName + "failed to stop");
+                        Logger.log("error", "Virtual Machine " + VirtualBoxManager.vmName + " failed to stop");
                         Logger.log("error", error);
                         callback(error);
                     }
                     else
                     {
-                        Logger.log("Virtual Machine " + VirtualBoxManager.vmName + "restarted. ");
+                        Logger.log("Virtual Machine " + VirtualBoxManager.vmName + " restarted. ");
                         callback(null);
                     }
                 });

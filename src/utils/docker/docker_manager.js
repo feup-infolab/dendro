@@ -16,11 +16,11 @@ const restartContainersScript = Pathfinder.absPathInApp("/conf/scripts/docker/re
 const nukeAndRebuildScript = Pathfinder.absPathInApp("/conf/scripts/docker/nuke_and_rebuild.sh");
 const dataFolder = Pathfinder.absPathInApp("/data");
 
-const DockerCheckpointManager = function ()
+const DockerManager = function ()
 {
 };
 
-DockerCheckpointManager._availableCheckpoints = {};
+DockerManager._availableCheckpoints = {};
 
 if (Config.docker.reuse_checkpoints && Config.docker.active)
 {
@@ -34,11 +34,11 @@ if (Config.docker.reuse_checkpoints && Config.docker.active)
 
     _.map(checkpointFolders, function (folderName)
     {
-        DockerCheckpointManager._availableCheckpoints[folderName] = true;
+        DockerManager._availableCheckpoints[folderName] = true;
     });
 }
 
-DockerCheckpointManager.stopAllContainers = function ()
+DockerManager.stopAllContainers = function ()
 {
     if (Config.docker && Config.docker.active)
     {
@@ -52,7 +52,7 @@ DockerCheckpointManager.stopAllContainers = function ()
     }
 };
 
-DockerCheckpointManager.startAllContainers = function ()
+DockerManager.startAllContainers = function ()
 {
     if (Config.docker && Config.docker.active)
     {
@@ -66,20 +66,20 @@ DockerCheckpointManager.startAllContainers = function ()
     }
 };
 
-DockerCheckpointManager.checkpointExists = function (checkpointName)
+DockerManager.checkpointExists = function (checkpointName)
 {
     if (Config.docker && Config.docker.active)
     {
-        return DockerCheckpointManager._availableCheckpoints[checkpointName];
+        return DockerManager._availableCheckpoints[checkpointName];
     }
 };
 
-DockerCheckpointManager.createCheckpoint = function (checkpointName)
+DockerManager.createCheckpoint = function (checkpointName)
 {
     if (Config.docker && Config.docker.active)
     {
         Logger.log("Creating Docker checkpoint " + checkpointName);
-        if (isNull(DockerCheckpointManager._availableCheckpoints[checkpointName]))
+        if (isNull(DockerManager._availableCheckpoints[checkpointName]))
         {
             childProcess.execSync(`/bin/bash -c "${createCheckpointScript} ${checkpointName}"`, {
                 cwd: Pathfinder.appDir,
@@ -87,17 +87,17 @@ DockerCheckpointManager.createCheckpoint = function (checkpointName)
             });
 
             Logger.log("Saved checkpoint with name " + checkpointName);
-            DockerCheckpointManager._availableCheckpoints[checkpointName] = true;
+            DockerManager._availableCheckpoints[checkpointName] = true;
         }
     }
 };
 
-DockerCheckpointManager.restoreCheckpoint = function (checkpointName)
+DockerManager.restoreCheckpoint = function (checkpointName)
 {
     if (Config.docker && Config.docker.active)
     {
         Logger.log("Restoring Docker checkpoint " + checkpointName);
-        if (DockerCheckpointManager._availableCheckpoints[checkpointName])
+        if (DockerManager._availableCheckpoints[checkpointName])
         {
             childProcess.execSync(`/bin/bash -c "${restoreCheckpointScript} ${checkpointName}"`, {
                 cwd: Pathfinder.appDir,
@@ -112,7 +112,7 @@ DockerCheckpointManager.restoreCheckpoint = function (checkpointName)
     }
 };
 
-DockerCheckpointManager.deleteAll = function (onlyOnce, evenCurrentState)
+DockerManager.deleteAll = function (onlyOnce, evenCurrentState)
 {
     if (Config.docker && Config.docker.active)
     {
@@ -133,10 +133,10 @@ DockerCheckpointManager.deleteAll = function (onlyOnce, evenCurrentState)
 
         if (onlyOnce)
         {
-            if (!DockerCheckpointManager._deletedOnce)
+            if (!DockerManager._deletedOnce)
             {
                 performOperation();
-                DockerCheckpointManager._deletedOnce = true;
+                DockerManager._deletedOnce = true;
             }
         }
         else
@@ -146,7 +146,7 @@ DockerCheckpointManager.deleteAll = function (onlyOnce, evenCurrentState)
     }
 };
 
-DockerCheckpointManager.nukeAndRebuild = function (onlyOnce)
+DockerManager.nukeAndRebuild = function (onlyOnce)
 {
     if (Config.docker && Config.docker.active)
     {
@@ -163,10 +163,10 @@ DockerCheckpointManager.nukeAndRebuild = function (onlyOnce)
 
         if (onlyOnce)
         {
-            if (!DockerCheckpointManager._nukedOnce)
+            if (!DockerManager._nukedOnce)
             {
                 performOperation();
-                DockerCheckpointManager._nukedOnce = true;
+                DockerManager._nukedOnce = true;
             }
         }
         else
@@ -176,7 +176,7 @@ DockerCheckpointManager.nukeAndRebuild = function (onlyOnce)
     }
 };
 
-DockerCheckpointManager.restartVM = function (onlyOnce)
+DockerManager.restartContainers = function (onlyOnce)
 {
     Logger.log("Restarting all Docker containers.");
     if (Config.docker && Config.docker.active)
@@ -193,10 +193,10 @@ DockerCheckpointManager.restartVM = function (onlyOnce)
 
         if (onlyOnce)
         {
-            if (!DockerCheckpointManager._restartedOnce)
+            if (!DockerManager._restartedOnce)
             {
                 performOperation();
-                DockerCheckpointManager._restartedOnce = true;
+                DockerManager._restartedOnce = true;
             }
         }
         else
@@ -207,4 +207,4 @@ DockerCheckpointManager.restartVM = function (onlyOnce)
     }
 };
 
-module.exports.DockerCheckpointManager = DockerCheckpointManager;
+module.exports.DockerManager = DockerManager;

@@ -1,14 +1,12 @@
 #!/usr/bin/env bash
 
-DOCKER_SCRIPTS_DIR="$(pwd)/conf/scripts/docker"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source $DIR/container_names.sh
 
-eval $DOCKER_SCRIPTS_DIR/destroy_containers.sh
+eval "$DIR/destroy_containers.sh"
 
 ## delete images
-docker rmi -f virtuoso-dendro || true
-docker rmi -f elasticsearch-dendro || true
-docker rmi -f mysql-dendro || true
-docker rmi -f mongo-dendro || true
-#docker rmi -f redis-dendro-default || true
-#docker rmi -f redis-dendro-social || true
-#docker rmi -f redis-dendro-notifications || true
+docker rmi -f "$ELASTICSEARCH_CONTAINER_NAME" || true
+docker rmi -f "$VIRTUOSO_CONTAINER_NAME" || true
+docker rmi -f "$MYSQL_CONTAINER_NAME" || true
+docker rmi -f "$MONGODB_CONTAINER_NAME" || true

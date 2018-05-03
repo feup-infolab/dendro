@@ -1,7 +1,7 @@
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const DockerCheckpointManager = require(Pathfinder.absPathInSrcFolder("utils/docker/checkpoint_manager.js")).DockerCheckpointManager;
+const DockerManager = require(Pathfinder.absPathInSrcFolder("utils/docker/docker_manager.js")).DockerManager;
 
 const initDockerContainers = function (app, callback)
 {
@@ -9,7 +9,7 @@ const initDockerContainers = function (app, callback)
     {
         try
         {
-            DockerCheckpointManager.startAllContainers();
+            DockerManager.startAllContainers();
             callback(null);
         }
         catch (e)

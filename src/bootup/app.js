@@ -22,11 +22,9 @@ Pathfinder.appDir = appDir;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 let isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const DockerCheckpointManager = require(Pathfinder.absPathInSrcFolder("utils/docker/checkpoint_manager.js")).DockerCheckpointManager;
+const DockerManager = require(Pathfinder.absPathInSrcFolder("utils/docker/docker_manager.js")).DockerManager;
 
 Config.pm2AppName = require(Pathfinder.absPathInApp("package.json")).name + "-" + require(Pathfinder.absPathInApp("package.json")).version;
-
-const argv = require("yargs").argv;
 
 class App
 {
@@ -40,7 +38,7 @@ class App
 
         self.setupHandlers();
 
-        if(!isNull(options))
+        if (!isNull(options))
         {
             if (options.seed_databases)
             {
@@ -694,7 +692,7 @@ class App
 
         const closeMySQLConnectionPool = function (cb)
         {
-            if(!isNull(Config.getMySQLByID().connection))
+            if (!isNull(Config.getMySQLByID().connection))
             {
                 Config.getMySQLByID().connection.releaseAllConnections(function (err)
                 {
@@ -765,7 +763,7 @@ class App
             {
                 Logger.log("Halting docker containers...");
 
-                DockerCheckpointManager.stopAllContainers();
+                DockerManager.stopAllContainers();
                 cb(null);
             }
             else

@@ -2,7 +2,7 @@ const Pathfinder = global.Pathfinder;
 const isNull = require(Pathfinder.absPathInSrcFolder("utils/null")).isNull;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const DockerCheckpointManager = require(Pathfinder.absPathInSrcFolder("utils/docker/checkpoint_manager.js")).DockerCheckpointManager;
+const DockerManager = require(Pathfinder.absPathInSrcFolder("utils/docker/docker_manager.js")).DockerManager;
 const VirtualBoxManager = require(Pathfinder.absPathInSrcFolder("utils/virtualbox/vm_manager.js")).VirtualBoxManager;
 const _ = require("underscore");
 const async = require("async");
@@ -133,7 +133,7 @@ exports.getTopCallerUnitFile = function ()
     const bootupUnitClass = require(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
     let originalFunc = Error.prepareStackTrace;
     let mostSpecificClassFile;
-    let mostSpecificClass;
+    let mostSpecificClass = null;
     let callerFile;
     let callerClass;
 
@@ -188,7 +188,7 @@ exports.checkpointExists = function (checkpointIdentifier, callback)
 {
     if (Config.docker.active)
     {
-        callback(null, DockerCheckpointManager.checkpointExists(checkpointIdentifier));
+        callback(null, DockerManager.checkpointExists(checkpointIdentifier));
     }
     else if (Config.virtualbox && Config.virtualbox.active)
     {
@@ -216,7 +216,7 @@ exports.loadCheckpoint = function (checkpointIdentifier, callback)
                 {
                     if (Config.docker.active)
                     {
-                        if (DockerCheckpointManager.restoreCheckpoint(checkpointIdentifier))
+                        if (DockerManager.restoreCheckpoint(checkpointIdentifier))
                         {
                             callback(null, checkpointIdentifier);
                         }
@@ -236,7 +236,14 @@ exports.loadCheckpoint = function (checkpointIdentifier, callback)
                                     Logger.log("Destroying VM checkpoint " + checkpointIdentifier + "...");
                                     VirtualBoxManager.destroySnapshot(checkpointIdentifier, function (err, result)
                                     {
-                                        callback(err, result);
+                                        if (!err)
+                                        {
+                                            callback(null, false);
+                                        }
+                                        else
+                                        {
+                                            callback(err, result);
+                                        }
                                     }, true);
                                 }
                                 else
@@ -250,7 +257,14 @@ exports.loadCheckpoint = function (checkpointIdentifier, callback)
                                 {
                                     if (isNull(err))
                                     {
-                                        callback(null, checkpointIdentifier);
+                                        if (!err)
+                                        {
+                                            callback(null, true);
+                                        }
+                                        else
+                                        {
+                                            callback(err, result);
+                                        }
                                     }
                                     else
                                     {
@@ -405,7 +419,7 @@ exports.runLoadFunctionsFromExistingCheckpointUntilUnit = function (checkpointed
                                 if (!err)
                                 {
                                     Logger.log("Halted app after loading databases for creating checkpoint: " + checkpointIdentifier);
-                                    DockerCheckpointManager.createCheckpoint(checkpointIdentifier);
+                                    DockerManager.createCheckpoint(checkpointIdentifier);
                                 }
                                 else
                                 {
@@ -586,8 +600,8 @@ exports.setup = function (targetUnit, callback, forceLoad)
         {
             if (!Config.docker.reuse_checkpoints)
             {
-                DockerCheckpointManager.deleteAll(true, true);
-                DockerCheckpointManager.nukeAndRebuild(true);
+                DockerManager.deleteAll(true, true);
+                DockerManager.nukeAndRebuild(true);
             }
 
             Logger.log("Trying to recover checkpoint " + checkpointIdentifier + "...");
@@ -598,7 +612,7 @@ exports.setup = function (targetUnit, callback, forceLoad)
         }
         else if (Config.virtualbox && Config.virtualbox.active)
         {
-            if(Config.virtualbox.create_snapshots)
+            if (Config.virtualbox.create_snapshots)
             {
                 if (!Config.virtualbox.reuse_shapshots)
                 {
@@ -629,6 +643,39 @@ exports.setup = function (targetUnit, callback, forceLoad)
         }
     };
 
+    const runAllLoadFunctions = function (callback)
+    {
+        exports.runAllLoadFunctionsUpUnitChain(targetUnit, function (err, result)
+        {
+            if (isNull(err))
+            {
+                Logger.log("Ran all load functions until " + targetUnit.name + " successfully");
+
+                exports.init(function (err, result)
+                {
+                    if (!err)
+                    {
+                        Logger.log("Started dendro instance successfully!");
+                    }
+                    else
+                    {
+                        Logger.log("error", "Error starting dendro instance");
+                        Logger.log("error", err);
+                        Logger.log("error", result);
+                    }
+                    callback(err, result);
+                });
+            }
+            else
+            {
+                Logger.log("Error running functions until " + targetUnit.name + " !");
+                Logger.log("error", err);
+                Logger.log("error", JSON.stringify(result));
+                callback(err, result);
+            }
+        });
+    };
+
     tryToRestoreUnitState(function (err, checkpointRestored)
     {
         if (!err)
@@ -643,7 +690,11 @@ exports.setup = function (targetUnit, callback, forceLoad)
             }
             else
             {
-                if ((Config.docker.active || Config.virtualbox.active) && !forceLoad)
+                if (forceLoad)
+                {
+                    runAllLoadFunctions(callback);
+                }
+                else if ((Config.docker.active || Config.virtualbox.active))
                 {
                     Logger.log("Final checkpoint " + checkpointIdentifier + " does not exist. Will try to load the last checkpoint up the unit dependency chain...");
                     const loadedCheckpointInfo = exports.loadLastSavedCheckpointInUnitHierarchy();
@@ -658,7 +709,7 @@ exports.setup = function (targetUnit, callback, forceLoad)
                         startingUnit = null;
                     }
 
-                    exports.runLoadFunctionsFromExistingCheckpointUntilUnit(startingUnit, targetUnit, function (err, result)
+                    exports.runLoadFunctionsFromExistingCheckpointUntilUnit(null, targetUnit, function (err, result)
                     {
                         if (isNull(err))
                         {
@@ -697,35 +748,7 @@ exports.setup = function (targetUnit, callback, forceLoad)
                 }
                 else
                 {
-                    exports.runAllLoadFunctionsUpUnitChain(targetUnit, function (err, result)
-                    {
-                        if (isNull(err))
-                        {
-                            Logger.log("Ran all load functions until " + targetUnit.name + " successfully");
-
-                            exports.init(function (err, result)
-                            {
-                                if (!err)
-                                {
-                                    Logger.log("Started dendro instance successfully!");
-                                }
-                                else
-                                {
-                                    Logger.log("error", "Error starting dendro instance");
-                                    Logger.log("error", err);
-                                    Logger.log("error", result);
-                                }
-                                callback(err, result);
-                            });
-                        }
-                        else
-                        {
-                            Logger.log("Error running functions until " + targetUnit.name + " !");
-                            Logger.log("error", err);
-                            Logger.log("error", JSON.stringify(result));
-                            callback(err, result);
-                        }
-                    });
+                    runAllLoadFunctions(callback);
                 }
             }
         }

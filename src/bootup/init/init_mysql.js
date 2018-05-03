@@ -6,7 +6,7 @@ const DendroMySQLClient = require(Pathfinder.absPathInSrcFolder("/kb/mysql.js"))
 
 const initMySQL = function (app, callback)
 {
-    Logger.log("Setting up MySQL connection pool.");
+    Logger.log("Setting up MySQL connection pool at host " + Config.mySQLHost + ":" + Config.mySQLPort);
 
     const client = new DendroMySQLClient(
         Config.mySQLHost,

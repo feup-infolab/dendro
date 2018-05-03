@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-SCRIPTS_DIR="$(pwd)/conf/scripts"
-DOCKER_SCRIPTS_DIR="$(pwd)/conf/scripts/docker"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$DIR/container_names.sh"
 
-eval "$DOCKER_SCRIPTS_DIR/destroy_containers.sh"
-eval "$DOCKER_SCRIPTS_DIR/destroy_images.sh"
-eval "$DOCKER_SCRIPTS_DIR/build_images.sh"
-eval "$DOCKER_SCRIPTS_DIR/start_containers.sh"
+eval "$DIR/destroy_containers.sh"
+eval "$DIR/destroy_images.sh"
+eval "$DIR/build_images.sh"
+eval "$DIR/start_containers.sh"

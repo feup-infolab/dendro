@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$DIR/container_names.sh"
+
 echo "Running stop containers script..."
 
 function stop_container_if_running
@@ -24,19 +27,13 @@ function stop_container_if_running
 
 ## stop all containers
 echo "Flushing all data to disk on Virtuso server.."
-docker exec virtuoso-dendro /bin/bash -c "/usr/local/virtuoso-opensource/bin/isql-v 1111 -U dba -P dba 'EXEC=shutdown();'"
+docker exec virtuoso-dendro /bin/bash -c "sync && /usr/local/virtuoso-opensource/bin/isql-v 1111 -U dba -P dba 'EXEC=shutdown();'"
 echo "Flushed all data to disk on Virtuso server."
-stop_container_if_running "virtuoso-dendro"
-stop_container_if_running "elasticsearch-dendro"
-stop_container_if_running "mysql-dendro"
-stop_container_if_running "mongo-dendro"
 
-#docker stop redis-dendro-default
-#docker stop redis-dendro-social
-#docker stop redis-dendro-notifications
+stop_container_if_running "$ELASTICSEARCH_CONTAINER_NAME"
+stop_container_if_running "$VIRTUOSO_CONTAINER_NAME"
+stop_container_if_running "$MYSQL_CONTAINER_NAME"
+stop_container_if_running "$MONGODB_CONTAINER_NAME"
 
 echo "Stopped all containers."
 
-#TRASH
-#docker exec -it "virtuoso-dendro" "/usr/local
-#/virtuoso-opensource/bin/isql-v < echo 'EXEC=checkpoint; shutdown;' && echo "Flushed all data to disk" || echo "Error flushing all data to disk!" && exit 1

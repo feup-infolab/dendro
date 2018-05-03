@@ -995,7 +995,7 @@ DbConnection.prototype.tryToConnect = function (callback)
         interval: function (retryCount)
         {
             const msecs = 500;
-            Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to Virtuoso...");
+            Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to Virtuoso at " + Config.virtuosoHost + ":" + Config.virtuosoPort + "...");
             return msecs;
         }
     }, tryToConnect, function (err, result)
