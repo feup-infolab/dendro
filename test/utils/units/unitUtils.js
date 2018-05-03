@@ -414,7 +414,7 @@ exports.runLoadFunctionsFromExistingCheckpointUntilUnit = function (checkpointed
                                 cb(err);
                             });
                         }
-                        else if (Config.virtualbox && Config.virtualbox.active && Config.virtualbox.reuse_checkpoints)
+                        else if (Config.virtualbox && Config.virtualbox.active && Config.virtualbox.create_snapshots)
                         {
                             Logger.log("Halting app after loading databases for creating checkpoint: " + checkpointIdentifier);
 
@@ -596,7 +596,7 @@ exports.setup = function (targetUnit, callback, forceLoad)
                 callback(err, result);
             }, !forceLoad);
         }
-        else if (Config.virtualbox)
+        else if (Config.virtualbox && Config.virtualbox.active)
         {
             if (!Config.virtualbox.reuse_checkpoints)
             {
@@ -604,7 +604,7 @@ exports.setup = function (targetUnit, callback, forceLoad)
                 {
                     VirtualBoxManager.destroyAllSnapshots(function (err, result)
                     {
-                        callback(err, result);
+                        callback(err, false);
                     }, !forceLoad);
                 }, !forceLoad);
             }

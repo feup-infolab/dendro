@@ -96,10 +96,11 @@ else if (process.env.NODE_ENV !== "test")
             }
             else
             {
-                if(dendroInstance.seedDatabasesAndExit)
+                if (dendroInstance.seedDatabasesAndExit)
                 {
-                    dendroInstance.freeResources(function(err, result){
-                        if(!err)
+                    dendroInstance.freeResources(function (err, result)
+                    {
+                        if (!err)
                         {
                             process.exit(0);
                         }

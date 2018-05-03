@@ -40,10 +40,13 @@ class App
 
         self.setupHandlers();
 
-        if (options.seed_databases)
+        if (!isNull(options))
         {
-            Logger.log("info", "Seeding databases only...");
-            self.seedDatabasesAndExit = true;
+            if (options.seed_databases)
+            {
+                Logger.log("info", "Seeding databases only...");
+                self.seedDatabasesAndExit = true;
+            }
         }
     }
 
@@ -485,7 +488,7 @@ class App
             },
             function (cb)
             {
-                if(!self.seedDatabasesAndExit)
+                if (!self.seedDatabasesAndExit)
                 {
                     startWebServer(cb);
                 }
@@ -715,7 +718,7 @@ class App
         {
             Logger.log("Halting server...");
 
-            if(self.server)
+            if (self.server)
             {
                 self.server.close();
                 self.server.destroy();
@@ -794,7 +797,7 @@ class App
                 Logger.log("error", "Unable to free all resources, but we are halting Dendro Server anyway.");
             }
             // don't call cleanup handler again
-            if(!isNull(callback) && typeof callback === "function")
+            if (!isNull(callback) && typeof callback === "function")
             {
                 callback(err, results);
             }

@@ -315,7 +315,7 @@ VirtualBoxManager.restoreCheckpoint = function (checkpointName, callback, dontAd
         checkpointName = VirtualBoxManager.snapshotPrefix + checkpointName;
     }
 
-    if (Config.virtualbox && Config.virtualbox.active)
+    if (Config.virtualbox && Config.virtualbox.active && Config.virtualbox.reuse_checkpoints)
     {
         VirtualBoxManager.checkpointExists(checkpointName, function (err, exists)
         {
@@ -337,7 +337,7 @@ VirtualBoxManager.restoreCheckpoint = function (checkpointName, callback, dontAd
                                         {
                                             console.log("Snapshot has been restored!");
                                             console.log("UUID: ", output);
-                                            callback(null);
+                                            callback(null, true);
                                         }
                                         else
                                         {
@@ -367,7 +367,8 @@ VirtualBoxManager.restoreCheckpoint = function (checkpointName, callback, dontAd
                 {
                     Logger.log("warn", err);
                     Logger.log("warn", exists);
-                    callback(null, "Virtualbox checkpoint " + checkpointName + " not found. Continuing...");
+                    Logger.log("warn", "Virtualbox checkpoint " + checkpointName + " not found. Continuing...");
+                    callback(null, false);
                 }
             }
             else
@@ -417,60 +418,53 @@ VirtualBoxManager.deleteVM = function (onlyOnce, evenCurrentState, callback)
 VirtualBoxManager.restartVM = function (onlyOnce, callback)
 {
     Logger.log("Restarting Virtualbox VM " + VirtualBoxManager.vmName);
-    if (Config.virtualbox && Config.virtualbox.active)
+    const performOperation = function (callback)
     {
-        const performOperation = function (callback)
-        {
-            Logger.log("Restarting VM " + VirtualBoxManager.vmName);
+        Logger.log("Restarting VM " + VirtualBoxManager.vmName);
 
-            virtualbox.acpipowerbutton(VirtualBoxManager.vmName, function (error)
-            {
-                if (error)
-                {
-                    Logger.log("error", "Virtual Machine " + VirtualBoxManager.vmName + "failed to stop");
-                    Logger.log("error", error);
-                    callback(error);
-                }
-                else
-                {
-                    Logger.log("Virtual Machine " + VirtualBoxManager.vmName + "has stopped");
-                    virtualbox.start(VirtualBoxManager.vmName, function (error)
-                    {
-                        if (!isNull(error))
-                        {
-                            Logger.log("error", "Virtual Machine " + VirtualBoxManager.vmName + "failed to stop");
-                            Logger.log("error", error);
-                            callback(error);
-                        }
-                        else
-                        {
-                            Logger.log("Virtual Machine " + VirtualBoxManager.vmName + "restarted. ");
-                            callback(null);
-                        }
-                    });
-                }
-            });
-        };
-
-        if (onlyOnce)
+        virtualbox.poweroff(VirtualBoxManager.vmName, function (error)
         {
-            if (!VirtualBoxManager._restartedOnce)
+            if (error)
             {
-                performOperation();
-                VirtualBoxManager._restartedOnce = true;
+                Logger.log("error", "Virtual Machine " + VirtualBoxManager.vmName + "failed to stop");
+                Logger.log("error", error);
+                callback(error);
             }
-        }
-        else
-        {
-            performOperation(callback);
-        }
+            else
+            {
+                Logger.log("Virtual Machine " + VirtualBoxManager.vmName + "has stopped");
+                virtualbox.start(VirtualBoxManager.vmName, function (error)
+                {
+                    if (!isNull(error))
+                    {
+                        Logger.log("error", "Virtual Machine " + VirtualBoxManager.vmName + "failed to stop");
+                        Logger.log("error", error);
+                        callback(error);
+                    }
+                    else
+                    {
+                        Logger.log("Virtual Machine " + VirtualBoxManager.vmName + "restarted. ");
+                        callback(null);
+                    }
+                });
+            }
+        });
+    };
 
-        Logger.log("Restarted VM.");
+    if (onlyOnce)
+    {
+        if (!VirtualBoxManager._restartedOnce)
+        {
+            performOperation();
+            VirtualBoxManager._restartedOnce = true;
+        }
     }
     else
     {
-        callback(1, "Virtualbox flag not active in Deployment Config.");
+        performOperation(callback);
     }
+
+    Logger.log("Restarted VM.");
 };
 
 module.exports.VirtualBoxManager = VirtualBoxManager;

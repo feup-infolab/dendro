@@ -11,9 +11,8 @@ const getDirName = require("path").dirname;
 // to try to cool down tests so that virtuoso does not clog up.
 let numberofTestsRun = 0;
 // 10 sec cooldown every 7 test files
-const testsBatchSizeBeforeCooldown = 1;
+const testsBatchSizeBeforeCooldown = Number.POSITIVE_INFINITY;
 const testsCooldownTime = 10;
-const testsBetweenVirtualboxRestarts = 1;
 
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
@@ -25,7 +24,7 @@ const applyCooldownToTests = function (callback)
     async.series([
         function (cb)
         {
-            if (numberofTestsRun % testsBatchSizeBeforeCooldown === 0)
+            if (numberofTestsRun % testsBatchSizeBeforeCooldown === 0 && testsBatchSizeBeforeCooldown < Number.POSITIVE_INFINITY)
             {
                 Logger.log("Waiting " + testsCooldownTime + " seconds to allow databases to cooldown.");
                 const sleep = require("sleep");
@@ -35,7 +34,7 @@ const applyCooldownToTests = function (callback)
         },
         function (cb)
         {
-            if (numberofTestsRun % testsBetweenVirtualboxRestarts === 0 && Config.virtualbox.active)
+            if (Config.virtualbox.active && Config.virtualbox.restart_vm_every_x_tests > 0 && numberofTestsRun % Config.virtualbox.restart_vm_every_x_tests === 0)
             {
                 Logger.log("Restarting Virtual Machine " + Config.virtualbox.vmName);
                 const VirtualBoxManager = require(Pathfinder.absPathInSrcFolder("utils/virtualbox/vm_manager.js")).VirtualBoxManager;
@@ -67,18 +66,19 @@ exports.clearAppState = function (cb)
 
     appUtils.saveRouteLogsToFile(function (err, info)
     {
-        applyCooldownToTests(function (err)
+        const dendroInstance = global.tests.dendroInstance;
+        dendroInstance.freeResources(function (err, results)
         {
-            if (err)
+            delete global.tests.app;
+            delete global.tests.server;
+            delete global.tests.dendroInstance;
+            applyCooldownToTests(function (err)
             {
-                Logger.log("error", "Error occurred while applying cooldown to tests!");
-            }
-            const dendroInstance = global.tests.dendroInstance;
-            dendroInstance.freeResources(function (err, results)
-            {
-                delete global.tests.app;
-                delete global.tests.server;
-                delete global.tests.dendroInstance;
+                if (err)
+                {
+                    Logger.log("error", "Error occurred while applying cooldown to tests!");
+                }
+
                 cb(err, results);
             });
         });

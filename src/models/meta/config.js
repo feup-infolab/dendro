@@ -196,7 +196,7 @@ if (argv.seed_databases)
     Config.startup.destroy_all_indexes = true;
     Config.startup.destroy_datastore = true;
     Config.startup.destroy_files_store = true;
-};
+}
 
 Config.baselines = getConfigParameter("baselines");
 
