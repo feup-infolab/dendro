@@ -72,6 +72,26 @@ Notification.prototype.save = function (callback) {
     }, false, null, null, null, null, db_notifications.graphUri);
 };
 
+
+Notification.buildAndSaveFromSystemMessage = function (message, targetUserUri, callback, referencedResource) {
+    const newNotification = new Notification({
+        ddr: {
+            actionType: "SystemMessage",
+            resourceAuthorUri: targetUserUri,
+            resourceTargetUri: referencedResource
+        },
+        foaf: {
+            status: "unread"
+        },
+        schema: {
+            sharedContent: message
+        }
+    });
+    newNotification.save(function (err, info) {
+        callback(err, info);
+    });
+};
+
 Notification = Class.extend(Notification, Resource, "ddr:Notification");
 
 module.exports.Notification = Notification;

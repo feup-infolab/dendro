@@ -13,7 +13,7 @@ angular.module("dendroApp.controllers")
             Like: "liked",
             Comment: "commented",
             Share: "shared",
-            ImportProjectSuccess: "imported with success"
+            SystemMessage: "system message"
         };
 
         $scope.resourceTypeDictionary = {
@@ -29,7 +29,8 @@ angular.module("dendroApp.controllers")
         {
             var initSocketSession = function ()
             {
-                var socket = io();
+                var host = window.location.host;
+                var socket = io(host);
                 $scope.socket = socket;
             };
 
@@ -98,48 +99,49 @@ angular.module("dendroApp.controllers")
 
         $scope.createAlert = function (notification, notificationUri)
         {
-            let type = "info";
-            let shareURL = notification.ddr.actionType == "Share" ? notification.ddr.shareURI : null;
-            let userInfo;
+            var drawAlert = function (notificationMsg, notification) {
+                $scope.msg = $sce.trustAsHtml(notificationMsg);
 
-            usersService.getUserInfo(notification.ddr.userWhoActed)
-                .then(function (response)
-                {
-                    userInfo = response.data;
-                    var resourceURL = "<" + "a href=" + "\"" + notification.ddr.resourceTargetUri + "\"" + ">" + $scope.parseResourceTarget(notification.ddr.resourceTargetUri) + "</a>";
-                    var userWhoActedURL = "<" + "a href=" + "\"" + notification.ddr.userWhoActed + "\"" + ">" + userInfo.ddr.username + "</a>";
-                    // var notificationMsg = notification.userWhoActed.split('/').pop() + " " + $scope.actionTypeDictionary[notification.actionType] + " your " + resourceUrl;
-                    var notificationMsg = userWhoActedURL + " " + $scope.parseActionType(notification) + " your " + resourceURL;
+                var date = notification.ddr.modified || notification.ddr.created;
 
-                    $scope.msg = $sce.trustAsHtml(notificationMsg);
-
-                    var date = notification.ddr.modified || notification.ddr.created;
-
-                    ngAlertsMngr.add({
-                        msg: $scope.msg,
-                        type: type,
-                        time: new Date(date),
-                        id: notificationUri
-                    });
-                })
-                .catch(function (error)
-                {
-                    Utils.show_popup("error", "Error getting a user's information", JSON.stringify(error));
+                let type = "info";
+                ngAlertsMngr.add({
+                    msg: $scope.msg,
+                    type: type,
+                    time: new Date(date),
+                    id: notificationUri
                 });
+            };
 
-            /* var resourceURL = "<" + "a href=" + "\"" + notification.resourceTargetUri + "\"" + ">" + $scope.parseResourceTarget(notification.resourceTargetUri) + "</a>";
-            var userWhoActedURL = "<" + "a href=" + "\"" + notification.userWhoActed + "\"" + ">" + notification.userWhoActed.split('/').pop() + "</a>";
-            //var notificationMsg = notification.userWhoActed.split('/').pop() + " " + $scope.actionTypeDictionary[notification.actionType] + " your " + resourceUrl;
-            var notificationMsg = userWhoActedURL + " " + $scope.parseActionType(notification) + " your " + resourceURL;
-
-            $scope.msg = $sce.trustAsHtml(notificationMsg);
-
-            ngAlertsMngr.add({
-                msg: $scope.msg,
-                type: type,
-                time: new Date(notification.modified),
-                id: notificationUri
-            }); */
+            let userInfo;
+            var notificationMsg = null;
+            if(notification.ddr.actionType === "SystemMessage")
+            {
+                var resourceURL = "<" + "a href=" + "\"" + notification.ddr.resourceTargetUri + "\"" + ">" + notification.schema.sharedContent + "</a>";
+                notificationMsg = resourceURL;
+                drawAlert(notificationMsg, notification);
+            }
+            else if(notification.ddr.actionType === "Like" || notification.ddr.actionType === "Comment" || notification.ddr.actionType === "Share")
+            {
+                usersService.getUserInfo(notification.ddr.userWhoActed)
+                    .then(function (response)
+                    {
+                        userInfo = response.data;
+                        var resourceURL = "<" + "a href=" + "\"" + notification.ddr.resourceTargetUri + "\"" + ">" + $scope.parseResourceTarget(notification.ddr.resourceTargetUri) + "</a>";
+                        var userWhoActedURL = "<" + "a href=" + "\"" + notification.ddr.userWhoActed + "\"" + ">" + userInfo.ddr.username + "</a>";
+                        notificationMsg = userWhoActedURL + " " + $scope.parseActionType(notification) + " your " + resourceURL;
+                        drawAlert(notificationMsg, notification);
+                    })
+                    .catch(function (error)
+                    {
+                        Utils.show_popup("error", "Error getting a user's information", JSON.stringify(error));
+                    });
+            }
+            else
+            {
+                notificationMsg = "invalid message action type";
+                drawAlert(notificationMsg, notification);
+            }
         };
 
         $scope.getAlerts = function ()

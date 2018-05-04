@@ -2308,6 +2308,7 @@ exports.import = function (req, res)
 
                             if(!isNull(newProject))
                             {
+                                /*
                                 const newNotification = new Notification({
                                     ddr: {
                                         userWhoActed: req.user.uri,
@@ -2322,6 +2323,10 @@ exports.import = function (req, res)
                                 newNotification.save(function (err, info) {
                                     Logger.log("info", "Imported project notification sent");
                                 });
+                                */
+                                Notification.buildAndSaveFromSystemMessage(message, req.user.uri, function () {
+                                    Logger.log("info", "Imported project notification sent");
+                                }, newProject.uri);
                             }
                             return;
                         }
