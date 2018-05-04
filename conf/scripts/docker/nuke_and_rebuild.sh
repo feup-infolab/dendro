@@ -7,11 +7,11 @@ eval "$DIR/stop_containers.sh"
 
 # echo "Cleaning all images..."
 # #destroy all images
-# eval "$DIR/destroy_images.sh"
+eval "$DIR/destroy_images.sh"
 
-echo "Removing all data..."
-#remove all data
-docker system prune -f
+# #remove all data
+# echo "Removing all data..."
+# docker system prune -f -a
 
 #start containers
 eval "$DIR/start_containers.sh"

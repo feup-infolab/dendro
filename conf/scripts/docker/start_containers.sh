@@ -9,33 +9,35 @@ MYSQL_HOSTNAME="127.0.0.1"
 MONGODB_HOSTNAME="127.0.0.1"
 
 # starts containers with the volumes mounted
-function wait_for_server_to_boot_on_port
+function wait_for_server_to_boot_on_port()
 {
-    local hostname=$1
+    local ip=$1
+    local sentenceToFindInResponse=$2
+
+    if [[ $ip == "" ]]; then
+      ip="127.0.0.1"
+    fi
     local port=$2
     local attempts=0
     local max_attempts=60
 
-    echo "Waiting for server \"$hostname\" on port \"$port\" to boot up..."
+    echo "Waiting for server on $ip:$port to boot up..."
 
-    # || telnet "$hostname" "$port"
+    response=$(curl -s $ip:$port)
+    echo $response
 
-    while ( $(nc -vz hostname $port ) ) ; do
+	until $(curl --output /dev/null --silent --head --fail http://$ip:$port) || [[ $attempts > $max_attempts ]]; do
         attempts=$((attempts+1))
-        if [[ "$attempts" == "$max_attempts" ]]
-        then
-            break;
-        else
-            sleep 1;
-            echo "waiting... (${attempts}/${max_attempts})"
-        fi
-    done
+        echo "waiting... (${attempts}/${max_attempts})"
+        sleep 1;
+	done
 
-	if [[ "$attempts" == "$max_attempts" ]]
+    if (( $attempts == $max_attempts ));
     then
-			echo "Server $hostname on port $port failed to start after $max_attempts"
-		else
-			echo "Server $hostname on port $port started successfully at attempt (${attempts}/${max_attempts})"
+        echo "Server on $ip:$port failed to start after $max_attempts"
+    elif (( $attempts < $max_attempts ));
+    then
+        echo "Server on $ip:$port started successfully at attempt (${attempts}/${max_attempts})"
     fi
 }
 
@@ -74,16 +76,16 @@ then
           -e "transport.host=${ELASTICSEARCH_HOSTNAME}" \
           --name="$ELASTICSEARCH_CONTAINER_NAME" \
           --hostname="$ELASTICSEARCH_HOSTNAME" \
-          -d docker.elastic.co/elasticsearch/elasticsearch:6.2.2
+          docker.elastic.co/elasticsearch/elasticsearch:6.2.2 > /dev/null &
 
           # -v "$RUNNING_FOLDER/elasticsearch:/usr/share/elasticsearch/data" \
 
-      docker start "$ELASTICSEARCH_CONTAINER_NAME" && echo "Container $ELASTICSEARCH_CONTAINER_NAME started." || echo "Container $ELASTICSEARCH_CONTAINER_NAME failed to start."
+      # docker start "$ELASTICSEARCH_CONTAINER_NAME" && echo "Container $ELASTICSEARCH_CONTAINER_NAME started." || echo "Container $ELASTICSEARCH_CONTAINER_NAME failed to start."
     fi
 fi
 
-wait_for_server_to_boot_on_port "$ELASTICSEARCH_HOSTNAME" 9200 "You Know, for Search"
-wait_for_server_to_boot_on_port "$ELASTICSEARCH_HOSTNAME" 9300 "You Know, for Search"
+# wait_for_server_to_boot_on_port "$ELASTICSEARCH_HOSTNAME" 9200 "You Know, for Search"
+# wait_for_server_to_boot_on_port "$ELASTICSEARCH_HOSTNAME" 9300 "You Know, for Search"
 # docker ps -a
 
 ## VIRTUOSO
@@ -103,22 +105,24 @@ then
           -e "VIRT_Parameters_CheckpointInterval=0" \
           --name="$VIRTUOSO_CONTAINER_NAME" \
           --hostname="$VIRTUOSO_HOSTNAME" \
-          -d joaorosilva/virtuoso:7.2.4-for-dendro-0.3
+          joaorosilva/virtuoso:7.2.4-for-dendro-0.3 > /dev/null &
 
           # -v "$RUNNING_FOLDER/virtuoso:/data" \
 
-      docker start "$VIRTUOSO_CONTAINER_NAME" && echo "Container $VIRTUOSO_CONTAINER_NAME started." || echo "Container $VIRTUOSO_CONTAINER_NAME failed to start."
+      # docker start "$VIRTUOSO_CONTAINER_NAME" && echo "Container $VIRTUOSO_CONTAINER_NAME started." || echo "Container $VIRTUOSO_CONTAINER_NAME failed to start."
     fi
 fi
 
 # -e "VIRT_Parameters_NumberOfBuffers=$((32*85000))" \
 
-wait_for_server_to_boot_on_port "$VIRTUOSO_HOSTNAME" 8890
-wait_for_server_to_boot_on_port "$VIRTUOSO_HOSTNAME" 1111
+# wait_for_server_to_boot_on_port "$VIRTUOSO_HOSTNAME" 8890
+# wait_for_server_to_boot_on_port "$VIRTUOSO_HOSTNAME" 1111
 # docker ps -a
 
-## MYSQL
+# docker exec -i -t "$VIRTUOSO_CONTAINER_NAME" /bin/bash -c "/usr/local/virtuoso-opensource/bin/isql-v 1111 -U dba -P dba < /dendro-install/scripts/SQLCommands/declare_namespaces.sql"
 
+
+## MYSQL
 printf "\n\n"
 if container_running "$MYSQL_CONTAINER_NAME" == 0
 then
@@ -130,15 +134,15 @@ then
         -e MYSQL_ROOT_PASSWORD=r00t \
         --name="$MYSQL_CONTAINER_NAME" \
         --hostname="$MYSQL_HOSTNAME" \
-        -d mysql:8.0.3
+        mysql:8.0.3 > /dev/null &
 
         # -v "$RUNNING_FOLDER/mysql:/var/lib/mysql" \
 
-        docker start "$MYSQL_CONTAINER_NAME" && echo "Container $MYSQL_CONTAINER_NAME started." || echo "Container $MYSQL_CONTAINER_NAME failed to start."
+        # docker start "$MYSQL_CONTAINER_NAME" && echo "Container $MYSQL_CONTAINER_NAME started." || echo "Container $MYSQL_CONTAINER_NAME failed to start."
     fi
 fi
 
-wait_for_server_to_boot_on_port "$MYSQL_HOSTNAME" 3306 "Got packets out of order"
+# wait_for_server_to_boot_on_port "$MYSQL_HOSTNAME" 3306 "Got packets out of order"
 # docker ps -a
 
 ## MONGODB
@@ -153,13 +157,13 @@ then
           -p 27017:27017 \
           --name="$MONGODB_CONTAINER_NAME" \
           --hostname="$MONGODB_HOSTNAME" \
-          -d mongo:3.4.10
+          mongo:3.4.10 > /dev/null &
 
           # -v "$RUNNING_FOLDER/mongo:/data/db" \
 
-          docker start "$MONGODB_CONTAINER_NAME" &&  echo "Container $MONGODB_CONTAINER_NAME started." || echo "Container $MONGODB_CONTAINER_NAME failed to start."
+          # docker start "$MONGODB_CONTAINER_NAME" &&  echo "Container $MONGODB_CONTAINER_NAME started." || echo "Container $MONGODB_CONTAINER_NAME failed to start."
     fi
 fi
 
-wait_for_server_to_boot_on_port "$MONGODB_HOSTNAME" 27017 "It looks like you are trying to access MongoDB over HTTP on the native driver port"
+# wait_for_server_to_boot_on_port "$MONGODB_HOSTNAME" 27017 "It looks like you are trying to access MongoDB over HTTP on the native driver port"
 # docker ps -a

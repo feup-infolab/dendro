@@ -70,8 +70,15 @@ DockerManager.checkpointExists = function (checkpointName)
 {
     if (Config.docker && Config.docker.active)
     {
-        return DockerManager._availableCheckpoints[checkpointName];
+        if (isNull(DockerManager._availableCheckpoints[checkpointName]))
+        {
+            return false;
+        }
+
+        return true;
     }
+
+    return false;
 };
 
 DockerManager.createCheckpoint = function (checkpointName)
@@ -97,7 +104,7 @@ DockerManager.restoreCheckpoint = function (checkpointName)
     if (Config.docker && Config.docker.active)
     {
         Logger.log("Restoring Docker checkpoint " + checkpointName);
-        if (DockerManager._availableCheckpoints[checkpointName])
+        if (DockerManager.checkpointExists(checkpointName))
         {
             childProcess.execSync(`/bin/bash -c "${restoreCheckpointScript} ${checkpointName}"`, {
                 cwd: Pathfinder.appDir,
@@ -109,40 +116,6 @@ DockerManager.restoreCheckpoint = function (checkpointName)
         }
 
         return false;
-    }
-};
-
-DockerManager.deleteAll = function (onlyOnce, evenCurrentState)
-{
-    if (Config.docker && Config.docker.active)
-    {
-        const performOperation = function ()
-        {
-            Logger.log("Deleting all Docker containers.");
-            const del = require("del");
-            if (evenCurrentState)
-            {
-                del.sync([dataFolder + "/*"], {force: true});
-            }
-            else
-            {
-                del.sync([dataFolder + "/*", "!" + dataFolder + "/current"], {force: true});
-            }
-            Logger.log("Deleted all containers.");
-        };
-
-        if (onlyOnce)
-        {
-            if (!DockerManager._deletedOnce)
-            {
-                performOperation();
-                DockerManager._deletedOnce = true;
-            }
-        }
-        else
-        {
-            performOperation();
-        }
     }
 };
 

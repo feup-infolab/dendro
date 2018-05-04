@@ -390,7 +390,8 @@
     "numCPUs": 4,
     "docker": {
       "active": false,
-      "reuse_checkpoints": false
+      "reuse_checkpoints": false,
+      "create_checkpoints": false
     },
     "virtualbox": {
       "active": false,
@@ -786,7 +787,8 @@
     "numCPUs": 1,
     "docker": {
       "active": false,
-      "reuse_checkpoints": false
+      "reuse_checkpoints": false,
+      "create_checkpoints": false
     },
     "virtualbox": {
       "active": true,
@@ -1182,7 +1184,8 @@
     "numCPUs": 1,
     "docker": {
       "active": false,
-      "reuse_checkpoints": false
+      "reuse_checkpoints": false,
+      "create_checkpoints": false
     },
     "virtualbox": {
       "active": false,
@@ -1578,7 +1581,8 @@
     "numCPUs": 1,
     "docker": {
       "active": true,
-      "reuse_checkpoints": false
+      "reuse_checkpoints": true,
+      "create_checkpoints": true
     },
     "virtualbox": {
       "active": false,
