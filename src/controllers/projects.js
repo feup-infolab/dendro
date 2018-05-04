@@ -2308,23 +2308,7 @@ exports.import = function (req, res)
 
                             if(!isNull(newProject))
                             {
-                                /*
-                                const newNotification = new Notification({
-                                    ddr: {
-                                        userWhoActed: req.user.uri,
-                                        resourceTargetUri: newProject.uri,
-                                        actionType: "ImportProjectSuccess",
-                                        resourceAuthorUri: req.user.uri
-                                    },
-                                    foaf: {
-                                        status: "unread"
-                                    }
-                                });
-                                newNotification.save(function (err, info) {
-                                    Logger.log("info", "Imported project notification sent");
-                                });
-                                */
-                                Notification.buildAndSaveFromSystemMessage(message, req.user.uri, function () {
+                                Notification.buildAndSaveFromSystemMessage(message, req.user.uri, function (err, info) {
                                     Logger.log("info", "Imported project notification sent");
                                 }, newProject.uri);
                             }
