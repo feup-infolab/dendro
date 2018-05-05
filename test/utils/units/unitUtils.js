@@ -287,44 +287,56 @@ exports.loadCheckpoint = function (checkpointIdentifier, callback)
 exports.loadLastSavedCheckpointInUnitHierarchy = function (callback)
 {
     const bootupUnitClass = require(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
-    let originalFunc = Error.prepareStackTrace;
-    let lastCheckpointedUnitAbsolutePath;
-    let currentCheckpointedUnit;
-    let callerClass;
-    let lastCheckpointUnit;
-    let currentFile;
 
     const getLastCheckpointedUnit = function (callback)
     {
         try
         {
+            let lastCheckpointedUnitAbsolutePath;
+            let currentCheckpointedUnit;
+            let callerClass;
+            let lastCheckpoinedUnit;
+            let currentFile;
+
             let err = new Error();
+
+            let originalFunc = Error.prepareStackTrace;
 
             Error.prepareStackTrace = function (err, stack)
             {
                 return stack;
             };
 
+            Error.prepareStackTrace = originalFunc;
+
+            const stack = err.stack;
+
             async.until(
                 function ()
                 {
-                    return (err.stack.length === 0);
+                    currentFile = stack.shift().getFileName();
+
+                    try
+                    {
+                        callerClass = require(currentFile);
+                    }
+                    catch (e)
+                    {}
+
+                    return (stack.length === 0);
                 },
                 function (callback)
                 {
-                    currentFile = err.stack.shift().getFileName();
-                    callerClass = require(currentFile);
-
                     if (bootupUnitClass.isPrototypeOf(callerClass) || bootupUnitClass === callerClass)
                     {
                         currentCheckpointedUnit = callerClass;
 
-                        exports.checkpointExists(currentCheckpointedUnit.name, function (err, result)
+                        exports.checkpointExists(currentCheckpointedUnit.name, function (err, checkpointExists)
                         {
-                            if(result)
+                            if (checkpointExists)
                             {
+                                lastCheckpoinedUnit = currentCheckpointedUnit;
                                 lastCheckpointedUnitAbsolutePath = currentFile;
-                                lastCheckpointUnit = currentCheckpointedUnit;
                                 callback(err, null);
                             }
                             else
@@ -335,24 +347,22 @@ exports.loadLastSavedCheckpointInUnitHierarchy = function (callback)
                     }
                     else
                     {
-                        callback(null, null);
+                        callback(null);
                     }
                 },
                 function (err)
                 {
-                    callback(err);
+                    callback(err, lastCheckpoinedUnit, lastCheckpointedUnitAbsolutePath);
                 }
             );
         }
         catch (e)
         {
-            callback(e);
+            callback(null);
         }
-
-        Error.prepareStackTrace = originalFunc;
     };
 
-    getLastCheckpointedUnit(function (err)
+    getLastCheckpointedUnit(function (err, lastCheckpointedUnit, lastCheckpointedUnitAbsolutePath)
     {
         if (!isNull(err))
         {
@@ -365,11 +375,7 @@ exports.loadLastSavedCheckpointInUnitHierarchy = function (callback)
                     {
                         if (!isNull(err))
                         {
-                            callback(null, {
-                                filename: lastCheckpointedUnit,
-                                filePath: lastCheckpointedUnitAbsolutePath,
-                                unit: lastCheckpointUnit
-                            });
+                            callback(null, lastCheckpointedUnit);
                         }
                         else
                         {
@@ -734,19 +740,14 @@ exports.setup = function (targetUnit, callback, forceLoad)
                     if ((Config.docker.active || Config.virtualbox.active))
                     {
                         Logger.log("Final checkpoint " + checkpointIdentifier + " does not exist. Will try to load the last checkpoint up the unit dependency chain...");
-                        exports.loadLastSavedCheckpointInUnitHierarchy(function (err, loadedCheckpointInfo)
+                        exports.loadLastSavedCheckpointInUnitHierarchy(function (err, loadedUnit)
                         {
                             if (isNull(err))
                             {
                                 let startingUnit;
-                                if (!isNull(loadedCheckpointInfo))
+                                if (!isNull(loadedUnit))
                                 {
-                                    Logger.log("Loaded " + loadedCheckpointInfo.unit.name + ", will now run load remaining functions up the unit dependency chain...");
-                                    startingUnit = loadedCheckpointInfo.unit;
-                                }
-                                else
-                                {
-                                    startingUnit = null;
+                                    Logger.log("Loaded " + loadedUnit.name + ", will now run load remaining functions up the unit dependency chain...");
                                 }
 
                                 exports.runLoadFunctionsFromExistingCheckpointUntilUnit(null, targetUnit, function (err, result)
@@ -755,7 +756,7 @@ exports.setup = function (targetUnit, callback, forceLoad)
                                     {
                                         if (startingUnit)
                                         {
-                                            Logger.log("Ran load functions between " + startingUnit.name + " and " + targetUnit.name + " successfully");
+                                            Logger.log("Ran load functions between " + loadedUnit.name + " and " + targetUnit.name + " successfully");
                                         }
                                         else
                                         {
@@ -779,7 +780,15 @@ exports.setup = function (targetUnit, callback, forceLoad)
                                     }
                                     else
                                     {
-                                        Logger.log("Error running functions between " + startingUnit + " and " + targetUnit.name + " !");
+                                        if (!isNull(loadedUnit))
+                                        {
+                                            Logger.log("Error running functions between " + loadedUnit.name + " and " + targetUnit.name + " !");
+                                        }
+                                        else
+                                        {
+                                            Logger.log("Error running functions from the root until " + targetUnit.name + " !");
+                                        }
+
                                         Logger.log("error", err);
                                         Logger.log("error", JSON.stringify(result));
                                         callback(err, result);
