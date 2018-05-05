@@ -157,13 +157,13 @@
                                     padding-bottom: 4px;
                                 ">
                                                         <span class="fa-stack fa-1x notifications-icon">
-                                                            <i class="fa fa-bell fa-stack-2x text-default" ng-class="{'faa-horizontal' : notifsUris.length > 0, 'animated' : notifsUris.length > 0}"></i>
-                                                            <i class="fa fa-circle fa-stack-2x text-default badge-circle text-danger" ng-show="notifsUris.length > 0"></i>
-                                                            <strong class="fa-stack-1x notifications-text badge-text" ng-show="notifsUris.length > 0">{{notifsUris.length}}</strong>
+                                                            <i class="fa fa-bell fa-stack-2x text-default" ng-class="{'faa-horizontal' : urisOfNotifsToLoadFromServer.length > 0, 'animated' : urisOfNotifsToLoadFromServer.length > 0}"></i>
+                                                            <i class="fa fa-circle fa-stack-2x text-default badge-circle text-danger" ng-show="urisOfNotifsToLoadFromServer.length > 0"></i>
+                                                            <strong class="fa-stack-1x notifications-text badge-text" ng-show="urisOfNotifsToLoadFromServer.length > 0">{{urisOfNotifsToLoadFromServer.length}}</strong>
                                                         </span>
                                 </a>
-                                <div ng-repeat="notifUri in notifsUris">
-                                    <div ng-init="get_notification_info(notifUri)">
+                                <div ng-repeat="uriOfNotifToLoadFromServer in urisOfNotifsToLoadFromServer">
+                                    <div ng-init="get_notification_info(uriOfNotifToLoadFromServer)">
                                     </div>
                                 </div>
                             </li>

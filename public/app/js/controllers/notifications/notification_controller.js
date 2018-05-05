@@ -4,8 +4,8 @@ angular.module("dendroApp.controllers")
  */
     .controller("notificationCtrl", function ($scope, $http, $filter, usersService, notificationService, $window, $element, $interval, ngAlertsMngr, ngAlertsEvent, $sce)
     {
-        $scope.notifsUris = [];
-        $scope.notifsData = [];
+        $scope.urisOfNotifsToLoadFromServer = [];
+        $scope.loadedNotifsDataFromServer = [];
         $scope.awaitingResponse = false;
 
         $scope.actionTypeDictionary = {
@@ -24,16 +24,15 @@ angular.module("dendroApp.controllers")
         $scope.socket = null;
         $scope.userUri = null;
 
-        $scope.handleSocketSession = function()
+        var handleSocketSession = function()
         {
             var initSocketSession = function ()
             {
                 var host = window.location.host;
-                var socket = io(host);
-                $scope.socket = socket;
+                $scope.socket = io(host);
             };
 
-            var handleSocketConnectEvent = function () {
+            var handleConnectedSocketEvents = function () {
                 $scope.socket.on("connect", function () {
                     $scope.socket.emit("identifyUser", { userUri: $scope.userUri });
                 });
@@ -49,7 +48,7 @@ angular.module("dendroApp.controllers")
                 $scope.socket.on($scope.userUri + ":notification", function (notificationData) {
                     Utils.show_popup("info", "Notification", "You have a new notification!");
                     //$scope.get_unread_notifications();
-                    $scope.pushNewNotificationToAlerts(notificationData);
+                    pushNewNotificationToAlerts(notificationData);
                 });
 
                 $scope.socket.on("disconnect", function () {
@@ -63,7 +62,7 @@ angular.module("dendroApp.controllers")
                 {
                     $scope.userUri = user.uri;
                     initSocketSession();
-                    handleSocketConnectEvent();
+                    handleConnectedSocketEvents();
                 })
                 .catch(function (error) {
                     console.log("Error here:" + error);
@@ -71,30 +70,29 @@ angular.module("dendroApp.controllers")
                 });
         };
 
-        $scope.destroySocketSession = function () {
+        var destroySocketSession = function () {
             $scope.socket.emit("forceDisconnect", { "userUri": $scope.userUri,  "socketID": $scope.socket.id });
         };
 
 
-        $scope.parseResourceTarget = function (resourceTargetUri)
+        var parseResourceTarget = function (resourceTargetUri)
         {
-            let debug = resourceTargetUri.split("/")[2];
             return $scope.resourceTypeDictionary[resourceTargetUri.split("/")[2]];
         };
 
-        $scope.parseActionType = function (notification)
+        var parseActionType = function (notification)
         {
             var actionType = $scope.actionTypeDictionary[notification.ddr.actionType];
             var shareURL = actionType == "shared" ? "<" + "a href=" + "\"" + notification.ddr.shareURI + "\"" + ">" + actionType + "</a>" : actionType;
             return shareURL;
         };
 
-        $scope.$on(ngAlertsEvent.event("remove"), function (e, id)
+        $scope.$on(ngAlertsEvent.event("remove"), function (e, notificationUri)
         {
-            $scope.delete_notification(id);
+            delete_notification(notificationUri);
         });
 
-        $scope.createAlert = function (notification, notificationUri)
+        var createAlert = function (notification, notificationUri)
         {
             var drawAlert = function (notificationMsg, notification) {
                 $scope.msg = $sce.trustAsHtml(notificationMsg);
@@ -102,21 +100,13 @@ angular.module("dendroApp.controllers")
                 var date = notification.ddr.modified || notification.ddr.created;
 
                 let type = "info";
-                /*
-                ngAlertsMngr.add({
-                    msg: $scope.msg,
-                    type: type,
-                    time: new Date(date),
-                    id: notificationUri
-                });
-                */
                 var alert = {
                     msg: $scope.msg,
                     type: type,
                     time: new Date(date),
                     id: notificationUri
                 };
-                $scope.addAlert(alert);
+                addAlertToNgAlert(alert);
             };
 
             if(notification.ddr.actionType === "SystemMessage")
@@ -139,9 +129,9 @@ angular.module("dendroApp.controllers")
                     .then(function (response)
                     {
                         userInfo = response.data;
-                        var resourceURL = "<" + "a href=" + "\"" + notification.ddr.resourceTargetUri + "\"" + ">" + $scope.parseResourceTarget(notification.ddr.resourceTargetUri) + "</a>";
+                        var resourceURL = "<" + "a href=" + "\"" + notification.ddr.resourceTargetUri + "\"" + ">" + parseResourceTarget(notification.ddr.resourceTargetUri) + "</a>";
                         var userWhoActedURL = "<" + "a href=" + "\"" + notification.ddr.userWhoActed + "\"" + ">" + userInfo.ddr.username + "</a>";
-                        var message = userWhoActedURL + " " + $scope.parseActionType(notification) + " your " + resourceURL;
+                        var message = userWhoActedURL + " " + parseActionType(notification) + " your " + resourceURL;
                         drawAlert(message, notification);
                     })
                     .catch(function (error)
@@ -157,42 +147,33 @@ angular.module("dendroApp.controllers")
             }
         };
 
-        $scope.getAlerts = function ()
+        var getAlertsFromNgAlert = function ()
         {
             return ngAlertsMngr.get();
         };
 
-        $scope.removeAlert = function (notificationUri)
+        var removeAlertFromNgAlert = function (notificationUri)
         {
             ngAlertsMngr.remove(notificationUri);
         };
 
-        $scope.resetAlerts = function () {
+        var resetAlertsFromNgAlert = function () {
             ngAlertsMngr.reset();
         };
 
-        $scope.addAlert = function (alert) {
-            /*
-            ngAlertsMngr.add({
-                msg: $scope.msg,
-                type: type,
-                time: new Date(date),
-                id: notificationUri
-            });
-            */
+        var addAlertToNgAlert = function (alert) {
             ngAlertsMngr.add(alert);
         };
 
-        $scope.get_unread_notifications = function ()
+        var get_unread_notifications = function ()
         {
-            //ngAlertsMngr.reset();
             if (!$scope.awaitingResponse)
             {
                 $scope.awaitingResponse = true;
                 notificationService.getUserUnreadNotifications()
                     .then(function (response)
                     {
-                        $scope.notifsUris = _.pluck(response.data, "uri");
+                        $scope.urisOfNotifsToLoadFromServer = _.pluck(response.data, "uri");
                         $scope.awaitingResponse = false;
                     })
                     .catch(function (error)
@@ -206,29 +187,30 @@ angular.module("dendroApp.controllers")
 
         $scope.init = function ()
         {
-            $scope.get_unread_notifications();
-            $scope.handleSocketSession();
-            $scope.getAlerts();
+            //TODO these two first functions are not synchronous -> they must be in a promise chain
+            get_unread_notifications();
+            handleSocketSession();
+            getAlertsFromNgAlert();
         };
 
         $scope.get_notification_info = function (notificationUri)
         {
-            var index = _.findIndex($scope.notifsData, function (notifData) {
+            //TODO write function here to check if notification data is already loaded from the server -> so that no unecessary request to the server are made
+            var index = _.findIndex($scope.loadedNotifsDataFromServer, function (notifData) {
                 return notifData.uri === notificationUri;
             });
             if(index !== -1)
             {
-                return $scope.notifsData[index];
+                return $scope.loadedNotifsDataFromServer[index];
             }
             else
             {
                 notificationService.get_notification_info(notificationUri)
                     .then(function (response)
                     {
-                        //$scope.notifsData[notificationUri] = response.data;
-                        $scope.notifsData.push(response.data);
+                        $scope.loadedNotifsDataFromServer.push(response.data);
                         var notification = response.data;
-                        $scope.createAlert(notification, notificationUri);
+                        createAlert(notification, notificationUri);
                     })
                     .catch(function (error)
                     {
@@ -239,25 +221,40 @@ angular.module("dendroApp.controllers")
 
         };
 
-        $scope.pushNewNotificationToAlerts = function (notificationData) {
-            $scope.notifsData.push(notificationData);
-            $scope.notifsUris.push(notificationData.uri);
-            $scope.createAlert(notificationData, notificationData.uri);
-            $scope.getAlerts();
+        var pushNewNotificationToAlerts = function (notificationData) {
+            $scope.loadedNotifsDataFromServer.push(notificationData);
+            $scope.urisOfNotifsToLoadFromServer.push(notificationData.uri);
+
+            //TODO descomplicar a funcão create alert para apenas criar um objeto alert
+            createAlert(notificationData, notificationData.uri);
+
+            //TODO chamar funçao aqui para fazer o draw alert -> que chama do addAlert to ngalert
+            getAlertsFromNgAlert();
             $scope.$apply();
         };
 
-        $scope.delete_notification = function (notificationUri)
+        var delete_notification = function (notificationUri)
         {
+            var noNotifsToLoadFromServer = function () {
+                if($scope.urisOfNotifsToLoadFromServer.length === 0)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            };
+
             notificationService.delete_notification(notificationUri)
                 .then(function (response)
                 {
-                    $scope.get_unread_notifications();
-                    if($scope.notifsUris.length === 0)
+                    get_unread_notifications();
+                    if(noNotifsToLoadFromServer() === true)
                     {
-                        $scope.resetAlerts();
+                        resetAlertsFromNgAlert();
                     }
-                    $scope.getAlerts();
+                    getAlertsFromNgAlert();
                 })
                 .catch(function (error)
                 {
