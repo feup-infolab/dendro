@@ -71,7 +71,7 @@ then
           -e "transport.host=${ELASTICSEARCH_HOSTNAME}" \
           --name="$ELASTICSEARCH_CONTAINER_NAME" \
           --hostname="$ELASTICSEARCH_HOSTNAME" \
-          -d docker.elastic.co/elasticsearch/elasticsearch:6.2.2 > /dev/null
+          docker.elastic.co/elasticsearch/elasticsearch:6.2.2 > "$DIR/elasticsearch.log" &
 
           # -v "$RUNNING_FOLDER/elasticsearch:/usr/share/elasticsearch/data" \
 
@@ -98,7 +98,7 @@ then
           -e "VIRT_Parameters_CheckpointSyncMode=2" \
           --name="$VIRTUOSO_CONTAINER_NAME" \
           --hostname="$VIRTUOSO_HOSTNAME" \
-          -d joaorosilva/virtuoso:7.2.4-for-dendro-0.3 > /dev/null
+          joaorosilva/virtuoso:7.2.4-for-dendro-0.3 > "$DIR/virtuoso.log" &
 
 
           # -e "VIRT_Parameters_PageMapCheck=1" \
@@ -129,7 +129,7 @@ then
         -e MYSQL_ROOT_PASSWORD=r00t \
         --name="$MYSQL_CONTAINER_NAME" \
         --hostname="$MYSQL_HOSTNAME" \
-        -d mysql:8.0.3 > /dev/null
+        -d mysql:8.0.3 > "$DIR/mysql.log" &
 
         # -v "$RUNNING_FOLDER/mysql:/var/lib/mysql" \
 
@@ -142,7 +142,6 @@ fi
 
 ## MONGODB
 
-printf "\n\n"
 if container_running "$MONGODB_CONTAINER_NAME" == 0
 then
     if ! docker start "$MONGODB_CONTAINER_NAME"
@@ -152,7 +151,7 @@ then
           -p 27017:27017 \
           --name="$MONGODB_CONTAINER_NAME" \
           --hostname="$MONGODB_HOSTNAME" \
-          -d mongo:3.4.10 > /dev/null
+          -d mongo:3.4.10 > "$DIR/mongodb.log" &
 
           # -v "$RUNNING_FOLDER/mongo:/data/db" \
 
@@ -162,3 +161,5 @@ fi
 
 # wait_for_server_to_boot_on_port "$MONGODB_HOSTNAME" 27017 "It looks like you are trying to access MongoDB over HTTP on the native driver port"
 # docker ps -a
+
+printf "\n\n"

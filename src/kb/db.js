@@ -1164,7 +1164,7 @@ DbConnection.prototype.close = function (callback)
         {
             Logger.log("Shutting down virtuoso....!");
             self.executeViaJDBC(
-                "EXEC=shutdown;",
+                "EXEC=checkpoint; shutdown;",
                 [],
                 function (err, result)
                 {

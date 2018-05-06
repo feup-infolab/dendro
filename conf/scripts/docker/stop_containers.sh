@@ -27,7 +27,8 @@ function stop_container_if_running
 
 ## stop all containers
 echo "Flushing all data to disk on Virtuso server.."
-docker exec virtuoso-dendro /bin/bash -c "sync && /usr/local/virtuoso-opensource/bin/isql-v 1111 -U dba -P dba 'EXEC=shutdown();'"
+# docker exec virtuoso-dendro /bin/bash -c "sync && /usr/local/virtuoso-opensource/bin/isql-v 1111 -U dba -P dba 'EXEC=checkpoint; shutdown;'"
+docker exec virtuoso-dendro /bin/bash -c "sync && /usr/local/virtuoso-opensource/bin/isql-v 1111 -U dba -P dba 'EXEC=checkpoint;'"
 echo "Flushed all data to disk on Virtuso server."
 
 stop_container_if_running "$ELASTICSEARCH_CONTAINER_NAME"

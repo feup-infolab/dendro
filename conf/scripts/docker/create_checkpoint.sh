@@ -8,7 +8,12 @@ CHECKPOINT_NAME="$1"
 echo "Running checkpoint create script for $CHECKPOINT_NAME..."
 
 docker commit -p "$ELASTICSEARCH_CONTAINER_NAME" "$ELASTICSEARCH_CONTAINER_NAME:dendro-tests_$CHECKPOINT_NAME"
+
+# docker exec "$VIRTUOSO_CONTAINER_NAME" /bin/bash -c "sync && /usr/local/virtuoso-opensource/bin/isql-v 1111 -U dba -P dba 'EXEC=checkpoint; shutdown;'"
+docker exec "$VIRTUOSO_CONTAINER_NAME" /bin/bash -c "sync && /usr/local/virtuoso-opensource/bin/isql-v 1111 -U dba -P dba 'EXEC=checkpoint;'"
 docker commit -p "$VIRTUOSO_CONTAINER_NAME" "$VIRTUOSO_CONTAINER_NAME:dendro-tests_$CHECKPOINT_NAME"
+# docker start "$VIRTUOSO_CONTAINER_NAME"
+
 docker commit -p "$MYSQL_CONTAINER_NAME" "$MYSQL_CONTAINER_NAME:dendro-tests_$CHECKPOINT_NAME"
 docker commit -p "$MONGODB_CONTAINER_NAME" "$MONGODB_CONTAINER_NAME:dendro-tests_$CHECKPOINT_NAME"
 
