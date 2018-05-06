@@ -188,7 +188,10 @@ exports.checkpointExists = function (checkpointIdentifier, callback)
 {
     if (Config.docker.active)
     {
-        callback(null, DockerManager.checkpointExists(checkpointIdentifier));
+        DockerManager.checkpointExists(checkpointIdentifier, function (err, exists)
+        {
+            callback(err, exists);
+        });
     }
     else if (Config.virtualbox && Config.virtualbox.active)
     {
@@ -200,7 +203,7 @@ exports.checkpointExists = function (checkpointIdentifier, callback)
     }
 };
 
-exports.loadCheckpoint = function (checkpointIdentifier, callback)
+exports.restoreCheckpoint = function (checkpointIdentifier, callback)
 {
     if (Config.docker.active || Config.virtualbox.active)
     {
@@ -216,8 +219,10 @@ exports.loadCheckpoint = function (checkpointIdentifier, callback)
                 {
                     if (Config.docker.active)
                     {
-                        const restoredCheckpoint = DockerManager.restoreCheckpoint(checkpointIdentifier);
-                        callback(null, restoredCheckpoint);
+                        DockerManager.restoreCheckpoint(checkpointIdentifier, function (err, restoredCheckpoint)
+                        {
+                            callback(err, restoredCheckpoint);
+                        });
                     }
                     else if (Config.virtualbox && Config.virtualbox.active && Config.virtualbox.reuse_checkpoints)
                     {
@@ -284,7 +289,7 @@ exports.loadCheckpoint = function (checkpointIdentifier, callback)
     }
 };
 
-exports.loadLastSavedCheckpointInUnitHierarchy = function (callback)
+exports.loadLastSavedCheckpointInUnitHierarchy = function (targetUnit, callback)
 {
     const bootupUnitClass = require(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
 
@@ -292,67 +297,53 @@ exports.loadLastSavedCheckpointInUnitHierarchy = function (callback)
     {
         try
         {
-            let lastCheckpointedUnitAbsolutePath;
-            let currentCheckpointedUnit;
-            let callerClass;
-            let lastCheckpoinedUnit;
-            let currentFile;
+            let currentUnit = targetUnit;
+            let lastCheckpointedUnit;
 
-            let err = new Error();
-
-            let originalFunc = Error.prepareStackTrace;
-
-            Error.prepareStackTrace = function (err, stack)
-            {
-                return stack;
-            };
-
-            Error.prepareStackTrace = originalFunc;
-
-            const stack = err.stack;
-
-            async.until(
-                function ()
-                {
-                    currentFile = stack.shift().getFileName();
-
-                    try
-                    {
-                        callerClass = require(currentFile);
-                    }
-                    catch (e)
-                    {}
-
-                    return (stack.length === 0);
-                },
+            async.doUntil(
                 function (callback)
                 {
-                    if (bootupUnitClass.isPrototypeOf(callerClass) || bootupUnitClass === callerClass)
+                    if (bootupUnitClass.isPrototypeOf(currentUnit) || bootupUnitClass === currentUnit)
                     {
-                        currentCheckpointedUnit = callerClass;
-
-                        exports.checkpointExists(currentCheckpointedUnit.name, function (err, checkpointExists)
+                        exports.checkpointExists(currentUnit.name, function (err, checkpointExists)
                         {
                             if (checkpointExists)
                             {
-                                lastCheckpoinedUnit = currentCheckpointedUnit;
-                                lastCheckpointedUnitAbsolutePath = currentFile;
-                                callback(err, null);
+                                lastCheckpointedUnit = currentUnit;
                             }
-                            else
-                            {
-                                callback(err, null);
-                            }
+
+                            callback(err, currentUnit);
                         });
                     }
                     else
                     {
-                        callback(null);
+                        callback(null, currentUnit);
                     }
+                },
+                function (lastCheckedUnit)
+                {
+                    let checkValue;
+                    Logger.log(lastCheckedUnit.name);
+                    if (!isNull(lastCheckpointedUnit))
+                    {
+                        return true;
+                    }
+
+                    if (isNull(Object.getPrototypeOf(lastCheckedUnit)))
+                    {
+                        checkValue = true;
+                    }
+                    else
+                    {
+                        checkValue = false;
+                    }
+
+                    currentUnit = Object.getPrototypeOf(lastCheckedUnit);
+                    return checkValue;
                 },
                 function (err)
                 {
-                    callback(err, lastCheckpoinedUnit, lastCheckpointedUnitAbsolutePath);
+                    callback(err, lastCheckpointedUnit);
                 }
             );
         }
@@ -362,31 +353,24 @@ exports.loadLastSavedCheckpointInUnitHierarchy = function (callback)
         }
     };
 
-    getLastCheckpointedUnit(function (err, lastCheckpointedUnit, lastCheckpointedUnitAbsolutePath)
+    getLastCheckpointedUnit(function (err, lastCheckpointedUnit)
     {
         if (!isNull(err))
         {
             if (!isNull(lastCheckpointedUnit))
             {
                 const unitCheckpointIdentifier = lastCheckpointedUnit.name;
-                if (exports.checkpointExists(unitCheckpointIdentifier))
+                exports.restoreCheckpoint(unitCheckpointIdentifier, function (err, loadedUnit)
                 {
-                    exports.loadCheckpoint(unitCheckpointIdentifier, function (err, loadedUnit)
+                    if (!isNull(err))
                     {
-                        if (!isNull(err))
-                        {
-                            callback(null, lastCheckpointedUnit);
-                        }
-                        else
-                        {
-                            callback(null, null);
-                        }
-                    });
-                }
-                else
-                {
-                    callback(null, null);
-                }
+                        callback(null, lastCheckpointedUnit);
+                    }
+                    else
+                    {
+                        callback(err, lastCheckpointedUnit);
+                    }
+                });
             }
             else
             {
@@ -412,8 +396,10 @@ exports.createCheckpointForUnit = function (unit, callback)
             if (!err)
             {
                 Logger.log("Halted app after loading databases for creating checkpoint: " + checkpointIdentifier);
-                DockerManager.createCheckpoint(checkpointIdentifier);
-                callback(err);
+                DockerManager.createCheckpoint(checkpointIdentifier, function (err, result)
+                {
+                    callback(err, result);
+                });
             }
             else
             {
@@ -472,7 +458,6 @@ exports.runLoadFunctionsFromExistingCheckpointUntilUnit = function (checkpointed
 
     async.mapSeries(unitsToRun, function (unit, cb)
     {
-        const checkpointIdentifier = unit.name;
         unit.init(function (err, result)
         {
             if (isNull(err))
@@ -494,7 +479,7 @@ exports.runLoadFunctionsFromExistingCheckpointUntilUnit = function (checkpointed
             }
             else
             {
-                Logger.log("error", "Error starting app for loading databases for creating checkpoint: " + checkpointIdentifier);
+                Logger.log("error", "Error starting app for loading databases for creating checkpoint: " + unit.name);
                 cb(err, result);
             }
         });
@@ -630,10 +615,15 @@ exports.setup = function (targetUnit, callback, forceLoad)
     {
         if (Config.docker.active)
         {
+            // if(!Config.docker.reuse_checkpoints)
+            // {
+            //     DockerManager.nukeAndRebuild(true);
+            // }
+
             DockerManager.nukeAndRebuild(true);
 
             Logger.log("Trying to recover checkpoint " + checkpointIdentifier + "...");
-            exports.loadCheckpoint(checkpointIdentifier, function (err, result)
+            exports.restoreCheckpoint(checkpointIdentifier, function (err, result)
             {
                 callback(err, !!result);
             }, !forceLoad);
@@ -740,7 +730,7 @@ exports.setup = function (targetUnit, callback, forceLoad)
                     if ((Config.docker.active || Config.virtualbox.active))
                     {
                         Logger.log("Final checkpoint " + checkpointIdentifier + " does not exist. Will try to load the last checkpoint up the unit dependency chain...");
-                        exports.loadLastSavedCheckpointInUnitHierarchy(function (err, loadedUnit)
+                        exports.loadLastSavedCheckpointInUnitHierarchy(targetUnit, function (err, loadedUnit)
                         {
                             if (isNull(err))
                             {
@@ -750,7 +740,7 @@ exports.setup = function (targetUnit, callback, forceLoad)
                                     Logger.log("Loaded " + loadedUnit.name + ", will now run load remaining functions up the unit dependency chain...");
                                 }
 
-                                exports.runLoadFunctionsFromExistingCheckpointUntilUnit(null, targetUnit, function (err, result)
+                                exports.runLoadFunctionsFromExistingCheckpointUntilUnit(loadedUnit, targetUnit, function (err, result)
                                 {
                                     if (isNull(err))
                                     {

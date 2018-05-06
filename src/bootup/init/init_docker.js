@@ -5,7 +5,7 @@ const DockerManager = require(Pathfinder.absPathInSrcFolder("utils/docker/docker
 
 const initDockerContainers = function (app, callback)
 {
-    if (Config.docker.active)
+    if (Config.docker.active && process.env.NODE_ENV !== "test")
     {
         try
         {

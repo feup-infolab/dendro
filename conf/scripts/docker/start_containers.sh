@@ -3,11 +3,6 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$DIR/container_names.sh"
 
-ELASTICSEARCH_HOSTNAME="127.0.0.1"
-VIRTUOSO_HOSTNAME="127.0.0.1"
-MYSQL_HOSTNAME="127.0.0.1"
-MONGODB_HOSTNAME="127.0.0.1"
-
 # starts containers with the volumes mounted
 function wait_for_server_to_boot_on_port()
 {

@@ -759,7 +759,7 @@ class App
 
         const haltDockerContainers = function (cb)
         {
-            if (Config.docker && Config.docker.active)
+            if (Config.docker && Config.docker.active && process.env.NODE_ENV !== "test")
             {
                 Logger.log("Halting docker containers...");
 

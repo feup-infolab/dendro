@@ -21,13 +21,13 @@ cache:
 install:
   - ${TRAVIS_BUILD_DIR}/conf/scripts/install.sh
 
-before_script:
+#before_script:
   - sudo service mysql stop
-  - docker stop $(docker ps -a -q) || true
-  - docker rm -f $(docker ps -a -q) || true
-  - docker rmi -f $(docker ps -a -q) || true
-  - ${TRAVIS_BUILD_DIR}/conf/scripts/docker/nuke_and_rebuild.sh
-  - ${TRAVIS_BUILD_DIR}/conf/scripts/docker/start_containers.sh
+#  - docker stop $(docker ps -a -q) || true
+#  - docker rm -f $(docker ps -a -q) || true
+#  - docker rmi -f $(docker ps -a -q) || true
+#  - ${TRAVIS_BUILD_DIR}/conf/scripts/docker/nuke_and_rebuild.sh
+#  - ${TRAVIS_BUILD_DIR}/conf/scripts/docker/start_containers.sh
 
 script:
   - nvm use 8.10.0

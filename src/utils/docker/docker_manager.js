@@ -14,29 +14,12 @@ const createCheckpointScript = Pathfinder.absPathInApp("/conf/scripts/docker/cre
 const restoreCheckpointScript = Pathfinder.absPathInApp("/conf/scripts/docker/restore_checkpoint.sh");
 const restartContainersScript = Pathfinder.absPathInApp("/conf/scripts/docker/restart_containers.sh");
 const nukeAndRebuildScript = Pathfinder.absPathInApp("/conf/scripts/docker/nuke_and_rebuild.sh");
+const checkIfCheckpointExistsScript = Pathfinder.absPathInApp("/conf/scripts/docker/check_if_checkpoint_exists.sh");
 const dataFolder = Pathfinder.absPathInApp("/data");
 
 const DockerManager = function ()
 {
 };
-
-DockerManager._availableCheckpoints = {};
-
-if (Config.docker.reuse_checkpoints && Config.docker.active)
-{
-    const mkdirp = require("mkdirp");
-    mkdirp.sync(dataFolder);
-    Logger.log("Checking out all Docker containers to see which can be reused...");
-    const checkpointFolders = fs.readdirSync(dataFolder).filter(function (file)
-    {
-        return fs.statSync(path.join(dataFolder, file)).isDirectory();
-    });
-
-    _.map(checkpointFolders, function (folderName)
-    {
-        DockerManager._availableCheckpoints[folderName] = true;
-    });
-}
 
 DockerManager.stopAllContainers = function ()
 {
@@ -66,56 +49,122 @@ DockerManager.startAllContainers = function ()
     }
 };
 
-DockerManager.checkpointExists = function (checkpointName)
+DockerManager.checkpointExists = function (checkpointName, callback)
 {
-    if (Config.docker && Config.docker.active)
+    if (isNull(checkpointName))
     {
-        if (isNull(DockerManager._availableCheckpoints[checkpointName]))
-        {
-            return false;
-        }
-
-        return true;
+        callback(null, false);
     }
-
-    return false;
+    else
+    {
+        if (Config.docker && Config.docker.active)
+        {
+            childProcess.exec(`/bin/bash -c "${checkIfCheckpointExistsScript} ${checkpointName}"`, {
+                cwd: Pathfinder.appDir,
+                stdio: [0, 1, 2]
+            }, function (err, result)
+            {
+                if (isNull(err))
+                {
+                    callback(null, true);
+                }
+                else
+                {
+                    callback(null, false);
+                }
+            });
+        }
+        else
+        {
+            callback(null, false);
+        }
+    }
 };
 
-DockerManager.createCheckpoint = function (checkpointName)
+DockerManager.createCheckpoint = function (checkpointName, callback)
 {
     if (Config.docker && Config.docker.active)
     {
         Logger.log("Creating Docker checkpoint " + checkpointName);
-        if (isNull(DockerManager._availableCheckpoints[checkpointName]))
+        DockerManager.checkpointExists(checkpointName, function (err, exists)
         {
-            childProcess.execSync(`/bin/bash -c "${createCheckpointScript} ${checkpointName}"`, {
-                cwd: Pathfinder.appDir,
-                stdio: [0, 1, 2]
-            });
-
-            Logger.log("Saved checkpoint with name " + checkpointName);
-            DockerManager._availableCheckpoints[checkpointName] = true;
-        }
+            if (isNull(err))
+            {
+                if (!exists)
+                {
+                    childProcess.exec(`/bin/bash -c "${createCheckpointScript} ${checkpointName}"`, {
+                        cwd: Pathfinder.appDir,
+                        stdio: [0, 1, 2]
+                    }, function (err, result)
+                    {
+                        if (isNull(err))
+                        {
+                            Logger.log("Saved checkpoint with name " + checkpointName);
+                        }
+                        callback(err, result);
+                    });
+                }
+                else
+                {
+                    Logger.log("Checkpoint " + checkpointName + " already exists.");
+                    callback(null);
+                }
+            }
+            else
+            {
+                callback(err, exists);
+            }
+        });
+    }
+    else
+    {
+        callback(null);
     }
 };
 
-DockerManager.restoreCheckpoint = function (checkpointName)
+DockerManager.restoreCheckpoint = function (checkpointName, callback)
 {
     if (Config.docker && Config.docker.active)
     {
         Logger.log("Restoring Docker checkpoint " + checkpointName);
-        if (DockerManager.checkpointExists(checkpointName))
+        DockerManager.checkpointExists(checkpointName, function (err, exists)
         {
-            childProcess.execSync(`/bin/bash -c "${restoreCheckpointScript} ${checkpointName}"`, {
-                cwd: Pathfinder.appDir,
-                stdio: [0, 1, 2]
-            });
-
-            Logger.log("Restored Docker checkpoint with name " + checkpointName + " of Docker containers.");
-            return true;
-        }
-
-        return false;
+            if (!err)
+            {
+                if (exists)
+                {
+                    childProcess.exec(`/bin/bash -c "${restoreCheckpointScript} ${checkpointName}"`, {
+                        cwd: Pathfinder.appDir,
+                        stdio: [0, 1, 2]
+                    }, function (err, result)
+                    {
+                        if (isNull(err))
+                        {
+                            Logger.log("Restored Docker checkpoint with name " + checkpointName + " of Docker containers.");
+                            callback(err, true);
+                        }
+                        else
+                        {
+                            callback(err, false);
+                        }
+                    });
+                }
+                else
+                {
+                    const msg = "Checkpoint " + checkpointName + " does not exist!";
+                    Logger.log("error", msg);
+                    callback(null, false);
+                }
+            }
+            else
+            {
+                callback(err, false);
+            }
+        });
+    }
+    else
+    {
+        callback(null, false);
     }
 };
 

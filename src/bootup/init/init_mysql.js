@@ -16,6 +16,9 @@ const initMySQL = function (app, callback)
         Config.mySQLAuth.password
     );
 
+    // TODO This is commented until the merge with the new structure using migrations.
+    return callback(null);
+
     client.createDatabaseIfNotExists(function (err, result)
     {
         if (isNull(err))
