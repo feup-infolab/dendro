@@ -21,31 +21,43 @@ const DockerManager = function ()
 {
 };
 
-DockerManager.stopAllContainers = function ()
+DockerManager.stopAllContainers = function (callback)
 {
     if (Config.docker && Config.docker.active)
     {
         Logger.log("Stopping all Docker containers.");
-        childProcess.execSync(`/bin/bash -c "${stopContainersScript}"`, {
+        childProcess.exec(`/bin/bash -c "${stopContainersScript}"`, {
             cwd: Pathfinder.appDir,
             stdio: [0, 1, 2]
+        }, function (err, result)
+        {
+            Logger.log("Stopped all containers");
+            callback(err, result);
         });
-
-        Logger.log("Stopped all containers");
+    }
+    else
+    {
+        callback(null);
     }
 };
 
-DockerManager.startAllContainers = function ()
+DockerManager.startAllContainers = function (callback)
 {
     if (Config.docker && Config.docker.active)
     {
         Logger.log("Starting all Docker containers.");
-        childProcess.execSync(`/bin/bash -c "${startContainersScript}"`, {
+        childProcess.exec(`/bin/bash -c "${startContainersScript}"`, {
             cwd: Pathfinder.appDir,
             stdio: [0, 1, 2]
+        }, function (err, result)
+        {
+            Logger.log("Started all containers");
+            callback(err, result);
         });
-
-        Logger.log("Started all containers");
+    }
+    else
+    {
+        callback(null);
     }
 };
 

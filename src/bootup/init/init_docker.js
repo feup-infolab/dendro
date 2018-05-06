@@ -5,12 +5,11 @@ const DockerManager = require(Pathfinder.absPathInSrcFolder("utils/docker/docker
 
 const initDockerContainers = function (app, callback)
 {
-    if (Config.docker.active && process.env.NODE_ENV !== "test")
+    if (Config.docker && Config.docker.active && Config.docker.start_and_stop_containers_automatically)
     {
         try
         {
-            DockerManager.startAllContainers();
-            callback(null);
+            DockerManager.startAllContainers(callback);
         }
         catch (e)
         {

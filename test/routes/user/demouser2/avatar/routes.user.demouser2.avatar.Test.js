@@ -24,7 +24,7 @@ describe("[GET] /user/demouser2?avatar", function (done)
             should.equal(err, null);
             done();
         });
-    }); 
+    });
 
     const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
     const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));

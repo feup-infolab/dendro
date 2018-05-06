@@ -71,7 +71,7 @@ then
           -e "transport.host=${ELASTICSEARCH_HOSTNAME}" \
           --name="$ELASTICSEARCH_CONTAINER_NAME" \
           --hostname="$ELASTICSEARCH_HOSTNAME" \
-          docker.elastic.co/elasticsearch/elasticsearch:6.2.2 > /dev/null &
+          -d docker.elastic.co/elasticsearch/elasticsearch:6.2.2 > /dev/null
 
           # -v "$RUNNING_FOLDER/elasticsearch:/usr/share/elasticsearch/data" \
 
@@ -96,13 +96,13 @@ then
           -p 1111:1111 \
           -e SPARQL_UPDATE=true \
           -e "VIRT_Parameters_CheckpointSyncMode=2" \
-          -e "VIRT_Parameters_PageMapCheck=1" \
-          -e "VIRT_Parameters_CheckpointInterval=0" \
           --name="$VIRTUOSO_CONTAINER_NAME" \
           --hostname="$VIRTUOSO_HOSTNAME" \
-          joaorosilva/virtuoso:7.2.4-for-dendro-0.3 > /dev/null &
+          -d joaorosilva/virtuoso:7.2.4-for-dendro-0.3 > /dev/null
 
-          # -v "$RUNNING_FOLDER/virtuoso:/data" \
+
+          # -e "VIRT_Parameters_PageMapCheck=1" \
+          # -e "VIRT_Parameters_CheckpointInterval=0" \
 
       # docker start "$VIRTUOSO_CONTAINER_NAME" && echo "Container $VIRTUOSO_CONTAINER_NAME started." || echo "Container $VIRTUOSO_CONTAINER_NAME failed to start."
     fi
@@ -129,7 +129,7 @@ then
         -e MYSQL_ROOT_PASSWORD=r00t \
         --name="$MYSQL_CONTAINER_NAME" \
         --hostname="$MYSQL_HOSTNAME" \
-        mysql:8.0.3 > /dev/null &
+        -d mysql:8.0.3 > /dev/null
 
         # -v "$RUNNING_FOLDER/mysql:/var/lib/mysql" \
 
@@ -152,7 +152,7 @@ then
           -p 27017:27017 \
           --name="$MONGODB_CONTAINER_NAME" \
           --hostname="$MONGODB_HOSTNAME" \
-          mongo:3.4.10 > /dev/null &
+          -d mongo:3.4.10 > /dev/null
 
           # -v "$RUNNING_FOLDER/mongo:/data/db" \
 

@@ -391,7 +391,8 @@
     "docker": {
       "active": false,
       "reuse_checkpoints": false,
-      "create_checkpoints": false
+      "create_checkpoints": false,
+      "start_and_stop_containers_automatically" : false
     },
     "virtualbox": {
       "active": false,
@@ -788,7 +789,8 @@
     "docker": {
       "active": false,
       "reuse_checkpoints": false,
-      "create_checkpoints": false
+      "create_checkpoints": false,
+      "start_and_stop_containers_automatically" : false
     },
     "virtualbox": {
       "active": true,
@@ -1185,7 +1187,8 @@
     "docker": {
       "active": false,
       "reuse_checkpoints": false,
-      "create_checkpoints": false
+      "create_checkpoints": false,
+      "start_and_stop_containers_automatically" : false
     },
     "virtualbox": {
       "active": false,
@@ -1582,7 +1585,8 @@
     "docker": {
       "active": true,
       "reuse_checkpoints": true,
-      "create_checkpoints": true
+      "create_checkpoints": true,
+      "start_and_stop_containers_automatically" : false
     },
     "virtualbox": {
       "active": false,

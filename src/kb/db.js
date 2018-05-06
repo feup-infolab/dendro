@@ -1158,11 +1158,42 @@ DbConnection.prototype.close = function (callback)
         callback(null);
     };
 
+    const shutdownVirtuoso = function (callback)
+    {
+        if(Config.docker.active && Config.docker.start_and_stop_containers_automatically)
+        {
+            Logger.log("Shutting down virtuoso....!");
+            self.executeViaJDBC(
+                "EXEC=shutdown;",
+                [],
+                function (err, result)
+                {
+                    if (!isNull(err))
+                    {
+                        Logger.log("error", "Error shutting down virtuoso.");
+                        Logger.log("error", err);
+                        Logger.log("error", result);
+                        callback(err, result);
+                    }
+                    else
+                    {
+                        callback(null, result);
+                    }
+                }, null, null, null, true, true
+            );
+        }
+        else
+        {
+            callback(null);
+        }
+    };
+
     async.series([
         sendCheckpointCommand,
         closePendingConnections,
         closeConnectionPool,
-        destroyQueues
+        destroyQueues,
+        shutdownVirtuoso
     ], function (err, result)
     {
         callback(err, result);
@@ -1186,38 +1217,6 @@ DbConnection.prototype.close = function (callback)
         // );
 
         callback(null);
-    };
-
-    const shutdownVirtuoso = function (callback)
-    {
-        callback(null);
-
-        // if(Config.docker.active && process.env.NODE_ENV === "test")
-        // {
-        //     Logger.log("Shutting down virtuoso....!");
-        //     self.executeViaJDBC(
-        //         "EXEC=shutdown;",
-        //         [],
-        //         function (err, result)
-        //         {
-        //             if (!isNull(err))
-        //             {
-        //                 Logger.log("error", "Error shutting down virtuoso.");
-        //                 Logger.log("error", err);
-        //                 Logger.log("error", result);
-        //                 callback(err, result);
-        //             }
-        //             else
-        //             {
-        //                 callback(null, result);
-        //             }
-        //         }, null, null, null, true, true
-        //     );
-        // }
-        // else
-        // {
-        //     callback(null);
-        // }
     };
 };
 
