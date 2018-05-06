@@ -14,6 +14,15 @@ global.Config = Config;
 
 global.tests = {};
 
+// EDIT USERS
+require(Pathfinder.absPathInTestsFolder("/routes/user/edit/routes.user.edit.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/user_avatar/routes.user_avatar.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/user/demouser1/avatar/routes.user.demouser1.avatar.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/user/demouser2/avatar/routes.user.demouser2.avatar.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/user/demouser3/avatar/routes.user.demouser3.avatar.Test.js"));
+
+return;
+
 require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__ls_by_name/routes.project.metadataOnlyProject.data.testFolder1.__ls_by_name.Test.js"));
 
 // PRIVATE PROJECT FOLDER LEVEL ?metadata&deep

@@ -14,7 +14,11 @@ docker exec "$VIRTUOSO_CONTAINER_NAME" /bin/bash -c "sync && /usr/local/virtuoso
 docker commit -p "$VIRTUOSO_CONTAINER_NAME" "$VIRTUOSO_CONTAINER_NAME:dendro-tests_$CHECKPOINT_NAME"
 # docker start "$VIRTUOSO_CONTAINER_NAME"
 
+
 docker commit -p "$MYSQL_CONTAINER_NAME" "$MYSQL_CONTAINER_NAME:dendro-tests_$CHECKPOINT_NAME"
+
+# Commit pending operations to hard drive and commit
+docker exec "$MONGODB_CONTAINER_NAME" /bin/bash -c "mongo --eval \"db.adminCommand( { fsync: 1, async: true } )\""
 docker commit -p "$MONGODB_CONTAINER_NAME" "$MONGODB_CONTAINER_NAME:dendro-tests_$CHECKPOINT_NAME"
 
 echo "Checkpoint create script for checkpoint $CHECKPOINT_NAME finished."

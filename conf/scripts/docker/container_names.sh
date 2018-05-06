@@ -9,3 +9,8 @@ ELASTICSEARCH_HOSTNAME="127.0.0.1"
 VIRTUOSO_HOSTNAME="127.0.0.1"
 MYSQL_HOSTNAME="127.0.0.1"
 MONGODB_HOSTNAME="127.0.0.1"
+
+ELASTICSEARCH_VERSION_AND_TAG="docker.elastic.co/elasticsearch/elasticsearch:6.2.2"
+MONGODB_VERSION_AND_TAG="joaorosilva/mongodb:3.7-no-volumes"
+MYSQL_VERSION_AND_TAG="joaorosilva/mysql:8.0-no-volumes"
+VIRTUOSO_VERSION_AND_TAG="joaorosilva/virtuoso:7.2.4-for-dendro-0.3"

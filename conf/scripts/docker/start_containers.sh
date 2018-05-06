@@ -71,7 +71,7 @@ then
           -e "transport.host=${ELASTICSEARCH_HOSTNAME}" \
           --name="$ELASTICSEARCH_CONTAINER_NAME" \
           --hostname="$ELASTICSEARCH_HOSTNAME" \
-          docker.elastic.co/elasticsearch/elasticsearch:6.2.2 > "$DIR/elasticsearch.log" &
+          "$ELASTICSEARCH_VERSION_AND_TAG" > "$DIR/elasticsearch.log" &
 
           # -v "$RUNNING_FOLDER/elasticsearch:/usr/share/elasticsearch/data" \
 
@@ -98,7 +98,7 @@ then
           -e "VIRT_Parameters_CheckpointSyncMode=2" \
           --name="$VIRTUOSO_CONTAINER_NAME" \
           --hostname="$VIRTUOSO_HOSTNAME" \
-          joaorosilva/virtuoso:7.2.4-for-dendro-0.3 > "$DIR/virtuoso.log" &
+          "$VIRTUOSO_VERSION_AND_TAG" > "$DIR/virtuoso.log" &
 
 
           # -e "VIRT_Parameters_PageMapCheck=1" \
@@ -129,7 +129,7 @@ then
         -e MYSQL_ROOT_PASSWORD=r00t \
         --name="$MYSQL_CONTAINER_NAME" \
         --hostname="$MYSQL_HOSTNAME" \
-        -d mysql:8.0.3 > "$DIR/mysql.log" &
+        "$MYSQL_VERSION_AND_TAG" > "$DIR/mysql.log" &
 
         # -v "$RUNNING_FOLDER/mysql:/var/lib/mysql" \
 
@@ -151,7 +151,7 @@ then
           -p 27017:27017 \
           --name="$MONGODB_CONTAINER_NAME" \
           --hostname="$MONGODB_HOSTNAME" \
-          -d mongo:3.4.10 > "$DIR/mongodb.log" &
+          "$MONGODB_VERSION_AND_TAG" > "$DIR/mongodb.log" &
 
           # -v "$RUNNING_FOLDER/mongo:/data/db" \
 
