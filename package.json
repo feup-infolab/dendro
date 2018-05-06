@@ -17,7 +17,7 @@
     "reinstall": "npm cache clean --force && rm -rf node_modules && npm install",
     "test": "cross-env NODE_ENV=test node node_modules/.bin/_mocha ./test/index.Test.js --ui bdd --bail --exit",
     "test-dev": "cross-env NODE_ENV=test node node_modules/.bin/_mocha ./test/index.Test.dev.js --ui bdd --bail --exit",
-    "test-travis": "cross-env NODE_ENV=test node node_modules/.bin/_mocha ./test/index.Test.dev.js --ui bdd --bail --exit --config=travis",
+    "test-travis": "cross-env NODE_ENV=test node node_modules/.bin/_mocha ./test/index.Test.js --ui bdd --bail --exit --config=travis",
     "watch": "npm test -w",
     "calculate-coverage": "nyc --temp-directory=coverage --reporter=lcov --reporter=html npm test",
     "calculate-coverage-dev": "nyc --temp-directory=coverage --reporter=lcov --reporter=html npm run test-dev",
