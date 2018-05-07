@@ -216,7 +216,18 @@ exports.delete = function (req, res)
         const userUri = req.user.uri;
         const notificationUri = req.query.notificationUri;
 
-        if (!isNull(userUri) && !isNull(notificationUri))
+        const isAValidString = function (notificationUri) {
+            if (typeof notificationUri === "string" || notificationUri instanceof String)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        };
+
+        if (!isNull(userUri) && !isNull(notificationUri) && isAValidString(notificationUri) && notificationUri.length > 0)
         {
             let query =
                 "WITH [0] \n" +
@@ -289,8 +300,8 @@ exports.delete = function (req, res)
         }
         else
         {
-            const errorMsg = "Missing required field notification Uri";
-            res.status(500).json({
+            const errorMsg = "Missing required field notificationUri";
+            res.status(400).json({
                 result: "Error",
                 message: errorMsg
             });

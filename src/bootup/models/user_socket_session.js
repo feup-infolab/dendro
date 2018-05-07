@@ -22,7 +22,7 @@ class UserSocketSession
     registerEvents (socket)
     {
         this.__socket.on(this.__userUri +":message", function (data) {
-            console.log("Received a message from the client: ", data.message);
+            Logger.log("info", "Received a message from the client: ", data.message);
         });
     }
     */
@@ -33,7 +33,7 @@ class UserSocketSession
         let connectedSockets = _.filter(self.__sockets, function(socket){ return socket.connected === true; });
         self.__sockets = connectedSockets;
         self.__sockets.push(newSocket);
-        console.log("Num connectedSockets for user " + self.__userUri + " : " + self.__sockets.length);
+        Logger.log("info", "Num connectedSockets for user " + self.__userUri + " : " + self.__sockets.length);
     };
 
     emitMessage (message)

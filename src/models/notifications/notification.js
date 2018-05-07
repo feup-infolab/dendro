@@ -8,6 +8,7 @@ const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).R
 const uuid = require("uuid");
 const IO = require(Pathfinder.absPathInSrcFolder("bootup/models/io.js")).IO;
 const db_notifications = Config.getDBByID("notifications");
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 function Notification (object)
 {
@@ -54,7 +55,7 @@ const sendSocketNotificationToUser = function (userUri, notificationObject)
     }
     else
     {
-        console.log("Could not emit message to user: " + userUri);
+        Logger.log("error", "Could not emit message to user: " + userUri)
     }
 };
 

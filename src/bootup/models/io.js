@@ -34,20 +34,20 @@ class IO
             clientSocket.on("identifyUser", function (data) {
                 if(!isNull(data.userUri))
                 {
-                    console.log("user: " + data.userUri  + " identified with socket iD: " + clientSocket.id);
+                    Logger.log("info", "user: " + data.userUri  + " identified with socket iD: " + clientSocket.id);
                     updateUserSocketSession(data.userUri, clientSocket);
                     clientSocket.emit(data.userUri + ":identified", {socketID: clientSocket.id, userUri: data.user});
                 }
                 else
                 {
-                    console.log("Could not identify user, data.userUri is missing!");
+                    Logger.log("error", "Could not identify user, data.userUri is missing!");
                 }
             });
         });
 
         IO.__io.on("forceDisconnect", function (data) {
-            console.log("received a forced disconnect");
-            console.log("data is: " + JSON.stringify(data));
+            Logger.log("info", "received a forced disconnect");
+            Logger.log("info", "data is: " + JSON.stringify(data));
         });
     }
 
