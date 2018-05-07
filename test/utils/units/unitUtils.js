@@ -669,7 +669,7 @@ exports.setup = function (targetUnit, callback, forceLoad)
             {
                 Logger.log("Ran all load functions until " + targetUnit.name + " successfully");
 
-                exports.createCheckpoint(unit, function (err, result)
+                exports.createCheckpointForUnit(targetUnit, function (err, result)
                 {
                     if (isNull(err))
                     {

@@ -1160,7 +1160,7 @@ DbConnection.prototype.close = function (callback)
 
     const shutdownVirtuoso = function (callback)
     {
-        if(Config.docker.active && Config.docker.start_and_stop_containers_automatically)
+        if (Config.docker.active && Config.docker.start_and_stop_containers_automatically)
         {
             Logger.log("Shutting down virtuoso....!");
             self.executeViaJDBC(
