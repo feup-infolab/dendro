@@ -92,6 +92,63 @@ Notification.buildAndSaveFromSystemMessage = function (message, targetUserUri, c
     });
 };
 
+Notification.buildAndSaveFromLike = function (currentUser, post, callback) {
+    // resourceTargetUri -> a post etc
+    // resourceAuthorUri -> the author of the post etc
+    // userWhoActed -> user who commmented/etc
+    // actionType -> comment/like/share
+    // status-> read/unread
+    const newNotification = new Notification({
+        ddr: {
+            userWhoActed: currentUser.uri,
+            resourceTargetUri: post.uri,
+            actionType: "Like",
+            resourceAuthorUri: post.dcterms.creator
+        },
+        foaf: {
+            status: "unread"
+        }
+    });
+    newNotification.save(function (err, info) {
+        callback(err, info);
+    });
+};
+
+Notification.buildAndSaveFromShare = function (currentUser, post, newShare, callback) {
+    const newNotification = new Notification({
+        ddr: {
+            userWhoActed: currentUser.uri,
+            resourceTargetUri: post.uri,
+            actionType: "Share",
+            resourceAuthorUri: post.dcterms.creator,
+            shareURI: newShare.uri
+        },
+        foaf: {
+            status: "unread"
+        }
+    });
+    newNotification.save(function (err, info) {
+        callback(err, info);
+    });
+};
+
+Notification.buildAndSaveFromComment = function (currentUser, post, callback) {
+    const newNotification = new Notification({
+        ddr: {
+            userWhoActed: currentUser.uri,
+            resourceTargetUri: post.uri,
+            actionType: "Comment",
+            resourceAuthorUri: post.dcterms.creator
+        },
+        foaf: {
+            status: "unread"
+        }
+    });
+    newNotification.save(function (err, info) {
+        callback(err, info);
+    });
+};
+
 Notification = Class.extend(Notification, Resource, "ddr:Notification");
 
 module.exports.Notification = Notification;
