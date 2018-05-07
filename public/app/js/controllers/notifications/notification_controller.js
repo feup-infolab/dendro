@@ -2,11 +2,10 @@ angular.module("dendroApp.controllers")
 /**
  *  Project administration controller
  */
-    .controller("notificationCtrl", function ($scope, $http, $filter, usersService, notificationService, $window, $element, $interval, ngAlertsMngr, ngAlertsEvent, $sce)
+    .controller("notificationCtrl", function ($scope, $http, $filter, usersService, notificationService, $window, $element, $interval, ngAlertsMngr, ngAlertsEvent, $sce, $q)
     {
         $scope.urisOfNotifsToLoadFromServer = [];
         $scope.loadedNotifsDataFromServer = [];
-        $scope.awaitingResponse = false;
 
         $scope.actionTypeDictionary = {
             Like: "liked",
@@ -23,6 +22,28 @@ angular.module("dendroApp.controllers")
 
         $scope.socket = null;
         $scope.userUri = null;
+
+
+
+        //BEGIN AUX FUNCTIONS
+
+        var getAlertsFromNgAlert = function ()
+        {
+            return ngAlertsMngr.get();
+        };
+
+        var removeAlertFromNgAlert = function (notificationUri)
+        {
+            ngAlertsMngr.remove(notificationUri);
+        };
+
+        var resetAlertsFromNgAlert = function () {
+            ngAlertsMngr.reset();
+        };
+
+        var addAlertToNgAlert = function (alert) {
+            ngAlertsMngr.add(alert);
+        };
 
         var handleSocketSession = function()
         {
@@ -47,7 +68,6 @@ angular.module("dendroApp.controllers")
 
                 $scope.socket.on($scope.userUri + ":notification", function (notificationData) {
                     Utils.show_popup("info", "Notification", "You have a new notification!");
-                    //$scope.get_unread_notifications();
                     pushNewNotificationToAlerts(notificationData);
                 });
 
@@ -57,16 +77,18 @@ angular.module("dendroApp.controllers")
                 });
             };
 
-            usersService.get_logged_user()
+            return usersService.get_logged_user()
                 .then(function (user)
                 {
                     $scope.userUri = user.uri;
                     initSocketSession();
                     handleConnectedSocketEvents();
+                    return null;
                 })
                 .catch(function (error) {
                     console.log("Error here:" + error);
                     Utils.show_popup("error", "Socket Session", "Error getting logged user information");
+                    throw error;
                 });
         };
 
@@ -83,18 +105,18 @@ angular.module("dendroApp.controllers")
         var parseActionType = function (notification)
         {
             var actionType = $scope.actionTypeDictionary[notification.ddr.actionType];
-            var shareURL = actionType == "shared" ? "<" + "a href=" + "\"" + notification.ddr.shareURI + "\"" + ">" + actionType + "</a>" : actionType;
+            var shareURL = actionType === "shared" ? "<" + "a target=\"_blank\"" +  " href=" + "\"" + notification.ddr.shareURI + "\"" + ">" + actionType + "</a>" : actionType;
             return shareURL;
         };
 
-        $scope.$on(ngAlertsEvent.event("remove"), function (e, notificationUri)
-        {
-            delete_notification(notificationUri);
-        });
+
+        var drawAlert = function (alertObject) {
+            addAlertToNgAlert(alertObject);
+        };
 
         var createAlert = function (notification, notificationUri)
         {
-            var drawAlert = function (notificationMsg, notification) {
+            var createAlertObject = function (notification, notificationMsg) {
                 $scope.msg = $sce.trustAsHtml(notificationMsg);
 
                 var date = notification.ddr.modified || notification.ddr.created;
@@ -106,7 +128,7 @@ angular.module("dendroApp.controllers")
                     time: new Date(date),
                     id: notificationUri
                 };
-                addAlertToNgAlert(alert);
+                return alert;
             };
 
             if(notification.ddr.actionType === "SystemMessage")
@@ -114,123 +136,100 @@ angular.module("dendroApp.controllers")
                 var message = null;
                 if(notification.ddr.resourceTargetUri)
                 {
-                    message = "<" + "a href=" + "\"" + notification.ddr.resourceTargetUri + "\"" + ">" + notification.schema.sharedContent + "</a>";
+                    message = "<" + "a target=\"_blank\"" +  " href=" + "\"" + notification.ddr.resourceTargetUri + "\"" + ">" + notification.schema.sharedContent + "</a>";
                 }
                 else
                 {
                     message = notification.schema.sharedContent;
                 }
-                drawAlert(message, notification);
+                var deferred = $q.defer();
+                var alertObject = createAlertObject(notification, message);
+                deferred.resolve(alertObject);
+                return deferred.promise;
             }
             else if(notification.ddr.actionType === "Like" || notification.ddr.actionType === "Comment" || notification.ddr.actionType === "Share")
             {
                 let userInfo = null;
-                usersService.getUserInfo(notification.ddr.userWhoActed)
+                return usersService.getUserInfo(notification.ddr.userWhoActed)
                     .then(function (response)
                     {
                         userInfo = response.data;
-                        var resourceURL = "<" + "a href=" + "\"" + notification.ddr.resourceTargetUri + "\"" + ">" + parseResourceTarget(notification.ddr.resourceTargetUri) + "</a>";
-                        var userWhoActedURL = "<" + "a href=" + "\"" + notification.ddr.userWhoActed + "\"" + ">" + userInfo.ddr.username + "</a>";
+                        var resourceURL = "<" + "a target=\"_blank\"" +  " href=" + "\"" + notification.ddr.resourceTargetUri + "\"" + ">" + parseResourceTarget(notification.ddr.resourceTargetUri) + "</a>";
+                        var userWhoActedURL = "<" + "a target=\"_blank\"" +  " href=" + "\"" + notification.ddr.userWhoActed + "\"" + ">" + userInfo.ddr.username + "</a>";
                         var message = userWhoActedURL + " " + parseActionType(notification) + " your " + resourceURL;
-                        drawAlert(message, notification);
+                        return createAlertObject(notification, message);
                     })
                     .catch(function (error)
                     {
                         console.log("Error getting a user's information: " + JSON.stringify(error));
                         Utils.show_popup("error", "Notification error", "Error getting a user's information");
+                        throw error;
                     });
             }
             else
             {
+                var deferred = $q.defer();
                 var message = "invalid message action type";
-                drawAlert(message, notification);
+                var alertObject = createAlertObject(notification, message);
+                deferred.resolve(alertObject);
+                return deferred.promise;
             }
-        };
-
-        var getAlertsFromNgAlert = function ()
-        {
-            return ngAlertsMngr.get();
-        };
-
-        var removeAlertFromNgAlert = function (notificationUri)
-        {
-            ngAlertsMngr.remove(notificationUri);
-        };
-
-        var resetAlertsFromNgAlert = function () {
-            ngAlertsMngr.reset();
-        };
-
-        var addAlertToNgAlert = function (alert) {
-            ngAlertsMngr.add(alert);
         };
 
         var get_unread_notifications = function ()
         {
-            if (!$scope.awaitingResponse)
-            {
-                $scope.awaitingResponse = true;
-                notificationService.getUserUnreadNotifications()
-                    .then(function (response)
-                    {
-                        $scope.urisOfNotifsToLoadFromServer = _.pluck(response.data, "uri");
-                        $scope.awaitingResponse = false;
-                    })
-                    .catch(function (error)
-                    {
-                        console.log("error", "Error getting unread notifications" + JSON.stringify(error));
-                        Utils.show_popup("error", "Notification error", "Error getting a user's unread notification");
-                        $scope.awaitingResponse = false;
-                    });
-            }
+            return notificationService.getUserUnreadNotifications()
+                .then(function (response)
+                {
+                    $scope.urisOfNotifsToLoadFromServer = _.pluck(response.data, "uri");
+                    return $scope.urisOfNotifsToLoadFromServer;
+                })
+                .catch(function (error)
+                {
+                    console.log("error", "Error getting unread notifications" + JSON.stringify(error));
+                    Utils.show_popup("error", "Notification error", "Error getting a user's unread notification");
+                    throw error;
+                });
         };
 
-        $scope.init = function ()
-        {
-            //TODO these two first functions are not synchronous -> they must be in a promise chain
-            get_unread_notifications();
-            handleSocketSession();
-            getAlertsFromNgAlert();
-        };
-
-        $scope.get_notification_info = function (notificationUri)
-        {
-            //TODO write function here to check if notification data is already loaded from the server -> so that no unecessary request to the server are made
+        var pushToLoadedNotifsDataFromServer = function (notificationData) {
             var index = _.findIndex($scope.loadedNotifsDataFromServer, function (notifData) {
-                return notifData.uri === notificationUri;
+                return notificationData.uri === notifData.uri;
             });
-            if(index !== -1)
-            {
-                return $scope.loadedNotifsDataFromServer[index];
-            }
-            else
-            {
-                notificationService.get_notification_info(notificationUri)
-                    .then(function (response)
-                    {
-                        $scope.loadedNotifsDataFromServer.push(response.data);
-                        var notification = response.data;
-                        createAlert(notification, notificationUri);
-                    })
-                    .catch(function (error)
-                    {
-                        console.log("error", "Error getting Notification Info" + JSON.stringify(error));
-                        Utils.show_popup("error", "Notification error", "Error getting a user's notification information");
-                    });
-            }
 
+            if(index === -1)
+            {
+                $scope.loadedNotifsDataFromServer.push(notificationData);
+            }
+        };
+
+        var pushToUrisOfNotifsToLoadFromServer = function (notificationUri) {
+            var index = _.findIndex($scope.urisOfNotifsToLoadFromServer, function (notifUri) {
+                return notifUri === notificationUri;
+            });
+
+            if(index === -1)
+            {
+                $scope.urisOfNotifsToLoadFromServer.push(notificationUri);
+            }
         };
 
         var pushNewNotificationToAlerts = function (notificationData) {
-            $scope.loadedNotifsDataFromServer.push(notificationData);
-            $scope.urisOfNotifsToLoadFromServer.push(notificationData.uri);
 
-            //TODO descomplicar a funcão create alert para apenas criar um objeto alert
-            createAlert(notificationData, notificationData.uri);
+            pushToLoadedNotifsDataFromServer(notificationData);
+            pushToUrisOfNotifsToLoadFromServer(notificationData.uri);
 
-            //TODO chamar funçao aqui para fazer o draw alert -> que chama do addAlert to ngalert
-            getAlertsFromNgAlert();
-            $scope.$apply();
+            createAlert(notificationData, notificationData.uri).then(function (alert) {
+                return alert;
+            }).then(function (alert) {
+                return drawAlert(alert);
+            }).then(function (data) {
+                return getAlertsFromNgAlert();
+            }).then(function (data) {
+                //$scope.$apply();
+            }).catch(function (error) {
+                Utils.show_popup("error", "Notification error", "Error drawing a new notification");
+            });
         };
 
         var delete_notification = function (notificationUri)
@@ -249,12 +248,19 @@ angular.module("dendroApp.controllers")
             notificationService.delete_notification(notificationUri)
                 .then(function (response)
                 {
-                    get_unread_notifications();
-                    if(noNotifsToLoadFromServer() === true)
-                    {
-                        resetAlertsFromNgAlert();
-                    }
-                    getAlertsFromNgAlert();
+                    get_unread_notifications().then(function (data) {
+                        return data;
+                    }).then(function (data) {
+                        if(noNotifsToLoadFromServer() === true)
+                        {
+                            resetAlertsFromNgAlert();
+                        }
+                        return data;
+                    }).then(function (data) {
+                        getAlertsFromNgAlert();
+                    }).catch(function (error) {
+                        throw error;
+                    });
                 })
                 .catch(function (error)
                 {
@@ -262,4 +268,77 @@ angular.module("dendroApp.controllers")
                     Utils.show_popup("error", "Notification error", "Error deleting a user's notification");
                 });
         };
+
+        //END AUX FUNCTIONS
+
+
+
+        //BEGIN SCOPE FUNCTIONS
+        $scope.$on(ngAlertsEvent.event("remove"), function (e, notificationUri)
+        {
+            delete_notification(notificationUri);
+        });
+
+        $scope.init = function ()
+        {
+            get_unread_notifications().then(function (data) {
+                return data;
+            }).then(function (data) {
+                return handleSocketSession();
+            }).then(function (data) {
+                getAlertsFromNgAlert();
+            }).catch(function (error) {
+                Utils.show_popup("error", "Notification error", "Error initializing the notification controller");
+            });
+        };
+
+        $scope.get_notification_info = function (notificationUri)
+        {
+            //This functions returns the positions of notificationUri in the loadedNotifsDataFromServer Array
+            //if the notification was not yet loaded from the server it returns -1
+            //this is used to reduce the number of http requests to the server
+            var getNotificationUriPositionInLoadedNotifsDataFromServer = function (notificationUri) {
+                var index = _.findIndex($scope.loadedNotifsDataFromServer, function (notifData) {
+                    return notifData.uri === notificationUri;
+                });
+
+                return index;
+            };
+
+            var index = getNotificationUriPositionInLoadedNotifsDataFromServer(notificationUri);
+            if(index !== -1)
+            {
+                //the notification data for this particular notificationUri is already loaded so no http request will be made
+                return $scope.loadedNotifsDataFromServer[index];
+            }
+            else
+            {
+                //the notification data for this particular notificationUri is not loaded so a http request will be made
+                notificationService.get_notification_info(notificationUri)
+                    .then(function (response)
+                    {
+                        pushToLoadedNotifsDataFromServer(response.data);
+                        var notificationData = response.data;
+                        createAlert(notificationData, notificationData.uri).then(function (alert) {
+                            return alert;
+                        }).then(function (alert) {
+                            return drawAlert(alert);
+                        }).then(function (data) {
+                            return getAlertsFromNgAlert();
+                        }).then(function (data) {
+                            //$scope.$apply();
+                        }).catch(function (error) {
+                            Utils.show_popup("error", "Notification error", "Error drawing a new notification");
+                        });
+                    })
+                    .catch(function (error)
+                    {
+                        console.log("error", "Error getting Notification Info" + JSON.stringify(error));
+                        Utils.show_popup("error", "Notification error", "Error getting a user's notification information");
+                    });
+            }
+
+        };
+
+        //END SCOPE FUNCTIONS
     });
