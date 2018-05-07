@@ -29,11 +29,29 @@ class IO
                 IO.__usersSocketsSessions[userUri].addNewSocket(newSocket);
             }
         };
+        
+        const removeSocketFromUserSession = function (userUri, socket) {
+            if(IO.__usersSocketsSessions.hasOwnProperty(userUri))
+            {
+                IO.__usersSocketsSessions[userUri].removeDisconnectedSockets();
+                let numberConnectedSocketsForUser = IO.__usersSocketsSessions[userUri].getUserSockets().length;
+                Logger.log("info", "user " + userUri + " has " + numberConnectedSocketsForUser + " active sockets!");
+                if(numberConnectedSocketsForUser === 0)
+                {
+                    Logger.log("info", "user " + userUri + " has no more active sockets!");
+                    Logger.log("info", "Before deletion -> IO.__usersSocketsSessions number : " + Object.keys(IO.__usersSocketsSessions).length);
+                    delete IO.__usersSocketsSessions[userUri];
+                    Logger.log("info", "user " + userUri + " was removed from IO.__usersSocketsSessions");
+                    Logger.log("info", "After deletion -> IO.__usersSocketsSessions number : " + Object.keys(IO.__usersSocketsSessions).length);
+                }
+            }
+        };
 
         IO.__io.on("connection", function (clientSocket) {
             clientSocket.on("identifyUser", function (data) {
                 if(!isNull(data.userUri))
                 {
+                    clientSocket.userUri = data.userUri;
                     Logger.log("info", "user: " + data.userUri  + " identified with socket iD: " + clientSocket.id);
                     updateUserSocketSession(data.userUri, clientSocket);
                     clientSocket.emit(data.userUri + ":identified", {socketID: clientSocket.id, userUri: data.user});
@@ -43,11 +61,14 @@ class IO
                     Logger.log("error", "Could not identify user, data.userUri is missing!");
                 }
             });
-        });
 
-        IO.__io.on("forceDisconnect", function (data) {
-            Logger.log("info", "received a forced disconnect");
-            Logger.log("info", "data is: " + JSON.stringify(data));
+            clientSocket.on("disconnect", function(data) {
+                console.log("Got disconnect from user " + clientSocket.userUri);
+                if(!isNull(clientSocket.userUri))
+                {
+                    removeSocketFromUserSession(clientSocket.userUri, clientSocket);
+                }
+            });
         });
     }
 

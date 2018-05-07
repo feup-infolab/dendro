@@ -14,15 +14,28 @@ class UserSocketSession
     {
         this.__userUri = userUri;
         this.__sockets = [socket];
-        //this.registerEvents();
+        //this.registerEvents(socket);
     }
+
 
 
     /*
     registerEvents (socket)
     {
-        this.__socket.on(this.__userUri +":message", function (data) {
-            Logger.log("info", "Received a message from the client: ", data.message);
+        let self = this;
+        socket.on("disconnect", function(data) {
+            console.log("Got disconnect!");
+            console.log("data is: " + JSON.stringify(data));
+            let connectedSockets = _.filter(self.__sockets, function(socket){ return socket.connected === true; });
+            self.__sockets = connectedSockets;
+            if(self.__sockets.length === 0)
+            {
+                Logger.log("info", "User " + self.__userUri  + " has no more sockets, it should be deleted from IO.__usersSocketsSessions");
+            }
+            else
+            {
+                Logger.log("info", "User " + self.__userUri  + " now has " + self.__sockets.length + " sockets");
+            }
         });
     }
     */
@@ -30,8 +43,6 @@ class UserSocketSession
     addNewSocket (newSocket)
     {
         let self = this;
-        let connectedSockets = _.filter(self.__sockets, function(socket){ return socket.connected === true; });
-        self.__sockets = connectedSockets;
         self.__sockets.push(newSocket);
         Logger.log("info", "Num connectedSockets for user " + self.__userUri + " : " + self.__sockets.length);
     };
@@ -59,6 +70,18 @@ class UserSocketSession
             socket.disconnect(true);
         });
     }
+
+    removeDisconnectedSockets()
+    {
+        let self = this;
+        let connectedSockets = _.filter(self.__sockets, function(socket){ return socket.connected === true; });
+        self.__sockets = connectedSockets;
+    }
+
+    getUserSockets() {
+        let self = this;
+        return self.__sockets;
+    };
 }
 
 module.exports.UserSocketSession = UserSocketSession;
