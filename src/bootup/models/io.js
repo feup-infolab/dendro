@@ -1,12 +1,7 @@
-const slug = require("slug");
-const path = require("path");
-
 const Pathfinder = global.Pathfinder;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const UserSocketSession = require(Pathfinder.absPathInSrcFolder("bootup/models/user_socket_session.js")).UserSocketSession;
+const UserSession = require(Pathfinder.absPathInSrcFolder("bootup/models/user_session.js")).UserSession;
 
 class IO
 {
@@ -15,36 +10,51 @@ class IO
 
     }
 
-    static registerIOConnections (server)
+    static registerIOConnections ()
     {
-        const updateUserSocketSession = function (userUri, newSocket)
+        const getSessionForUser = function (userUri)
         {
-            if(!IO.__usersSocketsSessions.hasOwnProperty(userUri))
+            if(IO.__usersSessions.hasOwnProperty(userUri))
             {
-                let userSockeSession = new UserSocketSession(userUri, newSocket);
-                IO.__usersSocketsSessions[userUri] = userSockeSession;
+                return IO.__usersSessions[userUri];
             }
             else
             {
-                IO.__usersSocketsSessions[userUri].addNewSocket(newSocket);
+                return null;
+            }
+        };
+
+        const updateUserSession = function (userUri, newSocket)
+        {
+            let userSession = getSessionForUser(userUri);
+            if(!isNull(userSession))
+            {
+                userSession.addNewSocket(newSocket);
+            }
+            else
+            {
+                let userSession = new UserSession(userUri, newSocket);
+                IO.__usersSessions[userUri] = userSession;
             }
         };
         
         const removeSocketFromUserSession = function (userUri, socket) {
-            if(IO.__usersSocketsSessions.hasOwnProperty(userUri))
+            let userSession = getSessionForUser(userUri);
+            if(!isNull(userSession))
             {
-                IO.__usersSocketsSessions[userUri].removeDisconnectedSockets();
-                let numberConnectedSocketsForUser = IO.__usersSocketsSessions[userUri].getUserSockets().length;
+                userSession.removeDisconnectedSockets();
+                let numberConnectedSocketsForUser = userSession.getUserSockets().length;
                 Logger.log("info", "user " + userUri + " has " + numberConnectedSocketsForUser + " active sockets!");
                 if(numberConnectedSocketsForUser === 0)
                 {
                     Logger.log("info", "user " + userUri + " has no more active sockets!");
-                    Logger.log("info", "Before deletion -> IO.__usersSocketsSessions number : " + Object.keys(IO.__usersSocketsSessions).length);
-                    delete IO.__usersSocketsSessions[userUri];
-                    Logger.log("info", "user " + userUri + " was removed from IO.__usersSocketsSessions");
-                    Logger.log("info", "After deletion -> IO.__usersSocketsSessions number : " + Object.keys(IO.__usersSocketsSessions).length);
+                    Logger.log("info", "Before deletion -> IO.__usersSessions number : " + Object.keys(IO.__usersSessions).length);
+                    delete IO.__usersSessions[userUri];
+                    Logger.log("info", "user " + userUri + " was removed from IO.__usersSessions");
+                    Logger.log("info", "After deletion -> IO.__usersSessions number : " + Object.keys(IO.__usersSessions).length);
                 }
             }
+
         };
 
         IO.__io.on("connection", function (clientSocket) {
@@ -53,7 +63,7 @@ class IO
                 {
                     clientSocket.userUri = data.userUri;
                     Logger.log("info", "user: " + data.userUri  + " identified with socket iD: " + clientSocket.id);
-                    updateUserSocketSession(data.userUri, clientSocket);
+                    updateUserSession(data.userUri, clientSocket);
                     clientSocket.emit(data.userUri + ":identified", {socketID: clientSocket.id, userUri: data.user});
                 }
                 else
@@ -63,7 +73,7 @@ class IO
             });
 
             clientSocket.on("disconnect", function(data) {
-                console.log("Got disconnect from user " + clientSocket.userUri);
+                console.log("Got a socket disconnect event for user " + clientSocket.userUri);
                 if(!isNull(clientSocket.userUri))
                 {
                     removeSocketFromUserSession(clientSocket.userUri, clientSocket);
@@ -72,11 +82,11 @@ class IO
         });
     }
 
-    static getUserSocketSession (userUri)
+    static getUserSession (userUri)
     {
-        if(IO.__usersSocketsSessions.hasOwnProperty(userUri))
+        if(IO.__usersSessions.hasOwnProperty(userUri))
         {
-            return IO.__usersSocketsSessions[userUri];
+            return IO.__usersSessions[userUri];
         }
         else
         {
@@ -84,21 +94,16 @@ class IO
         }
     }
 
-    /*
-    static destroyUserSocketSession (userUri)
+
+    static destroyUserSession (userUri)
     {
-        if(IO.__usersSocketsSessions.hasOwnProperty(userUri))
+        if(IO.__usersSessions.hasOwnProperty(userUri))
         {
-            IO.__usersSocketsSessions[userUri].disconnect();
-            delete IO.__usersSocketsSessions[userUri];
-            return true;
-        }
-        else
-        {
-            return false;
+            IO.__usersSessions[userUri].disconnect();
+            IO.__usersSessions[userUri].removeDisconnectedSockets();
+            delete IO.__usersSessions[userUri];
         }
     }
-    */
 }
 
 module.exports.IO = IO;

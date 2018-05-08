@@ -8,7 +8,7 @@ const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const _ = require("underscore");
 
-class UserSocketSession
+class UserSession
 {
     constructor (userUri, socket)
     {
@@ -30,7 +30,7 @@ class UserSocketSession
             self.__sockets = connectedSockets;
             if(self.__sockets.length === 0)
             {
-                Logger.log("info", "User " + self.__userUri  + " has no more sockets, it should be deleted from IO.__usersSocketsSessions");
+                Logger.log("info", "User " + self.__userUri  + " has no more sockets, it should be deleted from IO.__usersSessions");
             }
             else
             {
@@ -84,4 +84,4 @@ class UserSocketSession
     };
 }
 
-module.exports.UserSocketSession = UserSocketSession;
+module.exports.UserSession = UserSession;

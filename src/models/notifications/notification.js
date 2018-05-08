@@ -48,10 +48,10 @@ Notification.prototype.getHumanReadableUri = function (callback)
 
 const sendSocketNotificationToUser = function (userUri, notificationObject)
 {
-    const userSocketSession = IO.getUserSocketSession(userUri);
-    if(!isNull(userSocketSession))
+    const userSession = IO.getUserSession(userUri);
+    if(!isNull(userSession))
     {
-        userSocketSession.emitNotification(notificationObject);
+        userSession.emitNotification(notificationObject);
     }
     else
     {

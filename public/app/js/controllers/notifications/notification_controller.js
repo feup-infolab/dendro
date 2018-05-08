@@ -60,20 +60,19 @@ angular.module("dendroApp.controllers")
 
                 $scope.socket.on($scope.userUri + ":identified", function (data) {
                     console.log("user: " +  $scope.userUri + " is now identified");
-                });
+                    console.log("Will now handle the rest of the events!");
+                    $scope.socket.on($scope.userUri + ":message", function (data) {
+                        Utils.show_popup("info", "Job Information", data.message);
+                    });
 
-                $scope.socket.on($scope.userUri + ":message", function (data) {
-                    Utils.show_popup("info", "Job Information", data.message);
-                });
+                    $scope.socket.on($scope.userUri + ":notification", function (notificationData) {
+                        Utils.show_popup("info", "Notification", "You have a new notification!");
+                        pushNewNotificationToAlerts(notificationData);
+                    });
 
-                $scope.socket.on($scope.userUri + ":notification", function (notificationData) {
-                    Utils.show_popup("info", "Notification", "You have a new notification!");
-                    pushNewNotificationToAlerts(notificationData);
-                });
-
-                $scope.socket.on("disconnect", function () {
-                    console.log("client session was disconnected");
-                    $scope.socket.emit("forceDisconnect", { socketID : $scope.socket.id, userUri: $scope.userUri });
+                    $scope.socket.on("disconnect", function () {
+                        console.log("client session was disconnected");
+                    });
                 });
             };
 
@@ -91,11 +90,6 @@ angular.module("dendroApp.controllers")
                     throw error;
                 });
         };
-
-        var destroySocketSession = function () {
-            $scope.socket.emit("forceDisconnect", { "userUri": $scope.userUri,  "socketID": $scope.socket.id });
-        };
-
 
         var parseResourceTarget = function (resourceTargetUri)
         {
@@ -292,7 +286,7 @@ angular.module("dendroApp.controllers")
             });
         };
 
-        $scope.get_notification_info = function (notificationUri)
+        $scope.drawNotification = function (notificationUri)
         {
             //This functions returns the positions of notificationUri in the loadedNotifsDataFromServer Array
             //if the notification was not yet loaded from the server it returns -1
@@ -306,14 +300,10 @@ angular.module("dendroApp.controllers")
             };
 
             var index = getNotificationUriPositionInLoadedNotifsDataFromServer(notificationUri);
-            if(index !== -1)
-            {
-                //the notification data for this particular notificationUri is already loaded so no http request will be made
-                return $scope.loadedNotifsDataFromServer[index];
-            }
-            else
+            if(index === -1)
             {
                 //the notification data for this particular notificationUri is not loaded so a http request will be made
+                //and the notification will be drawn to ngAlert
                 notificationService.get_notification_info(notificationUri)
                     .then(function (response)
                     {
@@ -337,7 +327,6 @@ angular.module("dendroApp.controllers")
                         Utils.show_popup("error", "Notification error", "Error getting a user's notification information");
                     });
             }
-
         };
 
         //END SCOPE FUNCTIONS
