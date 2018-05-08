@@ -1034,21 +1034,6 @@ exports.share = function (req, res)
                     }
                     else
                     {
-                        /* const newShare = new Share({
-                         ddr: {
-                         userWhoShared : currentUser.uri,
-                         postURI: post.uri,
-                         shareMsg: shareMsg,
-                         projectUri: post.ddr.projectUri
-                         },
-                         dcterms: {
-                         creator: currentUser.uri
-                         },
-                         rdf: {
-                         isShare : true
-                         }
-                         }); */
-
                         let newShareData = {
                             ddr: {
                                 userWhoShared: currentUser.uri,
@@ -1066,56 +1051,49 @@ exports.share = function (req, res)
 
                         Share.buildFromInfo(newShareData, function (err, newShare)
                         {
-                            let newNotification = new Notification({
-                                ddr: {
-                                    userWhoActed: currentUser.uri,
-                                    resourceTargetUri: post.uri,
-                                    actionType: "Share",
-                                    resourceAuthorUri: post.dcterms.creator,
-                                    shareURI: newShare.uri
-                                },
-                                foaf: {
-                                    status: "unread"
-                                }
-                            });
-
-                            newShare.save(function (err, resultShare)
+                            if(isNull(err) && !isNull(newShare))
                             {
-                                if (isNull(err))
+                                newShare.save(function (err, resultShare)
                                 {
-                                    /*
-                                     res.json({
-                                     result : "OK",
-                                     message : "Post shared successfully"
-                                     }); */
-                                    newNotification.save(function (error, resultNotification)
+                                    if (isNull(err) && !isNull(resultShare))
                                     {
-                                        if (isNull(error))
-                                        {
-                                            res.json({
-                                                result: "OK",
-                                                message: "Post shared successfully"
-                                            });
-                                        }
-                                        else
-                                        {
-                                            res.status(500).json({
-                                                result: "Error",
-                                                message: "Error saving a notification for a Share " + JSON.stringify(resultNotification)
-                                            });
-                                        }
-                                    }, false, null, null, null, null, db_notifications.graphUri);
-                                }
-                                else
-                                {
-                                    Logger.log("error", "Error share a post");
-                                    Logger.log("error", err);
-                                    res.status(500).json({
-                                        result: "Error",
-                                        message: "Error sharing a post. " + JSON.stringify(resultShare)
-                                    });
-                                }
-                            }, false, null, null, null, null, db_social.graphUri);
+                                        Notification.buildAndSaveFromShare(currentUser, post, newShare, function (error, info) {
+                                            if (isNull(error))
+                                            {
+                                                res.json({
+                                                    result: "OK",
+                                                    message: "Post shared successfully"
+                                                });
+                                            }
+                                            else
+                                            {
+                                                res.status(500).json({
+                                                    result: "Error",
+                                                    message: "Error saving a notification for a Share " + JSON.stringify(info)
+                                                });
+                                            }
+                                        });
+                                    }
+                                    else
+                                    {
+                                        Logger.log("error", "Error sharing a post");
+                                        Logger.log("error", err);
+                                        res.status(500).json({
+                                            result: "Error",
+                                            message: "Error sharing a post. " + JSON.stringify(resultShare)
+                                        });
+                                    }
+                                }, false, null, null, null, null, db_social.graphUri);
+                            }
+                            else
+                            {
+                                Logger.log("error", "Error building a share of a post");
+                                Logger.log("error", err);
+                                res.status(500).json({
+                                    result: "Error",
+                                    message: "Error sharing a post. " + JSON.stringify(newShare)
+                                });
+                            }
                         });
                     }
                 }
@@ -1222,29 +1200,11 @@ exports.comment = function (req, res)
                         }
                     });
 
-                    let newNotification = new Notification({
-                        ddr: {
-                            userWhoActed: currentUser.uri,
-                            resourceTargetUri: post.uri,
-                            actionType: "Comment",
-                            resourceAuthorUri: post.dcterms.creator
-                        },
-                        foaf: {
-                            status: "unread"
-                        }
-                    });
-
                     newComment.save(function (err, resultComment)
                     {
-                        if (isNull(err))
+                        if (isNull(err) && !isNull(resultComment))
                         {
-                            /*
-                             res.json({
-                             result : "OK",
-                             message : "Post commented successfully"
-                             }); */
-                            newNotification.save(function (error, resultNotification)
-                            {
+                            Notification.buildAndSaveFromComment(currentUser, post, function (error, info) {
                                 if (isNull(error))
                                 {
                                     res.json({
@@ -1256,10 +1216,10 @@ exports.comment = function (req, res)
                                 {
                                     res.status(500).json({
                                         result: "Error",
-                                        message: "Error saving a notification for a Comment " + JSON.stringify(resultNotification)
+                                        message: "Error saving a notification for a Comment " + JSON.stringify(info)
                                     });
                                 }
-                            }, false, null, null, null, null, db_notifications.graphUri);
+                            });
                         }
                         else
                         {
@@ -1290,63 +1250,6 @@ exports.comment = function (req, res)
             message: msg
         });
     }
-
-    /* Post.findByUri(req.body.postID, function(err, post)
-     {
-     const newComment = new Comment({
-     ddr: {
-     userWhoCommented : currentUser.uri,
-     postURI: post.uri,
-     commentMsg: commentMsg
-     }
-     });
-     const newNotification = new Notification({
-     ddr: {
-     userWhoActed : currentUser.uri,
-     resourceTargetUri: post.uri,
-     actionType: "Comment",
-     resourceAuthorUri: post.dcterms.creator
-     },
-     foaf :
-     {
-     status : "unread"
-     }
-     });
-     newComment.save(function(err, resultComment)
-     {
-     if(!err)
-     {
-     /!*
-     res.json({
-     result : "OK",
-     message : "Post commented successfully"
-     });*!/
-     newNotification.save(function (error, resultNotification) {
-     if(!error)
-     {
-     res.json({
-     result : "OK",
-     message : "Post commented successfully"
-     });
-     }
-     else
-     {
-     res.status(500).json({
-     result: "Error",
-     message: "Error saving a notification for a Comment " + JSON.stringify(resultNotification)
-     });
-     }
-     }, false, null, null, null, null, db_notifications.graphUri);
-     }
-     else
-     {
-     res.status(500).json({
-     result: "Error",
-     message: "Error Commenting a post. " + JSON.stringify(resultComment)
-     });
-     }
-     }, false, null, null, null, null, db_social.graphUri);
-     }, null, db_social.graphUri, null); */
 };
 
 exports.like = function (req, res)
@@ -1382,30 +1285,11 @@ exports.like = function (req, res)
                                 }
                             });
 
-                            // resourceTargetUri -> a post etc
-                            // resourceAuthorUri -> the author of the post etc
-                            // userWhoActed -> user who commmented/etc
-                            // actionType -> comment/like/share
-                            // status-> read/unread
-
-                            let newNotification = new Notification({
-                                ddr: {
-                                    userWhoActed: currentUser.uri,
-                                    resourceTargetUri: post.uri,
-                                    actionType: "Like",
-                                    resourceAuthorUri: post.dcterms.creator
-                                },
-                                foaf: {
-                                    status: "unread"
-                                }
-                            });
-
                             newLike.save(function (err, resultLike)
                             {
-                                if (isNull(err))
+                                if (isNull(err) && !isNull(resultLike))
                                 {
-                                    newNotification.save(function (error, resultNotification)
-                                    {
+                                    Notification.buildAndSaveFromLike(currentUser, post, function (error, info) {
                                         if (isNull(error))
                                         {
                                             res.json({
@@ -1417,10 +1301,10 @@ exports.like = function (req, res)
                                         {
                                             res.status(500).json({
                                                 result: "Error",
-                                                message: "Error saving a notification for a Like " + JSON.stringify(resultNotification)
+                                                message: "Error saving a notification for a Like " + JSON.stringify(info)
                                             });
                                         }
-                                    }, false, null, null, null, null, db_notifications.graphUri);
+                                    });
                                 }
                                 else
                                 {

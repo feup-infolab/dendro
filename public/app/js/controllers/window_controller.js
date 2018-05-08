@@ -16,7 +16,8 @@ angular.module("dendroApp.controllers")
         windowService,
         storageService,
         licensesService,
-        languagesService
+        languagesService,
+        usersService
     )
     {
         $scope.get_current_url = function ()

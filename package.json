@@ -146,6 +146,7 @@
     "simple-elasticsearch": "^0.2.1",
     "sleep": "^5.1.1",
     "slug": "^0.9.1",
+    "socket.io": "^2.1.0",
     "stream-meter": "^1.0.4",
     "stream-rotate": "^0.1.0",
     "stylus": "^0.54.5",
