@@ -7,12 +7,14 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const virtualbox = require("virtualbox");
+const childProcess = require("child_process");
 
 const VirtualBoxManager = function ()
 {
 };
 
 VirtualBoxManager.vmName = Config.virtualbox.vmName;
+VirtualBoxManager.vmIP = Config.virtualbox.vmIP;
 VirtualBoxManager.reuseCheckpoints = Config.virtualbox.reuse_shapshots;
 VirtualBoxManager.createCheckpoints = Config.virtualbox.create_snapshots;
 VirtualBoxManager._destroyedSnapshotsOnce = false;
@@ -475,6 +477,38 @@ VirtualBoxManager.deleteVM = function (onlyOnce, evenCurrentState, callback)
     {
         callback(1, "Virtualbox flag not active in Deployment Config.");
     }
+};
+
+VirtualBoxManager.restartServices = function (serviceNames, callback)
+{
+    Logger.log("Restarting Services " + JSON.stringify(serviceNames) + " on virtual machine " + VirtualBoxManager.vmName);
+
+    async.mapSeries(serviceNames, function (serviceName, cb)
+    {
+        childProcess.exec(`vagrant ssh ${VirtualBoxManager.vmName} -c service ${serviceName} restart`,
+            {
+                env: [
+                    {
+                        VAGRANT_VM_NAME: VirtualBoxManager.vmName
+                    },
+                    {
+                        VAGRANT_VM_IP: VirtualBoxManager.vmIP
+                    }
+                ],
+                cwd: Pathfinder.appDir,
+                stdio: [0, 1, 2]
+            }, function (err, result)
+            {
+                if (isNull(err))
+                {
+                    cb(null, true);
+                }
+                else
+                {
+                    cb(null, false);
+                }
+            });
+    }, callback);
 };
 
 VirtualBoxManager.restartVM = function (onlyOnce, callback)

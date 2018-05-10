@@ -891,6 +891,7 @@ Config.regex_routes = {
 
 Config.authentication = getConfigParameter("authentication");
 Config.numCPUs = getConfigParameter("numCPUs");
+Config.testing = getConfigParameter("testing");
 Config.docker = getConfigParameter("docker");
 Config.virtualbox = getConfigParameter("virtualbox");
 

@@ -8,11 +8,8 @@ const async = require("async");
 const mkdirp = require("mkdirp");
 const getDirName = require("path").dirname;
 
-// to try to cool down tests so that virtuoso does not clog up.
+// to try to cool down tests so that virtuoso does not clog up...
 let numberofTestsRun = 0;
-// 10 sec cooldown every 7 test files
-const testsBatchSizeBeforeCooldown = Number.POSITIVE_INFINITY;
-const testsCooldownTime = 10;
 
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
@@ -24,11 +21,11 @@ const applyCooldownToTests = function (callback)
     async.series([
         function (cb)
         {
-            if (numberofTestsRun % testsBatchSizeBeforeCooldown === 0 && testsBatchSizeBeforeCooldown < Number.POSITIVE_INFINITY)
+            if (Config.testing.apply_cooldown_every_x_tests > 0 && numberofTestsRun % Config.testing.apply_cooldown_every_x_tests === 0)
             {
-                Logger.log("Waiting " + testsCooldownTime + " seconds to allow databases to cooldown.");
+                Logger.log("Waiting " + Config.testing.cooldown_secs + " seconds to allow databases to cooldown.");
                 const sleep = require("sleep");
-                sleep.sleep(testsCooldownTime);
+                sleep.sleep(Config.testing.cooldown_secs);
             }
             cb(null);
         },
@@ -39,6 +36,22 @@ const applyCooldownToTests = function (callback)
                 Logger.log("Restarting Virtual Machine " + Config.virtualbox.vmName);
                 const VirtualBoxManager = require(Pathfinder.absPathInSrcFolder("utils/virtualbox/vm_manager.js")).VirtualBoxManager;
                 VirtualBoxManager.restartVM(false, function (err, result)
+                {
+                    cb(err, result);
+                });
+            }
+            else
+            {
+                cb(null);
+            }
+        },
+        function (cb)
+        {
+            if (Config.virtualbox.active && Config.virtualbox.restart_services_every_x_tests > 0 && numberofTestsRun % Config.virtualbox.restart_services_every_x_tests === 0)
+            {
+                Logger.log("Restarting Services on Virtual Machine " + Config.virtualbox.vmName);
+                const VirtualBoxManager = require(Pathfinder.absPathInSrcFolder("utils/virtualbox/vm_manager.js")).VirtualBoxManager;
+                VirtualBoxManager.restartServices(Config.virtualbox.services_to_be_restarted, function (err, result)
                 {
                     cb(err, result);
                 });

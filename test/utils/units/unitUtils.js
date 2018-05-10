@@ -323,7 +323,7 @@ exports.loadLastSavedCheckpointInUnitHierarchy = function (targetUnit, callback)
                 function (lastCheckedUnit)
                 {
                     let checkValue;
-                    Logger.log(lastCheckedUnit.name);
+                    // Logger.log(lastCheckedUnit.name);
                     if (!isNull(lastCheckpointedUnit))
                     {
                         return true;
@@ -610,6 +610,8 @@ exports.init = function (callback)
 
 exports.setup = function (targetUnit, callback, forceLoad)
 {
+    forceLoad = forceLoad || !Config.virtualbox.reuse_snapshots;
+
     const checkpointIdentifier = targetUnit.name;
     const tryToRestoreUnitState = function (callback)
     {
@@ -727,7 +729,7 @@ exports.setup = function (targetUnit, callback, forceLoad)
                 }
                 else
                 {
-                    if ((Config.docker.active || Config.virtualbox.active))
+                    if ((Config.docker.active && Config.docker.reuse_checkpoints) || (Config.virtualbox.active && Config.virtualbox.reuse_shapshots))
                     {
                         Logger.log("Final checkpoint " + checkpointIdentifier + " does not exist. Will try to load the last checkpoint up the unit dependency chain...");
                         exports.loadLastSavedCheckpointInUnitHierarchy(targetUnit, function (err, loadedUnit)
