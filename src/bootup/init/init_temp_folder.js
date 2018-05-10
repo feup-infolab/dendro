@@ -17,7 +17,7 @@ const initTempFilesFolder = function (app, callback)
             {
                 Logger.log_boot_message("Deleting temp files dir at " + Config.tempFilesDir);
                 const rimraf = require("rimraf");
-                rimraf.remove(Config.tempFilesDir, function (err)
+                rimraf(Config.tempFilesDir, function (err)
                 {
                     if (isNull(err))
                     {
