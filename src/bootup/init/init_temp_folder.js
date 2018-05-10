@@ -16,8 +16,8 @@ const initTempFilesFolder = function (app, callback)
             if (Config.debug.files.delete_temp_folder_on_startup)
             {
                 Logger.log_boot_message("Deleting temp files dir at " + Config.tempFilesDir);
-                const fsextra = require("fs-extra");
-                fsextra.remove(Config.tempFilesDir, function (err)
+                const rimraf = require("rimraf");
+                rimraf.remove(Config.tempFilesDir, function (err)
                 {
                     if (isNull(err))
                     {
@@ -38,20 +38,9 @@ const initTempFilesFolder = function (app, callback)
         },
         function (cb)
         {
-            const fsextra = require("fs-extra");
-            fsextra.exists(Config.tempFilesDir, function (exists)
-            {
-                if (!exists)
-                {
-                    mkdirp.sync(Config.tempFilesDir);
-                    Logger.log_boot_message("Temporary files directory successfully created at " + Config.tempFilesDir);
-                    cb();
-                }
-                else
-                {
-                    cb(null);
-                }
-            });
+            mkdirp.sync(Config.tempFilesDir);
+            Logger.log_boot_message("Temporary files directory successfully created at " + Config.tempFilesDir);
+            cb();
         }
     ], function (err)
     {

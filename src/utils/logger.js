@@ -145,7 +145,6 @@ Logger.init = function (startTime)
 
             mkdirp.sync(path.join(absPath, env, fileNameDateSection));
 
-            const fsExtra = require("fs-extra");
             fsExtra.ensureFileSync(logFilePath);
             fsExtra.ensureFileSync(errorLogFilePath);
 
