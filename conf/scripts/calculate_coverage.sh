@@ -23,7 +23,7 @@ export RUNNING_IN_JENKINS="1"
 echo "create database ${mysql_database_to_create};" | mysql -u $mysql_username -p$mysql_root_password
 
 npm run delete-coverage
-npm run calculate-coverage
+npm run calculate-coverage-jenkins
 
 #report_coverage()
 #{
