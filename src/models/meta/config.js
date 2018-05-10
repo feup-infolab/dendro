@@ -909,8 +909,13 @@ if (process.env.NODE_ENV === "production")
     if (!isNull(argv.pm2_slave))
     {
         Config.runningAsSlave = true;
-        const simultaneousConnections = Config.maxSimultaneousConnectionsToDb / Config.numCPUs;
-        Config.maxSimultaneousConnectionsToDb = (simultaneousConnections >= 1) ? simultaneousConnections : 1;
+        // const simultaneousConnections = Config.maxSimultaneousConnectionsToDb / Config.numCPUs;
+        // Config.maxSimultaneousConnectionsToDb = (simultaneousConnections >= 1) ? simultaneousConnections : 1;
+
+        // THANK YOU VIRTUOSO! ONLY ONE CONNECTION OTHERWISE DATABASE CRASHES
+        // (Communications Link Failure), EVEN THOUGH I AM CONTROLLING
+        // SIMULTANEOUS CONNECTIONS WITH A QUEUE.
+        Config.maxSimultaneousConnectionsToDb = 1;
     }
 }
 

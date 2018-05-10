@@ -15,7 +15,8 @@ const initVirtuoso = function (app, callback)
         Config.virtuosoISQLPort,
         Config.virtuosoAuth.user,
         Config.virtuosoAuth.password,
-        Config.maxSimultaneousConnectionsToDb,
+        // Config.maxSimultaneousConnectionsToDb,
+        1, // it is one because Virtuoso cant handle more than one connection properly. Only ONE connection and not more!!
         Config.dbOperationTimeout
     );
 
