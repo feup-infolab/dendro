@@ -610,8 +610,6 @@ exports.init = function (callback)
 
 exports.setup = function (targetUnit, callback, forceLoad)
 {
-    forceLoad = forceLoad || !Config.virtualbox.reuse_snapshots;
-
     const checkpointIdentifier = targetUnit.name;
     const tryToRestoreUnitState = function (callback)
     {

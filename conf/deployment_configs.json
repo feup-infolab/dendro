@@ -1620,13 +1620,13 @@
       "cooldown_secs": 20
     },
     "docker": {
-      "active": false,
+      "active": true,
       "reuse_checkpoints": true,
       "create_checkpoints": true,
       "start_and_stop_containers_automatically" : false
     },
     "virtualbox": {
-      "active": true,
+      "active": false,
       "create_snapshots": false,
       "reuse_shapshots": false,
       "restart_vm_every_x_tests": -1,

@@ -1160,32 +1160,34 @@ DbConnection.prototype.close = function (callback)
 
     const shutdownVirtuoso = function (callback)
     {
-        if (Config.docker.active && Config.docker.start_and_stop_containers_automatically)
-        {
-            Logger.log("Shutting down virtuoso....!");
-            self.executeViaJDBC(
-                "EXEC=checkpoint; shutdown;",
-                [],
-                function (err, result)
-                {
-                    if (!isNull(err))
-                    {
-                        Logger.log("error", "Error shutting down virtuoso.");
-                        Logger.log("error", err);
-                        Logger.log("error", result);
-                        callback(err, result);
-                    }
-                    else
-                    {
-                        callback(null, result);
-                    }
-                }, null, null, null, true, true
-            );
-        }
-        else
-        {
-            callback(null);
-        }
+        callback(null);
+
+        // if (Config.docker.active && Config.docker.start_and_stop_containers_automatically)
+        // {
+        //     Logger.log("Shutting down virtuoso....!");
+        //     self.executeViaJDBC(
+        //         "EXEC=checkpoint; shutdown;",
+        //         [],
+        //         function (err, result)
+        //         {
+        //             if (!isNull(err))
+        //             {
+        //                 Logger.log("error", "Error shutting down virtuoso.");
+        //                 Logger.log("error", err);
+        //                 Logger.log("error", result);
+        //                 callback(err, result);
+        //             }
+        //             else
+        //             {
+        //                 callback(null, result);
+        //             }
+        //         }, null, null, null, true, true
+        //     );
+        // }
+        // else
+        // {
+        //     callback(null);
+        // }
     };
 
     async.series([
