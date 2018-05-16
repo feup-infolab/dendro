@@ -854,17 +854,17 @@ exports.upload = function (req, res)
                             if (isNull(err))
                             {
                                 Logger.log("Post \"file_upload\" saved to MySQL");
-                            }
-                            else
-                            {
-                                Logger.log("error", err);
-                            }
-                        });
-                        let event = new Event("post", fileSystemPost.uri, fileSystemPost.dcterms.creator);
-                        event.saveToMySQL(function (err) {
-                            if (isNull(err))
-                            {
-                                Logger.log("Event \"post\" saved to MySQL");
+                                let event = new Event("post", fileSystemPost.uri, fileSystemPost.dcterms.creator);
+                                event.saveToMySQL(function (err) {
+                                    if (isNull(err))
+                                    {
+                                        Logger.log("Event \"post\" saved to MySQL");
+                                    }
+                                    else
+                                    {
+                                        Logger.log("error", err);
+                                    }
+                                });
                             }
                             else
                             {
@@ -1382,17 +1382,17 @@ exports.rm = function (req, res)
                             if (isNull(err))
                             {
                                 Logger.log("Post \"file_delete\" saved to MySQL");
-                            }
-                            else
-                            {
-                                Logger.log("error", err);
-                            }
-                        });
-                        let event = new Event("post", post.uri, post.dcterms.creator);
-                        event.saveToMySQL(function (err) {
-                            if (isNull(err))
-                            {
-                                Logger.log("Event \"post\" saved to MySQL");
+                                let event = new Event("post", post.uri, post.dcterms.creator);
+                                event.saveToMySQL(function (err) {
+                                    if (isNull(err))
+                                    {
+                                        Logger.log("Event \"post\" saved to MySQL");
+                                    }
+                                    else
+                                    {
+                                        Logger.log("error", err);
+                                    }
+                                });
                             }
                             else
                             {
@@ -1451,17 +1451,17 @@ exports.rm = function (req, res)
                             if (isNull(err))
                             {
                                 Logger.log("Post \"rmdir\" saved to MySQL");
-                            }
-                            else
-                            {
-                                Logger.log("error", err);
-                            }
-                        });
-                        let event = new Event("post", post.uri, post.dcterms.creator);
-                        event.saveToMySQL(function (err) {
-                            if (isNull(err))
-                            {
-                                Logger.log("Event \"post\" saved to MySQL");
+                                let event = new Event("post", post.uri, post.dcterms.creator);
+                                event.saveToMySQL(function (err) {
+                                    if (isNull(err))
+                                    {
+                                        Logger.log("Event \"post\" saved to MySQL");
+                                    }
+                                    else
+                                    {
+                                        Logger.log("error", err);
+                                    }
+                                });
                             }
                             else
                             {
@@ -2138,17 +2138,17 @@ exports.mkdir = function (req, res)
                                 if (isNull(err))
                                 {
                                     Logger.log("Post \"mkdir\" saved to MySQL");
-                                }
-                                else
-                                {
-                                    Logger.log("error", err);
-                                }
-                            });
-                            let event = new Event("post", post.uri, post.dcterms.creator);
-                            event.saveToMySQL(function (err) {
-                                if (isNull(err))
-                                {
-                                    Logger.log("Event \"post\" saved to MySQL");
+                                    let event = new Event("post", post.uri, post.dcterms.creator);
+                                    event.saveToMySQL(function (err) {
+                                        if (isNull(err))
+                                        {
+                                            Logger.log("Event \"post\" saved to MySQL");
+                                        }
+                                        else
+                                        {
+                                            Logger.log("error", err);
+                                        }
+                                    });
                                 }
                                 else
                                 {

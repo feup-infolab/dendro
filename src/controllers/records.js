@@ -476,17 +476,17 @@ exports.update = function (req, res)
                                     if (isNull(err))
                                     {
                                         Logger.log("Post \"metadata_change\" saved to MySQL");
-                                    }
-                                    else
-                                    {
-                                        Logger.log("error", err);
-                                    }
-                                });
-                                let event = new Event("post", post.uri, post.dcterms.creator);
-                                event.saveToMySQL(function (err) {
-                                    if (isNull(err))
-                                    {
-                                        Logger.log("Event \"post\" saved to MySQL");
+                                        let event = new Event("post", post.uri, post.dcterms.creator);
+                                        event.saveToMySQL(function (err) {
+                                            if (isNull(err))
+                                            {
+                                                Logger.log("Event \"post\" saved to MySQL");
+                                            }
+                                            else
+                                            {
+                                                Logger.log("error", err);
+                                            }
+                                        });
                                     }
                                     else
                                     {

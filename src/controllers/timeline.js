@@ -41,12 +41,16 @@ exports.my = function (req, res)
         dbMySQL.timeline
             .findOrCreate({where: {userURI: req.user.uri}, defaults: newTimeline})
             .spread((timeline, created) => {
-                getURIsAndRender(true, timeline.nextPosition, timeline.lastAccess);
                 if (!created)
                 {
+                    getURIsAndRender(true, timeline.nextPosition, timeline.lastAccess);
                     return timeline.update({
                         lastAccess: new Date()
                     });
+                }
+                else
+                {
+                    getURIsAndRender(true, timeline.nextPosition, null);
                 }
             }).catch(err => {
                 console.log(err);

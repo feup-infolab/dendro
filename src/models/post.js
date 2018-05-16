@@ -21,7 +21,7 @@ Post.prototype.saveToMySQL = function (callback)
         }
     }).then(res => {
         self.typeId = res[0].dataValues.id;
-        db.posts.create(self).then(() => {
+        return db.posts.create(self).then(() => {
             return callback(null);
         }).catch(err => {
             return callback(err);
@@ -49,6 +49,26 @@ Post.prototype.deleteFromMySQL = function (callback)
         }).catch(err => {
             return callback(err);
         });
+    });
+};
+
+Post.prototype.updateTimestamp = function (callback)
+{
+    const self = this;
+    db.posts.update({
+        updatedAt: new Date()
+    }, {
+        where: { postURI: self.postURI }
+    }).then(() => {
+        return db.timeline_post.destroy({
+            where: {
+                postURI: self.postURI
+            }
+        }).then(() => {
+            return callback(null);
+        });
+    }).catch(err => {
+        return callback(err);
     });
 };
 

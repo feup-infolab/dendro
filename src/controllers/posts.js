@@ -174,10 +174,18 @@ const getRankedPosts = function (projectUrisArray, callback, userUri, nextPositi
         {
             let projectsUris = fullProjects.join(",");
             let queryEngagement = "call " + Config.mySQLDBName + ".countEngagement(:user, :projects, :lastAccess);";
-
+            let lastDate;
+            if (!isNull(lastAccess))
+            {
+                lastDate = lastAccess.toISOString();
+            }
+            else
+            {
+                lastDate = "1989-03-21T00:00:00.000Z";
+            }
             dbMySQL.sequelize
                 .query(queryEngagement,
-                    {replacements: { user: "'" + userUri + "'", projects: projectsUris, lastAccess: "'" + lastAccess.toISOString() + "'"}, type: dbMySQL.sequelize.QueryTypes.SELECT})
+                    {replacements: { user: "'" + userUri + "'", projects: projectsUris, lastAccess: "'" + lastDate + "'"}, type: dbMySQL.sequelize.QueryTypes.SELECT})
                 .spread((posts, interactions) => {
                     let newPosts = Object.keys(posts).map(function (k) { return posts[k]; });
                     let interactionsArray = Object.keys(interactions).map(function (k) { return interactions[k]; });
@@ -185,13 +193,15 @@ const getRankedPosts = function (projectUrisArray, callback, userUri, nextPositi
                     {
                         post1.score = getPostScore(interactionsArray, post1);
                         post2.score = getPostScore(interactionsArray, post2);
-                        let diff = post2.score - post1.score;
+                        let diff = post1.score - post2.score;
                         if (diff === 0)
                         {
-                            return post2.created - post2.created;
+                            console.log(post1.created - post2.created);
+                            return post1.created - post2.created;
                         }
                         return diff;
                     });
+                    console.log(newPosts);
                     if (newPosts.length > 0)
                     {
                         return addPostsToTimeline(newPosts, nextPosition, userUri, function ()
@@ -1043,17 +1053,17 @@ exports.new = function (req, res)
                                                 if (isNull(err))
                                                 {
                                                     Logger.log("Post \"manual\" saved to MySQL");
-                                                }
-                                                else
-                                                {
-                                                    Logger.log("error", err);
-                                                }
-                                            });
-                                            let event = new Event("post", manualPost.uri, currentUserUri);
-                                            event.saveToMySQL(function (err) {
-                                                if (isNull(err))
-                                                {
-                                                    Logger.log("Event \"post\" saved to MySQL");
+                                                    let event = new Event("post", manualPost.uri, currentUserUri);
+                                                    event.saveToMySQL(function (err) {
+                                                        if (isNull(err))
+                                                        {
+                                                            Logger.log("Event \"post\" saved to MySQL");
+                                                        }
+                                                        else
+                                                        {
+                                                            Logger.log("error", err);
+                                                        }
+                                                    });
                                                 }
                                                 else
                                                 {
@@ -1431,6 +1441,17 @@ exports.comment = function (req, res)
                                 if (isNull(err))
                                 {
                                     Logger.log("Event \"comment\" saved to MySQL");
+                                }
+                                else
+                                {
+                                    Logger.log("error", err);
+                                }
+                            });
+                            let postObj = new PostObj(null, post.uri, null, null);
+                            postObj.updateTimestamp(function (err) {
+                                if (isNull(err))
+                                {
+                                    Logger.log("Updated post timestamp upon new comment.");
                                 }
                                 else
                                 {
