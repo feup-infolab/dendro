@@ -2,6 +2,7 @@ const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const _ = require("underscore");
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Permissions = Object.create(require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
@@ -30,6 +31,7 @@ const datasets = require(Pathfinder.absPathInSrcFolder("/controllers/datasets"))
 const posts = require(Pathfinder.absPathInSrcFolder("/controllers/posts"));
 const timeline = require(Pathfinder.absPathInSrcFolder("/controllers/timeline"));
 const notifications = require(Pathfinder.absPathInSrcFolder("/controllers/notifications"));
+const Shibboleth = require(Pathfinder.absPathInSrcFolder("bootup/models/shibboleth/shibboleth.js")).Shibboleth;
 
 let recommendation;
 
@@ -225,6 +227,83 @@ const loadRoutes = function (app, callback)
         {
             req.passport.authenticate("orcid", auth_orcid.login(req, res, next));
         });
+    }
+
+    if(!isNull(Config.authentication.shibboleth))
+    {
+        let saml = require("passport-saml");
+        _.each(Config.authentication.shibboleth, function (shibbolethConfig) {
+            console.log("This is a shibbolethConfig: " + JSON.stringify(shibbolethConfig));
+            if(!isNull(shibbolethConfig.enabled) && shibbolethConfig.enabled === true)
+            {
+                let newShibboleth = new Shibboleth(shibbolethConfig);
+                let samlStrategy = new saml.Strategy({
+                    // URL that goes from the Identity Provider -> Service Provider
+                    callbackUrl: newShibboleth.__CALLBACK_URL,
+                    // URL that goes from the Service Provider -> Identity Provider
+                    entryPoint: newShibboleth.__ENTRY_POINT,
+                    // Usually specified as `/shibboleth` from site root
+                    issuer: newShibboleth.__ISSUER,
+                    identifierFormat: null,
+                    // Service Provider private key
+                    decryptionPvk: newShibboleth.__key,
+                    // Service Provider Certificate
+                    privateCert: newShibboleth.__key,
+                    // Identity Provider's public key
+                    cert: newShibboleth.__idp_cert,
+                    validateInResponseTo: false,
+                    disableRequestedAuthnContext: true
+                }, function(profile, done) {
+                    return done(null, profile);
+                });
+
+                passport.use(samlStrategy);
+
+                function ensureAuthenticated(req, res, next) {
+                    if (req.isAuthenticated())
+                        return next();
+                    else
+                        return res.redirect("/login");
+                }
+
+                app.get("/",
+                    ensureAuthenticated,
+                    function(req, res) {
+                        res.send('Authenticated');
+                    }
+                );
+
+                app.get("/login",
+                    passport.authenticate("saml", { failureRedirect: "/login/fail" }),
+                    function (req, res) {
+                        res.redirect("/");
+                    }
+                );
+
+                app.post("/login/callback",
+                    passport.authenticate("saml", { failureRedirect: "/login/fail" }),
+                    function(req, res) {
+                        res.redirect("/");
+                    }
+                );
+
+                app.get("/login/fail",
+                    function(req, res) {
+                        res.status(401).send("Login failed");
+                    }
+                );
+
+                app.get('/Shibboleth.sso/Metadata',
+                    function(req, res) {
+                        res.type('application/xml');
+                        //res.status(200).send(samlStrategy.generateServiceProviderMetadata(fs.readFileSync(__dirname + '/cert/cert.pem', 'utf8')));
+                        res.status(200).send(samlStrategy.generateServiceProviderMetadata(newShibboleth.__cert));
+                    }
+                );
+
+            }
+        });
+        console.log("Ended!");
     }
 
     /**
