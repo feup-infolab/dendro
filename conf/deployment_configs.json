@@ -385,6 +385,18 @@
                 "entry_point": "https://openidp.feide.no/simplesaml/saml2/idp/SSOService.php",
                 "issuer": "passport-saml",
                 "button_text": "Sign-in with SIGARRA"
+            },
+            "shibbolethUP":
+            {
+                "enabled": true,
+                "CALLBACK_URL": "http://167.99.131.75:3007/login/callback",
+                "ENTRY_POINT": "https://idp.testshib.org/idp/profile/SAML2/Redirect/SSO",
+                "ISSUER": "https://167.99.131.75/shibboleth",
+                "SESSION_SECRET": "secret123",
+                "button_text": "Sign-in with shibboleth UP",
+                "idp_cert_path": "/Users/nelsonpereira/Desktop/infolaRepos/dendroRepo/dendro/conf/cert/idp_cert.pem",
+                "key_path": "/Users/nelsonpereira/Desktop/infolaRepos/dendroRepo/dendro/conf/cert/key.pem",
+                "cert_path": "/Users/nelsonpereira/Desktop/infolaRepos/dendroRepo/dendro/conf/cert/cert.pem"
             }
         },
         "numCPUs": 4

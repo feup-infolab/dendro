@@ -229,80 +229,78 @@ const loadRoutes = function (app, callback)
         });
     }
 
-    if(!isNull(Config.authentication.shibboleth))
+    if(!isNull(Config.authentication.shibbolethUP))
     {
         let saml = require("passport-saml");
-        _.each(Config.authentication.shibboleth, function (shibbolethConfig) {
-            console.log("This is a shibbolethConfig: " + JSON.stringify(shibbolethConfig));
-            if(!isNull(shibbolethConfig.enabled) && shibbolethConfig.enabled === true)
-            {
-                let newShibboleth = new Shibboleth(shibbolethConfig);
-                let samlStrategy = new saml.Strategy({
-                    // URL that goes from the Identity Provider -> Service Provider
-                    callbackUrl: newShibboleth.__CALLBACK_URL,
-                    // URL that goes from the Service Provider -> Identity Provider
-                    entryPoint: newShibboleth.__ENTRY_POINT,
-                    // Usually specified as `/shibboleth` from site root
-                    issuer: newShibboleth.__ISSUER,
-                    identifierFormat: null,
-                    // Service Provider private key
-                    decryptionPvk: newShibboleth.__key,
-                    // Service Provider Certificate
-                    privateCert: newShibboleth.__key,
-                    // Identity Provider's public key
-                    cert: newShibboleth.__idp_cert,
-                    validateInResponseTo: false,
-                    disableRequestedAuthnContext: true
-                }, function(profile, done) {
-                    return done(null, profile);
-                });
+        console.log("This is a shibbolethUP config: " + JSON.stringify(Config.authentication.shibbolethUP));
+        if(!isNull(Config.authentication.shibbolethUP.enabled) && Config.authentication.shibbolethUP.enabled === true)
+        {
+            let newShibboleth = new Shibboleth(Config.authentication.shibbolethUP);
+            let samlStrategy = new saml.Strategy({
+                // URL that goes from the Identity Provider -> Service Provider
+                callbackUrl: newShibboleth.__CALLBACK_URL,
+                // URL that goes from the Service Provider -> Identity Provider
+                entryPoint: newShibboleth.__ENTRY_POINT,
+                // Usually specified as `/shibboleth` from site root
+                issuer: newShibboleth.__ISSUER,
+                identifierFormat: null,
+                // Service Provider private key
+                decryptionPvk: newShibboleth.__key,
+                // Service Provider Certificate
+                privateCert: newShibboleth.__key,
+                // Identity Provider's public key
+                cert: newShibboleth.__idp_cert,
+                validateInResponseTo: false,
+                disableRequestedAuthnContext: true
+            }, function(profile, done) {
+                return done(null, profile);
+            });
 
-                passport.use(samlStrategy);
+            passport.use(samlStrategy);
 
-                function ensureAuthenticated(req, res, next) {
-                    if (req.isAuthenticated())
-                        return next();
-                    else
-                        return res.redirect("/login");
-                }
-
-                app.get("/",
-                    ensureAuthenticated,
-                    function(req, res) {
-                        res.send('Authenticated');
-                    }
-                );
-
-                app.get("/login",
-                    passport.authenticate("saml", { failureRedirect: "/login/fail" }),
-                    function (req, res) {
-                        res.redirect("/");
-                    }
-                );
-
-                app.post("/login/callback",
-                    passport.authenticate("saml", { failureRedirect: "/login/fail" }),
-                    function(req, res) {
-                        res.redirect("/");
-                    }
-                );
-
-                app.get("/login/fail",
-                    function(req, res) {
-                        res.status(401).send("Login failed");
-                    }
-                );
-
-                app.get('/Shibboleth.sso/Metadata',
-                    function(req, res) {
-                        res.type('application/xml');
-                        //res.status(200).send(samlStrategy.generateServiceProviderMetadata(fs.readFileSync(__dirname + '/cert/cert.pem', 'utf8')));
-                        res.status(200).send(samlStrategy.generateServiceProviderMetadata(newShibboleth.__cert));
-                    }
-                );
-
+            function ensureAuthenticated(req, res, next) {
+                if (req.isAuthenticated())
+                    return next();
+                else
+                    return res.redirect("/login");
             }
-        });
+
+            app.get("/",
+                ensureAuthenticated,
+                function(req, res) {
+                    res.send('Authenticated');
+                }
+            );
+
+            app.get("/login",
+                passport.authenticate("saml", { failureRedirect: "/login/fail" }),
+                function (req, res) {
+                    res.redirect("/");
+                }
+            );
+
+            app.post("/login/callback",
+                passport.authenticate("saml", { failureRedirect: "/login/fail" }),
+                function(req, res) {
+                    res.redirect("/");
+                }
+            );
+
+            app.get("/login/fail",
+                function(req, res) {
+                    res.status(401).send("Login failed");
+                }
+            );
+
+            app.get('/Shibboleth.sso/Metadata',
+                function(req, res) {
+                    res.type('application/xml');
+                    //res.status(200).send(samlStrategy.generateServiceProviderMetadata(fs.readFileSync(__dirname + '/cert/cert.pem', 'utf8')));
+                    res.status(200).send(samlStrategy.generateServiceProviderMetadata(newShibboleth.__cert));
+                }
+            );
+
+        }
         console.log("Ended!");
     }
 
