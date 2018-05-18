@@ -101,6 +101,10 @@ const getProjectInteractions = function (array, projectURI)
     {
         return element.projectURI === projectURI;
     });
+    if (isNull(project))
+    {
+        return 0;
+    }
     return project.interactions;
 };
 
@@ -173,7 +177,7 @@ const getRankedPosts = function (projectUrisArray, callback, userUri, nextPositi
         }, function (err, fullProjects)
         {
             let projectsUris = fullProjects.join(",");
-            let queryEngagement = "call " + Config.mySQLDBName + ".countEngagement(:user, :projects, :lastAccess);";
+            let queryEngagement = "call " + Config.mySQLDBName + ".countEngagementAndInteractions(:user, :projects, :lastAccess);";
             let lastDate;
             if (!isNull(lastAccess))
             {
@@ -196,7 +200,6 @@ const getRankedPosts = function (projectUrisArray, callback, userUri, nextPositi
                         let diff = post1.score - post2.score;
                         if (diff === 0)
                         {
-                            console.log(post1.created - post2.created);
                             return post1.created - post2.created;
                         }
                         return diff;
@@ -206,11 +209,11 @@ const getRankedPosts = function (projectUrisArray, callback, userUri, nextPositi
                     {
                         return addPostsToTimeline(newPosts, nextPosition, userUri, function ()
                         {
-                            getRankedPostsPerPage(userUri, startingResultPosition, maxResults, callback);
+                            return getRankedPostsPerPage(userUri, startingResultPosition, maxResults, callback);
                         });
                     }
                     // else
-                    getRankedPostsPerPage(userUri, startingResultPosition, maxResults, callback);
+                    return getRankedPostsPerPage(userUri, startingResultPosition, maxResults, callback);
                 })
                 .catch(err => {
                     console.log(err);
@@ -942,7 +945,7 @@ exports.all = function (req, res)
     const currentUser = req.user;
     const acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
-    const currentPage = req.query.currentPage;
+    const currentPage = parseInt(req.query.currentPage);
     const useRank = req.query.useRank;
     const index = currentPage === 1 ? 0 : (currentPage * 5) - 5;
     const maxResults = 5;
@@ -986,7 +989,7 @@ exports.all = function (req, res)
                                 .findOne({where: {userURI: currentUser.uri}, raw: true})
                                 .then((timeline) => {
                                     console.log(timeline);
-                                    getRankedPosts(fullProjectsUris, cb, currentUser.uri, timeline.nextPosition, timeline.lastAccess, index, maxResults);
+                                    return getRankedPosts(fullProjectsUris, cb, currentUser.uri, timeline.nextPosition, timeline.lastAccess, index, maxResults);
                                 }).catch(err => {
                                     console.log(err);
                                 });
@@ -1058,10 +1061,14 @@ exports.new = function (req, res)
                                                         if (isNull(err))
                                                         {
                                                             Logger.log("Event \"post\" saved to MySQL");
+                                                            return res.status(200).json({
+                                                                result: "OK",
+                                                                message: "Manual Post " + manualPost.uri + " successfully created"
+                                                            });
                                                         }
                                                         else
                                                         {
-                                                            Logger.log("error", err);
+                                                            return Logger.log("error", err);
                                                         }
                                                     });
                                                 }
@@ -1069,10 +1076,6 @@ exports.new = function (req, res)
                                                 {
                                                     Logger.log("error", err);
                                                 }
-                                            });
-                                            res.status(200).json({
-                                                result: "OK",
-                                                message: "Manual Post " + manualPost.uri + " successfully created"
                                             });
                                         }
                                         else
