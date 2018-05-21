@@ -2,7 +2,7 @@ angular.module("dendroApp.controllers")
 /**
      *  Project administration controller
      */
-    .controller("timelineCtrl", function ($scope, $http, $filter, usersService, timelineService, projectsService, $window, $element, usSpinnerService)
+    .controller("timelineCtrl", function ($scope, $http, $filter, usersService, timelineService, projectsService, $window, $element, usSpinnerService, moment)
     {
         $scope.myTab = $element;
         $scope.posts = [];
@@ -70,6 +70,11 @@ angular.module("dendroApp.controllers")
                     $scope.doingARequest = false;
                     usSpinnerService.stop("social-dendro-spinner");
                 });
+        };
+
+        $scope.returnTimeElapsedHumanized = function (dateString) {
+            //return moment(new Date(dateString)).fromNow();
+            return moment(new Date(dateString)).calendar();
         };
 
         // THIS IS THE FUNCTION THAT GETS THE postsURIs for the timeline

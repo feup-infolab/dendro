@@ -389,9 +389,10 @@
             "shibbolethUP":
             {
                 "enabled": true,
-                "CALLBACK_URL": "http://167.99.131.75:3007/login/callback",
+                "CALLBACK_URL": "http://207.154.250.99:3007/Shibboleth/login/callback",
+                "URL": "http://207.154.250.99:3007/Shibboleth",
                 "ENTRY_POINT": "https://idp.testshib.org/idp/profile/SAML2/Redirect/SSO",
-                "ISSUER": "https://167.99.131.75/shibboleth",
+                "ISSUER": "https://207.154.250.99/shibboleth",
                 "SESSION_SECRET": "secret123",
                 "button_text": "Sign-in with shibboleth UP",
                 "idp_cert_path": "/Users/nelsonpereira/Desktop/infolaRepos/dendroRepo/dendro/conf/cert/idp_cert.pem",

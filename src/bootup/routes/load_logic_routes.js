@@ -231,11 +231,13 @@ const loadRoutes = function (app, callback)
 
     if(!isNull(Config.authentication.shibbolethUP))
     {
-        let saml = require("passport-saml");
-        console.log("This is a shibbolethUP config: " + JSON.stringify(Config.authentication.shibbolethUP));
+        //let saml = require("passport-saml");
+        //console.log("This is a shibbolethUP config: " + JSON.stringify(Config.authentication.shibbolethUP));
         if(!isNull(Config.authentication.shibbolethUP.enabled) && Config.authentication.shibbolethUP.enabled === true)
         {
             let newShibboleth = new Shibboleth(Config.authentication.shibbolethUP);
+            newShibboleth.registerAuthenticationRoutes(app, passport);
+            /*
             let samlStrategy = new saml.Strategy({
                 // URL that goes from the Identity Provider -> Service Provider
                 callbackUrl: newShibboleth.__CALLBACK_URL,
@@ -282,12 +284,16 @@ const loadRoutes = function (app, callback)
             app.post("/login/callback",
                 passport.authenticate("saml", { failureRedirect: "/login/fail" }),
                 function(req, res) {
+                    console.log("will check req.user!!");
+                    console.log(req.user);
+                    //TODO login or register user in DENDRO here
                     res.redirect("/");
                 }
             );
 
             app.get("/login/fail",
                 function(req, res) {
+                    console.log("Login failed!");
                     res.status(401).send("Login failed");
                 }
             );
@@ -299,7 +305,7 @@ const loadRoutes = function (app, callback)
                     res.status(200).send(samlStrategy.generateServiceProviderMetadata(newShibboleth.__cert));
                 }
             );
-
+            */
         }
         console.log("Ended!");
     }

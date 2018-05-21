@@ -27,9 +27,15 @@ class Shibboleth
             this.__cert = shibbolethConfig.cert;
             */
 
+            /*
             this.__idp_cert = fs.readFileSync(shibbolethConfig.idp_cert_path);
             this.__key = fs.readFileSync(shibbolethConfig.key_path);
             this.__cert = fs.readFileSync(shibbolethConfig.cert_path);
+            */
+            this.__idp_cert = fs.readFileSync(shibbolethConfig.idp_cert_path, "utf8");
+            this.__key = fs.readFileSync(shibbolethConfig.key_path, "utf8");
+            this.__cert = fs.readFileSync(shibbolethConfig.cert_path, "utf8");
+            console.log("Done!");
         }
         catch (error)
         {
@@ -46,6 +52,77 @@ class Shibboleth
         Logger.log("info", "Num connectedSockets for user " + self.__userUri + " : " + self.__sockets.length);
     };
     */
+
+    registerAuthenticationRoutes (app, passport)
+    {
+        let saml = require("passport-saml");
+        let samlStrategy = new saml.Strategy({
+            // URL that goes from the Identity Provider -> Service Provider
+            callbackUrl: this.__CALLBACK_URL,
+            // URL that goes from the Service Provider -> Identity Provider
+            entryPoint: this.__ENTRY_POINT,
+            // Usually specified as `/shibboleth` from site root
+            issuer: this.__ISSUER,
+            identifierFormat: null,
+            // Service Provider private key
+            decryptionPvk: this.__key,
+            // Service Provider Certificate
+            privateCert: this.__key,
+            // Identity Provider's public key
+            cert: this.__idp_cert,
+            validateInResponseTo: false,
+            disableRequestedAuthnContext: true
+        }, function(profile, done) {
+            return done(null, profile);
+        });
+
+        passport.use(samlStrategy);
+
+        function ensureAuthenticated(req, res, next) {
+            if (req.isAuthenticated())
+                return next();
+            else
+                return res.redirect("/Shibboleth/login");
+        }
+
+        app.get("/Shibboleth",
+            ensureAuthenticated,
+            function(req, res) {
+                res.send('Authenticated');
+            }
+        );
+
+        app.get("/Shibboleth/login",
+            passport.authenticate("saml", { failureRedirect: "/login/fail" }),
+            function (req, res) {
+                res.redirect("/");
+            }
+        );
+
+        app.post("/Shibboleth/login/callback",
+            passport.authenticate("saml", { failureRedirect: "/login/fail" }),
+            function(req, res) {
+                console.log("will check req.user!!");
+                console.log(req.user);
+                //TODO login or register user in DENDRO here
+                res.redirect("/");
+            }
+        );
+
+        app.get("/Shibboleth/login/fail",
+            function(req, res) {
+                console.log("Login failed!");
+                res.status(401).send("Login failed");
+            }
+        );
+
+        app.get('/Shibboleth.sso/Metadata',
+            function(req, res) {
+                res.type('application/xml');
+                res.status(200).send(samlStrategy.generateServiceProviderMetadata(this.__cert));
+            }
+        );
+    }
 }
 
 module.exports.Shibboleth = Shibboleth;
