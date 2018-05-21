@@ -282,12 +282,15 @@ const loadRoutes = function (app, callback)
             app.post("/login/callback",
                 passport.authenticate("saml", { failureRedirect: "/login/fail" }),
                 function(req, res) {
+                    console.log("Authenticated with success, checking req.user next:");
+                    console.log("req.user: " + req.user);
                     res.redirect("/");
                 }
             );
 
             app.get("/login/fail",
                 function(req, res) {
+                    console.log("failed to login with Shibboleth!")
                     res.status(401).send("Login failed");
                 }
             );
