@@ -1,12 +1,14 @@
 "use strict";
 module.exports = (sequelize, DataTypes) => {
     var timeline_post = sequelize.define("timeline_post", {
-        userURI: DataTypes.STRING,
+        timelineId: DataTypes.INTEGER,
         postURI: DataTypes.STRING,
-        position: DataTypes.INTEGER
+        position: DataTypes.INTEGER,
+        fixedPosition: DataTypes.INTEGER,
+        timestampFixed: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
     }, {});
     timeline_post.associate = function (models) {
-        // associations can be defined here
+        timeline_post.belongsTo(models.timeline);
     };
     return timeline_post;
 };

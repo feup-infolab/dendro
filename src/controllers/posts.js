@@ -31,70 +31,6 @@ const dbMySQL = require(Pathfinder.absPathInSrcFolder("mysql_models"));
 
 const app = require("../app");
 
-/**
- * Gets all the posts ordered by modified date and using pagination
- * @param callback the function callback
- * @param startingResultPosition the starting position to start the query
- * @param maxResults the limit for the query
- */
-const getAllPosts = function (projectUrisArray, callback, startingResultPosition, maxResults)
-{
-    // based on getRecentProjectWideChangesSocial
-    const self = this;
-
-    if (projectUrisArray && projectUrisArray.length > 0)
-    {
-        async.mapSeries(projectUrisArray, function (uri, cb1)
-        {
-            cb1(null, "<" + uri + ">");
-        }, function (err, fullProjects)
-        {
-            const projectsUris = fullProjects.join(" ");
-            let query =
-                "WITH [0] \n" +
-                // "SELECT DISTINCT ?uri ?postTypes\n" +
-                "SELECT DISTINCT ?uri\n" +
-                "WHERE { \n" +
-                "VALUES ?project { \n" +
-                projectsUris +
-                "} \n" +
-                /* "VALUES ?postTypes { \n" +
-                "ddr:Post" + " ddr:Share" + " ddr:MetadataChangePost" + " ddr:FileSystemPost" + " ddr:ManualPost" +
-                "} \n" + */
-                "?uri ddr:modified ?date. \n" +
-                // "?uri rdf:type ?postTypes. \n" +
-                "?uri rdf:type ddr:Post. \n" +
-                "?uri ddr:projectUri ?project. \n" +
-                "} \n " +
-                "ORDER BY DESC(?date) \n";
-
-            query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
-
-            db.connection.executeViaJDBC(query,
-                DbConnection.pushLimitsArguments([
-                    {
-                        type: Elements.types.resourceNoEscape,
-                        value: db_social.graphUri
-                    }
-                ]),
-                function (err, results)
-                {
-                    if (isNull(err))
-                    {
-                        return callback(err, results);
-                    }
-                    return callback(true, "Error fetching posts in getAllPosts");
-                });
-        });
-    }
-    else
-    {
-    // User has no projects
-        const results = [];
-        return callback(null, results);
-    }
-};
-
 const getProjectInteractions = function (array, projectURI)
 {
     let project = array.find(function (element)
@@ -118,17 +54,25 @@ const getPostScore = function (projectInteractionsArray, post)
     return comments * 3 + shares * 2 + likes + projectInteractions;
 };
 
-const addPostsToTimeline = function (posts, nextPosition, userURI, callback)
+const addPostsToTimeline = function (posts, nextPosition, timelineId, callback)
 {
     let insertArray = [];
     let itemsProcessed = 0;
     const insertInTimeline = function (posts, nextPosition)
     {
-        return dbMySQL.sequelize.transaction(function (t)
+        return dbMySQL.timeline_post.bulkCreate(posts).then(function ()
+        {
+            return dbMySQL.timeline.update({ nextPosition: nextPosition }, { where: { id: timelineId } }).then(function () {
+                return callback();
+            }).catch(function (err) {
+                console.log(err);
+            });
+        });
+        /* return dbMySQL.sequelize.transaction(function (t)
         {
             return dbMySQL.timeline_post.bulkCreate(posts, {transaction: t}).then(function ()
             {
-                return dbMySQL.timeline.update({ nextPosition: nextPosition }, { where: { userURI: userURI } }, {transaction: t});
+                return dbMySQL.timeline.update({ nextPosition: nextPosition }, { where: { id: timelineId } }, {transaction: t});
             });
         }).then(function ()
         {
@@ -136,11 +80,11 @@ const addPostsToTimeline = function (posts, nextPosition, userURI, callback)
         }).catch(function (err)
         {
             console.log(err);
-        });
+        }); */
     };
     const createInsertArray = function (post, index, array)
     {
-        insertArray.push({userURI: userURI, postURI: post.uri, position: nextPosition});
+        insertArray.push({timelineId: timelineId, postURI: post.uri, position: nextPosition, fixedPosition: nextPosition});
         nextPosition++;
         itemsProcessed++;
         if (itemsProcessed === array.length)
@@ -151,13 +95,13 @@ const addPostsToTimeline = function (posts, nextPosition, userURI, callback)
     posts.forEach(createInsertArray);
 };
 
-const getRankedPostsPerPage = function (userUri, startingResultPosition, maxResults, callback)
+const getRankedPostsPerPage = function (startingResultPosition, maxResults, timelineId, callback)
 {
     return dbMySQL.timeline_post.findAll({
         raw: true,
-        where: { userURI: userUri },
-        attributes: [ ["postURI", "uri"], "position" ],
-        order: [ ["position", "DESC"] ],
+        where: { timelineId: timelineId },
+        attributes: [ ["postURI", "uri"], "position", "fixedPosition" ],
+        order: [ ["fixedPosition", "DESC"] ],
         offset: startingResultPosition,
         limit: maxResults
     }).then(function (posts)
@@ -167,7 +111,104 @@ const getRankedPostsPerPage = function (userUri, startingResultPosition, maxResu
     });
 };
 
-const getRankedPosts = function (projectUrisArray, callback, userUri, nextPosition, lastAccess, startingResultPosition, maxResults)
+/**
+ * Gets all the posts ordered by modified date and using pagination
+ * @param callback the function callback
+ * @param startingResultPosition the starting position to start the query
+ * @param maxResults the limit for the query
+ */
+const getAllPosts = function (projectUrisArray, callback, nextPosition, lastAccess, startingResultPosition, maxResults, timelineId)
+{
+    // based on getRecentProjectWideChangesSocial
+    const self = this;
+
+    if (projectUrisArray && projectUrisArray.length > 0)
+    {
+        async.mapSeries(projectUrisArray, function (uri, cb1)
+        {
+            // cb1(null, "<" + uri + ">");
+            cb1(null, "'" + uri + "'");
+        }, function (err, fullProjects)
+        {
+            /* const projectsUris = fullProjects.join(" ");
+            let query =
+                "WITH [0] \n" +
+                // "SELECT DISTINCT ?uri ?postTypes\n" +
+                "SELECT DISTINCT ?uri\n" +
+                "WHERE { \n" +
+                "VALUES ?project { \n" +
+                projectsUris +
+                "} \n" +
+                /!* "VALUES ?postTypes { \n" +
+                "ddr:Post" + " ddr:Share" + " ddr:MetadataChangePost" + " ddr:FileSystemPost" + " ddr:ManualPost" +
+                "} \n" + *!/
+                "?uri ddr:modified ?date. \n" +
+                // "?uri rdf:type ?postTypes. \n" +
+                "?uri rdf:type ddr:Post. \n" +
+                "?uri ddr:projectUri ?project. \n" +
+                "} \n " +
+                "ORDER BY DESC(?date) \n";
+
+            query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
+
+            db.connection.executeViaJDBC(query,
+                DbConnection.pushLimitsArguments([
+                    {
+                        type: Elements.types.resourceNoEscape,
+                        value: db_social.graphUri
+                    }
+                ]),
+                function (err, results)
+                {
+                    if (isNull(err))
+                    {
+                        return callback(err, results);
+                    }
+                    return callback(true, "Error fetching posts in getAllPosts");
+                }); */
+
+            let projectsUris = fullProjects.join(",");
+            let queryEngagement = "SELECT postURI AS uri FROM dendroVagrantDemo.posts WHERE projectURI IN (" + projectsUris + ") AND createdAt >= :date ORDER BY createdAt ASC;";
+            let lastDate;
+            if (!isNull(lastAccess))
+            {
+                lastDate = lastAccess.toISOString();
+            }
+            else
+            {
+                lastDate = "1989-03-21T00:00:00.000Z";
+            }
+            dbMySQL.sequelize
+                .query(queryEngagement,
+                    {replacements: { date: lastDate}, type: dbMySQL.sequelize.QueryTypes.SELECT})
+                .then(posts => {
+                    // let newPosts = Object.keys(posts).map(function (k) { return posts[k]; });
+                    console.log(posts);
+                    if (posts.length > 0)
+                    {
+                        return addPostsToTimeline(posts, nextPosition, timelineId, function ()
+                        {
+                            return getRankedPostsPerPage(startingResultPosition, maxResults, timelineId, callback);
+                        });
+                    }
+                    // else
+                    return getRankedPostsPerPage(startingResultPosition, maxResults, timelineId, callback);
+                })
+                .catch(err => {
+                    console.log(err);
+                    return callback(true, "Error fetching posts in getAllPosts");
+                });
+        });
+    }
+    else
+    {
+        // User has no projects
+        const results = [];
+        return callback(null, results);
+    }
+};
+
+const getRankedPosts = function (projectUrisArray, callback, userUri, nextPosition, lastAccess, startingResultPosition, maxResults, timelineId)
 {
     if (projectUrisArray && projectUrisArray.length > 0)
     {
@@ -207,13 +248,13 @@ const getRankedPosts = function (projectUrisArray, callback, userUri, nextPositi
                     console.log(newPosts);
                     if (newPosts.length > 0)
                     {
-                        return addPostsToTimeline(newPosts, nextPosition, userUri, function ()
+                        return addPostsToTimeline(newPosts, nextPosition, timelineId, function ()
                         {
-                            return getRankedPostsPerPage(userUri, startingResultPosition, maxResults, callback);
+                            return getRankedPostsPerPage(startingResultPosition, maxResults, timelineId, callback);
                         });
                     }
                     // else
-                    return getRankedPostsPerPage(userUri, startingResultPosition, maxResults, callback);
+                    return getRankedPostsPerPage(startingResultPosition, maxResults, timelineId, callback);
                 })
                 .catch(err => {
                     console.log(err);
@@ -229,7 +270,7 @@ const getRankedPosts = function (projectUrisArray, callback, userUri, nextPositi
     }
 };
 
-exports.getUserPostsUris = function (userUri, currentPage, useRank, nextPosition, lastAccess, callback)
+exports.getUserPostsUris = function (userUri, currentPage, useRank, nextPosition, lastAccess, timelineId, callback)
 {
     const index = currentPage === 1 ? 0 : (currentPage * 5) - 5;
     const maxResults = 5;
@@ -257,11 +298,11 @@ exports.getUserPostsUris = function (userUri, currentPage, useRank, nextPosition
             {
                 if (!useRank)
                 {
-                    getAllPosts(fullProjectsUris, cb, index, maxResults);
+                    getAllPosts(fullProjectsUris, cb, nextPosition, lastAccess, index, maxResults, timelineId);
                 }
                 else
                 {
-                    getRankedPosts(fullProjectsUris, cb, userUri, nextPosition, lastAccess, index, maxResults);
+                    getRankedPosts(fullProjectsUris, cb, userUri, nextPosition, lastAccess, index, maxResults, timelineId);
                 }
             });
         }
@@ -977,7 +1018,24 @@ exports.all = function (req, res)
                     cb1(null, project.uri);
                 }, function (err, fullProjectsUris)
                 {
-                    if (useRank === "false")
+                    dbMySQL.timeline
+                        .findOne({where: {userURI: currentUser.uri}, raw: true})
+                        .then((timeline) => {
+                            if (currentPage === 1)
+                            {
+                                if (useRank === "false")
+                                {
+                                    return getAllPosts(fullProjectsUris, cb, timeline.nextPosition, timeline.lastAccess, index, maxResults, timeline.id);
+                                }
+                                // else
+                                return getRankedPosts(fullProjectsUris, cb, currentUser.uri, timeline.nextPosition, timeline.lastAccess, index, maxResults, timeline.id);
+                            }
+                            // else
+                            getRankedPostsPerPage(index, maxResults, timeline.id, cb);
+                        }).catch(err => {
+                            console.log(err);
+                        });
+                    /* if (useRank === "false")
                     {
                         getAllPosts(fullProjectsUris, cb, index, maxResults);
                     }
@@ -998,7 +1056,7 @@ exports.all = function (req, res)
                         {
                             getRankedPostsPerPage(currentUser.uri, index, maxResults, cb);
                         }
-                    }
+                    } */
                 });
             }
             else

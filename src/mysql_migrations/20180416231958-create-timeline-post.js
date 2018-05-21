@@ -8,14 +8,26 @@ module.exports = {
                 primaryKey: true,
                 type: Sequelize.INTEGER
             },
-            userURI: {
-                type: Sequelize.TEXT
+            timelineId: {
+                type: Sequelize.INTEGER,
+                references: {
+                    model: "timelines",
+                    key: "id"
+                }
             },
             postURI: {
                 type: Sequelize.TEXT
             },
             position: {
                 type: Sequelize.INTEGER
+            },
+            fixedPosition: {
+                type: Sequelize.INTEGER
+            },
+            timestampFixed: {
+                allowNull: false,
+                defaultValue: queryInterface.sequelize.fn("NOW"),
+                type: Sequelize.DATE
             },
             createdAt: {
                 allowNull: false,

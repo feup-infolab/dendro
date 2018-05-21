@@ -6,9 +6,9 @@ const dbMySQL = require(Pathfinder.absPathInSrcFolder("mysql_models"));
 
 exports.my = function (req, res)
 {
-    const getURIsAndRender = function (useRank, nextPosition, lastAccess)
+    const getURIsAndRender = function (useRank, nextPosition, lastAccess, timelineId)
     {
-        postController.getUserPostsUris(req.user.uri, 1, useRank, nextPosition, lastAccess, function (err, postUris)
+        postController.getUserPostsUris(req.user.uri, 1, useRank, nextPosition, lastAccess, timelineId, function (err, postUris)
         {
             if (!err)
             {
@@ -28,36 +28,32 @@ exports.my = function (req, res)
             }
         });
     };
-    let useRank = false;
-    if (req.query.rank === "true")
-    {
-        useRank = true;
-    }
+    let type = "";
+    let useRank = req.query.rank === "true" ? 1 : 0;
     if (useRank)
     {
-        let newTimeline = {
-            userURI: req.userURI
-        };
-        dbMySQL.timeline
-            .findOrCreate({where: {userURI: req.user.uri}, defaults: newTimeline})
-            .spread((timeline, created) => {
-                if (!created)
-                {
-                    getURIsAndRender(true, timeline.nextPosition, timeline.lastAccess);
-                    return timeline.update({
-                        lastAccess: new Date()
-                    });
-                }
-                else
-                {
-                    getURIsAndRender(true, timeline.nextPosition, null);
-                }
-            }).catch(err => {
-                console.log(err);
-            });
+        type = "ranked";
     }
     else
     {
-        getURIsAndRender(false, null, null);
+        type = "unranked";
     }
+    let newTimeline = {
+        userURI: req.userURI,
+        type: type
+    };
+    dbMySQL.timeline
+        .findOrCreate({where: {userURI: req.user.uri, type: type}, defaults: newTimeline})
+        .spread((timeline, created) => {
+            if (!created)
+            {
+                getURIsAndRender(useRank, timeline.nextPosition, timeline.lastAccess, timeline.id);
+                return timeline.update({
+                    lastAccess: new Date()
+                });
+            }
+            getURIsAndRender(useRank, timeline.nextPosition, null, timeline.id);
+        }).catch(err => {
+            console.log(err);
+        });
 };
