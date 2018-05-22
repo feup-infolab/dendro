@@ -49,23 +49,23 @@ Notification.prototype.getHumanReadableUri = function (callback)
 const sendSocketNotificationToUser = function (userUri, notificationObject)
 {
     const userSession = IO.getUserSession(userUri);
-    if(!isNull(userSession))
+    if (!isNull(userSession))
     {
         userSession.emitNotification(notificationObject);
     }
     else
     {
-        Logger.log("error", "Could not emit message to user: " + userUri)
+        Logger.log("error", "Could not emit message to user: " + userUri);
     }
 };
 
-
-Notification.prototype.save = function (callback) {
+Notification.prototype.save = function (callback)
+{
     const self = this;
     const notificationObject = JSON.parse(JSON.stringify(self));
     self.baseConstructor.prototype.save.call(self, function (err, result)
     {
-        if(isNull(err))
+        if (isNull(err))
         {
             sendSocketNotificationToUser(notificationObject.ddr.resourceAuthorUri, notificationObject);
         }
@@ -73,8 +73,8 @@ Notification.prototype.save = function (callback) {
     }, false, null, null, null, null, db_notifications.graphUri);
 };
 
-
-Notification.buildAndSaveFromSystemMessage = function (message, targetUserUri, callback, referencedResource) {
+Notification.buildAndSaveFromSystemMessage = function (message, targetUserUri, callback, referencedResource)
+{
     const newNotification = new Notification({
         ddr: {
             actionType: "SystemMessage",
@@ -88,12 +88,14 @@ Notification.buildAndSaveFromSystemMessage = function (message, targetUserUri, c
             sharedContent: message
         }
     });
-    newNotification.save(function (err, info) {
+    newNotification.save(function (err, info)
+    {
         callback(err, info);
     });
 };
 
-Notification.buildAndSaveFromLike = function (currentUser, post, callback) {
+Notification.buildAndSaveFromLike = function (currentUser, post, callback)
+{
     // resourceTargetUri -> a post etc
     // resourceAuthorUri -> the author of the post etc
     // userWhoActed -> user who commmented/etc
@@ -110,12 +112,14 @@ Notification.buildAndSaveFromLike = function (currentUser, post, callback) {
             status: "unread"
         }
     });
-    newNotification.save(function (err, info) {
+    newNotification.save(function (err, info)
+    {
         callback(err, info);
     });
 };
 
-Notification.buildAndSaveFromShare = function (currentUser, post, newShare, callback) {
+Notification.buildAndSaveFromShare = function (currentUser, post, newShare, callback)
+{
     const newNotification = new Notification({
         ddr: {
             userWhoActed: currentUser.uri,
@@ -128,12 +132,14 @@ Notification.buildAndSaveFromShare = function (currentUser, post, newShare, call
             status: "unread"
         }
     });
-    newNotification.save(function (err, info) {
+    newNotification.save(function (err, info)
+    {
         callback(err, info);
     });
 };
 
-Notification.buildAndSaveFromComment = function (currentUser, post, callback) {
+Notification.buildAndSaveFromComment = function (currentUser, post, callback)
+{
     const newNotification = new Notification({
         ddr: {
             userWhoActed: currentUser.uri,
@@ -145,7 +151,8 @@ Notification.buildAndSaveFromComment = function (currentUser, post, callback) {
             status: "unread"
         }
     });
-    newNotification.save(function (err, info) {
+    newNotification.save(function (err, info)
+    {
         callback(err, info);
     });
 };

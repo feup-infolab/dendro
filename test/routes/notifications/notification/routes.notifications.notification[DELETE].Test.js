@@ -123,7 +123,7 @@ describe("Delete a specific notification tests", function ()
         });
 
         // the case where the notification does not exist
-        //because there you be an error for the user in the ui
+        // because there you be an error for the user in the ui
         it("[For demouser1, as the creator of all projects] Should 'delete' a notification that does not exist", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)

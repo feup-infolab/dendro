@@ -102,7 +102,8 @@ exports.get_notification_info = function (req, res)
 
         if (!isNull(userUri) && !isNull(notificationUri))
         {
-            Notification.findByUri(notificationUri, function (err, notification) {
+            Notification.findByUri(notificationUri, function (err, notification)
+            {
                 if (isNull(err))
                 {
                     if (!isNull(notification))
@@ -216,15 +217,14 @@ exports.delete = function (req, res)
         const userUri = req.user.uri;
         const notificationUri = req.query.notificationUri;
 
-        const isAValidString = function (notificationUri) {
+        const isAValidString = function (notificationUri)
+        {
             if (typeof notificationUri === "string" || notificationUri instanceof String)
             {
                 return true;
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         };
 
         if (!isNull(userUri) && !isNull(notificationUri) && isAValidString(notificationUri) && notificationUri.length > 0)

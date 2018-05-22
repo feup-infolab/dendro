@@ -17,7 +17,7 @@ const projectData = {
     handle: publicProjectHandle,
     privacy: "public",
     uri: "http://" + Config.host + "/" + publicProjectHandle,
-    //backup_path: fileUtils.getFilePath("/mockdata/projects/projectBackups/publicprojectcreatedbydemouser2.zip"),
+    // backup_path: fileUtils.getFilePath("/mockdata/projects/projectBackups/publicprojectcreatedbydemouser2.zip"),
     searchTerms: publicProjectHandle,
     storageConfig: {
         hasStorageType: "local"
