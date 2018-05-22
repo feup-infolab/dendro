@@ -193,23 +193,24 @@ describe("Searches DBpedia for important terms", function (done)
                 dbpediaconcepts = db.body.dbpediauri.result;
                 console.log(dbpediaconcepts);
                 var writer = csvWriter();
-                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/chemistry-CVALUE-JJ2.csv")))
+                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/chemistry/chemistry-lov-nn3.csv")))
                 {
-                    writer = csvWriter({ separator: ",", headers: ["searchterm", "score", "uri", "label", "description" ]});
+                    writer = csvWriter({ separator: ",", headers: [ "searchterm", "score", "lovscore", "lovvocabulary", "lovuri", "lovlabel", "dbpedialabel", "dbpediauri", "dbpediadescription" ]});
                 }
                 else
                 {
                     writer = csvWriter({sendHeaders: false});
                 }
-                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/chemistry-CVALUE-JJ2.csv"), {flags: "a"}));
-                for( var i = 0; i < dbpediaconcepts.length; i++) {
+                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/chemistry/chemistry-lov-nn3.csv"), {flags: "a"}));
+                for (var i = 0; i < dbpediaconcepts.length; i++)
+                {
                     writer.write(dbpediaconcepts[i]);
                 }
                 writer.end();
                 done();
             });
         });
-        it("Get properties from DBpedia", function (done)
+        /*it("Get properties from DBpedia", function (done)
         {
             this.timeout(1500000);
             keywordsUtils.dbpediaproperties(dbpediaconcepts, agent, function (err, db)
@@ -233,7 +234,7 @@ describe("Searches DBpedia for important terms", function (done)
                 writer.end();
                 done();
             });
-        });
+        });*/
     });
 
     after(function (done)
