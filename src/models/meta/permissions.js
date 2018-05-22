@@ -280,7 +280,11 @@ const checkUsersRoleInNotification = function (req, user, role, notificationUri,
         {
             if (isNull(err))
             {
-                if (notification instanceof Notification)
+                if(isNull(notification))
+                {
+                    return callback(null, true);
+                }
+                else if (notification instanceof Notification)
                 {
                     notification.checkIfHasPredicateValue(role.predicate, user.uri, function (err, result)
                     {
@@ -338,50 +342,75 @@ const checkUsersRoleInPostsProject = function (req, user, role, postUri, callbac
 
 const checkUsersRoleInArrayOfPostsProject = function (req, user, role, arrayOfPostsUris, callback)
 {
-    if (!isNull(user))
+    let predicateRoles = null;
+    if(isNull(role) || isNull(role.predicates) || !(role.predicates instanceof  Array) || isNull(arrayOfPostsUris) || !(arrayOfPostsUris instanceof  Array))
     {
-        async.mapSeries(arrayOfPostsUris, function (postUri, cb)
-        {
-            getPostsProject(postUri, function (err, project)
-            {
-                if (isNull(err))
-                {
-                    if (project instanceof Project)
-                    {
-                        checkUsersRoleInProject(req, user, role, project, function (err, hasRole)
-                        {
-                            if (isNull(err))
-                            {
-                                if (hasRole === false)
-                                {
-                                    return callback(err, hasRole);
-                                }
-                                cb(err, hasRole);
-                            }
-                            else
-                            {
-                                return callback(err, false);
-                            }
-                        });
-                    }
-                    else
-                    {
-                        return callback(null, false);
-                    }
-                }
-                else
-                {
-                    return callback(null, false);
-                }
-            });
-        }, function (err, results)
-        {
-            return callback(err, true);
-        });
+        Logger.log("error", "Error at checkUsersRoleInArrayOfPostsProject, 'role' object should exist and 'role.predicates' and arrayOfPostsUris must be an array!");
+        callback(null, false);
     }
     else
     {
-        callback(null, false);
+        predicateRoles = role.predicates;
+        if (!isNull(user))
+        {
+            if(arrayOfPostsUris.length > 0)
+            {
+                async.mapSeries(arrayOfPostsUris, function (postUri, cb)
+                {
+                    getPostsProject(postUri, function (err, project)
+                    {
+                        if (isNull(err))
+                        {
+                            if (project instanceof Project)
+                            {
+                                async.eachSeries(predicateRoles, function(predicate, cb) {
+                                    let role = {
+                                        predicate: predicate
+                                    };
+                                    checkUsersRoleInProject(req, user, role, project, function (err, hasRole)
+                                    {
+                                        if (isNull(err))
+                                        {
+                                            if (hasRole === true)
+                                            {
+                                                return callback(err, hasRole);
+                                            }
+                                            cb(err, hasRole);
+                                        }
+                                        else
+                                        {
+                                            return callback(err, false);
+                                        }
+                                    });
+                                }, function(err) {
+                                    return callback(null, false);
+                                });
+                            }
+                            else
+                            {
+                                return callback(null, false);
+                            }
+                        }
+                        else
+                        {
+                            return callback(null, false);
+                        }
+                    });
+                }, function (err, results)
+                {
+                    return callback(null, false);
+                });
+            }
+            else
+            {
+                //when there are no posts in the timeline it is always allowed to check the "empty" timeline
+                return callback(null, true);
+            }
+        }
+        else
+        {
+            callback(null, false);
+        }
     }
 };
 
@@ -478,7 +507,7 @@ Permissions.types = {
     role_in_post_s_project: {
         validator: checkUsersRoleInPostsProject
     },
-    role_in_array_of_posts_project: {
+    user_role_in_array_of_posts_project: {
         validator: checkUsersRoleInArrayOfPostsProject
     },
     role_in_notification_s_resource: {
@@ -562,19 +591,14 @@ Permissions.settings = {
                 error_message_api: "Unauthorized access. Must be signed on as a contributor or creator of the project the post belongs to."
             }
         },
-        in_array_of_posts_project: {
-            creator: {
-                type: Permissions.types.role_in_array_of_posts_project,
-                predicate: "dcterms:creator",
-                error_message_user: "You are not a contributor or creator of the project to which these posts belongs to.",
-                error_message_api: "Unauthorized access. Must be signed on as a contributor or creator of the project these posts belong to."
-            },
-            contributor: {
-                type: Permissions.types.role_in_array_of_posts_project,
-                predicate: "dcterms:contributor",
-                error_message_user: "You are not a contributor or creator of the project to which these posts belongs to.",
-                error_message_api: "Unauthorized access. Must be signed on as a contributor or creator of the project these posts belong to."
-            }
+        user_role_in_array_of_posts_project: {
+            type: Permissions.types.user_role_in_array_of_posts_project,
+            predicates: [
+                "dcterms:contributor",
+                "dcterms:creator"
+            ],
+            error_message_user: "You are not a contributor or creator of all the projects to which these posts belongs to.",
+            error_message_api: "Unauthorized access. Must be signed on as a contributor or creator of all the projects these posts belong to."
         }
     },
     privacy: {
@@ -700,9 +724,9 @@ Permissions.check = function (permissionsRequired, req, callback)
                     cb(err, {authorized: result, role: permission});
                 });
             }
-            else if (permission.type === Permissions.types.role_in_array_of_posts_project)
+            else if (permission.type === Permissions.types.user_role_in_array_of_posts_project)
             {
-                Permissions.types.role_in_array_of_posts_project.validator(req, user, permission, req.query.postsQueryInfo, function (err, result)
+                Permissions.types.user_role_in_array_of_posts_project.validator(req, user, permission, req.query.postsQueryInfo, function (err, result)
                 {
                     cb(err, {authorized: result, role: permission});
                 });

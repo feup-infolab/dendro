@@ -292,8 +292,6 @@ Logger.log = function (type, message, printStack)
     }
 
     return;
-
-
     // special case for when the message is null and we are logging an error
     if (type === "error")
     {

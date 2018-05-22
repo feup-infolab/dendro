@@ -40,6 +40,7 @@
         <% } %>
     </head>
     <body class="ng-cloak">
+    <!--<div id="wrap" ng-controller="windowCtrl" ng-init="handleSocketSession()">-->
     <div id="wrap" ng-controller="windowCtrl">
         <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
             <div class="container-fluid">
@@ -151,21 +152,19 @@
                             %>
 
                         <%if(locals.user != null) { %>
-
-                            <li ng-controller="notificationCtrl" ng-init="init();getAlerts()" class="dropdown">
+                            <li ng-controller="notificationCtrl" ng-init="init()" class="dropdown">
                                 <a class="notifications-icon" href="#" ng-alerts-popover popover-placement="bottom-right" style="
                                     padding-top: 10px;
                                     padding-bottom: 4px;
                                 ">
-                                    <!--<ng-alerts-count badge="true" hide-empty="true"> </ng-alerts-count> -->
                                                         <span class="fa-stack fa-1x notifications-icon">
-                                                            <i class="fa fa-bell fa-stack-2x text-default" ng-class="{'faa-horizontal' : numNotifications > 0, 'animated' : numNotifications > 0}"></i>
-                                                            <i class="fa fa-circle fa-stack-2x text-default badge-circle text-danger" ng-show="numNotifications > 0"></i>
-                                                            <strong class="fa-stack-1x notifications-text badge-text" ng-show="numNotifications > 0">{{numNotifications}}</strong>
+                                                            <i class="fa fa-bell fa-stack-2x text-default" ng-class="{'faa-horizontal' : urisOfNotifsToLoadFromServer.length > 0, 'animated' : urisOfNotifsToLoadFromServer.length > 0}"></i>
+                                                            <i class="fa fa-circle fa-stack-2x text-default badge-circle text-danger" ng-show="urisOfNotifsToLoadFromServer.length > 0"></i>
+                                                            <strong class="fa-stack-1x notifications-text badge-text" ng-show="urisOfNotifsToLoadFromServer.length > 0">{{urisOfNotifsToLoadFromServer.length}}</strong>
                                                         </span>
                                 </a>
-                                <div ng-repeat="notifUri in notifsUris">
-                                    <div ng-init="get_notification_info(notifUri.uri)">
+                                <div ng-repeat="uriOfNotifToLoadFromServer in urisOfNotifsToLoadFromServer">
+                                    <div ng-init="drawNotification(uriOfNotifToLoadFromServer)">
                                     </div>
                                 </div>
                             </li>

@@ -20,6 +20,7 @@ const coreNLP = corenlp.default;
 const connector = new corenlp.ConnectorServer({
     dsn: "http://localhost:9000"
 });
+
 const props = new corenlp.Properties({
     annotators: "tokenize,ssplit,pos,ner"
 });
@@ -36,16 +37,7 @@ var baseRequest = request.defaults({
 });
 var dps = require("dbpedia-sparql-client").default;
 
-/*
-exports.loadfiles = function (rec, res)
-{
-    res.json(
-        {
-            return : "return"
-        }
-    );
-};
-*/
+
 exports.preprocessing = function (req, res)
 {
     var nounphrase = function (type, text, res)
@@ -145,56 +137,7 @@ exports.preprocessing = function (req, res)
                 }
             }
         }
-        /* else
-        {
-            for (let j = 0; j < text.length; j++)
-            {
-                comparision = text[j];
-                if (comparision.pos.charAt(0) === "N" || comparision.pos.charAt(0) === "J")
-                {
-                    if (comparision.lemma.toString().length < 3)
-                    {
-                        // console.log(comparision.word);
-                    }
-                    else
-                    {
-                        current_word = comparision.lemma;
-                        for (let index2 = j + 1; index2 < text.length; index2++)
-                        {
-                            comparision = text[index2];
-                            if (comparision.pos.charAt(0) === "N")
-                            {
-                                if (comparision.lemma.toString().length < 3)
-                                {
-                                    break;
-                                }
-                                current_word += (" " + comparision.lemma);
-                                multiterm.push(current_word.toLowerCase());
-                            }
-                            else if (comparision.pos.charAt(0) === "J")
-                            {
-                                if (comparision.lemma.toString().length < 3)
-                                {
-                                    break;
-                                }
-                                if (text[(index2 + 1)].pos.charAt(0) === "N" || text[(index2 + 1)].pos.charAt(0) === "J")
-                                {
-                                    current_word += (" " + comparision.lemma);
-                                }
-                                else
-                                {
-                                    break;
-                                }
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }*/
+
         const result = [...new Set(multiterm.map(obj => JSON.stringify(obj)))]
             .map(str => JSON.parse(str));
         // console.log(result);
@@ -211,9 +154,7 @@ exports.preprocessing = function (req, res)
         // console.log("replacing: " + find + " for " + replace);
         return str.replace(new RegExp("\\b" + find + "\\b", "gi"), replace);
     }
-    var my_corpus = new tm.Corpus([]);
-    my_corpus.addDoc(req.body.text);
-    doc = new coreNLP.simple.Document(my_corpus.documents[0]);
+    doc = new coreNLP.simple.Document(req.body.text);
     pipeline.annotate(doc)
         .then(doc =>
         {
@@ -545,7 +486,6 @@ exports.termextraction = function (req, res)
                 var texti = JSON.parse(text);
                 var results = [];
                 var documents = [];
-                var my_corpus = new tm.Corpus([]);
                 var documentlength = [];
                 var nounphrase = [];
                 if (texti.text.length > 1)
@@ -557,22 +497,15 @@ exports.termextraction = function (req, res)
                     }
                     for (var yy = 0; yy < texti.documents.length; yy++)
                     {
-                        my_corpus = new tm.Corpus([]);
-                        my_corpus.addDoc(texti.documents[yy].toString());
-                        // my_corpus.toLower();
-                        // my_corpus.removeWords(tm.STOPWORDS.EN);
-                        documents.push(my_corpus.documents[0]);
-                        documentlength.push(WordCount(my_corpus.documents[0]));
+                        documents.push(texti.documents[yy].toString());
+                        documentlength.push(WordCount(texti.documents[yy].toString()));
                     }
                 }
                 else
                 {
                     results.push(JSON.parse(texti.text).result);
                     nounphrase.concat(JSON.parse(texti.text).nounphraselist);
-                    my_corpus.addDoc(texti.documents.toString());
-                    // my_corpus.toLower();
-                    // my_corpus.removeWords(tm.STOPWORDS.EN);
-                    documents.push(my_corpus.documents[0]);
+                    documents.push(texti.documents.toString());
                 }
                 if (isNull(err))
                 {

@@ -1091,8 +1091,7 @@ const loadRoutes = function (app, callback)
     });
 
     const defaultSocialDendroArrayOfPostsPermissions = [
-        Permissions.settings.role.in_array_of_posts_project.creator,
-        Permissions.settings.role.in_array_of_posts_project.contributor
+        Permissions.settings.role.user_role_in_array_of_posts_project,
     ];
     app.get("/posts/posts", function (req, res, next)
     {
@@ -1105,7 +1104,7 @@ const loadRoutes = function (app, callback)
                         queryKeys: ["postsQueryInfo"],
                         handler: posts.getPosts_controller,
                         permissions: defaultSocialDendroArrayOfPostsPermissions,
-                        authentication_error: "Permission denied : You are not a contributor or creator of the project to which the posts belongs to."
+                        authentication_error: "Permission denied : You are not a contributor or creator of the project to which the posts belong to."
                     }
                 ]
             };

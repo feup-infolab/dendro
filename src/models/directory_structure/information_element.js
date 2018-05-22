@@ -82,15 +82,21 @@ InformationElement.prototype.getParent = function (callback)
                         {
                             result.uri = result.parent_folder;
                             const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-                            let parent = new Folder(result);
-                            return callback(null, parent);
+                            //let parent = new Folder(result);
+                            //return callback(null, parent);
+                            return Folder.findByUri(result.uri, function (err, parent) {
+                               callback(err, parent);
+                            });
                         }
                         else if (!isNull(result[0].parent_project))
                         {
                             result.uri = result.parent_project;
                             const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
-                            let parent = new Project(result);
-                            return callback(null, parent);
+                            //let parent = new Project(result);
+                            //return callback(null, parent);
+                            return Project.findByUri(result.uri, function (err, parent) {
+                                callback(err, parent);
+                            });
                         }
 
                         return callback(1, "There was an error calculating the parent of resource " + self.uri);
@@ -1089,7 +1095,24 @@ InformationElement.prototype.refreshChildrenHumanReadableUris = function (callba
     const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
     if (self.isA(Folder))
     {
-        Folder.refreshChildrenHumanReadableUris.call(self, callback, customGraphUri);
+        Folder.findByUri(self.uri, function (err, folder)
+        {
+            if(isNull(err))
+            {
+                if(!isNull(folder))
+                {
+                    folder.refreshChildrenHumanReadableUris(callback, customGraphUri);
+                }
+                else
+                {
+                    callback(true, "There is no folder with uri: " + self.uri);
+                }
+            }
+            else
+            {
+                callback(err, folder);
+            }
+        });
     }
     else
     {

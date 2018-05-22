@@ -175,8 +175,8 @@ describe("Get all notifications URIs for a user tests", function ()
                                     socialDendroUtils.getANotificationInfo(true, agent, notificationsDemouser2[0].uri, function (err, res)
                                     {
                                         res.statusCode.should.equal(200);
-                                        res.body[0].actionType.should.equal("Like");
-                                        res.body[0].resourceTargetUri.should.equal(manualPostCreatedByDemouser2);
+                                        res.body.ddr.actionType.should.equal("Like");
+                                        res.body.ddr.resourceTargetUri.should.equal(manualPostCreatedByDemouser2);
                                         done();
                                     });
                                 });
@@ -214,8 +214,8 @@ describe("Get all notifications URIs for a user tests", function ()
                                     socialDendroUtils.getANotificationInfo(true, agent, notificationsDemouser2[0].uri, function (err, res)
                                     {
                                         res.statusCode.should.equal(200);
-                                        res.body[0].actionType.should.equal("Comment");
-                                        res.body[0].resourceTargetUri.should.equal(manualPostCreatedByDemouser2);
+                                        res.body.ddr.actionType.should.equal("Comment");
+                                        res.body.ddr.resourceTargetUri.should.equal(manualPostCreatedByDemouser2);
                                         done();
                                     });
                                 });
@@ -253,8 +253,8 @@ describe("Get all notifications URIs for a user tests", function ()
                                     socialDendroUtils.getANotificationInfo(true, agent, notificationsDemouser2[0].uri, function (err, res)
                                     {
                                         res.statusCode.should.equal(200);
-                                        res.body[0].actionType.should.equal("Share");
-                                        res.body[0].resourceTargetUri.should.equal(manualPostCreatedByDemouser2);
+                                        res.body.ddr.actionType.should.equal("Share");
+                                        res.body.ddr.resourceTargetUri.should.equal(manualPostCreatedByDemouser2);
                                         done();
                                     });
                                 });
