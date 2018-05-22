@@ -21,37 +21,15 @@ class Shibboleth
             this.__SESSION_SECRET = shibbolethConfig.SESSION_SECRET;
             this.__button_text = shibbolethConfig.button_text;
 
-            /*
-            this.__idp_cert = shibbolethConfig.idp_cert;
-            this.__key = shibbolethConfig.key;
-            this.__cert = shibbolethConfig.cert;
-            */
-
-            /*
-            this.__idp_cert = fs.readFileSync(shibbolethConfig.idp_cert_path);
-            this.__key = fs.readFileSync(shibbolethConfig.key_path);
-            this.__cert = fs.readFileSync(shibbolethConfig.cert_path);
-            */
             this.__idp_cert = fs.readFileSync(shibbolethConfig.idp_cert_path, "utf8");
             this.__key = fs.readFileSync(shibbolethConfig.key_path, "utf8");
             this.__cert = fs.readFileSync(shibbolethConfig.cert_path, "utf8");
-            console.log("Done!");
         }
         catch (error)
         {
             throw error;
         }
     }
-
-
-    /*
-    addNewSocket (newSocket)
-    {
-        let self = this;
-        self.__sockets.push(newSocket);
-        Logger.log("info", "Num connectedSockets for user " + self.__userUri + " : " + self.__sockets.length);
-    };
-    */
 
     registerAuthenticationRoutes (app, passport)
     {
@@ -93,17 +71,17 @@ class Shibboleth
         );
 
         app.get("/Shibboleth/login",
-            passport.authenticate("saml", { failureRedirect: "/login/fail" }),
+            passport.authenticate("saml", { failureRedirect: "/Shibboleth/login/fail" }),
             function (req, res) {
                 res.redirect("/");
             }
         );
 
         app.post("/Shibboleth/login/callback",
-            passport.authenticate("saml", { failureRedirect: "/login/fail" }),
+            passport.authenticate("saml", { failureRedirect: "/Shibboleth/login/fail" }),
             function(req, res) {
-                console.log("will check req.user!!");
-                console.log(req.user);
+                Logger.log("info", "will check req.user!!");
+                Logger.log("info", req.user);
                 //TODO login or register user in DENDRO here
                 res.redirect("/");
             }
@@ -111,7 +89,7 @@ class Shibboleth
 
         app.get("/Shibboleth/login/fail",
             function(req, res) {
-                console.log("Login failed!");
+                Logger.log("Login failed!");
                 res.status(401).send("Login failed");
             }
         );
