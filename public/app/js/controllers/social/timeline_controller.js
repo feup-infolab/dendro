@@ -339,7 +339,8 @@ angular.module("dendroApp.controllers")
             $scope.projectChosen = $scope.userProjects[0];
             $scope.newPostTitle = "";
             $scope.newPostContent = "";
-            $scope.useRank = (useRank === "true");
+            $scope.useRank = useRank;
+            console.log($scope.useRank);
             $scope.getUserProjects();
 
             $scope.countNumPosts();

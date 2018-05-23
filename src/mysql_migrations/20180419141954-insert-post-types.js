@@ -8,7 +8,8 @@ module.exports = {
             { name: "file_upload", createdAt: new Date(), updatedAt: new Date() },
             { name: "file_delete", createdAt: new Date(), updatedAt: new Date() },
             { name: "rmdir", createdAt: new Date(), updatedAt: new Date() },
-            { name: "mkdir", createdAt: new Date(), updatedAt: new Date() }
+            { name: "mkdir", createdAt: new Date(), updatedAt: new Date() },
+            { name: "share", createdAt: new Date(), updatedAt: new Date() }
         ], {});
     },
 

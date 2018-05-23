@@ -987,7 +987,7 @@ exports.all = function (req, res)
     const acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
     const currentPage = parseInt(req.query.currentPage);
-    const useRank = req.query.useRank;
+    const useRank = req.query.rank === "true" ? 1 : 0;
     const index = currentPage === 1 ? 0 : (currentPage * 5) - 5;
     const maxResults = 5;
 
@@ -1018,17 +1018,33 @@ exports.all = function (req, res)
                     cb1(null, project.uri);
                 }, function (err, fullProjectsUris)
                 {
+                    let type = "";
+                    if (useRank)
+                    {
+                        type = "ranked";
+                    }
+                    else
+                    {
+                        type = "unranked";
+                    }
                     dbMySQL.timeline
-                        .findOne({where: {userURI: currentUser.uri}, raw: true})
+                        .findOne({where: {userURI: currentUser.uri, type: type}})
                         .then((timeline) => {
                             if (currentPage === 1)
                             {
-                                if (useRank === "false")
+                                if (!useRank)
                                 {
-                                    return getAllPosts(fullProjectsUris, cb, timeline.nextPosition, timeline.lastAccess, index, maxResults, timeline.id);
+                                    getAllPosts(fullProjectsUris, cb, timeline.nextPosition, timeline.lastAccess, index, maxResults, timeline.id);
                                 }
-                                // else
-                                return getRankedPosts(fullProjectsUris, cb, currentUser.uri, timeline.nextPosition, timeline.lastAccess, index, maxResults, timeline.id);
+                                else
+                                {
+                                    getRankedPosts(fullProjectsUris, cb, currentUser.uri, timeline.nextPosition, timeline.lastAccess, index, maxResults, timeline.id);
+                                }
+                                var t = new Date();
+                                t.setSeconds(t.getSeconds() + 1);
+                                return timeline.update({
+                                    lastAccess: t
+                                });
                             }
                             // else
                             getRankedPostsPerPage(index, maxResults, timeline.id, cb);
@@ -1331,11 +1347,22 @@ exports.share = function (req, res)
                             {
                                 if (isNull(err))
                                 {
-                                    let event = new Event("share", post.uri, currentUser.uri);
-                                    event.saveToMySQL(function (err) {
+                                    let newPost = new PostObj("share", newShare.uri, currentUser.uri, post.ddr.projectUri);
+                                    newPost.saveToMySQL(function (err) {
                                         if (isNull(err))
                                         {
-                                            Logger.log("Event \"share\" saved to MySQL");
+                                            Logger.log("Post \"share\" saved to MySQL");
+                                            let event = new Event("share", newShare.uri, currentUser.uri);
+                                            event.saveToMySQL(function (err) {
+                                                if (isNull(err))
+                                                {
+                                                    Logger.log("Event \"share\" saved to MySQL");
+                                                }
+                                                else
+                                                {
+                                                    Logger.log("error", err);
+                                                }
+                                            });
                                         }
                                         else
                                         {

@@ -9,6 +9,13 @@
     <div ng-cloak>
         <div class="container">
             <h3 class="text-center">Social Dendro</h3>
+            <li class="text-center dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Sort by <b class="caret"></b></a>
+                <ul class="text-center dropdown-menu">
+                    <li><a href="/socialDendro/my"><i ng-if="useRank==0" class="fa fa-check" aria-hidden="true"></i> Most recent</a></li>
+                    <li><a href="/socialDendro/my?rank=true"><i ng-if="useRank==1" class="fa fa-check" aria-hidden="true"></i> Best post</a></li>
+                </ul>
+            </li>
             <hr>
 
             <ng-include src="'/app/views/social/partial/createManualPost.html'"></ng-include>
@@ -54,6 +61,13 @@
     </div>
 
 </div>
+
+<script>
+    function moveUp (event) {
+        console.log(event.target.parentNode.parentNode);
+        console.log(event.target.parentNode.parentNode.nextSibling);
+    }
+</script>
 
 <div>
     <%- include ../layout/footer.ejs %>
