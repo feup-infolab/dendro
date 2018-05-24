@@ -732,6 +732,15 @@ var checkIfIsEmail = function (email)
 
 exports.edit = function (req, res, next)
 {
+    const isShibbolethUser = function (user) {
+        let result = false;
+        if(!isNull(user) && !isNull(user.ddr) && !isNull(user.ddr.isShibbolethUser) && user.ddr.isShibbolethUser === true)
+        {
+            result = true;
+        }
+        return result;
+    };
+
     let changedPassword = false;
     if (!isNull(req.user))
     {
@@ -739,130 +748,140 @@ exports.edit = function (req, res, next)
         {
             if (!err && !isNull(user))
             {
-                async.series([
-                    function (callback)
-                    {
-                        if (!isNull(req.body.email) && checkIfIsEmail(req.body.email))
-                        {
-                            user.foaf.mbox = req.body.email;
-                            return callback(null, null);
-                        }
-                        let msg = "Invalid email format!";
-                        return callback(true, msg);
-                    },
-                    function (callback)
-                    {
-                        if (!isNull(req.body.firstname))
-                        {
-                            user.foaf.firstName = req.body.firstname;
-                        }
-                        callback(null, null);
-                    },
-                    function (callback)
-                    {
-                        if (!isNull(req.body.surname))
-                        {
-                            user.foaf.surname = req.body.surname;
-                        }
-                        callback(null, null);
-                    },
-                    function (callback)
-                    {
-                        if (!isNull(req.body.password) && !isNull(req.body.repeat_password) && req.body.password.length > 0 && req.body.repeat_password.length > 0)
-                        {
-                            if (req.body.password === req.body.repeat_password && req.body.password.length >= 8)
-                            {
-                                const bcrypt = require("bcryptjs");
-                                bcrypt.hash(req.body.password, user.ddr.salt, function (err, hashedPassword)
-                                {
-                                    if (!err)
-                                    {
-                                        user.ddr.password = hashedPassword;
-                                        changedPassword = true;
-                                        return callback(null, null);
-                                    }
-                                    let msg = "Error encrypting password";
-                                    Logger.log("error", msg);
-                                    /* req.flash('error', msg);
-                                         res.redirect('/me'); */
-                                    return callback(true, msg);
-                                });
-                            }
-                            else
-                            {
-                                let msg = "Passwords fields must be the same and at least 8 characters in length!";
-                                Logger.log("error", msg);
-                                // req.flash('error', msg);
-                                // res.redirect('/me');
-                                return callback(true, msg);
-                            }
-                        }
-                        else
-                        {
-                            return callback(null, null);
-                        }
-                    }
-                ], function (err, results)
+                if(isShibbolethUser(user) === false)
                 {
-                    if (!err)
-                    {
-                        user.save(function (err, editedUser)
+                    async.series([
+                        function (callback)
                         {
-                            if (!err)
+                            if (!isNull(req.body.email) && checkIfIsEmail(req.body.email))
                             {
-                                let auth = require(Pathfinder.absPathInSrcFolder("/controllers/auth.js"));
-                                req.flash("success", "User " + editedUser.ddr.username + " edited.");
-                                // Logger.log("User " + editedUser.ddr.username + " edited.");
-                                // res.redirect('/me');
-                                if (changedPassword)
+                                user.foaf.mbox = req.body.email;
+                                return callback(null, null);
+                            }
+                            let msg = "Invalid email format!";
+                            return callback(true, msg);
+                        },
+                        function (callback)
+                        {
+                            if (!isNull(req.body.firstname))
+                            {
+                                user.foaf.firstName = req.body.firstname;
+                            }
+                            callback(null, null);
+                        },
+                        function (callback)
+                        {
+                            if (!isNull(req.body.surname))
+                            {
+                                user.foaf.surname = req.body.surname;
+                            }
+                            callback(null, null);
+                        },
+                        function (callback)
+                        {
+                            if (!isNull(req.body.password) && !isNull(req.body.repeat_password) && req.body.password.length > 0 && req.body.repeat_password.length > 0)
+                            {
+                                if (req.body.password === req.body.repeat_password && req.body.password.length >= 8)
                                 {
-                                    req.flash("info", "Since you changed your password, you need to login again!");
-                                    auth.logout(req, res);
+                                    const bcrypt = require("bcryptjs");
+                                    bcrypt.hash(req.body.password, user.ddr.salt, function (err, hashedPassword)
+                                    {
+                                        if (!err)
+                                        {
+                                            user.ddr.password = hashedPassword;
+                                            changedPassword = true;
+                                            return callback(null, null);
+                                        }
+                                        let msg = "Error encrypting password";
+                                        Logger.log("error", msg);
+                                        /* req.flash('error', msg);
+                                             res.redirect('/me'); */
+                                        return callback(true, msg);
+                                    });
                                 }
                                 else
                                 {
-                                    req.body.username = editedUser.ddr.username;
-                                    if (req.user instanceof User)
-                                    {
-                                        req.logIn(user, function (err)
-                                        {
-                                            if (!err)
-                                            {
-                                                res.redirect("back");
-                                            }
-                                            else
-                                            {
-                                                let msg = "Error updating user session. Error reported:  " + JSON.stringify(err);
-                                                Logger.log("error", msg);
-                                                req.flash("error", msg);
-                                                auth.logout(req, res);
-                                            }
-                                        });
-                                    }
-                                    else
-                                    {
-                                        req.flash("info", "Session was lost! Please login again.");
-                                        auth.logout(req, res);
-                                    }
+                                    let msg = "Passwords fields must be the same and at least 8 characters in length!";
+                                    Logger.log("error", msg);
+                                    // req.flash('error', msg);
+                                    // res.redirect('/me');
+                                    return callback(true, msg);
                                 }
                             }
                             else
                             {
-                                let msg = "Error editing user " + user.uri + ". Error reported :" + editedUser;
-                                Logger.log("error", msg);
-                                req.flash("error", msg);
-                                res.redirect("/me");
+                                return callback(null, null);
                             }
-                        });
-                    }
-                    else
+                        }
+                    ], function (err, results)
                     {
-                        let msg = "Error editing user " + user.uri + ". Error reported :" + JSON.stringify(results);
-                        Logger.log("error", msg);
-                        req.flash("error", msg);
-                        res.redirect("/me");
-                    }
-                });
+                        if (!err)
+                        {
+                            user.save(function (err, editedUser)
+                            {
+                                if (!err)
+                                {
+                                    let auth = require(Pathfinder.absPathInSrcFolder("/controllers/auth.js"));
+                                    req.flash("success", "User " + editedUser.ddr.username + " edited.");
+                                    // Logger.log("User " + editedUser.ddr.username + " edited.");
+                                    // res.redirect('/me');
+                                    if (changedPassword)
+                                    {
+                                        req.flash("info", "Since you changed your password, you need to login again!");
+                                        auth.logout(req, res);
+                                    }
+                                    else
+                                    {
+                                        req.body.username = editedUser.ddr.username;
+                                        if (req.user instanceof User)
+                                        {
+                                            req.logIn(user, function (err)
+                                            {
+                                                if (!err)
+                                                {
+                                                    res.redirect("back");
+                                                }
+                                                else
+                                                {
+                                                    let msg = "Error updating user session. Error reported:  " + JSON.stringify(err);
+                                                    Logger.log("error", msg);
+                                                    req.flash("error", msg);
+                                                    auth.logout(req, res);
+                                                }
+                                            });
+                                        }
+                                        else
+                                        {
+                                            req.flash("info", "Session was lost! Please login again.");
+                                            auth.logout(req, res);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    let msg = "Error editing user " + user.uri + ". Error reported :" + editedUser;
+                                    Logger.log("error", msg);
+                                    req.flash("error", msg);
+                                    res.redirect("/me");
+                                }
+                            });
+                        }
+                        else
+                        {
+                            let msg = "Error editing user " + user.uri + ". Error reported :" + JSON.stringify(results);
+                            Logger.log("error", msg);
+                            req.flash("error", msg);
+                            res.redirect("/me");
+                        }
+                    });
+                }
+                else
+                {
+                    let msg = "Cannot edit a Shibboleth User";
+                    Logger.log("error", msg);
+                    req.flash("error", msg);
+                    res.redirect("/me");
+                }
             }
             else
             {

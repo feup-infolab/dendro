@@ -51,95 +51,98 @@
 <br/>
 
 <!--<form action="/register" method="POST">-->
-<form action="/user/edit" method="POST">
-    <div class="row">
-        <div class="span6 offset3">
-            <div class="row">
-                <div class="form-group">
-                    <label for="email" class="col-sm-2 control-label">Email</label>
-                    <div class="col-sm-10">
-                        <input
-                                type="email"
-                                class="form-control"
-                                id="email"
-                                placeholder="Email"
-                                <%if(locals.Config.debug.views.prefill_text_boxes){%>
+<p> user.ddr.isShibbolethUser : <%=user.ddr.isShibbolethUser%> </p>
+<%if(user.ddr.isShibbolethUser !==true){%>
+    <form action="/user/edit" method="POST">
+        <div class="row">
+            <div class="span6 offset3">
+                <div class="row">
+                    <div class="form-group">
+                        <label for="email" class="col-sm-2 control-label">Email</label>
+                        <div class="col-sm-10">
+                            <input
+                                    type="email"
+                                    class="form-control"
+                                    id="email"
+                                    placeholder="Email"
+                                    <%if(locals.Config.debug.views.prefill_text_boxes){%>
                                     value="joaorosilva@gmail.com"
-                                <% } else {%>
+                                    <% } else {%>
                                     value="<%=locals.user.foaf.mbox%>"
-                                <%}%>
-                                name="email">
-                        <p class="help-block">Your email address</p>
+                                    <%}%>
+                                    name="email">
+                            <p class="help-block">Your email address</p>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="password" class="col-sm-2 control-label">Password</label>
-                    <div class="col-sm-10">
-                        <input
-                                type="password"
-                                class="form-control"
-                                id="password"
-                                placeholder="Password"
-                                <%if(locals.Config.debug.views.prefill_text_boxes){%>
+                    <div class="form-group">
+                        <label for="password" class="col-sm-2 control-label">Password</label>
+                        <div class="col-sm-10">
+                            <input
+                                    type="password"
+                                    class="form-control"
+                                    id="password"
+                                    placeholder="Password"
+                                    <%if(locals.Config.debug.views.prefill_text_boxes){%>
                                     value="jrocha"
-                                <%}%>
-                                name="password">
-                        <p class="help-block">Your intended password, leave this field blank if you do not wish to change your password.</p>
+                                    <%}%>
+                                    name="password">
+                            <p class="help-block">Your intended password, leave this field blank if you do not wish to change your password.</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="repeat_password" class="col-sm-2 control-label">Repeat Password</label>
+                        <div class="col-sm-10">
+                            <input type="password"
+                                   class="form-control"
+                                   id="repeat_password"
+                                   placeholder="Repeat Password"
+                                    <%if(locals.Config.debug.views.prefill_text_boxes){%>
+                                   value="jrocha"
+                                    <%} %>
+                                   name="repeat_password">
+                            <p class="help-block">Repeat your intended password, leave this field blank if you do not wish to change your password</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="firstname" class="col-sm-2 control-label">First Name</label>
+                        <div class="col-sm-10">
+                            <input type="text"
+                                   class="form-control"
+                                   id="firstname"
+                                   placeholder="Username"
+                                    <%if(locals.Config.debug.views.prefill_text_boxes){%>
+                                   value="João"
+                                    <%} else {%>
+                                   value="<%=locals.user.foaf.firstName%>"
+                                    <%}%>
+                                   name="firstname">
+                            <p class="help-block">Your first name</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="surname" class="col-sm-2 control-label">Surname</label>
+                        <div class="col-sm-10">
+                            <input type="text"
+                                   class="form-control"
+                                   id="surname"
+                                   placeholder="Surname"
+                                    <%if(locals.Config.debug.views.prefill_text_boxes){%>
+                                   value="Rocha"
+                                    <%} else {%>
+                                   value="<%=locals.user.foaf.surname%>"
+                                    <%}%>
+                                   name="surname">
+                            <p class="help-block">Your surname</p>
+                        </div>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="repeat_password" class="col-sm-2 control-label">Repeat Password</label>
-                    <div class="col-sm-10">
-                        <input type="password"
-                               class="form-control"
-                               id="repeat_password"
-                               placeholder="Repeat Password"
-                                <%if(locals.Config.debug.views.prefill_text_boxes){%>
-                                    value="jrocha"
-                                <%} %>
-                               name="repeat_password">
-                        <p class="help-block">Repeat your intended password, leave this field blank if you do not wish to change your password</p>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="firstname" class="col-sm-2 control-label">First Name</label>
-                    <div class="col-sm-10">
-                        <input type="text"
-                               class="form-control"
-                               id="firstname"
-                               placeholder="Username"
-                                <%if(locals.Config.debug.views.prefill_text_boxes){%>
-                                    value="João"
-                                <%} else {%>
-                                    value="<%=locals.user.foaf.firstName%>"
-                                <%}%>
-                               name="firstname">
-                        <p class="help-block">Your first name</p>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="surname" class="col-sm-2 control-label">Surname</label>
-                    <div class="col-sm-10">
-                        <input type="text"
-                               class="form-control"
-                               id="surname"
-                               placeholder="Surname"
-                                <%if(locals.Config.debug.views.prefill_text_boxes){%>
-                                    value="Rocha"
-                                <%} else {%>
-                                    value="<%=locals.user.foaf.surname%>"
-                                <%}%>
-                               name="surname">
-                        <p class="help-block">Your surname</p>
-                    </div>
-                </div>
+
+                <button class="btn btn-primary">Update</button>
+
             </div>
-
-            <button class="btn btn-primary">Update</button>
-
         </div>
-    </div>
-</form>
+    </form>
+<%}%>
 
 
 <%- include ../layout/footer.ejs %>
