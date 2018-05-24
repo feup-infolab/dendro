@@ -24,11 +24,6 @@ module.exports = {
             fixedPosition: {
                 type: Sequelize.INTEGER
             },
-            timestampFixed: {
-                allowNull: false,
-                defaultValue: queryInterface.sequelize.fn("NOW"),
-                type: Sequelize.DATE
-            },
             createdAt: {
                 allowNull: false,
                 type: Sequelize.DATE

@@ -44,14 +44,27 @@ const getProjectInteractions = function (array, projectURI)
     return project.interactions;
 };
 
+const getTimeScore = function (created)
+{
+    let now = new Date();
+    let diff = now - created;
+    if (diff === 0)
+    {
+        return 1;
+    }
+    // else
+    return (1 / diff) * 10000;
+};
+
 const getPostScore = function (projectInteractionsArray, post)
 {
     let likes = post.likes;
     let comments = post.comments;
     let shares = post.shares;
     let projectInteractions = getProjectInteractions(projectInteractionsArray, post.projectURI);
-    let postType = post.postType;
-    return comments * 3 + shares * 2 + likes + projectInteractions;
+    // let postType = post.postType;
+    let timeScore = getTimeScore(post.created);
+    return comments * 3 + shares * 2 + likes + projectInteractions + timeScore;
 };
 
 const addPostsToTimeline = function (posts, nextPosition, timelineId, callback)
@@ -230,7 +243,7 @@ const getRankedPosts = function (projectUrisArray, callback, userUri, nextPositi
             }
             dbMySQL.sequelize
                 .query(queryEngagement,
-                    {replacements: { user: "'" + userUri + "'", projects: projectsUris, lastAccess: "'" + lastDate + "'"}, type: dbMySQL.sequelize.QueryTypes.SELECT})
+                    {replacements: { user: "'" + userUri + "'", projects: projectsUris, lastAccess: "'" + lastDate + "'" }, type: dbMySQL.sequelize.QueryTypes.SELECT})
                 .spread((posts, interactions) => {
                     let newPosts = Object.keys(posts).map(function (k) { return posts[k]; });
                     let interactionsArray = Object.keys(interactions).map(function (k) { return interactions[k]; });
@@ -2246,9 +2259,10 @@ exports.move = function (req, res)
                         { fixedPosition: position + move },
                         { where: { postURI: postURI, timelineId: timeline.id } }
                     ).then(() => {
-                        res.json("top");
+                        res.json("success");
                     }).catch(err => {
                         console.log(err);
+                        res.json("error");
                     });
                 });
             }).catch(err => {

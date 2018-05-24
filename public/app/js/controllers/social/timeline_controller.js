@@ -584,11 +584,14 @@ angular.module("dendroApp.controllers")
             timelineService.movePost(uri, $scope.useRank, move, position)
                 .then(function (response)
                 {
-                    document.location.reload(true);
+                    if (response === "success")
+                    {
+                        document.location.reload(true);
+                    }
                 })
                 .catch(function (error)
                 {
-                    console.log(error);
+                    Utils.show_popup("error", "Error moving post", JSON.stringify(error));
                 });
         };
     });

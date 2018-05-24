@@ -4,8 +4,7 @@ module.exports = (sequelize, DataTypes) => {
         timelineId: DataTypes.INTEGER,
         postURI: DataTypes.STRING,
         position: DataTypes.INTEGER,
-        fixedPosition: DataTypes.INTEGER,
-        timestampFixed: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
+        fixedPosition: DataTypes.INTEGER
     }, {});
     timeline_post.associate = function (models) {
         timeline_post.belongsTo(models.timeline);
