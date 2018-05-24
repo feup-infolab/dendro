@@ -201,16 +201,7 @@ exports.preprocessing = function (req, res)
                 .map(str => JSON.parse(str));
             output = [...new Set(output.map(obj => JSON.stringify(obj)))]
                 .map(str => JSON.parse(str));
-            /*
-        var processed = {};
-        output.forEach(function (item)
-        {
-            var value = processed[item.word] = processed[item.word] || {};
-            value.pos = item.pos;
-            value.lemma = item.lemma;
-        });*/
-            /* const result = [...new Set(output.map(obj => JSON.stringify(obj)))]
-                .map(str => JSON.parse(str));*/
+
             const result = output;
             res.json(
                 {
@@ -228,7 +219,6 @@ exports.preprocessing = function (req, res)
 
 exports.termextraction = function (req, res)
 {
-    console.log(req);
     function countOcurrences (str, value)
     {
         var regExp = new RegExp(value, "gi");
@@ -484,44 +474,32 @@ exports.termextraction = function (req, res)
                 {
                     return str.split(" ").length;
                 }
-                var texti = JSON.parse(text);
+                var processedtest = JSON.parse(text);
                 var results = [];
                 var documents = [];
                 var documentlength = [];
                 var nounphrase = [];
-                if (texti.text.length > 1)
+                if (processedtest.text.length > 1)
                 {
-                    for (var xx = 0; xx < texti.text.length; xx++)
+                    for (let i = 0; i < processedtest.text.length; i++)
                     {
-                        results.push(JSON.parse(texti.text[xx]).result);
-                        nounphrase.push(JSON.parse(texti.text[xx]).nounphraselist);
-                    }
-                    for (var yy = 0; yy < texti.documents.length; yy++)
-                    {
-                        documents.push(texti.documents[yy].toString());
-                        documentlength.push(WordCount(texti.documents[yy].toString()));
+                        results.push(JSON.parse(processedtest.text[i]).result);
+                        nounphrase.push(JSON.parse(processedtest.text[i]).nounphraselist);
+                        documents.push(processedtest.documents[i].toString());
+                        documentlength.push(WordCount(processedtest.documents[i].toString()));
                     }
                 }
                 else
                 {
-                    results.push(JSON.parse(texti.text).result);
-                    nounphrase.concat(JSON.parse(texti.text).nounphraselist);
-                    documents.push(texti.documents.toString());
+                    results.push(JSON.parse(processedtest.text).result);
+                    nounphrase.concat(JSON.parse(processedtest.text).nounphraselist);
+                    documents.push(processedtest.documents.toString());
+                    documentlength.push(WordCount(processedtest.documents[i].toString()));
                 }
                 if (isNull(err))
                 {
-                    // console.log("textero" + text);
-                    var TfIdf = natural.TfIdf;
-                    var tfidf = new TfIdf();
-                    var posnoums = [];
-                    var posnoumsfinal = [];
                     var score = [];
-                    var currentscore = [];
                     var nounphrasefinal = [];
-                    var out = [];
-                    var values = [];
-                    var i = 0;
-                    var j = 0;
                     var dbpediaterms = {
                         keywords: []
                     };
@@ -532,41 +510,19 @@ exports.termextraction = function (req, res)
                             s.term === term && (s.score = score);
                         });
                     };
-                    if (texti.text.length > 1)
+                    if (processedtest.text.length > 1)
                     {
-                        for (i = 0; i < results.length; i++)
+                        for (let i = 0; i < nounphrase.length; i++)
                         {
-                            for (j = 0; j < results[i].length; j++)
-                            {
-                                if (results[i][j].pos === "NN" || results[i][j].pos === "NNS" || results[i][j].pos === "NNP" || results[i][j].pos === "NNPS")
-                                {
-                                    posnoums.push(results[i][j].lemma);
-                                }
-                            }
-                            // console.log("document size " + documentlength[i]);
-                        }
-                        for (i = 0; i < nounphrase.length; i++)
-                        {
-                            for (j = 0; j < nounphrase[i].length; j++)
+                            for (let j = 0; j < nounphrase[i].length; j++)
                             {
                                 nounphrasefinal.push(nounphrase[i][j]);
                             }
                             // console.log("document size " + documentlength[i]);
                         }
                     }
-                    else
-                    {
-                        for (i = 0; i < results[0].length; i++)
-                        {
-                            if (results[0][i].pos === "NN" || results[0][i].pos === "NNS" || results[0][i].pos === "NNP" || results[0][i].pos === "NNPS")
-                            {
-                                posnoums.push(results[0][i].lemma);
-                            }
-                        }
-                    }
-                    var sum = documentlength.reduce((x, y) => x + y);
-                    const posnoumssimple = [...new Set(posnoums.map(obj => JSON.stringify(obj)))]
-                        .map(str => JSON.parse(str));
+
+
                     var nounphrasesimple = [...new Set(nounphrasefinal.map(obj => JSON.stringify(obj)))]
                         .map(str => JSON.parse(str));
                     nounphrasesimple.sort(function (a, b)
@@ -574,7 +530,7 @@ exports.termextraction = function (req, res)
                         return tokenizer.tokenize(b).length - tokenizer.tokenize(a).length;
                     });
                     var ngrams = [];
-                    for (i = 0; i < nounphrasesimple.length; i++)
+                    /*for (let i = 0; i < nounphrasesimple.length; i++)
                     {
                         if (tokenizer.tokenize(nounphrasesimple[i]).length <= 5 && tokenizer.tokenize(nounphrasesimple[i]).length >= 2)
                         {
@@ -584,7 +540,7 @@ exports.termextraction = function (req, res)
                         {
                             // console.log(nounphrasesimple[i]);
                         }
-                    }
+                    }*/
                     ngrams.sort(function (a, b)
                     {
                     // ASC  -> a.length - b.length
@@ -592,198 +548,11 @@ exports.termextraction = function (req, res)
                         return tokenizer.tokenize(b).length - tokenizer.tokenize(a).length;
                     });
 
-                    nounphrasesimple = ngrams;
-                    var cvaluengrams = cvalue(ngrams, documents, tokenizer.tokenize(ngrams[0]).length);
+                    var cvaluengrams = cvalue(nounphrasesimple, documents, tokenizer.tokenize(nounphrasesimple[0]).length);
                     var ncvaluengrams = ncvalue(cvaluengrams, cvaluengrams.length);
                     // console.log(ncvaluegrams);
 
-                    for (var a = 0; a < documents.length; a++)
-                    {
-                        if (texti.text.length > 1)
-                        {
-                            tfidf.addDocument(documents[a]);
-                        }
-                        else
-                        {
-                            tfidf.addDocument(documents[a][0]);
-                        }
-                    }
                     var index;
-
-                    for (var b = 0; b < documents.length; b++)
-                    {
-                        index = 1;
-
-                        tfidf.listTerms(b).forEach(function (item)
-                        {
-                            if (index <= 10)
-                            {
-                                console.log((b + 1) + "     " + item.term + ": " + item.tfidf);
-                                index++;
-                            }
-                        });
-                        //console.log(documents[b]);
-                        //var opts = {stopwords: stopwords};
-                    }
-
-                    /*
-                    for (var b = 0; b < documents.length; b++)
-                    {
-                        index = 0;
-
-                        tfidf.listTerms(b).forEach(function (item)
-                        {
-                            // if (index < (documentlength[b] * 0.1))
-                            if (index < documentlength[b] * 0.01)
-                            {
-                                if (item.term.toString() === "aerodynamic" || item.term.toString() === "drag" || item.term.toString() === "coefficient" || item.term.toString() === "air" || item.term.toString() === "density" || item.term.toString() === "controller" || item.term.toString() === "efficiency" || item.term.toString() === "drive" || item.term.toString() === "driving" || item.term.toString() === "cycle" || item.term.toString() === "gear" || item.term.toString() === "ratio" || item.term.toString() === "gravitational" || item.term.toString() === "acceleration" || item.term.toString() === "road" || item.term.toString() === "surface" || item.term.toString() === "coefficient" || item.term.toString() === "tire" || item.term.toString() === "radius" || item.term.toString() === "vehicle" || item.term.toString() === "frontal" || item.term.toString() === "area" || item.term.toString() === "mass" || item.term.toString() === "model")
-                                {
-                                    if (showedalready.indexOf(item.term.toString()) > -1)
-                                    {
-                                        if (showedalreadyscore[showedalready.indexOf(item.term.toString())] < item.tfidf)
-                                        {
-                                            // showedalready[showedalready.indexOf(item.term.toString())] = item.term.toString();
-                                            showedalreadyscore[showedalready.indexOf(item.term.toString())] = item.tfidf;
-                                            pos[showedalready.indexOf(item.term.toString())] = index;
-                                            doc[showedalready.indexOf(item.term.toString())] = b;
-                                            // console.log("new value");
-                                            // console.log(pos[showedalready.indexOf(item.term.toString())]);
-                                            // console.log("document: " + b + " term: " + item.term + " item score: " + item.tfidf + " position: " + index);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        showedalready.push(item.term.toString());
-                                        showedalreadyscore.push(item.tfidf);
-                                        pos.push(index);
-                                        doc.push(b);
-                                        // console.log("document: " + b + " term: " + item.term + " item score: " + item.tfidf + " position: " + index);
-                                    }
-                                }
-                                // console.log(b + " " + item.term + ": " + item.tfidf);
-                                // console.log(index);
-                                // console.log(documentlength[b].length);
-
-                                index++;
-                                tfidfterms.scores.push({term: item.term, score: item.tfidf});
-                            }
-                        });
-                    }
-
-                    tfidfterms.scores.sort(function (a, b)
-                    {
-                        return parseFloat(b.score) - parseFloat(a.score);
-                    });
-                    var auxiliarname = [];
-                    var auxiliarscore = [];
-
-                    for (i = 0; i < tfidfterms.scores.length; i++)
-                    {
-                        // console.log(tfidfterms.scores[i].term);
-                        if (posnoumssimple.indexOf(tfidfterms.scores[i].term) > -1)
-                        {
-                            if (auxiliarname.indexOf(tfidfterms.scores[i].term) > -1)
-                            {
-                                /!*
-                                if (tfidfterms.scores[i].score > auxiliarscore[i])
-                                {
-                                    updateVal(tfidfterms.scores[i].term, tfidfterms.scores[i].score);
-                                    console.log("updated friend");
-                                }
-                                *!/
-
-                            }
-                            else
-                            {
-                                dbpediaterms.keywords.push({
-                                    words: tfidfterms.scores[i].term,
-                                    score: tfidfterms.scores[i].score
-                                });
-                                auxiliarname.push(tfidfterms.scores[i].term);
-                                auxiliarscore.push(tfidfterms.scores[i].score);
-                            }
-                        }
-                        else
-                        {
-                        // Not in the array
-                            // console.log("word: " + tfidfterms.scores[i].term + " not a name");
-                        }
-                    }
-                    for (var sa = 0; sa < showedalready.length; sa++)
-                    {
-                        // console.log(showedalready[sa] + " " + showedalreadyscore[sa] + " doc: " + (doc[sa] + 1) + " pos " + (pos[sa] + 1));
-                    }
-                    // console.log(dbpediaterms.keywords);
-                    var p = 0;
-                    for (p = 0; p < posnoumssimple.length; p++)
-                    {
-                        currentscore = [];
-                        tfidf.tfidfs(posnoumssimple[p], function (i, measure)
-                        {
-                            // console.log("word " + posnoums[p] + " in document #" + i + " has a TF-IDF value of " + measure);
-                            currentscore.push(measure);
-                        });
-                        score.push({word: posnoumssimple[p], score: currentscore});
-                    }
-                    var tfidfnp = {scores: []};
-
-                    // console.log("Nounphrase simple: " + nounphrasesimple.length);
-                    for (p = 0; p < nounphrasesimple.length; p++)
-                    {
-                        currentscore = [];
-                        // console.log(p + " " + nounphrasefinal[p]);
-                        tfidf.tfidfs(nounphrasesimple[p], function (i, measure)
-                        {
-                            currentscore.push(measure);
-                        });
-                        tfidfnp.scores.push({term: nounphrasesimple[p], score: currentscore});
-                    }
-
-                    for (i = 0; i < tfidfnp.scores.length; i++)
-                    {
-                    // console.log(tfidfterms.scores[i].term);
-                        if (tfidfnp.scores[i].term.toLowerCase() === "air density" || tfidfnp.scores[i].term.toLowerCase() === "controller efficiency" || tfidfnp.scores[i].term.toLowerCase() === "gear ratio" || tfidfnp.scores[i].term.toLowerCase() === "gravitational acceleration" || tfidfnp.scores[i].term.toLowerCase() === "road surface coefficient" || tfidfnp.scores[i].term.toLowerCase() === "tire radius" || tfidfnp.scores[i].term.toLowerCase() === "vehicle frontal area" || tfidfnp.scores[i].term.toLowerCase() === "vehicle mass" || tfidfnp.scores[i].term.toLowerCase() === "vehicle model")
-                        {
-                            // console.log(tfidfnp.scores[i].term + " " + i + " score: " + tfidfnp.scores[i].score[0]);
-                        }
-                        tfidfnp.scores[i].score.sort((a, b) => b - a);
-                    }
-
-                    tfidfnp.scores.sort(function (a, b)
-                    {
-                        return parseFloat(b.score) - parseFloat(a.score);
-                    });
-
-                    var sorted = [];
-                    for (i = 0; i < tfidfnp.scores.length; i++)
-                    {
-                    // console.log(tfidfterms.scores[i].term);
-                        if (tfidfnp.scores[i].term.toLowerCase() === "air density" || tfidfnp.scores[i].term.toLowerCase() === "controller efficiency" || tfidfnp.scores[i].term.toLowerCase() === "gear ratio" || tfidfnp.scores[i].term.toLowerCase() === "gravitational acceleration" || tfidfnp.scores[i].term.toLowerCase() === "road surface coefficient" || tfidfnp.scores[i].term.toLowerCase() === "tire radius" || tfidfnp.scores[i].term.toLowerCase() === "vehicle frontal area" || tfidfnp.scores[i].term.toLowerCase() === "vehicle mass" || tfidfnp.scores[i].term.toLowerCase() === "vehicle model")
-                        {
-                            console.log(tfidfnp.scores[i].term + " " + i + " score: " + tfidfnp.scores[i].score);
-                        }
-                        sorted.push({term: tfidfnp.scores[i].term, score: (tfidfnp.scores[i].score.reduce((a, b) => a + b, 0) / 5)});
-                    }
-
-                    tfidfnp.scores.sort(function (a, b)
-                    {
-                        return parseFloat(b.score) - parseFloat(a.score);
-                    });
-*/
-                    /* sorted.sort(function (a, b)
-                    {
-                      return parseFloat(b.score) - parseFloat(a.score);
-                    });
-                    console.log(tfidfnp.scores);
-                    console.log(sorted);
-                    for (i = 0; i < sorted.length; i++)
-                    {
-                    // console.log(tfidfterms.scores[i].term);
-                        if (sorted[i].term.toLowerCase() === "air density" || sorted[i].term.toLowerCase() === "aerodynamic drag coefficient" || sorted[i].term.toLowerCase() === "controller efficiency" || sorted[i].term.toLowerCase() === "gear ratio" || sorted[i].term.toLowerCase() === "gravitational acceleration" || sorted[i].term.toLowerCase() === "road surface coefficient" || sorted[i].term.toLowerCase() === "tire radius" || sorted[i].term.toLowerCase() === "vehicle frontal area" || sorted[i].term.toLowerCase() === "vehicle mass" || sorted[i].term.toLowerCase() === "vehicle model")
-                        {
-                            console.log(sorted[i].term + " " + i + " score: " + sorted[i].score);
-                        }
-                    }*/
 
                     dbpediaterms = {
                         keywords: []
@@ -805,7 +574,6 @@ exports.termextraction = function (req, res)
                         return parseFloat(b.score) - parseFloat(a.score);
                     });
 
-                    // console.log(dbpediaterms);
 
                     res.status(200).json(
                         {
@@ -834,8 +602,6 @@ exports.dbpedialookup = function (req, res)
     var search = function (lookup, cb)
     {
         console.log("searching : " + lookup.words);
-        // baseRequest("http://lookup.dbpedia.org/api/search/PrefixSearch?QueryClass=&MaxHits=25&QueryString=" + lookup.words, function getResponse (error, response, body)
-        // baseRequest("http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=&QueryString=" + lookup.words, function getResponse (error, response, body)
         baseRequest("http://lov.okfn.org/dataset/lov/api/v2/term/search?q=" + lookup.words + "&type=property", function getResponse (error, response, body)
         {
             if (!error && response.statusCode === 200)
@@ -854,8 +620,8 @@ exports.dbpedialookup = function (req, res)
     var searchdb = function (lookup, cb)
     {
         console.log("searching : " + lookup.words);
-        // baseRequest("http://lookup.dbpedia.org/api/search/PrefixSearch?QueryClass=&MaxHits=25&QueryString=" + lookup.words, function getResponse (error, response, body)
-        baseRequest("http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=&QueryString=" + lookup.words, function getResponse (error, response, body)
+        baseRequest("http://lookup.dbpedia.org/api/search/PrefixSearch?QueryClass=&MaxHits=25&QueryString=" + lookup.words, function getResponse (error, response, body)
+        //baseRequest("http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=&QueryString=" + lookup.words, function getResponse (error, response, body)
         // baseRequest("http://lov.okfn.org/dataset/lov/api/v2/term/search?q=" + lookup.words + "&type=property", function getResponse (error, response, body)
         {
             if (!error && response.statusCode === 200)
@@ -1135,7 +901,7 @@ exports.dbpediaproperties = function (req, res)
         }
     });
 };
-exports.my = function (req, res)
+/*exports.my = function (req, res)
 {
     let viewVars = {
     // title: "My projects"
@@ -1177,7 +943,7 @@ exports.my = function (req, res)
             );
         }
     });
-};
+};*/
 exports.clustering = function (rec, res)
 {
 
