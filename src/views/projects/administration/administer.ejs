@@ -23,7 +23,9 @@
         <li ng-class="{active : active_tab == 'storage'}">
             <a href="#storage" role="tab" data-toggle="tab" ng-click="clicked_storage_tab()">Storage</a>
         </li>
-
+        <li ng-class="{active : active_tab == 'concept'}">
+            <a href="#concept" role="tab" data-toggle="tab" ng-click="clicked_concept_tab()">Ontology Learning</a>
+        </li>
 
         <!--<li>
             <a href="#actions" role="tab" data-toggle="tab">Actions</a>
@@ -342,6 +344,41 @@
                 <div class="form-group">
                     <div class="col-sm-7">
                         <button class="btn btn-primary" type="button" ng-click="update_storage()"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save changes
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="tab-pane" id="concepts" ng-class="{active: active_tab == 'concept'}">
+            <h4>Select files for concept extraction</h4>
+                <div class="container-fluid" ng-controller="projectEditorCtrl" ng-init="init()">
+
+                    <div class="col-md-3 col-xs-12 col-sm-3" ng-controller="fileExplorerCtrl" ng-init="init()">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <a href="#"><img id="toggle_multiple_selection" ng-class="{active: shared.multiple_selection_active, 'btn-info': shared.multiple_selection_active}" ng-click="toggle_multiple_selection()"  src="/images/icons/check_box_list.png"></a>
+                                <a href="#"><img id="toggle_select_all" ng-click="toggle_select_all_files()"  src="/images/icons/check_boxes_series.png"></a>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <%- include ../show/file_explorer_keywords.ejs %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <script type="text/javascript">
+                $('#toggle_multiple_selection').tooltip({title : "<h4>Select several</h4>Select several files", html:true});
+                $('#toggle_select_all').tooltip({title : "<h4>Select all</h4>Select all files", html:true});
+            </script>
+
+            <div class="row">
+                <div class="form-group">
+                    <div class="col-sm-7">
+                        <button class="btn btn-primary" type="button" ng-click="preprocess_files()"><i class="fa fa-floppy-o" aria-hidden="true"></i> Continue
                         </button>
                     </div>
                 </div>

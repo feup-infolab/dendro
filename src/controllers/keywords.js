@@ -228,6 +228,7 @@ exports.preprocessing = function (req, res)
 
 exports.termextraction = function (req, res)
 {
+    console.log(req);
     function countOcurrences (str, value)
     {
         var regExp = new RegExp(value, "gi");

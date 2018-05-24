@@ -4,6 +4,7 @@ angular.module("dendroApp.controllers")
  */
     .controller("projectAdminCtrl", function (
         $scope,
+        $rootScope,
         $http,
         $filter,
         $q,
@@ -15,14 +16,20 @@ angular.module("dendroApp.controllers")
         $localStorage,
         $timeout,
         metadataService,
+        filesService,
         windowService,
         projectsService,
         usersService
     )
     {
+        //keyword extraction
+        $scope.preprocessing = [];
+        $scope.textprocessado = [];
+        //
         $scope.active_tab = null;
         $scope.contributors = [];
         $scope.availableStorages = ["local", "b2drop"];
+
 
         $scope.get_project = function ()
         {
@@ -61,6 +68,7 @@ angular.module("dendroApp.controllers")
                         license: $scope.get_descriptor_by_prefixed_form(descriptors, "schema:license")
                     }
                 };
+
 
                 $scope.load_licenses()
                     .then(function (licenses)
@@ -282,6 +290,12 @@ angular.module("dendroApp.controllers")
             $localStorage.active_tab = $scope.active_tab;
         };
 
+        $scope.clicked_concept_tab = function ()
+        {
+            $scope.active_tab = "concept";
+            $localStorage.active_tab = $scope.active_tab;
+        };
+
         $scope.update_project_settings = function ()
         {
             projectsService.update_project_settings($scope.project)
@@ -367,5 +381,88 @@ angular.module("dendroApp.controllers")
                     Utils.show_popup("error", "Error occurred while updating the storage options of the project: ", JSON.stringify(error));
                 }
             });
+        };
+
+        $scope.msg = "";
+        $scope.get = function(){
+            $scope.$broadcast ('someEvent');
+            return  $scope.msg;
+        }
+
+        $scope.$on('getFiles', function(e, data) {
+            $scope.msg = data;
+        });
+
+        $scope.preprocess_files = function ()
+        {
+            console.log($scope.get().length);
+            var data = {};
+            for(let i = 0; i < $scope.get().length; i++)
+            {
+                console.log($scope.get()[i]);
+
+                data = {
+                    text: $scope.get()[i].nie.plainTextContent
+                };
+                $http({
+                    method: "POST",
+                    url: "/keywords/preprocessing",
+                    data: data,
+                    contentType: "application/json",
+                    headers: {Accept: "application/json"}
+                }).then(function (response)
+                {
+                    $scope.textprocessado.push(response.data.text);
+                    $scope.preprocessing.push(response.data);
+                    console.log($scope.textprocessado);
+                    console.log($scope.preprocessing);
+                    //Utils.show_popup("success", response.data.title, response.data.message);
+                    //$scope.get_storage();
+                    const postData = JSON.stringify({text: $scope.preprocessing, documents: $scope.textprocessado})
+                    console.log(postData);
+                    const options = {
+                        hostname: 'http://localhost',
+                        port: 3001,
+                        path: '/keywords/termextraction',
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'Content-Length': Buffer.byteLength(postData)
+                        }
+                    };
+
+                    const req = $http.request(options, (res) => {
+                        console.log(`STATUS: ${res.statusCode}`);
+                        console.log(`HEADERS: ${JSON.stringify(res.headers)}`);
+                        res.setEncoding('utf8');
+                        res.on('data', (chunk) => {
+                            console.log(`BODY: ${chunk}`);
+                        });
+                        res.on('end', () => {
+                            console.log('No more data in response.');
+                        });
+                    });
+
+                    req.on('error', (e) => {
+                        console.error(`problem with request: ${e.message}`);
+                    });
+
+// write data to request body
+                    req.write(postData);
+                    req.end();
+
+                }).catch(function (error)
+                {
+                    if (error.data !== null && error.data.message !== null && error.data.title !== null)
+                    {
+                        //Utils.show_popup("error", error.data.title, error.data.message);
+                    }
+                    else
+                    {
+                        // Utils.show_popup("error", "Error occurred while updating the storage options of the project: ", JSON.stringify(error));
+                    }
+                });
+
+            }
         };
     });

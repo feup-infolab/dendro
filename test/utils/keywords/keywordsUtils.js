@@ -26,7 +26,8 @@ module.exports.preprocessing = function (text, agent, cb)
 {
     const path = "/keywords/preprocessing";
     agent
-        .get(path)
+        .post(path)
+        .set("Accept", "application/json")
         .send({text: text})
         .then(function (response, res)
         {

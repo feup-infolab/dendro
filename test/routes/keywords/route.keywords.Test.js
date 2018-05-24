@@ -229,7 +229,9 @@ describe("Searches DBpedia for important terms", function (done)
                     for (let i = 0; i < results.length; i++)
                     {
                         preprocessing.push(results[i][0]);
+                        //console.log(preprocessing);
                         textprocessado.push(results[i][1]);
+                        console.log(textprocessado);
                     }
                     done();
                 });
