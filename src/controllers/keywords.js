@@ -219,6 +219,8 @@ exports.preprocessing = function (req, res)
 
 exports.termextraction = function (req, res)
 {
+
+
     req.setTimeout(2500000);
     var headers = {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -557,6 +559,11 @@ exports.termextraction = function (req, res)
                             {
                                 return parseFloat(b.score) - parseFloat(a.score);
                             });
+                            var dbpediashort = dbpediaterms.keywords.reduceRight(function (r, a) {
+                                r.some(function (b) { return a.words === b.words; }) || r.push(a);
+                                return r;
+                            }, []);
+                            dbpediaterms.keywords = dbpediashort;
                             res.status(200).json(
                                 {
                                     dbpediaterms
