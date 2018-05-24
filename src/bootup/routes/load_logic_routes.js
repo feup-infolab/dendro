@@ -1067,6 +1067,7 @@ const loadRoutes = function (app, callback)
     ];
     app.get("/socialDendro/my", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), timeline.my);
     app.get("/posts/all", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.all);
+    app.post("/posts/move", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.move);
     app.get("/posts/post", function (req, res, next)
     {
         const processRequest = function (postUri)

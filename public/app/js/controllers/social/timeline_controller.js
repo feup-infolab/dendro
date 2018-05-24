@@ -575,4 +575,20 @@ angular.module("dendroApp.controllers")
                     usSpinnerService.stop("social-dendro-spinner");
                 });
         };
+        $scope.movePost = function (uri, move, position)
+        {
+            if ((move === 1 && position === ($scope.totalPosts - 1)) || (move === -1 && position === 0))
+            {
+                return;
+            }
+            timelineService.movePost(uri, $scope.useRank, move, position)
+                .then(function (response)
+                {
+                    document.location.reload(true);
+                })
+                .catch(function (error)
+                {
+                    console.log(error);
+                });
+        };
     });

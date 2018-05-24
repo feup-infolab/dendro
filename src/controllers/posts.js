@@ -657,6 +657,7 @@ exports.getPosts_controller = function (req, res)
             {
                 Post.findByUri(postQueryInfo.uri, function (err, post)
                 {
+                    post.fixedPosition = postQueryInfo.fixedPosition;
                     if (isNull(err) && !isNull(post))
                     {
                         async.series([
@@ -819,10 +820,10 @@ exports.getPosts_controller = function (req, res)
                 }
                 else
                 {
-                    //results.pop() returns the last element of the results array and also removes it.
-                    //in this case it is the error message, as async.mapSeries runs the functions above one at a time for each postUri
-                    //if one fails, it gets here instantly without running the functions for the remaining postUris
-                    //so the last element in the results array is the error message of the postUri that failed
+                    // results.pop() returns the last element of the results array and also removes it.
+                    // in this case it is the error message, as async.mapSeries runs the functions above one at a time for each postUri
+                    // if one fails, it gets here instantly without running the functions for the remaining postUris
+                    // so the last element in the results array is the error message of the postUri that failed
                     let errorMessage = results.pop();
                     cb(err, errorMessage);
                 }
@@ -987,7 +988,7 @@ exports.all = function (req, res)
     const acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
     const currentPage = parseInt(req.query.currentPage);
-    const useRank = req.query.rank === "true" ? 1 : 0;
+    const useRank = parseInt(req.query.useRank);
     const index = currentPage === 1 ? 0 : (currentPage * 5) - 5;
     const maxResults = 5;
 
@@ -2211,5 +2212,48 @@ exports.getShare = function (req, res)
             }
         }
     }, null, db_social.graphUri, null);
+};
+
+exports.move = function (req, res)
+{
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
+    const currentUser = req.user;
+    const useRank = parseInt(req.query.useRank);
+    const postURI = req.query.postURI;
+    const move = parseInt(req.query.move);
+    const position = parseInt(req.query.position);
+
+    if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
+    {
+        let type = "";
+        if (useRank)
+        {
+            type = "ranked";
+        }
+        else
+        {
+            type = "unranked";
+        }
+        dbMySQL.timeline
+            .findOne({where: {userURI: currentUser.uri, type: type}})
+            .then((timeline) => {
+                dbMySQL.timeline_post.update(
+                    { fixedPosition: position },
+                    { where: { fixedPosition: position + move, timelineId: timeline.id }
+                    }).then(() => {
+                    dbMySQL.timeline_post.update(
+                        { fixedPosition: position + move },
+                        { where: { postURI: postURI, timelineId: timeline.id } }
+                    ).then(() => {
+                        res.json("top");
+                    }).catch(err => {
+                        console.log(err);
+                    });
+                });
+            }).catch(err => {
+                console.log(err);
+            });
+    }
 };
 
