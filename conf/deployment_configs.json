@@ -783,6 +783,18 @@
                 "entry_point": "https://openidp.feide.no/simplesaml/saml2/idp/SSOService.php",
                 "issuer": "passport-saml",
                 "button_text": "Sign-in with SIGARRA"
+            },
+            "shibbolethUP": {
+              "enabled": false,
+              "CALLBACK_URL": "defaultString",
+              "URL": "defaultString",
+              "ENTRY_POINT": "defaultString",
+              "ISSUER": "defaultString",
+              "SESSION_SECRET": "defaultString",
+              "button_text": "Sign-in with shibboleth UP",
+              "idp_cert_path": "defaultString",
+              "key_path": "defaultString",
+              "cert_path": "defaultString"
             }
         },
         "numCPUs": 1
@@ -1168,6 +1180,18 @@
                 "entry_point": "https://openidp.feide.no/simplesaml/saml2/idp/SSOService.php",
                 "issuer": "passport-saml",
                 "button_text": "Sign-in with SIGARRA"
+            },
+            "shibbolethUP": {
+              "enabled": false,
+              "CALLBACK_URL": "defaultString",
+              "URL": "defaultString",
+              "ENTRY_POINT": "defaultString",
+              "ISSUER": "defaultString",
+              "SESSION_SECRET": "defaultString",
+              "button_text": "Sign-in with shibboleth UP",
+              "idp_cert_path": "defaultString",
+              "key_path": "defaultString",
+              "cert_path": "defaultString"
             }
         },
         "numCPUs": 1
@@ -1553,6 +1577,18 @@
                 "entry_point": "https://openidp.feide.no/simplesaml/saml2/idp/SSOService.php",
                 "issuer": "passport-saml",
                 "button_text": "Sign-in with SIGARRA"
+            },
+            "shibbolethUP": {
+              "enabled": false,
+              "CALLBACK_URL": "defaultString",
+              "URL": "defaultString",
+              "ENTRY_POINT": "defaultString",
+              "ISSUER": "defaultString",
+              "SESSION_SECRET": "defaultString",
+              "button_text": "Sign-in with shibboleth UP",
+              "idp_cert_path": "defaultString",
+              "key_path": "defaultString",
+              "cert_path": "defaultString"
             }
         },
         "numCPUs": 1
