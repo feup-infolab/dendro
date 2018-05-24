@@ -332,26 +332,24 @@ exports.my = function (req, res)
         {
             const getPlatformDetails = function (myRepositoryBookmark, callback)
             {
-                if(isNull(myRepositoryBookmark))
+                if (isNull(myRepositoryBookmark))
                 {
                     return callback(null, []);
                 }
-                else
-                {
-                    RepositoryPlatform.findByUri(myRepositoryBookmark.ddr.hasPlatform, function (err, platform)
-                    {
-                        if (isNull(err))
-                        {
-                            if (!isNull(platform))
-                            {
-                                myRepositoryBookmark.ddr.hasPlatform = platform;
-                            }
 
-                            return callback(null, myRepositoryBookmark);
+                RepositoryPlatform.findByUri(myRepositoryBookmark.ddr.hasPlatform, function (err, platform)
+                {
+                    if (isNull(err))
+                    {
+                        if (!isNull(platform))
+                        {
+                            myRepositoryBookmark.ddr.hasPlatform = platform;
                         }
-                        return callback(err, platform);
-                    });
-                }
+
+                        return callback(null, myRepositoryBookmark);
+                    }
+                    return callback(err, platform);
+                });
             };
 
             async.mapSeries(myRepositoryBookmarks, getPlatformDetails, function (err, bookmarksWithPlatforms)

@@ -1090,7 +1090,7 @@ const loadRoutes = function (app, callback)
     });
 
     const defaultSocialDendroArrayOfPostsPermissions = [
-        Permissions.settings.role.user_role_in_array_of_posts_project,
+        Permissions.settings.role.user_role_in_array_of_posts_project
     ];
     app.get("/posts/posts", function (req, res, next)
     {

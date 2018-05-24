@@ -411,7 +411,6 @@ const getCommentsForAPost = function (postID, cb)
         });
 };
 
-
 exports.getPosts_controller = function (req, res)
 {
     const acceptsHTML = req.accepts("html");
@@ -474,53 +473,53 @@ exports.getPosts_controller = function (req, res)
                     if (isNull(err) && !isNull(post))
                     {
                         async.series([
-                                function (callback)
+                            function (callback)
+                            {
+                                getCommentsForAPost(post, function (err, commentsData)
                                 {
-                                    getCommentsForAPost(post, function (err, commentsData)
-                                    {
-                                        post.commentsContent = commentsData;
-                                        callback(err);
-                                    });
-                                },
-                                function (callback)
+                                    post.commentsContent = commentsData;
+                                    callback(err);
+                                });
+                            },
+                            function (callback)
+                            {
+                                getLikesForAPost(post, function (err, likesData)
                                 {
-                                    getLikesForAPost(post, function (err, likesData)
-                                    {
-                                        post.likesContent = likesData;
-                                        callback(err);
-                                    });
-                                },
-                                function (callback)
+                                    post.likesContent = likesData;
+                                    callback(err);
+                                });
+                            },
+                            function (callback)
+                            {
+                                getSharesForAPost(post, function (err, sharesData)
                                 {
-                                    getSharesForAPost(post, function (err, sharesData)
-                                    {
-                                        post.sharesContent = sharesData;
-                                        callback(err);
-                                    });
-                                },
-                                function (callback)
+                                    post.sharesContent = sharesData;
+                                    callback(err);
+                                });
+                            },
+                            function (callback)
+                            {
+                                // TODO HOW TO ACCESS THE FULL TYPE
+                                if (post.rdf.type.includes("http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost"))
                                 {
-                                    // TODO HOW TO ACCESS THE FULL TYPE
-                                    if (post.rdf.type.includes("http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost"))
+                                    MetadataChangePost.findByUri(post.uri, function (err, metadataChangePost)
                                     {
-                                        MetadataChangePost.findByUri(post.uri, function (err, metadataChangePost)
+                                        if (!err)
                                         {
-                                            if (!err)
+                                            getChangesFromMetadataChangePost(metadataChangePost, function (err, changesInfo)
                                             {
-                                                getChangesFromMetadataChangePost(metadataChangePost, function (err, changesInfo)
-                                                {
-                                                    // [editChanges, addChanges, deleteChanges]
-                                                    /* post.changesInfo = changesInfo;
+                                                // [editChanges, addChanges, deleteChanges]
+                                                /* post.changesInfo = changesInfo;
                                                         callback(err); */
-                                                    if (isNull(err))
-                                                    {
-                                                        post.changesInfo = changesInfo;
-                                                        callback(null, null);
-                                                    }
-                                                    else
-                                                    {
-                                                        // typeof "foo" === "string"
-                                                        /* if(typeof changesInfo === "string" && changesInfo === "Resource at getChangesFromMetadataChangePost resource does not exist")
+                                                if (isNull(err))
+                                                {
+                                                    post.changesInfo = changesInfo;
+                                                    callback(null, null);
+                                                }
+                                                else
+                                                {
+                                                    // typeof "foo" === "string"
+                                                    /* if(typeof changesInfo === "string" && changesInfo === "Resource at getChangesFromMetadataChangePost resource does not exist")
                                                             {
                                                                 post = null;
                                                                 delete post;
@@ -530,94 +529,94 @@ exports.getPosts_controller = function (req, res)
                                                             {
                                                                 callback(err, changesInfo);
                                                             } */
-                                                        callback(err, changesInfo);
-                                                    }
-                                                });
-                                            }
-                                            else
-                                            {
-                                                Logger.log("error", "Error getting a metadataChangePost");
-                                                Logger.log("error", err);
-                                                callback(err);
-                                            }
-                                        }, null, db_social.graphUri, false, null, null);
-                                    }
-                                    else if (post.rdf.type.includes("http://dendro.fe.up.pt/ontology/0.1/FileSystemPost"))
-                                    {
-                                        FileSystemPost.findByUri(post.uri, function (err, fileSystemPost)
+                                                    callback(err, changesInfo);
+                                                }
+                                            });
+                                        }
+                                        else
                                         {
-                                            if (isNull(err))
-                                            {
-                                                getResourceInfoFromFileSystemPost(fileSystemPost, function (err, resourceInfo)
-                                                {
-                                                    post.resourceInfo = resourceInfo;
-                                                    callback(err);
-                                                });
-                                            }
-                                            else
-                                            {
-                                                Logger.log("error", "Error getting a File System Post");
-                                                Logger.log("error", err);
-                                                callback(err);
-                                            }
-                                        }, null, db_social.graphUri, false, null, null);
-                                    }
-                                    else if (post.rdf.type.includes("http://dendro.fe.up.pt/ontology/0.1/Share"))
-                                    {
-                                        Share.findByUri(post.uri, function (err, share)
-                                        {
-                                            if (!err)
-                                            {
-                                                // Gets the info from the original post that was shared
-                                                getSharesOrPostsInfo([{uri: share.ddr.postURI}], function (err, originalPostInfo)
-                                                {
-                                                    if (err || isNull(originalPostInfo))
-                                                    {
-                                                        Logger.log("error", "Error getting the original shared post");
-                                                        Logger.log("error", err);
-                                                        callback(err);
-                                                    }
-                                                    else
-                                                    {
-                                                        postsInfo[share.ddr.postURI] = originalPostInfo[share.ddr.postURI];
-                                                        callback(err);
-                                                    }
-                                                });
-                                            }
-                                            else
-                                            {
-                                                Logger.log("error", "Error getting a share Post");
-                                                Logger.log("error", err);
-                                                callback(err);
-                                            }
-                                        }, null, db_social.graphUri, false, null, null);
-                                    }
-                                    else
-                                    {
-                                        callback(null);
-                                    }
+                                            Logger.log("error", "Error getting a metadataChangePost");
+                                            Logger.log("error", err);
+                                            callback(err);
+                                        }
+                                    }, null, db_social.graphUri, false, null, null);
                                 }
-                            ],
-                            function (err, results)
-                            {
-                                if (isNull(err))
+                                else if (post.rdf.type.includes("http://dendro.fe.up.pt/ontology/0.1/FileSystemPost"))
                                 {
-                                    postsInfo[postQueryInfo.uri] = post;
-                                    callback(err, results);
+                                    FileSystemPost.findByUri(post.uri, function (err, fileSystemPost)
+                                    {
+                                        if (isNull(err))
+                                        {
+                                            getResourceInfoFromFileSystemPost(fileSystemPost, function (err, resourceInfo)
+                                            {
+                                                post.resourceInfo = resourceInfo;
+                                                callback(err);
+                                            });
+                                        }
+                                        else
+                                        {
+                                            Logger.log("error", "Error getting a File System Post");
+                                            Logger.log("error", err);
+                                            callback(err);
+                                        }
+                                    }, null, db_social.graphUri, false, null, null);
+                                }
+                                else if (post.rdf.type.includes("http://dendro.fe.up.pt/ontology/0.1/Share"))
+                                {
+                                    Share.findByUri(post.uri, function (err, share)
+                                    {
+                                        if (!err)
+                                        {
+                                            // Gets the info from the original post that was shared
+                                            getSharesOrPostsInfo([{uri: share.ddr.postURI}], function (err, originalPostInfo)
+                                            {
+                                                if (err || isNull(originalPostInfo))
+                                                {
+                                                    Logger.log("error", "Error getting the original shared post");
+                                                    Logger.log("error", err);
+                                                    callback(err);
+                                                }
+                                                else
+                                                {
+                                                    postsInfo[share.ddr.postURI] = originalPostInfo[share.ddr.postURI];
+                                                    callback(err);
+                                                }
+                                            });
+                                        }
+                                        else
+                                        {
+                                            Logger.log("error", "Error getting a share Post");
+                                            Logger.log("error", err);
+                                            callback(err);
+                                        }
+                                    }, null, db_social.graphUri, false, null, null);
                                 }
                                 else
                                 {
-                                    if (results.toString().includes("Resource at getChangesFromMetadataChangePost resource does not exist"))
-                                    {
-                                        postsInfo[postQueryInfo.uri] = post;
-                                        callback(null, null);
-                                    }
-                                    else
-                                    {
-                                        callback(err, results[res]);
-                                    }
+                                    callback(null);
                                 }
-                            });
+                            }
+                        ],
+                        function (err, results)
+                        {
+                            if (isNull(err))
+                            {
+                                postsInfo[postQueryInfo.uri] = post;
+                                callback(err, results);
+                            }
+                            else
+                            {
+                                if (results.toString().includes("Resource at getChangesFromMetadataChangePost resource does not exist"))
+                                {
+                                    postsInfo[postQueryInfo.uri] = post;
+                                    callback(null, null);
+                                }
+                                else
+                                {
+                                    callback(err, results[res]);
+                                }
+                            }
+                        });
                     }
                     else
                     {
@@ -627,16 +626,16 @@ exports.getPosts_controller = function (req, res)
                 }, null, db_social.graphUri, false, null, null);
             }, function (err, results)
             {
-                if(isNull(err))
+                if (isNull(err))
                 {
                     cb(err, postsInfo);
                 }
                 else
                 {
-                    //results.pop() returns the last element of the results array and also removes it.
-                    //in this case it is the error message, as async.mapSeries runs the functions above one at a time for each postUri
-                    //if one fails, it gets here instantly without running the functions for the remaining postUris
-                    //so the last element in the results array is the error message of the postUri that failed
+                    // results.pop() returns the last element of the results array and also removes it.
+                    // in this case it is the error message, as async.mapSeries runs the functions above one at a time for each postUri
+                    // if one fails, it gets here instantly without running the functions for the remaining postUris
+                    // so the last element in the results array is the error message of the postUri that failed
                     let errorMessage = results.pop();
                     cb(err, errorMessage);
                 }
@@ -662,7 +661,7 @@ exports.getPosts_controller = function (req, res)
             }
             else
             {
-                if(!(typeof postInfo === "string" || postInfo instanceof String))
+                if (!(typeof postInfo === "string" || postInfo instanceof String))
                 {
                     postInfo = JSON.stringify(postInfo);
                 }
@@ -1051,13 +1050,14 @@ exports.share = function (req, res)
 
                         Share.buildFromInfo(newShareData, function (err, newShare)
                         {
-                            if(isNull(err) && !isNull(newShare))
+                            if (isNull(err) && !isNull(newShare))
                             {
                                 newShare.save(function (err, resultShare)
                                 {
                                     if (isNull(err) && !isNull(resultShare))
                                     {
-                                        Notification.buildAndSaveFromShare(currentUser, post, newShare, function (error, info) {
+                                        Notification.buildAndSaveFromShare(currentUser, post, newShare, function (error, info)
+                                        {
                                             if (isNull(error))
                                             {
                                                 res.json({
@@ -1204,7 +1204,8 @@ exports.comment = function (req, res)
                     {
                         if (isNull(err) && !isNull(resultComment))
                         {
-                            Notification.buildAndSaveFromComment(currentUser, post, function (error, info) {
+                            Notification.buildAndSaveFromComment(currentUser, post, function (error, info)
+                            {
                                 if (isNull(error))
                                 {
                                     res.json({
@@ -1289,7 +1290,8 @@ exports.like = function (req, res)
                             {
                                 if (isNull(err) && !isNull(resultLike))
                                 {
-                                    Notification.buildAndSaveFromLike(currentUser, post, function (error, info) {
+                                    Notification.buildAndSaveFromLike(currentUser, post, function (error, info)
+                                    {
                                         if (isNull(error))
                                         {
                                             res.json({

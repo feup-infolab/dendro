@@ -21,13 +21,13 @@ function Zenodo (accessToken, intanceBaseUrl)
         this.accessTokenURL = "?access_token=" + accessToken;
     }
 
-    if(isNull(intanceBaseUrl))
+    if (isNull(intanceBaseUrl))
     {
         throw new Error("Undefined instance base url");
     }
     else
     {
-        this.apiURL = "https://" +  intanceBaseUrl + "/api";
+        this.apiURL = "https://" + intanceBaseUrl + "/api";
         this.depositionsURL = this.apiURL + "/deposit/depositions";
     }
 }

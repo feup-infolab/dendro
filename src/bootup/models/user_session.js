@@ -14,10 +14,8 @@ class UserSession
     {
         this.__userUri = userUri;
         this.__sockets = [socket];
-        //this.registerEvents(socket);
+        // this.registerEvents(socket);
     }
-
-
 
     /*
     registerEvents (socket)
@@ -45,20 +43,22 @@ class UserSession
         let self = this;
         self.__sockets.push(newSocket);
         Logger.log("info", "Num connectedSockets for user " + self.__userUri + " : " + self.__sockets.length);
-    };
+    }
 
     emitMessage (message)
     {
         let self = this;
-        _.map(self.__sockets, function (socket) {
-            socket.emit(self.__userUri +":message", {message: message});
+        _.map(self.__sockets, function (socket)
+        {
+            socket.emit(self.__userUri + ":message", {message: message});
         });
     }
 
     emitNotification (notificationObject)
     {
         let self = this;
-        _.map(self.__sockets, function (socket) {
+        _.map(self.__sockets, function (socket)
+        {
             socket.emit(self.__userUri + ":notification", notificationObject);
         });
     }
@@ -66,22 +66,27 @@ class UserSession
     disconnect ()
     {
         let self = this;
-        _.map(self.__sockets, function (socket) {
+        _.map(self.__sockets, function (socket)
+        {
             socket.disconnect(true);
         });
     }
 
-    removeDisconnectedSockets()
+    removeDisconnectedSockets ()
     {
         let self = this;
-        let connectedSockets = _.filter(self.__sockets, function(socket){ return socket.connected === true; });
+        let connectedSockets = _.filter(self.__sockets, function (socket)
+        {
+            return socket.connected === true;
+        });
         self.__sockets = connectedSockets;
     }
 
-    getUserSockets() {
+    getUserSockets ()
+    {
         let self = this;
         return self.__sockets;
-    };
+    }
 }
 
 module.exports.UserSession = UserSession;

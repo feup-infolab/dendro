@@ -1286,21 +1286,19 @@ exports.administer = function (req, res)
                             {
                                 if (isNull(err))
                                 {
-                                    if(req.body.contributors.length === 0)
+                                    if (req.body.contributors.length === 0)
                                     {
                                         project.dcterms.contributor = [];
                                         return callback(null, project);
                                     }
-                                    else
+
+                                    // all users were invalid
+                                    if (_.without(contributors, null).length === 0)
                                     {
-                                        // all users were invalid
-                                        if (_.without(contributors, null).length === 0)
-                                        {
-                                            return callback(true, project);
-                                        }
-                                        project.dcterms.contributor = _.without(contributors, null);
-                                        return callback(null, project);
+                                        return callback(true, project);
                                     }
+                                    project.dcterms.contributor = _.without(contributors, null);
+                                    return callback(null, project);
                                 }
                                 return callback(err, contributors);
                             });
@@ -2306,9 +2304,10 @@ exports.import = function (req, res)
                             const message = "Project with handle: " + req.query.imported_project_handle + " was successfully restored";
                             Logger.log("info", message);
 
-                            if(!isNull(newProject))
+                            if (!isNull(newProject))
                             {
-                                Notification.buildAndSaveFromSystemMessage(message, req.user.uri, function (err, info) {
+                                Notification.buildAndSaveFromSystemMessage(message, req.user.uri, function (err, info)
+                                {
                                     Logger.log("info", "Imported project notification sent");
                                 }, newProject.uri);
                             }

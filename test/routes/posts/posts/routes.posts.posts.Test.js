@@ -163,15 +163,16 @@ describe("Get information on an array of posts(given an array of post URIs) test
             });
         });
 
-
         it("[For demouser2, a collaborator in all projects] Should give the posts information for a user even if said user is a collaborator and creator on different dendro projects", function (done)
         {
-            //this test was added because of issue https://github.com/feup-infolab/dendro/issues/362
+            // this test was added because of issue https://github.com/feup-infolab/dendro/issues/362
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
-                projectUtils.createNewProject(true, agent, publicProjectForDemouser2, function (err, res) {
+                projectUtils.createNewProject(true, agent, publicProjectForDemouser2, function (err, res)
+                {
                     res.statusCode.should.equal(200);
-                    projectUtils.createFolderInProjectRoot(true, agent, publicProjectForDemouser2.handle, "testFolderForDemouser2Project", function (err, res) {
+                    projectUtils.createFolderInProjectRoot(true, agent, publicProjectForDemouser2.handle, "testFolderForDemouser2Project", function (err, res)
+                    {
                         res.statusCode.should.equal(200);
                         socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
                         {
