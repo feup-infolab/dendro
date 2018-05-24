@@ -219,6 +219,39 @@ exports.preprocessing = function (req, res)
 
 exports.termextraction = function (req, res)
 {
+    req.setTimeout(2500000);
+    var headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/json'
+    };
+    var yake = function (lookup, cb)
+    {
+
+        var dataString="content="+lookup;
+
+        var options = {
+            url: 'https://boiling-castle-88317.herokuapp.com/yake/v2/extract_keywords?max_ngram_size=3&number_of_keywords=30',
+            method: 'POST',
+            headers: headers,
+            body: dataString
+        };
+
+        request(options, function(error, response, body)
+        {
+            if (!error && response.statusCode === 200)
+            {
+                console.log(JSON.parse(body));
+                cb(null, JSON.parse(body));
+            }
+            else
+            {
+                console.log("error: " + error);
+                // console.log("status code: " + response.statusCode);
+                cb(error);
+            }
+        });
+    };
+
     function countOcurrences (str, value)
     {
         var regExp = new RegExp(value, "gi");
@@ -496,92 +529,129 @@ exports.termextraction = function (req, res)
                     documents.push(processedtest.documents.toString());
                     documentlength.push(WordCount(processedtest.documents[i].toString()));
                 }
-                if (isNull(err))
-                {
-                    var score = [];
-                    var nounphrasefinal = [];
-                    var dbpediaterms = {
-                        keywords: []
-                    };
-                    var updateVal = function (term, score)
+                var yakeflag = true;
+                if (yakeflag === true) {
+                    async.mapSeries(documents, yake, function (err, results)
                     {
-                        dbpediaterms.keywords.forEach(function (s)
+                        if (err)
                         {
-                            s.term === term && (s.score = score);
-                        });
-                    };
-                    if (processedtest.text.length > 1)
-                    {
-                        for (let i = 0; i < nounphrase.length; i++)
-                        {
-                            for (let j = 0; j < nounphrase[i].length; j++)
-                            {
-                                nounphrasefinal.push(nounphrase[i][j]);
-                            }
-                            // console.log("document size " + documentlength[i]);
-                        }
-                    }
-
-
-                    var nounphrasesimple = [...new Set(nounphrasefinal.map(obj => JSON.stringify(obj)))]
-                        .map(str => JSON.parse(str));
-                    nounphrasesimple.sort(function (a, b)
-                    {
-                        return tokenizer.tokenize(b).length - tokenizer.tokenize(a).length;
-                    });
-                    var ngrams = [];
-                    /*for (let i = 0; i < nounphrasesimple.length; i++)
-                    {
-                        if (tokenizer.tokenize(nounphrasesimple[i]).length <= 5 && tokenizer.tokenize(nounphrasesimple[i]).length >= 2)
-                        {
-                            ngrams.push(nounphrasesimple[i]);
+                            // console.log(err);
+                            res.status(500).json(
+                                {
+                                    error: "error during yake lookup"
+                                }
+                            );
                         }
                         else
                         {
-                            // console.log(nounphrasesimple[i]);
-                        }
-                    }*/
-                    ngrams.sort(function (a, b)
-                    {
-                    // ASC  -> a.length - b.length
-                    // DESC -> b.length - a.length
-                        return tokenizer.tokenize(b).length - tokenizer.tokenize(a).length;
-                    });
+                            var dbpediaterms = {
+                                keywords: []
+                            };
 
-                    var cvaluengrams = cvalue(nounphrasesimple, documents, tokenizer.tokenize(nounphrasesimple[0]).length);
-                    var ncvaluengrams = ncvalue(cvaluengrams, cvaluengrams.length);
-                    // console.log(ncvaluegrams);
-
-                    var index;
-
-                    dbpediaterms = {
-                        keywords: []
-                    };
-                    for (var index = 0; index < cvaluengrams.length; index++)
-                    {
-                        // console.log(dbsearch[i]);
-                        if (tokenizer.tokenize(cvaluengrams[index].word).length <= 3)
-                        {
-                            dbpediaterms.keywords.push({
-                                words: cvaluengrams[index].word,
-                                score: cvaluengrams[index].cvalue
+                            for(let i = 0; i < results.length; i++) {
+                                for (let j = 0; j < results[i].keywords.length; j++) {
+                                    dbpediaterms.keywords.push({words : results[i].keywords[j].ngram, score:results[i].keywords[j].score});
+                                }
+                            }
+                            dbpediaterms.keywords.sort(function (a, b)
+                            {
+                                return parseFloat(b.score) - parseFloat(a.score);
                             });
+                            res.status(200).json(
+                                {
+                                    dbpediaterms
+                                }
+                            );
                         }
-                    }
-
-                    dbpediaterms.keywords.sort(function (a, b)
-                    {
-                        return parseFloat(b.score) - parseFloat(a.score);
                     });
-
-
-                    res.status(200).json(
-                        {
-                            dbpediaterms
-                        }
-                    );
                 }
-                else
+                else {
+                    if (isNull(err))
+                    {
+                        var score = [];
+                        var nounphrasefinal = [];
+                        var dbpediaterms = {
+                            keywords: []
+                        };
+                        var updateVal = function (term, score)
+                        {
+                            dbpediaterms.keywords.forEach(function (s)
+                            {
+                                s.term === term && (s.score = score);
+                            });
+                        };
+                        if (processedtest.text.length > 1)
+                        {
+                            for (let i = 0; i < nounphrase.length; i++)
+                            {
+                                for (let j = 0; j < nounphrase[i].length; j++)
+                                {
+                                    nounphrasefinal.push(nounphrase[i][j]);
+                                }
+                                // console.log("document size " + documentlength[i]);
+                            }
+                        }
+
+                        var nounphrasesimple = [...new Set(nounphrasefinal.map(obj => JSON.stringify(obj)))]
+                            .map(str => JSON.parse(str));
+                        nounphrasesimple.sort(function (a, b)
+                        {
+                            return tokenizer.tokenize(b).length - tokenizer.tokenize(a).length;
+                        });
+                        var ngrams = [];
+                        /*for (let i = 0; i < nounphrasesimple.length; i++)
+                        {
+                            if (tokenizer.tokenize(nounphrasesimple[i]).length <= 5 && tokenizer.tokenize(nounphrasesimple[i]).length >= 2)
+                            {
+                                ngrams.push(nounphrasesimple[i]);
+                            }
+                            else
+                            {
+                                // console.log(nounphrasesimple[i]);
+                            }
+                        }*/
+                        ngrams.sort(function (a, b)
+                        {
+                        // ASC  -> a.length - b.length
+                        // DESC -> b.length - a.length
+                            return tokenizer.tokenize(b).length - tokenizer.tokenize(a).length;
+                        });
+
+                        var cvaluengrams = cvalue(nounphrasesimple, documents, tokenizer.tokenize(nounphrasesimple[0]).length);
+                        var ncvaluengrams = ncvalue(cvaluengrams, cvaluengrams.length);
+                        // console.log(ncvaluegrams);
+
+                        var index;
+
+                        dbpediaterms = {
+                            keywords: []
+                        };
+                        for (var index = 0; index < cvaluengrams.length; index++)
+                        {
+                            // console.log(dbsearch[i]);
+                            if (tokenizer.tokenize(cvaluengrams[index].word).length <= 3)
+                            {
+                                dbpediaterms.keywords.push({
+                                    words: cvaluengrams[index].word,
+                                    score: cvaluengrams[index].cvalue
+                                });
+                            }
+                        }
+
+                        dbpediaterms.keywords.sort(function (a, b)
+                        {
+                            return parseFloat(b.score) - parseFloat(a.score);
+                        });
+
+
+                        res.status(200).json(
+                            {
+                                dbpediaterms
+                            }
+                        );
+                    }
+                }
+                /*else
                 {
                     res.status(400).json(
                         {
@@ -590,7 +660,7 @@ exports.termextraction = function (req, res)
                             error: text
                         }
                     );
-                }
+                }*/
             });
         }
     });
