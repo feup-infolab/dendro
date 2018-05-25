@@ -389,11 +389,11 @@
             "shibbolethUP":
             {
                 "enabled": true,
-                "CALLBACK_URL": "http://bfdbeb54.ngrok.io/Shibboleth/login/callback",
-                "URL": "http://bfdbeb54.ngrok.io/Shibboleth",
-                "ENTRY_POINT": "https://idp.testshib.org/idp/profile/SAML2/Redirect/SSO",
-                "ISSUER": "https://bfdbeb54.ngrok.io/shibboleth",
-                "SESSION_SECRET": "secret123",
+                "callback_url": "http://6a8faf9c.ngrok.io/ShibbolethUP/login/callback",
+                "button_url": "http://6a8faf9c.ngrok.io/ShibbolethUP",
+                "entry_point": "https://idp.testshib.org/idp/profile/SAML2/Redirect/SSO",
+                "issuer": "https://6a8faf9c.ngrok.io/shibboleth",
+                "session_secret": "secret123",
                 "button_text": "Sign-in with shibboleth UP",
                 "idp_cert_path": "/Users/nelsonpereira/Desktop/infolaRepos/dendroRepo/dendro/conf/cert/idp_cert.pem",
                 "key_path": "/Users/nelsonpereira/Desktop/infolaRepos/dendroRepo/dendro/conf/cert/key.pem",
@@ -785,16 +785,16 @@
                 "button_text": "Sign-in with SIGARRA"
             },
             "shibbolethUP": {
-              "enabled": false,
-              "CALLBACK_URL": "defaultString",
-              "URL": "defaultString",
-              "ENTRY_POINT": "defaultString",
-              "ISSUER": "defaultString",
-              "SESSION_SECRET": "defaultString",
-              "button_text": "Sign-in with shibboleth UP",
-              "idp_cert_path": "defaultString",
-              "key_path": "defaultString",
-              "cert_path": "defaultString"
+                "enabled": false,
+                "callback_url": "default_string",
+                "button_url": "default_string",
+                "entry_point": "default_string",
+                "issuer": "default_string",
+                "session_secret": "default_string",
+                "button_text": "default_string",
+                "idp_cert_path": "default_string",
+                "key_path": "default_string",
+                "cert_path": "default_string"
             }
         },
         "numCPUs": 1
@@ -1182,16 +1182,16 @@
                 "button_text": "Sign-in with SIGARRA"
             },
             "shibbolethUP": {
-              "enabled": false,
-              "CALLBACK_URL": "defaultString",
-              "URL": "defaultString",
-              "ENTRY_POINT": "defaultString",
-              "ISSUER": "defaultString",
-              "SESSION_SECRET": "defaultString",
-              "button_text": "Sign-in with shibboleth UP",
-              "idp_cert_path": "defaultString",
-              "key_path": "defaultString",
-              "cert_path": "defaultString"
+                "enabled": false,
+                "callback_url": "default_string",
+                "button_url": "default_string",
+                "entry_point": "default_string",
+                "issuer": "default_string",
+                "session_secret": "default_string",
+                "button_text": "default_string",
+                "idp_cert_path": "default_string",
+                "key_path": "default_string",
+                "cert_path": "default_string"
             }
         },
         "numCPUs": 1
@@ -1579,16 +1579,16 @@
                 "button_text": "Sign-in with SIGARRA"
             },
             "shibbolethUP": {
-              "enabled": false,
-              "CALLBACK_URL": "defaultString",
-              "URL": "defaultString",
-              "ENTRY_POINT": "defaultString",
-              "ISSUER": "defaultString",
-              "SESSION_SECRET": "defaultString",
-              "button_text": "Sign-in with shibboleth UP",
-              "idp_cert_path": "defaultString",
-              "key_path": "defaultString",
-              "cert_path": "defaultString"
+                "enabled": false,
+                "callback_url": "default_string",
+                "button_url": "default_string",
+                "entry_point": "default_string",
+                "issuer": "default_string",
+                "session_secret": "default_string",
+                "button_text": "default_string",
+                "idp_cert_path": "default_string",
+                "key_path": "default_string",
+                "cert_path": "default_string"
             }
         },
         "numCPUs": 1

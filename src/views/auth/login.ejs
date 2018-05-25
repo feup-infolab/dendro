@@ -89,12 +89,13 @@
                                     <% } %>
 
                                     <%if (Config.authentication.shibbolethUP.enabled) { %>
-                                    <a class="btn btn-default" href="<%=Config.authentication.shibbolethUP.URL%>"><img src="/images/logos/saml.png"> <%= Config.authentication.shibbolethUP.button_text %> </a>
+                                    <a class="btn btn-default" href="<%=Config.authentication.shibbolethUP.button_url%>"><img src="/images/logos/saml.png"> <%= Config.authentication.shibbolethUP.button_text %> </a>
                                     <% } %>
                                 </div>
                             </div>
                         </div>
                     <% } %>
             </div>
+        </div>
     </div>
 <%- include ../layout/footer.ejs %>

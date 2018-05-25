@@ -54,25 +54,25 @@ class ShibbolethUP extends Shibboleth
             if (req.isAuthenticated())
                 return next();
             else
-                return res.redirect("/Shibboleth/login");
+                return res.redirect("/ShibbolethUP/login");
         }
 
-        app.get("/Shibboleth",
+        app.get("/ShibbolethUP",
             ensureAuthenticated,
             function(req, res) {
                 res.send('Authenticated');
             }
         );
 
-        app.get("/Shibboleth/login",
-            passport.authenticate("saml", { failureRedirect: "/Shibboleth/login/fail" }),
+        app.get("/ShibbolethUP/login",
+            passport.authenticate("saml", { failureRedirect: "/ShibbolethUP/login/fail" }),
             function (req, res) {
                 res.redirect("/");
             }
         );
 
-        app.post("/Shibboleth/login/callback",
-            passport.authenticate("saml", { failureRedirect: "/Shibboleth/login/fail" }),
+        app.post("/ShibbolethUP/login/callback",
+            passport.authenticate("saml", { failureRedirect: "/ShibbolethUP/login/fail" }),
             function(req, res) {
                 Logger.log("info", "will check req.user!!");
                 Logger.log("info", req.user);
@@ -80,7 +80,7 @@ class ShibbolethUP extends Shibboleth
             }
         );
 
-        app.get("/Shibboleth/login/fail",
+        app.get("/ShibbolethUP/login/fail",
             function(req, res) {
                 Logger.log("Login failed!");
                 res.status(401).send("Login failed");

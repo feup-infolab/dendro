@@ -17,10 +17,10 @@ class Shibboleth
     {
         try
         {
-            let __CALLBACK_URL = shibbolethConfig.CALLBACK_URL;
-            let __ENTRY_POINT = shibbolethConfig.ENTRY_POINT;
-            let __ISSUER = shibbolethConfig.ISSUER;
-            let __SESSION_SECRET = shibbolethConfig.SESSION_SECRET;
+            let __callback_url = shibbolethConfig.callback_url;
+            let __entry_point = shibbolethConfig.entry_point;
+            let __issuer = shibbolethConfig.issuer;
+            let __session_secret = shibbolethConfig.session_secret;
             let __button_text = shibbolethConfig.button_text;
 
             let __idp_cert = fs.readFileSync(shibbolethConfig.idp_cert_path, "utf8");
@@ -35,22 +35,22 @@ class Shibboleth
             /***GETS***/
             this.getCallbackURl = function ()
             {
-                return __CALLBACK_URL;
+                return __callback_url;
             };
 
             this.getEntryPoint = function ()
             {
-                return __ENTRY_POINT;
+                return __entry_point;
             };
 
             this.getIssuer = function ()
             {
-                return __ISSUER;
+                return __issuer;
             };
 
             this.getSessionSecret = function ()
             {
-                return __SESSION_SECRET;
+                return __session_secret;
             };
 
             this.getButtonText = function ()
@@ -207,7 +207,7 @@ class Shibboleth
                 let firstName = shibbolethUser[firstNameKey];
                 let surname = shibbolethUser[surnameKey];
                 let username = shibbolethUser[usernameKey];
-                User.findByEmail(mbox, function (err, user) {
+                User.findByUsername(username, function (err, user) {
                     if(isNull(err))
                     {
                         if(isNull(user))
