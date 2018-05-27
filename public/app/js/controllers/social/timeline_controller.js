@@ -584,7 +584,7 @@ angular.module("dendroApp.controllers")
             timelineService.movePost(uri, $scope.useRank, move, position)
                 .then(function (response)
                 {
-                    if (response === "success")
+                    if (response.data === "success")
                     {
                         document.location.reload(true);
                     }
