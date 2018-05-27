@@ -1430,8 +1430,9 @@ const loadRoutes = function (app, callback)
     app.delete("/interactions/delete_all", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), interactions.delete_all_interactions);
 
     // keywords
-    app.post("/keywords/preprocessing", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.preprocessing);
-    app.post("/keywords/termextraction", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.termextraction);
+    app.post("/keywords/processextract", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.processextract);
+    //app.post("/keywords/preprocessing", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.preprocessing);
+    //app.post("/keywords/termextraction", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.termextraction);
     app.get("/keywords/dbpedialookup", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.dbpedialookup);
     app.get("/keywords/dbpediaproperties", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.dbpediaproperties);
 

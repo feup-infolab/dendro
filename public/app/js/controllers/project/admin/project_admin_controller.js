@@ -23,8 +23,7 @@ angular.module("dendroApp.controllers")
     )
     {
         //keyword extraction
-        $scope.preprocessing = [];
-        $scope.textprocessado = [];
+        $scope.keywords;
         //
         $scope.active_tab = null;
         $scope.contributors = [];
@@ -393,63 +392,24 @@ angular.module("dendroApp.controllers")
             $scope.msg = data;
         });
 
-        $scope.preprocess_files = function ()
+        $scope.extract_terms = function ()
         {
-            console.log($scope.get().length);
-            var data = {};
-            for(let i = 0; i < $scope.get().length; i++)
-            {
-                console.log($scope.get()[i]);
-
-                data = {
+            var data = {text:[]};
+            for(let i = 0; i < $scope.get().length; i++) {
+                data.text.push({
                     text: $scope.get()[i].nie.plainTextContent
-                };
+                });
+            }
                 $http({
                     method: "POST",
-                    url: "/keywords/preprocessing",
-                    data: data,
-                    contentType: "application/json",
-                    headers: {Accept: "application/json"}
+                    url: "/keywords/processextract",
+                    data: JSON.stringify(data.text),
+                    headers: {"Content-Type": "application/json; charset=UTF-8"}
                 }).then(function (response)
                 {
-                    $scope.textprocessado.push(response.data.text);
-                    $scope.preprocessing.push(response.data);
-                    console.log($scope.textprocessado);
-                    console.log($scope.preprocessing);
-                    //Utils.show_popup("success", response.data.title, response.data.message);
-                    //$scope.get_storage();
-                    const postData = JSON.stringify({text: $scope.preprocessing, documents: $scope.textprocessado})
-                    console.log(postData);
-                    const options = {
-                        hostname: 'http://localhost',
-                        port: 3001,
-                        path: '/keywords/termextraction',
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                            'Content-Length': Buffer.byteLength(postData)
-                        }
-                    };
+                    $scope.keywords = response.data.output;
+                    console.log($scope.keywords);
 
-                    const req = $http.request(options, (res) => {
-                        console.log(`STATUS: ${res.statusCode}`);
-                        console.log(`HEADERS: ${JSON.stringify(res.headers)}`);
-                        res.setEncoding('utf8');
-                        res.on('data', (chunk) => {
-                            console.log(`BODY: ${chunk}`);
-                        });
-                        res.on('end', () => {
-                            console.log('No more data in response.');
-                        });
-                    });
-
-                    req.on('error', (e) => {
-                        console.error(`problem with request: ${e.message}`);
-                    });
-
-// write data to request body
-                    req.write(postData);
-                    req.end();
 
                 }).catch(function (error)
                 {
@@ -462,7 +422,5 @@ angular.module("dendroApp.controllers")
                         // Utils.show_popup("error", "Error occurred while updating the storage options of the project: ", JSON.stringify(error));
                     }
                 });
-
-            }
         };
     });
