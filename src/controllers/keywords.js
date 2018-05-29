@@ -725,8 +725,7 @@ exports.dbpedialookup = function (req, res)
             }
         });
     };
-
-    var dbpediaresults = JSON.parse(req.body.keywords).dbpediaterms.keywords;
+    var dbpediaresults = req.body.keywords;
 
     async.mapSeries(dbpediaresults, search, function (err, results)
     {
@@ -990,49 +989,7 @@ exports.dbpediaproperties = function (req, res)
         }
     });
 };
-/*exports.my = function (req, res)
-{
-    let viewVars = {
-    // title: "My projects"
-    };
 
-    Project.findByCreatorOrContributor(req.user.uri, function (err, projects)
-    {
-        if (isNull(err) && !isNull(projects))
-        {
-            let acceptsHTML = req.accepts("html");
-            const acceptsJSON = req.accepts("json");
-
-            if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
-            {
-                res.json(
-                    {
-                        projects: projects
-                    }
-                );
-            }
-            else
-            {
-                viewVars = DbConnection.paginate(req,
-                    viewVars
-                );
-
-                viewVars.projects = projects;
-                res.render("keywords/my",
-                    viewVars
-                );
-            }
-        }
-        else
-        {
-            viewVars.projects = [];
-            viewVars.info_messages = ["You have not created any projects"];
-            res.render("projects/my",
-                viewVars
-            );
-        }
-    });
-};*/
 exports.clustering = function (rec, res)
 {
 

@@ -24,6 +24,18 @@ angular.module("dendroApp.controllers")
     {
         //keyword extraction
         $scope.keywords;
+        $scope.concepts;
+
+
+        $scope.filelist;
+        $scope.keywordlist;
+        $scope.conceptlist;
+        $scope.descriptorlist;
+        $scope.multiple_term_selection = true;
+        $scope.multiple_concept_selection = true;
+        $scope.extra_terms = null;
+        $scope.selected_term = null;
+
         //
         $scope.active_tab = null;
         $scope.contributors = [];
@@ -150,6 +162,10 @@ angular.module("dendroApp.controllers")
 
         $scope.init = function (contributors)
         {
+            $scope.filelist = true;
+            $scope.keywordlist = false;
+            $scope.conceptlist = false;
+            $scope.descriptorlist = false;
             $scope.get_contributors(contributors);
             $scope.active_tab = $localStorage.active_tab;
 
@@ -295,6 +311,24 @@ angular.module("dendroApp.controllers")
             $localStorage.active_tab = $scope.active_tab;
         };
 
+        $scope.clicked_back_keyword_list = function ()
+        {
+            $scope.filelist = true;
+            $scope.keywordlist = false;
+        };
+
+        $scope.clicked_back_dbpedia_list = function ()
+        {
+            $scope.keywordlist = true;
+            $scope.conceptlist = false;
+        };
+
+        $scope.clicked_back_descriptor_list = function ()
+        {
+            $scope.conceptlist = true;
+            $scope.descriptorlist = false;
+        };
+
         $scope.update_project_settings = function ()
         {
             projectsService.update_project_settings($scope.project)
@@ -386,7 +420,7 @@ angular.module("dendroApp.controllers")
         $scope.get = function(){
             $scope.$broadcast ('someEvent');
             return  $scope.msg;
-        }
+        };
 
         $scope.$on('getFiles', function(e, data) {
             $scope.msg = data;
@@ -407,8 +441,10 @@ angular.module("dendroApp.controllers")
                     headers: {"Content-Type": "application/json; charset=UTF-8"}
                 }).then(function (response)
                 {
-                    $scope.keywords = response.data.output;
+                    $scope.keywords = response.data.output.dbpediaterms.keywords;
                     console.log($scope.keywords);
+                    $scope.filelist = false;
+                    $scope.keywordlist = true;
 
 
                 }).catch(function (error)
@@ -422,5 +458,255 @@ angular.module("dendroApp.controllers")
                         // Utils.show_popup("error", "Error occurred while updating the storage options of the project: ", JSON.stringify(error));
                     }
                 });
+        };
+
+        $scope.get_concepts = function ()
+        {
+            var data = {keywords:[]};
+            for(let i = 0; i < $scope.keywords.length; i++) {
+                if($scope.keywords[i].selected) {
+                    data.keywords.push({
+                        words: $scope.keywords[i].words, score: $scope.keywords[i].score
+                    });
+                }
+
+            }
+            $http({
+                method: "POST",
+                url: "/keywords/dbpedialookup",
+                data: JSON.stringify(data),
+                headers: {"Content-Type": "application/json; charset=UTF-8"}
+            }).then(function (response)
+            {
+                //$scope.keywords = response.data.output.dbpediaterms.keywords;
+                console.log(response.data.dbpediauri.result);
+                $scope.concepts = response.data.dbpediauri.result;
+                $scope.keywordlist = false;
+                $scope.conceptlist = true;
+
+            }).catch(function (error)
+            {
+                if (error.data !== null && error.data.message !== null && error.data.title !== null)
+                {
+                    //Utils.show_popup("error", error.data.title, error.data.message);
+                }
+                else
+                {
+                    // Utils.show_popup("error", "Error occurred while updating the storage options of the project: ", JSON.stringify(error));
+                }
+            });
+        };
+
+        $scope.get_properties = function ()
+        {
+            var data = {keywords:[]};
+            for(let i = 0; i < $scope.keywords.length; i++) {
+                if($scope.keywords[i].selected) {
+                    data.keywords.push({
+                        words: $scope.keywords[i].words, score: $scope.keywords[i].score
+                    });
+                }
+            }
+            $scope.conceptlist = false;
+            $scope.descriptorlist = true;
+        };
+
+        $scope.add_terms = function() {
+            var temporary_terms = $scope.extra_terms.split(";");
+            for(var i = 0; i < temporary_terms.length; i++) {
+                $scope.keywords.unshift({words:temporary_terms[i],score:"important", selected:true});
+            }
+            $scope.extra_terms = "";
+        };
+
+
+        $scope.toggle_multiple_term_selection = function ()
+        {
+            $scope.multiple_term_selection = !$scope.multiple_term_selection;
+            if (!$scope.multiple_term_selection)
+            {
+                $scope.clear_selected_terms();
+            }
+        };
+        $scope.toggle_multiple_concept_selection = function ()
+        {
+            $scope.multiple_concept_selection = !$scope.multiple_concept_selection;
+            if (!$scope.multiple_concept_selection)
+            {
+                $scope.clear_selected_concepts();
+            }
+        };
+
+        $scope.clear_selected_terms = function ()
+        {
+
+            if ($scope.keywords != null && $scope.keywords instanceof Array)
+            {
+                for (var i = 0; i < $scope.keywords.length; i++)
+                {
+                    if($scope.keywords[i].score !== "important") {
+                        $scope.keywords[i].selected = false;
+                    }
+                }
+            }
+            $scope.selected_term = null;
+
+        };
+
+        $scope.clear_selected_concepts = function ()
+        {
+
+            if ($scope.concepts != null && $scope.concepts instanceof Array)
+            {
+                for (var i = 0; i < $scope.concepts.length; i++)
+                {
+                        $scope.concepts[i].selected = false;
+                }
+            }
+            $scope.selected_term = null;
+
+        };
+        $scope.toggle_select_all_terms = function ()
+        {
+            if(!$scope.multiple_term_selection) {
+                $scope.multiple_term_selection = !$scope.multiple_term_selection;
+                $scope.select_all_terms(true);
+            }
+            if($scope.get_selected_terms().length === $scope.keywords.length) {
+                $scope.clear_selected_terms();
+            }
+            else {
+                $scope.select_all_terms($scope.multiple_term_selection);
+            }
+        };
+        $scope.toggle_select_all_concepts = function ()
+        {
+            if(!$scope.multiple_concept_selection) {
+                $scope.multiple_concept_selection = !$scope.multiple_concept_selection;
+                $scope.select_all_concepts(true);
+            }
+            if($scope.get_selected_concepts().length === $scope.concepts.length) {
+                $scope.clear_selected_concepts();
+            }
+            else {
+                $scope.select_all_concepts($scope.multiple_concept_selection);
+            }
+        };
+
+        $scope.select_all_terms = function (selected)
+        {
+
+            if ($scope.keywords != null && $scope.keywords instanceof Array)
+            {
+                for (var i = 0; i < $scope.keywords.length; i++)
+                {
+                    $scope.keywords[i].selected = selected;
+                }
+            }
+
+
+        };
+        $scope.select_all_concepts = function (selected)
+        {
+
+            if ($scope.concepts != null && $scope.concepts instanceof Array)
+            {
+                for (var i = 0; i < $scope.concepts.length; i++)
+                {
+                    $scope.concepts[i].selected = selected;
+                }
+            }
+
+
+        };
+        $scope.get_selected_terms = function ()
+        {
+            var selected_files = [];
+
+            if ($scope.keywords)
+            {
+                for (var i = 0; i < $scope.keywords.length; i++)
+                {
+                    if ($scope.keywords[i].selected)
+                    {
+                        selected_files.push($scope.keywords[i]);
+                    }
+                }
+            }
+            return selected_files;
+        };
+
+        $scope.get_selected_concepts = function ()
+        {
+            var selected_files = [];
+
+            if ($scope.concepts)
+            {
+                for (var i = 0; i < $scope.concepts.length; i++)
+                {
+                    if ($scope.concepts[i].selected)
+                    {
+                        selected_files.push($scope.concepts[i]);
+                    }
+                }
+            }
+            return selected_files;
+        };
+/*
+        $scope.set_selected_term = function (index)
+        {
+            if (
+                $scope.keywords != null &&
+                $scope.keywords instanceof Array &&
+                index < $scope.keywords.length
+            )
+            {
+                $scope.keywords[index].selected = true;
+                $scope.selected_term = $scope.keywords[index];
+            }
+        };
+        */
+        $scope.toggle_select_term_at_index_for_multiple_selection = function (index)
+        {
+            if ($scope.keywords != null && $scope.keywords instanceof Array)
+            {
+                if ($scope.keywords.length > index)
+                {
+                    $scope.keywords[index].selected = !$scope.keywords[index].selected;
+                }
+            }
+        };
+
+        $scope.toggle_select_concept_at_index_for_multiple_selection = function (index)
+        {
+            if ($scope.concepts != null && $scope.concepts instanceof Array)
+            {
+                if ($scope.concepts.length > index)
+                {
+                    $scope.concepts[index].selected = !$scope.concepts[index].selected;
+                }
+            }
+        };
+        $scope.clicked_term_explorer_node = function (index)
+        {
+            if ($scope.multiple_term_selection)
+            {
+                $scope.toggle_select_term_at_index_for_multiple_selection(index);
+            }
+            else
+            {
+                //$scope.set_selected_term(index);
+            }
+        };
+        $scope.clicked_concept_explorer_node = function (index)
+        {
+            if ($scope.multiple_concept_selection)
+            {
+                $scope.toggle_select_concept_at_index_for_multiple_selection(index);
+            }
+            else
+            {
+                //$scope.set_selected_term(index);
+            }
         };
     });

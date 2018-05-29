@@ -268,7 +268,7 @@
                         <label for="storage_limit" class="control-label">Storage Limit (Max <%= Config.maxProjectSize %> bytes)</label>
                         <input type="text"
                                class="form-control"
-                               ng-model="project.ddr.hasStorageLimit"
+                               ng-ng-model="project.ddr.hasStorageLimit"
                                id="storage_limit"
                                placeholder="Storage limit"
                                name="storage_limit"
@@ -352,10 +352,11 @@
         </div>
 
         <div class="tab-pane" id="concepts" ng-class="{active: active_tab == 'concept'}">
-            <h4>Select files for concept extraction</h4>
+            <div ng-show="filelist">
+                <h4>Select files for concept extraction</h4>
                 <div class="container-fluid" ng-controller="projectEditorCtrl" ng-init="init()">
 
-                    <div class="col-md-3 col-xs-12 col-sm-3" ng-controller="fileExplorerCtrl" ng-init="init()">
+                    <div class="col-md-6 col-sm-10" ng-controller="fileExplorerCtrl" ng-init="init()">
                         <div class="row">
                             <div class="col-xs-12">
                                 <a href="#"><img id="toggle_multiple_selection" ng-class="{active: shared.multiple_selection_active, 'btn-info': shared.multiple_selection_active}" ng-click="toggle_multiple_selection()"  src="/images/icons/check_box_list.png"></a>
@@ -364,26 +365,119 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-xs-12">
-                                <%- include ../show/file_explorer_keywords.ejs %>
+                            <div class="col-sm-10">
+                                <%- include ../show/keywords/file_explorer_keywords.ejs %>
                             </div>
                         </div>
                     </div>
                 </div>
-            <script type="text/javascript">
-                $('#toggle_multiple_selection').tooltip({title : "<h4>Select several</h4>Select several files", html:true});
-                $('#toggle_select_all').tooltip({title : "<h4>Select all</h4>Select all files", html:true});
-            </script>
+                <script type="text/javascript">
+                    $('#toggle_multiple_selection').tooltip({title : "<h4>Select several</h4>Select several files", html:true});
+                    $('#toggle_select_all').tooltip({title : "<h4>Select all</h4>Select all files", html:true});
+                </script>
 
-            <div class="row">
-                <div class="form-group">
-                    <div class="col-sm-7">
-                        <button class="btn btn-primary" type="button" ng-click="extract_terms()"><i class="fa fa-floppy-o" aria-hidden="true"></i> Continue
-                        </button>
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-sm-7">
+                            <button class="btn btn-primary" type="button" ng-click="extract_terms()"><i class="fa fa-arrow-right" aria-hidden="true"></i> Continue
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
 
+            <div ng-show="keywordlist">
+                <h4>Select terms to query DBPedia</h4>
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <a href="#"><img id="toggle_multiple_selection" ng-class="{active: multiple_term_selection, 'btn-info': multiple_term_selection}" ng-click="toggle_multiple_term_selection()"  src="/images/icons/check_box_list.png"></a>
+                        <a href="#"><img id="toggle_select_all" ng-click="toggle_select_all_terms()"  src="/images/icons/check_boxes_series.png"></a>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-10">
+                        <%- include ../show/keywords/show_keywords.ejs %>
+                    </div>
+                </div>
+
+                <div class="row" >
+
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <input type="text"
+                                   class="form-control"
+                                   id="extra_terms"
+                                   placeholder="Write terms separated by ;"
+                                   ng-model="extra_terms"
+                                   name="extra_terms">
+                            <p class="help-block">Extra terms that might be important but are not presented in the current list</p>
+                            <span class="input-group-btn" style="vertical-align:top">
+                            <button class="btn btn-primary" type="button" ng-click="add_terms()"><i class="fa fa-floppy-o" aria-hidden="true"></i> Add
+                            </button></span>
+                        </div>
+                    </div>
+                    <div class="col-md-12" >
+                        <button class="btn btn-primary" type="button" ng-click="clicked_back_keyword_list()"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back
+                        </button>
+                        <button class="btn btn-primary" style="position:absolute;right:15px" type="button" ng-click="get_concepts()"><i class="fa fa-arrow-right" aria-hidden="true"></i> Continue
+                        </button>
+                    </div>
+                </div>
+                <script type="text/javascript">
+                    $('#toggle_multiple_selection').tooltip({title : "<h4>Select several</h4>Select several terms", html:true});
+                    $('#toggle_select_all').tooltip({title : "<h4>Select all</h4>Select all terms", html:true});
+                </script>
+            </div>
+
+            <div ng-show="conceptlist">
+                <h4>Select concepts to query LOV</h4>
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <a href="#"><img id="toggle_multiple_selection" ng-class="{active: multiple_concept_selection, 'btn-info': multiple_concept_selection}" ng-click="toggle_multiple_concept_selection()"  src="/images/icons/check_box_list.png"></a>
+                        <a href="#"><img id="toggle_select_all" ng-click="toggle_select_all_concepts()"  src="/images/icons/check_boxes_series.png"></a>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <%- include ../show/keywords/show_concepts.ejs %>
+                    </div>
+                </div>
+
+                <div class="row" >
+
+                    <div class="col-md-12" >
+                        <button class="btn btn-primary" type="button" ng-click="clicked_back_dbpedia_list()"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back
+                        </button>
+                        <button class="btn btn-primary" style="position:absolute;right:15px" type="button" ng-click="get_properties()"><i class="fa fa-arrow-right" aria-hidden="true"></i> Continue
+                        </button>
+                    </div>
+                </div>
+                <script type="text/javascript">
+                    $('#toggle_multiple_selection').tooltip({title : "<h4>Select several</h4>Select several concepts", html:true});
+                    $('#toggle_select_all').tooltip({title : "<h4>Select all</h4>Select all concepts", html:true});
+                </script>
+            </div>
+
+            <div ng-show="descriptorlist">
+                <h4>List of terms, descriptions and possible descriptor</h4>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <%- include ../show/keywords/show_descriptors.ejs %>
+                    </div>
+                </div>
+
+                <div class="row" >
+                    <div class="col-md-12" >
+                        <button class="btn btn-primary" type="button" ng-click="clicked_back_descriptor_list()"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!--

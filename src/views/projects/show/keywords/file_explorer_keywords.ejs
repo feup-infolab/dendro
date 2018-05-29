@@ -19,18 +19,9 @@
                                     </td>
                                     <td class="parent_stacked_image">
                                         <img class="image1_stacked_file_browser" ng-src="{{get_thumbnail_uri(file.uri) | trustAsResourceUrl}}" image-spinner/>
-                                        <img class="image2_stacked_file_browser" src="/images/icons/bullet_yellow.png" ng-if="file.ddr.processingData" image-spinner/>
-                                        <img class="image2_stacked_file_browser" src="/images/icons/bullet_green.png" ng-if="file.ddr.hasDataContent" image-spinner uib-tooltip="Data extracted OK" tooltip-placement="right" tooltip-trigger="mouseenter"/>
-                                        <img class="image2_stacked_file_browser" src="/images/icons/bullet_orange.png" ng-if="file.ddr.hasDataProcessingError" image-spinner uib-tooltip="Data processing error: {{file.ddr.hasDataProcessingError}}" tooltip-placement="right" tooltip-trigger="mouseenter"/>
-                                        <img class="image2_stacked_file_browser" src="/images/icons/bin.png" ng-if="file.ddr.deleted" image-spinner/>
-                                    </td>
+                                        </td>
                                     <td class="filename-tablecell">
                                         <small>{{file.nie.title}}</small>
-                                        <div class="help-block tiny-text">
-                                            <div ng-show="file.ddr.processingData">Processing data...</div>
-                                            <div ng-show="file.ddr.hasDataContent">Data extracted</div>
-                                            <div ng-show="file.ddr.hasDataProcessingError">No data extracted: {{file.ddr.hasDataProcessingError}}</div>
-                                        </div>
                                     </td>
                                 </tr>
                             </table>
