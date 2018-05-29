@@ -469,7 +469,6 @@ angular.module("dendroApp.controllers")
                         words: $scope.keywords[i].words, score: $scope.keywords[i].score
                     });
                 }
-
             }
             $http({
                 method: "POST",
@@ -499,16 +498,37 @@ angular.module("dendroApp.controllers")
 
         $scope.get_properties = function ()
         {
-            var data = {keywords:[]};
-            for(let i = 0; i < $scope.keywords.length; i++) {
-                if($scope.keywords[i].selected) {
-                    data.keywords.push({
-                        words: $scope.keywords[i].words, score: $scope.keywords[i].score
-                    });
+            var data = {concepts:[]};
+            for(let i = 0; i < $scope.concepts.length; i++) {
+                if($scope.concepts[i].selected) {
+                    data.concepts.push($scope.concepts[i]);
                 }
             }
-            $scope.conceptlist = false;
-            $scope.descriptorlist = true;
+            $http({
+                method: "POST",
+                url: "/keywords/dbpediaproperties",
+                data: JSON.stringify(data),
+                headers: {"Content-Type": "application/json; charset=UTF-8"}
+            }).then(function (response)
+            {
+                //$scope.keywords = response.data.output.dbpediaterms.keywords;
+                console.log(response.data.dbpediauri.result);
+                $scope.concepts = response.data.dbpediauri.result;
+                $scope.conceptlist = false;
+                $scope.descriptorlist = true;
+
+            }).catch(function (error)
+            {
+                if (error.data !== null && error.data.message !== null && error.data.title !== null)
+                {
+                    //Utils.show_popup("error", error.data.title, error.data.message);
+                }
+                else
+                {
+                    // Utils.show_popup("error", "Error occurred while updating the storage options of the project: ", JSON.stringify(error));
+                }
+            });
+
         };
 
         $scope.add_terms = function() {

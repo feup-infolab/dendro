@@ -1431,10 +1431,10 @@ const loadRoutes = function (app, callback)
 
     // keywords
     app.post("/keywords/processextract", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.processextract);
-    //app.post("/keywords/preprocessing", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.preprocessing);
-    //app.post("/keywords/termextraction", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.termextraction);
+    app.post("/keywords/preprocessing", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.preprocessing);
+    app.post("/keywords/termextraction", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.termextraction);
     app.post("/keywords/dbpedialookup", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.dbpedialookup);
-    app.get("/keywords/dbpediaproperties", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.dbpediaproperties);
+    app.post("/keywords/dbpediaproperties", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.dbpediaproperties);
 
     // app.get("/keywords/loadfiles", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.loadfiles);
 

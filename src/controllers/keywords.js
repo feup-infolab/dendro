@@ -688,23 +688,6 @@ exports.termextraction = function (req, res)
 exports.dbpedialookup = function (req, res)
 {
     req.setTimeout(2500000);
-    var search = function (lookup, cb)
-    {
-        console.log("searching : " + lookup.words);
-        baseRequest("http://lov.okfn.org/dataset/lov/api/v2/term/search?q=" + lookup.words + "&type=property", function getResponse (error, response, body)
-        {
-            if (!error && response.statusCode === 200)
-            {
-                cb(null, JSON.parse(body));
-            }
-            else
-            {
-                // console.log("error: " + error);
-                // console.log("status code: " + response.statusCode);
-                cb(error);
-            }
-        });
-    };
 
     var searchdb = function (lookup, cb)
     {
@@ -727,11 +710,10 @@ exports.dbpedialookup = function (req, res)
     };
     var dbpediaresults = req.body.keywords;
 
-    async.mapSeries(dbpediaresults, search, function (err, results)
+    var dbpediauri = {result:[]};
+    var position;
+    async.mapSeries(dbpediaresults, searchdb, function (err, results2)
     {
-        var dbpediauri = {
-            result: []
-        };
         if (err)
         {
             // console.log(err);
@@ -743,130 +725,41 @@ exports.dbpedialookup = function (req, res)
         }
         else
         {
-            var position;
-            var count = 0;
-            for (var i = 0; i < results.length; i++)
-            {
-                if (results[i] !== undefined && results[i].results[0] != null)
-                {
-                    /* position = 0;
-                        let similar = 0;
-                        for (let x = 0; x < results[i].results.length; x++)
-                        {
-                            let current = stringSimilarity.compareTwoStrings(dbpediaresults[i].words, results[i].results[x].uri[0]);
-                            if (current > similar)
-                            {
-                                similar = Number(current);
-                                position = x;
-                            }
-                        }*/
-                    console.log("searched word: " + dbpediaresults[i].words);
 
-                    console.log("nc value: " + dbpediaresults[i].score);
-                    console.log("URI: " + results[i].results[0].uri[0]);
-                    console.log("label: " + results[i].results[0].prefixedName[0]);
-                    console.log("lov score: " + results[i].results[0].score);
-                    console.log("lov vocabulary: " + results[i].results[0]["vocabulary.prefix"][0]);
-                    console.log("highlight 1 : " + results[i].results[0].highlight);
-                    // var ret = results[i].results[position].prefixedName[0].toString().replace(results[i].results[position]["vocabulary.prefix"][0].toString(), "");
-                    // console.log("highlight: " + ret);
-                    var lovlabel;
-                    var lov_highlight;
-                    if (Object.values(results[i].results[0].highlight)[0] != undefined)
+            for (var i = 0; i < results2.length; i++)
+            {
+                if (results2[i] !== undefined && results2[i].results[0] != null)
+                {
+                    position = 0;
+                    let similar = 0;
+                    for (let x = 0; x < results2[i].results.length; x++)
                     {
-                        lovlabel = striptags(Object.values(results[i].results[0].highlight)[0].toString());
+                        let current = stringSimilarity.compareTwoStrings(dbpediaresults[i].words, results2[i].results[x].label);
+                        if (current > similar)
+                        {
+                            similar = Number(current);
+                            position = x;
+                        }
                     }
-                    else
-                    {
-                        lovlabel = "";
-                    }
-                    if (Object.values(results[i].results[0].highlight)[1] != undefined)
-                    {
-                        lov_highlight = striptags(Object.values(results[i].results[0].highlight)[1].toString());
-                    }
-                    else
-                    {
-                        lov_highlight = "";
-                    }
-                    dbpediauri.result.push({
-                        searchterm: dbpediaresults[i].words,
-                        score: dbpediaresults[i].score,
-                        lovscore: results[i].results[0].score,
-                        lovvocabulary: results[i].results[0]["vocabulary.prefix"][0],
-                        lovuri: results[i].results[0].uri[0],
-                        lovlabel: lovlabel,
-                        lov_highlight: lov_highlight,
-                        lov_label_and_highlight: Object.values(results[i].results[0].highlight)[0],
-                        dbpedialabel: "",
-                        dbpediauri: "",
-                        dbpediadescription: ""
-                    });
+                    dbpediauri.result.push({ searchterm: dbpediaresults[i].words, dbpedialabel: results2[i].results[position].label, dbpediauri:results2[i].results[position].uri, dbpediadescription: results2[i].results[position].description });
+                    console.log(dbpediauri.result[i]);
                 }
+
                 else
                 {
+                    // console.log("results for word : " + dbpediaresults[i].words + " undefined");
                     dbpediauri.result.push({
                         searchterm: dbpediaresults[i].words,
                         score: dbpediaresults[i].score,
-                        error: "undefined term in lov"
+                        error: "undefined term in dbpedia"
                     });
                 }
             }
-
-            async.mapSeries(dbpediaresults, searchdb, function (err, results2)
-            {
-                if (err)
+            res.status(200).json(
                 {
-                    // console.log(err);
-                    res.status(500).json(
-                        {
-                            dbpediauri
-                        }
-                    );
+                    dbpediauri
                 }
-                else
-                {
-                    for (var i = 0; i < results2.length; i++)
-                    {
-                        if (results2[i] !== undefined && results2[i].results[0] != null)
-                        {
-                            position = 0;
-                            let similar = 0;
-                            for (let x = 0; x < results2[i].results.length; x++)
-                            {
-                                let current = stringSimilarity.compareTwoStrings(dbpediaresults[i].words, results2[i].results[x].label);
-                                if (current > similar)
-                                {
-                                    similar = Number(current);
-                                    position = x;
-                                }
-                            }
-                            console.log("searched word: " + dbpediaresults[i].words);
-                            console.log("nc value: " + dbpediaresults[i].score);
-                            console.log("label: " + results2[i].results[position].label);
-                            console.log("description: " + results2[i].results[position].description);
-                            dbpediauri.result[i].dbpedialabel = results2[i].results[position].label;
-                            dbpediauri.result[i].dbpediauri = results2[i].results[position].uri;
-                            dbpediauri.result[i].dbpediadescription = results2[i].results[position].description;
-                            console.log(dbpediauri.result[i]);
-                        }
-                        /*
-                        else
-                        {
-                            // console.log("results for word : " + dbpediaresults[i].words + " undefined");
-                            dbpediauri.result.push({
-                                searchterm: dbpediaresults[i].words,
-                                score: dbpediaresults[i].score,
-                                error: "undefined term in dbpedia"
-                            });
-                        }*/
-                    }
-                    res.status(200).json(
-                        {
-                            dbpediauri
-                        }
-                    );
-                }
-            });
+            );
         }
     });
 };
@@ -907,20 +800,29 @@ exports.dbpediaproperties = function (req, res)
                 cb(null);
             });
     };
-
-    var dbpediaconcepts = {
-        concepts: []
-    };
-    for (var i = 0; i < req.body.concepts.length; i++)
+    var searchlov = function (dbpedia, cb)
     {
-        if (!req.body.concepts[i].hasOwnProperty("error"))
+        baseRequest("http://lov.okfn.org/dataset/lov/api/v2/term/search?q=" + dbpedia.searchterm + "&type=property", function getResponse (error, response, body)
         {
-            dbpediaconcepts.concepts.push(req.body.concepts[i]);
-        }
-    }
-    async.mapSeries(dbpediaconcepts.concepts, search, function (err, results)
+            if (!error && response.statusCode === 200)
+            {
+                cb(null, JSON.parse(body));
+            }
+            else
+            {
+                // console.log("error: " + error);
+                // console.log("status code: " + response.statusCode);
+                cb(error);
+            }
+        });
+    };
+    var lovproperties = {
+        results: []
+    };
+    var dbpediaresults = req.body.concepts;
+    async.mapSeries(dbpediaresults, searchlov, function (err, results)
     {
-        var dbpediaproperties = {
+        var dbpediauri = {
             result: []
         };
         if (err)
@@ -928,66 +830,84 @@ exports.dbpediaproperties = function (req, res)
             // console.log(err);
             res.status(500).json(
                 {
-                    dbpediaproperties
+                    dbpediauri
                 }
             );
         }
         else
         {
-            var j;
-            var h;
+            var position;
+            var count = 0;
             for (var i = 0; i < results.length; i++)
             {
-                if (results[i] !== undefined)
+                if (results[i] !== undefined && results[i].results[0] != null)
                 {
-                    if (dbpediaproperties.result.length === 0)
-                    {
-                        for (j = 0; j < results[i].results.bindings.length; j++)
+                    /* position = 0;
+                        let similar = 0;
+                        for (let x = 0; x < results[i].results.length; x++)
                         {
-                            dbpediaproperties.result.push({property: results[i].results.bindings[j].property.value, frequency: Number(dbpediaconcepts.concepts[i].score)});
-                        }
+                            let current = stringSimilarity.compareTwoStrings(dbpediaresults[i].words, results[i].results[x].uri[0]);
+                            if (current > similar)
+                            {
+                                similar = Number(current);
+                                position = x;
+                            }
+                        }*/
+                    console.log("searched word: " + dbpediaresults[i].searchterm);
+                    console.log("nc value: " + dbpediaresults[i].score);
+                    console.log("URI: " + results[i].results[0].uri[0]);
+                    console.log("label: " + results[i].results[0].prefixedName[0]);
+                    console.log("lov score: " + results[i].results[0].score);
+                    console.log("lov vocabulary: " + results[i].results[0]["vocabulary.prefix"][0]);
+                    console.log("highlight 1 : " + results[i].results[0].highlight);
+                    // var ret = results[i].results[position].prefixedName[0].toString().replace(results[i].results[position]["vocabulary.prefix"][0].toString(), "");
+                    // console.log("highlight: " + ret);
+                    var lovlabel;
+                    var lov_highlight;
+                    if (Object.values(results[i].results[0].highlight)[0] != undefined)
+                    {
+                        lovlabel = striptags(Object.values(results[i].results[0].highlight)[0].toString());
                     }
                     else
                     {
-                        // console.log(results[i].results.bindings[0].property.value);
-                        for (j = 0; j < results[i].results.bindings.length; j++)
-                        {
-                            for (h = 0; h < dbpediaproperties.result.length; h++)
-                            {
-                                if (dbpediaproperties.result[h].property === results[i].results.bindings[j].property.value)
-                                {
-                                    dbpediaproperties.result[h].frequency = dbpediaproperties.result[h].frequency * dbpediaconcepts.concepts[i].score;
-                                    break;
-                                }
-                            }
-                            if (h === dbpediaproperties.result.length)
-                            {
-                                dbpediaproperties.result.push({property: results[i].results.bindings[j].property.value, frequency: Number(dbpediaconcepts.concepts[i].score)});
-                            }
-                        }
+                        lovlabel = "";
                     }
+                    if (Object.values(results[i].results[0].highlight)[1] != undefined)
+                    {
+                        lov_highlight = striptags(Object.values(results[i].results[0].highlight)[1].toString());
+                    }
+                    else
+                    {
+                        lov_highlight = "";
+                    }
+                    dbpediauri.result.push({
+                        searchterm: dbpediaresults[i].searchterm,
+                        score: dbpediaresults[i].score,
+                        lovscore: results[i].results[0].score,
+                        lovvocabulary: results[i].results[0]["vocabulary.prefix"][0],
+                        lovuri: results[i].results[0].uri[0],
+                        lovlabel: lovlabel,
+                        lov_highlight: lov_highlight,
+                        lov_label_and_highlight: Object.values(results[i].results[0].highlight)[0]
+                    });
                 }
                 else
                 {
-                    /* // console.log("results for word : " + dbpediaresults[i].words + " undefined");
-                    dbpediaproperties.result.push({
-                        searchterm: dbpediaconcepts[i],
-                        error: "failed to extract properties"
-                    });*/
+                    dbpediauri.result.push({
+                        searchterm: dbpediaresults[i].searchterm,
+                        score: dbpediaresults[i].score,
+                        error: "undefined term in lov"
+                    });
                 }
             }
-            dbpediaproperties.result.sort(function (a, b)
-            {
-                return b.frequency - a.frequency;
-            });
-
             res.status(200).json(
                 {
-                    dbpediaproperties
+                    dbpediauri
                 }
             );
         }
     });
+
 };
 
 exports.clustering = function (rec, res)
