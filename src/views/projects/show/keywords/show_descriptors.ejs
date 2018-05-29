@@ -1,8 +1,6 @@
 <ul class="list-group" id="concept_explorer_area">
-    <a ng-repeat="concept in concepts"
-       ng-show="concepts != null"
-       nc-blur="clear_selected_terms()"
-       ng-class="{active: concept.selected}"
+    <a ng-repeat="property in properties"
+       ng-show="properties != null"
        href="#"
        class="list-group-item ng-hide">
         <div class="row">
@@ -11,10 +9,10 @@
                     <table class="explorer-table">
                         <tr>
                             <td class="term-tablecell">
-                                <medium>{{"Search Term: " + concept.searchterm}}</medium><br>
-                                <medium>{{"Label: " + concept.lovlabel}}</medium><br>
-                                <medium>{{"Uri: " + concept.lovuri}}</medium><br>
-                                <medium>{{"Description: " + concept.lovvocabulary}}</medium>
+                                <medium>{{"Search Term: " + property.searchterm}}</medium><br>
+                                <medium>{{"Label: " + property.lovlabel}}</medium><br>
+                                <medium>{{"Uri: " + property.lovuri}}</medium><br>
+                                <medium>{{"Vocabulary: " + property.lovvocabulary}}</medium>
                                 <div class="help-block">
                                 </div>
                             </td>

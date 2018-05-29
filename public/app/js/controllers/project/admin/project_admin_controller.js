@@ -25,7 +25,7 @@ angular.module("dendroApp.controllers")
         //keyword extraction
         $scope.keywords;
         $scope.concepts;
-
+        $scope.properties;
 
         $scope.filelist;
         $scope.keywordlist;
@@ -511,9 +511,8 @@ angular.module("dendroApp.controllers")
                 headers: {"Content-Type": "application/json; charset=UTF-8"}
             }).then(function (response)
             {
-                //$scope.keywords = response.data.output.dbpediaterms.keywords;
                 console.log(response.data.dbpediauri.result);
-                $scope.concepts = response.data.dbpediauri.result;
+                $scope.properties = response.data.dbpediauri.result;
                 $scope.conceptlist = false;
                 $scope.descriptorlist = true;
 
