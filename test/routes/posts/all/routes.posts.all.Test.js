@@ -28,6 +28,7 @@ const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const createSocialDendroTimelineWithPostsAndSharesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/createSocialDendroTimelineWithPostsAndShares.Unit.js"));
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 const pageNumber = 1;
+let useRank = 0;
 let postURIsToCompare;
 
 describe("Get all posts URIs with pagination tests", function ()
@@ -49,7 +50,7 @@ describe("Get all posts URIs with pagination tests", function ()
         {
             const app = global.tests.app;
             const agent = chai.request.agent(app);
-            socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+            socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
             {
                 res.statusCode.should.equal(401);
                 res.body.message.should.equal("Error detected. You are not authorized to perform this operation. You must be signed into Dendro.");
@@ -61,7 +62,7 @@ describe("Get all posts URIs with pagination tests", function ()
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                 {
                     res.statusCode.should.equal(200);
                     res.body.length.should.equal(5);
@@ -75,7 +76,7 @@ describe("Get all posts URIs with pagination tests", function ()
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
-                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                 {
                     res.statusCode.should.equal(200);
                     res.body.length.should.equal(5);
@@ -89,7 +90,7 @@ describe("Get all posts URIs with pagination tests", function ()
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
-                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                 {
                     res.statusCode.should.equal(200);
                     res.body.length.should.equal(0);

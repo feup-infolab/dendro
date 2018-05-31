@@ -32,6 +32,7 @@ const createSocialDendroTimelineWithPostsAndSharesUnit = appUtils.requireUncache
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 const pageNumber = 1;
+let useRank = 0;
 let demouser1PostURIsArray;
 
 let folderName = "TestFolderFor_post_uri";
@@ -60,7 +61,7 @@ describe("Get a specific post information tests", function ()
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                 {
                     res.statusCode.should.equal(200);
                     res.body.length.should.equal(5);
@@ -89,7 +90,7 @@ describe("Get a specific post information tests", function ()
                     socialDendroUtils.createManualPostInProject(true, agent, publicProjectUri, manualPostMockData, function (err, res)
                     {
                         res.statusCode.should.equal(200);
-                        socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                        socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                         {
                             res.statusCode.should.equal(200);
                             demouser1PostURIsArray = res.body;
@@ -113,7 +114,7 @@ describe("Get a specific post information tests", function ()
                 itemUtils.createFolder(true, agent, publicProject.handle, folderPathInProject, folderName, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                    socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                     {
                         res.statusCode.should.equal(200);
                         demouser1PostURIsArray = res.body;
@@ -138,7 +139,7 @@ describe("Get a specific post information tests", function ()
                 {
                     res.statusCode.should.equal(200);
                     fileUri = res.body[0].uri;
-                    socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                    socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                     {
                         res.statusCode.should.equal(200);
                         demouser1PostURIsArray = res.body;
@@ -162,7 +163,7 @@ describe("Get a specific post information tests", function ()
                 itemUtils.updateItemMetadata(true, agent, publicProject.handle, folderName, folderMetadata, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                    socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                     {
                         res.statusCode.should.equal(200);
                         demouser1PostURIsArray = res.body;
@@ -187,7 +188,7 @@ describe("Get a specific post information tests", function ()
                 itemUtils.updateItemMetadataByUri(true, agent, fileUri, fileMetadata, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                    socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                     {
                         res.statusCode.should.equal(200);
                         demouser1PostURIsArray = res.body;
@@ -213,7 +214,7 @@ describe("Get a specific post information tests", function ()
                 {
                     res.statusCode.should.equal(200);
                     res.body.message.should.contain("Successfully deleted " + fileUri);
-                    socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                    socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                     {
                         res.statusCode.should.equal(200);
                         demouser1PostURIsArray = res.body;
@@ -238,7 +239,7 @@ describe("Get a specific post information tests", function ()
                 {
                     res.statusCode.should.equal(200);
                     res.body.message.should.contain("Successfully deleted");
-                    socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                    socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                     {
                         res.statusCode.should.equal(200);
                         demouser1PostURIsArray = res.body;
@@ -264,7 +265,7 @@ describe("Get a specific post information tests", function ()
                 {
                     res.statusCode.should.equal(200);
                     res.body.message.should.contain("Successfully deleted");
-                    socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                    socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                     {
                         res.statusCode.should.equal(200);
                         demouser1PostURIsArray = res.body;

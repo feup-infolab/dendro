@@ -33,6 +33,7 @@ const createSocialDendroTimelineWithPostsAndSharesUnit = appUtils.requireUncache
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 const pageNumber = 1;
+let useRank = 0;
 let demouser1PostURIsArray;
 
 let folderName = "TestFolderFor_post_uri";
@@ -75,7 +76,7 @@ describe("Get a specific share information tests", function ()
                     socialDendroUtils.createManualPostInProject(true, agent, publicProjectUri, manualPostMockData, function (err, res)
                     {
                         res.statusCode.should.equal(200);
-                        socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                        socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                         {
                             res.statusCode.should.equal(200);
                             demouser1PostURIsArray = res.body;// first index is now a manualPost
@@ -83,7 +84,7 @@ describe("Get a specific share information tests", function ()
                             socialDendroUtils.shareAPost(true, agent, demouser1PostURIsArray[0].uri, shareMock.shareMsg, function (err, res)
                             {
                                 res.statusCode.should.equal(200);
-                                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                                 {
                                     res.statusCode.should.equal(200);
                                     demouser1PostURIsArray = res.body;// first index is now a share of a manualPost
@@ -111,7 +112,7 @@ describe("Get a specific share information tests", function ()
                 socialDendroUtils.createManualPostInProject(true, agent, publicProjectUri, manualPostMockData, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                    socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                     {
                         res.statusCode.should.equal(200);
                         demouser1PostURIsArray = res.body;// first index is now a manualPost
@@ -119,7 +120,7 @@ describe("Get a specific share information tests", function ()
                         socialDendroUtils.shareAPost(true, agent, demouser1PostURIsArray[0].uri, shareMock.shareMsg, function (err, res)
                         {
                             res.statusCode.should.equal(200);
-                            socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                            socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                             {
                                 res.statusCode.should.equal(200);
                                 demouser1PostURIsArray = res.body;// first index is now a share of manualPost
@@ -148,7 +149,7 @@ describe("Get a specific share information tests", function ()
                 itemUtils.createFolder(true, agent, publicProject.handle, folderPathInProject, folderName, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                    socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                     {
                         res.statusCode.should.equal(200);
                         demouser1PostURIsArray = res.body;// first index is now a FileSystemPost
@@ -156,7 +157,7 @@ describe("Get a specific share information tests", function ()
                         socialDendroUtils.shareAPost(true, agent, demouser1PostURIsArray[0].uri, shareMock.shareMsg, function (err, res)
                         {
                             res.statusCode.should.equal(200);
-                            socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                            socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                             {
                                 res.statusCode.should.equal(200);
                                 demouser1PostURIsArray = res.body;// first index is now a share of FileSystemPost
@@ -184,7 +185,7 @@ describe("Get a specific share information tests", function ()
                 itemUtils.updateItemMetadata(true, agent, publicProject.handle, folderName, folderMetadata, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                    socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                     {
                         res.statusCode.should.equal(200);
                         demouser1PostURIsArray = res.body;// first index is now a MetadataChangePost
@@ -192,7 +193,7 @@ describe("Get a specific share information tests", function ()
                         socialDendroUtils.shareAPost(true, agent, demouser1PostURIsArray[0].uri, shareMock.shareMsg, function (err, res)
                         {
                             res.statusCode.should.equal(200);
-                            socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                            socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                             {
                                 res.statusCode.should.equal(200);
                                 demouser1PostURIsArray = res.body;// first index is now a share of MetadataChangePost

@@ -181,7 +181,7 @@ const getAllPosts = function (projectUrisArray, callback, nextPosition, lastAcce
                 }); */
 
             let projectsUris = fullProjects.join(",");
-            let queryEngagement = "SELECT postURI AS uri FROM dendroVagrantDemo.posts WHERE projectURI IN (" + projectsUris + ") AND createdAt >= :date ORDER BY createdAt ASC;";
+            let queryEngagement = "SELECT postURI AS uri FROM " + Config.mySQLDBName + ".posts WHERE projectURI IN (" + projectsUris + ") AND createdAt >= :date ORDER BY createdAt ASC;";
             let lastDate;
             if (!isNull(lastAccess))
             {
@@ -193,7 +193,7 @@ const getAllPosts = function (projectUrisArray, callback, nextPosition, lastAcce
             }
             dbMySQL.sequelize
                 .query(queryEngagement,
-                    {replacements: { date: lastDate}, type: dbMySQL.sequelize.QueryTypes.SELECT})
+                    {replacements: { date: lastDate }, type: dbMySQL.sequelize.QueryTypes.SELECT})
                 .then(posts => {
                     // let newPosts = Object.keys(posts).map(function (k) { return posts[k]; });
                     console.log(posts);
@@ -1041,7 +1041,40 @@ exports.all = function (req, res)
                     {
                         type = "unranked";
                     }
+                    let newTimeline = {
+                        userURI: req.userURI,
+                        type: type
+                    };
                     dbMySQL.timeline
+                        .findOrCreate({where: {userURI: req.user.uri, type: type}, defaults: newTimeline})
+                        .spread((timeline, created) => {
+                            if (currentPage === 1)
+                            {
+                                if (!useRank)
+                                {
+                                    getAllPosts(fullProjectsUris, cb, timeline.nextPosition, timeline.lastAccess, index, maxResults, timeline.id);
+                                }
+                                else
+                                {
+                                    getRankedPosts(fullProjectsUris, cb, currentUser.uri, timeline.nextPosition, timeline.lastAccess, index, maxResults, timeline.id);
+                                }
+                                if (!created)
+                                {
+                                    var t = new Date();
+                                    t.setSeconds(t.getSeconds() + 1);
+                                    return timeline.update({
+                                        lastAccess: t
+                                    });
+                                }
+                            }
+                            else
+                            {
+                                getRankedPostsPerPage(index, maxResults, timeline.id, cb);
+                            }
+                        }).catch(err => {
+                            console.log(err);
+                        });
+                    /* dbMySQL.timeline
                         .findOne({where: {userURI: currentUser.uri, type: type}})
                         .then((timeline) => {
                             if (currentPage === 1)
@@ -1064,7 +1097,7 @@ exports.all = function (req, res)
                             getRankedPostsPerPage(index, maxResults, timeline.id, cb);
                         }).catch(err => {
                             console.log(err);
-                        });
+                        }); */
                     /* if (useRank === "false")
                     {
                         getAllPosts(fullProjectsUris, cb, index, maxResults);

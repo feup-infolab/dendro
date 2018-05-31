@@ -29,6 +29,7 @@ const publicProjectForDemouser2 = require(Pathfinder.absPathInTestsFolder("mockd
 const createSocialDendroTimelineWithPostsAndSharesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/createSocialDendroTimelineWithPostsAndShares.Unit.js"));
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 const pageNumber = 1;
+let useRank = 0;
 let demouser1PostURIsArray;
 let invalidPostURIsArray = [];
 
@@ -51,7 +52,7 @@ describe("Get information on an array of posts(given an array of post URIs) test
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                 {
                     res.statusCode.should.equal(200);
                     res.body.length.should.equal(5);
@@ -173,7 +174,7 @@ describe("Get information on an array of posts(given an array of post URIs) test
                     res.statusCode.should.equal(200);
                     projectUtils.createFolderInProjectRoot(true, agent, publicProjectForDemouser2.handle, "testFolderForDemouser2Project", function (err, res) {
                         res.statusCode.should.equal(200);
-                        socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                        socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                         {
                             res.statusCode.should.equal(200);
                             res.body.length.should.equal(5);

@@ -45,7 +45,8 @@ module.exports.setup = function (finish)
                 {
                     // TODO do the get posts request obtain a uri of a post then share it
                     let pageNumber = 1;
-                    socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                    let useRank = 0;
+                    socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                     {
                         if (isNull(err))
                         {

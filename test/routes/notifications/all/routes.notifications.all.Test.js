@@ -33,6 +33,7 @@ const createSocialDendroTimelineWithPostsAndSharesUnit = appUtils.requireUncache
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 const pageNumber = 1;
+let useRank = 0;
 let demouser2PostURIsArray;
 
 let folderName = "TestFolderFor_post_uri";
@@ -71,7 +72,7 @@ describe("Get all notifications URIs for a user tests", function ()
                     socialDendroUtils.createManualPostInProject(true, agent, publicProjectUri, manualPostMockData, function (err, res)
                     {
                         res.statusCode.should.equal(200);
-                        socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                        socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                         {
                             res.statusCode.should.equal(200);
                             demouser2PostURIsArray = res.body;
