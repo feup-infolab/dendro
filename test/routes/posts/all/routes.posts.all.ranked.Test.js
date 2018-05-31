@@ -11,7 +11,7 @@ const socialDendroUtils = require(Pathfinder.absPathInTestsFolder("/utils/social
 
 const createSocialDendroTimelineWithPostsAndSharesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/createSocialDendroTimelineWithPostsAndShares.Unit.js"));
 const pageNumber = 1;
-const useRank = 0;
+const useRank = 1;
 
 describe("Get all posts URIs with pagination tests", function ()
 {

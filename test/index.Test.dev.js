@@ -162,8 +162,6 @@ require(Pathfinder.absPathInTestsFolder("/routes/interactions/fill_in_inherited_
 // /interactions/delete_all
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/delete_all/routes.interactions.deleteAll.Test.js"));
 
-return;
-
 // Import projects tests
 require(Pathfinder.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));
 

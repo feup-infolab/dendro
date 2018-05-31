@@ -66,29 +66,40 @@ module.exports.setup = function (finish)
         }
         else
         {
-            appUtils.registerStartTimeForUnit(path.basename(__filename));
-            async.mapSeries(projectsData, function (projectData, cb)
+            let createTimelineInMySQL = requireUncached(Pathfinder.absPathInTestsFolder("units/social/createTimelineInMySQL.Unit.js"));
+            createTimelineInMySQL.setup(function (err, results)
             {
-                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                if (err)
                 {
-                    if (err)
+                    finish(err, results);
+                }
+                else
+                {
+                    appUtils.registerStartTimeForUnit(path.basename(__filename));
+                    async.mapSeries(projectsData, function (projectData, cb)
                     {
-                        end();
-                        cb(err, agent);
-                    }
-                    else
-                    {
-                        projectUtils.createNewProject(true, agent, projectData, function (err, res)
+                        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                         {
-                            end();
-                            cb(err, res);
+                            if (err)
+                            {
+                                end();
+                                cb(err, agent);
+                            }
+                            else
+                            {
+                                projectUtils.createNewProject(true, agent, projectData, function (err, res)
+                                {
+                                    end();
+                                    cb(err, res);
+                                });
+                            }
                         });
-                    }
-                });
-            }, function (err, results)
-            {
-                appUtils.registerStopTimeForUnit(path.basename(__filename));
-                finish(err, results);
+                    }, function (err, results)
+                    {
+                        appUtils.registerStopTimeForUnit(path.basename(__filename));
+                        finish(err, results);
+                    });
+                }
             });
         }
     });

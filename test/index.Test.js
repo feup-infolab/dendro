@@ -19,6 +19,8 @@ global.Config = Config;
 
 global.tests = {};
 
+return;
+
 require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 
 // TODO
