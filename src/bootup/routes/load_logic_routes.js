@@ -106,6 +106,8 @@ const loadRoutes = function (app, callback)
     app.post("/admin/config", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), admin.configuration);
     app.post("/admin/restart", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), admin.restartServer);
     app.get("/admin/logs", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), admin.logs);
+    app.post("/admin/nuke_orphan_resources", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), admin.nukeOrphanResources);
+    app.get("/admin/list_orphan_resources", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), admin.listOrphanResources);
 
     // low-level sparql endpoint
     // TODO
@@ -598,6 +600,13 @@ const loadRoutes = function (app, callback)
                         permissions: [Permissions.settings.privacy.of_project.public, Permissions.settings.role.in_project.contributor, Permissions.settings.role.in_project.creator],
                         authentication_error: "Permission denied : cannot backup this project because you do not have permissions to access it."
                     },
+                    // storage configuration
+                    {
+                        queryKeys: ["storage"],
+                        handler: projects.storage,
+                        permissions: modificationPermissions,
+                        authentication_error: "Permission denied : cannot get storage of this project because you do not have permissions to access it."
+                    },
                     // default case
                     {
                         queryKeys: [],
@@ -654,6 +663,12 @@ const loadRoutes = function (app, callback)
                         handler: files.copy,
                         permissions: modificationPermissions,
                         authentication_error: "Permission denied : cannot paste resources into this folder because you do not have permissions to edit resources inside this project."
+                    },
+                    {
+                        queryKeys: ["storage"],
+                        handler: projects.storage,
+                        permissions: modificationPermissions,
+                        authentication_error: "Permission denied: cannot edit storage of this project because you do not have permissions "
                     }
                 ],
                 all:
@@ -695,7 +710,7 @@ const loadRoutes = function (app, callback)
                 }
                 else
                 {
-                    const requestedProjectUrl = Config.baseUri + "/project/" + req.params[0];
+                    const requestedProjectUrl = "/project/" + req.params[0];
                     getResourceUri(requestedProjectUrl, callback);
                 }
             },
@@ -769,6 +784,12 @@ const loadRoutes = function (app, callback)
                     {
                         queryKeys: ["ls"],
                         handler: files.ls,
+                        permissions: defaultPermissionsInProjectBranch,
+                        authentication_error: "Permission denied : cannot list the contents of this resource because you do not have permissions to access its project."
+                    },
+                    {
+                        queryKeys: ["ls", "title"],
+                        handler: files.ls_by_name,
                         permissions: defaultPermissionsInProjectBranch,
                         authentication_error: "Permission denied : cannot list the contents of this resource because you do not have permissions to access its project."
                     },
@@ -945,6 +966,12 @@ const loadRoutes = function (app, callback)
                         authentication_error: "Permission denied : cannot create new folder because you do not have permissions to edit resources inside this project."
                     },
                     {
+                        queryKeys: ["copy_paste"],
+                        handler: files.copy_paste,
+                        permissions: modificationPermissionsBranch,
+                        authentication_error: "Permission denied : cannot create a copy because you do not have permissions to edit resources inside this project."
+                    },
+                    {
                         queryKeys: ["restore"],
                         handler: files.restore,
                         permissions: modificationPermissionsBranch,
@@ -1031,7 +1058,7 @@ const loadRoutes = function (app, callback)
                 }
                 else
                 {
-                    const requestedResource = Config.baseUri + "/project/" + req.params[0] + req.params[1];
+                    const requestedResource = "/project/" + req.params[0] + req.params[1];
                     getResourceUri(requestedResource, callback);
                 }
             },
@@ -1413,7 +1440,7 @@ const loadRoutes = function (app, callback)
     app.delete("/interactions/delete_all", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), interactions.delete_all_interactions);
 
     //TODO William
-    app.get("/deposits/latest", deposits.getDeposits);
+    app.get("/deposits/get_deposits", deposits.getDeposits);
     app.get("/metrics/deposits", metrics.getDeposits);
 
 

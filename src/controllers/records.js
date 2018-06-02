@@ -1,6 +1,4 @@
-const path = require("path");
 const Pathfinder = global.Pathfinder;
-const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -13,12 +11,9 @@ const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/direct
 const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const MetadataChangePost = require(Pathfinder.absPathInSrcFolder("/models/social/metadataChangePost.js")).MetadataChangePost;
-const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
 const async = require("async");
+const contentDisposition = require("content-disposition");
 const db_social = Config.getDBByID("social");
-
-const _ = require("underscore");
-const request = require("request");
 
 exports.show_deep = function (req, res)
 {
@@ -65,7 +60,7 @@ exports.show_deep = function (req, res)
                                 result.data_processing_error = resource.ddr.hasDataProcessingError;
 
                                 res.set("Content-Type", contentType);
-                                res.set("Content-disposition", "attachment; filename=\"" + resource.nie.title + "\"");
+                                res.set("Content-disposition", contentDisposition(resource.nie.title));
                                 res.send(serializer(result));
                             }
                             else
@@ -127,7 +122,8 @@ exports.show = function (req, res)
                 {
                     if (!isNull(requestedResource))
                     {
-                        requestedResource.findMetadataRecursive(function (err, result)
+                        let recursive = false;
+                        requestedResource.findMetadata(function (err, result)
                         {
                             if (isNull(err))
                             {
@@ -149,8 +145,7 @@ exports.show = function (req, res)
                                 result.is_a_file = requestedResource.isA(File);
 
                                 res.set("Content-Type", contentType);
-                                res.set("Content-disposition", "attachment; filename=\"" + requestedResource.nie.title + "\"");
-
+                                res.set("Content-disposition", contentDisposition(requestedResource.nie.title));
                                 res.send(serializer(result));
                             }
                             else
@@ -159,7 +154,7 @@ exports.show = function (req, res)
                                     error_messages: "Error finding metadata from " + requestedResource.uri + "\n" + result
                                 });
                             }
-                        }, true);
+                        }, true, recursive);
                     }
                     else
                     {
@@ -385,15 +380,15 @@ exports.update = function (req, res)
                 {
                     if (isNull(err))
                     {
-                        updatedResource.reindex(IndexConnection.getDefault(), function (err, result)
+                        updatedResource.reindex(function (err, updatedResource)
                         {
                             if (isNull(err))
                             {
-                                callback(err, resource);
+                                callback(err, updatedResource);
                             }
                             else
                             {
-                                const msg = "Error updating resource : unable to reindex new values. Error reported : " + result;
+                                const msg = "Error updating resource : unable to reindex new values. Error reported : " + updatedResource;
                                 Logger.log("error", msg);
                                 res.status(500).json({
                                     result: "Error",
@@ -406,7 +401,8 @@ exports.update = function (req, res)
                     {
                         res.status(500).json({
                             result: "Error saving new record",
-                            message: updatedResource
+                            message: updatedResource,
+                            error: err
                         });
                     }
                 }, true, changeAuthor, [Elements.access_types.locked], [], [Elements.access_types.audit]);

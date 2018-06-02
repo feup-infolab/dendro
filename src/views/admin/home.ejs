@@ -217,10 +217,89 @@
                                 </div>
                             </div>
                         <% } %>
-                        <input type="submit" value="Reindex" class="btn btn-primary">
 
                         <p class="help-block">Select the graphs you want to reindex</p>
+
+                        <br>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <label for="index_in_background_checkbox">Run operation in background</label>
+                                <input type="checkbox" id="index_in_background_checkbox" name="background" value="1" checked>
+                                <div class="help-block">Runs the reindexing in the background. You have to refresh this page to know when it is finished, but you can continue working.</div>
+                            </div>
+                        </div>
+
+                        <% if(!locals.indexing) { %>
+                            <input type="submit" value="Reindex" class="btn btn-primary">
+                        <% } else { %>
+                            <div class="label label-default" id="indexing_running_badge">Indexing operation already running. Please wait<i class="fa fa fa-cog faa-spin animated"></i></div>
+                            <input type="submit" value="Reindex" class="btn btn-primary" disabled>
+                        <% } %>
+
+                        <br>
+                        <% if(locals.lastIndexingOK === true) { %>
+                        <div class="label label-success" id="indexing_running_badge">Last indexing result: OK</div>
+                        <% } else if(locals.lastIndexingOK === false) { %>
+                        <div class="label label-warning" id="indexing_running_badge">Last indexing result: Failed</div>
+                        <% } else { %>
+                        <div class="label label-default" id="indexing_running_badge">Last indexing result: Unknown</div>
+                        <% }  %>
+
+
                     </form>
+                </div>
+
+                <!-- nuke orphan resources -->
+                <div class="row">
+                    <div class="col-xs-12">
+                        <h4>
+                            Orphan Resources
+                        </h4>
+
+                        <h5>--Resources that no longer exist in the triple store, but for some reason still exist in the Gridfs storage--</h5>
+
+
+                        <button ng-click="listOrphanResources()" class="btn btn-sm btn-warning">List all orphan resources in gridfs</button>
+                        <div class="help-block">List all resources in gridfs that do not exist in triple store graph
+                            <br/>
+                            <strong>Run This before attempting to nuke any orphan resources!!!</strong>
+                        </div>
+
+                        <button ng-click="nukeOrphanResources()" class="btn btn-sm btn-danger">Nuke orphan resources in gridfs</button>
+                        <div class="help-block">Deletes all resources in gridfs that do not exist in triple store graph
+                            <br/>
+                            <strong>Be sure to run 'List all orphan resources in gridfs' first!</strong>
+                        </div>
+
+
+                        <div ng-show="orphanResources">
+                            <h4>
+                                Orphan list:
+                            </h4>
+
+                            <div class="nuke_orphan_resouces_viewer"
+                                 ng-model="orphanResources" ng-readonly="true" ui-ace="{
+                                  useWrapMode : true,
+                                  theme:'twilight',
+                                  mode: 'json',
+                                }">
+                            </div>
+                        </div>
+
+                        <div ng-show="nukedResources">
+                            <h4>
+                                Nuke status:
+                            </h4>
+
+                            <div class="nuke_orphan_resouces_viewer"
+                                 ng-model="nukedResources" ng-readonly="true" ui-ace="{
+                                  useWrapMode : true,
+                                  theme:'twilight',
+                                  mode: 'json',
+                                }">
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

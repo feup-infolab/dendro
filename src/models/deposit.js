@@ -5,6 +5,7 @@
 
 const path = require("path");
 const moment = require("moment");
+const request = require("request");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -25,6 +26,9 @@ const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js
 const db = Config.getDBByID();
 const gfs = Config.getGFSByID();
 
+const B2ShareClient = require("@feup-infolab/node-b2share-v2");
+
+
 const util = require('util');
 const async = require("async");
 const _ = require("underscore");
@@ -39,9 +43,8 @@ function Deposit(object){
 
     let now = moment().format();
     self.dcterms.date = now;
-    const uuid = require('uuid');
-
-    //self.uri = Config.baseUri + "/deposit/" + uuid.v4();
+    self.ddr.lastVerifiedDate = now;
+    self.ddr.isAvailable = true;
 
     return self;
 }
@@ -49,7 +52,7 @@ function Deposit(object){
 Deposit.createDepositRegistry = function (object, callback) {
     const newRegistry = new Deposit(object);
 
-    const requestedResourceURI = object.ddr.exportedResource;
+    const requestedResourceURI = object.ddr.exportedFromFolder;
 
     const isResource = function (url)
     {
@@ -57,41 +60,25 @@ Deposit.createDepositRegistry = function (object, callback) {
         return regexp.test(url);
     };
 
-    if(requestedResourceURI instanceof Array && requestedResourceURI.length > 0){
-      const resourceUri = requestedResourceURI[0];
-      if(isResource(resourceUri)){
-        const info = new InformationElement({
-          uri: resourceUri,
-        });
-
-        info.getOwnerProject(function (err, ie) {
-          newRegistry.ddr.exportedFromProject = ie.uri;
-
-          info.getParent(function(err, ie){
-            newRegistry.ddr.exportedFromFolder = ie.uri;
-            if (isNull(err)) {
-
-              console.log("creating registry from deposit\n" + util.inspect(object));
-
-              newRegistry.save(function(err, newRegistry){
-                if(!err){
-                  callback(err, newRegistry);
-                } else{
-
-                }
-              });
-            }
-          });
-
-        });
-      }else{
-        return;
-      }
-    }else{
-      return;
+    if(isNull(object.ddr.lastVerifiedDate)){
+      object.ddr.lastVerifiedDate = moment().format();
     }
+    object.ddr.isAvailable = true;
 
+    if(isResource(requestedResourceURI)){
 
+      console.log("creating registry from deposit\n" + util.inspect(object));
+
+      newRegistry.save(function(err, newRegistry){
+        if(!err){
+          callback(err, newRegistry);
+        } else{
+
+        }
+      });
+    }else{
+      callback(1);
+    }
 };
 
 Deposit.createQuery = function(params, callback){
@@ -109,7 +96,7 @@ Deposit.createQuery = function(params, callback){
         "   ?uri dcterms:title ?label . \n" +
         "   ?uri dcterms:date ?date . \n" +
         "   ?uri ddr:exportedFromFolder ?folder . \n" +
-        "   ?uri ddr:hasExternalUri ?repository . \n" +
+        "   ?uri ddr:exportedToRepository ?repository . \n" +
         "   ?folder nie:title ?folderName . \n";
 
     let i = 1;
@@ -173,7 +160,7 @@ Deposit.createQuery = function(params, callback){
     if(params.offset){
         variables.push({
             type: Elements.types.string,
-            value: params.offset
+            value: (params.offset * params.limit).toString()
         });
     } else{
         variables.push({
@@ -263,6 +250,57 @@ Deposit.createQuery = function(params, callback){
         });
 };
 
+Deposit.validatePlatformUri = function(deposit, callback){
+
+  const appendPlatformUrl = function({ ddr : {exportedToPlatform : platform, exportedToRepository : url}}){
+    const https = "https://";
+    switch(platform){
+      case "EUDAT B2Share":
+        return https + url + "/api/records/";
+      case "CKAN":
+        return https + url + "/dataset/";
+      case "Figshare":
+        break;
+      case "Zenodo":
+        break;
+      case "EPrints":
+        break;
+      default:
+        return url;
+    }
+  };
+  //if it has external repository uri
+  if(deposit.ddr.lastVerifiedDate){
+    const now = moment();
+    const lastChecked = moment(deposit.ddr.lastVerifiedDate);
+    //calculate difference
+    const difference = now.diff(lastChecked, "hours");
+
+    if(difference >= 24){
+      //make call to the uri and see if request is 404 or not
+      const uri = appendPlatformUrl(deposit) + deposit.dcterms.identifier;
+      request(uri, function (error, response, body) {
+        if(error || response.statusCode === 404){
+          deposit.ddr.isAvailable = false;
+        }else if(response.statusCode === 200){
+          //status code is acceptable
+          deposit.ddr.isAvailable = true;
+        }
+        deposit.ddr.lastVerifiedDate = now.format();
+        deposit.save(function(err, result){
+          if(isNull(err)){
+            callback(result);
+          }else {
+            callback(result);
+          }
+        });
+      })
+    } else callback(deposit);
+  } else callback(deposit);
+
+
+};
+
 Deposit.createAndInsertFromObject = function(object, callback){
     const self = Object.create(this.prototype);
     self.constructor(object);
@@ -282,8 +320,9 @@ Deposit.getAllRepositories = function(params, callback){
       "WHERE \n" +
       "{ \n" +
       "   ?uri rdf:type ddr:Registry . \n" +
-      "   ?uri ddr:hasExternalUri ?repository . \n" +
-      "   ?uri ddr:exportedFromProject ?projused . \n";
+      "   ?uri ddr:exportedToRepository ?repository . \n" +
+      "   ?uri ddr:exportedFromProject ?projused . \n" +
+      "  ";
 
     const ending = "} \n" +
       "GROUP BY ?repository";
@@ -294,17 +333,19 @@ Deposit.getAllRepositories = function(params, callback){
         value: db.graphUri
       }];
 
+    let i = 1;
+
     if(params.self){
       query +=
         "   { \n" +
         "       { \n" +
-        "         ?uri ddr:privacyStatus [1] . \n" +
+        "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
         "       } \n" +
         "       UNION \n" +
         "       { \n" +
-        "         ?uri ddr:privacyStatus [2] . \n" +
+        "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
         "         VALUES ?role { dcterms:creator dcterms:contributor } . \n" +
-        "         ?projused ?role [3] . \n" +
+        "         ?projused ?role [" + i++ + "] . \n" +
         "       } \n" +
         "   } \n";
 
@@ -322,7 +363,7 @@ Deposit.getAllRepositories = function(params, callback){
           value : params.self
         }]);
     } else{
-      query += "    ?uri ddr:privacyStatus [1]";
+      query += "    ?uri ddr:privacyStatus [" + i++ + "]";
       variables.push({
         type : Elements.ontologies.ddr.privacyStatus.type,
         value : "public"
@@ -330,7 +371,72 @@ Deposit.getAllRepositories = function(params, callback){
     }
 
 
-    query += ending;
+    if(params.project){
+      query += "  ?projused dcterms:title [" + i++ + "] \n";
+      variables.push({
+        type: Elements.ontologies.dcterms.title.type,
+        value: params.project
+      });
+    }
+    if(params.creator){
+      query += "  ?uri dcterms:creator [" + i++ + "] \n";
+      variables.push({
+        type: Elements.ontologies.dcterms.creator.type,
+        value: params.creator
+      });
+    }
+    if(params.platforms){
+      query +=
+        "    VALUES ?platformsUsed {";
+
+      for(let j = 0; j < params.platforms.length; j++) {
+        query += "[" + i++ + "] ";
+        variables.push({
+          type: Elements.types.string,
+          value: params.platforms[j]
+        });
+      }
+      query +=
+        "} . \n" +
+        "    ?uri ddr:exportedToPlatform ?platformsUsed . \n";
+
+
+    }
+    if(params.repositories){
+      query +=
+        "    VALUES ?repository { ";
+
+      for(let j = 0; j < params.repositories.length; j++) {
+        query += "[" + i++ + "] ";
+        variables.push({
+          type: Elements.ontologies.ddr.hasExternalUri.type ,
+          value: params.repositories[j]
+        });
+      }
+      query +=
+        "} . \n" +
+        "    ?uri ddr:hasExternalUri ?repository . \n";
+
+
+    }
+    if(params.dateFrom){
+      query += "  FILTER (?date > [" + i++ + "]^^xsd:dateTime )\n";
+      variables.push({
+        type: Elements.types.string,
+        value: params.dateFrom,
+      });
+    }
+    if(params.dateTo){
+    query += "  FILTER ([" + i++ + "]^^xsd:dateTime > ?date )\n";
+    variables.push({
+      type: Elements.types.string,
+      value: params.dateTo,
+    });
+  }
+
+
+
+  query += ending;
 
       db.connection.executeViaJDBC(query,variables, function (err, regs){
         callback(err, regs);

@@ -22,7 +22,9 @@ const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const CKAN = require("ckan");
 const CkanUtils = require(Pathfinder.absPathInSrcFolder("/utils/datasets/ckanUtils.js"));
 const generalDatasetUtils = require(Pathfinder.absPathInSrcFolder("/utils/datasets/generalDatasetUtils.js"));
+const Deposit = require(Pathfinder.absPathInSrcFolder("/models/deposit.js")).Deposit;
 
+const moment = require("moment");
 const async = require("async");
 const nodemailer = require("nodemailer");
 const flash = require("connect-flash");
@@ -90,8 +92,8 @@ export_to_repository_sword = function (req, res)
                                             files: files,
                                             collectionRef: targetRepository.ddr.hasSwordCollectionUri,
                                             repositoryType: targetRepository.ddr.hasPlatform.foaf.nick,
-                                            user: targetRepository.ddr.hasUsername,
-                                            password: targetRepository.ddr.hasPassword,
+                                            user: targetRepository.ddr.username,
+                                            password: targetRepository.ddr.password,
                                             serviceDocRef: serviceDocumentRef
                                         };
 
@@ -221,8 +223,10 @@ export_to_repository_ckan = function (req, res)
     {
         const requestedResourceUri = req.params.requestedResourceUri;
         const targetRepository = req.body.repository;
+        const privacy = req.body.publicDeposit;
 
-        let overwrite = false;
+
+      let overwrite = false;
         let deleteChangesOriginatedFromCkan = false;
         let propagateDendroChangesIntoCkan = false;
         try
@@ -306,16 +310,43 @@ export_to_repository_ckan = function (req, res)
                 }
                 else
                 {
+
                     // The success case
                     // Update the exportedAt property in the ckan package
                     const client = new CKAN.Client(targetRepository.ddr.hasExternalUri, targetRepository.ddr.hasAPIKey);
                     let packageId = CkanUtils.createPackageID(requestedResourceUri);
+
+                    const user = req.user;
+                      let registryData = {
+                        dcterms: {
+                          title: targetRepository.dcterms.title,
+                          creator: targetRepository.dcterms.creator,
+                          identifier: result,
+                        },
+                        ddr: {
+                          //exportedFromProject: project.uri,
+                          exportedFromFolder: requestedResourceUri,
+                          privacyStatus: isNull(privacy) || privacy === false ? "private" : "public",
+                          hasOrganization: organization,
+                          exportedToRepository: targetRepository.ddr.hasExternalUri,
+                          exportedToPlatform: "CKAN",
+                        }
+                      };
                     CkanUtils.updateOrInsertExportedAtByDendroForCkanDataset(packageId, client, function (err, result)
                     {
-                        res.json({
-                            result: resultInfo.result,
-                            message: resultInfo.message
+                        Folder.findByUri(requestedResourceUri, function(err, folder){
+                            folder.getOwnerProject(function( err, project){
+                              registryData.ddr.exportedFromProject = project.uri;
+                              Deposit.createDepositRegistry(registryData, function(err, deposit){
+                                res.json({
+                                  result: resultInfo.result,
+                                  message: resultInfo.message
+                                });
+                              })
+
+                            });
                         });
+
                     });
                 }
             });
@@ -749,7 +780,8 @@ const export_to_repository_zenodo = function (req, res)
 export_to_repository_b2share = function (req, res)
 {
     const requestedResourceUri = req.params.requestedResourceUri;
-    const targetRepository = req.body.repository;
+    const targetRepository = req.body.repository
+    const privacy = req.body.publicDeposit;
     // targetRepository.ddr.hasExternalUri -> the b2share host url
 
     Folder.findByUri(requestedResourceUri, function (err, folder)
@@ -788,34 +820,73 @@ export_to_repository_b2share = function (req, res)
                                             try
                                             {
                                                 const accessToken = targetRepository.ddr.hasAccessToken;
+                                                let title, description, abstract, publisher, language;
+                                                title = generalDatasetUtils.parseDescriptorValue(folder.dcterms.title);
+                                                description = generalDatasetUtils.parseDescriptorValue(folder.dcterms.description);
+                                                abstract = generalDatasetUtils.parseDescriptorValue(folder.dcterms.abstract);
+                                                publisher = generalDatasetUtils.parseDescriptorValue(folder.dcterms.publisher) || generalDatasetUtils.parseDescriptorValue(project.dcterms.publisher) || "http://dendro.fe.up.pt";
+                                                language = generalDatasetUtils.parseDescriptorValue(folder.dcterms.language) || generalDatasetUtils.parseDescriptorValue(project.dcterms.language) || "en";
 
-                                                let title;
-
-                                                if (Array.isArray(folder.dcterms.title))
+                                                let creators = [];
+                                                if (Array.isArray(folder.dcterms.creator))
                                                 {
-                                                    title = folder.dcterms.title[0];
+                                                    for (let i = 0; i != folder.dcterms.creator.length; ++i)
+                                                    {
+                                                        creators.push({creator_name: folder.dcterms.creator[i]});
+                                                    }
                                                 }
                                                 else
                                                 {
-                                                    title = folder.dcterms.title;
+                                                    creators.push({creator_name: folder.dcterms.creator});
                                                 }
-                                                let description;
-                                                if (Array.isArray(folder.dcterms.description))
-                                                {
-                                                    description = folder.dcterms.description[0];
-                                                }
-                                                else
-                                                {
-                                                    description = folder.dcterms.description;
-                                                }
-
                                                 const draftData = {
                                                     titles: [{title: title}],
                                                     community: Config.eudatCommunityId,
                                                     open_access: true,
                                                     community_specific: {},
-                                                    creators: [{creator_name: folder.dcterms.creator}]
+                                                    creators: creators
                                                 };
+
+                                                // "descriptions":[{"description":"The abstract of the harem dataset","description_type":"Abstract"}]
+                                                if (!isNull(abstract))
+                                                {
+                                                    if (isNull(draftData.descriptions))
+                                                    {
+                                                        draftData.descriptions = [
+                                                            {
+                                                                description: abstract,
+                                                                description_type: "Abstract"
+                                                            }
+                                                        ];
+                                                    }
+                                                    else
+                                                    {
+                                                        draftData.descriptions.push({
+                                                            description: abstract,
+                                                            description_type: "Abstract"
+                                                        });
+                                                    }
+                                                }
+
+                                                if (!isNull(description))
+                                                {
+                                                    if (isNull(draftData.descriptions))
+                                                    {
+                                                        draftData.descriptions = [
+                                                            {
+                                                                description: description,
+                                                                description_type: "Other"
+                                                            }
+                                                        ];
+                                                    }
+                                                    else
+                                                    {
+                                                        draftData.descriptions.push({
+                                                            description: description,
+                                                            description_type: "Other"
+                                                        });
+                                                    }
+                                                }
 
                                                 if (folder.dcterms.contributor)
                                                 {
@@ -839,17 +910,9 @@ export_to_repository_b2share = function (req, res)
                                                     }
                                                 }
 
-                                                if (folder.dcterms.publisher)
+                                                if (!isNull(publisher))
                                                 {
-                                                    draftData.publisher = folder.dcterms.publisher;
-                                                }
-                                                else if (!isNull(project.dcterms.publisher))
-                                                {
-                                                    draftData.publisher = project.dcterms.publisher;
-                                                }
-                                                else
-                                                {
-                                                    draftData.publisher = "http://dendro.fe.up.pt";
+                                                    draftData.publisher = publisher;
                                                 }
 
                                                 if (folder.dcterms.subject)
@@ -866,17 +929,9 @@ export_to_repository_b2share = function (req, res)
                                                     }
                                                 }
 
-                                                if (folder.dcterms.language)
+                                                if (!isNull(language))
                                                 {
-                                                    draftData.language = folder.dcterms.language;
-                                                }
-                                                else if (!isNull(project.dcterms.language))
-                                                {
-                                                    draftData.language = project.dcterms.language;
-                                                }
-                                                else
-                                                {
-                                                    draftData.language = "en";
+                                                    draftData.language = language;
                                                 }
 
                                                 const b2shareClient = new B2ShareClient(targetRepository.ddr.hasExternalUri, accessToken);
@@ -933,59 +988,87 @@ export_to_repository_b2share = function (req, res)
                                                                     else
                                                                     {
                                                                         generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
-                                                                        let msg = "Folder " + folder.nie.title + " successfully exported from Dendro";
 
-                                                                        if (!isNull(body.data) && !isNull(body.data.metadata) && typeof body.data.metadata.ePIC_PID !== "undefined")
-                                                                        {
+                                                                        //create deposit here
+                                                                      const registryData = {
+                                                                        dcterms: {
+                                                                          title: folder.dcterms.title,
+                                                                          creator: folder.dcterms.creator,
+                                                                          identifier: body.data.id,
+                                                                        },
+                                                                        ddr: {
+                                                                          exportedFromProject: project.uri,
+                                                                          exportedFromFolder: folder.uri,
+                                                                          privacyStatus: isNull(privacy) || privacy === false ? "private" : "public",
+
+                                                                          exportedToRepository: b2shareClient.host,
+                                                                          exportedToPlatform: "EUDAT B2Share",
+                                                                        }
+                                                                      };
+
+                                                                      Deposit.createDepositRegistry(registryData, function(err, result){
+                                                                        if(isNull(err)) {
+
+                                                                          let msg = "Folder " + folder.nie.title + " successfully exported from Dendro";
+
+                                                                          if (!isNull(body.data) && !isNull(body.data.metadata) && typeof body.data.metadata.ePIC_PID !== "undefined")
+                                                                          {
+                                                                              //TODO This link is 404
                                                                             msg = msg + "<br/><br/><a href='" + body.data.metadata.ePIC_PID + "'>Click to see your published dataset<\/a>";
+                                                                          }
+
+                                                                          /*
+ const msg = "Folder " + folder.nie.title + " successfully exported from Dendro" ;
+ var recordURL = B2Share.recordPath + "/" + data.body.record_id;
+
+ var client = nodemailer.createTransport("SMTP", {
+ service: 'SendGrid',
+ auth: {
+ user: Config.sendGridUser,
+ pass: Config.sendGridPassword
+ }
+ });
+
+ var email = {
+ from: 'support@dendro.fe.up.pt',
+ to: req.user.foaf.mbox,
+ subject: requestedResourceUri + ' exported',
+ text: requestedResourceUri + ' was deposited in B2Share. The URL is ' + recordURL
+ };
+
+ client.sendMail(email, function(err, info){
+ if(err)
+ {
+ Logger.log("[NODEMAILER] " + err);
+ flash('error', "Error sending request to user. Please try again later");
+ }
+ else
+ {
+ Logger.log("[NODEMAILER] email sent: " + info);
+ flash('success', "Sent request to project's owner");
+ }
+ });
+ */
+                                                                          /*
+                                                                           res.json(
+                                                                           {
+                                                                           "result": "OK",
+                                                                           "message": msg,
+                                                                           "recordURL": recordURL
+                                                                           }
+                                                                           ); */
+                                                                          res.json(
+                                                                            {
+                                                                              result: "OK",
+                                                                              message: msg
+                                                                            }
+                                                                          );
                                                                         }
 
-                                                                        /*
-                                                                         const msg = "Folder " + folder.nie.title + " successfully exported from Dendro" ;
-                                                                         var recordURL = B2Share.recordPath + "/" + data.body.record_id;
+                                                                      });
 
-                                                                         var client = nodemailer.createTransport("SMTP", {
-                                                                         service: 'SendGrid',
-                                                                         auth: {
-                                                                         user: Config.sendGridUser,
-                                                                         pass: Config.sendGridPassword
-                                                                         }
-                                                                         });
 
-                                                                         var email = {
-                                                                         from: 'support@dendro.fe.up.pt',
-                                                                         to: req.user.foaf.mbox,
-                                                                         subject: requestedResourceUri + ' exported',
-                                                                         text: requestedResourceUri + ' was deposited in B2Share. The URL is ' + recordURL
-                                                                         };
 
-                                                                         client.sendMail(email, function(err, info){
-                                                                         if(err)
-                                                                         {
-                                                                         Logger.log("[NODEMAILER] " + err);
-                                                                         flash('error', "Error sending request to user. Please try again later");
-                                                                         }
-                                                                         else
-                                                                         {
-                                                                         Logger.log("[NODEMAILER] email sent: " + info);
-                                                                         flash('success', "Sent request to project's owner");
-                                                                         }
-                                                                         });
-                                                                         */
-                                                                        /*
-                                                                         res.json(
-                                                                         {
-                                                                         "result": "OK",
-                                                                         "message": msg,
-                                                                         "recordURL": recordURL
-                                                                         }
-                                                                         ); */
-                                                                        res.json(
-                                                                            {
-                                                                                result: "OK",
-                                                                                message: msg
-                                                                            }
-                                                                        );
                                                                     }
                                                                 });
                                                             }
@@ -1221,15 +1304,15 @@ exports.sword_collections = function (req, res)
     let serviceDocumentRef = null;
     if (targetRepository.ddr.hasPlatform.foaf.nick === "dspace")
     {
-        serviceDocumentRef = targetRepository.ddr.hasExternalUrl + Config.swordConnection.DSpaceServiceDocument;
+        serviceDocumentRef = targetRepository.ddr.hasExternalUri + Config.swordConnection.DSpaceServiceDocument;
     }
     else if (targetRepository.ddr.hasPlatform.foaf.nick === "eprints")
     {
-        serviceDocumentRef = targetRepository.ddr.hasExternalUrl + Config.swordConnection.EprintsServiceDocument;
+        serviceDocumentRef = targetRepository.ddr.hasExternalUri + Config.swordConnection.EprintsServiceDocument;
     }
     const options = {
-        user: targetRepository.ddr.hasUsername,
-        password: targetRepository.ddr.hasPassword,
+        user: targetRepository.ddr.username,
+        password: targetRepository.ddr.password,
         serviceDocRef: serviceDocumentRef
     };
     swordConnection.listCollections(options, function (err, message, collections)

@@ -72,8 +72,11 @@
                     <br/>
                     <!-- Split button -->
                     <div class="btn-group">
-                        <button type="button" class="btn btn-default" ng-hide="files_exist_in_clipboard()" ng-click="toggle_upload_area()">
+                        <button type="button" class="btn btn-default" ng-hide="files_exist_in_clipboard()" ng-click="toggle_upload_area()" ng-if="!showing_a_file()">
                             <img class="icon16" id="upload_button" data-loading-text="Uploading..." src="/images/icons/page_white_get.png"> Upload
+                        </button>
+                        <button class="btn btn-default" ng-click="download_folder()" ng-if="showing_a_file()">
+                            <img class="icon16" id="download_folder_button" data-loading-text="Preparing Package..." src="/images/icons/arrow_down.png"> Download
                         </button>
                         <button type="button" class="btn btn-success" ng-show="files_exist_in_clipboard()" ng-click="paste()">
                             <img class="icon16" id="paste_button" src="/images/icons/page_paste.png">&nbsp; Paste &nbsp; <span ng-show="files_exist_in_clipboard()" class="badge badge-info">{{get_clipboard_file_count()}}</span>
@@ -87,14 +90,14 @@
                         </button>
 
                         <ul class="dropdown-menu">
-                            <li ng-click="mkdir()" ><a href="#"><img class="icon16" id="new_folder_button" data-loading-text="Creating folder..." src="/images/icons/folder_add.png">Add folder</a></li>
-                            <li role="separator" class="divider"></li>
+                            <li ng-click="mkdir()" ng-if="!showing_a_file()"><a href="#"><img class="icon16" id="new_folder_button" data-loading-text="Creating folder..." src="/images/icons/folder_add.png">Add folder</a></li>
+                            <li role="separator" class="divider" ng-if="!showing_a_file()"></li>
                             <!--<li ng-click="copy()" ng-hide="showing_project_root()"><a href="#"><img class="icon16" id="copy_button" src="/images/icons/page_copy.png">Copy</a></li> -->
                             <li ng-click="cut()" ng-hide="showing_project_root()"><a href="#"><img class="icon16" id="cut_button"  src="/images/icons/cut.png">Cut</a></li>
                             <li ng-click="rename()" ng-hide="showing_project_root()"><a href="#"><img class="icon16" id="rename_button" src="/images/icons/textfield_rename.png">Rename</a></li>
                             <li ng-click="delete_file_or_folder()" ><a href="#" ng-show="(get_selected_files() && get_selected_files().length > 0)"><img class="icon16" id="delete_button" data-loading-text="Preparing Package..." src="/images/icons/cross.png">Delete</a></li>
-                            <li role="separator" class="divider" ng-hide="showing_project_root()"></li>
-                            <li ng-click="download_folder()"><a href="#"><img class="icon16" id="download_folder_button" data-loading-text="Preparing Package..." src="/images/icons/arrow_down.png">Download</a></li>
+                            <li role="separator" class="divider" ng-hide="showing_project_root() || showing_a_file()"></li>
+                            <li ng-click="download_folder()" ng-if="!showing_a_file()"><a href="#"><img class="icon16" id="download_folder_button" data-loading-text="Preparing Package..." src="/images/icons/arrow_down.png">Download</a></li>
                             <li ng-click="backup_folder()" ><a href="#" ng-hide="showing_project_root() || showing_a_file()"><img class="icon16" id="backup_button" data-loading-text="Preparing Package..." src="/images/icons/folder_vertical_zipper.png">Backup</a></li>
                             <li role="separator" class="divider" ng-hide="showing_project_root() || showing_a_file()"></li>
                             <li ng-click="toggle_restore_area()" ><a href="#" ng-hide="showing_project_root() || showing_a_file()"><img class="icon16" id="restore_button" data-loading-text="Restoring..." src="/images/icons/site_backup_and_restore.png">Restore from backup</a></li>

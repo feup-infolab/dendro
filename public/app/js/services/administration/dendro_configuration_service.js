@@ -21,6 +21,44 @@ angular.module("dendroApp.services")
                 });
         };
 
+        this.nukeOrphanResources = function ()
+        {
+            return $http({
+                method: "POST",
+                url: "/admin/nuke_orphan_resources",
+                responseType: "json",
+                headers: {Accept: "application/json"}
+            })
+                .then(function (response)
+                {
+                    return JSON.stringify(response.data);
+                })
+                .catch(function (error)
+                {
+                    console.log("error", error);
+                    throw error;
+                });
+        };
+
+        this.listOrphanResources = function ()
+        {
+            return $http({
+                method: "GET",
+                url: "/admin/list_orphan_resources",
+                responseType: "json",
+                headers: {Accept: "application/json"}
+            })
+                .then(function (response)
+                {
+                    return JSON.stringify(response.data);
+                })
+                .catch(function (error)
+                {
+                    console.log("error", error);
+                    throw error;
+                });
+        };
+
         this.getConfiguration = function ()
         {
             return $http({

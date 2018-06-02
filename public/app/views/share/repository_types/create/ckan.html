@@ -7,24 +7,25 @@
     <span ng-show="!new_repository.dcterms.title" class="glyphicon glyphicon-remove form-control-feedback"></span>
 </div>
 
-<div class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.hasExternalUrl && valid_base_address(new_repository.ddr.hasExternalUrl), 'has-warning' : new_repository.ddr.hasExternalUrl && !valid_base_address(new_repository.ddr.hasExternalUrl)}">
+<div class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.hasExternalUri && valid_base_address(new_repository.ddr.hasExternalUri), 'has-warning' : new_repository.ddr.hasExternalUri && !valid_base_address(new_repository.ddr.hasExternalUri)}">
     <label for="new_ckan_repository_url">External repository address</label>
-    <input type="text" ng-model="new_repository.ddr.hasExternalUrl" class="form-control" id="new_ckan_repository_url" placeholder="External repository address" required>
+    <input type="text" ng-model="new_repository.ddr.hasExternalUri" class="form-control" id="new_ckan_repository_url" placeholder="External repository address" required>
     <p class="help-block">The base address of the repository you wish to upload to. Example: <a href="http://demo.ckan.org">http://demo.ckan.org</a> No forwards slashes at the end (/) are allowed.</p>
-    <span ng-show="new_repository.ddr.hasExternalUrl && valid_base_address(new_repository.ddr.hasExternalUrl)" class="glyphicon glyphicon-ok form-control-feedback"></span>
-    <span ng-show="!new_repository.ddr.hasExternalUrl" class="glyphicon glyphicon-remove form-control-feedback"></span>
-    <span ng-show="new_repository.ddr.hasExternalUrl && !valid_base_address(new_repository.ddr.hasExternalUrl)" class="glyphicon glyphicon-warning-sign form-control-feedback"></span>
+    <span ng-show="new_repository.ddr.hasExternalUri && valid_base_address(new_repository.ddr.hasExternalUri)" class="glyphicon glyphicon-ok form-control-feedback"></span>
+    <span ng-show="!new_repository.ddr.hasExternalUri" class="glyphicon glyphicon-remove form-control-feedback"></span>
+    <span ng-show="new_repository.ddr.hasExternalUri && !valid_base_address(new_repository.ddr.hasExternalUri)" class="glyphicon glyphicon-warning-sign form-control-feedback"></span>
 </div>
 
-<div ng-show="valid_base_address(new_repository.ddr.hasExternalUrl)" class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.hasUsername}">
+
+<div ng-show="valid_base_address(new_repository.ddr.hasExternalUri)" class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.username}">
     <label for="ckan_username">Username</label>
-    <input type="text" ng-model="new_repository.ddr.hasUsername" class="form-control" id="ckan_username" placeholder="CKAN username" required>
-    <p class="help-block">The username you use in the target CKAN repository. For example, if your profile page is <a ng-href="{{new_repository.ddr.hasExternalUrl + '/user/demouser' | trustAsResourceUrl}}">{{new_repository.ddr.hasExternalUrl + '/user/demouser'}}</a>, your username will be <b>demouser</b>.</p>
-    <span ng-show="new_repository.ddr.hasUsername" class="glyphicon glyphicon-ok form-control-feedback"></span>
-    <span ng-show="!new_repository.ddr.hasUsername" class="glyphicon glyphicon-remove form-control-feedback"></span>
+    <input type="text" ng-model="new_repository.ddr.username" class="form-control" id="ckan_username" placeholder="CKAN username" required>
+    <p class="help-block">The username you use in the target CKAN repository. For example, if your profile page is <a ng-href="{{new_repository.ddr.hasExternalUri + '/user/demouser' | trustAsResourceUrl}}">{{new_repository.ddr.hasExternalUri + '/user/demouser'}}</a>, your username will be <b>demouser</b>.</p>
+    <span ng-show="new_repository.ddr.username" class="glyphicon glyphicon-ok form-control-feedback"></span>
+    <span ng-show="!new_repository.ddr.username" class="glyphicon glyphicon-remove form-control-feedback"></span>
 </div>
 
-<div ng-show="valid_base_address(new_repository.ddr.hasExternalUrl)" class="control-group has-feedback" ng-class="{'has-success' : valid_organization(new_repository.ddr.hasOrganization), 'has-warning' : new_repository.ddr.hasOrganization && !valid_organization(new_repository.ddr.hasOrganization)}">
+<div ng-show="valid_base_address(new_repository.ddr.hasExternalUri)" class="control-group has-feedback" ng-class="{'has-success' : valid_organization(new_repository.ddr.hasOrganization), 'has-warning' : new_repository.ddr.hasOrganization && !valid_organization(new_repository.ddr.hasOrganization)}">
     <label for="ckan_organization">Organization</label>
     <input type="text" ng-model="new_repository.ddr.hasOrganization" class="form-control" id="ckan_organization" placeholder="CKAN organization" required>
     <p class="help-block">Your Organization in the target CKAN repository (example: For the repository http://dendro-prd.fe.up.pt:5000/organization/<b>infolab-devs</b>, it is <b>infolab-devs</b>) .</p>
@@ -32,7 +33,7 @@
     <span ng-show="!valid_organization(new_repository.ddr.hasOrganization)" class="glyphicon glyphicon-remove form-control-feedback"></span>
 </div>
 
-<div ng-show="valid_base_address(new_repository.ddr.hasExternalUrl)" class="control-group has-feedback" ng-class="{'has-success' : valid_api_key(new_repository.ddr.hasAPIKey), 'has-warning' : new_repository.ddr.hasAPIKey && !valid_api_key(new_repository.ddr.hasAPIKey)}">
+<div ng-show="valid_base_address(new_repository.ddr.hasExternalUri)" class="control-group has-feedback" ng-class="{'has-success' : valid_api_key(new_repository.ddr.hasAPIKey), 'has-warning' : new_repository.ddr.hasAPIKey && !valid_api_key(new_repository.ddr.hasAPIKey)}">
     <label for="ckan_organization">API Key</label>
     <input type="text" ng-model="new_repository.ddr.hasAPIKey" class="form-control" id="ckan_api_key" placeholder="CKAN API Key" required>
     <p class="help-block">Your API Key in the target CKAN repository. <span class="badge"><i class="fa fa-lightbulb-o"></i>See the tutorial below for tips on how to retrieve it.</span></p>
@@ -53,12 +54,12 @@
 </button>
 <button type="submit"
         ng-click="create_new_repository_bookmark(new_repository)"
-        ng-disabled="!(new_repository.ddr.hasExternalUrl && valid_url(new_repository.ddr.hasExternalUrl) && new_repository.ddr.hasUsername && valid_organization(new_repository.ddr.hasOrganization))"
+        ng-disabled="!(new_repository.ddr.hasExternalUri && valid_url(new_repository.ddr.hasExternalUri) && new_repository.ddr.username && valid_organization(new_repository.ddr.hasOrganization))"
         class="btn btn-primary pull-right">
     <i class="fa fa-bookmark fa-lg"></i>Save new bookmark
 </button>
 
-<div ng-show="valid_base_address(new_repository.ddr.hasExternalUrl)">
+<div ng-show="valid_base_address(new_repository.ddr.hasExternalUri)">
     <br>
     <br>
     <br>

@@ -123,7 +123,7 @@ exports.allowed = function (req, callback) {
         Deposit.createQuery(params, callback);
       },
       function(callback){
-        if(isNull(params.repositories))
+        if(!isNull(params.new_listing) && params.new_listing === "true")
           Deposit.getAllRepositories(params, callback);
         else{
           callback(null);
@@ -142,15 +142,56 @@ exports.allowed = function (req, callback) {
 
 exports.getDeposit = function(req, res){
 
+    const appendPlatformUrl = function({ ddr : {exportedToPlatform : platform, exportedToRepository : url}}){
+      const https = "https://";
+      switch(platform){
+        case "EUDAT B2Share":
+          return https + url + "/records/";
+          break;
+        case "CKAN":
+          return https + url + "/dataset/";
+          break;
+        case "Figshare":
+          break;
+        case "Zenodo":
+          break;
+        case "EPrints":
+          break;
+        default:
+          return url;
+      }
+    };
+
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
+    let display;
+    if(acceptsJSON && !acceptsHTML){
+      display = "json";
+    }else if(!acceptsJSON && acceptsHTML){
+      display = "render";
+    }
+
     let resourceURI = req.params.requestedResourceUri;
     Deposit.findByUri(resourceURI, function(err, deposit){
        if(isNull(err)){
            const viewVars = {
                title: "Deposit information"
            };
-           deposit.dcterms.date = moment(deposit.dcterms.date).format('LLLL');
-           viewVars.deposit = deposit;
-           res.render("registry/deposit", viewVars);
+
+           //not ready yet
+           Deposit.validatePlatformUri(deposit, function(deposit){
+
+             deposit.dcterms.date = moment(deposit.dcterms.date).format('LLLL');
+             deposit.externalUri = appendPlatformUrl(deposit) + deposit.dcterms.identifier;
+             if(display === "json"){
+               res.json(deposit);
+             }else{
+               viewVars.deposit = deposit;
+               res.render("registry/deposit", viewVars);
+             }
+
+           });
+
        }
     });
 };

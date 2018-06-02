@@ -50,7 +50,7 @@ describe("Metadata only project project testFolder1 level metadata&deep tests", 
                 {
                     res.statusCode.should.equal(400);
                     should.not.exist(res.body.descriptors);
-                    should.not.exist(res.body.hasLogicalParts);
+
                     done();
                 });
             });
@@ -94,7 +94,7 @@ describe("Metadata only project project testFolder1 level metadata&deep tests", 
                 {
                     res.statusCode.should.equal(401);
                     should.not.exist(res.body.descriptors);
-                    should.not.exist(res.body.hasLogicalParts);
+
                     done();
                 });
             });
@@ -125,7 +125,7 @@ describe("Metadata only project project testFolder1 level metadata&deep tests", 
                 {
                     res.statusCode.should.equal(400);
                     should.not.exist(res.body.descriptors);
-                    should.not.exist(res.body.hasLogicalParts);
+
                     done();
                 });
             });
@@ -139,13 +139,11 @@ describe("Metadata only project project testFolder1 level metadata&deep tests", 
                 {
                     res.statusCode.should.equal(404);
                     should.not.exist(res.body.descriptors);
-                    should.not.exist(res.body.hasLogicalParts);
 
                     res.body.result.should.equal("not_found");
                     res.body.message.should.be.an("array");
                     res.body.message.length.should.equal(1);
                     res.body.message[0].should.contain("Resource not found at uri ");
-                    res.body.message[0].should.contain(testFolder1.name);
                     res.body.message[0].should.contain(invalidProject.handle);
                     done();
                 });

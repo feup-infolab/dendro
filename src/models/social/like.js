@@ -12,18 +12,24 @@ function Like (object)
     const self = this;
     self.addURIAndRDFType(object, "like", Like);
     Like.baseConstructor.call(this, object);
-
     self.copyOrInitDescriptors(object);
+    return self;
+}
 
-    const newId = uuid.v4();
+Like.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
 
     if (isNull(self.ddr.humanReadableURI))
     {
-        self.ddr.humanReadableURI = Config.baseUri + "/likes/" + newId;
+        const newId = uuid.v4();
+        callback(null, "/likes/" + newId);
     }
-
-    return self;
-}
+    else
+    {
+        callback(null, self.ddr.humanReadableURI);
+    }
+};
 
 Like = Class.extend(Like, Event, "ddr:Like");
 

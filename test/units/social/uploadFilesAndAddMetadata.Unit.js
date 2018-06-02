@@ -32,7 +32,8 @@ module.exports.setup = function (finish)
 
     let addMetadataToFoldersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
     let createFoldersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
-    const foldersData = createFoldersUnit.foldersData;
+    const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
+    const foldersData = [testFolder1];
 
     addMetadataToFoldersUnit.setup(function (err, results)
     {

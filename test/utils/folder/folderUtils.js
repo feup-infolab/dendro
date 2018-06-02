@@ -4,6 +4,7 @@ chai.use(chaiHttp);
 
 const _ = require("underscore");
 const binaryParser = require("../file/fileUtils.js").binaryParser;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 exports.createFolderInProject = function (jsonOnly, agent, targetFolderInProject, folderName, projectHandle, cb)
 {
@@ -131,6 +132,34 @@ exports.getFolderContentsByUri = function (jsonOnly, agent, folderURI, cb)
     {
         agent
             .get(path)
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
+module.exports.ls_by_name = function (jsonOnly, agent, currentFolderURI, childName, cb)
+{
+    const path = currentFolderURI + "?ls";
+    if (jsonOnly)
+    {
+        agent
+            .get(path)
+            .query({title: childName})
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .query({title: childName})
+            .set("Accept", "text/html")
+            .set("Content-Type", "application/json")
             .end(function (err, res)
             {
                 cb(err, res);

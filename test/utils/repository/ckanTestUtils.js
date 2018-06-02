@@ -9,7 +9,7 @@ chai.use(chaiHttp);
 
 const createCkanOrganization = function (jsonOnly, agent, ckanRepoData, organizationData, cb)
 {
-    const client = new CKAN.Client(ckanRepoData.ddr.hasExternalUrl, ckanRepoData.ddr.hasAPIKey);
+    const client = new CKAN.Client(ckanRepoData.ddr.hasExternalUri, ckanRepoData.ddr.hasAPIKey);
     client.action("organization_create",
         {
             name: organizationData.name,
@@ -23,7 +23,7 @@ const createCkanOrganization = function (jsonOnly, agent, ckanRepoData, organiza
 
 const deleteCkanOrganization = function (jsonOnly, agent, ckanRepoData, organizationData, cb)
 {
-    const client = new CKAN.Client(ckanRepoData.ddr.hasExternalUrl, ckanRepoData.ddr.hasAPIKey);
+    const client = new CKAN.Client(ckanRepoData.ddr.hasExternalUri, ckanRepoData.ddr.hasAPIKey);
     // organization_purge
     // client.action("organization_delete",
     client.action("organization_delete",
@@ -46,7 +46,7 @@ const deleteCkanOrganization = function (jsonOnly, agent, ckanRepoData, organiza
 
 const deleteAllPackagesFromOrganization = function (jsonOnly, agent, ckanRepoData, organizationData, cb)
 {
-    const client = new CKAN.Client(ckanRepoData.ddr.hasExternalUrl, ckanRepoData.ddr.hasAPIKey);
+    const client = new CKAN.Client(ckanRepoData.ddr.hasExternalUri, ckanRepoData.ddr.hasAPIKey);
 
     client.action("organization_show",
         {

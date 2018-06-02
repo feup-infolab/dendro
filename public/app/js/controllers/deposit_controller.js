@@ -1,15 +1,11 @@
 angular.module('dendroApp.controllers', [])
 /**
- *  Project administration controller
+ *  Deposit registry controller
  */
     .controller('depositCtrl', function (
         $scope,
         $http,
-        $filter,
-        $q,
-        $location,
-        $log,
-        $sce,
+        listings,
         focus,
         preview,
         $localStorage,
@@ -21,8 +17,9 @@ angular.module('dendroApp.controllers', [])
     )
     {
         $scope.active_tab = null;
-        $scope.offset = 0;
-        $scope.page = 10;
+        $scope.offset = 1;
+        $scope.page = 5;
+        $scope.totalDeposits = 0;
 
         $scope.search =  {
                 creator: {
@@ -105,123 +102,89 @@ angular.module('dendroApp.controllers', [])
                     }
                   ]
                 }
-
-                /*offset: 0,
-                limit: 10,
-                system: {
-                  ckan: true,
-                  b2drop: false,
-                  all: true,
-                }*/
-
         };
 
         $scope.hostUrl = window.location.protocol + "//" + window.location.host + "/user/";
 
         $scope.init = function(){
 
-            $scope.getRegistry();
+            $scope.getRegistry(true);
         };
 
-        $scope.getRegistry = function(filters){
-            let url = $scope.get_current_url();
-            url += "deposits/latest";
-            const params = $scope.parseFilter();
+        $scope.getRegistry = function(change){
 
-            $http({
-                method: "GET",
-                url: url,
-                params: params,
-                contentType: "application/json",
-                headers: {"Accept": "application/json"}
-            }).then(function(response){
+            const handle = function(data, change){
+              $scope.offset = 1;
+              $scope.updateDeposits(data);
+              $scope.totalDeposits = 0;
 
-                //TODO check if empty and show something else if it is and disable scrolling function
+              if(change && data.repositories instanceof Array){
 
-                //if data checks out
-                $scope.offset++;
-
-                let deposits = response.data.deposits;
-                for(let i = 0; i < deposits.length; i++){
-                    deposits[i].date = moment(deposits[i].date).fromNow();
+                const repository = data.repositories;
+                $scope.search.repositories = {
+                  type: "checkbox",
+                  list: true,
+                  label: "Repository Used",
+                  key: "repositories",
+                  change: false,
+                  value: []
                 }
-                $scope.deposits = deposits;
-
-                const repository = response.data.repositories;
-                if($scope.search.repositories == null || $scope.search.repositories == undefined){
-                  $scope.search.repositories = {
-                    type: "checkbox",
-                    list: true,
-                    label: "Repository Used",
-                    key: "repositories",
-                    value: []
-                  }
-                  for(let repo of repository){
-                    $scope.search.repositories.value.push({
-                      name: repo.repository,
-                      count: repo.count,
-                      value: true
-                    })
-                  }
+                for(let repo of repository){
+                  $scope.search.repositories.value.push({
+                    name: repo.repository,
+                    count: repo.count,
+                    value: true,
+                  });
+                  $scope.totalDeposits += parseInt(repo.count);
                 }
-
-            }).catch(function(error){
-                console.log(error);
-            });
-        };
-
-        $scope.parseFilter = function(){
-            let search = {};
-            for(item in $scope.search){
-              if($scope.search[item].value !== null && $scope.search[item].value !== ""){
-                if($scope.search[item].type === "dropdown"){
-                  search[$scope.search[item].key] = $scope.search[item].selected;
-                }else {
-                  search[$scope.search[item].key] = $scope.search[item].value;
+              } else {
+                for(let repo of $scope.search.repositories.value){
+                  if(repo.value === true)
+                  $scope.totalDeposits += parseInt(repo.count);
                 }
               }
+              $scope.totalDeposits = Math.ceil($scope.totalDeposits / $scope.page);
             }
-            return search;
+
+            let url = $scope.get_current_url();
+            url += "deposits/get_deposits";
+            listings.getListing($scope, url, $scope.page, $scope.offset - 1, $scope.search, change, handle);
+
         };
+
+        $scope.updateDeposits = function(data){
+          let deposits = data.deposits;
+          for(let i = 0; i < deposits.length; i++){
+            deposits[i].date = moment(deposits[i].date).fromNow();
+          }
+          $scope.deposits = deposits;
+        }
+
+        $scope.changePage = function(pageNumber){
+          let url = $scope.get_current_url();
+          url += "deposits/get_deposits";
+          listings.getListing($scope, url, $scope.page, pageNumber - 1, $scope.search, false, $scope.updateDeposits);
+          $scope.offset = pageNumber;
+        }
+
+        $scope.nextPage = function(){
+          let url = $scope.get_current_url();
+          url += "deposits/get_deposits";
+          listings.getListing($scope, url, $scope.page, ++$scope.offset - 1, $scope.search, false, $scope.updateDeposits);
+        }
+        $scope.previousPage = function(){
+          let url = $scope.get_current_url();
+          url += "deposits/get_deposits";
+          listings.getListing($scope, url, $scope.page, --$scope.offset - 1, $scope.search, false, $scope.updateDeposits);
+        }
+
+        $scope.showPerPage = function(amount){
+          $scope.page = amount;
+          $scope.getRegistry();
+        }
+
 
         $scope.deposits = [];
-
-
-        $scope.get_project = function()
-        {
-            var url = $scope.get_current_url()+"?metadata&deep=true";
-
-            $http({
-                method: 'GET',
-                url: url,
-                data: JSON.stringify({}),
-                contentType: "application/json",
-                headers: {'Accept': "application/json"}
-            }).then(function(response) {
-                //console.log(data);
-                $scope.project = response.data;
-
-                for(var i = 0; i < $scope.project.descriptors.length; i++)
-                {
-                    var descriptor = $scope.project.descriptors[i];
-                    if(descriptor.prefixedForm == "ddr:deleted" && descriptor.value == true)
-                    {
-                        project.deleted = true;
-                    }
-                }
-            })
-                .catch(function(error){
-                    if(error.message != null && error.title != null)
-                    {
-                        Utils.show_popup("error", error.title, error.message);
-                    }
-                    else
-                    {
-                        Utils.show_popup("error", "Error occurred", JSON.stringify(error));
-                    }
-                });
-        };
-
 
     })
     .directive("searchBar", function (
@@ -235,7 +198,39 @@ angular.module('dendroApp.controllers', [])
           link: function(scope, elem, attr){
             scope.attr = function(){
               return attr.searchmodel;
-            }
+            };
+            scope.update = function (change) {
+              if(change == false)
+                return attr.searchfunction + "(false)";
+              else return attr.searchfunction + "(true)";
+            };
           }
         };
-    });
+    })
+  .directive("pageNavigation", function(
+
+  ){
+    return {
+      restrict: "ACE",
+      scope: true,
+      replace: true,
+      templateUrl: "/app/views/search/dynamic_pagination.ejs",
+      link: function(scope, elem, attr){
+        scope.max = function(){
+          return attr.maximum;
+        };
+        scope.change = function(page){
+          return attr.changepage + "(" + page + ")";
+        };
+        scope.next = function(){
+          return attr.nextpage + "()";
+        };
+        scope.previous = function(){
+          return attr.previouspage + "()";
+        };
+        scope.current = function () {
+          return attr.current;
+        };
+      }
+    };
+  });

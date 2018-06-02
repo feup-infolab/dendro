@@ -38,17 +38,15 @@ describe("Public project level metadata&deep tests", function ()
     describe("/project/" + publicProject.handle + "?metadata&deep (public project)", function ()
     {
         /**
-         * Invalid request type
+         * Request types
          */
-        it("[HTML] should refuse request if Accept application/json was not specified", function (done)
+        it("[HTML] should accept request if Accept application/json was not specified", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 projectUtils.getProjectMetadataDeep(false, agent, publicProject.handle, function (err, res)
                 {
-                    res.statusCode.should.equal(400);
-                    should.not.exist(res.body.descriptors);
-                    should.not.exist(res.body.hasLogicalParts);
+                    res.statusCode.should.equal(200);
                     done();
                 });
             });
@@ -65,7 +63,10 @@ describe("Public project level metadata&deep tests", function ()
             {
                 res.statusCode.should.equal(200);
                 res.body.descriptors.should.be.instanceof(Array);
-                res.body.hasLogicalParts.should.be.instanceof(Array);// only because this is a metadata&deep request
+                _.filter(res.body.descriptors, function (descriptor)
+                {
+                    return descriptor.prefix === "nie" && descriptor.shortName === "hasLogicalPart";
+                }).length.should.be.above(0);
                 done();
             });
         });
@@ -78,7 +79,10 @@ describe("Public project level metadata&deep tests", function ()
                 {
                     res.statusCode.should.equal(200);
                     res.body.descriptors.should.be.instanceof(Array);
-                    res.body.hasLogicalParts.should.be.instanceof(Array);// only because this is a metadata&deep request
+                    _.filter(res.body.descriptors, function (descriptor)
+                    {
+                        return descriptor.prefix === "nie" && descriptor.shortName === "hasLogicalPart";
+                    }).length.should.be.above(0);
                     done();
                 });
             });
@@ -92,7 +96,10 @@ describe("Public project level metadata&deep tests", function ()
                 {
                     res.statusCode.should.equal(200);
                     res.body.descriptors.should.be.instanceof(Array);
-                    res.body.hasLogicalParts.should.be.instanceof(Array);// only because this is a metadata&deep request
+                    _.filter(res.body.descriptors, function (descriptor)
+                    {
+                        return descriptor.prefix === "nie" && descriptor.shortName === "hasLogicalPart";
+                    }).length.should.be.above(0);
                     done();
                 });
             });
@@ -106,7 +113,10 @@ describe("Public project level metadata&deep tests", function ()
                 {
                     res.statusCode.should.equal(200);
                     res.body.descriptors.should.be.instanceof(Array);
-                    res.body.hasLogicalParts.should.be.instanceof(Array);// only because this is a metadata&deep request
+                    _.filter(res.body.descriptors, function (descriptor)
+                    {
+                        return descriptor.prefix === "nie" && descriptor.shortName === "hasLogicalPart";
+                    }).length.should.be.above(0);
                     done();
                 });
             });
@@ -121,9 +131,9 @@ describe("Public project level metadata&deep tests", function ()
             {
                 projectUtils.getProjectMetadataDeep(false, agent, invalidProject.handle, function (err, res)
                 {
-                    res.statusCode.should.equal(400);
+                    res.statusCode.should.equal(404);
                     should.not.exist(res.body.descriptors);
-                    should.not.exist(res.body.hasLogicalParts);
+
                     done();
                 });
             });
@@ -137,7 +147,6 @@ describe("Public project level metadata&deep tests", function ()
                 {
                     res.statusCode.should.equal(404);
                     should.not.exist(res.body.descriptors);
-                    should.not.exist(res.body.hasLogicalParts);
 
                     res.body.result.should.equal("not_found");
                     res.body.message.should.be.an("array");

@@ -1,19 +1,6 @@
 <form class="deposit-sidebar">
-    <h4 class="sidebar-title">Search registry</h4>
-    <!--<div class="form-group" ng-repeat="item in search track by $index">
-        <label>
-            {{item.label}}
-            <div ng-if="item.list" ng-repeat="iterator in item.value track by $index">
-                <label>
-                    {{iterator.name}}
-                    <input ng-model="iterator.value" ng-change="getRegistry()" ng-model-options="{debounce : 500}" type="{{item.type}}">
-                </label>
-            </div>
-
-            <input ng-if="!item.list" ng-model="item.value" ng-change="getRegistry()" ng-model-options="{debounce : 500}" type="{{item.type}}">
-
-        </label>
+    <div>
+        <h4 class="sidebar-title">Filters</h4>
+        <div search-bar searchmodel="search" searchfunction="getRegistry"></div>
     </div>
--->
-    <div search-bar searchmodel="search"></div>
 </form>

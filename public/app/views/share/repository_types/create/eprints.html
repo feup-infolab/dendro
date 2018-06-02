@@ -7,21 +7,21 @@
     <span ng-show="!new_repository.dcterms.title" class="glyphicon glyphicon-remove form-control-feedback"></span>
 </div>
 
-<div class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.hasExternalUrl && valid_url(new_repository.ddr.hasExternalUrl), 'has-warning' : new_repository.ddr.hasExternalUrl && !valid_url(new_repository.ddr.hasExternalUrl)}">
+<div class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.hasExternalUri && valid_url(new_repository.ddr.hasExternalUri), 'has-warning' : new_repository.ddr.hasExternalUri && !valid_url(new_repository.ddr.hasExternalUri)}">
     <label for="new_eprints_repository_url">External repository address</label>
-    <input type="text" ng-model="new_repository.ddr.hasExternalUrl" class="form-control" id="new_eprints_repository_url" placeholder="Title" required>
+    <input type="text" ng-model="new_repository.ddr.hasExternalUri" class="form-control" id="new_eprints_repository_url" placeholder="Title" required>
     <p class="help-block">The base address of the repository you wish to upload to. Example: <a href="http://demoprints.eprints.org">http://demoprints.eprints.org</a> .</p>
-    <span ng-show="new_repository.ddr.hasExternalUrl && valid_url(new_repository.ddr.hasExternalUrl)" class="glyphicon glyphicon-ok form-control-feedback"></span>
-    <span ng-show="!new_repository.ddr.hasExternalUrl" class="glyphicon glyphicon-remove form-control-feedback"></span>
-    <span ng-show="new_repository.ddr.hasExternalUrl && !valid_url(new_repository.ddr.hasExternalUrl)" class="glyphicon glyphicon-warning-sign form-control-feedback"></span>
+    <span ng-show="new_repository.ddr.hasExternalUri && valid_url(new_repository.ddr.hasExternalUri)" class="glyphicon glyphicon-ok form-control-feedback"></span>
+    <span ng-show="!new_repository.ddr.hasExternalUri" class="glyphicon glyphicon-remove form-control-feedback"></span>
+    <span ng-show="new_repository.ddr.hasExternalUri && !valid_url(new_repository.ddr.hasExternalUri)" class="glyphicon glyphicon-warning-sign form-control-feedback"></span>
 </div>
 
-<div class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.hasUsername}">
+<div class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.username}">
     <label for="eprints_username">Username</label>
-    <input type="text" ng-model="new_repository.ddr.hasUsername" class="form-control" id="eprints_username" placeholder="EPrints username" required>
+    <input type="text" ng-model="new_repository.ddr.username" class="form-control" id="eprints_username" placeholder="EPrints username" required>
     <p class="help-block">The username you use in the target EPrints repository.</p>
-    <span ng-show="new_repository.ddr.hasUsername" class="glyphicon glyphicon-ok form-control-feedback"></span>
-    <span ng-show="!new_repository.ddr.hasUsername" class="glyphicon glyphicon-remove form-control-feedback"></span>
+    <span ng-show="new_repository.ddr.username" class="glyphicon glyphicon-ok form-control-feedback"></span>
+    <span ng-show="!new_repository.ddr.username" class="glyphicon glyphicon-remove form-control-feedback"></span>
 </div>
 
 

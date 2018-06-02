@@ -368,7 +368,6 @@ describe("Upload files into testFolder1 of Private project", function ()
 
                             fileUtils.downloadDataByUriInCSV(agent, newResourceUri, function (error, res)
                             {
-                                const downloadCSV = path.join(Config.tempFilesDir, "csv_dump3.csv");
                                 res.statusCode.should.equal(200);
                                 md5(res.text).should.equal(csvResultMD5);
                                 done();

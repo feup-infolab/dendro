@@ -306,13 +306,20 @@ angular.module("dendroApp.controllers")
          * Project stats
          * @param uri
          */
-
-            $scope.upload_to_repository = function (target_repository, overwrite, deleteChangesOriginatedFromCkan, propagateDendroChangesIntoCkan)
+            // TODO William add boolean of public deposit in 2nd
+            $scope.upload_to_repository = function (target_repository, publicDeposit, overwrite, deleteChangesOriginatedFromCkan, propagateDendroChangesIntoCkan)
             {
                 var payload = {
                     repository: target_repository,
                     new_dataset: $scope.new_dataset
                 };
+
+                if (publicDeposit == null || publicDeposit == false)
+                {
+                    payload.publicDeposit = false;
+                } else {
+                    payload.publicDeposit = true;
+                }
 
                 if (overwrite != null)
                 {
@@ -369,6 +376,7 @@ angular.module("dendroApp.controllers")
                             {
                                 $scope.show_popup("success", "Success", "Operation completed successfully.");
                             }
+
                         }
                     }
                     else

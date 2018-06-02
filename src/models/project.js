@@ -2,7 +2,6 @@
 // @see http://bloody-byte.net/rdf/dc_owl2dl/dc.ttl
 // creator is an URI to the author : http://dendro.fe.up.pt/user/<username>
 
-const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -20,11 +19,11 @@ const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js
 const Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource")).ArchivedResource;
+const Storage = require(Pathfinder.absPathInSrcFolder("/kb/storage/storage.js")).Storage;
 
 const db = Config.getDBByID();
 const gfs = Config.getGFSByID();
 
-const util = require("util");
 const async = require("async");
 const _ = require("underscore");
 
@@ -34,12 +33,7 @@ function Project (object)
     self.addURIAndRDFType(object, "project", Project);
     Project.baseConstructor.call(this, object);
 
-    if (isNull(self.ddr.humanReadableURI))
-    {
-        self.ddr.humanReadableURI = Config.baseUri + "/project/" + self.ddr.handle;
-    }
-
-    if (isNull(object.ddr != null))
+    if (!isNull(object.ddr))
     {
         if (object.ddr.hasStorageLimit)
         {
@@ -571,7 +565,25 @@ Project.createAndInsertFromObject = function (object, callback)
 
                         newProject.save(function (err, result)
                         {
-                            return callback(err, result);
+                            if (isNull(err))
+                            {
+                                newProject.reindex(function (err, result)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        return callback(err, newProject);
+                                    }
+
+                                    const msg = "Error reindexing resource " + newProject.uri + " : " + result;
+                                    Logger.log("error", msg);
+                                    return callback(1, msg);
+                                });
+                            }
+                            else
+                            {
+                                Logger.log("error", "There was an error re-saving the project " + newProject.ddr.humanReadableURI + " while creating it: " + JSON.stringify(result));
+                                callback(err, result);
+                            }
                         });
                     }
                     else
@@ -583,7 +595,7 @@ Project.createAndInsertFromObject = function (object, callback)
             }
             else
             {
-                return callback(1, "Statement executed but result was not what was expected. " + result);
+                return callback(1, "Statement executed but result was not what was expected. " + newProject);
             }
         }
         else
@@ -693,18 +705,7 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
     const self = this;
     Logger.log("In getProjectWideFolderFileCreationEvents");
     Logger.log("the projectUri is:");
-    // <http://127.0.0.1:3001/project/testproject3/data>
-    // var projectData = projectUri + '/data'; //TODO this is probably wrong
-    const projectData = self.uri + "/data"; // TODO this is probably wrong
-    /* WITH <http://127.0.0.1:3001/dendro_graph>
-     SELECT ?dataUri
-     WHERE {
-     ?dataUri ddr:modified ?date.
-     <http://127.0.0.1:3001/project/testproject3/data> <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#hasLogicalPart> ?dataUri.
-     }
-     ORDER BY DESC(?date)
-     OFFSET 0
-     LIMIT 5 */
+    const projectData = self.uri + "/data";
 
     // TODO test query first
 
@@ -736,11 +737,20 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
             {
                 Logger.log("itemsUri: ", itemsUri);
 
-                async.mapSeries(itemsUri, function (itemUri, cb1)
+                async.mapSeries(itemsUri, function (itemUri)
                 {
                     Resource.findByUri(itemUri.dataUri, function (error, item)
                     {
-                        Logger.log(item);
+                        if (isNull(error))
+                        {
+                            Logger.log(item);
+                        }
+                        else
+                        {
+                            Logger.log("error", error);
+                            Logger.log("error", item);
+                        }
+
                         // item.get
                         // TODO get author
                     });
@@ -1546,8 +1556,6 @@ Project.validateBagItFolderStructure = function (absPathOfBagItFolder, callback)
 
 Project.unzipAndValidateBagItBackupStructure = function (absPathToZipFile, maxStorageSize, req, callback)
 {
-    const path = require("path");
-
     File.estimateUnzippedSize(absPathToZipFile, function (err, size)
     {
         if (isNull(err))
@@ -1555,7 +1563,7 @@ Project.unzipAndValidateBagItBackupStructure = function (absPathToZipFile, maxSt
             if (!isNaN(size))
             {
                 // admin is god, can import as much data as (s)he wants
-                if (size < maxStorageSize || req.user.isAdmin)
+                if (size < maxStorageSize || req.user.isAdmin || req.session.isAdmin)
                 {
                     File.unzip(absPathToZipFile, function (err, absPathOfRootFolder)
                     {
@@ -1591,7 +1599,7 @@ Project.unzipAndValidateBagItBackupStructure = function (absPathToZipFile, maxSt
                     const humanMaxStorageSize = filesize(maxStorageSize).human("jedec");
 
                     const msg = "Estimated storage size of the project after unzipping ( " + humanZipFileSize + " ) exceeds the maximum storage allowed for a project ( " + humanMaxStorageSize + " ) by " + humanSizeDifference;
-                    return callback(err, msg);
+                    return callback(true, msg);
                 }
             }
             else
@@ -1755,9 +1763,115 @@ Project.prototype.clearCacheRecords = function (callback, customGraphUri)
     );
 };
 
-Project.prototype.delete = function (callback)
+Project.prototype.getActiveStorageConfig = function (callback, customGraphUri)
 {
     const self = this;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+    const StorageConfig = require(Pathfinder.absPathInSrcFolder("/models/storage/storageConfig.js")).StorageConfig;
+
+    StorageConfig.findByUri(self.ddr.hasStorageConfig, function (err, config)
+    {
+        if (!isNull(err))
+        {
+            config.deleteAllMyTriples(function (err, result)
+            {
+                callback(err, result);
+            }, graphUri);
+        }
+        else
+        {
+            callback(err, config);
+        }
+    });
+};
+
+Project.prototype.getActiveStorageConnection = function (callback)
+{
+    const self = this;
+    const StorageB2drop = require(Pathfinder.absPathInSrcFolder("/kb/storage/storageB2Drop.js")).StorageB2drop;
+    const StorageGridFs = require(Pathfinder.absPathInSrcFolder("kb/storage/storageGridFs.js")).StorageGridFs;
+    self.getActiveStorageConfig(function (err, config)
+    {
+        if (isNull(err))
+        {
+            if (config.ddr.hasStorageType === "local")
+            {
+                const newStorageLocal = new StorageGridFs(
+                    Config.defaultStorageConfig.username,
+                    Config.defaultStorageConfig.password,
+                    Config.defaultStorageConfig.host,
+                    Config.defaultStorageConfig.port,
+                    Config.defaultStorageConfig.collectionName
+                );
+
+                return callback(null, newStorageLocal);
+            }
+            else if (config.ddr.hasStorageType === "b2drop")
+            {
+                const newStorageB2drop = new StorageB2drop(config.ddr.username, config.ddr.password);
+                return callback(null, newStorageB2drop);
+            }
+
+            return callback(true, "Unknown storage type");
+        }
+
+        return callback(true, "project " + self.uri + " has no storageConfig");
+    });
+};
+
+Project.prototype.deleteActiveStorageConfig = function (callback, customGraphUri)
+{
+    const self = this;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+    self.getActiveStorageConfig(function (err, config)
+    {
+        if (!isNull(err))
+        {
+            config.deleteAllMyTriples(function (err, result)
+            {
+                callback(err, result);
+            }, graphUri);
+        }
+        else
+        {
+            callback(err, config);
+        }
+    });
+};
+
+Project.prototype.deleteAllStorageConfigs = function (callback, customGraphUri)
+{
+    const self = this;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+    const StorageConfig = require(Pathfinder.absPathInSrcFolder("/models/storage/storageConfig.js")).StorageConfig;
+
+    StorageConfig.findByProject(self.uri, function (err, configs)
+    {
+        if (isNull(err))
+        {
+            async.mapSeries(configs, function (config, callback)
+            {
+                config.deleteAllMyTriples(function (err, result)
+                {
+                    callback(err, result);
+                }, graphUri);
+            }, function (err, result)
+            {
+                callback(err);
+            });
+        }
+        else
+        {
+            callback(err, configs);
+        }
+    });
+};
+
+Project.prototype.delete = function (callback, customGraphUri)
+{
+    const self = this;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
     const deleteProjectTriples = function (callback)
     {
@@ -1776,7 +1890,7 @@ Project.prototype.delete = function (callback)
             [
                 {
                     type: Elements.types.resourceNoEscape,
-                    value: db.graphUri
+                    value: graphUri
                 },
                 {
                     type: Elements.types.resourceNoEscape,
@@ -1790,11 +1904,33 @@ Project.prototype.delete = function (callback)
         );
     };
 
+    const deleteAllStorageConfigs = function (callback)
+    {
+        self.deleteAllStorageConfigs(callback);
+    };
+
     const deleteProjectFiles = function (callback)
     {
-        gfs.connection.deleteByQuery({ "metadata.project.uri": self.uri}, function (err, result)
+        self.getActiveStorageConnection(function (err, storageConnection)
         {
-            callback(err, result);
+            if (isNull(err))
+            {
+                if (!isNull(storageConnection) && storageConnection instanceof Storage)
+                {
+                    storageConnection.deleteAllInProject(self, function (err, result)
+                    {
+                        callback(err, result);
+                    });
+                }
+                else
+                {
+                    callback(1, "Unable to delete files in project " + self.ddr.handle + " because it has an invalid or non-existant connection to the data access adapter.");
+                }
+            }
+            else
+            {
+                callback(err, storageConnection);
+            }
         });
     };
 
@@ -1809,11 +1945,149 @@ Project.prototype.delete = function (callback)
     async.series([
         clearCacheRecords,
         deleteProjectFiles,
+        deleteAllStorageConfigs,
         deleteProjectTriples
     ], function (err, results)
     {
         callback(err, results);
     });
+};
+
+Project.prototype.reindex = function (callback, customGraphUri)
+{
+    const self = this;
+    let failed;
+
+    self.getRootFolder(function (err, rootFolder)
+    {
+        if (isNull(err))
+        {
+            async.series([
+                function (callback)
+                {
+                    // reindex the entire directory structure
+                    rootFolder.forAllChildren(
+                        function (err, resources)
+                        {
+                            if (isNull(err))
+                            {
+                                if (resources.length > 0)
+                                {
+                                    async.mapSeries(resources, function (resource, callback)
+                                    {
+                                        if (!isNull(resource))
+                                        {
+                                            if (self.ddr.privacyStatus === "public" || self.ddr.privacyStatus === "metadata_only")
+                                            {
+                                                Logger.log("silly", "Folder or File " + resource.uri + " now being REindexed.");
+                                                resource.reindex(function (err, resource)
+                                                {
+                                                    if (err)
+                                                    {
+                                                        Logger.log("error", "Error reindexing File or Folder " + resource.uri + " : " + JSON.stringify(err, null, 4) + "\n" + JSON.stringify(resource, null, 4));
+                                                        failed = true;
+                                                    }
+
+                                                    callback(failed, resource);
+                                                }, customGraphUri);
+                                            }
+                                            else
+                                            {
+                                                Logger.log("silly", "Folder or File " + resource.uri + " now being UNindexed.");
+                                                resource.unindex(function (err, results)
+                                                {
+                                                    if (err)
+                                                    {
+                                                        Logger.log("error", "Error unindexing File or folder " + resource.uri + " : " + results);
+                                                        failed = true;
+                                                    }
+
+                                                    callback(failed, results);
+                                                }, customGraphUri);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            callback(false, resource);
+                                        }
+                                    }, function (err, results)
+                                    {
+                                        if (err)
+                                        {
+                                            Logger.log("error", "Errors occurred indexing all children of " + self.uri + " for reindexing : " + resources);
+                                            failed = true;
+                                        }
+
+                                        return callback(failed, null);
+                                    });
+                                }
+                                else
+                                {
+                                    return callback(failed, null);
+                                }
+                            }
+                            else
+                            {
+                                failed = true;
+                                return callback(failed, "Error fetching children of " + self.uri + " for reindexing : " + resources);
+                            }
+                        },
+                        function ()
+                        {
+                            return failed;
+                        },
+                        function (err)
+                        {
+                            return callback(err, null);
+                        },
+                        true,
+                        customGraphUri
+                    );
+                },
+                function (callback)
+                {
+                    if (self.ddr.privacyStatus === "public" || self.ddr.privacyStatus === "metadata_only")
+                    {
+                        // reindex the Project object itself.
+                        Project.baseConstructor.prototype.reindex.call(self, function (err, result)
+                        {
+                            callback(err, result);
+                        });
+                    }
+                    else
+                    {
+                        // unindex the Project object itself.
+                        Project.baseConstructor.prototype.unindex.call(self, function (err, result)
+                        {
+                            callback(err, result);
+                        });
+                    }
+                }
+            ], function (err, result)
+            {
+                callback(err, self);
+            });
+        }
+        else
+        {
+            Logger.log("error", "Unable to fetch root folder of project " + self.uri + " while reindexing it.");
+            callback(err, rootFolder);
+        }
+    });
+};
+
+Project.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
+
+    if (isNull(self.ddr.handle))
+    {
+        callback(1, "Unable to get human readable uri for " + self.uri + " because it has no ddr.handle property.");
+    }
+    else
+    {
+        callback(null, "/project/" + self.ddr.handle);
+    }
 };
 
 Project = Class.extend(Project, Resource, "ddr:Project");
