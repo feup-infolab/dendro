@@ -31,12 +31,24 @@ const createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFold
 const createFoldersUnitKeywords = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFoldersKeywords.Unit.js"));
 
 const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
+const testFolder2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder2.js"));
 const pdfMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/pdfMockFile.js"));
-const BusPerformance = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/BusPerformance.js"));
-const SimulatingVehicle = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/SimulatingVehicle.js"));
-const driverattitude = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/driverattitude.js"));
-const RegenerativeBraking = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/RegenerativeBraking.js"));
-const RoutePlanning = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/RoutePlanning.js"));
+const doc1 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc1.js"));
+const doc2 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc2.js"));
+const doc3 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc3.js"));
+const doc4 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc4.js"));
+const doc5 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc5.js"));
+const doc6 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc6.js"));
+const doc7 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc7.js"));
+const doc8 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc8.js"));
+const doc9 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc9.js"));
+const doc10 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc10.js"));
+const doc11 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc11.js"));
+const doc12 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc12.js"));
+const doc13 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc13.js"));
+const doc14 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc14.js"));
+const doc15 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc15.js"));
+const doc16 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc15.js"));
 
 const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
 const addContributorsToProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
@@ -62,121 +74,13 @@ describe("Searches DBpedia for important terms", function (done)
         });
     });
 
-    var artigo;
 
-    describe("[POST] [PRIVATE PROJECT] [Valid Cases] /project/" + privateProject.handle + "/data/:foldername?upload", function ()
-    {
-        it("Should upload a PDF file successfully and extract its text for content-based indexing", function (done)
-        {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, BusPerformance, function (err, res)
-                {
-                    res.statusCode.should.equal(200);
-                    res.body.should.be.instanceof(Object);
-                    res.body.should.be.instanceof(Array);
-                    res.body.length.should.equal(1);
-                    const newResourceUri = res.body[0].uri;
 
-                    itemUtils.getItemMetadataByUri(true, agent, newResourceUri, function (error, res)
-                    {
-                        res.statusCode.should.equal(200);
-                        res.body.descriptors.should.be.instanceof(Array);
-                        artigo = JSON.parse(res.text).descriptors[7].value;
-                        descriptorUtils.noPrivateDescriptors(JSON.parse(res.text).descriptors).should.equal(true);
-
-                        descriptorUtils.containsAllMetadata(
-                            BusPerformance.metadata,
-                            JSON.parse(res.text).descriptors
-                        );
-
-                        done();
-                    });
-                });
-            });
-        });
-    });
-
-    // describe("[GET] /keywords/conceptextraction", function ()
-    // {
-    //     it("[HTML] Simple test to extract POS and lemma", function (done)
-    //     {
-    //         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-    //         {
-    //             keywordsUtils.preprocessing("a really Interesting string with some words", agent, function (err, res)
-    //             {
-    //                 res.statusCode.should.equal(200);
-    //                 // console.log(res.text);
-    //                 res.text.should.contain("interesting");
-    //                 res.text.should.contain("string");
-    //                 res.text.should.contain("word");
-    //                 done();
-    //             });
-    //         });
-    //     });
-    //     it("[GET] single term extraction", function (done)
-    //     {
-    //         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-    //         {
-    //             // console.log(artigo.toString());
-    //             keywordsUtils.preprocessing(artigo, agent, function (err, res)
-    //             {
-    //                 res.statusCode.should.equal(200);
-    //                 res.text.should.contain("introduction");
-    //                 // console.log(res.text);
-    //                 // res.text.should.contain("science");
-    //                 keywordsUtils.termextraction([res.text], [artigo.toString()], agent, function (err, te)
-    //                 {
-    //                     te.statusCode.should.equal(200);
-    //                     // te.text.should.contain("google");
-    //                     // te.text.should.contain("kaggle");
-    //                     // te.text.should.contain("3.068528194400547");
-    //                     // te.text.should.contain("3.068528194400547");
-    //
-    //                     done();
-    //                 });
-    //             });
-    //         });
-    //     });
-    //     it("[Get] DBpedia lookup higher frequency items", function (done)
-    //     {
-    //         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-    //         {
-    //             // console.log(artigo.toString());
-    //             keywordsUtils.preprocessing(artigo, agent, function (err, res)
-    //             {
-    //                 res.statusCode.should.equal(200);
-    //                 res.text.should.contain("introduction");
-    //                 // console.log(res.text);
-    //                 // res.text.should.contain("science");
-    //                 keywordsUtils.termextraction([res.text], [artigo.toString()], agent, function (err, te)
-    //                 {
-    //                     te.statusCode.should.equal(200);
-    //                     console.log(te.text);
-    //                     // te.text.should.contain("google");
-    //                     // te.text.should.contain("kaggle");
-    //                     // te.text.should.contain("3.068528194400547");
-    //                     // te.text.should.contain("3.068528194400547");
-    //
-    //                     keywordsUtils.dbpedialookup(te.text, agent, function (err, db)
-    //                     {
-    //                         db.statusCode.should.equal(200);
-    //                         console.log(db.body.dbpediauri.result);
-    //                         // db.text.should.contain("Google");
-    //                         // db.text.should.contain("Kaggle");
-    //                         done();
-    //                     });
-    //                 });
-    //             });
-    //         });
-    //     });
-    // });
-
-    describe("[GET] Complete path using all 5 files", function ()
+    describe("[GET] Complete path using all 16 files", function ()
     {
         var loadfiles = function (lookup, cb)
         {
-            fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, lookup, function (err, res)
+            fileUtils.uploadFile(true, agent, privateProject.handle, testFolder2.name, lookup, function (err, res)
             {
                 res.statusCode.should.equal(200);
                 res.body.should.be.instanceof(Object);
@@ -204,7 +108,7 @@ describe("Searches DBpedia for important terms", function (done)
         };
         var artigos = [];
         var dbpediaterms;
-        var doclist = [BusPerformance, SimulatingVehicle, driverattitude, RegenerativeBraking, RoutePlanning];
+        var doclist = [doc11, doc12, doc15];
         it("Should load every pdf and extract their content", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
@@ -237,41 +141,7 @@ describe("Searches DBpedia for important terms", function (done)
                 });
             });
         });
-        /*
-        it("Should pre process text", function (done)
-        {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                async.mapSeries(artigos, processfiles, function (err, results)
-                {
-                    for (let i = 0; i < results.length; i++)
-                    {
-                        preprocessing.push(results[i][0]);
-                        //console.log(preprocessing);
-                        textprocessado.push(results[i][1]);
-                        console.log(textprocessado);
-                    }
-                    done();
-                });
-            });
-        });
 
-        it("Should extract keywords", function (done)
-        {
-            keywordsUtils.termextraction(preprocessing, textprocessado, agent, function (err, te)
-            {
-                var keyword;
-                te.statusCode.should.equal(200);
-                // console.log(te.text);
-                dbpediaterms = te.text;
-                keyword = JSON.parse(te.text).dbpediaterms.keywords;
-
-                // console.log(keyword);
-
-                done();
-            });
-        });
-        */
 
 
         var dbpediaconcepts = [];
@@ -286,7 +156,7 @@ describe("Searches DBpedia for important terms", function (done)
                 dbpediaconcepts = db.body.dbpediauri.result;
                 console.log(dbpediaconcepts);
                 var writer = csvWriter();
-                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/vehicle/vehicle-cvalue-jj.csv")))
+                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/chemistry/chemistry-yake.csv")))
                 {
                     writer = csvWriter( { separator: ",", headers: [ "searchterm", "dbpedialabel", "dbpediauri", "dbpediadescription" ]});
                 }
@@ -294,7 +164,7 @@ describe("Searches DBpedia for important terms", function (done)
                 {
                     writer = csvWriter({sendHeaders: false});
                 }
-                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/vehicle/vehicle-cvalue-jj.csv"), {flags: "a"}));
+                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/chemistry/chemistry-yake.csv"), {flags: "a"}));
                 for (var i = 0; i < dbpediaconcepts.length; i++)
                 {
                     writer.write(dbpediaconcepts[i]);
@@ -311,7 +181,7 @@ describe("Searches DBpedia for important terms", function (done)
                 // console.log(err);
                 db.statusCode.should.equal(200);
                 var writer = csvWriter();
-                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/vehicle/dbpediapropertiescvalue-jj.csv")))
+                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/chemistry/dbpediapropertiesyake.csv")))
                 {
                     writer = csvWriter({ headers: ["searchterm", "lovscore","lovvocabulary","lovuri","lovlabel"]});
                 }
@@ -319,7 +189,7 @@ describe("Searches DBpedia for important terms", function (done)
                 {
                     writer = csvWriter({separator: ",", sendHeaders: false});
                 }
-                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/vehicle/dbpediapropertiescvalue-jj.csv"), {flags: "a"}));
+                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/chemistry/dbpediapropertiesyake.csv"), {flags: "a"}));
                 for (var i = 0; i < db.body.dbpediauri.result.length; i++)
                 {
                     writer.write(db.body.dbpediauri.result[i]);

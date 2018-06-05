@@ -23,9 +23,9 @@ const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFol
 const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
 const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
 const testFolder2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder2.js"));
-
+const testFolder3 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder3.js"));
 const projectsData = createProjectsUnit.projectsData;
-const foldersData = module.exports.foldersData = [folder, testFolder1, testFolder2];
+const foldersData = module.exports.foldersData = [folder, testFolder1, testFolder2, testFolder3];
 
 function requireUncached (module)
 {

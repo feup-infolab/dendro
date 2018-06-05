@@ -55,7 +55,6 @@ exports.processextract = function (req, res) {
 
     };
 
-    console.log(req.body.length);
 
     async.mapSeries(req.body, process, function (err, results)
     {
@@ -70,9 +69,9 @@ exports.processextract = function (req, res) {
         }
         else
         {
-            console.log(err);
-            console.log(results);
+
             module.exports.termextraction(results, function(output){
+
                 res.status(200).json(
                     {
                         output
@@ -104,7 +103,7 @@ exports.preprocessing = function (req, res)
                 comparision = text[j];
                 if (comparision.pos.charAt(0) === "N" && /^[a-zA-Z\/\-]+$/.test(comparision.lemma))
                 {
-                    if (stopwords.indexOf(comparision.lemma.toLowerCase()) > -1 || comparision.lemma.toString().length < 3)
+                    if (stopwords.indexOf(comparision.lemma.toLowerCase()) > -1 || comparision.lemma.toString().length < 3 || comparision.ner.toString() === "PERSON" || comparision.ner.toString() === "LOCATION" || comparision.ner.toString() === "DATE" || comparision.ner.toString() === "TIME")
                     {
                         // console.log(comparision.lemma.toString());
                     }
@@ -116,7 +115,7 @@ exports.preprocessing = function (req, res)
                             comparision = text[index2];
                             if (comparision.pos.charAt(0) === "N" && /^[a-zA-Z\/\-]+$/.test(comparision.lemma))
                             {
-                                if (stopwords.indexOf(comparision.lemma.toLowerCase()) > -1 || comparision.lemma.toString().length < 3)
+                                if (stopwords.indexOf(comparision.lemma.toLowerCase()) > -1 || comparision.lemma.toString().length < 3 || comparision.ner.toString() === "PERSON" || comparision.ner.toString() === "LOCATION" || comparision.ner.toString() === "DATE" || comparision.ner.toString() === "TIME")
                                 {
                                     // console.log(comparision.lemma.toString());
                                     break;
@@ -140,7 +139,7 @@ exports.preprocessing = function (req, res)
                 comparision = text[j];
                 if ((comparision.pos.charAt(0) === "N" || comparision.pos.charAt(0) === "J") && /^[a-zA-Z\/\-]+$/.test(comparision.lemma))
                 {
-                    if (stopwords.indexOf(comparision.lemma.toLowerCase()) > -1 || comparision.lemma.toString().length < 3)
+                    if (stopwords.indexOf(comparision.lemma.toLowerCase()) > -1 || comparision.lemma.toString().length < 3 || comparision.ner.toString() === "PERSON" || comparision.ner.toString() === "LOCATION" || comparision.ner.toString() === "DATE" || comparision.ner.toString() === "TIME")
                     {
                         // console.log(comparision.word);
                     }
@@ -152,7 +151,7 @@ exports.preprocessing = function (req, res)
                             comparision = text[index2];
                             if (comparision.pos.charAt(0) === "N" && /^[a-zA-Z\/\-]+$/.test(comparision.lemma))
                             {
-                                if (stopwords.indexOf(comparision.lemma.toLowerCase()) > -1 || comparision.lemma.toString().length < 3)
+                                if (stopwords.indexOf(comparision.lemma.toLowerCase()) > -1 || comparision.lemma.toString().length < 3 || comparision.ner.toString() === "PERSON" || comparision.ner.toString() === "LOCATION" || comparision.ner.toString() === "DATE" || comparision.ner.toString() === "TIME")
                                 {
                                     break;
                                 }
@@ -161,7 +160,7 @@ exports.preprocessing = function (req, res)
                             }
                             else if (comparision.pos.charAt(0) === "J" && /^[a-zA-Z\/\-]+$/.test(comparision.lemma))
                             {
-                                if (stopwords.indexOf(comparision.lemma.toLowerCase()) > -1 || comparision.lemma.toString().length < 3)
+                                if (stopwords.indexOf(comparision.lemma.toLowerCase()) > -1 || comparision.lemma.toString().length < 3 || comparision.ner.toString() === "PERSON" || comparision.ner.toString() === "LOCATION" || comparision.ner.toString() === "DATE" || comparision.ner.toString() === "TIME")
                                 {
                                     break;
                                 }
@@ -200,7 +199,7 @@ exports.preprocessing = function (req, res)
         // console.log("replacing: " + find + " for " + replace);
         return str.replace(new RegExp("\\b" + find + "\\b", "gi"), replace);
     }
-    // console.log(req.text);
+
     doc = new coreNLP.simple.Document(req.text);
     pipeline.annotate(doc)
         .then(doc =>
@@ -226,6 +225,7 @@ exports.preprocessing = function (req, res)
                     }
                     else
                     {
+
                         if (comparision.word.toString() !== comparision.lemma.toString())
                         {
                             sentences.push(comparision.lemma);
@@ -242,7 +242,7 @@ exports.preprocessing = function (req, res)
                         }
                     }
                 }
-                nounphraselist = nounphraselist.concat(nounphrase("jj", JSON.parse(JSON.stringify(sent.sentences[i])).tokens, null));
+                nounphraselist = nounphraselist.concat(nounphrase("nn", JSON.parse(JSON.stringify(sent.sentences[i])).tokens, null));
             }
             nounphraselist = [...new Set(nounphraselist.map(obj => JSON.stringify(obj)))]
                 .map(str => JSON.parse(str));
@@ -257,6 +257,8 @@ exports.preprocessing = function (req, res)
                     nounphraselist
                 }
             );*/
+            console.log(sentences.join(" ").length);
+            console.log(text.length);
             res({
                 statusCode : 200,
                 text: sentences.join(" "),
@@ -272,6 +274,28 @@ exports.preprocessing = function (req, res)
 
 exports.termextraction = function (req, res)
 {
+
+    var removeExtraTerms = function(nounphrases, results) {
+        var nnf = {frequency: []};
+        var contains = false;
+        for( let i = 0; i < (nounphrases.length-1); i++)
+        {
+            contains = false;
+            for(let j = 0; j < nounphrases.length; j++) {
+                if(tokenizer.tokenize(nounphrases[i].word).length === tokenizer.tokenize(nounphrases[j].word).length)
+                {
+                    if((nounphrases[j].word.indexOf(nounphrases[i].word) > -1) && nounphrases[i].word !== nounphrases[j].word) {
+                        contains = true;
+                        break;
+                    }
+                }
+            }
+            if(contains === false) {
+                nnf.frequency.push({word: nounphrases[i].word, cvalue: nounphrases[i].cvalue});
+            }
+        }
+        return nnf.frequency;
+    };
 
 
     //req.setTimeout(2500000);
@@ -463,15 +487,19 @@ exports.termextraction = function (req, res)
             if (words.frequency[i].nested === false)
             {
                 words.frequency[i].cvalue = Math.log2(words.frequency[i].size) * words.frequency[i].frequency;
-                cv += words.frequency[i].cvalue;
+                //cv += words.frequency[i].cvalue;
             }
             else
             {
                 words.frequency[i].cvalue = Math.log2(words.frequency[i].size) * (words.frequency[i].frequency - (1 / words.frequency[i].nestedterms.length) * words.frequency[i].nestedfreq);
-                cv += words.frequency[i].cvalue;
+                //cv += words.frequency[i].cvalue;
             }
         }
-        cv = cv / words.frequency.length;
+        words.frequency.sort(function (a, b)
+        {
+            return b.cvalue - a.cvalue;
+        });
+        cv = words.frequency[Math.floor(words.frequency.length*0.25)].cvalue;
         var cvaluethreshold = [];
         for (i = 0; i < words.frequency.length; i++)
         {
@@ -480,10 +508,6 @@ exports.termextraction = function (req, res)
                 cvaluethreshold.push(words.frequency[i]);
             }
         }
-        cvaluethreshold.sort(function (a, b)
-        {
-            return b.cvalue - a.cvalue;
-        });
 
         return cvaluethreshold;
     };
@@ -561,7 +585,7 @@ exports.termextraction = function (req, res)
             documentlength.push(WordCount(processedtest[i].text.toString()));
         }
 
-        var yakeflag = false;
+        var yakeflag = true;
         if (yakeflag === true) {
             async.mapSeries(documents, yake, function (err, results)
             {
@@ -594,7 +618,7 @@ exports.termextraction = function (req, res)
                         return r;
                     }, []);
                     dbpediaterms.keywords = dbpediashort;
-                    res.status(200).json(
+                    res(
                         {
                             dbpediaterms
                         }
@@ -627,11 +651,24 @@ exports.termextraction = function (req, res)
 
             var nounphrasesimple = [...new Set(nounphrasefinal.map(obj => JSON.stringify(obj)))]
                 .map(str => JSON.parse(str));
+
             nounphrasesimple.sort(function (a, b)
             {
                 return tokenizer.tokenize(b).length - tokenizer.tokenize(a).length;
             });
-            var ngrams = [];
+
+            //var nnnn = removeExtraTerms(nounphrasesimple);
+            //console.log(nounphrasesimple.length);
+            //console.log(nnnn.length);
+            //console.log(nnnn[0]);
+
+            /*nnnn.sort(function (a, b)
+            {
+                // ASC  -> a.length - b.length
+                // DESC -> b.length - a.length
+                return tokenizer.tokenize(b).length - tokenizer.tokenize(a).length;
+            });*/
+            //var ngrams = [];
             /*for (let i = 0; i < nounphrasesimple.length; i++)
             {
                 if (tokenizer.tokenize(nounphrasesimple[i]).length <= 5 && tokenizer.tokenize(nounphrasesimple[i]).length >= 2)
@@ -642,31 +679,50 @@ exports.termextraction = function (req, res)
                 {
                     // console.log(nounphrasesimple[i]);
                 }
-            }*/
+            }
             ngrams.sort(function (a, b)
             {
             // ASC  -> a.length - b.length
             // DESC -> b.length - a.length
                 return tokenizer.tokenize(b).length - tokenizer.tokenize(a).length;
-            });
+            });*/
 
             var cvaluengrams = cvalue(nounphrasesimple, documents, tokenizer.tokenize(nounphrasesimple[0]).length);
-            var ncvaluengrams = ncvalue(cvaluengrams, cvaluengrams.length);
+            //var ncvaluengrams = ncvalue(cvaluengrams, cvaluengrams.length);
             // console.log(ncvaluegrams);
+            var nnnn = removeExtraTerms(cvaluengrams);
 
-            var index;
+            var nnfinal = [...new Set(nnnn.map(obj => JSON.stringify(obj)))]
+                .map(str => JSON.parse(str));
+
+            nnfinal.sort(function (a, b)
+            {
+                return b.cvalue - a.cvalue;
+            });
+
+            console.log(cvaluengrams.length);
+            console.log(nnfinal.length);
+            console.log(nnnn.length);
+
+            var soma = 0;
+            for(let q = 0; q < nnfinal.length; q++) {
+                soma+=nnfinal[q].cvalue;
+            }
+            const result = ( soma/nnfinal.length ); // 5
+
+            console.log(result);
 
             dbpediaterms = {
                 keywords: []
             };
-            for (var index = 0; index < cvaluengrams.length; index++)
+            for (let index = 0; index < nnfinal.length; index++)
             {
                 // console.log(dbsearch[i]);
-                if (tokenizer.tokenize(cvaluengrams[index].word).length <= 3)
+                if (tokenizer.tokenize(nnfinal[index].word).length <= 3)
                 {
                     dbpediaterms.keywords.push({
-                        words: cvaluengrams[index].word,
-                        score: cvaluengrams[index].cvalue
+                        words: nnfinal[index].word,
+                        score: nnfinal[index].cvalue
                     });
                 }
             }
@@ -692,8 +748,8 @@ exports.dbpedialookup = function (req, res)
     var searchdb = function (lookup, cb)
     {
         console.log("searching : " + lookup.words);
-        baseRequest("http://lookup.dbpedia.org/api/search/PrefixSearch?QueryClass=&MaxHits=25&QueryString=" + lookup.words, function getResponse (error, response, body)
-        //baseRequest("http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=&QueryString=" + lookup.words, function getResponse (error, response, body)
+        // baseRequest("http://lookup.dbpedia.org/api/search/PrefixSearch?QueryClass=&MaxHits=25&QueryString=" + lookup.words, function getResponse (error, response, body)
+        baseRequest("http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=&MaxHits=25&QueryString=" + lookup.words, function getResponse (error, response, body)
         // baseRequest("http://lov.okfn.org/dataset/lov/api/v2/term/search?q=" + lookup.words + "&type=property", function getResponse (error, response, body)
         {
             if (!error && response.statusCode === 200)
@@ -742,7 +798,6 @@ exports.dbpedialookup = function (req, res)
                         }
                     }
                     dbpediauri.result.push({ searchterm: dbpediaresults[i].words, dbpedialabel: results2[i].results[position].label, dbpediauri:results2[i].results[position].uri, dbpediadescription: results2[i].results[position].description });
-                    console.log(dbpediauri.result[i]);
                 }
 
                 else
@@ -802,6 +857,7 @@ exports.dbpediaproperties = function (req, res)
     };
     var searchlov = function (dbpedia, cb)
     {
+        console.log("searching : " + dbpedia.searchterm);
         baseRequest("http://lov.okfn.org/dataset/lov/api/v2/term/search?q=" + dbpedia.searchterm + "&type=property", function getResponse (error, response, body)
         {
             if (!error && response.statusCode === 200)
@@ -853,6 +909,7 @@ exports.dbpediaproperties = function (req, res)
                                 position = x;
                             }
                         }*/
+                    /*
                     console.log("searched word: " + dbpediaresults[i].searchterm);
                     console.log("nc value: " + dbpediaresults[i].score);
                     console.log("URI: " + results[i].results[0].uri[0]);
@@ -860,6 +917,7 @@ exports.dbpediaproperties = function (req, res)
                     console.log("lov score: " + results[i].results[0].score);
                     console.log("lov vocabulary: " + results[i].results[0]["vocabulary.prefix"][0]);
                     console.log("highlight 1 : " + results[i].results[0].highlight);
+                    */
                     // var ret = results[i].results[position].prefixedName[0].toString().replace(results[i].results[position]["vocabulary.prefix"][0].toString(), "");
                     // console.log("highlight: " + ret);
                     var lovlabel;

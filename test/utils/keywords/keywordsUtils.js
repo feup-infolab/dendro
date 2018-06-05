@@ -23,6 +23,26 @@ module.exports.loadfiles = function (text, agent, cb)
 };
 
 
+module.exports.processextract = function (text, agent, cb)
+{
+    const path = "/keywords/processextract";
+    agent
+        .post(path)
+        .set("Accept", "application/json")
+        .send(text)
+        .then(function (response, res)
+        {
+            if (response.ok)
+            {
+                cb(null, response);
+            }
+            else
+            {
+                cb("Error processing text.", response);
+            }
+        });
+};
+
 
 module.exports.preprocessing = function (text, agent, cb)
 {
@@ -83,7 +103,7 @@ module.exports.dbpedialookup = function (text, agent, cb)
 {
     const path = "/keywords/dbpedialookup";
     agent
-        .get(path)
+        .post(path)
         .send({keywords: text})
         .then(function (response, res)
         {
@@ -107,7 +127,7 @@ module.exports.dbpediaproperties = function (text, agent, cb)
 {
     const path = "/keywords/dbpediaproperties";
     agent
-        .get(path)
+        .post(path)
         .send({concepts: text})
         .then(function (response, res)
         {
