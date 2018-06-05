@@ -367,7 +367,9 @@
             "research",
             "hdg",
             "ddiup",
-            "disco"
+            "disco",
+            "m3lite",
+            "ssn"
         ],
         "authentication": {
             "default": {
