@@ -285,8 +285,8 @@ const getRankedPosts = function (projectUrisArray, callback, userUri, nextPositi
 
 exports.getUserPostsUris = function (userUri, currentPage, useRank, nextPosition, lastAccess, timelineId, callback)
 {
-    const index = currentPage === 1 ? 0 : (currentPage * 5) - 5;
-    const maxResults = 5;
+    const maxResults = 30;
+    const index = currentPage === 1 ? 0 : (currentPage * maxResults) - maxResults;
     const cb = function (err, results)
     {
         if (!err)
@@ -1002,8 +1002,8 @@ exports.all = function (req, res)
     const acceptsJSON = req.accepts("json");
     const currentPage = parseInt(req.query.currentPage);
     const useRank = parseInt(req.query.useRank);
-    const index = currentPage === 1 ? 0 : (currentPage * 5) - 5;
-    const maxResults = 5;
+    const maxResults = 30;
+    const index = currentPage === 1 ? 0 : (currentPage * maxResults) - maxResults;
 
     const cb = function (err, results)
     {
