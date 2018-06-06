@@ -31,7 +31,6 @@ const datasets = require(Pathfinder.absPathInSrcFolder("/controllers/datasets"))
 const posts = require(Pathfinder.absPathInSrcFolder("/controllers/posts"));
 const timeline = require(Pathfinder.absPathInSrcFolder("/controllers/timeline"));
 const notifications = require(Pathfinder.absPathInSrcFolder("/controllers/notifications"));
-//const ShibbolethUP = require(Pathfinder.absPathInSrcFolder("bootup/models/shibboleth/shibboleth_UP.js")).ShibbolethUP;
 
 let recommendation;
 
