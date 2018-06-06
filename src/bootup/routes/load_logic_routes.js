@@ -231,17 +231,17 @@ const loadRoutes = function (app, callback)
 
     if(!isNull(Config.authentication.shibboleth))
     {
-        if(!isNull(Config.authentication.shibboleth.enabled) && Config.authentication.shibboleth.enabled === true && !isNull(Config.authentication.shibboleth.businessLogicHandler))
+        if(!isNull(Config.authentication.shibboleth.enabled) && Config.authentication.shibboleth.enabled === true && !isNull(Config.authentication.shibboleth.business_logic_handler))
         {
-            if(fs.existsSync(Pathfinder.absPathInSrcFolder(Config.authentication.shibboleth.businessLogicHandler)))
+            if(fs.existsSync(Pathfinder.absPathInSrcFolder(Config.authentication.shibboleth.business_logic_handler)))
             {
-                const Shibboleth = require(Pathfinder.absPathInSrcFolder(Config.authentication.shibboleth.businessLogicHandler)).Shibboleth;
+                const Shibboleth = require(Pathfinder.absPathInSrcFolder(Config.authentication.shibboleth.business_logic_handler)).Shibboleth;
                 let newShibboleth = new Shibboleth(Config.authentication.shibboleth);
                 newShibboleth.registerAuthenticationRoutes(app, passport);
             }
             else
             {
-                const errorMessage = "[FATAL ERROR] shibboleth.businessLogicHandler file: " + "\"" +  Config.authentication.shibboleth.businessLogicHandler  + "\"" + " does not exist!";
+                const errorMessage = "[FATAL ERROR] shibboleth.business_logic_handler file: " + "\"" +  Config.authentication.shibboleth.business_logic_handler  + "\"" + " does not exist!";
                 const error = new Error(errorMessage);
                 Logger.log("error", errorMessage);
                 throw error;

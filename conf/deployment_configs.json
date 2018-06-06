@@ -389,7 +389,7 @@
             "shibboleth":
             {
                 "enabled": true,
-                "businessLogicHandler": "bootup/models/shibboleth/shibboleth_UP.js",
+                "business_logic_handler": "bootup/models/shibboleth/shibboleth_UP.js",
                 "callback_url": "http://e6a8c957.ngrok.io/Shibboleth/login/callback",
                 "button_url": "http://e6a8c957.ngrok.io/Shibboleth",
                 "entry_point": "https://idp.testshib.org/idp/profile/SAML2/Redirect/SSO",
