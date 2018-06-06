@@ -62,7 +62,8 @@ Post.prototype.updateTimestamp = function (callback)
     }).then(() => {
         return db.timeline_post.destroy({
             where: {
-                postURI: self.postURI
+                postURI: self.postURI,
+                type: "unranked"
             }
         }).then(() => {
             return callback(null);

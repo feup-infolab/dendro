@@ -31,42 +31,6 @@ const dbMySQL = require(Pathfinder.absPathInSrcFolder("mysql_models"));
 
 const app = require("../app");
 
-const getProjectInteractions = function (array, projectURI)
-{
-    let project = array.find(function (element)
-    {
-        return element.projectURI === projectURI;
-    });
-    if (isNull(project))
-    {
-        return 0;
-    }
-    return project.interactions;
-};
-
-const getTimeScore = function (created)
-{
-    let now = new Date();
-    let diff = now - created;
-    if (diff === 0)
-    {
-        return 1;
-    }
-    // else
-    return (1 / diff) * 10000;
-};
-
-const getPostScore = function (projectInteractionsArray, post)
-{
-    let likes = post.likes;
-    let comments = post.comments;
-    let shares = post.shares;
-    let projectInteractions = getProjectInteractions(projectInteractionsArray, post.projectURI);
-    // let postType = post.postType;
-    let timeScore = getTimeScore(post.created);
-    return comments * 3 + shares * 2 + likes + projectInteractions + timeScore;
-};
-
 const addPostsToTimeline = function (posts, nextPosition, timelineId, callback)
 {
     let insertArray = [];
@@ -108,7 +72,7 @@ const addPostsToTimeline = function (posts, nextPosition, timelineId, callback)
     posts.forEach(createInsertArray);
 };
 
-const getRankedPostsPerPage = function (startingResultPosition, maxResults, timelineId, callback)
+const getPostsPerPage = function (startingResultPosition, maxResults, timelineId, callback)
 {
     return dbMySQL.timeline_post.findAll({
         raw: true,
@@ -201,11 +165,11 @@ const getAllPosts = function (projectUrisArray, callback, nextPosition, lastAcce
                     {
                         return addPostsToTimeline(posts, nextPosition, timelineId, function ()
                         {
-                            return getRankedPostsPerPage(startingResultPosition, maxResults, timelineId, callback);
+                            return getPostsPerPage(startingResultPosition, maxResults, timelineId, callback);
                         });
                     }
                     // else
-                    return getRankedPostsPerPage(startingResultPosition, maxResults, timelineId, callback);
+                    return getPostsPerPage(startingResultPosition, maxResults, timelineId, callback);
                 })
                 .catch(err => {
                     console.log(err);
@@ -223,6 +187,53 @@ const getAllPosts = function (projectUrisArray, callback, nextPosition, lastAcce
 
 const getRankedPosts = function (projectUrisArray, callback, userUri, nextPosition, lastAccess, startingResultPosition, maxResults, timelineId)
 {
+    const getTimeScore = function (created, now)
+    {
+        let diff = now - created;
+        if (diff === 0)
+        {
+            return 1;
+        }
+        // else
+        return (1 / diff);
+    };
+    const getMaximumNumbers = function (posts, interactions, now)
+    {
+        let maxs = {likes: -1, comments: -1, shares: -1, interactions: -1, time: -1};
+        maxs.likes = Math.max.apply(Math, posts.map(function (post) { return post.likes; }));
+        maxs.likes = maxs.likes === 0 ? 1 : maxs.likes;
+        maxs.comments = Math.max.apply(Math, posts.map(function (post) { return post.comments; }));
+        maxs.comments = maxs.comments === 0 ? 1 : maxs.comments;
+        maxs.shares = Math.max.apply(Math, posts.map(function (post) { return post.shares; }));
+        maxs.shares = maxs.shares === 0 ? 1 : maxs.shares;
+        maxs.interactions = Math.max.apply(Math, interactions.map(function (project) { return project.interactions; }));
+        maxs.interactions = maxs.interactions === 0 ? 1 : maxs.interactions;
+        maxs.time = Math.max.apply(Math, posts.map(function (post) { return getTimeScore(post.created, now); }));
+        maxs.time = maxs.time === 0 ? 1 : maxs.time;
+        return maxs;
+    };
+    const getPostScore = function (projectInteractionsArray, post, maxs, now)
+    {
+        const getProjectInteractions = function (array, projectURI)
+        {
+            let project = array.find(function (element)
+            {
+                return element.projectURI === projectURI;
+            });
+            if (isNull(project))
+            {
+                return 0;
+            }
+            return project.interactions;
+        };
+        let likes = post.likes / maxs.likes;
+        let comments = post.comments / maxs.comments;
+        let shares = post.shares / maxs.shares;
+        let projectInteractions = getProjectInteractions(projectInteractionsArray, post.projectURI) / maxs.interactions;
+        // let postType = post.postType;
+        let timeScore = getTimeScore(post.created, now) / maxs.time;
+        return shares * 0.35 + comments * 0.25 + likes * 0.1 + projectInteractions * 0.15 + timeScore * 0.15;
+    };
     if (projectUrisArray && projectUrisArray.length > 0)
     {
         async.mapSeries(projectUrisArray, function (uri, cb1)
@@ -247,10 +258,12 @@ const getRankedPosts = function (projectUrisArray, callback, userUri, nextPositi
                 .spread((posts, interactions) => {
                     let newPosts = Object.keys(posts).map(function (k) { return posts[k]; });
                     let interactionsArray = Object.keys(interactions).map(function (k) { return interactions[k]; });
+                    let now = new Date();
+                    let maxs = getMaximumNumbers(newPosts, interactionsArray, now);
                     newPosts.sort(function (post1, post2)
                     {
-                        post1.score = getPostScore(interactionsArray, post1);
-                        post2.score = getPostScore(interactionsArray, post2);
+                        post1.score = getPostScore(interactionsArray, post1, maxs, now);
+                        post2.score = getPostScore(interactionsArray, post2, maxs, now);
                         let diff = post1.score - post2.score;
                         if (diff === 0)
                         {
@@ -263,11 +276,11 @@ const getRankedPosts = function (projectUrisArray, callback, userUri, nextPositi
                     {
                         return addPostsToTimeline(newPosts, nextPosition, timelineId, function ()
                         {
-                            return getRankedPostsPerPage(startingResultPosition, maxResults, timelineId, callback);
+                            return getPostsPerPage(startingResultPosition, maxResults, timelineId, callback);
                         });
                     }
                     // else
-                    return getRankedPostsPerPage(startingResultPosition, maxResults, timelineId, callback);
+                    return getPostsPerPage(startingResultPosition, maxResults, timelineId, callback);
                 })
                 .catch(err => {
                     console.log(err);
