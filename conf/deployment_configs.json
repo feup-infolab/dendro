@@ -380,21 +380,22 @@
                 "callback_url": "/auth/orcid/callback"
             },
             "saml": {
-                "enabled": true,
+                "enabled": false,
                 "callback_path": "/auth/saml/callback",
                 "entry_point": "https://openidp.feide.no/simplesaml/saml2/idp/SSOService.php",
                 "issuer": "passport-saml",
                 "button_text": "Sign-in with SIGARRA"
             },
-            "shibbolethUP":
+            "shibboleth":
             {
                 "enabled": true,
-                "callback_url": "http://6a8faf9c.ngrok.io/ShibbolethUP/login/callback",
-                "button_url": "http://6a8faf9c.ngrok.io/ShibbolethUP",
+                "businessLogicHandler": "bootup/models/shibboleth/shibboleth_UP.js",
+                "callback_url": "http://e6a8c957.ngrok.io/Shibboleth/login/callback",
+                "button_url": "http://e6a8c957.ngrok.io/Shibboleth",
                 "entry_point": "https://idp.testshib.org/idp/profile/SAML2/Redirect/SSO",
-                "issuer": "https://6a8faf9c.ngrok.io/shibboleth",
+                "issuer": "https://e6a8c957.ngrok.io/shibboleth",
                 "session_secret": "secret123",
-                "button_text": "Sign-in with shibboleth UP",
+                "button_text": "UP-Sign-in",
                 "idp_cert_path": "/Users/nelsonpereira/Desktop/infolaRepos/dendroRepo/dendro/conf/cert/idp_cert.pem",
                 "key_path": "/Users/nelsonpereira/Desktop/infolaRepos/dendroRepo/dendro/conf/cert/key.pem",
                 "cert_path": "/Users/nelsonpereira/Desktop/infolaRepos/dendroRepo/dendro/conf/cert/cert.pem"

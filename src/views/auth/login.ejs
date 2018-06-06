@@ -84,12 +84,12 @@
                                     <a href="/auth/orcid" class="btn btn-default"><img src="/images/logos/orcid_24x24.png"> Sign in with ORCID</a>
                                     <% } %>
 
-                                    <%if (Config.authentication.orcid.enabled) { %>
+                                    <%if (Config.authentication.saml.enabled) { %>
                                     <a href="/auth/saml" class="btn btn-default"><img src="/images/logos/saml.png"> <%= Config.authentication.saml.button_text %></a>
                                     <% } %>
 
-                                    <%if (Config.authentication.shibbolethUP.enabled) { %>
-                                    <a class="btn btn-default" href="<%=Config.authentication.shibbolethUP.button_url%>"><img src="/images/logos/saml.png"> <%= Config.authentication.shibbolethUP.button_text %> </a>
+                                    <%if (Config.authentication.shibboleth.enabled) { %>
+                                    <a class="btn btn-default" href="<%=Config.authentication.shibboleth.button_url%>"><img src="/images/logos/saml.png"> <%= Config.authentication.shibboleth.button_text %> </a>
                                     <% } %>
                                 </div>
                             </div>

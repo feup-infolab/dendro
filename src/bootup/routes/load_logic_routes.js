@@ -31,8 +31,7 @@ const datasets = require(Pathfinder.absPathInSrcFolder("/controllers/datasets"))
 const posts = require(Pathfinder.absPathInSrcFolder("/controllers/posts"));
 const timeline = require(Pathfinder.absPathInSrcFolder("/controllers/timeline"));
 const notifications = require(Pathfinder.absPathInSrcFolder("/controllers/notifications"));
-//const Shibboleth = require(Pathfinder.absPathInSrcFolder("bootup/models/shibboleth/shibboleth.js")).Shibboleth;
-const ShibbolethUP = require(Pathfinder.absPathInSrcFolder("bootup/models/shibboleth/shibboleth_UP.js")).ShibbolethUP;
+//const ShibbolethUP = require(Pathfinder.absPathInSrcFolder("bootup/models/shibboleth/shibboleth_UP.js")).ShibbolethUP;
 
 let recommendation;
 
@@ -230,14 +229,27 @@ const loadRoutes = function (app, callback)
         });
     }
 
-    if(!isNull(Config.authentication.shibbolethUP))
+    if(!isNull(Config.authentication.shibboleth))
     {
-        if(!isNull(Config.authentication.shibbolethUP.enabled) && Config.authentication.shibbolethUP.enabled === true)
+        if(!isNull(Config.authentication.shibboleth.enabled) && Config.authentication.shibboleth.enabled === true && !isNull(Config.authentication.shibboleth.businessLogicHandler))
         {
-            let newShibbolethUP = new ShibbolethUP(Config.authentication.shibbolethUP);
-            newShibbolethUP.registerAuthenticationRoutes(app, passport);
+            if(fs.existsSync(Pathfinder.absPathInSrcFolder(Config.authentication.shibboleth.businessLogicHandler)))
+            {
+                const Shibboleth = require(Pathfinder.absPathInSrcFolder(Config.authentication.shibboleth.businessLogicHandler)).Shibboleth;
+                let newShibboleth = new Shibboleth(Config.authentication.shibboleth);
+                newShibboleth.registerAuthenticationRoutes(app, passport);
+            }
+            else
+            {
+                const errorMessage = "[FATAL ERROR] shibboleth.businessLogicHandler file: " + "\"" +  Config.authentication.shibboleth.businessLogicHandler  + "\"" + " does not exist!";
+                const error = new Error(errorMessage);
+                Logger.log("error", errorMessage);
+                throw error;
+            }
         }
     }
+
+
 
     /**
      * Helper function to add the requested resource URI to the parameters, based on the human readable URI,
