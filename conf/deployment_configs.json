@@ -785,8 +785,9 @@
                 "issuer": "passport-saml",
                 "button_text": "Sign-in with SIGARRA"
             },
-            "shibbolethUP": {
+            "shibboleth": {
                 "enabled": false,
+                "business_logic_handler": "default_string",
                 "callback_url": "default_string",
                 "button_url": "default_string",
                 "entry_point": "default_string",
@@ -1182,8 +1183,9 @@
                 "issuer": "passport-saml",
                 "button_text": "Sign-in with SIGARRA"
             },
-            "shibbolethUP": {
+            "shibboleth": {
                 "enabled": false,
+                "business_logic_handler": "default_string",
                 "callback_url": "default_string",
                 "button_url": "default_string",
                 "entry_point": "default_string",
@@ -1579,8 +1581,9 @@
                 "issuer": "passport-saml",
                 "button_text": "Sign-in with SIGARRA"
             },
-            "shibbolethUP": {
+            "shibboleth": {
                 "enabled": false,
+                "business_logic_handler": "default_string",
                 "callback_url": "default_string",
                 "button_url": "default_string",
                 "entry_point": "default_string",
