@@ -33,9 +33,21 @@ const createFoldersUnitKeywords = appUtils.requireUncached(Pathfinder.absPathInT
 const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
 const testFolder3 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder3.js"));
 const pdfMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/pdfMockFile.js"));
+
 const optical = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/optical.js"));
 const electrochemical = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/Electrochemicallysynthesized.js"));
 const electrical = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/Electricalandopticalproperties.js"));
+const photoresponse = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/photoresponse-and-photovoltaic.js"));
+const thickness = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/Effective-role-of-thickness.js"));
+const fabrication = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/Fabrication-of-Cu2CoSnS4.js"));
+const failure = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/Failure-mode-and-effect-analysis.js"));
+const situ = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/In-situ-gas.js"));
+const opto = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/Opto-electrical-characterisation.js"));
+const performance = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/Performance-evaluation.js"));
+const singlephase = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/Preparation-of-single-phase.js"));
+const kesterite = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/Study-of-kesterite.js"));
+const synthesis = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/Synthesis-and-characterization.js"));
+
 
 const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
 const addContributorsToProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
@@ -93,7 +105,7 @@ describe("Searches DBpedia for important terms", function (done)
         };
         var artigos = [];
         var dbpediaterms;
-        var doclist = [optical,electrochemical,electrical];
+        var doclist = [optical,electrochemical,electrical,photoresponse,thickness,fabrication,failure,situ,opto,performance,singlephase,kesterite,synthesis];
         it("Should load every pdf and extract their content", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
@@ -175,7 +187,7 @@ describe("Searches DBpedia for important terms", function (done)
                 dbpediaconcepts = db.body.dbpediauri.result;
                 console.log(dbpediaconcepts);
                 var writer = csvWriter();
-                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/photovoltaic/photovoltaic-yake.csv")))
+                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/photovoltaic/13 files/photovoltaic-cvalue-nn.csv")))
                 {
                     writer = csvWriter( { separator: ",", headers: [ "searchterm", "dbpedialabel", "dbpediauri", "dbpediadescription" ]});
                 }
@@ -183,7 +195,7 @@ describe("Searches DBpedia for important terms", function (done)
                 {
                     writer = csvWriter({sendHeaders: false});
                 }
-                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/photovoltaic/photovoltaic-yake.csv"), {flags: "a"}));
+                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/photovoltaic/13 files/photovoltaic-cvalue-nn.csv"), {flags: "a"}));
                 for (var i = 0; i < dbpediaconcepts.length; i++)
                 {
                     writer.write(dbpediaconcepts[i]);
@@ -200,7 +212,7 @@ describe("Searches DBpedia for important terms", function (done)
                 // console.log(err);
                 db.statusCode.should.equal(200);
                 var writer = csvWriter();
-                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/photovoltaic/dbpediapropertiesyake.csv")))
+                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/photovoltaic/13 files/dbpediapropertiescvalue-nn.csv")))
                 {
                     writer = csvWriter({ headers: ["searchterm", "lovscore","lovvocabulary","lovuri","lovlabel"]});
                 }
@@ -208,7 +220,7 @@ describe("Searches DBpedia for important terms", function (done)
                 {
                     writer = csvWriter({separator: ",", sendHeaders: false});
                 }
-                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/photovoltaic/dbpediapropertiesyake.csv"), {flags: "a"}));
+                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/photovoltaic/13 files/dbpediapropertiescvalue-nn.csv"), {flags: "a"}));
                 for (var i = 0; i < db.body.dbpediauri.result.length; i++)
                 {
                     writer.write(db.body.dbpediauri.result[i]);

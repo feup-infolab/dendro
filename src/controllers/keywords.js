@@ -242,7 +242,7 @@ exports.preprocessing = function (req, res)
                         }
                     }
                 }
-                nounphraselist = nounphraselist.concat(nounphrase("nn", JSON.parse(JSON.stringify(sent.sentences[i])).tokens, null));
+                nounphraselist = nounphraselist.concat(nounphrase("jj", JSON.parse(JSON.stringify(sent.sentences[i])).tokens, null));
             }
             nounphraselist = [...new Set(nounphraselist.map(obj => JSON.stringify(obj)))]
                 .map(str => JSON.parse(str));
@@ -258,7 +258,6 @@ exports.preprocessing = function (req, res)
                 }
             );*/
             console.log(sentences.join(" ").length);
-            console.log(text.length);
             res({
                 statusCode : 200,
                 text: sentences.join(" "),
@@ -319,7 +318,6 @@ exports.termextraction = function (req, res)
         {
             if (!error && response.statusCode === 200)
             {
-                console.log(JSON.parse(body));
                 cb(null, JSON.parse(body));
             }
             else
@@ -459,7 +457,7 @@ exports.termextraction = function (req, res)
             var frequency = 0;
             for (var j = 0; j < corpus.length; j++)
             {
-                frequency += countOcurrences(corpus[j], input[i]);
+                frequency += countOcurrences(corpus[j].toLowerCase(), input[i]);
             }
             words.frequency.push({word: input[i], size: tokenizer.tokenize(input[i]).length, cvalue: 0, termhood: 0, frequency: frequency, nested: false, nestedfreq: 0, nestedterms: []});
             /* if (frequency > 1 && Math.log2(frequency) >= maxthreshold)
@@ -484,6 +482,9 @@ exports.termextraction = function (req, res)
         var cv = 0;
         for (i = 0; i < words.frequency.length; i++)
         {
+            if(words.frequency[i].word === "internal combustion") {
+                console.log(words.frequency[i]);
+            }
             if (words.frequency[i].nested === false)
             {
                 words.frequency[i].cvalue = Math.log2(words.frequency[i].size) * words.frequency[i].frequency;
@@ -569,7 +570,6 @@ exports.termextraction = function (req, res)
         });
         return ncvaluelist.frequency;
     };
-    console.log(req);
 
 
         var processedtest = req;
@@ -585,7 +585,7 @@ exports.termextraction = function (req, res)
             documentlength.push(WordCount(processedtest[i].text.toString()));
         }
 
-        var yakeflag = true;
+        var yakeflag = false;
         if (yakeflag === true) {
             async.mapSeries(documents, yake, function (err, results)
             {
@@ -692,37 +692,32 @@ exports.termextraction = function (req, res)
             // console.log(ncvaluegrams);
             var nnnn = removeExtraTerms(cvaluengrams);
 
-            var nnfinal = [...new Set(nnnn.map(obj => JSON.stringify(obj)))]
-                .map(str => JSON.parse(str));
 
-            nnfinal.sort(function (a, b)
+            nnnn.sort(function (a, b)
             {
                 return b.cvalue - a.cvalue;
             });
 
-            console.log(cvaluengrams.length);
-            console.log(nnfinal.length);
-            console.log(nnnn.length);
 
             var soma = 0;
-            for(let q = 0; q < nnfinal.length; q++) {
-                soma+=nnfinal[q].cvalue;
+            for(let q = 0; q < nnnn.length; q++) {
+                soma+=nnnn[q].cvalue;
             }
-            const result = ( soma/nnfinal.length ); // 5
+            const result = ( soma/nnnn.length ); // 5
 
             console.log(result);
 
             dbpediaterms = {
                 keywords: []
             };
-            for (let index = 0; index < nnfinal.length; index++)
+            for (let index = 0; index < nnnn.length; index++)
             {
                 // console.log(dbsearch[i]);
-                if (tokenizer.tokenize(nnfinal[index].word).length <= 3)
+                if (tokenizer.tokenize(nnnn[index].word).length <= 3)
                 {
                     dbpediaterms.keywords.push({
-                        words: nnfinal[index].word,
-                        score: nnfinal[index].cvalue
+                        words: nnnn[index].word,
+                        score: nnnn[index].cvalue
                     });
                 }
             }
