@@ -232,7 +232,7 @@ const getRankedPosts = function (projectUrisArray, callback, userUri, nextPositi
         let projectInteractions = getProjectInteractions(projectInteractionsArray, post.projectURI) / maxs.interactions;
         // let postType = post.postType;
         let timeScore = getTimeScore(post.created, now) / maxs.time;
-        return shares * 0.35 + comments * 0.25 + likes * 0.1 + projectInteractions * 0.15 + timeScore * 0.15;
+        return shares * 0.35 + comments * 0.25  + projectInteractions * 0.2 + likes * 0.1 + timeScore * 0.1;
     };
     if (projectUrisArray && projectUrisArray.length > 0)
     {
