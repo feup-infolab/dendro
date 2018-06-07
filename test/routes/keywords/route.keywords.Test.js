@@ -286,7 +286,7 @@ describe("Searches DBpedia for important terms", function (done)
                 dbpediaconcepts = db.body.dbpediauri.result;
                 console.log(dbpediaconcepts);
                 var writer = csvWriter();
-                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/vehicle/vehicle-cvalue-jj.csv")))
+                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/vehicle/vehicle-cvalue-nn.csv")))
                 {
                     writer = csvWriter( { separator: ",", headers: [ "searchterm", "dbpedialabel", "dbpediauri", "dbpediadescription" ]});
                 }
@@ -294,7 +294,7 @@ describe("Searches DBpedia for important terms", function (done)
                 {
                     writer = csvWriter({sendHeaders: false});
                 }
-                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/vehicle/vehicle-cvalue-jj.csv"), {flags: "a"}));
+                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/vehicle/vehicle-cvalue-nn.csv"), {flags: "a"}));
                 for (var i = 0; i < dbpediaconcepts.length; i++)
                 {
                     writer.write(dbpediaconcepts[i]);
@@ -311,7 +311,7 @@ describe("Searches DBpedia for important terms", function (done)
                 // console.log(err);
                 db.statusCode.should.equal(200);
                 var writer = csvWriter();
-                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/vehicle/dbpediapropertiescvalue-jj.csv")))
+                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/vehicle/dbpediapropertiescvalue-nn.csv")))
                 {
                     writer = csvWriter({ headers: ["searchterm", "lovscore","lovvocabulary","lovuri","lovlabel"]});
                 }
@@ -319,7 +319,7 @@ describe("Searches DBpedia for important terms", function (done)
                 {
                     writer = csvWriter({separator: ",", sendHeaders: false});
                 }
-                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/vehicle/dbpediapropertiescvalue-jj.csv"), {flags: "a"}));
+                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/vehicle/dbpediapropertiescvalue-nn.csv"), {flags: "a"}));
                 for (var i = 0; i < db.body.dbpediauri.result.length; i++)
                 {
                     writer.write(db.body.dbpediauri.result[i]);

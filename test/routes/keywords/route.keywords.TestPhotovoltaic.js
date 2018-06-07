@@ -105,7 +105,8 @@ describe("Searches DBpedia for important terms", function (done)
         };
         var artigos = [];
         var dbpediaterms;
-        var doclist = [optical,electrochemical,electrical,photoresponse,thickness,fabrication,failure,situ,opto,performance,singlephase,kesterite,synthesis];
+        // var doclist = [optical,electrochemical,electrical,photoresponse,thickness,fabrication,failure,situ,opto,performance,singlephase,kesterite,synthesis];
+        var doclist = [optical,electrochemical,electrical];
         it("Should load every pdf and extract their content", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
@@ -138,41 +139,6 @@ describe("Searches DBpedia for important terms", function (done)
                 });
             });
         });
-        /*
-        it("Should pre process text", function (done)
-        {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                async.mapSeries(artigos, processfiles, function (err, results)
-                {
-                    for (let i = 0; i < results.length; i++)
-                    {
-                        preprocessing.push(results[i][0]);
-                        //console.log(preprocessing);
-                        textprocessado.push(results[i][1]);
-                        console.log(textprocessado);
-                    }
-                    done();
-                });
-            });
-        });
-
-        it("Should extract keywords", function (done)
-        {
-            keywordsUtils.termextraction(preprocessing, textprocessado, agent, function (err, te)
-            {
-                var keyword;
-                te.statusCode.should.equal(200);
-                // console.log(te.text);
-                dbpediaterms = te.text;
-                keyword = JSON.parse(te.text).dbpediaterms.keywords;
-
-                // console.log(keyword);
-
-                done();
-            });
-        });
-        */
 
 
         var dbpediaconcepts = [];
@@ -187,7 +153,7 @@ describe("Searches DBpedia for important terms", function (done)
                 dbpediaconcepts = db.body.dbpediauri.result;
                 console.log(dbpediaconcepts);
                 var writer = csvWriter();
-                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/photovoltaic/13 files/photovoltaic-cvalue-nn.csv")))
+                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/photovoltaic/3 files/photovoltaic-cvalue-jj.csv")))
                 {
                     writer = csvWriter( { separator: ",", headers: [ "searchterm", "dbpedialabel", "dbpediauri", "dbpediadescription" ]});
                 }
@@ -195,7 +161,7 @@ describe("Searches DBpedia for important terms", function (done)
                 {
                     writer = csvWriter({sendHeaders: false});
                 }
-                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/photovoltaic/13 files/photovoltaic-cvalue-nn.csv"), {flags: "a"}));
+                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/photovoltaic/3 files/photovoltaic-cvalue-jj.csv"), {flags: "a"}));
                 for (var i = 0; i < dbpediaconcepts.length; i++)
                 {
                     writer.write(dbpediaconcepts[i]);
@@ -212,7 +178,7 @@ describe("Searches DBpedia for important terms", function (done)
                 // console.log(err);
                 db.statusCode.should.equal(200);
                 var writer = csvWriter();
-                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/photovoltaic/13 files/dbpediapropertiescvalue-nn.csv")))
+                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/photovoltaic/3 files/dbpediapropertiescvalue-jj.csv")))
                 {
                     writer = csvWriter({ headers: ["searchterm", "lovscore","lovvocabulary","lovuri","lovlabel"]});
                 }
@@ -220,7 +186,7 @@ describe("Searches DBpedia for important terms", function (done)
                 {
                     writer = csvWriter({separator: ",", sendHeaders: false});
                 }
-                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/photovoltaic/13 files/dbpediapropertiescvalue-nn.csv"), {flags: "a"}));
+                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/photovoltaic/3 files/dbpediapropertiescvalue-jj.csv"), {flags: "a"}));
                 for (var i = 0; i < db.body.dbpediauri.result.length; i++)
                 {
                     writer.write(db.body.dbpediauri.result[i]);

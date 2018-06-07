@@ -242,7 +242,7 @@ exports.preprocessing = function (req, res)
                         }
                     }
                 }
-                nounphraselist = nounphraselist.concat(nounphrase("jj", JSON.parse(JSON.stringify(sent.sentences[i])).tokens, null));
+                nounphraselist = nounphraselist.concat(nounphrase("nn", JSON.parse(JSON.stringify(sent.sentences[i])).tokens, null));
             }
             nounphraselist = [...new Set(nounphraselist.map(obj => JSON.stringify(obj)))]
                 .map(str => JSON.parse(str));
@@ -341,12 +341,10 @@ exports.termextraction = function (req, res)
     }
     var termhood = function (list)
     {
-        var i;
-        var j;
         var current;
         var freq = 0;
         var finallist = list;
-        for (i = 0; i < list.length; i++)
+        for (let i = 0; i < list.length; i++)
         {
             freq = 0;
             if (list[i].nested === false)
@@ -355,9 +353,20 @@ exports.termextraction = function (req, res)
             }
             else
             {
-                for (j = 0; j < finallist[i].nestedterms.length; j++)
+                for (let j = 0; j < finallist[i].nestedterms.length; j++)
                 {
-                    freq += finallist[i].nestedterms[j].frequency;
+                    let nested = false;
+                    for(let h = 0; h < j; h++) {
+                        if (finallist[i].nestedterms[h].term.indexOf(finallist[i].nestedterms[j].term) === 0) {
+                            nested = true;
+                        }
+                    }
+                    if (nested === true) {
+                        freq -= finallist[i].nestedterms[j].frequency;
+                    }
+                    else {
+                        freq += finallist[i].nestedterms[j].frequency;
+                    }
                 }
                 finallist[i].nestedfreq = freq;
             }
@@ -482,9 +491,7 @@ exports.termextraction = function (req, res)
         var cv = 0;
         for (i = 0; i < words.frequency.length; i++)
         {
-            if(words.frequency[i].word === "internal combustion") {
-                console.log(words.frequency[i]);
-            }
+
             if (words.frequency[i].nested === false)
             {
                 words.frequency[i].cvalue = Math.log2(words.frequency[i].size) * words.frequency[i].frequency;
@@ -494,6 +501,9 @@ exports.termextraction = function (req, res)
             {
                 words.frequency[i].cvalue = Math.log2(words.frequency[i].size) * (words.frequency[i].frequency - (1 / words.frequency[i].nestedterms.length) * words.frequency[i].nestedfreq);
                 //cv += words.frequency[i].cvalue;
+            }
+            if(words.frequency[i].word === "electric vehicle model") {
+                console.log(words.frequency[i]);
             }
         }
         words.frequency.sort(function (a, b)
