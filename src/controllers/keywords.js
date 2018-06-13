@@ -36,6 +36,8 @@ var baseRequest = request.defaults({
     }
 });
 var dps = require("dbpedia-sparql-client").default;
+var cluster = require('hierarchical-clustering');
+
 
 exports.processextract = function (req, res) {
     req.setTimeout(2500000);
@@ -242,7 +244,7 @@ exports.preprocessing = function (req, res)
                         }
                     }
                 }
-                nounphraselist = nounphraselist.concat(nounphrase("nn", JSON.parse(JSON.stringify(sent.sentences[i])).tokens, null));
+                nounphraselist = nounphraselist.concat(nounphrase("jj", JSON.parse(JSON.stringify(sent.sentences[i])).tokens, null));
             }
             nounphraselist = [...new Set(nounphraselist.map(obj => JSON.stringify(obj)))]
                 .map(str => JSON.parse(str));
@@ -619,15 +621,17 @@ exports.termextraction = function (req, res)
                             dbpediaterms.keywords.push({words : results[i].keywords[j].ngram, score:results[i].keywords[j].score});
                         }
                     }
-                    dbpediaterms.keywords.sort(function (a, b)
-                    {
-                        return parseFloat(b.score) - parseFloat(a.score);
-                    });
                     var dbpediashort = dbpediaterms.keywords.reduceRight(function (r, a) {
                         r.some(function (b) { return a.words === b.words; }) || r.push(a);
                         return r;
                     }, []);
                     dbpediaterms.keywords = dbpediashort;
+                    dbpediaterms.keywords.sort(function (a, b)
+                    {
+                        return parseFloat(b.score) - parseFloat(a.score);
+                    });
+
+
                     res(
                         {
                             dbpediaterms
@@ -973,9 +977,95 @@ exports.dbpediaproperties = function (req, res)
 
 };
 
-exports.clustering = function (rec, res)
+exports.clustering = function (req, res)
 {
+    function splitTerm(term) {
+        let termTokens = [];
+        let currenterm;
+        for(let i = 0; i < tokenizer.tokenize(term).length; i++) {
+            termTokens.push(tokenizer.tokenize(term)[i]);
+            currenterm = tokenizer.tokenize(term)[i];
+            for(let j = (i+1); j < tokenizer.tokenize(term).length; j++) {
+                currenterm += (" " + tokenizer.tokenize(term)[j]);
+                termTokens.push(currenterm);
+            }
+        }
+        termTokens.sort(function (a, b)
+        {
+            return tokenizer.tokenize(b).length - tokenizer.tokenize(a).length;
+        });
+        return termTokens;
+    }
 
+    function lexicalsimilarity(listA, listB) {
+
+        let similarity = 0;
+        let equal = 0;
+        if(tokenizer.tokenize(listA[0])[tokenizer.tokenize(listA[0]).length-1] === tokenizer.tokenize(listB[0])[tokenizer.tokenize(listB[0]).length-1]) {
+            //console.log(tokenizer.tokenize(listA[0]));
+            //console.log(tokenizer.tokenize(listB[0]));
+            similarity = (1/2);
+        }
+        else {
+            similarity = 0;
+        }
+        for(let i = 0; i < listA.length; i++) {
+            for (let j = 0; j < listB.length; j++) {
+                if(listA[i] === listB[j]) {
+                    equal++;
+                }
+            }
+        }
+        similarity = (similarity + (equal/(listA.length + listB.length)));
+        return similarity;
+    }
+
+    var dbpediaresults = req.body.terms;
+
+    var testarray = [];
+    var headwords = [];
+    for(let i = 0; i < dbpediaresults.length;i++) {
+        testarray.push(splitTerm(dbpediaresults[i].words));
+    }
+    for(let i = 0; i < testarray.length; i++) {
+        headwords.push(tokenizer.tokenize(testarray[i][0])[tokenizer.tokenize(testarray[i][0]).length-1]);
+    }
+
+    var headsimple = [...new Set(headwords.map(obj => JSON.stringify(obj)))]
+        .map(str => JSON.parse(str));
+
+    function distance(a, b) {
+        var d= lexicalsimilarity(splitTerm(a.words),splitTerm(b.words));
+        return d;
+    }
+
+
+    var levels = cluster({
+        input: dbpediaresults,
+        distance: distance,
+        linkage: 'average',
+        minClusters: headsimple.length, // only want two clusters
+    });
+
+    var clusters = levels[levels.length - 1].clusters;
+
+    clusters = clusters.map(function (cluster) {
+        return cluster.map(function (index) {
+            return dbpediaresults[index];
+        });
+    });
+    console.log(clusters);
+    clusters.sort(function (a, b)
+    {
+        return b.length - a.length;
+    });
+    console.log(clusters);
+
+    res.status(200).json(
+        {
+            clusters
+        }
+    );
 };
 
 exports.text2owl = function (rec, res)

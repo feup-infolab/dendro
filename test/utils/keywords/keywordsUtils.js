@@ -146,3 +146,26 @@ module.exports.dbpediaproperties = function (text, agent, cb)
             // cb(null, error);
         });
 };
+module.exports.clustering = function (text, agent, cb)
+{
+    const path = "/keywords/clustering";
+    agent
+        .post(path)
+        .send({terms: text})
+        .then(function (response, res)
+        {
+            if (response.ok)
+            {
+                cb(null, response);
+            }
+            else
+            {
+                cb("Error clustering: ", response);
+            }
+        })
+        .catch(function (error)
+        {
+            console.log("Error during term clustering" + error);
+            // cb(null, error);
+        });
+};

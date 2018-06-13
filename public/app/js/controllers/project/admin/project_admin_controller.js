@@ -26,9 +26,12 @@ angular.module("dendroApp.controllers")
         $scope.keywords;
         $scope.concepts;
         $scope.properties;
+        $scope.clusters;
 
         $scope.filelist;
         $scope.keywordlist;
+        $scope.termList;
+        $scope.clusterList;
         $scope.conceptlist;
         $scope.descriptorlist;
         $scope.multiple_term_selection = true;
@@ -445,6 +448,8 @@ angular.module("dendroApp.controllers")
                     console.log($scope.keywords);
                     $scope.filelist = false;
                     $scope.keywordlist = true;
+                    $scope.termList = true;
+
 
 
                 }).catch(function (error)
@@ -459,6 +464,41 @@ angular.module("dendroApp.controllers")
                     }
                 });
         };
+
+        $scope.cluster_concepts = function ()
+        {
+            var data = {terms:[]};
+            for(let i = 0; i < $scope.keywords.length; i++) {
+                    data.terms.push({
+                        words: $scope.keywords[i].words, score: $scope.keywords[i].score
+                    });
+            }
+            $http({
+                method: "POST",
+                url: "/keywords/clustering",
+                data: JSON.stringify(data),
+                headers: {"Content-Type": "application/json; charset=UTF-8"}
+            }).then(function (response)
+            {
+                //$scope.keywords = response.data.output.dbpediaterms.keywords;
+                $scope.termList = false;
+                $scope.clusterList = true;
+                console.log(response.data);
+                $scope.clusters = response.data.clusters;
+
+            }).catch(function (error)
+            {
+                if (error.data !== null && error.data.message !== null && error.data.title !== null)
+                {
+                    //Utils.show_popup("error", error.data.title, error.data.message);
+                }
+                else
+                {
+                    // Utils.show_popup("error", "Error occurred while updating the storage options of the project: ", JSON.stringify(error));
+                }
+            });
+        };
+
 
         $scope.get_concepts = function ()
         {

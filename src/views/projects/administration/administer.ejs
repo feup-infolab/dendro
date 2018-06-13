@@ -390,19 +390,22 @@
                 <h4>Select terms to query DBPedia</h4>
 
                 <div class="row">
-                    <div class="col-xs-12">
+                    <div class="col-xs-10">
                         <a href="#"><img id="toggle_multiple_selection" ng-class="{active: multiple_term_selection, 'btn-info': multiple_term_selection}" ng-click="toggle_multiple_term_selection()"  src="/images/icons/check_box_list.png"></a>
                         <a href="#"><img id="toggle_select_all" ng-click="toggle_select_all_terms()"  src="/images/icons/check_boxes_series.png"></a>
+                        <button class="btn btn-primary" style="position:absolute;right:15px" type="button" ng-click="cluster_concepts()"><i class="fa fa-refresh" aria-hidden="true"></i> Cluster
+                        </button>
                     </div>
                 </div>
 
                 <div class="row">
-                    <div class="col-sm-10">
+                    <div class="col-sm-10" ng-show="termList">
                         <%- include ../show/keywords/show_keywords.ejs %>
                     </div>
-                </div>
 
-                <div class="row" >
+                    <div class="col-sm-10" ng-show="clusterList">
+                        <%- include ../show/keywords/show_clusters.ejs %>
+                    </div>
 
                     <div class="col-md-12">
                         <div class="input-group">

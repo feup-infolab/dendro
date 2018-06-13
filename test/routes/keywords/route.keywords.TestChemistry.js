@@ -130,7 +130,6 @@ describe("Searches DBpedia for important terms", function (done)
             {
                 keywordsUtils.processextract(artigos, agent, function (err, te)
                 {
-                    var keyword;
                     te.statusCode.should.equal(200);
                     // console.log(te.text);
                     dbpediaterms = te.body.output.dbpediaterms.keywords;
@@ -142,7 +141,16 @@ describe("Searches DBpedia for important terms", function (done)
                 });
             });
         });
-
+        it("Cluster terms", function (done)
+        {
+            this.timeout(1500000);
+            keywordsUtils.clustering(dbpediaterms, agent, function (err, db)
+            {
+                // console.log(err);
+                console.log(db.body.clusters);
+                done();
+            });
+        });
 
 
         var dbpediaconcepts = [];
@@ -157,7 +165,7 @@ describe("Searches DBpedia for important terms", function (done)
                 dbpediaconcepts = db.body.dbpediauri.result;
                 console.log(dbpediaconcepts);
                 var writer = csvWriter();
-                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/chemistry/3 ficheiros/chemistry-cvalue-nn.csv")))
+                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/chemistry/3 ficheiros/chemistry-cvalue-jj.csv")))
                 {
                     writer = csvWriter( { separator: ",", headers: [ "searchterm", "dbpedialabel", "dbpediauri", "dbpediadescription" ]});
                 }
@@ -165,7 +173,7 @@ describe("Searches DBpedia for important terms", function (done)
                 {
                     writer = csvWriter({sendHeaders: false});
                 }
-                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/chemistry/3 ficheiros/chemistry-cvalue-nn.csv"), {flags: "a"}));
+                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/chemistry/3 ficheiros/chemistry-cvalue-jj.csv"), {flags: "a"}));
                 for (var i = 0; i < dbpediaconcepts.length; i++)
                 {
                     writer.write(dbpediaconcepts[i]);
@@ -182,7 +190,7 @@ describe("Searches DBpedia for important terms", function (done)
                 // console.log(err);
                 db.statusCode.should.equal(200);
                 var writer = csvWriter();
-                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/chemistry/3 ficheiros/dbpediapropertiescvalue-nn.csv")))
+                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/chemistry/3 ficheiros/dbpediapropertiescvalue-jj.csv")))
                 {
                     writer = csvWriter({ headers: ["searchterm", "lovscore","lovvocabulary","lovuri","lovlabel"]});
                 }
@@ -190,7 +198,7 @@ describe("Searches DBpedia for important terms", function (done)
                 {
                     writer = csvWriter({separator: ",", sendHeaders: false});
                 }
-                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/chemistry/3 ficheiros/dbpediapropertiescvalue-nn.csv"), {flags: "a"}));
+                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/chemistry/3 ficheiros/dbpediapropertiescvalue-jj.csv"), {flags: "a"}));
                 for (var i = 0; i < db.body.dbpediauri.result.length; i++)
                 {
                     writer.write(db.body.dbpediauri.result[i]);

@@ -1435,7 +1435,7 @@ const loadRoutes = function (app, callback)
     app.post("/keywords/termextraction", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.termextraction);
     app.post("/keywords/dbpedialookup", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.dbpedialookup);
     app.post("/keywords/dbpediaproperties", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.dbpediaproperties);
-
+    app.post("/keywords/clustering", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.clustering);
     // app.get("/keywords/loadfiles", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.loadfiles);
 
     // serve angular JS ejs-generated html partials
