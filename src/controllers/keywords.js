@@ -244,7 +244,7 @@ exports.preprocessing = function (req, res)
                         }
                     }
                 }
-                nounphraselist = nounphraselist.concat(nounphrase("jj", JSON.parse(JSON.stringify(sent.sentences[i])).tokens, null));
+                nounphraselist = nounphraselist.concat(nounphrase("nn", JSON.parse(JSON.stringify(sent.sentences[i])).tokens, null));
             }
             nounphraselist = [...new Set(nounphraselist.map(obj => JSON.stringify(obj)))]
                 .map(str => JSON.parse(str));
@@ -918,15 +918,6 @@ exports.dbpediaproperties = function (req, res)
                                 position = x;
                             }
                         }*/
-                    /*
-                    console.log("searched word: " + dbpediaresults[i].searchterm);
-                    console.log("nc value: " + dbpediaresults[i].score);
-                    console.log("URI: " + results[i].results[0].uri[0]);
-                    console.log("label: " + results[i].results[0].prefixedName[0]);
-                    console.log("lov score: " + results[i].results[0].score);
-                    console.log("lov vocabulary: " + results[i].results[0]["vocabulary.prefix"][0]);
-                    console.log("highlight 1 : " + results[i].results[0].highlight);
-                    */
                     // var ret = results[i].results[position].prefixedName[0].toString().replace(results[i].results[position]["vocabulary.prefix"][0].toString(), "");
                     // console.log("highlight: " + ret);
                     var lovlabel;
@@ -947,16 +938,30 @@ exports.dbpediaproperties = function (req, res)
                     {
                         lov_highlight = "";
                     }
-                    dbpediauri.result.push({
-                        searchterm: dbpediaresults[i].searchterm,
-                        score: dbpediaresults[i].score,
-                        lovscore: results[i].results[0].score,
-                        lovvocabulary: results[i].results[0]["vocabulary.prefix"][0],
-                        lovuri: results[i].results[0].uri[0],
-                        lovlabel: lovlabel,
-                        lov_highlight: lov_highlight,
-                        lov_label_and_highlight: Object.values(results[i].results[0].highlight)[0]
-                    });
+                    if(!dbpediauri.result.some(item => item.lovlabel === lovlabel)) {
+                        dbpediauri.result.push({
+                            searchterm: dbpediaresults[i].searchterm,
+                            score: dbpediaresults[i].score,
+                            lovscore: results[i].results[0].score,
+                            lovvocabulary: results[i].results[0]["vocabulary.prefix"][0],
+                            lovuri: results[i].results[0].uri[0],
+                            lovlabel: lovlabel,
+                            lov_highlight: lov_highlight,
+                            lov_label_and_highlight: Object.values(results[i].results[0].highlight)[0]
+                        });
+                    }
+                    else {
+                        dbpediauri.result.push({
+                            searchterm: dbpediaresults[i].searchterm,
+                            score: dbpediaresults[i].score,
+                            lovscore: results[i].results[0].score,
+                            lovvocabulary: results[i].results[0]["vocabulary.prefix"][0],
+                            lovuri: results[i].results[0].uri[0],
+                            lovlabel: "",
+                            lov_highlight: lov_highlight,
+                            lov_label_and_highlight: Object.values(results[i].results[0].highlight)[0]
+                        });
+                    }
                 }
                 else
                 {
@@ -967,6 +972,7 @@ exports.dbpediaproperties = function (req, res)
                     });
                 }
             }
+            console.log(dbpediauri);
             res.status(200).json(
                 {
                     dbpediauri
