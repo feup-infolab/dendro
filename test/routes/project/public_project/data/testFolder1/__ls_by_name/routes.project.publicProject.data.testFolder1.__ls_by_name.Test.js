@@ -21,7 +21,6 @@ const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
 const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
 const createFoldersForLsByName = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFoldersForLsByName.Unit.js"));
-let rootsFoldersForProject;
 let testFolder1Data;
 
 describe("Public project testFolder1 level ls_by_name tests", function ()
@@ -31,7 +30,20 @@ describe("Public project testFolder1 level ls_by_name tests", function ()
     {
         createFoldersForLsByName.setup(function (err, results)
         {
-            done(err);
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                projectUtils.getProjectRootContent(true, agent, publicProject.handle, function (err, info)
+                {
+                    let rootsFoldersForProject = info.body;
+                    should.exist(rootsFoldersForProject);
+                    testFolder1Data = _.find(rootsFoldersForProject, function (folder)
+                    {
+                        return folder.nie.title === testFolder1.name;
+                    });
+                    should.exist(testFolder1Data);
+                    done(err);
+                });
+            });
         });
     });
 

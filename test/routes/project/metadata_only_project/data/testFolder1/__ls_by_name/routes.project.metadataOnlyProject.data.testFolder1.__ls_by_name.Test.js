@@ -11,12 +11,14 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
+const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
 const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
 const metadataProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
+const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
 
 const createFoldersForLsByName = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFoldersForLsByName.Unit.js"));
 
@@ -29,7 +31,20 @@ describe("Metadata only project testFolder1 level ls_by_name tests", function ()
     {
         createFoldersForLsByName.setup(function (err, results)
         {
-            done(err, results);
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                projectUtils.getProjectRootContent(true, agent, metadataProject.handle, function (err, info)
+                {
+                    let rootsFoldersForProject = info.body;
+                    should.exist(rootsFoldersForProject);
+                    testFolder1Data = _.find(rootsFoldersForProject, function (folder)
+                    {
+                        return folder.nie.title === testFolder1.name;
+                    });
+                    should.exist(testFolder1Data);
+                    done(err);
+                });
+            });
         });
     });
 

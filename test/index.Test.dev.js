@@ -52,5 +52,3 @@ require(Pathfinder.absPathInTestsFolder("/routes/notifications/notification/rout
 
 // END OF SOCIAL DENDRO TESTS
 
-
-

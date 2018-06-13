@@ -6,6 +6,7 @@ const chai = require("chai");
 const chaiHttp = require("chai-http");
 const should = chai.should();
 const _ = require("underscore");
+const async = require("async");
 chai.use(chaiHttp);
 
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
@@ -17,6 +18,9 @@ const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
 
 const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
+const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
+const metadataOnlyProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
+
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
@@ -31,31 +35,35 @@ class CreateFoldersForLsByName extends CreateFolders
         {
             should.equal(err, null);
             should.not.equal(agent, null);
-            projectUtils.getProjectRootContent(true, agent, publicProject.handle, function (err, info)
+
+            async.map([publicProject, privateProject, metadataOnlyProject], function (project, cb)
             {
-                let rootsFoldersForProject = info.body;
-                should.exist(rootsFoldersForProject);
-                let testFolder1Data = _.find(rootsFoldersForProject, function (folder)
+                projectUtils.getProjectRootContent(true, agent, project.handle, function (err, info)
                 {
-                    return folder.nie.title === testFolder1.name;
-                });
-                should.exist(testFolder1Data);
-                itemUtils.createFolder(true, agent, publicProject.handle, testFolder1.name, "folderA", function (err, res)
-                {
-                    res.statusCode.should.equal(200);
-                    res.body.result.should.equal("ok");
-                    res.body.new_folder.nie.title.should.equal("folderA");
-                    res.body.new_folder.nie.isLogicalPartOf.should.match(appUtils.resource_id_uuid_regex("folder"));
-                    itemUtils.createFolder(true, agent, publicProject.handle, testFolder1.name, "folderC", function (err, res)
+                    let rootsFoldersForProject = info.body;
+                    should.exist(rootsFoldersForProject);
+                    let testFolder1Data = _.find(rootsFoldersForProject, function (folder)
+                    {
+                        return folder.nie.title === testFolder1.name;
+                    });
+                    should.exist(testFolder1Data);
+                    itemUtils.createFolder(true, agent, project.handle, testFolder1.name, "folderA", function (err, res)
                     {
                         res.statusCode.should.equal(200);
                         res.body.result.should.equal("ok");
-                        res.body.new_folder.nie.title.should.equal("folderC");
+                        res.body.new_folder.nie.title.should.equal("folderA");
                         res.body.new_folder.nie.isLogicalPartOf.should.match(appUtils.resource_id_uuid_regex("folder"));
-                        callback(err, res);
+                        itemUtils.createFolder(true, agent, project.handle, testFolder1.name, "folderC", function (err, res)
+                        {
+                            res.statusCode.should.equal(200);
+                            res.body.result.should.equal("ok");
+                            res.body.new_folder.nie.title.should.equal("folderC");
+                            res.body.new_folder.nie.isLogicalPartOf.should.match(appUtils.resource_id_uuid_regex("folder"));
+                            cb(err, res);
+                        });
                     });
                 });
-            });
+            }, callback);
         });
     }
     static init (callback)

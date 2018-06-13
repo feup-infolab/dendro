@@ -620,7 +620,7 @@ exports.setup = function (targetUnit, callback, forceLoad)
             //     DockerManager.nukeAndRebuild(true);
             // }
 
-            if(Config.docker.destroy_existing_images_at_start)
+            if (Config.docker.destroy_existing_images_at_start)
             {
                 DockerManager.nukeAndRebuild(true);
             }
