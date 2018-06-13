@@ -64,7 +64,7 @@ class AddMetadataToFolders extends CreateFoldersUnit
                         Logger.log("error", "Error adding metadata to folders in addMetadataToFolders.Unit.");
                         Logger.log("error", err);
                         Logger.log("error", results);
-                        callback(err, result);
+                        callback(err, results);
                     }
                 });
             }

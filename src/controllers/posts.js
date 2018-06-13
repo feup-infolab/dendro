@@ -1365,7 +1365,7 @@ exports.like = function (req, res)
                     // like was removed
                     res.json({
                         result: "OK",
-                        message: "Like was removed"
+                        message: "Like was removed successfully"
                     });
                 }
                 else

@@ -9,19 +9,17 @@ const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
 const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
 const metadataProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
-const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
-const createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
-let rootsFoldersForProject;
+
+const createFoldersForLsByName = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFoldersForLsByName.Unit.js"));
+
 let testFolder1Data;
 
 describe("Metadata only project testFolder1 level ls_by_name tests", function ()
@@ -29,38 +27,9 @@ describe("Metadata only project testFolder1 level ls_by_name tests", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createFoldersUnit.setup(function (err, results)
+        createFoldersForLsByName.setup(function (err, results)
         {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                should.equal(err, null);
-                should.not.equal(agent, null);
-                projectUtils.getProjectRootContent(true, agent, metadataProject.handle, function (err, info)
-                {
-                    rootsFoldersForProject = info.body;
-                    should.exist(rootsFoldersForProject);
-                    testFolder1Data = _.find(rootsFoldersForProject, function (folder)
-                    {
-                        return folder.nie.title === testFolder1.name;
-                    });
-                    should.exist(testFolder1Data);
-                    itemUtils.createFolder(true, agent, metadataProject.handle, testFolder1.name, "folderA", function (err, res)
-                    {
-                        res.statusCode.should.equal(200);
-                        res.body.result.should.equal("ok");
-                        res.body.new_folder.nie.title.should.equal("folderA");
-                        res.body.new_folder.nie.isLogicalPartOf.should.match(appUtils.resource_id_uuid_regex("folder"));
-                        itemUtils.createFolder(true, agent, metadataProject.handle, testFolder1.name, "folderC", function (err, res)
-                        {
-                            res.statusCode.should.equal(200);
-                            res.body.result.should.equal("ok");
-                            res.body.new_folder.nie.title.should.equal("folderC");
-                            res.body.new_folder.nie.isLogicalPartOf.should.match(appUtils.resource_id_uuid_regex("folder"));
-                            done();
-                        });
-                    });
-                });
-            });
+            done(err, results);
         });
     });
 

@@ -35,7 +35,10 @@ class ShareSomePosts extends CreateManualPostForAllProjectTypesUnit
                     if (isNull(err))
                     {
                         // para ter acesso nas outras units a seguir
+
+                        // we will share the first post, hence the position 0
                         let postURI = res.body[0].uri;
+
                         socialDendroUtils.shareAPost(true, agent, postURI, shareMock.shareMsg, function (err, res)
                         {
                             unitUtils.endLoad(self, function (err)

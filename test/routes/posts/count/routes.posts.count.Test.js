@@ -63,7 +63,7 @@ describe("Get the number of posts of a specific user timeline tests", function (
                 socialDendroUtils.getTotalPostsForAUsersSocialDendroTimeline(true, agent, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    parseInt(res.body).should.equal(148);
+                    parseInt(res.body).should.equal(127);
                     numberOfPostsForDemouser1Timeline = res.body;
                     done();
                 });
@@ -77,7 +77,7 @@ describe("Get the number of posts of a specific user timeline tests", function (
                 socialDendroUtils.getTotalPostsForAUsersSocialDendroTimeline(true, agent, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    parseInt(res.body).should.equal(148);
+                    parseInt(res.body).should.equal(127);
                     numberOfPostsForDemouser1Timeline.should.equal(res.body);
                     done();
                 });

@@ -620,7 +620,10 @@ exports.setup = function (targetUnit, callback, forceLoad)
             //     DockerManager.nukeAndRebuild(true);
             // }
 
-            DockerManager.nukeAndRebuild(true);
+            if(Config.docker.destroy_existing_images_at_start)
+            {
+                DockerManager.nukeAndRebuild(true);
+            }
 
             Logger.log("Trying to recover checkpoint " + checkpointIdentifier + "...");
             exports.restoreCheckpoint(checkpointIdentifier, function (err, result)

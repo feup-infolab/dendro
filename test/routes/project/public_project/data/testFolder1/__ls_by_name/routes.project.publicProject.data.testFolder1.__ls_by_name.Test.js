@@ -20,7 +20,7 @@ const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 
 const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
 const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
-const createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
+const createFoldersForLsByName = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFoldersForLsByName.Unit.js"));
 let rootsFoldersForProject;
 let testFolder1Data;
 
@@ -29,38 +29,9 @@ describe("Public project testFolder1 level ls_by_name tests", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createFoldersUnit.setup(function (err, results)
+        createFoldersForLsByName.setup(function (err, results)
         {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                should.equal(err, null);
-                should.not.equal(agent, null);
-                projectUtils.getProjectRootContent(true, agent, publicProject.handle, function (err, info)
-                {
-                    rootsFoldersForProject = info.body;
-                    should.exist(rootsFoldersForProject);
-                    testFolder1Data = _.find(rootsFoldersForProject, function (folder)
-                    {
-                        return folder.nie.title === testFolder1.name;
-                    });
-                    should.exist(testFolder1Data);
-                    itemUtils.createFolder(true, agent, publicProject.handle, testFolder1.name, "folderA", function (err, res)
-                    {
-                        res.statusCode.should.equal(200);
-                        res.body.result.should.equal("ok");
-                        res.body.new_folder.nie.title.should.equal("folderA");
-                        res.body.new_folder.nie.isLogicalPartOf.should.match(appUtils.resource_id_uuid_regex("folder"));
-                        itemUtils.createFolder(true, agent, publicProject.handle, testFolder1.name, "folderC", function (err, res)
-                        {
-                            res.statusCode.should.equal(200);
-                            res.body.result.should.equal("ok");
-                            res.body.new_folder.nie.title.should.equal("folderC");
-                            res.body.new_folder.nie.isLogicalPartOf.should.match(appUtils.resource_id_uuid_regex("folder"));
-                            done();
-                        });
-                    });
-                });
-            });
+            done(err);
         });
     });
 

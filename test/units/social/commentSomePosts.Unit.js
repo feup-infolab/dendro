@@ -34,8 +34,8 @@ class CommentSomePosts extends LikeSomePostsUnit
                 {
                     if (isNull(err))
                     {
-                        // para ter acesso nas outras units a seguir
-                        let postURI = res.body[0].uri;
+                        // we will like the second post, because position 0 is a share (we called ShareSomePostsUnit before). We want to comment the original post and not its share.
+                        let postURI = res.body[1].uri;
                         socialDendroUtils.commentAPost(true, agent, postURI, commentMock.commentMsg, function (err, res)
                         {
                             if (!err)

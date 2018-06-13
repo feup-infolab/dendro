@@ -87,7 +87,7 @@ describe("Social Dendro like a post tests", function ()
                 socialDendroUtils.likeAPost(true, agent, demouser1PostURIsArray[0].uri, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    res.body.message.should.equal("Like was removed");
+                    res.body.message.should.equal("Like was removed successfully");
                     done();
                 });
             });

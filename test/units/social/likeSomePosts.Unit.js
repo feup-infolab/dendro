@@ -31,7 +31,8 @@ class LikeSomePosts extends ShareSomePostsUnit
                     if (isNull(err))
                     {
                         // para ter acesso nas outras units a seguir
-                        let postURI = res.body[0].uri;
+                        // we will like the second post, because position 0 is a share (we called ShareSomePostsUnit before). We want to like the original post and not its share.
+                        let postURI = res.body[1].uri;
                         socialDendroUtils.likeAPost(true, agent, postURI, function (err, res)
                         {
                             unitUtils.endLoad(self, function (err)
