@@ -7,6 +7,9 @@ class ShibbolethUP extends Shibboleth
     {
         super(shibbolethConfig);
         const self = this;
+        //TODO check if the user has all the required fields
+        //TODO update this values everytime the user logs in
+        //TODO Display error message
         self.setMBoxKey("Mail");
         self.setFirstNameKey("GivenName");
         self.setSurnameKey("Surname");
