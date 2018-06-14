@@ -7,10 +7,10 @@ class ShibbolethUP extends Shibboleth
     {
         super(shibbolethConfig);
         const self = this;
-        self.setMBoxKey("urn:oid:1.3.6.1.4.1.5923.1.1.1.6");
-        self.setFirstNameKey("urn:oid:2.5.4.42");
-        self.setSurnameKey("urn:oid:2.5.4.4");
-        self.setUsernameKey("urn:oid:1.3.6.1.4.1.5923.1.1.1.6");
+        self.setMBoxKey("Mail");
+        self.setFirstNameKey("GivenName");
+        self.setSurnameKey("Surname");
+        self.setUsernameKey("urn:oid:2.16.620.1.23");
     }
 }
 
