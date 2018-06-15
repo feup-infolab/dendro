@@ -21,7 +21,7 @@ const projectsData = createProjectsUnit.projectsData;
 const foldersData = CreateFoldersUnit.foldersData;
 const filesData = [txtMockFile, zipMockFile];
 
-class CreateFilesTestUnit extends CreateFoldersUnit
+class CreateFiles extends CreateFoldersUnit
 {
     static load (callback)
     {
@@ -72,6 +72,6 @@ class CreateFilesTestUnit extends CreateFoldersUnit
     }
 }
 
-CreateFilesTestUnit.allFiles = filesData;
+CreateFiles.allFiles = filesData;
 
-module.exports = CreateFilesTestUnit;
+module.exports = CreateFiles;

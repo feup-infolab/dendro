@@ -23,7 +23,7 @@ const folderForDemouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/fol
 
 const createFilesUnit = require(Pathfinder.absPathInTestsFolder("units/files/createFiles.Unit.js"));
 
-const allFiles = createFilesUnit.filesData;
+const allFiles = createFilesUnit.allFiles;
 
 describe("Private project testFolder1 ?rename", function ()
 {

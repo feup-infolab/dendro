@@ -27,7 +27,7 @@ const createFoldersB2DropUnit = require(Pathfinder.absPathInTestsFolder("units/f
 
 const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtMockFile.js"));
 
-const allFiles = createFilesUnit.filesData;
+const allFiles = createFilesUnit.allFiles;
 
 describe("B2Drop project testFolder1 ?rename", function ()
 {

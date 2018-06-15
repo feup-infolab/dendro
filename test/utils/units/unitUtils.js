@@ -355,7 +355,7 @@ exports.loadLastSavedCheckpointInUnitHierarchy = function (targetUnit, callback)
 
     getLastCheckpointedUnit(function (err, lastCheckpointedUnit)
     {
-        if (!isNull(err))
+        if (isNull(err))
         {
             if (!isNull(lastCheckpointedUnit))
             {

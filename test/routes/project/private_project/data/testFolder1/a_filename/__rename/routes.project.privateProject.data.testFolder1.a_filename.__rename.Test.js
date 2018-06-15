@@ -26,7 +26,7 @@ const createFilesUnit = require(Pathfinder.absPathInTestsFolder("units/files/cre
 
 const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtMockFile.js"));
 
-const allFiles = createFilesUnit.filesData;
+const allFiles = createFilesUnit.allFiles;
 
 describe("Private project testFolder1 ?rename", function ()
 {
@@ -37,8 +37,13 @@ describe("Private project testFolder1 ?rename", function ()
         {
             createFilesUnit.setup(function (err, results)
             {
-                should.equal(err, null);
-                done();
+                folderUtils.getFolderContents(true, agent, privateProject.handle, testFolder1.name, function (err, res) {
+                    res.statusCode.should.equal(200);
+                    should.equal(err, null);
+                    JSON.parse(res.text).should.be.instanceof(Array);
+                    should.equal(err, null);
+                    done();
+                });
             });
         });
 

@@ -39,7 +39,18 @@ describe("[File Cut / Move] [Private project] cutFiles ?paste", function ()
             createFilesUnit.setup(function (err, results)
             {
                 should.equal(err, null);
-                done();
+
+                userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
+                {
+                    folderUtils.getFolderContents(true, agent, privateProject.handle, testFolder1.name, function (err, res) {
+                        res.statusCode.should.equal(200);
+                        should.equal(err, null);
+                        JSON.parse(res.text).should.be.instanceof(Array);
+                        JSON.parse(res.text).length.should.equal(allFiles.length);
+                        should.equal(folderUtils.responseContainsAllMockFiles(res, allFiles), true);
+                        done();
+                    });
+                });
             });
         });
 
