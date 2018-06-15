@@ -22,6 +22,7 @@ pipeline {
             steps {
                 retry(3) {
                     sh "chmod +x $WORKSPACE/conf/scripts/calculate_coverage.sh"
+                    sh "$WORKSPACE/conf/scripts/calculate_coverage.sh"
                 }
             }
         }
