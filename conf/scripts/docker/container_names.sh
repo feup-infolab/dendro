@@ -1,14 +1,23 @@
 #!/usr/bin/env bash
 
-ELASTICSEARCH_CONTAINER_NAME="elasticsearch-dendro"
-VIRTUOSO_CONTAINER_NAME="virtuoso-dendro"
-MYSQL_CONTAINER_NAME="mysql-dendro"
-MONGODB_CONTAINER_NAME="mongodb-dendro"
+while getopts ":p:" opt; do
+  case $opt in
+    p) prefix="$OPTARG"
+    ;;
+    \?) echo "Invalid option -$OPTARG" >&2
+    ;;
+  esac
+done
 
-ELASTICSEARCH_HOSTNAME="127.0.0.1"
-VIRTUOSO_HOSTNAME="127.0.0.1"
-MYSQL_HOSTNAME="127.0.0.1"
-MONGODB_HOSTNAME="127.0.0.1"
+ELASTICSEARCH_CONTAINER_NAME="${prefix}elasticsearch-dendro"
+VIRTUOSO_CONTAINER_NAME="${prefix}virtuoso-dendro"
+MYSQL_CONTAINER_NAME="${prefix}mysql-dendro"
+MONGODB_CONTAINER_NAME="${prefix}mongodb-dendro"
+
+ELASTICSEARCH_HOSTNAME="$ELASTICSEARCH_CONTAINER_NAME"
+VIRTUOSO_HOSTNAME="$VIRTUOSO_CONTAINER_NAME"
+MYSQL_HOSTNAME="$MYSQL_CONTAINER_NAME"
+MONGODB_HOSTNAME="$MONGODB_CONTAINER_NAME"
 
 ELASTICSEARCH_VERSION_AND_TAG="docker.elastic.co/elasticsearch/elasticsearch:6.2.2"
 MONGODB_VERSION_AND_TAG="joaorosilva/mongodb:3.7-no-volumes"

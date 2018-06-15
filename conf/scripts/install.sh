@@ -48,6 +48,9 @@ else
     #update npm (force 5.6.0 because of write after end issue: https://github.com/npm/npm/issues/19989)
     npm i -g npm@5.6.0
 
+    #install nyc
+    npm i -g nyc
+
     #delete node_modules folder
     rm -rf node_modules
     rm -rf package-lock.json
