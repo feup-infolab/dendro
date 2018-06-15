@@ -22,7 +22,6 @@ pipeline {
             steps {
                 retry(3) {
                     sh "chmod +x $WORKSPACE/conf/scripts/calculate_coverage.sh"
-                    sh "$WORKSPACE/conf/scripts/calculate_coverage.sh JENKINSTESTSdendroVagrantDemo root r00t_p4ssw0rd"
                 }
             }
         }
