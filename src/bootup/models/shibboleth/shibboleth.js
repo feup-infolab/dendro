@@ -215,18 +215,26 @@ class Shibboleth
     auth(req, res)
     {
         const self = this;
+        const auth = require(Pathfinder.absPathInSrcFolder("/controllers/auth"));
         self.getMatchingUserInDendro(req.user, function (err, newUser) {
             if(!isNull(err))
             {
-                Logger.log("error", "Error signing in user " + JSON.stringify(newUser));
-                req.flash("success", "There was an error signing you in.");
-                return res.redirect("/");
+                const errorMessage = "Error signing in user " + newUser;
+                Logger.log("error", errorMessage);
+                auth.failLogin(req, res, errorMessage);
+                //req.flash("success", "There was an error signing you in: " + JSON.stringify(newUser));
+                //req.flash("error", "There was an error signing you in: " + newUser);
+                //return res.redirect("/");
+                //TODO change this to auth.failLogin(req, res, reason);
             }
             else if(isNull(newUser))
             {
-                Logger.log("error", "Error signing in user " + "newUser is null");
-                req.flash("success", "There was an error signing you in.");
-                return res.redirect("/");
+                const errorMessage = "Error signing in user " + "newUser is null";
+                Logger.log("error", errorMessage);
+                //req.flash("success", "There was an error signing you in.");
+                //return res.redirect("/");
+                //TODO change this to auth.failLogin(req, res, reason);
+                auth.failLogin(req, res, errorMessage);
             }
             else
             {
@@ -237,6 +245,30 @@ class Shibboleth
 
     getMatchingUserInDendro(shibbolethUser, callback)
     {
+
+        const updateExistingUser = function (dendroUser, shibbolethUser, callback) {
+
+            let mboxKey = self.getMBoxKey();
+            let firstNameKey = self.getFirstNameKey();
+            let surnameKey = self.getSurnameKey();
+            let usernameKey = self.getUsernameKey();
+
+            let mbox = shibbolethUser[mboxKey];
+            let firstName = shibbolethUser[firstNameKey];
+            let surname = shibbolethUser[surnameKey];
+            let username = shibbolethUser[usernameKey];
+
+            dendroUser.foaf.mbox = mbox;
+            dendroUser.foaf.firstName = firstName;
+            dendroUser.foaf.surname = surname;
+            dendroUser.ddr.username = username;
+
+            dendroUser.save(function (err, editedUser)
+            {
+                callback(err, editedUser);
+            });
+        };
+
         const validUserKeysAndValues = function (mboxKey, firstNameKey, surnameKey, usernameKey, shibbolethUser)
         {
             let isValid = false;
@@ -261,6 +293,9 @@ class Shibboleth
             let firstNameKey = self.getFirstNameKey();
             let surnameKey = self.getSurnameKey();
             let usernameKey = self.getUsernameKey();
+
+            //TODO this line here is only for testing purposes
+            //shibbolethUser[mboxKey] = null;
 
             if(validUserKeysAndValues(mboxKey, firstNameKey, surnameKey, usernameKey, shibbolethUser) === true)
             {
@@ -310,7 +345,11 @@ class Shibboleth
                         }
                         else
                         {
-                            return callback(null, user);
+                            //TODO update user here with new values from the user Keys
+                            updateExistingUser(user, shibbolethUser, function (err, user) {
+                                return callback(err, user);
+                            });
+                            //return callback(null, user);
                         }
                     }
                     else
@@ -322,7 +361,7 @@ class Shibboleth
             }
             else
             {
-                const errorMessage = "Invalid user keys and values at getMatchingUserInDendro";
+                const errorMessage = "You have no registered email. Contact the helpdesk to register your institutional email in the system.";
                 const err = new Error(errorMessage);
                 Logger.log("error", errorMessage);
                 return callback(true, err)
