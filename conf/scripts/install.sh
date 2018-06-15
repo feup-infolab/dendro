@@ -12,8 +12,10 @@ then
         brew tap caskroom/versions
         brew cask install java8
     elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-        echo "I need your sudo password for installing text extraction dependencies..."
-        sudo apt-get -y -f install poppler-utils antiword unrtf tesseract-ocr
+        if [[ $(dpkg -l "poppler-utils" "antiword" "unrtf" "tesseract-ocr") ]]; then
+            echo "I need your sudo password for installing text extraction dependencies..."
+            sudo apt-get -y -f install poppler-utils antiword unrtf tesseract-ocr
+        fi
     fi
 fi
 

@@ -5,7 +5,6 @@ const Pathfinder = global.Pathfinder;
 const chai = require("chai");
 chai.use(require("chai-http"));
 const async = require("async");
-const path = require("path");
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
@@ -15,6 +14,7 @@ const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 
 // const filesData = [csvMockFile, docMockFile, docxMockFile, pdfMockFile, pngMockFile, xlsMockFile, xlsxMockFile, zipMockFile, txtMockFile, odsMockFile];
+const createFilesUnit = require(Pathfinder.absPathInTestsFolder("units/files/createFiles.Unit.js"));
 const allFiles = createFilesUnit.allFiles;
 
 let createProjectsUnit = require(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
