@@ -144,6 +144,7 @@ class Shibboleth
         app.get("/Shibboleth",
             ensureAuthenticated,
             function(req, res) {
+                Logger.log("info", "User is already authenticated!!");
                 res.send('Authenticated');
             }
         );
@@ -222,18 +223,11 @@ class Shibboleth
                 const errorMessage = "Error signing in user " + newUser;
                 Logger.log("error", errorMessage);
                 auth.failLogin(req, res, errorMessage);
-                //req.flash("success", "There was an error signing you in: " + JSON.stringify(newUser));
-                //req.flash("error", "There was an error signing you in: " + newUser);
-                //return res.redirect("/");
-                //TODO change this to auth.failLogin(req, res, reason);
             }
             else if(isNull(newUser))
             {
                 const errorMessage = "Error signing in user " + "newUser is null";
                 Logger.log("error", errorMessage);
-                //req.flash("success", "There was an error signing you in.");
-                //return res.redirect("/");
-                //TODO change this to auth.failLogin(req, res, reason);
                 auth.failLogin(req, res, errorMessage);
             }
             else
@@ -269,21 +263,33 @@ class Shibboleth
             });
         };
 
-        const validUserKeysAndValues = function (mboxKey, firstNameKey, surnameKey, usernameKey, shibbolethUser)
+        const validUserKeysAndValues = function (firstNameKey, surnameKey, usernameKey, shibbolethUser)
         {
             let isValid = false;
-            if(!isNull(mboxKey) && !isNull(firstNameKey) && !isNull(surnameKey) && !isNull(usernameKey) && !isNull(shibbolethUser))
+            if(!isNull(firstNameKey) && !isNull(surnameKey) && !isNull(usernameKey) && !isNull(shibbolethUser))
             {
-                let mbox = shibbolethUser[mboxKey];
                 let firstName = shibbolethUser[firstNameKey];
                 let surname = shibbolethUser[surnameKey];
                 let username = shibbolethUser[usernameKey];
-                if(!isNull(mbox) && !isNull(firstName) && !isNull(surname) && !isNull(username))
+                if(!isNull(firstName) && !isNull(surname) && !isNull(username))
                 {
                     isValid = true;
                 }
             }
             return isValid;
+        };
+
+        const userHasEmail = function (mboxKey) {
+            let result = false;
+            if(!isNull(mboxKey) && !isNull(shibbolethUser))
+            {
+                let mbox = shibbolethUser[mboxKey];
+                if(!isNull(mbox))
+                {
+                    result = true;
+                }
+            }
+            return result;
         };
 
         let self = this;
@@ -294,10 +300,14 @@ class Shibboleth
             let surnameKey = self.getSurnameKey();
             let usernameKey = self.getUsernameKey();
 
-            //TODO this line here is only for testing purposes
-            //shibbolethUser[mboxKey] = null;
-
-            if(validUserKeysAndValues(mboxKey, firstNameKey, surnameKey, usernameKey, shibbolethUser) === true)
+            if(userHasEmail(mboxKey) === false)
+            {
+                const errorMessage = "You have no registered email. Contact the helpdesk to register your institutional email in the system!";
+                const err = new Error(errorMessage);
+                Logger.log("error", errorMessage);
+                return callback(true, err)
+            }
+            else if(validUserKeysAndValues(firstNameKey, surnameKey, usernameKey, shibbolethUser) === true)
             {
                 let mbox = shibbolethUser[mboxKey];
                 let firstName = shibbolethUser[firstNameKey];
@@ -345,11 +355,11 @@ class Shibboleth
                         }
                         else
                         {
-                            //TODO update user here with new values from the user Keys
+                            //update user here with new values from the user Keys
+                            Logger.log("info", "Will update existing user at login time");
                             updateExistingUser(user, shibbolethUser, function (err, user) {
                                 return callback(err, user);
                             });
-                            //return callback(null, user);
                         }
                     }
                     else
@@ -361,9 +371,9 @@ class Shibboleth
             }
             else
             {
-                const errorMessage = "You have no registered email. Contact the helpdesk to register your institutional email in the system.";
+                const errorMessage = "There seems to be a problem with the Service provider institution, please contact the System Administrator!";
                 const err = new Error(errorMessage);
-                Logger.log("error", errorMessage);
+                Logger.log("error", "The service provider is not sending the proper user information in the login callback handler!");
                 return callback(true, err)
             }
         }
