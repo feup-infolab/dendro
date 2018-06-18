@@ -956,12 +956,12 @@ Project.prototype.getStorageSize = function (callback, customBucket)
                 },
                 {
                     $group:
-          {
-              _id: null,
-              sum: {
-                  $sum: "$length"
-              }
-          }
+                    {
+                        _id: null,
+                        sum: {
+                            $sum: "$length"
+                        }
+                    }
                 }
             ], function (err, result)
             {
