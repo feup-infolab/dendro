@@ -22,6 +22,7 @@ angular.module("dendroApp.controllers")
         usersService
     )
     {
+        $scope.button = "Cluster";
         //keyword extraction
         $scope.keywords;
         $scope.concepts;
@@ -467,38 +468,72 @@ angular.module("dendroApp.controllers")
 
         $scope.cluster_concepts = function ()
         {
-            var data = {terms:[]};
-            for(let i = 0; i < $scope.keywords.length; i++) {
-                    data.terms.push({
-                        words: $scope.keywords[i].words, score: $scope.keywords[i].score
-                    });
-            }
-            $http({
-                method: "POST",
-                url: "/keywords/clustering",
-                data: JSON.stringify(data),
-                headers: {"Content-Type": "application/json; charset=UTF-8"}
-            }).then(function (response)
-            {
-                //$scope.keywords = response.data.output.dbpediaterms.keywords;
-                $scope.termList = false;
-                $scope.clusterList = true;
-                console.log(response.data);
-                $scope.clusters = response.data.clusters;
+            if($scope.button === "Cluster") {
+                console.log($scope.clusters);
+                if(typeof $scope.clusters === "undefined") {
+                    var data = {terms:[]};
+                    for(let i = 0; i < $scope.keywords.length; i++) {
+                            data.terms.push({
+                                words: $scope.keywords[i].words, score: $scope.keywords[i].score
+                            });
+                    }
+                    $http({
+                        method: "POST",
+                        url: "/keywords/clustering",
+                        data: JSON.stringify(data),
+                        headers: {"Content-Type": "application/json; charset=UTF-8"}
+                    }).then(function (response)
+                    {
+                        //$scope.keywords = response.data.output.dbpediaterms.keywords;
+                        $scope.termList = false;
+                        $scope.clusterList = true;
+                        console.log(response.data);
+                        $scope.clusters = response.data.clusters;
+                        $scope.button = "Term List";
 
-            }).catch(function (error)
-            {
-                if (error.data !== null && error.data.message !== null && error.data.title !== null)
-                {
-                    //Utils.show_popup("error", error.data.title, error.data.message);
+                    }).catch(function (error)
+                    {
+                        if (error.data !== null && error.data.message !== null && error.data.title !== null)
+                        {
+                            //Utils.show_popup("error", error.data.title, error.data.message);
+                        }
+                        else
+                        {
+                            // Utils.show_popup("error", "Error occurred while updating the storage options of the project: ", JSON.stringify(error));
+                        }
+                    });
                 }
-                else
-                {
-                    // Utils.show_popup("error", "Error occurred while updating the storage options of the project: ", JSON.stringify(error));
+                else {
+                    $scope.termList = false;
+                    $scope.clusterList = true;
+                    $scope.button = "Term List";
                 }
-            });
+            }
+            else {
+                $scope.termList = true;
+                $scope.clusterList = false;
+                $scope.button = "Cluster";
+            }
+        };
+        $scope.clickTerm = function (term) {
+            for(let k = 0; k < $scope.keywords.length; k++) {
+                if($scope.keywords[k].words === term.words) {
+                    $scope.keywords[k].selected = true;
+                    break;
+                }
+            }
         };
 
+        $scope.clickCluster = function (cluster) {
+            for(let k = 0; k < cluster.length; k++) {
+                for(let h = 0; h < $scope.keywords.length; h++) {
+                    if(cluster[k].words === $scope.keywords[h].words) {
+                        $scope.keywords[h].selected = true;
+                        break;
+                    }
+                }
+            }
+        };
 
         $scope.get_concepts = function ()
         {

@@ -244,7 +244,7 @@ exports.preprocessing = function (req, res)
                         }
                     }
                 }
-                nounphraselist = nounphraselist.concat(nounphrase("nn", JSON.parse(JSON.stringify(sent.sentences[i])).tokens, null));
+                nounphraselist = nounphraselist.concat(nounphrase("jj", JSON.parse(JSON.stringify(sent.sentences[i])).tokens, null));
             }
             nounphraselist = [...new Set(nounphraselist.map(obj => JSON.stringify(obj)))]
                 .map(str => JSON.parse(str));
@@ -806,7 +806,7 @@ exports.dbpedialookup = function (req, res)
                             position = x;
                         }
                     }
-                    dbpediauri.result.push({ searchterm: dbpediaresults[i].words, dbpedialabel: results2[i].results[position].label, dbpediauri:results2[i].results[position].uri, dbpediadescription: results2[i].results[position].description });
+                    dbpediauri.result.push({ searchterm: dbpediaresults[i].words, score: dbpediaresults[i].score,  dbpedialabel: results2[i].results[position].label, dbpediauri:results2[i].results[position].uri, dbpediadescription: results2[i].results[position].description });
                 }
 
                 else
@@ -938,30 +938,16 @@ exports.dbpediaproperties = function (req, res)
                     {
                         lov_highlight = "";
                     }
-                    if(!dbpediauri.result.some(item => item.lovlabel === lovlabel)) {
-                        dbpediauri.result.push({
-                            searchterm: dbpediaresults[i].searchterm,
-                            score: dbpediaresults[i].score,
-                            lovscore: results[i].results[0].score,
-                            lovvocabulary: results[i].results[0]["vocabulary.prefix"][0],
-                            lovuri: results[i].results[0].uri[0],
-                            lovlabel: lovlabel,
-                            lov_highlight: lov_highlight,
-                            lov_label_and_highlight: Object.values(results[i].results[0].highlight)[0]
-                        });
-                    }
-                    else {
-                        dbpediauri.result.push({
-                            searchterm: dbpediaresults[i].searchterm,
-                            score: dbpediaresults[i].score,
-                            lovscore: results[i].results[0].score,
-                            lovvocabulary: results[i].results[0]["vocabulary.prefix"][0],
-                            lovuri: results[i].results[0].uri[0],
-                            lovlabel: "",
-                            lov_highlight: lov_highlight,
-                            lov_label_and_highlight: Object.values(results[i].results[0].highlight)[0]
-                        });
-                    }
+                    dbpediauri.result.push({
+                        searchterm: dbpediaresults[i].searchterm,
+                        score: dbpediaresults[i].score,
+                        lovscore: results[i].results[0].score,
+                        lovvocabulary: results[i].results[0]["vocabulary.prefix"][0],
+                        lovuri: results[i].results[0].uri[0],
+                        lovlabel: "",
+                        lov_highlight: lov_highlight,
+                        lov_label_and_highlight: Object.values(results[i].results[0].highlight)[0]
+                    });
                 }
                 else
                 {
