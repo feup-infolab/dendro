@@ -71,7 +71,7 @@ angular.module("dendroApp.controllers")
                     usSpinnerService.stop("social-dendro-spinner");
                 });
         };
-
+        
         // THIS IS THE FUNCTION THAT GETS THE postsURIs for the timeline
         $scope.get_all_posts = function (currentPage)
         {

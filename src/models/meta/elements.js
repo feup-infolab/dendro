@@ -798,6 +798,12 @@ Elements.ontologies.foaf =
  */
 
 Elements.ontologies.ddr = {
+    isShibbolethUser :
+        {
+            type: Elements.types.boolean,
+            private: true,
+            locked: true
+        },
     hasErrors:
         {
             type: Elements.types.string,

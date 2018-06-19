@@ -2,6 +2,7 @@ const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const _ = require("underscore");
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Permissions = Object.create(require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
@@ -226,6 +227,28 @@ const loadRoutes = function (app, callback)
             req.passport.authenticate("orcid", auth_orcid.login(req, res, next));
         });
     }
+
+    if(!isNull(Config.authentication.shibboleth))
+    {
+        if(!isNull(Config.authentication.shibboleth.enabled) && Config.authentication.shibboleth.enabled === true && !isNull(Config.authentication.shibboleth.business_logic_handler))
+        {
+            if(fs.existsSync(Pathfinder.absPathInSrcFolder(Config.authentication.shibboleth.business_logic_handler)))
+            {
+                const Shibboleth = require(Pathfinder.absPathInSrcFolder(Config.authentication.shibboleth.business_logic_handler)).Shibboleth;
+                let newShibboleth = new Shibboleth(Config.authentication.shibboleth);
+                newShibboleth.registerAuthenticationRoutes(app, passport);
+            }
+            else
+            {
+                const errorMessage = "[FATAL ERROR] shibboleth.business_logic_handler file: " + "\"" +  Config.authentication.shibboleth.business_logic_handler  + "\"" + " does not exist!";
+                const error = new Error(errorMessage);
+                Logger.log("error", errorMessage);
+                throw error;
+            }
+        }
+    }
+
+
 
     /**
      * Helper function to add the requested resource URI to the parameters, based on the human readable URI,

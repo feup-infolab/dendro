@@ -168,17 +168,21 @@ module.exports.login = function (req, res, next)
     }
 };
 
+
+const unAuthenticateUser = function (req, res) {
+    req.logOut();
+    delete req.user;
+    delete req.session.isAdmin;
+    delete req.session.upload_manager;
+    delete res.locals.user;
+    delete res.locals.session;
+};
+
 module.exports.logout = function (req, res)
 {
     if (!isNull(req.user))
     {
-        req.logOut();
-        delete req.user;
-        delete req.session.isAdmin;
-        delete req.session.upload_manager;
-        delete res.locals.user;
-        delete res.locals.session;
-
+        unAuthenticateUser(req, res);
         req.flash("success", "Successfully logged out");
         res.redirect("/");
     }
@@ -187,6 +191,13 @@ module.exports.logout = function (req, res)
         req.flash("error", "Cannot log you out because you are not logged in");
         res.redirect("/");
     }
+};
+
+module.exports.failLogin = function(req, res, reason)
+{
+    unAuthenticateUser(req, res);
+    req.flash("error", reason);
+    res.redirect("/");
 };
 
 module.exports.register = function (req, res)

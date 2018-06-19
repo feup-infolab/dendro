@@ -382,11 +382,25 @@
                 "callback_url": "/auth/orcid/callback"
             },
             "saml": {
-                "enabled": true,
+                "enabled": false,
                 "callback_path": "/auth/saml/callback",
                 "entry_point": "https://openidp.feide.no/simplesaml/saml2/idp/SSOService.php",
                 "issuer": "passport-saml",
                 "button_text": "Sign-in with SIGARRA"
+            },
+            "shibboleth":
+            {
+                "enabled": true,
+                "business_logic_handler": "bootup/models/shibboleth/shibboleth_UP.js",
+                "callback_url": "http://dendropessoal.up.pt:3001/Shibboleth/login/callback",
+                "button_url": "http://dendropessoal.up.pt:3001/Shibboleth",
+                "entry_point": "https://stark.up.pt/idp/profile/SAML2/Redirect/SSO",
+                "issuer": "https://dendropessoal.up.pt/shibboleth",
+                "session_secret": "secret123",
+                "button_text": "UP-Sign-in",
+                "idp_cert_path": "/Users/nelsonpereira/Desktop/infolaRepos/dendroRepo/dendro/conf/cert/idp_cert.pem",
+                "key_path": "/Users/nelsonpereira/Desktop/infolaRepos/dendroRepo/dendro/conf/cert/key.pem",
+                "cert_path": "/Users/nelsonpereira/Desktop/infolaRepos/dendroRepo/dendro/conf/cert/cert.pem"
             }
         },
         "numCPUs": 4
@@ -772,6 +786,19 @@
                 "entry_point": "https://openidp.feide.no/simplesaml/saml2/idp/SSOService.php",
                 "issuer": "passport-saml",
                 "button_text": "Sign-in with SIGARRA"
+            },
+            "shibboleth": {
+                "enabled": false,
+                "business_logic_handler": "default_string",
+                "callback_url": "default_string",
+                "button_url": "default_string",
+                "entry_point": "default_string",
+                "issuer": "default_string",
+                "session_secret": "default_string",
+                "button_text": "default_string",
+                "idp_cert_path": "default_string",
+                "key_path": "default_string",
+                "cert_path": "default_string"
             }
         },
         "numCPUs": 1
@@ -1157,6 +1184,19 @@
                 "entry_point": "https://openidp.feide.no/simplesaml/saml2/idp/SSOService.php",
                 "issuer": "passport-saml",
                 "button_text": "Sign-in with SIGARRA"
+            },
+            "shibboleth": {
+                "enabled": false,
+                "business_logic_handler": "default_string",
+                "callback_url": "default_string",
+                "button_url": "default_string",
+                "entry_point": "default_string",
+                "issuer": "default_string",
+                "session_secret": "default_string",
+                "button_text": "default_string",
+                "idp_cert_path": "default_string",
+                "key_path": "default_string",
+                "cert_path": "default_string"
             }
         },
         "numCPUs": 1
@@ -1542,6 +1582,19 @@
                 "entry_point": "https://openidp.feide.no/simplesaml/saml2/idp/SSOService.php",
                 "issuer": "passport-saml",
                 "button_text": "Sign-in with SIGARRA"
+            },
+            "shibboleth": {
+                "enabled": false,
+                "business_logic_handler": "default_string",
+                "callback_url": "default_string",
+                "button_url": "default_string",
+                "entry_point": "default_string",
+                "issuer": "default_string",
+                "session_secret": "default_string",
+                "button_text": "default_string",
+                "idp_cert_path": "default_string",
+                "key_path": "default_string",
+                "cert_path": "default_string"
             }
         },
         "numCPUs": 1
