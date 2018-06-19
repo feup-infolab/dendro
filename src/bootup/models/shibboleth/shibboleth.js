@@ -302,12 +302,12 @@ class Shibboleth
 
             if(validUserKeysAndValues(firstNameKey, surnameKey, usernameKey, shibbolethUser) === false)
             {
-                const errorMessage = "There seems to be a problem with the Service provider institution, please contact the System Administrator!";
+                const errorMessage = "There seems to be a problem with the Identity provider institution, please contact the System Administrator!";
                 const err = new Error(errorMessage);
                 Logger.log("error", "The service provider is not sending the proper user information in the login callback handler!");
                 return callback(true, err)
             }
-            if(userHasEmail(mboxKey) === false)
+            else if(userHasEmail(mboxKey) === false)
             {
                 const errorMessage = "You have no registered email. Contact the helpdesk to register your institutional email in the system!";
                 const err = new Error(errorMessage);
