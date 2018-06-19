@@ -300,6 +300,13 @@ class Shibboleth
             let surnameKey = self.getSurnameKey();
             let usernameKey = self.getUsernameKey();
 
+            if(validUserKeysAndValues(firstNameKey, surnameKey, usernameKey, shibbolethUser) === false)
+            {
+                const errorMessage = "There seems to be a problem with the Service provider institution, please contact the System Administrator!";
+                const err = new Error(errorMessage);
+                Logger.log("error", "The service provider is not sending the proper user information in the login callback handler!");
+                return callback(true, err)
+            }
             if(userHasEmail(mboxKey) === false)
             {
                 const errorMessage = "You have no registered email. Contact the helpdesk to register your institutional email in the system!";
@@ -307,8 +314,9 @@ class Shibboleth
                 Logger.log("error", errorMessage);
                 return callback(true, err)
             }
-            else if(validUserKeysAndValues(firstNameKey, surnameKey, usernameKey, shibbolethUser) === true)
+            else
             {
+                //everything is ok, proceed with login
                 let mbox = shibbolethUser[mboxKey];
                 let firstName = shibbolethUser[firstNameKey];
                 let surname = shibbolethUser[surnameKey];
@@ -368,13 +376,6 @@ class Shibboleth
                         return callback(true, err)
                     }
                 });
-            }
-            else
-            {
-                const errorMessage = "There seems to be a problem with the Service provider institution, please contact the System Administrator!";
-                const err = new Error(errorMessage);
-                Logger.log("error", "The service provider is not sending the proper user information in the login callback handler!");
-                return callback(true, err)
             }
         }
         else
