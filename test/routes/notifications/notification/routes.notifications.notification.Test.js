@@ -78,7 +78,7 @@ describe("Get a specific notification information tests", function ()
                 socialDendroUtils.getANotificationInfo(true, agent, notificationsDemouser1[0].uri, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    res.body[0].actionType.should.equal("Comment");
+                    res.body.ddr.actionType.should.equal("Comment");
                     done();
                 });
             });
@@ -111,80 +111,80 @@ describe("Get a specific notification information tests", function ()
         });
 
         // the case where the notification does not exist
-        it("[For demouser1, as the creator of all projects] Should give an unauthorized error for a notification that does not exist", function (done)
+        it("[For demouser1, as the creator of all projects] Should give a not found error for a notification that does not exist", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 socialDendroUtils.getANotificationInfo(true, agent, notificationsDemouser1[0].uri + "-bugHere", function (err, res)
                 {
-                    res.statusCode.should.equal(401);
-                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to.");
+                    res.statusCode.should.equal(404);
+                    res.body.message.should.equal("Invalid notification uri");
                     done();
                 });
             });
         });
 
-        it("[For demouser2, a collaborator in all projects] Should give an unauthorized error for a notification that does not exist", function (done)
+        it("[For demouser2, a collaborator in all projects] Should give a not found error for a notification that does not exist", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
                 socialDendroUtils.getANotificationInfo(true, agent, notificationsDemouser1[0].uri + "-bugHere", function (err, res)
                 {
-                    res.statusCode.should.equal(401);
-                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to.");
+                    res.statusCode.should.equal(404);
+                    res.body.message.should.equal("Invalid notification uri");
                     done();
                 });
             });
         });
 
-        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error for a notification that does not exist", function (done)
+        it("[For demouser3, is not a creator or collaborator in any projects] Should give a not found error for a notification that does not exist", function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
                 socialDendroUtils.getANotificationInfo(true, agent, notificationsDemouser1[0].uri + "-bugHere", function (err, res)
                 {
-                    res.statusCode.should.equal(401);
-                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to.");
+                    res.statusCode.should.equal(404);
+                    res.body.message.should.equal("Invalid notification uri");
                     done();
                 });
             });
         });
 
         // the case where the notificationUri is null
-        it("[For demouser1, as the creator of all projects] Should give an unauthorized error for a notification uri that is null", function (done)
+        it("[For demouser1, as the creator of all projects] Should give a not found error for a notification uri that is null", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 socialDendroUtils.getANotificationInfo(true, agent, null, function (err, res)
                 {
-                    res.statusCode.should.equal(401);
-                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to.");
+                    res.statusCode.should.equal(404);
+                    res.body.message.should.equal("Invalid notification uri");
                     done();
                 });
             });
         });
 
-        it("[For demouser2, a collaborator in all projects] Should give an unauthorized error for a notification uri that is null", function (done)
+        it("[For demouser2, a collaborator in all projects] Should give a not found error for a notification uri that is null", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
                 socialDendroUtils.getANotificationInfo(true, agent, null, function (err, res)
                 {
-                    res.statusCode.should.equal(401);
-                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to.");
+                    res.statusCode.should.equal(404);
+                    res.body.message.should.equal("Invalid notification uri");
                     done();
                 });
             });
         });
 
-        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error for a notification uri that is null", function (done)
+        it("[For demouser3, is not a creator or collaborator in any projects] Should give a not found error for a notification uri that is null", function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
                 socialDendroUtils.getANotificationInfo(true, agent, null, function (err, res)
                 {
-                    res.statusCode.should.equal(401);
-                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to.");
+                    res.statusCode.should.equal(404);
+                    res.body.message.should.equal("Invalid notification uri");
                     done();
                 });
             });

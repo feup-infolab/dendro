@@ -3276,6 +3276,137 @@ Elements.ontologies.ddiup = {
         }
 };
 
+/**
+ * Elements of the m3lite ontology
+ *
+ */
+
+Elements.ontologies.m3lite = {
+    calibrationMeasurementType:
+        {
+            type: Elements.types.string,
+            control: Controls.markdown_box
+        },
+    coordinates:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    device:
+        {
+            type: Elements.types.string,
+            control: Controls.markdown_box
+        },
+    workingState:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    connectedUsers:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    count:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    unit:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    transportationDOI:
+        {
+            type: Elements.types.string,
+            control: Controls.markdown_box
+        },
+    measurementType:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    distance:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        }
+};
+
+/**
+ * Elements of the ssn ontology
+ *
+ */
+
+Elements.ontologies.ssn = {
+    observation:
+        {
+            type: Elements.types.string,
+            control: Controls.markdown_box
+        },
+    observationSamplingTime:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    region:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    startTime:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    endTime:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    observationResult:
+        {
+            type: Elements.types.string,
+            control: Controls.markdown_box
+        },
+    measurementRange:
+        {
+            type: Elements.types.string,
+            control: Controls.markdown_box
+        },
+    sensor:
+        {
+            type: Elements.types.string,
+            control: Controls.markdown_box
+        },
+    sensorDataSheet:
+        {
+            type: Elements.types.string,
+            control: Controls.markdown_box
+        },
+    frequency:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    sensingMethodUsed:
+        {
+            type: Elements.types.string,
+            control: Controls.markdown_box
+        },
+    system:
+        {
+            type: Elements.types.string,
+            control: Controls.markdown_box
+        },
+    platform:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        }
+};
+
 Elements.setAllElements = function (loadedElements)
 {
     for (let i = 0; i < loadedElements.length; i++)

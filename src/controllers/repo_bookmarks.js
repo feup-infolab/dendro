@@ -332,6 +332,11 @@ exports.my = function (req, res)
         {
             const getPlatformDetails = function (myRepositoryBookmark, callback)
             {
+                if (isNull(myRepositoryBookmark))
+                {
+                    return callback(null, []);
+                }
+
                 RepositoryPlatform.findByUri(myRepositoryBookmark.ddr.hasPlatform, function (err, platform)
                 {
                     if (isNull(err))
@@ -415,7 +420,7 @@ exports.all = function (req, res)
 
 exports.delete = function (req, res)
 {
-    const requestedResourceUri = Config.baseUri + req.originalUrl;
+    const requestedResourceUri = req.originalUrl;
 
     if (req.originalMethod === "DELETE")
     {

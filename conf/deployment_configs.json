@@ -369,7 +369,9 @@
             "research",
             "hdg",
             "ddiup",
-            "disco"
+            "disco",
+            "m3lite",
+            "ssn"
         ],
         "authentication": {
             "default": {
@@ -1421,7 +1423,7 @@
             "load_databases": true,
             "reload_administrators_on_startup": false,
             "reload_demo_users_on_startup": false,
-            "reload_ontologies_on_startup": false,
+            "reload_ontologies_on_startup": true,
             "clear_session_store": false,
             "log_bootup_actions": false,
             "destroy_all_graphs": true,

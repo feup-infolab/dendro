@@ -353,6 +353,10 @@ const startApp = function ()
             },
             function (app, server, callback)
             {
+                require(Pathfinder.absPathInSrcFolder("bootup/init/setup_socket_io.js")).setupSocketIO(self.app, server, callback);
+            },
+            function (app, server, callback)
+            {
                 self.server = server;
 
                 if (process.env.NODE_ENV !== "test")

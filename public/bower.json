@@ -24,7 +24,7 @@
     "angular-mocks": "1.6.1",
     "angular-resource": "1.6.1",
     "angular-route": "1.6.1",
-    "angular-sanitize": "^1.6.1",
+    "angular-sanitize": "1.6.1",
     "angular-touch": "1.6.1",
     "angular-loading-bar": "^0.8.0",
     "angular-ui-tree": "^2.15.0",
@@ -82,7 +82,8 @@
     "humanize-plus": "^1.8.2",
     "angular-spinner": "^1.0.1",
     "angular-bootstrap-contextmenu": "^1.1.0",
-    "angular-ui-ace": "bower"
+    "angular-ui-ace": "bower",
+    "socket.io-client": "^2.1.0"
   },
   "resolutions": {
     "bootstrap": "~3",

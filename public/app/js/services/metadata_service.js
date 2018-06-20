@@ -199,13 +199,14 @@ angular.module("dendroApp.factories")
                             var filename = url.match(/([^\/]*)\/*$/)[1];
                             var element = angular.element("<a/>");
                             element.attr({
-                                href: "data:attachment/" + format + ";charset=utf-8," + encodeURI(data),
-                                target: "_blank",
+                                href: "data:attachment/" + format + ";charset=utf-8," + encodeURIComponent(data),
                                 download: filename + "." + format
-                            })[0].click();
+                            });
+                            element[0].dispatchEvent(new MouseEvent("click", {bubbles: true, cancelable: true, view: window}));
                         }).catch(function (error)
                         {
                             // if there's an error you should see it here
+                            console.log("There was an error at save_as function: " + JSON.stringify(error));
                         });
                     }
                     windowService.show_popup("error", "Parser not Found", "System cannot provide such a representation for this record");

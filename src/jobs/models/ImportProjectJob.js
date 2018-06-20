@@ -92,7 +92,14 @@ class ImportProjectJob extends Job
     static registerJobEvents ()
     {
         const successHandlerFunction = function (job) {
-            Logger.log("info", "Imported project Successfully");
+            const msg = "Imported project Successfully";
+            Logger.log("info", msg);
+            const Notification = require(Pathfinder.absPathInSrcFolder("/models/notifications/notification.js")).Notification;
+            Notification.buildAndSaveFromSystemMessage(msg, job.attrs.data.userAndSessionInfo.user.uri, function (err, info)
+            {
+                Logger.log("info", "Imported project notification sent");
+            }, job.attrs.data.newProject.uri);
+
             const parentPath = path.resolve(job.attrs.data.uploadedBackupAbsPath, "..");
             if(!isNull(parentPath))
             {

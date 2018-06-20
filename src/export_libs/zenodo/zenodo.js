@@ -8,7 +8,7 @@ const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-function Zenodo (accessToken)
+function Zenodo (accessToken, intanceBaseUrl)
 {
     this.oauth = {};
     if (isNull(accessToken))
@@ -20,10 +20,18 @@ function Zenodo (accessToken)
         this.accessToken = accessToken;
         this.accessTokenURL = "?access_token=" + accessToken;
     }
+
+    if (isNull(intanceBaseUrl))
+    {
+        throw new Error("Undefined instance base url");
+    }
+    else
+    {
+        this.apiURL = "https://" + intanceBaseUrl + "/api";
+        this.depositionsURL = this.apiURL + "/deposit/depositions";
+    }
 }
 
-Zenodo.apiURL = "https://zenodo.org/api";
-Zenodo.depositionsURL = Zenodo.apiURL + "/deposit/depositions/";
 Zenodo.depositionFilesPath = "/files";
 Zenodo.actionsEditPath = "/actions/edit";
 Zenodo.actionsPublishPath = "/actions/publish";
@@ -31,7 +39,7 @@ Zenodo.actionsPublishPath = "/actions/publish";
 Zenodo.prototype.getDeposition = function (depositionID, callback)
 {
     request.get({
-        url: Zenodo.depositionsURL + depositionID + this.accessTokenURL,
+        url: this.depositionsURL + "/" + depositionID + this.accessTokenURL,
         json: true
     },
     function (e, r, data)
@@ -47,7 +55,7 @@ Zenodo.prototype.getDeposition = function (depositionID, callback)
 Zenodo.prototype.getDepositionsList = function (callback)
 {
     request.get({
-        url: Zenodo.depositionsURL + this.accessTokenURL,
+        url: this.depositionsURL + this.accessTokenURL,
         json: true
     },
     function (e, r, depositions)
@@ -64,7 +72,7 @@ Zenodo.prototype.getDepositionsList = function (callback)
 Zenodo.prototype.createDeposition = function (data, callback)
 {
     request.post({
-        url: Zenodo.depositionsURL + this.accessTokenURL,
+        url: this.depositionsURL + this.accessTokenURL,
         body: {
             metadata: {
                 title: data.title || "no_title_available",
@@ -78,14 +86,14 @@ Zenodo.prototype.createDeposition = function (data, callback)
         },
         json: true
     },
-    function (e, r, depostition)
+    function (e, r, depositition)
     {
-        if (r.statusCode !== "201")
+        if (r.statusCode !== 201)
         {
-            Logger.log("error", depostition.message);
-            return callback(true, depostition);
+            Logger.log("error", depositition.message);
+            return callback(true, depositition);
         }
-        return callback(false, depostition);
+        return callback(false, depositition);
     });
 };
 
@@ -93,15 +101,15 @@ Zenodo.prototype.uploadFileToDeposition = function (depositionID, file, callback
 {
     const fs = require("fs");
     const r = request.post({
-        url: Zenodo.depositionsURL + depositionID + Zenodo.depositionFilesPath + this.accessTokenURL,
+        url: this.depositionsURL + "/" + depositionID + Zenodo.depositionFilesPath + this.accessTokenURL,
         json: true
     },
     function (e, r, data)
     {
-        if (e)
+        if (r.statusCode !== 201)
         {
-            Logger.log("error", e);
-            return callback(true);
+            Logger.log("error", r.body.message);
+            return callback(r.body.message);
         }
         return callback(false);
     });
@@ -119,7 +127,7 @@ Zenodo.prototype.uploadMultipleFilesToDeposition = function (depositionID, files
         {
             if (err)
             {
-                return callback(true);
+                return callback(err);
             } return callback(false);
         });
     },
@@ -127,7 +135,7 @@ Zenodo.prototype.uploadMultipleFilesToDeposition = function (depositionID, files
     {
         if (err)
         {
-            return callback(true);
+            return callback(err);
         }
         return callback(false);
     });
@@ -135,7 +143,7 @@ Zenodo.prototype.uploadMultipleFilesToDeposition = function (depositionID, files
 Zenodo.prototype.depositionEdit = function (depositionID, callback)
 {
     request.post({
-        url: Zenodo.depositionsURL + depositionID + Zenodo.actionsEditPath + this.accessTokenURL,
+        url: this.depositionsURL + "/" + depositionID + Zenodo.actionsEditPath + this.accessTokenURL,
         json: true
     },
     function (e, r, data)
@@ -151,12 +159,12 @@ Zenodo.prototype.depositionEdit = function (depositionID, callback)
 Zenodo.prototype.depositionPublish = function (depositionID, callback)
 {
     request.post({
-        url: Zenodo.depositionsURL + depositionID + Zenodo.actionsPublishPath + this.accessTokenURL,
+        url: this.depositionsURL + "/" + depositionID + Zenodo.actionsPublishPath + this.accessTokenURL,
         json: true
     },
     function (e, r, data)
     {
-        if (e)
+        if (r.statusCode !== 202)
         {
             Logger.log("error", e);
             return callback(true);

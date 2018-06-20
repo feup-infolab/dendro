@@ -102,6 +102,33 @@ exports.get_notification_info = function (req, res)
 
         if (!isNull(userUri) && !isNull(notificationUri))
         {
+            Notification.findByUri(notificationUri, function (err, notification)
+            {
+                if (isNull(err))
+                {
+                    if (!isNull(notification))
+                    {
+                        res.json(notification);
+                    }
+                    else
+                    {
+                        const errorMsg = "Invalid notification uri";
+                        res.status(404).json({
+                            result: "Error",
+                            message: errorMsg
+                        });
+                    }
+                }
+                else
+                {
+                    const errorMsg = "Error getting info from a User's notification";
+                    res.status(500).json({
+                        result: "Error",
+                        message: errorMsg
+                    });
+                }
+            }, null, db_notifications.graphUri, false, null, null);
+            /*
             let query =
                 "WITH [0] \n" +
                 "SELECT ?actionType ?userWhoActed ?resourceTargetUri ?modified ?shareURI\n" +
@@ -157,6 +184,7 @@ exports.get_notification_info = function (req, res)
                         });
                     }
                 });
+            */
         }
         else
         {
@@ -189,7 +217,17 @@ exports.delete = function (req, res)
         const userUri = req.user.uri;
         const notificationUri = req.query.notificationUri;
 
-        if (!isNull(userUri) && !isNull(notificationUri))
+        const isAValidString = function (notificationUri)
+        {
+            if (typeof notificationUri === "string" || notificationUri instanceof String)
+            {
+                return true;
+            }
+
+            return false;
+        };
+
+        if (!isNull(userUri) && !isNull(notificationUri) && isAValidString(notificationUri) && notificationUri.length > 0)
         {
             let query =
                 "WITH [0] \n" +
@@ -262,8 +300,8 @@ exports.delete = function (req, res)
         }
         else
         {
-            const errorMsg = "Missing required field notification Uri";
-            res.status(500).json({
+            const errorMsg = "Missing required field notificationUri";
+            res.status(400).json({
                 result: "Error",
                 message: errorMsg
             });

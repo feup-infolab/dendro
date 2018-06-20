@@ -588,6 +588,24 @@ Config.enabledOntologies = {
         description: "A vocabulary for publishing metadata about data sets (research and survey data) into the Web of Linked Data",
         domain: "Generic",
         domain_specific: false
+    },
+    ssn: {
+        prefix: "ssn",
+        uri: "https://raw.githubusercontent.com/feup-infolab/dendro-ontologies/master/SSN/SSN.owl#",
+        elements: Elements.ontologies.ssn,
+        label: "Semantic Sensor Network",
+        description: "Describes sensors and observations, and related concepts. It does not describe domain concepts, time, locations, etc. these are intended to be included from other ontologies via OWL imports.",
+        domain: "Sensors and Observations",
+        domain_specific: true
+    },
+    m3lite: {
+        prefix: "m3lite",
+        uri: "https://raw.githubusercontent.com/feup-infolab/dendro-ontologies/master/M3-LITE/M3-lite.owl#",
+        elements: Elements.ontologies.m3lite,
+        label: "M3-lite Taxonomy",
+        description: "A taxonomy that enables testbeds to semantically annotate the IoT data produced by heterogeneous devices. In this taxonomy, we classify devices, the domain of interests (health, smart home, smart kitchen, environmental monitoring, etc.), phenomena and unit of measurements",
+        domain: "IoT",
+        domain_specific: true
     }
 };
 

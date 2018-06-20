@@ -3,6 +3,7 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/28789e8562c4460280710d730bd65ca0)](https://www.codacy.com/app/silvae86/dendro?utm_source=github.com&utm_medium=referral&utm_content=feup-infolab/dendro&utm_campaign=Badge_Coverage)
 [![dependencies](https://david-dm.org/feup-infolab/dendro.svg)](https://david-dm.org/feup-infolab/dendro)
 [![Chat on gitter](https://img.shields.io/gitter/room/badges/shields.svg)](https://gitter.im/feup-infolab/dendro)
+[![](https://images.microbadger.com/badges/version/joaorosilva/dendro:master.svg)](https://microbadger.com/images/joaorosilva/dendro:master "Get your own version badge on microbadger.com")
 
 ## What is Dendro?
 
@@ -11,6 +12,33 @@ Dendro is the software powering [INESC TEC](https://dendro.inesctec.pt) and the 
 ## The user interface
 
 ![dendro UI](https://raw.githubusercontent.com/feup-infolab/dendro/master/public/images/Screen%20Shot%202017-04-04%20at%2012.22.08.png "Dendro UI")
+
+## How to install
+
+We provide a [Docker image](https://hub.docker.com/r/joaorosilva/dendro/) for getting you up and running quickly. For deployment in a production server, however, we recommend you use the Dendro install scripts.
+
+### Docker
+
+To install Dendro using Docker, do the following:
+
+1. Install [Docker](https://docs.docker.com/docker-for-windows/install/)
+2. Open a Terminal window on Linux/Mac or press Ctrl+R on Windows, type cmd.exe in the box that appears and press Enter
+3. Clone the Dendro Docker installation repository by pasting this code
+````bash
+git clone https://github.com/feup-infolab/dendro-install-docker dendro-install docker
+````
+4. Run the installation command in the same terminal and wait until no more text is printed. It can take several minutes.
+````bash
+cd dendro-install docker
+docker-compose up
+````
+5. Access your dendro installation at [127.0.0.1:3001](http://127.0.0.1:3001) in your browser.
+6. When you want to stop Dendro, just press Ctrl+C at the terminal window
+
+### Installation scripts
+
+[Installation scripts for production machines](https://github.com/feup-infolab/dendro-install) (this is recommended for IT professionals).
+
 
 ## Description
 
@@ -45,10 +73,6 @@ The code is freely available online and we welcome more user testing scenarios, 
 [DEMO](http://dendro.fe.up.pt/demo)
 
 If it is down, please file an [issue](https://github.com/feup-infolab-rdm/dendro/issues/new).
-
-## How to install
-
-[Installation](https://github.com/feup-infolab/dendro-install)
 
 ## Who is building Dendro?
 

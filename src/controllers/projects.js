@@ -20,6 +20,7 @@ const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const ImportProjectJob = require(Pathfinder.absPathInSrcFolder("/jobs/models/ImportProjectJob.js")).ImportProjectJob;
 const TestJob = require(Pathfinder.absPathInSrcFolder("/jobs/models/TestJob.js")).TestJob;
+const Notification = require(Pathfinder.absPathInSrcFolder("/models/notifications/notification.js")).Notification;
 
 const nodemailer = require("nodemailer");
 const flash = require("connect-flash");
@@ -1287,6 +1288,12 @@ exports.administer = function (req, res)
                             {
                                 if (isNull(err))
                                 {
+                                    if (req.body.contributors.length === 0)
+                                    {
+                                        project.dcterms.contributor = [];
+                                        return callback(null, project);
+                                    }
+
                                     // all users were invalid
                                     if (_.without(contributors, null).length === 0)
                                     {
@@ -2457,6 +2464,16 @@ exports.import = function (req, res)
                         if (isNull(err))
                         {
                             Logger.log("info", "Import job for Project with handle: " + req.query.imported_project_handle + " was successfully started");
+                            /*
+                            if (!isNull(newProject))
+                            {
+                                Notification.buildAndSaveFromSystemMessage(message, req.user.uri, function (err, info)
+                                {
+                                    Logger.log("info", "Imported project notification sent");
+                                }, newProject.uri);
+                            }
+                            return;
+                            */
                         }
                         else
                         {
