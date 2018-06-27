@@ -6,10 +6,21 @@
 
 <div id="services" class="services">
     <div class="row">
+        <div class="col-lg-4 col-md-12 center-block">
+            <div class="row">
+                <div class="col-md-4 col-md-offset-4 col-xs-12 text-center">
+                    <h2>Welcome to Dendro Beta</h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-8 col-md-offset-2 text-center">
+                    <h4>A linked, open and collaborative research data management platform.</h4>
+                    <h4>Short Description...</h4>
+                </div>
+            </div>
+        </div>
         <div class="col-lg-8">
-            <div class="jumbotron container">
-
-
+            <div class="container">
                 <div id="carouseljumbotron" class="carousel slide" data-ride="carousel">
                     <!-- Indicators -->
                     <ol class="carousel-indicators">
@@ -21,7 +32,8 @@
                     <!-- Wrapper for slides -->
                     <div class="carousel-inner">
                         <div class="item active">
-                            <img src="https://image.slidesharecdn.com/gettingtoknowckan24june2015-150704002944-lva1-app6891/95/getting-to-know-ckan-24-june-2015-singapore-1-638.jpg?cb=1441773282" alt="CKAN">
+                                <img src="https://about.zenodo.org/static/img/logos/zenodo-gradient-2500.png"
+                                 alt="CKAN">
                             <div class="carousel-caption">
                                 <h3>CKAN</h3>
                                 <p>This text needs to be fixed!</p>
@@ -36,7 +48,7 @@
                         </div>
 
                         <div class="item">
-                            <img src="https://eudat.eu/sites/default/files/EUDATLogoColour_1.png" alt="EUDAT">
+                            <img src="https://about.zenodo.org/static/img/logos/zenodo-gradient-2500.png" alt="EUDAT">
                             <div class="carousel-caption">
                                 <h3>EUDAT</h3>
                                 <p>This is the EUDAT logo!</p>
@@ -56,20 +68,16 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-4">
-            <div class="row">
-                <div class="col-md-4 col-md-offset-4 col-xs-12 text-center">
-                    <h2>Welcome to Dendro Beta</h2>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-8 col-md-offset-2 text-center">
-                    <h4>A linked, open and collaborative research data management platform.</h4>
-                    <h4>Short Description...</h4>
-                </div>
-            </div>
+    </div>
+</div>
+
+<div id="splashmetrics" ng-controller="metricsController">
+    <div ng-init="initsplash()">
+        <div class="col-lg-12">
+            <%- include metrics/splash_metrics.ejs %>
         </div>
     </div>
+</div>
 
     <div class="row">
         <div class="col-md-3 col-md-offset-2 col-xs-12 text-center">
@@ -77,9 +85,7 @@
                 <i class="fa fa-file-text fa-6" aria-hidden="true"></i>
                 <h3>Read papers<!--<a href="/papers/all">papers</a>--></h3>
                 <!--<h4><span class="label label-primary">18917827</span> and counting</h4>-->
-                <p>Find relevant bibliography by searching on high-quality metadata. The papers and other
-                    documents
-                    are contributed by researchers like yourself. </p>
+                <p>Find relevant bibliography by searching on high-quality metadata. The papers and other documents are contributed by researchers like yourself. </p>
             </div>
         </div>
         <div class="col-md-3 col-xs-12 text-center">
@@ -95,20 +101,12 @@
                 <i class="fa fa-user"></i>
                 <h3>Contact researchers<!--<a href="/researchers/all">Researchers</a>--></h3>
                 <!--<h4><span class="label label-primary">19811</span> and counting</h4>-->
-                <p>Contact researchers who shared <!--<a href="/datasets/all">data</a>--> data on this
-                    Dendro</p>
+                <p>Contact researchers who shared <!--<a href="/datasets/all">data</a>--> data on this Dendro</p>
             </div>
         </div>
     </div>
 
     <%- include registry/deposits_listing.ejs %>
-    <div id="splashmetrics" ng-controller="metricsController">
-        <div ng-init="initsplash()">
-            <div class="col-lg-12">
-                <%- include metrics/splash_metrics.ejs %>
-            </div>
-        </div>
-    </div>
 </div>
 
 <!-- /Services -->
