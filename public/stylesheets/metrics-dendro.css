@@ -33,3 +33,8 @@ canvas#repos {
 canvas#depos {
   margin: 20px;
 }
+div.vcenter {
+  display: inline-block;
+  vertical-align: middle;
+  float: none;
+}

@@ -327,7 +327,7 @@ angular.module('dendroApp.controllers')
             $scope.labels = [];
             $scope.data = [];
             $scope.type = 'pie';
-
+            $scope.type2 = 'bar';
 
 
             $scope.labels2 = ['September','October', 'November','December', 'January', 'February'];
