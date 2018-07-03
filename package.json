@@ -1,5 +1,5 @@
 {
-  "name": "dendro-rdm",
+  "name": "dendro",
   "version": "0.3.0",
   "private": true,
   "description": "The Dendro platform is an open-source data storage and description platform designed to help users describe their data files, fully built on Linked Open Data and ontologies. Whenever users want to publish a dataset, they can export to repositories such as CKAN, Zenodo, DSpace or EUDAT's B2Share. More repositories can be added at will. http://dendro.fe.up.pt.",
@@ -146,6 +146,7 @@
     "request-promise-native": "^1.0.5",
     "restler": "^3.4.0",
     "rimraf": "^2.6.2",
+    "rlequire": "^1.0.11",
     "rmdir": "^1.2.0",
     "semaphore": "^1.1.0",
     "serve-favicon": "^2.4.5",

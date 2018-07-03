@@ -2,20 +2,19 @@ const fs = require("fs");
 const path = require("path");
 const _ = require("underscore");
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 const childProcess = require("child_process");
-const startContainersScript = Pathfinder.absPathInApp("/conf/scripts/docker/start_containers.sh");
-const stopContainersScript = Pathfinder.absPathInApp("/conf/scripts/docker/stop_containers.sh");
-const createCheckpointScript = Pathfinder.absPathInApp("/conf/scripts/docker/create_checkpoint.sh");
-const restoreCheckpointScript = Pathfinder.absPathInApp("/conf/scripts/docker/restore_checkpoint.sh");
-const restartContainersScript = Pathfinder.absPathInApp("/conf/scripts/docker/restart_containers.sh");
-const nukeAndRebuildScript = Pathfinder.absPathInApp("/conf/scripts/docker/nuke_and_rebuild.sh");
-const checkIfCheckpointExistsScript = Pathfinder.absPathInApp("/conf/scripts/docker/check_if_checkpoint_exists.sh");
-const dataFolder = Pathfinder.absPathInApp("/data");
+const startContainersScript = rlequire.absPathInApp("dendro","conf/scripts/docker/start_containers.sh");
+const stopContainersScript = rlequire.absPathInApp("dendro","conf/scripts/docker/stop_containers.sh");
+const createCheckpointScript = rlequire.absPathInApp("dendro","conf/scripts/docker/create_checkpoint.sh");
+const restoreCheckpointScript = rlequire.absPathInApp("dendro","conf/scripts/docker/restore_checkpoint.sh");
+const restartContainersScript = rlequire.absPathInApp("dendro","conf/scripts/docker/restart_containers.sh");
+const nukeAndRebuildScript = rlequire.absPathInApp("dendro","conf/scripts/docker/nuke_and_rebuild.sh");
+const checkIfCheckpointExistsScript = rlequire.absPathInApp("dendro","conf/scripts/docker/check_if_checkpoint_exists.sh");
 
 const DockerManager = function ()
 {
@@ -27,7 +26,7 @@ DockerManager.stopAllContainers = function (callback)
     {
         Logger.log("Stopping all Docker containers.");
         childProcess.exec(`/bin/bash -c "${stopContainersScript}"`, {
-            cwd: Pathfinder.appDir,
+            cwd: rlequire.getRootFolder("dendro"),
             stdio: [0, 1, 2]
         }, function (err, result)
         {
@@ -47,7 +46,7 @@ DockerManager.startAllContainers = function (callback)
     {
         Logger.log("Starting all Docker containers.");
         childProcess.exec(`/bin/bash -c "${startContainersScript}"`, {
-            cwd: Pathfinder.appDir,
+            cwd: rlequire.getRootFolder("dendro"),
             stdio: [0, 1, 2]
         }, function (err, result)
         {
@@ -72,7 +71,7 @@ DockerManager.checkpointExists = function (checkpointName, callback)
         if (Config.docker && Config.docker.active)
         {
             childProcess.exec(`/bin/bash -c "${checkIfCheckpointExistsScript} ${checkpointName}"`, {
-                cwd: Pathfinder.appDir,
+                cwd: rlequire.getRootFolder("dendro"),
                 stdio: [0, 1, 2]
             }, function (err, result)
             {
@@ -105,7 +104,7 @@ DockerManager.createCheckpoint = function (checkpointName, callback)
                 if (!exists)
                 {
                     childProcess.exec(`/bin/bash -c "${createCheckpointScript} ${checkpointName}"`, {
-                        cwd: Pathfinder.appDir,
+                        cwd: rlequire.getRootFolder("dendro"),
                         stdio: [0, 1, 2]
                     }, function (err, result)
                     {
@@ -146,7 +145,7 @@ DockerManager.restoreCheckpoint = function (checkpointName, callback)
                 if (exists)
                 {
                     childProcess.exec(`/bin/bash -c "${restoreCheckpointScript} ${checkpointName}"`, {
-                        cwd: Pathfinder.appDir,
+                        cwd: rlequire.getRootFolder("dendro"),
                         stdio: [0, 1, 2]
                     }, function (err, result)
                     {
@@ -188,7 +187,7 @@ DockerManager.nukeAndRebuild = function (onlyOnce)
         {
             Logger.log("Rebuilding all Docker containers.");
             childProcess.execSync(`/bin/bash -c "${nukeAndRebuildScript}"`, {
-                cwd: Pathfinder.appDir,
+                cwd: rlequire.getRootFolder("dendro"),
                 stdio: [0, 1, 2]
             });
 
@@ -218,7 +217,7 @@ DockerManager.restartContainers = function (onlyOnce)
         const performOperation = function ()
         {
             childProcess.execSync(`/bin/bash -c "${restartContainersScript}"`, {
-                cwd: Pathfinder.appDir,
+                cwd: rlequire.getRootFolder("dendro"),
                 stdio: [0, 1, 2]
             });
 

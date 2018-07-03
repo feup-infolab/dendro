@@ -1,13 +1,13 @@
 const path = require("path");
-const Pathfinder = global.Pathfinder;
-const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const Ontology = require(Pathfinder.absPathInSrcFolder("./models/meta/ontology.js")).Ontology;
+const rlequire = require("rlequire");
+const IndexConnection = rlequire("dendro", "src/kb/index.js").IndexConnection;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const Ontology = rlequire("dendro", "src/./models/meta/ontology.js").Ontology;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Project = require(Pathfinder.absPathInSrcFolder("/models//project.js")).Project;
-const RecommendationUtils = require(Pathfinder.absPathInSrcFolder("/utils/recommendation.js")).RecommendationUtils;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Project = rlequire("dendro", "src/models//project.js").Project;
+const RecommendationUtils = rlequire("dendro", "src/utils/recommendation.js").RecommendationUtils;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 const _ = require("underscore");
 const async = require("async");
@@ -17,23 +17,23 @@ let recommendation;
 
 if (recommendation_mode === "dendro_recommender")
 {
-    recommendation = require(Pathfinder.absPathInSrcFolder("/controllers/dr_recommendation.js")).shared;
+    recommendation = rlequire("dendro", "src/controllers/dr_recommendation.js").shared;
 }
 else if (recommendation_mode === "standalone")
 {
-    recommendation = require(Pathfinder.absPathInSrcFolder("/controllers/standalone_recommendation.js")).shared;
+    recommendation = rlequire("dendro", "src/controllers/standalone_recommendation.js").shared;
 }
 else if (recommendation_mode === "project_descriptors")
 {
-    recommendation = require(Pathfinder.absPathInSrcFolder("/controllers/project_descriptors_recommendation.js")).shared;
+    recommendation = rlequire("dendro", "src/controllers/project_descriptors_recommendation.js").shared;
 }
 else if (recommendation_mode === "none")
 {
-    recommendation = require(Pathfinder.absPathInSrcFolder("/controllers/no_recommendation.js")).shared;
+    recommendation = rlequire("dendro", "src/controllers/no_recommendation.js").shared;
 }
 
-const records = require(Pathfinder.absPathInSrcFolder("/controllers/records.js"));
-const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+const records = rlequire("dendro", "src/controllers/records.js"));
+const InformationElement = rlequire("dendro", "src/models/directory_structure/information_element.js").InformationElement;
 
 exports.metadata_evaluation = function (req, res)
 {

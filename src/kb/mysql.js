@@ -1,9 +1,9 @@
 const mysql = require("mysql");
 const async = require("async");
 
-const Pathfinder = global.Pathfinder;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const rlequire = require("rlequire");
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
 function DendroMySQLClient (host, port, db, username, password)
 {

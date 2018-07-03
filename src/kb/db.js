@@ -4,11 +4,11 @@ const fs = require("fs");
 const path = require("path");
 const mkdirp = require("mkdirp");
 
-const Pathfinder = global.Pathfinder;
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 const Queue = require("better-queue");
 const rp = require("request-promise-native");
@@ -121,7 +121,7 @@ const queryObjectToString = function (query, argumentsArray, callback)
                                     const prefix = currentArgument.value.substr(0, indexOfSeparator);
                                     const element = currentArgument.value.substr(indexOfSeparator + 1);
 
-                                    const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+                                    const Ontology = rlequire("dendro", "src/models/meta/ontology.js").Ontology;
                                     const ontology = Ontology.allOntologies[prefix].uri;
                                     const valueAsFullUri = ontology + element;
 
@@ -194,7 +194,7 @@ const queryObjectToString = function (query, argumentsArray, callback)
 
 const recordQueryConclusionInLog = function (query, queryStartTime)
 {
-    const logParentFolder = Pathfinder.absPathInApp("profiling");
+    const logParentFolder = rlequire.absPathInApp("dendro","profiling");
     const queryProfileLogFilePath = path.join(logParentFolder, "database_profiling_" + bootStartTimestamp + ".csv");
 
     if (Config.debug.database.log_query_times)
@@ -738,7 +738,7 @@ DbConnection.prototype.create = function (callback)
         {
             jinst.addOption("-Xrs");
             jinst.setupClasspath([
-                Pathfinder.absPathInApp("conf/virtuoso-jdbc/jdbc-4.2/virtjdbc4_2.jar")
+                rlequire.absPathInApp("dendro","conf/virtuoso-jdbc/jdbc-4.2/virtjdbc4_2.jar")
             ]);
         }
 
@@ -1443,7 +1443,7 @@ DbConnection.prototype.insertTriple = function (triple, graphUri, callback)
 
     if (Config.cache.active)
     {
-        const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
+        const Cache = rlequire("dendro", "src/kb/cache/cache.js").Cache;
         // Invalidate cache record for the updated resources
         Cache.getByGraphUri(graphUri).delete([triple.subject, triple.object], function (err, result)
         {
@@ -1647,7 +1647,7 @@ DbConnection.prototype.insertDescriptorsForSubject = function (subject, newDescr
         if (Config.cache.active)
         {
             // Invalidate cache record for the updated resource
-            const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
+            const Cache = rlequire("dendro", "src/kb/cache/cache.js").Cache;
             // Invalidate cache record for the updated resources
             Cache.getByGraphUri(graphName).delete(subject, function (err, result)
             {
@@ -1683,7 +1683,7 @@ DbConnection.prototype.deleteGraph = function (graphUri, callback)
     if (Config.cache.active)
     {
     // Invalidate cache record for the updated resource
-        const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
+        const Cache = rlequire("dendro", "src/kb/cache/cache.js").Cache;
         // Invalidate whole cache for this graph
 
         let graphCache;

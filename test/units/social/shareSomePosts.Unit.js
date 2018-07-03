@@ -1,19 +1,19 @@
 process.env.NODE_ENV = "test";
 
-const Pathfinder = global.Pathfinder;
+const rlequire = require("rlequire");
 
 const chai = require("chai");
 chai.use(require("chai-http"));
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const socialDendroUtils = require(Pathfinder.absPathInTestsFolder("/utils/social/socialDendroUtils"));
-const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const socialDendroUtils = rlequire("dendro", "test//utils/social/socialDendroUtils");
+const unitUtils = rlequire("dendro", "test/utils/units/unitUtils.js");
 
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
-const shareMock = require(Pathfinder.absPathInTestsFolder("mockdata/social/shareMock"));
+const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2");
+const shareMock = rlequire("dendro", "test/mockdata/social/shareMock");
 
-let CreateManualPostForAllProjectTypesUnit = require(Pathfinder.absPathInTestsFolder("units/social/createManualPostForAllProjectTypes.Unit.js"));
+let CreateManualPostForAllProjectTypesUnit = rlequire("dendro", "test/units/social/createManualPostForAllProjectTypes.Unit.js");
 class ShareSomePosts extends CreateManualPostForAllProjectTypesUnit
 {
     static load (callback)

@@ -1,6 +1,6 @@
 process.env.NODE_ENV = "test";
 
-const Pathfinder = global.Pathfinder;
+const rlequire = require("rlequire");
 
 const chai = require("chai");
 const chaiHttp = require("chai-http");
@@ -9,22 +9,22 @@ const _ = require("underscore");
 const async = require("async");
 chai.use(chaiHttp);
 
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils"));
-const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const itemUtils = rlequire("dendro", "test//utils/item/itemUtils");
+const unitUtils = rlequire("dendro", "test/utils/units/unitUtils.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1");
 
-const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
+const testFolder1 = rlequire("dendro", "test/mockdata/folders/testFolder1.js");
 
-const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
-const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
-const metadataOnlyProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
+const publicProject = rlequire("dendro", "test/mockdata/projects/public_project.js");
+const privateProject = rlequire("dendro", "test/mockdata/projects/private_project.js");
+const metadataOnlyProject = rlequire("dendro", "test/mockdata/projects/metadata_only_project.js");
 
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const projectUtils = rlequire("dendro", "test/utils/project/projectUtils.js");
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
 
-let CreateFolders = require(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
+let CreateFolders = rlequire("dendro", "test/units/folders/createFolders.Unit.js");
 class CreateFoldersForLsByName extends CreateFolders
 {
     static load (callback)

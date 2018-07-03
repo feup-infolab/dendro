@@ -1,16 +1,15 @@
 const path = require("path");
 const validator = require("validator");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Utils = require(Pathfinder.absPathInPublicFolder("/js/utils.js")).Utils;
-const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
-const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Class = rlequire("dendro", "src/models/meta/class.js").Class;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const DbConnection = rlequire("dendro", "src/kb/db.js").DbConnection;
+const IndexConnection = rlequire("dendro", "src/kb/index.js").IndexConnection;
+const Cache = rlequire("dendro", "src/kb/cache/cache.js").Cache;
 
 const async = require("async");
 const _ = require("underscore");
@@ -87,7 +86,7 @@ Resource.prototype.copyOrInitDescriptors = function (object, deleteIfNotInArgume
 Resource.prototype.loadObjectWithQueryResults = function (queryResults, ontologyURIsArray)
 {
     const self = this;
-    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+    const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
 
     self.clearDescriptors();
 
@@ -756,8 +755,8 @@ Resource.prototype.loadPropertiesFromOntologies = function (ontologyURIsArray, c
 Resource.prototype.getPropertiesFromOntologies = function (ontologyURIsArray, customGraphUri, typeConfigsToRetain)
 {
     const self = this;
-    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-    const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+    const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+    const Ontology = rlequire("dendro", "src/models/meta/ontology.js").Ontology;
 
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
@@ -1031,7 +1030,7 @@ Resource.prototype.save = function
     customGraphUri
 )
 {
-    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+    const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
     const self = this;
 
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
@@ -2132,7 +2131,7 @@ Resource.findByUri = function (uri, callback, allowedGraphsArray, customGraphUri
 
     const getFromTripleStore = function (uri, callback, customGraphUri)
     {
-        const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+        const Ontology = rlequire("dendro", "src/models/meta/ontology.js").Ontology;
 
         if (uri instanceof Object && !isNull(uri.uri))
         {
@@ -2364,7 +2363,7 @@ Resource.findByPropertyValue = function (
     };
     const getFromTripleStore = function (callback, customGraphUri)
     {
-        const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+        const Ontology = rlequire("dendro", "src/models/meta/ontology.js").Ontology;
 
         let ontologiesArray;
         if (!isNull(allowedGraphsArray) && allowedGraphsArray instanceof Array)
@@ -2630,7 +2629,7 @@ Resource.findByPropertyValue = function (
 Resource.prototype.loadFromIndexHit = function (hit)
 {
     const self = this;
-    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+    const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
 
     if (isNull(self.indexData))
     {
@@ -2735,7 +2734,7 @@ Resource.prototype.getArchivedVersions = function (offset, limit, callback, cust
             {
                 const getVersionContents = function (versionRow, cb)
                 {
-                    const ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
+                    const ArchivedResource = rlequire("dendro", "src/models/versions/archived_resource.js").ArchivedResource;
                     ArchivedResource.findByUri(versionRow.uri, function (err, archivedResource)
                     {
                         cb(err, archivedResource);
@@ -2810,7 +2809,7 @@ Resource.prototype.makeArchivedVersion = function (entitySavingTheResource, call
             }
             else
             {
-                const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+                const User = rlequire("dendro", "src/models/user.js").User;
                 versionCreator = User.anonymous.uri;
             }
 
@@ -2820,7 +2819,7 @@ Resource.prototype.makeArchivedVersion = function (entitySavingTheResource, call
             objectValues.ddr.versionNumber = newVersionNumber;
             objectValues.ddr.humanReadableURI = self.ddr.humanReadableURI + "/version/" + newVersionNumber;
 
-            const ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
+            const ArchivedResource = rlequire("dendro", "src/models/versions/archived_resource.js").ArchivedResource;
             const archivedResource = new ArchivedResource(objectValues);
 
             return callback(null, archivedResource);
@@ -2853,7 +2852,7 @@ Resource.prototype.getPublicDescriptorsForAPICalls = function ()
 
 Resource.prototype.getDescriptors = function (descriptorTypesNotToGet, descriptorTypesToForcefullyGet, typeConfigsToRetain)
 {
-    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+    const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
     const self = this;
     let descriptorsArray = [];
 
@@ -2892,8 +2891,8 @@ Resource.prototype.getDescriptors = function (descriptorTypesNotToGet, descripto
  */
 Resource.prototype.calculateDescriptorDeltas = function (newResource, descriptorsToExclude)
 {
-    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-    const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+    const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+    const Ontology = rlequire("dendro", "src/models/meta/ontology.js").Ontology;
 
     const self = this;
     let deltas = [];
@@ -2923,7 +2922,7 @@ Resource.prototype.calculateDescriptorDeltas = function (newResource, descriptor
             }
         }
 
-        const Change = require(Pathfinder.absPathInSrcFolder("/models/versions/change.js")).Change;
+        const Change = rlequire("dendro", "src/models/versions/change.js").Change;
 
         const newChange = new Change({
             ddr: {
@@ -3057,7 +3056,7 @@ Resource.prototype.calculateDescriptorDeltas = function (newResource, descriptor
 Resource.prototype.checkIfHasPredicateValue = function (predicateInPrefixedForm, value, callback, customGraphUri)
 {
     const self = this;
-    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+    const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
 
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
@@ -3188,8 +3187,8 @@ Resource.prototype.getLogicalParts = function (callback)
 {
     const self = this;
     const fs = require("fs");
-    const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-    const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+    const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder
+    const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
 
     const childFoldersQuery =
         "SELECT ?uri\n" +
@@ -3800,7 +3799,7 @@ Resource.prototype.isA = function (prototype)
 
         const prefix = prefixedForm.split(":")[0];
         const shortName = prefixedForm.split(":")[1];
-        const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+        const Ontology = rlequire("dendro", "src/models/meta/ontology.js").Ontology;
         return Ontology.allOntologies[prefix].uri + shortName;
     };
 
@@ -3859,7 +3858,7 @@ Resource.prototype.isA = function (prototype)
 
 Resource.arrayToCSVFile = function (resourceArray, fileName, callback)
 {
-    const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+    const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
 
     File.createBlankTempFile(fileName, function (err, tempFileAbsPath)
     {

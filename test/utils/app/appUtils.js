@@ -1,6 +1,6 @@
-const Pathfinder = require("../../../src/models/meta/pathfinder").Pathfinder;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const rlequire = require("rlequire");
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
 const fs = require("fs");
 const async = require("async");
@@ -11,7 +11,7 @@ const getDirName = require("path").dirname;
 // to try to cool down tests so that virtuoso does not clog up...
 let numberofTestsRun = 0;
 
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
 
 const applyCooldownToTests = function (callback)
 {
@@ -34,7 +34,7 @@ const applyCooldownToTests = function (callback)
             if (Config.virtualbox.active && Config.virtualbox.restart_vm_every_x_tests > 0 && numberofTestsRun % Config.virtualbox.restart_vm_every_x_tests === 0)
             {
                 Logger.log("Restarting Virtual Machine " + Config.virtualbox.vmName);
-                const VirtualBoxManager = require(Pathfinder.absPathInSrcFolder("utils/virtualbox/vm_manager.js")).VirtualBoxManager;
+                const VirtualBoxManager = rlequire("dendro","src/utils/virtualbox/vm_manager.js").VirtualBoxManager;
                 VirtualBoxManager.restartVM(false, function (err, result)
                 {
                     cb(err, result);
@@ -50,7 +50,7 @@ const applyCooldownToTests = function (callback)
             if (Config.virtualbox.active && Config.virtualbox.restart_services_every_x_tests > 0 && numberofTestsRun % Config.virtualbox.restart_services_every_x_tests === 0)
             {
                 Logger.log("Restarting Services on Virtual Machine " + Config.virtualbox.vmName);
-                const VirtualBoxManager = require(Pathfinder.absPathInSrcFolder("utils/virtualbox/vm_manager.js")).VirtualBoxManager;
+                const VirtualBoxManager = rlequire("dendro","src/utils/virtualbox/vm_manager.js").VirtualBoxManager;
                 VirtualBoxManager.restartServices(Config.virtualbox.services_to_be_restarted, function (err, result)
                 {
                     cb(err, result);
@@ -137,7 +137,7 @@ exports.saveRouteLogsToFile = function (callback)
     }
     else
     {
-        const filePath = Pathfinder.absPathInTestsFolder("logs/") + global.testingRoute + "_" + Date.now() + ".json";
+        const filePath = rlequire("dendro", "test/logs/") + global.testingRoute + "_" + Date.now() + ".json";
 
         mkdirp(getDirName(filePath), function (err)
         {

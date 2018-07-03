@@ -4,17 +4,17 @@ const chai = require("chai");
 chai.use(require("chai-http"));
 const async = require("async");
 let path = require("path");
-const Pathfinder = global.Pathfinder;
-const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
-const isNull = require(Pathfinder.absPathInSrcFolder(path.join("utils", "null.js"))).isNull;
+const rlequire = require("rlequire");
+const unitUtils = rlequire("dendro", "test/utils/units/unitUtils.js");
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
-const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1");
+const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2");
+const demouser3 = rlequire("dendro", "test/mockdata/users/demouser3");
 
-let createUsersUnit = require(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
+let createUsersUnit = rlequire("dendro", "test/units/users/createUsers.Unit.js");
 class CreateAvatarsForUsers extends createUsersUnit
 {
     static load (callback)

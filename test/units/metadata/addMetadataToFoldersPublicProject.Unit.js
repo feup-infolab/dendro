@@ -1,21 +1,21 @@
 process.env.NODE_ENV = "test";
 
-const Pathfinder = global.Pathfinder;
+const rlequire = require("rlequire");
 
 const chai = require("chai");
 chai.use(require("chai-http"));
 const async = require("async");
 const path = require("path");
 
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils"));
-const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const itemUtils = rlequire("dendro", "test//utils/item/itemUtils");
+const unitUtils = rlequire("dendro", "test/utils/units/unitUtils.js");
 
-let CreateFoldersPublicProject = require(Pathfinder.absPathInTestsFolder("units/folders/createFoldersPublicProject.Unit.js"));
+let CreateFoldersPublicProject = rlequire("dendro", "test/units/folders/createFoldersPublicProject.Unit.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1");
 const foldersData = CreateFoldersPublicProject.foldersData;
-const project = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
+const project = rlequire("dendro", "test/mockdata/projects/public_project.js");
 
 class AddMetadataToFoldersPublicProject extends CreateFoldersPublicProject
 {

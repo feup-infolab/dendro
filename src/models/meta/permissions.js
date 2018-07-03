@@ -1,18 +1,18 @@
 const path = require("path");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
-const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
-const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
-const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
-const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
-const Post = require(Pathfinder.absPathInSrcFolder("/models/social/post.js")).Post;
-const Notification = require(Pathfinder.absPathInSrcFolder("/models/notifications/notification.js")).Notification;
+const Resource = rlequire("dendro", "src/models/resource.js").Resource;
+const InformationElement = rlequire("dendro", "src/models/directory_structure/information_element.js").InformationElement;
+const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
+const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder
+const User = rlequire("dendro", "src/models/user.js").User;
+const Project = rlequire("dendro", "src/models/project.js").Project;
+const Post = rlequire("dendro", "src/models/social/post.js").Post;
+const Notification = rlequire("dendro", "src/models/notifications/notification.js").Notification;
 
 const async = require("async");
 const _ = require("underscore");

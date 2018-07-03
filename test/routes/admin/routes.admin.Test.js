@@ -1,22 +1,23 @@
 process.env.NODE_ENV = "test";
 
+const rlequire = require("rlequire");
 const chai = require("chai");
 const chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 
-const Config = global.Config;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const should = chai.should();
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
 
-const administerUtils = require(Pathfinder.absPathInTestsFolder("utils/administer/administerUtils.js"));
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
+const administerUtils = rlequire("dendro", "test/utils/administer/administerUtils.js");
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
-const admin = require(Pathfinder.absPathInTestsFolder("mockdata/users/admin"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1");
+const admin = rlequire("dendro", "test/mockdata/users/admin");
 
-const db = require(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
-let createUsersUnit = require(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
+const db = rlequire("dendro", "test/utils/db/db.Test.js");
+let createUsersUnit = rlequire("dendro", "test/units/users/createUsers.Unit.js");
 
 let app;
 let agent;

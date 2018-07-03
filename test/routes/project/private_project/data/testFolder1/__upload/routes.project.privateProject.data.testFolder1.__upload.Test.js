@@ -7,41 +7,41 @@ const fs = require("fs");
 const path = require("path");
 chai.use(chaiHttp);
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
-const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-const descriptorUtils = require(Pathfinder.absPathInTestsFolder("utils/descriptor/descriptorUtils.js"));
-const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const fileUtils = rlequire("dendro", "test/utils/file/fileUtils.js");
+const itemUtils = rlequire("dendro", "test/utils/item/itemUtils.js");
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
+const descriptorUtils = rlequire("dendro", "test/utils/descriptor/descriptorUtils.js");
+const folderUtils = rlequire("dendro", "test/utils/folder/folderUtils.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");
+const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2.js");
 
-const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
-const invalidProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/invalidProject.js"));
+const privateProject = rlequire("dendro", "test/mockdata/projects/private_project.js");
+const invalidProject = rlequire("dendro", "test/mockdata/projects/invalidProject.js");
 
-const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
-const createFoldersUnit = require(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
+const testFolder1 = rlequire("dendro", "test/mockdata/folders/testFolder1.js");
+const createFoldersUnit = rlequire("dendro", "test/units/folders/createFolders.Unit.js");
 
-const csvMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/csvMockFile.js"));
-const docMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/docMockFile.js"));
-const docxMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/docxMockFile.js"));
-const pdfMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/pdfMockFile.js"));
-const xlsMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/xlsMockFile.js"));
-const xlsxMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/xlsxMockFile.js"));
-const zipMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/zipMockFile.js"));
-const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtMockFile.js"));
-const odsMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/odsMockFile.js"));
+const csvMockFile = rlequire("dendro", "test/mockdata/files/csvMockFile.js");
+const docMockFile = rlequire("dendro", "test/mockdata/files/docMockFile.js");
+const docxMockFile = rlequire("dendro", "test/mockdata/files/docxMockFile.js");
+const pdfMockFile = rlequire("dendro", "test/mockdata/files/pdfMockFile.js");
+const xlsMockFile = rlequire("dendro", "test/mockdata/files/xlsMockFile.js");
+const xlsxMockFile = rlequire("dendro", "test/mockdata/files/xlsxMockFile.js");
+const zipMockFile = rlequire("dendro", "test/mockdata/files/zipMockFile.js");
+const txtMockFile = rlequire("dendro", "test/mockdata/files/txtMockFile.js");
+const odsMockFile = rlequire("dendro", "test/mockdata/files/odsMockFile.js");
 
-const csvResultMD5 = md5(fs.readFileSync(Pathfinder.absPathInTestsFolder("mockdata/files/test_data_serialization/xlsInCSV.csv"), "utf-8"));
-const jsonResultMD5 = md5(fs.readFileSync(Pathfinder.absPathInTestsFolder("mockdata/files/test_data_serialization/xlsInJSON.json"), "utf-8"));
+const csvResultMD5 = md5(fs.readFileSync(rlequire.absPathInApp("dendro", "test/mockdata/files/test_data_serialization/xlsInCSV.csv"), "utf-8"));
+const jsonResultMD5 = md5(fs.readFileSync(rlequire.absPathInApp("dendro", "test/mockdata/files/test_data_serialization/xlsInJSON.json"), "utf-8"));
 
-const csvResultMD5WithPageAndSkip = md5(fs.readFileSync(Pathfinder.absPathInTestsFolder("mockdata/files/test_data_serialization/xlsInCSV_200_to_250.csv"), "utf-8"));
-const jsonResultMD5WithPageAndSkip = md5(fs.readFileSync(Pathfinder.absPathInTestsFolder("mockdata/files/test_data_serialization/xlsInJSON_200_to_250.json"), "utf-8"));
-const emptyCSVMD5 = md5(fs.readFileSync(Pathfinder.absPathInTestsFolder("mockdata/files/test_data_serialization/emptyCSVResult.csv"), "utf-8"));
+const csvResultMD5WithPageAndSkip = md5(fs.readFileSync(rlequire.absPathInApp("dendro", "test/mockdata/files/test_data_serialization/xlsInCSV_200_to_250.csv"), "utf-8"));
+const jsonResultMD5WithPageAndSkip = md5(fs.readFileSync(rlequire.absPathInApp("dendro", "test/mockdata/files/test_data_serialization/xlsInJSON_200_to_250.json"), "utf-8"));
+const emptyCSVMD5 = md5(fs.readFileSync(rlequire.absPathInApp("dendro", "test/mockdata/files/test_data_serialization/emptyCSVResult.csv"), "utf-8"));
 
 describe("Upload files into testFolder1 of Private project", function ()
 {
@@ -54,7 +54,8 @@ describe("Upload files into testFolder1 of Private project", function ()
 
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
-                folderUtils.getFolderContents(true, agent, privateProject.handle, testFolder1.name, function (err, res) {
+                folderUtils.getFolderContents(true, agent, privateProject.handle, testFolder1.name, function (err, res)
+                {
                     res.statusCode.should.equal(200);
                     should.equal(err, null);
                     JSON.parse(res.text).should.be.instanceof(Array);

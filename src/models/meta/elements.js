@@ -1,11 +1,8 @@
-const path = require("path");
-const _ = require("underscore");
-const async = require("async");
 const validUrl = require("valid-url");
-const Pathfinder = global.Pathfinder;
-const Controls = require(Pathfinder.absPathInSrcFolder("/models/meta/controls.js")).Controls;
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const rlequire = require("rlequire");
+const Controls = rlequire("dendro", "src/models/meta/controls.js").Controls;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 function Elements ()
 {}
@@ -86,7 +83,7 @@ Elements.validateADescriptorValueAgainstItsType = function (descriptorType, desc
 
 Elements.validateDescriptorValueTypes = function (currentDescriptor)
 {
-    const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+    const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
     if (Config.skipDescriptorValuesValidation === true)
     {

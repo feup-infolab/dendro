@@ -9,17 +9,17 @@ const Pathfinder = function ()
 
 Pathfinder.absPathInApp = function (relativePath)
 {
-    return path.join(Pathfinder.appDir, relativePath);
+    return path.join(rlequire.getRootFolder("dendro"), relativePath);
 };
 
 Pathfinder.absPathInTestsFolder = function (relativePath)
 {
-    return path.join(Pathfinder.appDir, "test", relativePath);
+    return path.join(rlequire.getRootFolder("dendro"), "test", relativePath);
 };
 
 Pathfinder.getAbsolutePathToPluginsFolder = function ()
 {
-    return path.join(Pathfinder.appDir, "src", "plugins");
+    return path.join(rlequire.getRootFolder("dendro"), "src", "plugins");
 };
 
 Pathfinder.absPathInPluginsFolder = function (relativePath)
@@ -29,17 +29,17 @@ Pathfinder.absPathInPluginsFolder = function (relativePath)
 
 Pathfinder.absPathInSrcFolder = function (relativePath)
 {
-    return path.join(Pathfinder.appDir, "src", relativePath);
+    return path.join(rlequire.getRootFolder("dendro"), "src", relativePath);
 };
 
 Pathfinder.getPathToPublicFolder = function ()
 {
-    return path.join(Pathfinder.appDir, "public");
+    return path.join(rlequire.getRootFolder("dendro"), "public");
 };
 
 Pathfinder.absPathInPublicFolder = function (relativePath)
 {
-    return path.join(Pathfinder.getPathToPublicFolder(), relativePath);
+    return path.join(rlequire.absPathInApp("dendro", "public/"), relativePath);
 };
 
 module.exports.Pathfinder = Pathfinder;

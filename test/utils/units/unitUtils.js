@@ -1,9 +1,9 @@
-const Pathfinder = global.Pathfinder;
-const isNull = require(Pathfinder.absPathInSrcFolder("utils/null")).isNull;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const DockerManager = require(Pathfinder.absPathInSrcFolder("utils/docker/docker_manager.js")).DockerManager;
-const VirtualBoxManager = require(Pathfinder.absPathInSrcFolder("utils/virtualbox/vm_manager.js")).VirtualBoxManager;
+const rlequire = require("rlequire");
+const isNull = rlequire("dendro", "src/utils/null").isNull;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const DockerManager = rlequire("dendro", "src/utils/docker/docker_manager.js").DockerManager;
+const VirtualBoxManager = rlequire("dendro", "src/utils/virtualbox/vm_manager.js").VirtualBoxManager;
 const _ = require("underscore");
 const async = require("async");
 const chai = require("chai");
@@ -130,7 +130,7 @@ exports.getCallerFunctionFilePath = function ()
 
 exports.getTopCallerUnitFile = function ()
 {
-    const bootupUnitClass = require(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
+    const bootupUnitClass = rlequire("dendro", "test/units/bootup.Unit.js");
     let originalFunc = Error.prepareStackTrace;
     let mostSpecificClassFile;
     let mostSpecificClass = null;
@@ -291,7 +291,7 @@ exports.restoreCheckpoint = function (checkpointIdentifier, callback)
 
 exports.loadLastSavedCheckpointInUnitHierarchy = function (targetUnit, callback)
 {
-    const bootupUnitClass = require(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
+    const bootupUnitClass = rlequire("dendro", "test/units/bootup.Unit.js");
 
     const getLastCheckpointedUnit = function (callback)
     {
@@ -438,7 +438,7 @@ exports.createCheckpointForUnit = function (unit, callback)
 exports.runLoadFunctionsFromExistingCheckpointUntilUnit = function (checkpointedUnit, targetUnit, callback)
 {
     const async = require("async");
-    const bootupUnit = require(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
+    const bootupUnit = rlequire("dendro", "test/units/bootup.Unit.js");
     let unitsToRun = [];
 
     let currentUnit = targetUnit;
@@ -499,7 +499,7 @@ exports.runLoadFunctionsFromExistingCheckpointUntilUnit = function (checkpointed
 exports.runAllLoadFunctionsUpUnitChain = function (targetUnit, callback)
 {
     const async = require("async");
-    const bootupUnit = require(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
+    const bootupUnit = rlequire("dendro", "test/units/bootup.Unit.js");
     let unitsToRun = [];
 
     let currentUnit = targetUnit;
@@ -570,7 +570,7 @@ exports.shutdown = function (callback)
 
 exports.init = function (callback)
 {
-    const App = require(Pathfinder.absPathInSrcFolder("bootup/app.js")).App;
+    const App = rlequire("dendro","src/bootup/app.js").App;
     const dendroInstance = new App();
 
     dendroInstance.initConnections(function (err, appInfo)

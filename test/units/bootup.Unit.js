@@ -4,12 +4,12 @@ const chai = require("chai");
 const chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 
-const Pathfinder = global.Pathfinder;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const rlequire = require("rlequire");
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
-const TestUnit = require(Pathfinder.absPathInTestsFolder("units/testUnit.js"));
-const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
+const TestUnit = rlequire("dendro", "test/units/testUnit.js");
+const unitUtils = rlequire("dendro", "test/utils/units/unitUtils.js");
 
 class BootupUnit extends TestUnit
 {

@@ -1,29 +1,29 @@
 process.env.NODE_ENV = "test";
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const chai = require("chai");
 chai.use(require("chai-http"));
 const async = require("async");
 const path = require("path");
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils"));
-const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
-const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const itemUtils = rlequire("dendro", "test//utils/item/itemUtils");
+const fileUtils = rlequire("dendro", "test/utils/file/fileUtils.js");
+const unitUtils = rlequire("dendro", "test/utils/units/unitUtils.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
-const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtMockFile.js"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1");
+const txtMockFile = rlequire("dendro", "test/mockdata/files/txtMockFile.js");
 const filesData = [txtMockFile];
 
-let createProjectsUnit = require(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
+let createProjectsUnit = rlequire("dendro", "test/units/projects/createProjects.Unit.js");
 const projectsData = createProjectsUnit.projectsData;
-const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
+const testFolder1 = rlequire("dendro", "test/mockdata/folders/testFolder1.js");
 const foldersData = [testFolder1];
 
-let AddMetadataToFoldersUnit = require(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
+let AddMetadataToFoldersUnit = rlequire("dendro", "test/units/metadata/addMetadataToFolders.Unit.js");
 
 class UploadFilesAndAddMetadata extends AddMetadataToFoldersUnit
 {

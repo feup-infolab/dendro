@@ -1,10 +1,10 @@
 const fs = require("fs");
 const async = require("async");
 const path = require("path");
-const Pathfinder = global.Pathfinder;
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Serializers = require(Pathfinder.absPathInSrcFolder("/utils/serializers.js"));
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const rlequire = require("rlequire");
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Serializers = rlequire("dendro", "src/utils/serializers.js"));
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 const deleteFolderRecursive = function (path)
 {

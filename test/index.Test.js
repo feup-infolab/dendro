@@ -3,309 +3,306 @@ process.env.NODE_ENV = "test";
 global.app_startup_time = new Date();
 
 const path = require("path");
-const appDir = path.resolve(path.dirname(require.main.filename), "../../..");
-const Pathfinder = require(path.join(appDir, "src", "models", "meta", "pathfinder.js")).Pathfinder;
-global.Pathfinder = Pathfinder;
-Pathfinder.appDir = appDir;
+const rlequire = require("rlequire");
 
-const Config = require(Pathfinder.absPathInSrcFolder(path.join("models", "meta", "config.js"))).Config;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 // 30 min TIMEOUT!!!!
 Config.testsTimeout = 1800000;
 
-console.log("Running in test mode with Node Version " + process.version + " and the app directory is : " + Pathfinder.appDir);
+console.log("Running in test mode with Node Version " + process.version + " and the app directory is : " + rlequire.getRootFolder("dendro"));
 
 global.Config = Config;
 
 global.tests = {};
 
-// require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
+// rlequire("dendro", "test//init/loadOntologiesCache.Test.js");
 
 // TODO
 // // THESE TESTS NEED TO BE REVISITED AFTER FIXING TEST ASSERTIONS WITH TRY CATCH
 // // PUBLIC PROJECT FOLDER LEVEL CALCULATE CKAN REPOSITORY DIFFS
-// require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/folderExportCkan/__calculate_ckan_repository_diffs/routes.project.publicProject.data.folderExportCkan.__calculate_ckan_repository_diffs.Test.js"));
+// rlequire("dendro", "test//routes/project/public_project/data/folderExportCkan/__calculate_ckan_repository_diffs/routes.project.publicProject.data.folderExportCkan.__calculate_ckan_repository_diffs.Test.js");
 //
 // // METADATA PROJECT FOLDER LEVEL CALCULATE CKAN REPOSITORY DIFFS
-// require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/folderExportCkan/__calculate_ckan_repository_diffs/routes.project.metadataOnlyProject.data.folderExportCkan.__calculate_ckan_repository_diffs.Test.js"));
+// rlequire("dendro", "test//routes/project/metadata_only_project/data/folderExportCkan/__calculate_ckan_repository_diffs/routes.project.metadataOnlyProject.data.folderExportCkan.__calculate_ckan_repository_diffs.Test.js");
 //
 // // PRIVATE PROJECT FOLDER LEVEL CALCULATE CKAN REPOSITORY DIFFS
-// require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/folderExportCkan/__calculate_ckan_repository_diffs/routes.project.privateProject.data.folderExportCkan.__calculate_ckan_repository_diffs.Test.js"));
+// rlequire("dendro", "test//routes/project/private_project/data/folderExportCkan/__calculate_ckan_repository_diffs/routes.project.privateProject.data.folderExportCkan.__calculate_ckan_repository_diffs.Test.js");
 //
 // // PUBLIC PROJECT FOLDER LEVEL EXPORT TO CKAN TESTS
-// require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/folderExportCkan/__export_to_repository/routes.project.publicProject.data.folderExportCkan.__export_to_repository[CKAN].Test.js"));
+// rlequire("dendro", "test//routes/project/public_project/data/folderExportCkan/__export_to_repository/routes.project.publicProject.data.folderExportCkan.__export_to_repository[CKAN].Test.js");
 //
 // // METADATA ONLY PROJECT FOLDER LEVEL EXPORT TO CKAN TESTS
-// require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/folderExportCkan/__export_to_repository/routes.project.metadataOnlyProject.data.folderExportCkan.__export_to_repository[CKAN].Test.js"));
+// rlequire("dendro", "test//routes/project/metadata_only_project/data/folderExportCkan/__export_to_repository/routes.project.metadataOnlyProject.data.folderExportCkan.__export_to_repository[CKAN].Test.js");
 //
 // // PRIVATE PROJECT FOLDER LEVEL EXPORT TO CKAN TESTS
-// require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/folderExportCkan/__export_to_repository/routes.project.privateProject.data.folderExportCkan.__export_to_repository[CKAN].Test.js"));
+// rlequire("dendro", "test//routes/project/private_project/data/folderExportCkan/__export_to_repository/routes.project.privateProject.data.folderExportCkan.__export_to_repository[CKAN].Test.js");
 // END *** THESE TESTS NEED TO BE REVISITED AFTER FIXING TEST ASSERTIONS WITH TRY CATCH
 
 // list orphan resources tests /admin/list_orphan_resources
-// require(Pathfinder.absPathInTestsFolder("/routes/admin/list_orphan_resources/routes.admin.listOrphanResources.Test.js"));
+// rlequire("dendro", "test//routes/admin/list_orphan_resources/routes.admin.listOrphanResources.Test.js");
 
 // nuke orphan resources tests /admin/nuke_orphan_resources
-// require(Pathfinder.absPathInTestsFolder("/routes/admin/nuke_orphan_resources/routes.admin.nukeOrphanResources.Test.js"));
+// rlequire("dendro", "test//routes/admin/nuke_orphan_resources/routes.admin.nukeOrphanResources.Test.js");
 
 // test ls_by_name
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__ls_by_name/routes.project.publicProject.data.testFolder1.__ls_by_name.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__ls_by_name/routes.project.privateProject.data.testFolder1.__ls_by_name.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__ls_by_name/routes.project.metadataOnlyProject.data.testFolder1.__ls_by_name.Test.js"));
+rlequire("dendro", "test//routes/project/public_project/data/testFolder1/__ls_by_name/routes.project.publicProject.data.testFolder1.__ls_by_name.Test.js");
+rlequire("dendro", "test//routes/project/private_project/data/testFolder1/__ls_by_name/routes.project.privateProject.data.testFolder1.__ls_by_name.Test.js");
+rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder1/__ls_by_name/routes.project.metadataOnlyProject.data.testFolder1.__ls_by_name.Test.js");
 
 // Indexing
-require(Pathfinder.absPathInTestsFolder("/routes/admin/reindex/routes.admin.reindex.Test.js"));
+rlequire("dendro", "test//routes/admin/reindex/routes.admin.reindex.Test.js");
 
 // Search
-require(Pathfinder.absPathInTestsFolder("/routes/search/routes.search.Test.js"));
+rlequire("dendro", "test//routes/search/routes.search.Test.js");
 
 // Restore a folder Tests
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__restore/routes.project.publicProject.data.testFolder1.__restore.Test.js"));
+rlequire("dendro", "test//routes/project/public_project/data/testFolder1/__restore/routes.project.publicProject.data.testFolder1.__restore.Test.js");
 
 // administer projects
-require(Pathfinder.absPathInTestsFolder("routes/project/public_project/__administer/routes.project.publicProject.__administerTest.js"));
+rlequire("dendro", "test/routes/project/public_project/__administer/routes.project.publicProject.__administerTest.js");
 
 // USERS
-require(Pathfinder.absPathInTestsFolder("/routes/users/loggedUser/route.users.loggedUser.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/users/route.users.Test.js"));
+rlequire("dendro", "test//routes/users/loggedUser/route.users.loggedUser.Test.js");
+rlequire("dendro", "test//routes/users/route.users.Test.js");
 
 // USER
-require(Pathfinder.absPathInTestsFolder("/routes/user/demouser1/route.user.demouser1.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/user/demouser2/route.user.demouser2.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/user/demouser3/route.user.demouser3.Test.js"));
+rlequire("dendro", "test//routes/user/demouser1/route.user.demouser1.Test.js");
+rlequire("dendro", "test//routes/user/demouser2/route.user.demouser2.Test.js");
+rlequire("dendro", "test//routes/user/demouser3/route.user.demouser3.Test.js");
 
 // EDIT USERS
-require(Pathfinder.absPathInTestsFolder("/routes/user/edit/routes.user.edit.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/user_avatar/routes.user_avatar.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/user/demouser1/avatar/routes.user.demouser1.avatar.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/user/demouser2/avatar/routes.user.demouser2.avatar.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/user/demouser3/avatar/routes.user.demouser3.avatar.Test.js"));
+rlequire("dendro", "test//routes/user/edit/routes.user.edit.Test.js");
+rlequire("dendro", "test//routes/user_avatar/routes.user_avatar.Test.js");
+rlequire("dendro", "test//routes/user/demouser1/avatar/routes.user.demouser1.avatar.Test.js");
+rlequire("dendro", "test//routes/user/demouser2/avatar/routes.user.demouser2.avatar.Test.js");
+rlequire("dendro", "test//routes/user/demouser3/avatar/routes.user.demouser3.avatar.Test.js");
 
 // PROJECTS
 // Create projects of different visibilities and storage types
-require(Pathfinder.absPathInTestsFolder("/routes/projects/new/route.projects.new.Test.js"));
+rlequire("dendro", "test//routes/projects/new/route.projects.new.Test.js");
 // users project listings
-require(Pathfinder.absPathInTestsFolder("/routes/projects/route.projects.Test.js"));
+rlequire("dendro", "test//routes/projects/route.projects.Test.js");
 // users project listings
-require(Pathfinder.absPathInTestsFolder("/routes/projects/my/route.projects.my.Test.js"));
+rlequire("dendro", "test//routes/projects/my/route.projects.my.Test.js");
 
-/* require(Pathfinder.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.dcterms.Test.js"));
- require(Pathfinder.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.foaf.Test.js")); */
-require(Pathfinder.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.Test.js"));
+/* rlequire("dendro", "test//routes/descriptors/from_ontology/route.descriptors.from_ontology.dcterms.Test.js");
+ rlequire("dendro", "test//routes/descriptors/from_ontology/route.descriptors.from_ontology.foaf.Test.js"); */
+rlequire("dendro", "test//routes/descriptors/from_ontology/route.descriptors.from_ontology.Test.js");
 
 // PUBLIC PROJECT
-/* require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/request_access/route.projects.publicProject.__request_access.Test.js")); */
-/* require(Pathfinder.absPathInTestsFolder("/routes/project/metadataonly_project/request_access/route.projects.metadataonlyProject.__request_access.Test.js")); */
-/* require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/request_access/route.projects.privateProject.__request_access.Test.js")); */
+/* rlequire("dendro", "test//routes/project/public_project/request_access/route.projects.publicProject.__request_access.Test.js"); */
+/* rlequire("dendro", "test//routes/project/metadataonly_project/request_access/route.projects.metadataonlyProject.__request_access.Test.js"); */
+/* rlequire("dendro", "test//routes/project/private_project/request_access/route.projects.privateProject.__request_access.Test.js"); */
 
 // PROJECT VERSION PUBLIC PROJECT THIS TEST SHOULD BE DELETED BECAUSE THE FEATURE DOES NOT EXIST
-/* require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__version/routes.project.publicProject.__version.Test.js")); */
+/* rlequire("dendro", "test//routes/project/public_project/__version/routes.project.publicProject.__version.Test.js"); */
 
 // PUBLIC PROJECT ROOT MKDIR TESTS
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__mkdir/routes.project.publicProject.__mkdir.Test.js"));
+rlequire("dendro", "test//routes/project/public_project/__mkdir/routes.project.publicProject.__mkdir.Test.js");
 // PRIVATE PROJECT ROOT MKDIR TESTS
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/__mkdir/routes.project.privateProject.__mkdir.Test.js"));
+rlequire("dendro", "test//routes/project/private_project/__mkdir/routes.project.privateProject.__mkdir.Test.js");
 // METADATA ONLY PROJECT ROOT MKDIR TESTS
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/__mkdir/routes.project.metadataonlyProject.__mkdir.Test.js"));
+rlequire("dendro", "test//routes/project/metadata_only_project/__mkdir/routes.project.metadataonlyProject.__mkdir.Test.js");
 
 // EXPORT PUBLIC PROJECT TO REPOSITORIES TESTS
-/* require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__export_to_repository/routes.project.publicProject.__export_to_repository.Test"));
+/* rlequire("dendro", "test//routes/project/public_project/__export_to_repository/routes.project.publicProject.__export_to_repository.Test");
  //EXPORT PRIVATE PROJECT TO REPOSITORIES TESTS
- require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/__export_to_repository/routes.project.privateProject.__export_to_repository.Test"));
+ rlequire("dendro", "test//routes/project/private_project/__export_to_repository/routes.project.privateProject.__export_to_repository.Test");
  //EXPORT METADATA ONLY PROJECT TO REPOSITORIES TESTS
- require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/__export_to_repository/routes.project.metadataonlyProject.__export_to_repository.Test")); */
+ rlequire("dendro", "test//routes/project/metadata_only_project/__export_to_repository/routes.project.metadataonlyProject.__export_to_repository.Test"); */
 
 // PUBLIC PROJECT FOLDER LEVEL ?MKDIR
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__mkdir/routes.project.publicProject.data.testFolder1.__mkdir.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__mkdir/routes.project.publicProject.data.testFolder2.__mkdir.Test.js"));
+rlequire("dendro", "test//routes/project/public_project/data/testFolder1/__mkdir/routes.project.publicProject.data.testFolder1.__mkdir.Test.js");
+rlequire("dendro", "test//routes/project/public_project/data/testFolder2/__mkdir/routes.project.publicProject.data.testFolder2.__mkdir.Test.js");
 
 // PRIVATE PROJECT FOLDER LEVEL ?MKDIR
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__mkdir/routes.project.privateProject.data.testFolder1.__mkdir.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__mkdir/routes.project.privateProject.data.testFolder2.__mkdir.Test.js"));
+rlequire("dendro", "test//routes/project/private_project/data/testFolder1/__mkdir/routes.project.privateProject.data.testFolder1.__mkdir.Test.js");
+rlequire("dendro", "test//routes/project/private_project/data/testFolder2/__mkdir/routes.project.privateProject.data.testFolder2.__mkdir.Test.js");
 
 // METADATA ONLY PROJECT FOLDER LEVEL ?MKDIR
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__mkdir/routes.project.metadataonlyProject.data.testFolder1.__mkdir.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__mkdir/routes.project.metadataonlyProject.data.testFolder2.__mkdir.Test.js"));
+rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder1/__mkdir/routes.project.metadataonlyProject.data.testFolder1.__mkdir.Test.js");
+rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder2/__mkdir/routes.project.metadataonlyProject.data.testFolder2.__mkdir.Test.js");
 
 // PUBLIC PROJECT FOLDER LEVEL ?export_to_repository
-/* require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__export_to_repository/routes.project.publicProject.data.testFolder1.__export_to_repository.Test.js"));
- require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__export_to_repository/routes.project.publicProject.data.testFolder2.__export_to_repository.Test.js"));
+/* rlequire("dendro", "test//routes/project/public_project/data/testFolder1/__export_to_repository/routes.project.publicProject.data.testFolder1.__export_to_repository.Test.js");
+ rlequire("dendro", "test//routes/project/public_project/data/testFolder2/__export_to_repository/routes.project.publicProject.data.testFolder2.__export_to_repository.Test.js");
 
  //PRIVATE PROJECT FOLDER LEVEL ?export_to_repository
- require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__export_to_repository/routes.project.privateProject.data.testFolder1.__export_to_repository.Test.js"));
- require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__export_to_repository/routes.project.privateProject.data.testFolder2.__export_to_repository.Test.js"));
+ rlequire("dendro", "test//routes/project/private_project/data/testFolder1/__export_to_repository/routes.project.privateProject.data.testFolder1.__export_to_repository.Test.js");
+ rlequire("dendro", "test//routes/project/private_project/data/testFolder2/__export_to_repository/routes.project.privateProject.data.testFolder2.__export_to_repository.Test.js");
 
  //METADATA ONLY PROJECT FOLDER LEVEL ?export_to_repository
- require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__export_to_repository/routes.project.metadataonlyProject.data.testFolder1.__export_to_repository.Test.js"));
- require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__export_to_repository/routes.project.metadataonlyProject.data.testFolder2.__export_to_repository.Test.js")); */
+ rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder1/__export_to_repository/routes.project.metadataonlyProject.data.testFolder1.__export_to_repository.Test.js");
+ rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder2/__export_to_repository/routes.project.metadataonlyProject.data.testFolder2.__export_to_repository.Test.js"); */
 
 // PUBLIC PROJECT FOLDER LEVEL ?update_metadata
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__update_metadata/routes.project.publicProject.data.testFolder1.__update_metadata.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__update_metadata/routes.project.publicProject.data.testFolder2.__update_metadata.Test.js"));
+rlequire("dendro", "test//routes/project/public_project/data/testFolder1/__update_metadata/routes.project.publicProject.data.testFolder1.__update_metadata.Test.js");
+rlequire("dendro", "test//routes/project/public_project/data/testFolder2/__update_metadata/routes.project.publicProject.data.testFolder2.__update_metadata.Test.js");
 
 // PRIVATE PROJECT FOLDER LEVEL ?update_metadata
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__update_metadata/routes.project.privateProject.data.testFolder1.__update_metadata.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__update_metadata/routes.project.privateProject.data.testFolder2.__update_metadata.Test.js"));
+rlequire("dendro", "test//routes/project/private_project/data/testFolder1/__update_metadata/routes.project.privateProject.data.testFolder1.__update_metadata.Test.js");
+rlequire("dendro", "test//routes/project/private_project/data/testFolder2/__update_metadata/routes.project.privateProject.data.testFolder2.__update_metadata.Test.js");
 
 // METADATA ONLY PROJECT FOLDER LEVEL ?update_metadata
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__update_metadata/routes.project.metadataonlyProject.data.testFolder1.__update_metadata.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__update_metadata/routes.project.metadataonlyProject.data.testFolder2.__update_metadata.Test.js"));
+rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder1/__update_metadata/routes.project.metadataonlyProject.data.testFolder1.__update_metadata.Test.js");
+rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder2/__update_metadata/routes.project.metadataonlyProject.data.testFolder2.__update_metadata.Test.js");
 
 // PUBLIC PROJECT FOLDER LEVEL ?undelete
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__undelete/routes.project.publicProject.data.testFolder1.__undelete.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__undelete/routes.project.publicProject.data.testFolder2.__undelete.Test.js"));
+rlequire("dendro", "test//routes/project/public_project/data/testFolder1/__undelete/routes.project.publicProject.data.testFolder1.__undelete.Test.js");
+rlequire("dendro", "test//routes/project/public_project/data/testFolder2/__undelete/routes.project.publicProject.data.testFolder2.__undelete.Test.js");
 
 // PRIVATE PROJECT FOLDER LEVEL ?undelete
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__undelete/routes.project.privateProject.data.testFolder1.__undelete.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__undelete/routes.project.privateProject.data.testFolder2.__undelete.Test.js"));
+rlequire("dendro", "test//routes/project/private_project/data/testFolder1/__undelete/routes.project.privateProject.data.testFolder1.__undelete.Test.js");
+rlequire("dendro", "test//routes/project/private_project/data/testFolder2/__undelete/routes.project.privateProject.data.testFolder2.__undelete.Test.js");
 
 // METADATA ONLY PROJECT FOLDER LEVEL ?undelete
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__undelete/routes.project.metadataonlyProject.data.testFolder1.__undelete.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__undelete/routes.project.metadataonlyProject.data.testFolder2.__undelete.Test.js"));
+rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder1/__undelete/routes.project.metadataonlyProject.data.testFolder1.__undelete.Test.js");
+rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder2/__undelete/routes.project.metadataonlyProject.data.testFolder2.__undelete.Test.js");
 
 // PUBLIC PROJECT FOLDER LEVEL soft ?delete
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__delete/routes.project.publicProject.data.testFolder1.__delete.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__delete/routes.project.publicProject.data.testFolder2.__delete.Test.js"));
+rlequire("dendro", "test//routes/project/public_project/data/testFolder1/__delete/routes.project.publicProject.data.testFolder1.__delete.Test.js");
+rlequire("dendro", "test//routes/project/public_project/data/testFolder2/__delete/routes.project.publicProject.data.testFolder2.__delete.Test.js");
 
 // PRIVATE PROJECT FOLDER LEVEL soft ?delete
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__delete/routes.project.privateProject.data.testFolder1.__delete.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__delete/routes.project.privateProject.data.testFolder2.__delete.Test.js"));
+rlequire("dendro", "test//routes/project/private_project/data/testFolder1/__delete/routes.project.privateProject.data.testFolder1.__delete.Test.js");
+rlequire("dendro", "test//routes/project/private_project/data/testFolder2/__delete/routes.project.privateProject.data.testFolder2.__delete.Test.js");
 
 // METADATA  ONLY PROJECT FOLDER LEVEL soft ?delete
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__delete/routes.project.metadataonlyProject.data.testFolder1.__delete.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__delete/routes.project.metadataonlyProject.data.testFolder2.__delete.Test.js"));
+rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder1/__delete/routes.project.metadataonlyProject.data.testFolder1.__delete.Test.js");
+rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder2/__delete/routes.project.metadataonlyProject.data.testFolder2.__delete.Test.js");
 
 // PUBLIC PROJECT FOLDER LEVEL hard ?delete
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__hard_delete/routes.project.publicProject.data.testFolder1.__hard_delete.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__hard_delete/routes.project.publicProject.data.testFolder2.__hard_delete.Test.js"));
+rlequire("dendro", "test//routes/project/public_project/data/testFolder1/__hard_delete/routes.project.publicProject.data.testFolder1.__hard_delete.Test.js");
+rlequire("dendro", "test//routes/project/public_project/data/testFolder2/__hard_delete/routes.project.publicProject.data.testFolder2.__hard_delete.Test.js");
 
 // PRIVATE PROJECT FOLDER LEVEL hard ?delete
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__hard_delete/routes.project.privateProject.data.testFolder1.__hard_delete.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__hard_delete/routes.project.privateProject.data.testFolder2.__hard_delete.Test.js"));
+rlequire("dendro", "test//routes/project/private_project/data/testFolder1/__hard_delete/routes.project.privateProject.data.testFolder1.__hard_delete.Test.js");
+rlequire("dendro", "test//routes/project/private_project/data/testFolder2/__hard_delete/routes.project.privateProject.data.testFolder2.__hard_delete.Test.js");
 
 // METADATA  ONLY PROJECT FOLDER LEVEL hard ?delete
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__hard_delete/routes.project.metadataonlyProject.data.testFolder1.__hard_delete.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__hard_delete/routes.project.metadataonlyProject.data.testFolder2.__hard_delete.Test.js"));
+rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder1/__hard_delete/routes.project.metadataonlyProject.data.testFolder1.__hard_delete.Test.js");
+rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder2/__hard_delete/routes.project.metadataonlyProject.data.testFolder2.__hard_delete.Test.js");
 
 // external_repositories TESTS
-/* require(Pathfinder.absPathInTestsFolder("/routes/external_repositories/route.externalRepositories.Test.js")); */
+/* rlequire("dendro", "test//routes/external_repositories/route.externalRepositories.Test.js"); */
 
 // PUBLIC PROJECT ?metadata_recommendations TESTS
-/* require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__metadata_recommendations/routes.project.publicProject.__metadata_recommendations.Test"));
+/* rlequire("dendro", "test//routes/project/public_project/__metadata_recommendations/routes.project.publicProject.__metadata_recommendations.Test");
 
  //PRIVATE PROJECT ?metadata_recommendations TESTS
- require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/__metadata_recommendations/routes.project.privateProject.__metadata_recommendations.Test"));
+ rlequire("dendro", "test//routes/project/private_project/__metadata_recommendations/routes.project.privateProject.__metadata_recommendations.Test");
 
  //METADATA ONLY PROJECT ?metadata_recommendations TESTS
- require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/__metadata_recommendations/routes.project.metadataonlyProject.__metadata_recommendations.Test")); */
+ rlequire("dendro", "test//routes/project/metadata_only_project/__metadata_recommendations/routes.project.metadataonlyProject.__metadata_recommendations.Test"); */
 
 // PUBLIC PROJECT ?recommendation_ontologies TESTS
-/* require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__recommendation_ontologies/routes.project.publicProject.__recommendation_ontologies.Test"));
+/* rlequire("dendro", "test//routes/project/public_project/__recommendation_ontologies/routes.project.publicProject.__recommendation_ontologies.Test");
 
  //PRIVATE PROJECT ?recommendation_ontologies TESTS
- require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/__recommendation_ontologies/routes.project.privateProject.__recommendation_ontologies.Test"));
+ rlequire("dendro", "test//routes/project/private_project/__recommendation_ontologies/routes.project.privateProject.__recommendation_ontologies.Test");
 
  //METADATA PROJECT ?recommendation_ontologies TESTS
- require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/__recommendation_ontologies/routes.project.metadataonlyProject.__recommendation_ontologies.Test")); */
+ rlequire("dendro", "test//routes/project/metadata_only_project/__recommendation_ontologies/routes.project.metadataonlyProject.__recommendation_ontologies.Test"); */
 
 // PUBLIC PROJECT ?metadata TESTS
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__metadata/routes.project.publicProject.__metadata.Test"));
+rlequire("dendro", "test//routes/project/public_project/__metadata/routes.project.publicProject.__metadata.Test");
 
 // PRIVATE PROJECT ?metadata TESTS
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/__metadata/routes.project.privateProject.__metadata.Test"));
+rlequire("dendro", "test//routes/project/private_project/__metadata/routes.project.privateProject.__metadata.Test");
 
 // METADATA ONLY PROJECT ?metadata TESTS
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/__metadata/routes.project.metadataonlyProject.__metadata.Test"));
+rlequire("dendro", "test//routes/project/metadata_only_project/__metadata/routes.project.metadataonlyProject.__metadata.Test");
 
 // PUBLIC PROJECT ?metadata&deep TESTS
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__metadata&deep/routes.project.publicProject.__metadata&deep.Test"));
+rlequire("dendro", "test//routes/project/public_project/__metadata&deep/routes.project.publicProject.__metadata&deep.Test");
 
 // PRIVATE PROJECT ?metadata&deep TESTS
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/__metadata&deep/routes.project.privateProject.__metadata&deep.Test"));
+rlequire("dendro", "test//routes/project/private_project/__metadata&deep/routes.project.privateProject.__metadata&deep.Test");
 
 // METADATA ONLY PROJECT ?metadata&deep TESTS
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/__metadata&deep/routes.project.metadataonlyProject.__metadata&deep.Test"));
+rlequire("dendro", "test//routes/project/metadata_only_project/__metadata&deep/routes.project.metadataonlyProject.__metadata&deep.Test");
 
 // PUBLIC PROJECT ROOT TESTS
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/routes.project.publicProject.Test"));
+rlequire("dendro", "test//routes/project/public_project/routes.project.publicProject.Test");
 
 // PRIVATE PROJECT ROOT TESTS
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/routes.project.privateProject.Test"));
+rlequire("dendro", "test//routes/project/private_project/routes.project.privateProject.Test");
 
 // METADATA ONLY PROJECT ROOT TESTS
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/routes.project.metadataonlyProject.Test"));
+rlequire("dendro", "test//routes/project/metadata_only_project/routes.project.metadataonlyProject.Test");
 
 // PUBLIC PROJECT FOLDER LEVEL ?metadata_recommendations
-/* require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__metadata_recommendations/routes.project.publicProject.data.testFolder1.__metadata_recommendations.Test"));
- require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__metadata_recommendations/routes.project.publicProject.data.testFolder2.__metadata_recommendations.Test"));
+/* rlequire("dendro", "test//routes/project/public_project/data/testFolder1/__metadata_recommendations/routes.project.publicProject.data.testFolder1.__metadata_recommendations.Test");
+ rlequire("dendro", "test//routes/project/public_project/data/testFolder2/__metadata_recommendations/routes.project.publicProject.data.testFolder2.__metadata_recommendations.Test");
 
  //PRIVATE PROJECT FOLDER LEVEL ?metadata_recommendations
- require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__metadata_recommendations/routes.project.privateProject.data.testFolder1.__metadata_recommendations.Test"));
- require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__metadata_recommendations/routes.project.privateProject.data.testFolder2.__metadata_recommendations.Test"));
+ rlequire("dendro", "test//routes/project/private_project/data/testFolder1/__metadata_recommendations/routes.project.privateProject.data.testFolder1.__metadata_recommendations.Test");
+ rlequire("dendro", "test//routes/project/private_project/data/testFolder2/__metadata_recommendations/routes.project.privateProject.data.testFolder2.__metadata_recommendations.Test");
 
  //METADATA ONLY PROJECT FOLDER LEVEL ?metadata_recommendations
- require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__metadata_recommendations/routes.project.metadataonlyProject.data.testFolder1.__metadata_recommendations.Test"));
- require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__metadata_recommendations/routes.project.metadataonlyProject.data.testFolder2.__metadata_recommendations.Test")); */
+ rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder1/__metadata_recommendations/routes.project.metadataonlyProject.data.testFolder1.__metadata_recommendations.Test");
+ rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder2/__metadata_recommendations/routes.project.metadataonlyProject.data.testFolder2.__metadata_recommendations.Test"); */
 
 // PUBLIC PROJECT FOLDER LEVEL ?recommendation_ontologies
-/* require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__recommendation_ontologies/routes.project.publicProject.data.testFolder1.__recommendation_ontologies.Test"));
- require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__recommendation_ontologies/routes.project.publicProject.data.testFolder2.__recommendation_ontologies.Test"));
+/* rlequire("dendro", "test//routes/project/public_project/data/testFolder1/__recommendation_ontologies/routes.project.publicProject.data.testFolder1.__recommendation_ontologies.Test");
+ rlequire("dendro", "test//routes/project/public_project/data/testFolder2/__recommendation_ontologies/routes.project.publicProject.data.testFolder2.__recommendation_ontologies.Test");
 
  //PRIVATE PROJECT FOLDER LEVEL ?recommendation_ontologies
- require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__recommendation_ontologies/routes.project.privateProject.data.testFolder1.__recommendation_ontologies.Test"));
- require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__recommendation_ontologies/routes.project.privateProject.data.testFolder2.__recommendation_ontologies.Test"));
+ rlequire("dendro", "test//routes/project/private_project/data/testFolder1/__recommendation_ontologies/routes.project.privateProject.data.testFolder1.__recommendation_ontologies.Test");
+ rlequire("dendro", "test//routes/project/private_project/data/testFolder2/__recommendation_ontologies/routes.project.privateProject.data.testFolder2.__recommendation_ontologies.Test");
 
  //METADATA ONLY PROJECT FOLDER LEVEL ?recommendation_ontologies
- require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__recommendation_ontologies/routes.project.metadataonlyProject.data.testFolder1.__recommendation_ontologies.Test"));
- require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__recommendation_ontologies/routes.project.metadataonlyProject.data.testFolder2.__recommendation_ontologies.Test")); */
+ rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder1/__recommendation_ontologies/routes.project.metadataonlyProject.data.testFolder1.__recommendation_ontologies.Test");
+ rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder2/__recommendation_ontologies/routes.project.metadataonlyProject.data.testFolder2.__recommendation_ontologies.Test"); */
 
 // PUBLIC PROJECT FOLDER LEVEL ?metadata
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__metadata/routes.project.publicProject.data.testFolder1.__metadata.Test"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__metadata/routes.project.publicProject.data.testFolder2.__metadata.Test"));
+rlequire("dendro", "test//routes/project/public_project/data/testFolder1/__metadata/routes.project.publicProject.data.testFolder1.__metadata.Test");
+rlequire("dendro", "test//routes/project/public_project/data/testFolder2/__metadata/routes.project.publicProject.data.testFolder2.__metadata.Test");
 
 // PRIVATE PROJECT FOLDER LEVEL ?metadata
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__metadata/routes.project.privateProject.data.testFolder1.__metadata.Test"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__metadata/routes.project.privateProject.data.testFolder2.__metadata.Test"));
+rlequire("dendro", "test//routes/project/private_project/data/testFolder1/__metadata/routes.project.privateProject.data.testFolder1.__metadata.Test");
+rlequire("dendro", "test//routes/project/private_project/data/testFolder2/__metadata/routes.project.privateProject.data.testFolder2.__metadata.Test");
 
 // METADATA ONLY PROJECT FOLDER LEVEL ?metadata
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__metadata/routes.project.metadataonlyProject.data.testFolder1.__metadata.Test"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__metadata/routes.project.metadataonlyProject.data.testFolder2.__metadata.Test"));
+rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder1/__metadata/routes.project.metadataonlyProject.data.testFolder1.__metadata.Test");
+rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder2/__metadata/routes.project.metadataonlyProject.data.testFolder2.__metadata.Test");
 
 // PUBLIC PROJECT FOLDER LEVEL ?metadata&deep
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__metadata&deep/routes.project.publicProject.data.testFolder1.__metadata&deep.Test"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__metadata&deep/routes.project.publicProject.data.testFolder2.__metadata&deep.Test"));
+rlequire("dendro", "test//routes/project/public_project/data/testFolder1/__metadata&deep/routes.project.publicProject.data.testFolder1.__metadata&deep.Test");
+rlequire("dendro", "test//routes/project/public_project/data/testFolder2/__metadata&deep/routes.project.publicProject.data.testFolder2.__metadata&deep.Test");
 
 // PRIVATE PROJECT FOLDER LEVEL ?metadata&deep
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__metadata&deep/routes.project.privateProject.data.testFolder1.__metadata&deep.Test"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__metadata&deep/routes.project.privateProject.data.testFolder2.__metadata&deep.Test"));
+rlequire("dendro", "test//routes/project/private_project/data/testFolder1/__metadata&deep/routes.project.privateProject.data.testFolder1.__metadata&deep.Test");
+rlequire("dendro", "test//routes/project/private_project/data/testFolder2/__metadata&deep/routes.project.privateProject.data.testFolder2.__metadata&deep.Test");
 
 // METADATA ONLY PROJECT FOLDER LEVEL ?metadata&deep
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__metadata&deep/routes.project.metadataonlyProject.data.testFolder1.__metadata&deep.Test"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__metadata&deep/routes.project.metadataonlyProject.data.testFolder2.__metadata&deep.Test"));
+rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder1/__metadata&deep/routes.project.metadataonlyProject.data.testFolder1.__metadata&deep.Test");
+rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder2/__metadata&deep/routes.project.metadataonlyProject.data.testFolder2.__metadata&deep.Test");
 
 // PUBLIC PROJECT FOLDER LEVEL ?parent_metadata
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__parent_metadata/routes.project.publicProject.data.testFolder1.__parent_metadata.Test"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__parent_metadata/routes.project.publicProject.data.testFolder2.__parent_metadata.Test"));
+rlequire("dendro", "test//routes/project/public_project/data/testFolder1/__parent_metadata/routes.project.publicProject.data.testFolder1.__parent_metadata.Test");
+rlequire("dendro", "test//routes/project/public_project/data/testFolder2/__parent_metadata/routes.project.publicProject.data.testFolder2.__parent_metadata.Test");
 
 // PRIVATE PROJECT FOLDER LEVEL ?parent_metadata
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__parent_metadata/routes.project.privateProject.data.testFolder1.__parent_metadata.Test"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__parent_metadata/routes.project.privateProject.data.testFolder2.__parent_metadata.Test"));
+rlequire("dendro", "test//routes/project/private_project/data/testFolder1/__parent_metadata/routes.project.privateProject.data.testFolder1.__parent_metadata.Test");
+rlequire("dendro", "test//routes/project/private_project/data/testFolder2/__parent_metadata/routes.project.privateProject.data.testFolder2.__parent_metadata.Test");
 
 // METADATA ONLY PROJECT FOLDER LEVEL ?parent_metadata
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__parent_metadata/routes.project.metadataonlyProject.data.testFolder1.__parent_metadata.Test"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__parent_metadata/routes.project.metadataonlyProject.data.testFolder2.__parent_metadata.Test"));
+rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder1/__parent_metadata/routes.project.metadataonlyProject.data.testFolder1.__parent_metadata.Test");
+rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder2/__parent_metadata/routes.project.metadataonlyProject.data.testFolder2.__parent_metadata.Test");
 
 // PUBLIC PROJECT FOLDER LEVEL /project/:handle/data/:folderHandle(default case)
-/* require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/routes.project.publicProject.data.testFolder1.Test"));
- require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/routes.project.publicProject.data.testFolder2.Test"));
+/* rlequire("dendro", "test//routes/project/public_project/data/testFolder1/routes.project.publicProject.data.testFolder1.Test");
+ rlequire("dendro", "test//routes/project/public_project/data/testFolder2/routes.project.publicProject.data.testFolder2.Test");
 
  //PRIVATE PROJECT FOLDER LEVEL /project/:handle/data/:folderHandle(default case)
- require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/routes.project.privateProject.data.testFolder1.Test"));
- require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/routes.project.privateProject.data.testFolder2.Test"));
+ rlequire("dendro", "test//routes/project/private_project/data/testFolder1/routes.project.privateProject.data.testFolder1.Test");
+ rlequire("dendro", "test//routes/project/private_project/data/testFolder2/routes.project.privateProject.data.testFolder2.Test");
 
  //METADATA ONLY PROJECT FOLDER LEVEL /project/:handle/data/:folderHandle(default case)
- require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/routes.project.metadataonlyProject.data.testFolder1.Test"));
- require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/routes.project.metadataonlyProject.data.testFolder2.Test")); */
+ rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder1/routes.project.metadataonlyProject.data.testFolder1.Test");
+ rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder2/routes.project.metadataonlyProject.data.testFolder2.Test"); */
 
 /*
  //test login
@@ -339,131 +336,131 @@ require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/d
  */
 
 // PROJECT WITH B2DROP STORAGE (To revisit later!)
-// require(Pathfinder.absPathInTestsFolder("/routes/project/b2drop_project/data/testFolder1/__upload/routes.project.b2dropProject.data.testFolder1.__upload.Test.js"));
-// require(Pathfinder.absPathInTestsFolder("/routes/project/b2drop_project/data/testFolder1/a_filename/__rename/routes.project.b2dropProject.data.testFolder1.a_filename.__rename.Test.js"));
-// require(Pathfinder.absPathInTestsFolder("/routes/project/b2drop_project/data/testFolder1/a_filename/__cut/routes.project.b2dropProject.data.testFolder1.a_filename.__cut.Test.js"));
-// require(Pathfinder.absPathInTestsFolder("/routes/project/b2drop_project/__bagit/routes.project.b2dropProject.__bagit.Test.js"));
-// require(Pathfinder.absPathInTestsFolder("/routes/project/b2drop_project/__delete/routes.project.b2dropProject.__delete.Test.js"));
+// rlequire("dendro", "test//routes/project/b2drop_project/data/testFolder1/__upload/routes.project.b2dropProject.data.testFolder1.__upload.Test.js");
+// rlequire("dendro", "test//routes/project/b2drop_project/data/testFolder1/a_filename/__rename/routes.project.b2dropProject.data.testFolder1.a_filename.__rename.Test.js");
+// rlequire("dendro", "test//routes/project/b2drop_project/data/testFolder1/a_filename/__cut/routes.project.b2dropProject.data.testFolder1.a_filename.__cut.Test.js");
+// rlequire("dendro", "test//routes/project/b2drop_project/__bagit/routes.project.b2dropProject.__bagit.Test.js");
+// rlequire("dendro", "test//routes/project/b2drop_project/__delete/routes.project.b2dropProject.__delete.Test.js");
 
 // PROJECT WITH LOCAL STORAGE
 // test file uploads
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__upload/routes.project.privateProject.data.testFolder1.__upload.Test.js"));
+rlequire("dendro", "test//routes/project/private_project/data/testFolder1/__upload/routes.project.privateProject.data.testFolder1.__upload.Test.js");
 
 // test file renaming
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/a_filename/__rename/routes.project.privateProject.data.testFolder1.a_filename.__rename.Test.js"));
+rlequire("dendro", "test//routes/project/private_project/data/testFolder1/a_filename/__rename/routes.project.privateProject.data.testFolder1.a_filename.__rename.Test.js");
 
 // test file moving
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/a_filename/__cut/routes.project.privateProject.data.testFolder1.a_filename.__cut.Test.js"));
+rlequire("dendro", "test//routes/project/private_project/data/testFolder1/a_filename/__cut/routes.project.privateProject.data.testFolder1.a_filename.__cut.Test.js");
 
 // Test project backups in BagIt 0.97 Format
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/__bagit/routes.project.privateProject.__bagit.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__bagit/routes.project.publicProject.__bagit.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/__bagit/routes.project.metadataOnlyProject.__bagit.Test.js"));
+rlequire("dendro", "test//routes/project/private_project/__bagit/routes.project.privateProject.__bagit.Test.js");
+rlequire("dendro", "test//routes/project/public_project/__bagit/routes.project.publicProject.__bagit.Test.js");
+rlequire("dendro", "test//routes/project/metadata_only_project/__bagit/routes.project.metadataOnlyProject.__bagit.Test.js");
 
 // Delete a project
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__delete/routes.project.publicProject.__delete.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/__delete/routes.project.metadataOnlyProject.__delete.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/__delete/routes.project.privateProject.__delete.Test.js"));
+rlequire("dendro", "test//routes/project/public_project/__delete/routes.project.publicProject.__delete.Test.js");
+rlequire("dendro", "test//routes/project/metadata_only_project/__delete/routes.project.metadataOnlyProject.__delete.Test.js");
+rlequire("dendro", "test//routes/project/private_project/__delete/routes.project.privateProject.__delete.Test.js");
 
 // SOCIAL DENDRO TESTS
 
-require(Pathfinder.absPathInTestsFolder("/routes/socialDendro/my/routes.socialDendro.my.Test.js"));
+rlequire("dendro", "test//routes/socialDendro/my/routes.socialDendro.my.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/all/routes.posts.all.Test.js"));
+rlequire("dendro", "test//routes/posts/all/routes.posts.all.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/post/routes.posts.post.Test.js"));
+rlequire("dendro", "test//routes/posts/post/routes.posts.post.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/posts/routes.posts.posts.Test.js"));
+rlequire("dendro", "test//routes/posts/posts/routes.posts.posts.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/new/routes.posts.new.Test.js"));
+rlequire("dendro", "test//routes/posts/new/routes.posts.new.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/like/routes.posts.like.Test.js"));
+rlequire("dendro", "test//routes/posts/like/routes.posts.like.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/post/likes/routes.posts.post.likes.Test.js"));
+rlequire("dendro", "test//routes/posts/post/likes/routes.posts.post.likes.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/comment/routes.posts.comment.Test.js"));
+rlequire("dendro", "test//routes/posts/comment/routes.posts.comment.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/comments/routes.posts.comments.Test.js"));
+rlequire("dendro", "test//routes/posts/comments/routes.posts.comments.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/share/routes.posts.share.Test.js"));
+rlequire("dendro", "test//routes/posts/share/routes.posts.share.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/shares/routes.posts.shares.Test.js"));
+rlequire("dendro", "test//routes/posts/shares/routes.posts.shares.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/count/routes.posts.count.Test.js"));
+rlequire("dendro", "test//routes/posts/count/routes.posts.count.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/_uri/routes.posts._uri.Test.js"));
+rlequire("dendro", "test//routes/posts/_uri/routes.posts._uri.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/shares/_uri/routes.shares._uri.Test.js"));
+rlequire("dendro", "test//routes/shares/_uri/routes.shares._uri.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/notifications/all/routes.notifications.all.Test.js"));
+rlequire("dendro", "test//routes/notifications/all/routes.notifications.all.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/notifications/notification/routes.notifications.notification.Test.js"));
+rlequire("dendro", "test//routes/notifications/notification/routes.notifications.notification.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/notifications/notification/routes.notifications.notification[DELETE].Test.js"));
+rlequire("dendro", "test//routes/notifications/notification/routes.notifications.notification[DELETE].Test.js");
 
 // END OF SOCIAL DENDRO TESTS
 
 // PUBLIC PROJECT FOLDER LEVEL ?VERSION
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__version/routes.project.publicProject.data.testFolder1.__version.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__version/routes.project.publicProject.data.testFolder2.__version.Test.js"));
+rlequire("dendro", "test//routes/project/public_project/data/testFolder1/__version/routes.project.publicProject.data.testFolder1.__version.Test.js");
+rlequire("dendro", "test//routes/project/public_project/data/testFolder2/__version/routes.project.publicProject.data.testFolder2.__version.Test.js");
 
 // PRIVATE PROJECT FOLDER LEVEL ?VERSION
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__version/routes.project.privateProject.data.testFolder1.__version.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__version/routes.project.privateProject.data.testFolder2.__version.Test.js"));
+rlequire("dendro", "test//routes/project/private_project/data/testFolder1/__version/routes.project.privateProject.data.testFolder1.__version.Test.js");
+rlequire("dendro", "test//routes/project/private_project/data/testFolder2/__version/routes.project.privateProject.data.testFolder2.__version.Test.js");
 
 // METADATA ONLY PROJECT FOLDER LEVEL ?VERSION
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__version/routes.project.metadataonlyProject.data.testFolder1.__version.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__version/routes.project.metadataonlyProject.data.testFolder2.__version.Test.js"));
+rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder1/__version/routes.project.metadataonlyProject.data.testFolder1.__version.Test.js");
+rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder2/__version/routes.project.metadataonlyProject.data.testFolder2.__version.Test.js");
 
 // PUBLIC PROJECT FOLDER LEVEL ?CHANGE_LOG
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__change_log/routes.project.publicProject.data.testFolder1.__change_log.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__change_log/routes.project.publicProject.data.testFolder2.__change_log.Test.js"));
+rlequire("dendro", "test//routes/project/public_project/data/testFolder1/__change_log/routes.project.publicProject.data.testFolder1.__change_log.Test.js");
+rlequire("dendro", "test//routes/project/public_project/data/testFolder2/__change_log/routes.project.publicProject.data.testFolder2.__change_log.Test.js");
 
 // PRIVATE PROJECT FOLDER LEVEL ?CHANGE_LOG
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__change_log/routes.project.privateProject.data.testFolder1.__change_log.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__change_log/routes.project.privateProject.data.testFolder2.__change_log.Test.js"));
+rlequire("dendro", "test//routes/project/private_project/data/testFolder1/__change_log/routes.project.privateProject.data.testFolder1.__change_log.Test.js");
+rlequire("dendro", "test//routes/project/private_project/data/testFolder2/__change_log/routes.project.privateProject.data.testFolder2.__change_log.Test.js");
 
 // METADATA ONLY PROJECT FOLDER LEVEL ?CHANGE_LOG
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__change_log/routes.project.metadataonlyProject.data.testFolder1.__change_log.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__change_log/routes.project.metadataonlyProject.data.testFolder2.__change_log.Test.js"));
+rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder1/__change_log/routes.project.metadataonlyProject.data.testFolder1.__change_log.Test.js");
+rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder2/__change_log/routes.project.metadataonlyProject.data.testFolder2.__change_log.Test.js");
 
 // PROJECT CHANGES PUBLIC PROJECT
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__recent_changes/routes.project.publicProject.__recent_changes.Test.js"));
+rlequire("dendro", "test//routes/project/public_project/__recent_changes/routes.project.publicProject.__recent_changes.Test.js");
 // PROJECT CHANGES PRIVATE PROJECT
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/__recent_changes/routes.project.privateProject.__recent_changes.Test.js"));
+rlequire("dendro", "test//routes/project/private_project/__recent_changes/routes.project.privateProject.__recent_changes.Test.js");
 // PROJECT CHANGES METADADATA ONlY PROJECT
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/__recent_changes/routes.project.metadataonlyProject.__recent_changes.Test.js"));
+rlequire("dendro", "test//routes/project/metadata_only_project/__recent_changes/routes.project.metadataonlyProject.__recent_changes.Test.js");
 
 // PUBLIC PROJECT FOLDER LEVEL RECENT CHANGES
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__recent_changes/routes.project.publicProject.data.testFolder1.__recent_changes.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__recent_changes/routes.project.publicProject.data.testFolder2.__recent_changes.Test.js"));
+rlequire("dendro", "test//routes/project/public_project/data/testFolder1/__recent_changes/routes.project.publicProject.data.testFolder1.__recent_changes.Test.js");
+rlequire("dendro", "test//routes/project/public_project/data/testFolder2/__recent_changes/routes.project.publicProject.data.testFolder2.__recent_changes.Test.js");
 
 // PRIVATE PROJECT FOLDER LEVEL RECENT CHANGES
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__recent_changes/routes.project.privateProject.data.testFolder1.__recent_changes.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__recent_changes/routes.project.privateProject.data.testFolder2.__recent_changes.Test.js"));
+rlequire("dendro", "test//routes/project/private_project/data/testFolder1/__recent_changes/routes.project.privateProject.data.testFolder1.__recent_changes.Test.js");
+rlequire("dendro", "test//routes/project/private_project/data/testFolder2/__recent_changes/routes.project.privateProject.data.testFolder2.__recent_changes.Test.js");
 
 // METADATA ONLY PROJECT FOLDER LEVEL RECENT CHANGES
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__recent_changes/routes.project.metadataonlyProject.data.testFolder1.__recent_changes.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__recent_changes/routes.project.metadataonlyProject.data.testFolder2.__recent_changes.Test.js"));
+rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder1/__recent_changes/routes.project.metadataonlyProject.data.testFolder1.__recent_changes.Test.js");
+rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder2/__recent_changes/routes.project.metadataonlyProject.data.testFolder2.__recent_changes.Test.js");
 
 // Archived versions test
-require(Pathfinder.absPathInTestsFolder("/routes/archived_resource/routes.archivedResource.Test.js"));
+rlequire("dendro", "test//routes/archived_resource/routes.archivedResource.Test.js");
 
 // Import projects tests
-require(Pathfinder.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));
+rlequire("dendro", "test//routes/projects/import/route.projects.import.Test.js");
 
 // Dendro Administration page
-require(Pathfinder.absPathInTestsFolder("/routes/admin/routes.admin.Test.js"));
+rlequire("dendro", "test//routes/admin/routes.admin.Test.js");
 
 // PUBLIC PROJECT FOLDER LEVEL ?restore_metadata_version
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__restore_metadata_version/routes.project.publicProject.data.testFolder1.__restore_metadata_version.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__restore_metadata_version/routes.project.publicProject.data.testFolder2.__restore_metadata_version.Test.js"));
+rlequire("dendro", "test//routes/project/public_project/data/testFolder1/__restore_metadata_version/routes.project.publicProject.data.testFolder1.__restore_metadata_version.Test.js");
+rlequire("dendro", "test//routes/project/public_project/data/testFolder2/__restore_metadata_version/routes.project.publicProject.data.testFolder2.__restore_metadata_version.Test.js");
 
 // PRIVATE PROJECT FOLDER LEVEL ?restore_metadata_version
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__restore_metadata_version/routes.project.privateProject.data.testFolder1.__restore_metadata_version.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__restore_metadata_version/routes.project.privateProject.data.testFolder2.__restore_metadata_version.Test.js"));
+rlequire("dendro", "test//routes/project/private_project/data/testFolder1/__restore_metadata_version/routes.project.privateProject.data.testFolder1.__restore_metadata_version.Test.js");
+rlequire("dendro", "test//routes/project/private_project/data/testFolder2/__restore_metadata_version/routes.project.privateProject.data.testFolder2.__restore_metadata_version.Test.js");
 
 // METADATA ONLY PROJECT FOLDER LEVEL ?restore_metadata_version
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__restore_metadata_version/routes.project.metadataonlyProject.data.testFolder1.__restore_metadata_version.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__restore_metadata_version/routes.project.metadataonlyProject.data.testFolder2.__restore_metadata_version.Test.js"));
+rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder1/__restore_metadata_version/routes.project.metadataonlyProject.data.testFolder1.__restore_metadata_version.Test.js");
+rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder2/__restore_metadata_version/routes.project.metadataonlyProject.data.testFolder2.__restore_metadata_version.Test.js");
 

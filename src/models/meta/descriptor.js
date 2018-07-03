@@ -1,13 +1,13 @@
 const path = require("path");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("/models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const ObjectManipulator = require(Pathfinder.absPathInSrcFolder("/utils/object_manipulation.js"));
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const DbConnection = rlequire("dendro", "src/kb/db.js").DbConnection;
+const Ontology = rlequire("dendro", "src/models/meta/ontology.js").Ontology;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const ObjectManipulator = rlequire("dendro", "src/utils/object_manipulation.js");
 
 const db = Config.getDBByID();
 const async = require("async");

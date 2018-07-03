@@ -1,13 +1,13 @@
 process.env.NODE_ENV = "test";
 
-const Pathfinder = global.Pathfinder;
+const rlequire = require("rlequire");
 
 const chai = require("chai");
 chai.use(require("chai-http"));
 
-const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
+const unitUtils = rlequire("dendro", "test/utils/units/unitUtils.js");
 
-let CommentSomePostsUnit = require(Pathfinder.absPathInTestsFolder("units/social/commentSomePosts.Unit.js"));
+let CommentSomePostsUnit = rlequire("dendro", "test/units/social/commentSomePosts.Unit.js");
 class CreateSocialDendroTimelineWithPostsAndShares extends CommentSomePostsUnit
 {
     static load (callback)

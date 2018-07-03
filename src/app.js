@@ -1,5 +1,6 @@
 const path = require("path");
 const argv = require("yargs").argv;
+const rlequire = require("rlequire");
 
 let appDir;
 
@@ -12,14 +13,10 @@ else
     appDir = path.resolve(path.dirname(require.main.filename), "../");
 }
 
-const Pathfinder = require(path.join(appDir, "src", "models", "meta", "pathfinder.js")).Pathfinder;
-global.Pathfinder = Pathfinder;
-Pathfinder.appDir = appDir;
-
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-let isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-let App = require(Pathfinder.absPathInSrcFolder("/bootup/app.js")).App;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+let isNull = rlequire("dendro", "src/utils/null.js").isNull;
+let App = rlequire("dendro", "src/bootup/app.js").App;
 
 const options = {
     seed_databases: !isNull(argv.seed_databases)
@@ -27,7 +24,7 @@ const options = {
 
 let dendroInstance = new App(options);
 
-Config.pm2AppName = require(Pathfinder.absPathInApp("package.json")).name + "-" + require(Pathfinder.absPathInApp("package.json")).version;
+Config.pm2AppName = rlequire("dendro", "package.json").name + "-" + rlequire("dendro", "package.json").version;
 
 if (isNull(process.env.NODE_ENV) && !isNull(Config.environment))
 {

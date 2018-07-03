@@ -1,8 +1,8 @@
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-let isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const DendroMySQLClient = require(Pathfinder.absPathInSrcFolder("/kb/mysql.js")).DendroMySQLClient;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+let isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const DendroMySQLClient = rlequire("dendro", "src/kb/mysql.js").DendroMySQLClient;
 
 const initMySQL = function (app, callback)
 {

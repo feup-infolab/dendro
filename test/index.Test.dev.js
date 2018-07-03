@@ -2,13 +2,11 @@ process.env.NODE_ENV = "test";
 
 const path = require("path");
 const appDir = path.resolve(path.dirname(require.main.filename), "../../..");
-const Pathfinder = require(path.join(appDir, "src", "models", "meta", "pathfinder.js")).Pathfinder;
-global.Pathfinder = Pathfinder;
-Pathfinder.appDir = appDir;
+const rlequire = require("rlequire");
 
-const Config = require(Pathfinder.absPathInSrcFolder(path.join("models", "meta", "config.js"))).Config;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 Config.testsTimeout = 1800000;
-console.log("Running in test mode and the app directory is : " + Pathfinder.appDir);
+console.log("Running in test mode and the app directory is : " + rlequire.getRootFolder("dendro"));
 
 global.Config = Config;
 
@@ -16,39 +14,39 @@ global.tests = {};
 
 // SOCIAL DENDRO TESTS
 
-require(Pathfinder.absPathInTestsFolder("/routes/socialDendro/my/routes.socialDendro.my.Test.js"));
+rlequire("dendro", "test//routes/socialDendro/my/routes.socialDendro.my.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/all/routes.posts.all.Test.js"));
+rlequire("dendro", "test//routes/posts/all/routes.posts.all.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/post/routes.posts.post.Test.js"));
+rlequire("dendro", "test//routes/posts/post/routes.posts.post.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/posts/routes.posts.posts.Test.js"));
+rlequire("dendro", "test//routes/posts/posts/routes.posts.posts.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/new/routes.posts.new.Test.js"));
+rlequire("dendro", "test//routes/posts/new/routes.posts.new.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/like/routes.posts.like.Test.js"));
+rlequire("dendro", "test//routes/posts/like/routes.posts.like.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/post/likes/routes.posts.post.likes.Test.js"));
+rlequire("dendro", "test//routes/posts/post/likes/routes.posts.post.likes.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/comment/routes.posts.comment.Test.js"));
+rlequire("dendro", "test//routes/posts/comment/routes.posts.comment.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/comments/routes.posts.comments.Test.js"));
+rlequire("dendro", "test//routes/posts/comments/routes.posts.comments.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/share/routes.posts.share.Test.js"));
+rlequire("dendro", "test//routes/posts/share/routes.posts.share.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/shares/routes.posts.shares.Test.js"));
+rlequire("dendro", "test//routes/posts/shares/routes.posts.shares.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/count/routes.posts.count.Test.js"));
+rlequire("dendro", "test//routes/posts/count/routes.posts.count.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/posts/_uri/routes.posts._uri.Test.js"));
+rlequire("dendro", "test//routes/posts/_uri/routes.posts._uri.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/shares/_uri/routes.shares._uri.Test.js"));
+rlequire("dendro", "test//routes/shares/_uri/routes.shares._uri.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/notifications/all/routes.notifications.all.Test.js"));
+rlequire("dendro", "test//routes/notifications/all/routes.notifications.all.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/notifications/notification/routes.notifications.notification.Test.js"));
+rlequire("dendro", "test//routes/notifications/notification/routes.notifications.notification.Test.js");
 
-require(Pathfinder.absPathInTestsFolder("/routes/notifications/notification/routes.notifications.notification[DELETE].Test.js"));
+rlequire("dendro", "test//routes/notifications/notification/routes.notifications.notification[DELETE].Test.js");
 
 // END OF SOCIAL DENDRO TESTS
 

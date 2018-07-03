@@ -1,28 +1,28 @@
 process.env.NODE_ENV = "test";
 
-const Pathfinder = global.Pathfinder;
+const rlequire = require("rlequire");
 
 const chai = require("chai");
 chai.use(require("chai-http"));
 const async = require("async");
 const path = require("path");
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const itemUtils = rlequire("dendro", "test//utils/item/itemUtils");
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
+const unitUtils = rlequire("dendro", "test/utils/units/unitUtils.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1");
 
-let CreateProjectsUnit = require(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
+let CreateProjectsUnit = rlequire("dendro", "test/units/projects/createProjects.Unit.js");
 const projectsData = CreateProjectsUnit.projectsData;
 
-let CreateFoldersUnit = require(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
+let CreateFoldersUnit = rlequire("dendro", "test/units/folders/createFolders.Unit.js");
 const foldersData = CreateFoldersUnit.foldersData;
 
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 class AddMetadataToFolders extends CreateFoldersUnit
 {

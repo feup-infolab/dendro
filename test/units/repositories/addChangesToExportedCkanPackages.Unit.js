@@ -2,31 +2,31 @@ process.env.NODE_ENV = "test";
 
 const _ = require("underscore");
 
-const Pathfinder = global.Pathfinder;
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
-const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
-const ckanTestUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/ckanTestUtils.js"));
-const CkanUtils = require(Pathfinder.absPathInSrcFolder("/utils/datasets/ckanUtils.js"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
+const rlequire = require("rlequire");
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const repositoryUtils = rlequire("dendro", "test/utils/repository/repositoryUtils.js");
+const projectUtils = rlequire("dendro", "test/utils/project/projectUtils.js");
+const fileUtils = rlequire("dendro", "test/utils/file/fileUtils.js");
+const ckanTestUtils = rlequire("dendro", "test/utils/repository/ckanTestUtils.js");
+const CkanUtils = rlequire("dendro", "src/utils/datasets/ckanUtils.js");
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
+const unitUtils = rlequire("dendro", "test/utils/units/unitUtils.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1");
 
-const folderExportedCkanDendroDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanDendroDiffs.js"));
-const folderExportedCkanCkanDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanCkanDiffs.js"));
+const folderExportedCkanDendroDiffs = rlequire("dendro", "test/mockdata/folders/folderExportedCkanDendroDiffs.js");
+const folderExportedCkanCkanDiffs = rlequire("dendro", "test/mockdata/folders/folderExportedCkanCkanDiffs.js");
 
-const uploadedDeletedFileDendroMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/uploadedAndDeletedFileInDendro.js"));
-const uploadedFileToCkan = require(Pathfinder.absPathInTestsFolder("mockdata/files/uploadedFileToCkan.js"));
+const uploadedDeletedFileDendroMockFile = rlequire("dendro", "test/mockdata/files/uploadedAndDeletedFileInDendro.js");
+const uploadedFileToCkan = rlequire("dendro", "test/mockdata/files/uploadedFileToCkan.js");
 
-const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
-const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
-const metadataOnlyProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
+const publicProject = rlequire("dendro", "test/mockdata/projects/public_project.js");
+const privateProject = rlequire("dendro", "test/mockdata/projects/private_project.js");
+const metadataOnlyProject = rlequire("dendro", "test/mockdata/projects/metadata_only_project.js");
 
 let ckanData;
 
-const ExportFoldersToCkanRepositoryUnit = require(Pathfinder.absPathInTestsFolder("units/repositories/exportFoldersToCkanRepository.Unit.js"));
+const ExportFoldersToCkanRepositoryUnit = rlequire("dendro", "test/units/repositories/exportFoldersToCkanRepository.Unit.js");
 class AddChangesToExportedCKANPackages extends ExportFoldersToCkanRepositoryUnit
 {
     static load (callback)

@@ -1,5 +1,5 @@
-const Pathfinder = global.Pathfinder;
-const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
+const rlequire = require("rlequire");
+const unitUtils = rlequire("dendro", "test/utils/units/unitUtils.js");
 
 class TestUnit
 {

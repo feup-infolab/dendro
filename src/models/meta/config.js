@@ -1,3 +1,5 @@
+const rlequire = require("rlequire");
+
 /**
  * Configuration parameters
  */
@@ -10,14 +12,11 @@ const path = require("path");
 const _ = require("underscore");
 const isNull = require("../../utils/null.js").isNull;
 
-const Pathfinder = global.Pathfinder;
 const Elements = require("./elements.js").Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
-const configsFilePath = Pathfinder.absPathInApp("conf/deployment_configs.json");
-const activeConfigFilePath = Pathfinder.absPathInApp("conf/active_deployment_config.json");
-
-const configs = JSON.parse(fs.readFileSync(configsFilePath, "utf8"));
+const activeConfigFilePath = rlequire("dendro", "conf/active_deployment_config.json");
+const configs = rlequire("dendro", "conf/deployment_configs.json");
 
 let activeConfigKey;
 
@@ -166,7 +165,7 @@ if (path.isAbsolute(getConfigParameter("tempFilesDir")))
 }
 else
 {
-    Config.tempFilesDir = Pathfinder.absPathInApp(getConfigParameter("tempFilesDir"));
+    Config.tempFilesDir = rlequire.absPathInApp("dendro",getConfigParameter("tempFilesDir"));
 }
 
 if (path.isAbsolute(getConfigParameter("tempUploadsDir")))
@@ -175,7 +174,7 @@ if (path.isAbsolute(getConfigParameter("tempUploadsDir")))
 }
 else
 {
-    Config.tempUploadsDir = Pathfinder.absPathInApp(getConfigParameter("tempUploadsDir"));
+    Config.tempUploadsDir = rlequire.absPathInApp("dendro",getConfigParameter("tempUploadsDir"));
 }
 
 Config.tempFilesCreationMode = getConfigParameter("tempFilesCreationMode");
@@ -684,13 +683,13 @@ Config.systemOrHiddenFilesRegexes = getConfigParameter("systemOrHiddenFilesRegex
 
 if (isNull(Config.thumbnailableExtensions))
 {
-    Config.thumbnailableExtensions = require(Pathfinder.absPathInPublicFolder("/shared/public_config.json")).thumbnailable_file_extensions;
+    Config.thumbnailableExtensions = rlequire("dendro", "public/shared/public_config.json").thumbnailable_file_extensions;
 }
 
 if (isNull(Config.iconableFileExtensions))
 {
     Config.iconableFileExtensions = {};
-    let extensions = fs.readdirSync(Pathfinder.absPathInPublicFolder("/images/icons/extensions"));
+    let extensions = fs.readdirSync(rlequire.absPathInApp("dendro", "public/images/icons/extensions"));
 
     for (let i = 0; i < extensions.length; i++)
     {
@@ -759,7 +758,7 @@ Config.swordConnection = {
     EprintsCollectionRef: "/id/contents"
 };
 
-const Serializers = require(Pathfinder.absPathInSrcFolder("/utils/serializers.js"));
+const Serializers = rlequire("dendro", "src/utils/serializers.js");
 
 Config.defaultMetadataSerializer = Serializers.dataToJSON;
 Config.defaultMetadataContentType = "text/json";

@@ -7,36 +7,35 @@ const expect = chai.expect;
 const _ = require("underscore");
 chai.use(chaiHttp);
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
-const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const itemUtils = rlequire("dendro", "test/utils/item/itemUtils.js");
+const fileUtils = rlequire("dendro", "test/utils/file/fileUtils.js");
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
+const projectUtils = rlequire("dendro", "test/utils/project/projectUtils.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
-const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");
+const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2.js");
+const demouser3 = rlequire("dendro", "test/mockdata/users/demouser3.js");
 
-const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
-const metadataProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
-const invalidProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/invalidProject.js"));
-const zipFileForRestoreFolder = require(Pathfinder.absPathInTestsFolder("mockdata/files/zipForFolderRestore.js"));
-const restoreFolderWithAZipInside = require(Pathfinder.absPathInTestsFolder("mockdata/files/restoreFolderWithAZipInside.js"));
-const restoreFolderWithOnlyOneFileInside = require(Pathfinder.absPathInTestsFolder("mockdata/files/restoreFolderWithOnlyOneFile.js"));
+const publicProject = rlequire("dendro", "test/mockdata/projects/public_project.js");
+const metadataProject = rlequire("dendro", "test/mockdata/projects/metadata_only_project.js");
+const invalidProject = rlequire("dendro", "test/mockdata/projects/invalidProject.js");
+const zipFileForRestoreFolder = rlequire("dendro", "test/mockdata/files/zipForFolderRestore.js");
+const restoreFolderWithAZipInside = rlequire("dendro", "test/mockdata/files/restoreFolderWithAZipInside.js");
+const restoreFolderWithOnlyOneFileInside = rlequire("dendro", "test/mockdata/files/restoreFolderWithOnlyOneFile.js");
 
-const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
-const notFoundFolder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/notFoundFolder.js"));
-const folderForDemouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderDemoUser2"));
-// const addMetadataToFoldersSingleProjectUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFoldersSingleProject.Unit.js"));
-const addMetadataToFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
-const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const testFolder1 = rlequire("dendro", "test/mockdata/folders/testFolder1.js");
+const notFoundFolder = rlequire("dendro", "test/mockdata/folders/notFoundFolder.js");
+const folderForDemouser2 = rlequire("dendro", "test/mockdata/folders/folderDemoUser2");
+const addMetadataToFoldersUnit = appUtils.requireUncached(rlequire.absPathInApp("dendro", "test/units/metadata/addMetadataToFolders.Unit.js"));
+const db = appUtils.requireUncached(rlequire.absPathInApp("dendro", "test/utils/db/db.Test.js"));
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
-const addMetadataToFoldersInPublicProjectUnit = require(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFoldersPublicProject.Unit.js"));
+const addMetadataToFoldersInPublicProjectUnit = rlequire("dendro", "test/units/metadata/addMetadataToFoldersPublicProject.Unit.js");
 
 const createTempFileFromData = function (fileData, fileName, callback)
 {

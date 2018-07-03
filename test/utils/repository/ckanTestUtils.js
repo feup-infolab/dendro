@@ -1,8 +1,8 @@
-const Pathfinder = global.Pathfinder;
+const rlequire = require("rlequire");
 const chai = require("chai");
 const chaiHttp = require("chai-http");
 const CKAN = require("ckan");
-const CkanUtils = require(Pathfinder.absPathInSrcFolder("/utils/datasets/ckanUtils.js"));
+const CkanUtils = rlequire("dendro", "src/utils/datasets/ckanUtils.js");
 const async = require("async");
 const slug = require("slug");
 chai.use(chaiHttp);

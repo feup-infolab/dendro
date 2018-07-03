@@ -2,15 +2,15 @@ process.env.NODE_ENV = "test";
 
 const path = require("path");
 
-const Pathfinder = global.Pathfinder;
-const ckanTestUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/ckanTestUtils.js"));
+const rlequire = require("rlequire");
+const ckanTestUtils = rlequire("dendro", "test/utils/repository/ckanTestUtils.js");
 
-const ckan = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/dataToCreate/ckan"));
-const ckanOrganizationData = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/dataToCreate/ckanOrganizationData"));
+const ckan = rlequire("dendro", "test/mockdata/repositories/dataToCreate/ckan");
+const ckanOrganizationData = rlequire("dendro", "test/mockdata/repositories/dataToCreate/ckanOrganizationData");
 
-const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
+const publicProject = rlequire("dendro", "test/mockdata/projects/public_project.js");
 
-let UploadFileToProjectFoldersUnit = require(Pathfinder.absPathInTestsFolder("units/repositories/uploadFileToProjectFolders.Unit.js"));
+let UploadFileToProjectFoldersUnit = rlequire("dendro", "test/units/repositories/uploadFileToProjectFolders.Unit.js");
 class ClearCkanOrganizationState extends UploadFileToProjectFoldersUnit
 {
     static load (callback)

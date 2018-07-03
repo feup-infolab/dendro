@@ -1,23 +1,23 @@
 process.env.NODE_ENV = "test";
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const chai = require("chai");
 chai.use(require("chai-http"));
 const async = require("async");
 const path = require("path");
 
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
+const projectUtils = rlequire("dendro", "test/utils/project/projectUtils.js");
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const unitUtils = rlequire("dendro", "test/utils/units/unitUtils.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1");
+const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2");
 
-const b2dropProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/b2drop_project.js"));
+const b2dropProjectData = rlequire("dendro", "test/mockdata/projects/b2drop_project.js");
 
-let CreateUsersUnit = require(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
+let CreateUsersUnit = rlequire("dendro", "test/units/users/createUsers.Unit.js");
 class CreateProjectB2Drop extends CreateUsersUnit
 {
     static load (callback)

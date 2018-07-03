@@ -1,10 +1,10 @@
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const RedisCache = require(Pathfinder.absPathInSrcFolder("/kb/cache/caches/redis.js")).RedisCache;
-const MongoDBCache = require(Pathfinder.absPathInSrcFolder("/kb/cache/caches/mongodb.js")).MongoDBCache;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const RedisCache = rlequire("dendro", "src/kb/cache/caches/redis.js").RedisCache;
+const MongoDBCache = rlequire("dendro", "src/kb/cache/caches/mongodb.js").MongoDBCache;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const async = require("async");
 
 const Cache = function ()

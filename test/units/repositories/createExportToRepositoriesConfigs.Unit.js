@@ -2,25 +2,25 @@ process.env.NODE_ENV = "test";
 
 const path = require("path");
 
-const Pathfinder = global.Pathfinder;
+const rlequire = require("rlequire");
 const async = require("async");
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const repositoryUtils = rlequire("dendro", "test/utils/repository/repositoryUtils.js");
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
+const unitUtils = rlequire("dendro", "test/utils/units/unitUtils.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1");
 
-const b2share = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/dataToCreate/b2share"));
-const ckan = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/dataToCreate/ckan"));
-const dspace = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/dataToCreate/dspace"));
-const eprints = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/dataToCreate/eprints"));
-const figshare = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/dataToCreate/figshare"));
-const zenodo = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/dataToCreate/zenodo"));
+const b2share = rlequire("dendro", "test/mockdata/repositories/dataToCreate/b2share");
+const ckan = rlequire("dendro", "test/mockdata/repositories/dataToCreate/ckan");
+const dspace = rlequire("dendro", "test/mockdata/repositories/dataToCreate/dspace");
+const eprints = rlequire("dendro", "test/mockdata/repositories/dataToCreate/eprints");
+const figshare = rlequire("dendro", "test/mockdata/repositories/dataToCreate/figshare");
+const zenodo = rlequire("dendro", "test/mockdata/repositories/dataToCreate/zenodo");
 
 const dataToCreateExportConfigs = [b2share, ckan, dspace, eprints, figshare, zenodo];
 
-let ClearCkanOrganizationStateUnit = require(Pathfinder.absPathInTestsFolder("units/repositories/clearCkanOrganizationState.Unit.js"));
+let ClearCkanOrganizationStateUnit = rlequire("dendro", "test/units/repositories/clearCkanOrganizationState.Unit.js");
 class CreateExportToRepositoriesConfigs extends ClearCkanOrganizationStateUnit
 {
     static load (callback)

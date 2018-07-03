@@ -5,22 +5,22 @@ const expect = chai.expect;
 const _ = require("underscore");
 chai.use(chaiHttp);
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
+const folderUtils = rlequire("dendro", "test/utils/folder/folderUtils.js");
+const projectUtils = rlequire("dendro", "test/utils/project/projectUtils.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
-const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");
+const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2.js");
+const demouser3 = rlequire("dendro", "test/mockdata/users/demouser3.js");
 
-const metadataProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
-const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
+const metadataProject = rlequire("dendro", "test/mockdata/projects/metadata_only_project.js");
+const testFolder1 = rlequire("dendro", "test/mockdata/folders/testFolder1.js");
 
-const createFoldersForLsByName = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFoldersForLsByName.Unit.js"));
+const createFoldersForLsByName = appUtils.requireUncached(rlequire.absPathInApp("dendro", "test/units/folders/createFoldersForLsByName.Unit.js"));
 
 let testFolder1Data;
 

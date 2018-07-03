@@ -8,45 +8,45 @@ const _ = require("underscore");
 chai.use(chaiHttp);
 it.optional = require("it-optional");
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const path = require("path");
 
-const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
-const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
-const httpUtils = require(Pathfinder.absPathInTestsFolder("utils/http/httpUtils.js"));
-const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-const ckanTestUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/ckanTestUtils.js"));
-const CkanUtils = require(Pathfinder.absPathInSrcFolder("/utils/datasets/ckanUtils.js"));
+const fileUtils = rlequire("dendro", "test/utils/file/fileUtils.js");
+const projectUtils = rlequire("dendro", "test/utils/project/projectUtils.js");
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const folderUtils = rlequire("dendro", "test/utils/folder/folderUtils.js");
+const itemUtils = rlequire("dendro", "test/utils/item/itemUtils.js");
+const httpUtils = rlequire("dendro", "test/utils/http/httpUtils.js");
+const repositoryUtils = rlequire("dendro", "test/utils/repository/repositoryUtils.js");
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
+const ckanTestUtils = rlequire("dendro", "test/utils/repository/ckanTestUtils.js");
+const CkanUtils = rlequire("dendro", "src/utils/datasets/ckanUtils.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
-const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");
+const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2.js");
+const demouser3 = rlequire("dendro", "test/mockdata/users/demouser3.js");
 
-const metadataProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
-const folderExportCkan = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportCkan.js"));
-const folderExportedCkanNoDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanNoDiffs.js"));
-const folderExportedCkanDendroDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanDendroDiffs.js"));
-const folderExportedCkanCkanDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanCkanDiffs.js"));
-const folderMissingDescriptors = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderMissingDescriptors.js"));
-const pdfMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/pdfMockFile.js"));
-const pngMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/pngMockFile.js"));
+const metadataProject = rlequire("dendro", "test/mockdata/projects/metadata_only_project.js");
+const folderExportCkan = rlequire("dendro", "test/mockdata/folders/folderExportCkan.js");
+const folderExportedCkanNoDiffs = rlequire("dendro", "test/mockdata/folders/folderExportedCkanNoDiffs.js");
+const folderExportedCkanDendroDiffs = rlequire("dendro", "test/mockdata/folders/folderExportedCkanDendroDiffs.js");
+const folderExportedCkanCkanDiffs = rlequire("dendro", "test/mockdata/folders/folderExportedCkanCkanDiffs.js");
+const folderMissingDescriptors = rlequire("dendro", "test/mockdata/folders/folderMissingDescriptors.js");
+const pdfMockFile = rlequire("dendro", "test/mockdata/files/pdfMockFile.js");
+const pngMockFile = rlequire("dendro", "test/mockdata/files/pngMockFile.js");
 
-// const createExportToRepositoriesConfig = require(Pathfinder.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));
-const exportFoldersToCkanRepositoryUnit = require(Pathfinder.absPathInTestsFolder("units/repositories/exportFoldersToCkanRepository.Unit.js"));
+// const createExportToRepositoriesConfig = rlequire("dendro", "test/units/repositories/createExportToRepositoriesConfigs.Unit.js");
+const exportFoldersToCkanRepositoryUnit = rlequire("dendro", "test/units/repositories/exportFoldersToCkanRepository.Unit.js");
 
-const db = require(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+const db = rlequire("dendro", "test/utils/db/db.Test.js");
 
-let createdUnknownRepo = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/created/created_unknown_export_repo.js"));
-let createdB2shareConfigInvalidToken = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/created/createdB2shareWithInvalidToken.js"));
-let createdB2shareConfigInvalidUrl = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/created/createdB2shareWithInvalidUrl.js"));
-let createdZenodoConfigInvalidToken = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/created/createdZenodoWithInvalidToken.js"));
-let createdCkanConfigInvalidToken = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/created/createdCkanWithInvalidToken.js"));
-let createdCkanConfigInvalidUrl = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/created/createdCkanWithInvalidUrl.js"));
+let createdUnknownRepo = rlequire("dendro", "test/mockdata/repositories/created/created_unknown_export_repo.js");
+let createdB2shareConfigInvalidToken = rlequire("dendro", "test/mockdata/repositories/created/createdB2shareWithInvalidToken.js");
+let createdB2shareConfigInvalidUrl = rlequire("dendro", "test/mockdata/repositories/created/createdB2shareWithInvalidUrl.js");
+let createdZenodoConfigInvalidToken = rlequire("dendro", "test/mockdata/repositories/created/createdZenodoWithInvalidToken.js");
+let createdCkanConfigInvalidToken = rlequire("dendro", "test/mockdata/repositories/created/createdCkanWithInvalidToken.js");
+let createdCkanConfigInvalidUrl = rlequire("dendro", "test/mockdata/repositories/created/createdCkanWithInvalidUrl.js");
 
 let ckanData;
 let folderExportCkanData, folderExportedCkanNoDiffsData, folderExportedCkanDendroDiffsData,

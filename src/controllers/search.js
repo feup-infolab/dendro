@@ -1,18 +1,18 @@
 const _ = require("underscore");
-const Pathfinder = global.Pathfinder;
-const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const IndexConnection = rlequire("dendro", "src/kb/index.js").IndexConnection;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Resource = rlequire("dendro", "src/models/resource.js").Resource;
 
-const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
-const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-const User = require(Pathfinder.absPathInSrcFolder("models/user.js")).User;
-const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
-const Administrator = require(Pathfinder.absPathInSrcFolder("/models/administrator.js")).Administrator;
+const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
+const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder
+const User = rlequire("dendro", "src/models/user.js").User;
+const Project = rlequire("dendro", "src/models/project.js").Project;
+const Administrator = rlequire("dendro", "src/models/administrator.js").Administrator;
 
 const db = Config.getDBByID();
 

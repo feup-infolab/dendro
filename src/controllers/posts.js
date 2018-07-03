@@ -1,16 +1,16 @@
 const path = require("path");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
 const Post = require("../models/social/post.js").Post;
 const Like = require("../models/social/like.js").Like;
 const Notification = require("../models/notifications/notification.js").Notification;
 const Comment = require("../models/social/comment.js").Comment;
 const Share = require("../models/social/share.js").Share;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const Project = require("../models/project.js").Project;
 const DbConnection = require("../kb/db.js").DbConnection;
 const MetadataChangePost = require("../models/social/metadataChangePost").MetadataChangePost;

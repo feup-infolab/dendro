@@ -1,10 +1,10 @@
 const _ = require("underscore");
 const async = require("async");
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 const virtualbox = require("virtualbox");
 const childProcess = require("child_process");
@@ -495,7 +495,7 @@ VirtualBoxManager.restartServices = function (serviceNames, callback)
                         VAGRANT_VM_IP: VirtualBoxManager.vmIP
                     }
                 ],
-                cwd: Pathfinder.appDir,
+                cwd: rlequire.getRootFolder("dendro"),
                 stdio: [0, 1, 2]
             }, function (err, result)
             {

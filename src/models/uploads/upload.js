@@ -1,10 +1,10 @@
 const path = require("path");
-const Pathfinder = global.Pathfinder;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Class = rlequire("dendro", "src/models/meta/class.js").Class;
 
 function Upload (object)
 {

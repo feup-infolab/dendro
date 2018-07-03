@@ -1,11 +1,11 @@
 const fs = require("fs");
 const async = require("async");
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-let isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+let isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const User = rlequire("dendro", "src/models/user.js").User;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 const loadDemoUsers = function (app, callback)
 {
@@ -13,7 +13,7 @@ const loadDemoUsers = function (app, callback)
     {
         Logger.log_boot_message("Recreating demo users... ");
         // try to delete all demo users
-        const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+        const User = rlequire("dendro", "src/models/user.js").User;
 
         const createUser = function (user, callback)
         {

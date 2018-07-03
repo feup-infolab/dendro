@@ -1,27 +1,27 @@
 process.env.NODE_ENV = "test";
 
-const Pathfinder = global.Pathfinder;
+const rlequire = require("rlequire");
 
 const chai = require("chai");
 chai.use(require("chai-http"));
 const async = require("async");
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils"));
-const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const itemUtils = rlequire("dendro", "test//utils/item/itemUtils");
+const fileUtils = rlequire("dendro", "test/utils/file/fileUtils.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1");
 
 // const filesData = [csvMockFile, docMockFile, docxMockFile, pdfMockFile, pngMockFile, xlsMockFile, xlsxMockFile, zipMockFile, txtMockFile, odsMockFile];
-const createFilesUnit = require(Pathfinder.absPathInTestsFolder("units/files/createFiles.Unit.js"));
+const createFilesUnit = rlequire("dendro", "test/units/files/createFiles.Unit.js");
 const allFiles = createFilesUnit.allFiles;
 
-let createProjectsUnit = require(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
+let createProjectsUnit = rlequire("dendro", "test/units/projects/createProjects.Unit.js");
 const projectsData = createProjectsUnit.projectsData;
 
-let AddMetadataToFoldersUnit = require(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
-let CreateFoldersUnit = require(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
+let AddMetadataToFoldersUnit = rlequire("dendro", "test/units/metadata/addMetadataToFolders.Unit.js");
+let CreateFoldersUnit = rlequire("dendro", "test/units/folders/createFolders.Unit.js");
 const foldersData = CreateFoldersUnit.foldersData;
 
 class CreateAllFoldersAndAllFilesInsideThemWithMetadata extends AddMetadataToFoldersUnit

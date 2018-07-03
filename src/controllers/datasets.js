@@ -1,27 +1,25 @@
 const path = require("path");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
-const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-const ExternalRepository = require(Pathfinder.absPathInSrcFolder("/models/harvesting/external_repository.js")).ExternalRepository;
-const RepositoryPlatform = require(Pathfinder.absPathInSrcFolder("/models/harvesting/repo_platform")).RepositoryPlatform;
-const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
-const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
-const records = require(Pathfinder.absPathInSrcFolder("/controllers/records.js"));
-const Serializers = require(Pathfinder.absPathInSrcFolder("/utils/serializers.js"));
-const swordConnection = require(Pathfinder.absPathInSrcFolder("/export_libs/sword-connection/index.js"));
-const Figshare = require(Pathfinder.absPathInSrcFolder("/export_libs/figshare/figshare.js"));
+const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder
+const InformationElement = rlequire("dendro", "src/models/directory_structure/information_element.js").InformationElement;
+const ExternalRepository = rlequire("dendro", "src/models/harvesting/external_repository.js").ExternalRepository;
+const RepositoryPlatform = rlequire("dendro", "src/models/harvesting/repo_platform").RepositoryPlatform;
+const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
+const Project = rlequire("dendro", "src/models/project.js").Project;
+const records = rlequire("dendro", "src/controllers/records.js"));
+const Serializers = rlequire("dendro", "src/utils/serializers.js"));
+const swordConnection = rlequire("dendro", "src/export_libs/sword-connection/index.js"));
+const Figshare = rlequire("dendro", "src/export_libs/figshare/figshare.js"));
 const B2ShareClient = require("@feup-infolab/node-b2share-v2");
-const Zenodo = require(Pathfinder.absPathInSrcFolder("/export_libs/zenodo/zenodo.js"));
-const Utils = require(Pathfinder.absPathInPublicFolder("/js/utils.js")).Utils;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const Zenodo = rlequire("dendro", "src/export_libs/zenodo/zenodo.js"));
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const CKAN = require("ckan");
-const CkanUtils = require(Pathfinder.absPathInSrcFolder("/utils/datasets/ckanUtils.js"));
-const generalDatasetUtils = require(Pathfinder.absPathInSrcFolder("/utils/datasets/generalDatasetUtils.js"));
+const CkanUtils = rlequire("dendro", "src/utils/datasets/ckanUtils.js"));
+const generalDatasetUtils = rlequire("dendro", "src/utils/datasets/generalDatasetUtils.js"));
 
 const async = require("async");
 const nodemailer = require("nodemailer");

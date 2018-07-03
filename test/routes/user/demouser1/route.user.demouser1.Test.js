@@ -4,18 +4,18 @@ const should = chai.should();
 const _ = require("underscore");
 chai.use(chaiHttp);
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
 
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-const createUserUnit = require(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
+const createUserUnit = rlequire("dendro", "test/units/users/createUsers.Unit.js");
 
 describe("/user/demouser1", function (done)
 {
     this.timeout(Config.testsTimeout);
-    const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
+    const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");
     const falseUser = "demouser404";
 
     before(function (done)

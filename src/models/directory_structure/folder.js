@@ -7,18 +7,18 @@ const slug = require("slug");
 const async = require("async");
 const _ = require("underscore");
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const DbConnection = rlequire("dendro", "src/kb/db.js").DbConnection;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
-const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
-const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Class = rlequire("dendro", "src/models/meta/class.js").Class;
+const InformationElement = rlequire("dendro", "src/models/directory_structure/information_element.js").InformationElement;
+const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+const User = rlequire("dendro", "src/models/user.js").User;
+const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 const db = Config.getDBByID();
 
@@ -502,7 +502,7 @@ Folder.prototype.bagit = function (bagItOptions, callback)
             },
             function (absolutePathOfFinishedFolder, parentFolderPath, cb)
             {
-                const gladstone = require(Pathfinder.absPathInApp("/node_modules/gladstone/gladstone.js"));
+                const gladstone = rlequire("dendro","/node_modules/gladstone/gladstone.js");
                 gladstone.createBagDirectory(bagItOptions)
                     .then(function (result)
                     {
@@ -1867,14 +1867,14 @@ Folder.prototype.getHumanReadableUri = function (callback)
         }
         else
         {
-            const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+            const Resource = rlequire("dendro", "src/models/resource.js").Resource;
             Resource.findByUri(self.nie.isLogicalPartOf, function (err, parentResource)
             {
                 if (isNull(err))
                 {
                     if (!isNull(parentResource))
                     {
-                        const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+                        const Project = rlequire("dendro", "src/models/project.js").Project;
                         if(parentResource.isA(Project))
                         {
                             callback(null, parentResource.ddr.humanReadableURI + "/data");

@@ -1,24 +1,24 @@
 process.env.NODE_ENV = "test";
 
 const _ = require("underscore");
-const Pathfinder = global.Pathfinder;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const rlequire = require("rlequire");
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const async = require("async");
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
-const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const repositoryUtils = rlequire("dendro", "test/utils/repository/repositoryUtils.js");
+const projectUtils = rlequire("dendro", "test/utils/project/projectUtils.js");
+const unitUtils = rlequire("dendro", "test/utils/units/unitUtils.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1");
 
-const folderExportedCkanNoDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanNoDiffs.js"));
-const folderExportedCkanDendroDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanDendroDiffs.js"));
-const folderExportedCkanCkanDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanCkanDiffs.js"));
+const folderExportedCkanNoDiffs = rlequire("dendro", "test/mockdata/folders/folderExportedCkanNoDiffs.js");
+const folderExportedCkanDendroDiffs = rlequire("dendro", "test/mockdata/folders/folderExportedCkanDendroDiffs.js");
+const folderExportedCkanCkanDiffs = rlequire("dendro", "test/mockdata/folders/folderExportedCkanCkanDiffs.js");
 let foldersToExport = [];
 
 let ckanData;
 
-let createExportToRepositoriesConfig = require(Pathfinder.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));
+let createExportToRepositoriesConfig = rlequire("dendro", "test/units/repositories/createExportToRepositoriesConfigs.Unit.js");
 class ExportFoldersToCkanRepository extends createExportToRepositoriesConfig
 {
     static load (callback)
@@ -75,7 +75,7 @@ class ExportFoldersToCkanRepository extends createExportToRepositoriesConfig
                                 {
                                     repositoryUtils.exportFolderByUriToRepository(true, folder.uri, agent, {repository: ckanData}, function (err, res)
                                     {
-                                        Logger.log("exportFolderByUriToRepository res is: " + JSON.stringify(res));
+                                        Logger.log("exportFolderByUriToRepository res is: " + JSON.stringify(res);
                                         cb(err, res);
                                     });
                                 }, function (err, results)

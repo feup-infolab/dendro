@@ -1,12 +1,12 @@
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const appSecret = Config.crypto.secret,
     express = require("express"),
     slug = require("slug"),
     favicon = require("serve-favicon"),
     YAML = require("yamljs"),
-    swaggerDocument = YAML.load(Pathfinder.absPathInApp("swagger.yaml")),
+    swaggerDocument = YAML.load(rlequire.absPathInApp("dendro","swagger.yaml")),
     swaggerUi = require("swagger-ui-express"),
     bodyParser = require("body-parser"),
     methodOverride = require("method-override"),
@@ -26,12 +26,12 @@ const loadMiscMiddlewares = function (app, callback)
 
     // all environments
     app.set("port", process.env.PORT || Config.port);
-    app.set("views", Pathfinder.absPathInSrcFolder("/views"));
+    app.set("views", rlequire.absPathInApp("dendro", "/views"));
 
     app.set("view engine", "ejs");
     app.set("etag", "strong");
 
-    app.use(favicon(Pathfinder.absPathInPublicFolder("images/logo_micro.png")));
+    app.use(favicon(rlequire.absPathInApp("dendro", "public/images/logo_micro.png")));
 
     // app.use(express.logger('dev'));
 
@@ -58,9 +58,9 @@ const loadMiscMiddlewares = function (app, callback)
 
     app.use(flash());
 
-    app.use(require("stylus").middleware(Pathfinder.getPathToPublicFolder()));
+    app.use(require("stylus").middleware(rlequire.absPathInApp("dendro", "public/")));
 
-    app.use(express.static(Pathfinder.getPathToPublicFolder()));
+    app.use(express.static(rlequire.absPathInApp("dendro", "public/")));
 
     app.set("title", "Dendro");
     app.set("theme", Config.theme);

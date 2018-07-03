@@ -3,19 +3,19 @@ const chaiHttp = require("chai-http");
 const should = chai.should();
 chai.use(chaiHttp);
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const projectUtils = rlequire("dendro", "test/utils/project/projectUtils.js");
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");
 
-const project = require(Pathfinder.absPathInTestsFolder("mockdata/projects/b2drop_project.js"));
-const b2dropProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/b2drop_project.js"));
+const project = rlequire("dendro", "test/mockdata/projects/b2drop_project.js");
+const b2dropProject = rlequire("dendro", "test/mockdata/projects/b2drop_project.js");
 
-const createFoldersB2DropUnit = require(Pathfinder.absPathInTestsFolder("units/folders/createFoldersB2drop.Unit.js"));
+const createFoldersB2DropUnit = rlequire("dendro", "test/units/folders/createFoldersB2drop.Unit.js");
 
 describe("Backup B2Drop-backed project", function ()
 {

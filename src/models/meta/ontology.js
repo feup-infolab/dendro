@@ -1,13 +1,13 @@
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const Controls = require(Pathfinder.absPathInSrcFolder("models/meta/controls.js")).Controls;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const Controls = rlequire("dendro", "src/models/meta/controls.js").Controls;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const ResearchDomain = require(Pathfinder.absPathInSrcFolder("/models/meta/research_domain.js")).ResearchDomain;
-const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
-const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const ResearchDomain = rlequire("dendro", "src/models/meta/research_domain.js").ResearchDomain;
+const Class = rlequire("dendro", "src/models/meta/class.js").Class;
+const Resource = rlequire("dendro", "src/models/resource.js").Resource;
 
 const db = Config.getDBByID();
 
@@ -203,7 +203,7 @@ Ontology.initAllFromDatabase = function (callback)
     {
         const addDescriptorInformation = function (ontology, callback)
         {
-            const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+            const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
             Descriptor.all_in_ontology(ontology.uri, function (err, descriptors)
             {
                 if (isNull(err))
@@ -783,7 +783,7 @@ Ontology.prototype.save = function (callback)
     const self = this;
     const uri = self.uri;
 
-    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+    const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
 
     const description = new Descriptor(
         {

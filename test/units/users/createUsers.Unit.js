@@ -3,15 +3,15 @@ chai.use(require("chai-http"));
 const async = require("async");
 
 process.env.NODE_ENV = "test";
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const isNull = require(Pathfinder.absPathInSrcFolder("utils/null")).isNull;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
-const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
-const LoadOntologies = require(Pathfinder.absPathInTestsFolder("units/ontologies/loadOntologies.Unit.js"));
-const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
-const Administrator = require(Pathfinder.absPathInSrcFolder("/models/administrator.js")).Administrator;
+const unitUtils = rlequire("dendro", "test/utils/units/unitUtils.js");
+const LoadOntologies = rlequire("dendro", "test/units/ontologies/loadOntologies.Unit.js");
+const User = rlequire("dendro", "src/models/user.js").User;
+const Administrator = rlequire("dendro", "src/models/administrator.js").Administrator;
 
 class CreateUsers extends LoadOntologies
 {

@@ -2,16 +2,16 @@ const fs = require("fs");
 const _ = require("underscore");
 const async = require("async");
 
-const Pathfinder = global.Pathfinder;
-const isNull = require(Pathfinder.absPathInSrcFolder("utils/null.js")).isNull;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const repository_platform_configs_file_path = Pathfinder.absPathInApp("conf/repository_platform_configs.json");
-const active_config_file_path = Pathfinder.absPathInApp("conf/active_deployment_config.json");
+const rlequire = require("rlequire");
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const repository_platform_configs_file_path = rlequire.absPathInApp("dendro","conf/repository_platform_configs.json");
+const active_config_file_path = rlequire.absPathInApp("dendro","conf/active_deployment_config.json");
 
 const loadRepositoryPlatforms = function (app, callback)
 {
-    const RepositoryPlatform = require(Pathfinder.absPathInSrcFolder("/models/harvesting/repo_platform")).RepositoryPlatform;
+    const RepositoryPlatform = rlequire("dendro", "src/models/harvesting/repo_platform").RepositoryPlatform;
     const repositoryPlatformConfigs = JSON.parse(fs.readFileSync(repository_platform_configs_file_path, "utf8"));
 
     const argv = require("yargs").argv;
@@ -23,7 +23,7 @@ const loadRepositoryPlatforms = function (app, callback)
     }
     else
     {
-        activeConfigKey = JSON.parse(fs.readFileSync(active_config_file_path, "utf8")).key;
+        activeConfigKey = JSON.parse(fs.readFileSync(active_config_file_path, "utf8").key;
     }
 
     let active_config_for_repositoryPlatforms = repositoryPlatformConfigs[activeConfigKey];

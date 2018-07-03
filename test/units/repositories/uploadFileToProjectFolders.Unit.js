@@ -2,18 +2,18 @@ process.env.NODE_ENV = "test";
 
 const path = require("path");
 
-const Pathfinder = global.Pathfinder;
+const rlequire = require("rlequire");
 const async = require("async");
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
-const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
-const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const projectUtils = rlequire("dendro", "test/utils/project/projectUtils.js");
+const fileUtils = rlequire("dendro", "test/utils/file/fileUtils.js");
+const unitUtils = rlequire("dendro", "test/utils/units/unitUtils.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1");
 
-const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtMockFile.js"));
+const txtMockFile = rlequire("dendro", "test/mockdata/files/txtMockFile.js");
 
-let AddMetadataToFoldersSingleProjectUnit = require(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFoldersPublicProject.Unit.js"));
+let AddMetadataToFoldersSingleProjectUnit = rlequire("dendro", "test/units/metadata/addMetadataToFoldersPublicProject.Unit.js");
 
 class UploadFileToProjectFolders extends AddMetadataToFoldersSingleProjectUnit
 {

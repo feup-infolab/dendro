@@ -1,19 +1,19 @@
 process.env.NODE_ENV = "test";
 
-const Pathfinder = global.Pathfinder;
+const rlequire = require("rlequire");
 
 const chai = require("chai");
 chai.use(require("chai-http"));
 const async = require("async");
 
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
-const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1");
+const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2");
+const unitUtils = rlequire("dendro", "test/utils/units/unitUtils.js");
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
-const CreateProjectsUnit = require(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
+const CreateProjectsUnit = rlequire("dendro", "test/units/projects/createProjects.Unit.js");
 
 const projectsData = CreateProjectsUnit.projectsData;
 

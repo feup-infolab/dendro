@@ -1,29 +1,29 @@
 process.env.NODE_ENV = "test";
 
-const Pathfinder = global.Pathfinder;
+const rlequire = require("rlequire");
 
 const chai = require("chai");
 chai.use(require("chai-http"));
 const async = require("async");
 const path = require("path");
 
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils"));
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const itemUtils = rlequire("dendro", "test//utils/item/itemUtils");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1");
 
-const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
-const createProjectsUnit = require(Pathfinder.absPathInTestsFolder("units/projects/createProjectsB2Drop.Unit.js"));
+const unitUtils = rlequire("dendro", "test/utils/units/unitUtils.js");
+const createProjectsUnit = rlequire("dendro", "test/units/projects/createProjectsB2Drop.Unit.js");
 
-const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
-const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
-const testFolder2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder2.js"));
-const folderDemoUser2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderDemoUser2.js"));
+const folder = rlequire("dendro", "test/mockdata/folders/folder.js");
+const testFolder1 = rlequire("dendro", "test/mockdata/folders/testFolder1.js");
+const testFolder2 = rlequire("dendro", "test/mockdata/folders/testFolder2.js");
+const folderDemoUser2 = rlequire("dendro", "test/mockdata/folders/folderDemoUser2.js");
 
 const projectsData = createProjectsUnit.projectsData;
 const foldersData = module.exports.foldersData = [folder, testFolder1, testFolder2, folderDemoUser2];
 
-let AddContributorsToProjectsUnit = require(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
+let AddContributorsToProjectsUnit = rlequire("dendro", "test/units/projects/addContributorsToProjects.Unit.js");
 class DeleteFoldersB2Drop extends AddContributorsToProjectsUnit
 {
     static load (callback)

@@ -4,21 +4,21 @@ const should = chai.should();
 const _ = require("underscore");
 chai.use(chaiHttp);
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const ontologiesUtils = require(Pathfinder.absPathInTestsFolder("utils/ontologies/ontologiesUtils.js"));
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const ontologiesUtils = rlequire("dendro", "test/utils/ontologies/ontologiesUtils.js");
 
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-const addBootUpUnit = require(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
+const addBootUpUnit = rlequire("dendro", "test/units/bootup.Unit.js");
 
 describe("/ontologies/public", function ()
 {
     this.timeout(Config.testsTimeout);
-    const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
-    const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
-    const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
+    const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");
+    const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2.js");
+    const demouser3 = rlequire("dendro", "test/mockdata/users/demouser3.js");
 
     before(function (done)
     {

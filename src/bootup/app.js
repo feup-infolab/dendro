@@ -4,6 +4,7 @@ const pm2 = require("pm2");
 const npid = require("npid");
 const mkdirp = require("mkdirp");
 const _ = require("underscore");
+const rlequire = require("rlequire");
 let appDir;
 
 if (process.env.NODE_ENV === "test")
@@ -15,16 +16,12 @@ else
     appDir = path.resolve(path.dirname(require.main.filename), "../");
 }
 
-const Pathfinder = require(path.join(appDir, "src", "models", "meta", "pathfinder.js")).Pathfinder;
-global.Pathfinder = Pathfinder;
-Pathfinder.appDir = appDir;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+let isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const DockerManager = rlequire("dendro", "src/utils/docker/docker_manager.js").DockerManager;
 
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-let isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const DockerManager = require(Pathfinder.absPathInSrcFolder("utils/docker/docker_manager.js")).DockerManager;
-
-Config.pm2AppName = require(Pathfinder.absPathInApp("package.json")).name + "-" + require(Pathfinder.absPathInApp("package.json")).version;
+Config.pm2AppName = rlequire("dendro", "package.json").name + "-" + rlequire("dendro", "package.json").version;
 
 class App
 {
@@ -206,42 +203,42 @@ class App
                 function (callback)
                 {
                     // start VirtualBox VM
-                    require(Pathfinder.absPathInSrcFolder("bootup/init/init_virtualbox.js")).initVirtualBoxVM(self.app, callback);
+                    rlequire("dendro", "src/bootup/init/init_virtualbox.js").initVirtualBoxVM(self.app, callback);
                 },
                 function (callback)
                 {
                     // start docker containers
-                    require(Pathfinder.absPathInSrcFolder("bootup/init/init_docker.js")).initDockerContainers(self.app, callback);
+                    rlequire("dendro", "src/bootup/init/init_docker.js").initDockerContainers(self.app, callback);
                 },
                 function (callback)
                 {
                     // setup virtuoso
-                    require(Pathfinder.absPathInSrcFolder("bootup/init/init_virtuoso.js")).initVirtuoso(self.app, callback);
+                    rlequire("dendro", "src/bootup/init/init_virtuoso.js").initVirtuoso(self.app, callback);
                 },
                 function (callback)
                 {
                     // setup caches
-                    require(Pathfinder.absPathInSrcFolder("bootup/init/init_cache.js")).initCache(self.app, callback);
+                    rlequire("dendro", "src/bootup/init/init_cache.js").initCache(self.app, callback);
                 },
                 function (callback)
                 {
                     // create search indexes on elasticsearch if needed
-                    require(Pathfinder.absPathInSrcFolder("bootup/init/connect_to_indexes.js")).connectToIndexes(self.app, callback);
+                    rlequire("dendro", "src/bootup/init/connect_to_indexes.js").connectToIndexes(self.app, callback);
                 },
                 function (callback)
                 {
                     // init gridfs
-                    require(Pathfinder.absPathInSrcFolder("bootup/init/init_gridfs.js")).initGridFS(self.app, callback);
+                    rlequire("dendro", "src/bootup/init/init_gridfs.js").initGridFS(self.app, callback);
                 },
                 function (callback)
                 {
                     // init MySQL Connection pool
-                    require(Pathfinder.absPathInSrcFolder("bootup/init/init_mysql.js")).initMySQL(self.app, callback);
+                    rlequire("dendro", "src/bootup/init/init_mysql.js").initMySQL(self.app, callback);
                 },
                 function (callback)
                 {
                     // connect to descriptor recommender
-                    require(Pathfinder.absPathInSrcFolder("bootup/init/connect_to_recommender.js")).connectToRecommender(self.app, callback);
+                    rlequire("dendro", "src/bootup/init/connect_to_recommender.js").connectToRecommender(self.app, callback);
                 }
             ], function (err, results)
             {
@@ -272,7 +269,7 @@ class App
         if (process.env.NODE_ENV !== "test")
         {
             // second arg = overwrite pid if exists
-            self.pid = npid.create(Pathfinder.absPathInApp("running.pid"), true);
+            self.pid = npid.create(rlequire.absPathInApp("dendro","running.pid"), true);
             self.pid.removeOnExit();
         }
 
@@ -337,23 +334,23 @@ class App
                 function (callback)
                 {
                     // setup passport
-                    require(Pathfinder.absPathInSrcFolder("bootup/init/setup_passport.js")).setupPassport(self.app, callback);
+                    rlequire("dendro", "src/bootup/init/setup_passport.js").setupPassport(self.app, callback);
                 },
 
                 function (callback)
                 {
                     // init temporary files directory
-                    require(Pathfinder.absPathInSrcFolder("bootup/init/init_temp_folder.js")).initTempFilesFolder(self.app, callback);
+                    rlequire("dendro", "src/bootup/init/init_temp_folder.js").initTempFilesFolder(self.app, callback);
                 },
                 function (callback)
                 {
                     // init folder for temporary files
-                    require(Pathfinder.absPathInSrcFolder("bootup/init/init_temp_uploads_folder.js")).initTempUploadsFolder(self.app, callback);
+                    rlequire("dendro", "src/bootup/init/init_temp_uploads_folder.js").initTempUploadsFolder(self.app, callback);
                 },
                 function (callback)
                 {
                     // add RAM usage monitor if enabled
-                    self.runIfMaster(require(Pathfinder.absPathInSrcFolder("bootup/monitoring/monitor_ram_usage.js")).monitorRAMUsage, self.app, callback);
+                    self.runIfMaster(rlequire("dendro", "src/bootup/monitoring/monitor_ram_usage.js").monitorRAMUsage, self.app, callback);
                 }
             ], function (err, results)
             {
@@ -371,15 +368,15 @@ class App
             async.waterfall([
                 function (callback)
                 {
-                    require(Pathfinder.absPathInSrcFolder("bootup/middleware/load_misc_middlewares.js")).loadMiscMiddlewares(self.app, callback);
+                    rlequire("dendro", "src/bootup/middleware/load_misc_middlewares.js").loadMiscMiddlewares(self.app, callback);
                 },
                 function (callback)
                 {
-                    require(Pathfinder.absPathInSrcFolder("bootup/middleware/append_index_to_requests.js")).appendIndexToRequests(self.app, self.index, callback);
+                    rlequire("dendro", "src/bootup/middleware/append_index_to_requests.js").appendIndexToRequests(self.app, self.index, callback);
                 },
                 function (callback)
                 {
-                    require(Pathfinder.absPathInSrcFolder("bootup/middleware/append_locals_to_use_in_views.js")).appendLocalsToUseInViews(self.app, callback);
+                    rlequire("dendro", "src/bootup/middleware/append_locals_to_use_in_views.js").appendLocalsToUseInViews(self.app, callback);
                 }],
             function (err, results)
             {
@@ -397,12 +394,12 @@ class App
                 function (callback)
                 {
                     // load demo users
-                    require(Pathfinder.absPathInSrcFolder("bootup/load/users/load_demo_users.js")).loadDemoUsers(self.app, callback);
+                    rlequire("dendro", "src/bootup/load/users/load_demo_users.js").loadDemoUsers(self.app, callback);
                 },
                 function (callback)
                 {
                     // load_admins
-                    require(Pathfinder.absPathInSrcFolder("bootup/load/users/load_admins.js")).loadAdmins(self.app, callback);
+                    rlequire("dendro", "src/bootup/load/users/load_admins.js").loadAdmins(self.app, callback);
                 }],
             function (err, results)
             {
@@ -420,19 +417,19 @@ class App
             async.waterfall([
                 function (callback)
                 {
-                    require(Pathfinder.absPathInSrcFolder("bootup/routes/load_logic_routes.js")).loadRoutes(self.app, callback);
+                    rlequire("dendro", "src/bootup/routes/load_logic_routes.js").loadRoutes(self.app, callback);
                 },
                 function (callback)
                 {
-                    require(Pathfinder.absPathInSrcFolder("bootup/routes/load_plugins_routes.js")).loadRoutes(self.app, callback);
+                    rlequire("dendro", "src/bootup/routes/load_plugins_routes.js").loadRoutes(self.app, callback);
                 },
                 function (callback)
                 {
-                    require(Pathfinder.absPathInSrcFolder("bootup/routes/load_error_code_routes.js")).loadRoutes(self.app, callback);
+                    rlequire("dendro", "src/bootup/routes/load_error_code_routes.js").loadRoutes(self.app, callback);
                 },
                 function (callback)
                 {
-                    require(Pathfinder.absPathInSrcFolder("bootup/init/setup_server.js")).setupServer(self.app, callback);
+                    rlequire("dendro", "src/bootup/init/setup_server.js").setupServer(self.app, callback);
                 },
                 function (app, server, callback)
                 {
@@ -443,7 +440,7 @@ class App
                         // dont start server twice (for testing)
                         // http://www.marcusoft.net/2015/10/eaddrinuse-when-watching-tests-with-mocha-and-supertest.html
 
-                        require(Pathfinder.absPathInSrcFolder("bootup/init/start_server.js")).startServer(app, server, function (err, result)
+                        rlequire("dendro", "src/bootup/init/start_server.js").startServer(app, server, function (err, result)
                         {
                             return callback(err);
                         });
@@ -482,7 +479,7 @@ class App
             },
             function (callback)
             {
-                require(Pathfinder.absPathInSrcFolder("bootup/cron_jobs/delete_old_temp_folders.js")).deleteOldTempFolders(self.app, callback);
+                rlequire("dendro", "src/bootup/cron_jobs/delete_old_temp_folders.js").deleteOldTempFolders(self.app, callback);
             },
             function (cb)
             {
@@ -524,37 +521,37 @@ class App
             function (callback)
             {
                 // destroy graphs if needed
-                self.runIfMaster(require(Pathfinder.absPathInSrcFolder("bootup/load/destroy_all_graphs.js")).destroyAllGraphs, self.app, callback);
+                self.runIfMaster(rlequire("dendro", "src/bootup/load/destroy_all_graphs.js").destroyAllGraphs, self.app, callback);
             },
             function (callback)
             {
                 // delete and recreate search indexes on elasticsearch if needed
-                require(Pathfinder.absPathInSrcFolder("bootup/load/create_indexes.js")).createIndexes(self.app, callback);
+                rlequire("dendro", "src/bootup/load/create_indexes.js").createIndexes(self.app, callback);
             },
             function (callback)
             {
                 // load ontologies from database
-                require(Pathfinder.absPathInSrcFolder("bootup/load/load_ontologies.js")).loadOntologies(self.app, callback);
+                rlequire("dendro", "src/bootup/load/load_ontologies.js").loadOntologies(self.app, callback);
             },
             function (callback)
             {
                 // load or save repository platforms on the database
-                self.runIfMaster(require(Pathfinder.absPathInSrcFolder("bootup/load/load_repository_platforms.js")).loadRepositoryPlatforms, self.app, callback);
+                self.runIfMaster(rlequire("dendro", "src/bootup/load/load_repository_platforms.js").loadRepositoryPlatforms, self.app, callback);
             },
             function (callback)
             {
                 // load Descriptor Information
-                self.runIfMaster(require(Pathfinder.absPathInSrcFolder("bootup/load/load_descriptor_information.js")).loadDescriptorInformation, self.app, callback);
+                self.runIfMaster(rlequire("dendro", "src/bootup/load/load_descriptor_information.js").loadDescriptorInformation, self.app, callback);
             },
             function (callback)
             {
                 // clear files storage
-                self.runIfMaster(require(Pathfinder.absPathInSrcFolder("bootup/load/clear_files_storage.js")).clearFilesStorage, self.app, callback);
+                self.runIfMaster(rlequire("dendro", "src/bootup/load/clear_files_storage.js").clearFilesStorage, self.app, callback);
             },
             function (callback)
             {
                 // clear datastore
-                self.runIfMaster(require(Pathfinder.absPathInSrcFolder("bootup/load/clear_datastore.js")).clearDataStore, self.app, callback);
+                self.runIfMaster(rlequire("dendro", "src/bootup/load/clear_datastore.js").clearDataStore, self.app, callback);
             }
         ], callback);
     }
@@ -566,7 +563,7 @@ class App
         {
             Logger.log("Dumping heap snapshot!");
             const heapdump = require("heapdump");
-            const snapshotsFolder = Pathfinder.absPathInApp("profiling/snapshots");
+            const snapshotsFolder = rlequire.absPathInApp("dendro","profiling/snapshots");
             const snapshotFile = path.join(snapshotsFolder, Date.now() + ".heapsnapshot");
 
             mkdirp.sync(snapshotsFolder);
@@ -624,7 +621,7 @@ class App
 
         const closeVirtuosoConnections = function (cb)
         {
-            const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+            const DbConnection = rlequire("dendro", "src/kb/db.js").DbConnection;
             DbConnection.finishUpAllConnectionsAndClose(function ()
             {
                 const timeout = 2000;
@@ -635,7 +632,7 @@ class App
 
         const closeCacheConnections = function (cb)
         {
-            const Cache = require(Pathfinder.absPathInSrcFolder("kb/cache/cache.js")).Cache;
+            const Cache = rlequire("dendro", "src/kb/cache/cache.js").Cache;
             Cache.closeConnections(function (err, result)
             {
                 if (!err)
@@ -652,7 +649,7 @@ class App
 
         const closeIndexConnections = function (cb)
         {
-            const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
+            const IndexConnection = rlequire("dendro", "src/kb/index.js").IndexConnection;
             IndexConnection.closeConnections(function (err, result)
             {
                 if (!err)

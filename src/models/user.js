@@ -1,17 +1,17 @@
 const path = require("path");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
-const Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
-const DendroMongoClient = require(Pathfinder.absPathInSrcFolder("/kb/mongo.js")).DendroMongoClient;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Class = rlequire("dendro", "src/models/meta/class.js").Class;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const Ontology = rlequire("dendro", "src/models/meta/ontology.js").Ontology;
+const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+const DbConnection = rlequire("dendro", "src/kb/db.js").DbConnection;
+const Resource = rlequire("dendro", "src/models/resource.js").Resource;
+const Interaction = rlequire("dendro", "src/models/recommendation/interaction.js").Interaction;
+const DendroMongoClient = rlequire("dendro", "src/kb/mongo.js").DendroMongoClient;
 
 const async = require("async");
 const _ = require("underscore");
@@ -1413,7 +1413,7 @@ User.prototype.uploadAvatarToGridFS = function (avatarUri, base64Data, extension
                                 readStream,
                                 function (err, result)
                                 {
-                                    const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+                                    const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
                                     File.deleteOnLocalFileSystem(tempFolderPath, function (err, stdout, stderr)
                                     {
                                         if (err)

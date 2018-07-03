@@ -1,5 +1,5 @@
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 let folderData = {
     name: "folderMissingDescriptors",
@@ -9,9 +9,9 @@ let folderData = {
     backup_md5: "",
     searchTerms: "folderMissingDescriptors",
     files: [
-        require(Pathfinder.absPathInTestsFolder("mockdata/files/pdfMockFile.js")),
-        require(Pathfinder.absPathInTestsFolder("mockdata/files/pngMockFile.js")),
-        require(Pathfinder.absPathInTestsFolder("mockdata/files/xlsxMockFile.js"))
+      rlequire("dendro", "test/mockdata/files/pdfMockFile.js"),
+      rlequire("dendro","test/mockdata/files/pngMockFile.js"),
+      rlequire("dendro","test/mockdata/files/xlsxMockFile.js")
     ],
     metadata: [
         {

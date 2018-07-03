@@ -1,15 +1,15 @@
 process.env.NODE_ENV = "test";
 
-const Pathfinder = global.Pathfinder;
+const rlequire = require("rlequire");
 
 const chai = require("chai");
 chai.use(require("chai-http"));
 const path = require("path");
 
-let BootupUnit = require(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
+let BootupUnit = rlequire("dendro", "test/units/bootup.Unit.js");
 
-let loadOntologies = require(Pathfinder.absPathInSrcFolder("/bootup/load/load_ontologies.js")).loadOntologies;
-const unitUtils = require(Pathfinder.absPathInTestsFolder("utils/units/unitUtils.js"));
+let loadOntologies = rlequire("dendro", "src/bootup/load/load_ontologies.js").loadOntologies;
+const unitUtils = rlequire("dendro", "test/utils/units/unitUtils.js");
 
 class LoadOntologies extends BootupUnit
 {

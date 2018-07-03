@@ -1,5 +1,5 @@
-const Pathfinder = global.Pathfinder;
-const isNull = require(Pathfinder.absPathInSrcFolder("utils/null.js")).isNull;
+const rlequire = require("rlequire");
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
 const fs = require("fs");
 const slug = require("slug");
@@ -63,14 +63,14 @@ Logger.init = function (startTime)
     const moment = require("moment");
     const fileNameDateSection = moment(startTime).format("YYYY_MM_DD");
 
-    const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+    const Config = rlequire("dendro", "src/models/meta/config.js").Config;
     // Setup logging
     if (!isNull(Config.logging))
     {
         const loggerLevel = (Config.logging.level) ? Config.logging.level : "debug";
         if (!isNull(Config.logging.app_logs_folder))
         {
-            const absPath = Pathfinder.absPathInApp(Config.logging.app_logs_folder);
+            const absPath = rlequire.absPathInApp("dendro",Config.logging.app_logs_folder);
 
             const exists = fs.existsSync(absPath);
             if (!exists)
@@ -274,7 +274,7 @@ Logger.add_middlewares = function (app)
             // optional: allows to skip some log messages based on request and/or response
             ignoreRoute: function (req, res)
             {
-                const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+                const Config = rlequire("dendro", "src/models/meta/config.js").Config;
                 // do not log requests for public assets
                 if (
                     Config.logging.do_not_log_requests_to_public_assets &&
@@ -300,7 +300,7 @@ Logger.add_middlewares = function (app)
 Logger.log_boot_message = function (message)
 {
     Logger.init();
-    const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+    const Config = rlequire("dendro", "src/models/meta/config.js").Config;
     if (Config.startup.log_bootup_actions)
     {
         if (!isNull(Logger.logger) && Logger._initialized)

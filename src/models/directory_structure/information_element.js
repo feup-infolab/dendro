@@ -3,16 +3,16 @@
 const path = require("path");
 const async = require("async");
 const _ = require("underscore");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
-const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
-const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Class = rlequire("dendro", "src/models/meta/class.js").Class;
+const DbConnection = rlequire("dendro", "src/kb/db.js").DbConnection;
+const Cache = rlequire("dendro", "src/kb/cache/cache.js").Cache;
+const Resource = rlequire("dendro", "src/models/resource.js").Resource;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 const db = Config.getDBByID();
 
@@ -81,7 +81,7 @@ InformationElement.prototype.getParent = function (callback)
                         if (!isNull(results[0].parent_folder))
                         {
                             result.uri = result.parent_folder;
-                            const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+                            const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder
                             // let parent = new Folder(result);
                             // return callback(null, parent);
                             return Folder.findByUri(result.uri, function (err, parent)
@@ -92,7 +92,7 @@ InformationElement.prototype.getParent = function (callback)
                         else if (!isNull(result[0].parent_project))
                         {
                             result.uri = result.parent_project;
-                            const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+                            const Project = rlequire("dendro", "src/models/project.js").Project;
                             // let parent = new Project(result);
                             // return callback(null, parent);
                             return Project.findByUri(result.uri, function (err, parent)
@@ -240,7 +240,7 @@ InformationElement.prototype.getAllParentsUntilProject = function (callback)
             {
                 if (result instanceof Array)
                 {
-                    const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+                    const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder
                     async.mapSeries(result, function (result, callback)
                     {
                         Folder.findByUri(result.uri, function (err, parentFolder)
@@ -299,7 +299,7 @@ InformationElement.prototype.getOwnerProject = function (callback)
             {
                 if (result instanceof Array && result.length === 1)
                 {
-                    const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+                    const Project = rlequire("dendro", "src/models/project.js").Project;
                     Project.findByUri(result[0].uri, function (err, project)
                     {
                         callback(err, project);
@@ -327,8 +327,8 @@ InformationElement.prototype.needsRenaming = function (callback, newTitle, paren
         {
             parentUri = self.nie.isLogicalPartOf;
         }
-        const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-        const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+        const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder
+        const Project = rlequire("dendro", "src/models/project.js").Project;
 
         Folder.findByUri(parentUri, function (err, parentFolder)
         {
@@ -497,8 +497,8 @@ InformationElement.prototype.rename = function (newTitle, callback, customGraphU
 
 InformationElement.prototype.moveToFolder = function (newParentFolder, callback)
 {
-    const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-    const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+    const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder
+    const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
     const self = this;
 
     const oldParentUri = self.nie.isLogicalPartOf;
@@ -1094,7 +1094,7 @@ InformationElement.prototype.getHumanReadableUri = function (callback)
 InformationElement.prototype.refreshChildrenHumanReadableUris = function (callback, customGraphUri)
 {
     const self = this;
-    const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+    const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder
     if (self.isA(Folder))
     {
         Folder.findByUri(self.uri, function (err, folder)

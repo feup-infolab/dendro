@@ -1,8 +1,8 @@
 process.env.NODE_ENV = "test";
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const IndexConnection = rlequire("dendro", "src/kb/index.js")).IndexConnection;
 
 const chai = require("chai");
 const chaiHttp = require("chai-http");

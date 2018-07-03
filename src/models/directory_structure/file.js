@@ -1,18 +1,17 @@
 // complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
 const path = require("path");
-const slug = require("slug");
 const XLSX = require("xlsx");
 const _ = require("underscore");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-const DataStoreConnection = require(Pathfinder.absPathInSrcFolder("/kb/datastore/datastore_connection.js")).DataStoreConnection;
-const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
-const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const InformationElement = rlequire("dendro", "src/models/directory_structure/information_element.js").InformationElement;
+const DataStoreConnection = rlequire("dendro", "src/kb/datastore/datastore_connection.js").DataStoreConnection;
+const Class = rlequire("dendro", "src/models/meta/class.js").Class;
+const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const gfs = Config.getGFSByID();
 
 const async = require("async");
@@ -147,7 +146,7 @@ File.createBlankFileRelativeToAppRoot = function (relativePathToFile, callback)
 {
     const fs = require("fs");
 
-    const absPathToFile = Pathfinder.absPathInApp(relativePathToFile);
+    const absPathToFile = rlequire.absPathInApp("dendro",relativePathToFile);
     const parentFolder = path.resolve(absPathToFile, "..");
 
     fs.stat(absPathToFile, function (err, stat)
@@ -216,7 +215,7 @@ File.deleteOnLocalFileSystem = function (absPathToFile, callback)
 File.prototype.autorename = function ()
 {
     const moment = require("moment");
-    const fileNameDateSection = moment(new Date()).format("YYYY_MM_DD_at_hh_mm_ss");
+    const fileNameDateSection = moment(new Date().format("YYYY_MM_DD_at_hh_mm_ss"));
     const self = this;
     let extension = path.extname(self.nie.title);
     let fileName = path.basename(self.nie.title, path.extname(self.nie.title));
@@ -650,7 +649,7 @@ File.prototype.loadFromLocalFile = function (localFile, callback)
 
     self.getOwnerProject(function (err, ownerProject)
     {
-        const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+        const Project = rlequire("dendro", "src/models/project.js").Project;
         if (isNull && ownerProject instanceof Project)
         {
             /** SAVE FILE**/
@@ -1463,7 +1462,7 @@ File.prototype.getProjectStorage = function (callback)
     {
         if (isNull(err))
         {
-            const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+            const Project = rlequire("dendro", "src/models/project.js").Project;
             if (isNull && ownerProject instanceof Project)
             {
                 ownerProject.getActiveStorageConnection(function (err, connection)

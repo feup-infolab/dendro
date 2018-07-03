@@ -4,25 +4,25 @@ const should = chai.should();
 const _ = require("underscore");
 chai.use(chaiHttp);
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const itemUtils = rlequire("dendro", "test/utils/item/itemUtils.js");
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
-const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");
+const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2.js");
+const demouser3 = rlequire("dendro", "test/mockdata/users/demouser3.js");
 
-const b2dropProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/b2drop_project.js"));
+const b2dropProject = rlequire("dendro", "test/mockdata/projects/b2drop_project.js");
 
-const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
-const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
-const folderForDemouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderDemoUser2"));
+const folder = rlequire("dendro", "test/mockdata/folders/folder.js");
+const testFolder1 = rlequire("dendro", "test/mockdata/folders/testFolder1.js");
+const folderForDemouser2 = rlequire("dendro", "test/mockdata/folders/folderDemoUser2");
 
-const createFoldersB2DropUnit = require(Pathfinder.absPathInTestsFolder("units/folders/createFoldersB2drop.Unit.js"));
-const createFilesUnit = require(Pathfinder.absPathInTestsFolder("units/files/createFiles.Unit.js"));
+const createFoldersB2DropUnit = rlequire("dendro", "test/units/folders/createFoldersB2drop.Unit.js");
+const createFilesUnit = rlequire("dendro", "test/units/files/createFiles.Unit.js");
 
 const allFiles = createFilesUnit.allFiles;
 
