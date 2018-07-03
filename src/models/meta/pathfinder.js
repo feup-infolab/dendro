@@ -24,7 +24,7 @@ Pathfinder.getAbsolutePathToPluginsFolder = function ()
 
 Pathfinder.absPathInPluginsFolder = function (relativePath)
 {
-    return path.join(Pathfinder.getAbsolutePathToPluginsFolder(), relativePath);
+    return path.join(rlequire.absPathInApp("dendro", "src/plugins"), relativePath);
 };
 
 Pathfinder.absPathInSrcFolder = function (relativePath)

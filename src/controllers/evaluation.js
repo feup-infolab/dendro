@@ -32,7 +32,7 @@ else if (recommendation_mode === "none")
     recommendation = rlequire("dendro", "src/controllers/no_recommendation.js").shared;
 }
 
-const records = rlequire("dendro", "src/controllers/records.js"));
+const records = rlequire("dendro", "src/controllers/records.js");
 const InformationElement = rlequire("dendro", "src/models/directory_structure/information_element.js").InformationElement;
 
 exports.metadata_evaluation = function (req, res)

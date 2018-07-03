@@ -2,15 +2,16 @@ const async = require("async");
 const slug = require("slug");
 const _ = require("underscore");
 const rlequire = require("rlequire");
-const Utils = require(rlequire("dendro", "public/js/utils.js").Utils;
 const CKAN = require("ckan");
+
+const Utils = rlequire("dendro", "public/js/utils.js").Utils;
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder
 const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
-const generalDatasetUtils = rlequire("dendro", "public/utils/datasets/generalDatasetUtils.js");
+const generalDatasetUtils = rlequire("dendro", "src/utils/datasets/generalDatasetUtils.js");
 
 // ------CKAN UTILS FOR BOTH EXPORT_TO_CKAN AND CALCULATE_CKAN_DIFFS-----------
 

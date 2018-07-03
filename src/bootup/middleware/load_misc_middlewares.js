@@ -26,7 +26,7 @@ const loadMiscMiddlewares = function (app, callback)
 
     // all environments
     app.set("port", process.env.PORT || Config.port);
-    app.set("views", rlequire.absPathInApp("dendro", "/views"));
+    app.set("views", rlequire.absPathInApp("dendro", "src/views"));
 
     app.set("view engine", "ejs");
     app.set("etag", "strong");

@@ -3,7 +3,7 @@ const async = require("async");
 const path = require("path");
 const rlequire = require("rlequire");
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
-const Serializers = rlequire("dendro", "src/utils/serializers.js"));
+const Serializers = rlequire("dendro", "src/utils/serializers.js");
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 const deleteFolderRecursive = function (path)

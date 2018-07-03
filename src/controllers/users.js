@@ -559,7 +559,7 @@ exports.get_avatar = function (req, res)
     const serveDefaultAvatar = function ()
     {
     // User does not have an avatar
-        let absPathOfFileToServe = Pathfinder.absPathInPublicFolder("images/default_avatar/defaultAvatar.png");
+        let absPathOfFileToServe = rlequire.absPathInApp("dendro", "public/images/default_avatar/defaultAvatar.png");
         let fileStream = fs.createReadStream(absPathOfFileToServe);
 
         let filename = path.basename(absPathOfFileToServe);
@@ -810,7 +810,7 @@ exports.edit = function (req, res, next)
                         {
                             if (!err)
                             {
-                                let auth = rlequire("dendro", "src/controllers/auth.js"));
+                                let auth = rlequire("dendro", "src/controllers/auth.js");
                                 req.flash("success", "User " + editedUser.ddr.username + " edited.");
                                 // Logger.log("User " + editedUser.ddr.username + " edited.");
                                 // res.redirect('/me');

@@ -606,7 +606,7 @@ exports.serve_base64 = function (req, res)
                                             });
                                         });
 
-                                        fileStream.pipe(base64.encode().pipe(res);
+                                        fileStream.pipe(base64.encode().pipe(res));
                                     }
                                     else
                                     {
@@ -759,8 +759,8 @@ exports.get_thumbnail = function (req, res)
                                     exports.serve_static(
                                         req,
                                         res,
-                                        Pathfinder.absPathInPublicFolder("/images/icons/extensions/file_extension_" + file.ddr.fileExtension + ".png"),
-                                        Pathfinder.absPathInPublicFolder("/images/icons/file.png"),
+                                        rlequire("dendro", "public/images/icons/extensions/file_extension_" + file.ddr.fileExtension + ".png"),
+                                        rlequire("dendro", "public/images/icons/file.png"),
                                         Config.cache.static.etag_cache_active
                                     );
                                 }
@@ -2450,7 +2450,7 @@ exports.serve_static = function (req, res, pathOfIntendedFileRelativeToProjectRo
     if (typeof pathOfIntendedFileRelativeToProjectRoot === "string")
     {
         const fileName = path.basename(pathOfIntendedFileRelativeToProjectRoot);
-        var absPathOfFileToServe = Pathfinder.absPathInPublicFolder(pathOfIntendedFileRelativeToProjectRoot);
+        var absPathOfFileToServe = rlequire("dendro", "public" + pathOfIntendedFileRelativeToProjectRoot);
 
         fs.exists(absPathOfFileToServe, function (exists)
         {
@@ -2648,7 +2648,7 @@ exports.sheets = function (req, res)
     }
     else
     {
-        const projects = rlequire("dendro", "src/controllers/projects.js"));
+        const projects = rlequire("dendro", "src/controllers/projects.js");
         projects.show(req, res);
     }
 };
@@ -2768,7 +2768,7 @@ exports.data = function (req, res)
     }
     else
     {
-        const projects = rlequire("dendro", "src/controllers/projects.js"));
+        const projects = rlequire("dendro", "src/controllers/projects.js");
         projects.show(req, res);
     }
 };

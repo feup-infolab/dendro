@@ -1485,16 +1485,16 @@
       }
     },
     "startup": {
-      "load_databases": false,
+      "load_databases": true,
       "reload_administrators_on_startup": false,
       "reload_demo_users_on_startup": false,
       "reload_ontologies_on_startup": true,
-      "clear_session_store": false,
+      "clear_session_store": true,
       "log_bootup_actions": true,
-      "destroy_all_graphs": false,
-      "destroy_all_indexes": false,
-      "destroy_datastore": false,
-      "destroy_files_store": false
+      "destroy_all_graphs": true,
+      "destroy_all_indexes": true,
+      "destroy_datastore": true,
+      "destroy_files_store": true
     },
     "baselines": {},
     "logging": {
@@ -1626,7 +1626,7 @@
       "active": true,
       "reuse_checkpoints": true,
       "create_checkpoints": true,
-      "destroy_existing_images_at_start": true,
+      "destroy_existing_images_at_start": false,
       "start_and_stop_containers_automatically" : false
     },
     "virtualbox": {

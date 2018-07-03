@@ -73,7 +73,7 @@ Plugin.registerRoute = function (app, method, route, permissions, controllerMeth
 Plugin.getPluginRootFolder = function ()
 {
     const self = this;
-    const allPluginsRootFolder = Pathfinder.getAbsolutePathToPluginsFolder();
+    const allPluginsRootFolder = rlequire.absPathInApp("dendro", "src/plugins");
     const myConfig = self.config;
 
     return path.join(allPluginsRootFolder, myConfig.plugin_folder_name);
@@ -92,7 +92,7 @@ Plugin.renderView = function (res, viewPath, dataObject)
         viewPath = viewPath + ".ejs";
     }
 
-    const pluginViewAbsPath = path.join(Pathfinder.getAbsolutePathToPluginsFolder(), self.config.plugin_folder_name, "package", "views", viewPath);
+    const pluginViewAbsPath = path.join(rlequire.absPathInApp("dendro", "src/plugins"), self.config.plugin_folder_name, "package", "views", viewPath);
 
     /**
      * Copy global data objects so that they are accessible in the plugins' views

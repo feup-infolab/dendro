@@ -1,33 +1,24 @@
 const path = require("path");
 const rlequire = require("rlequire");
-const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const B2ShareClient = require("@feup-infolab/node-b2share-v2");
+const CKAN = require("ckan");
 
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
 const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder
-const InformationElement = rlequire("dendro", "src/models/directory_structure/information_element.js").InformationElement;
-const ExternalRepository = rlequire("dendro", "src/models/harvesting/external_repository.js").ExternalRepository;
 const RepositoryPlatform = rlequire("dendro", "src/models/harvesting/repo_platform").RepositoryPlatform;
-const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
-const Project = rlequire("dendro", "src/models/project.js").Project;
-const records = rlequire("dendro", "src/controllers/records.js"));
-const Serializers = rlequire("dendro", "src/utils/serializers.js"));
-const swordConnection = rlequire("dendro", "src/export_libs/sword-connection/index.js"));
-const Figshare = rlequire("dendro", "src/export_libs/figshare/figshare.js"));
-const B2ShareClient = require("@feup-infolab/node-b2share-v2");
-const Zenodo = rlequire("dendro", "src/export_libs/zenodo/zenodo.js"));
+const swordConnection = rlequire("dendro", "src/export_libs/sword-connection/index.js");
+const Figshare = rlequire("dendro", "src/export_libs/figshare/figshare.js");
+const Zenodo = rlequire("dendro", "src/export_libs/zenodo/zenodo.js");
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
-const CKAN = require("ckan");
-const CkanUtils = rlequire("dendro", "src/utils/datasets/ckanUtils.js"));
-const generalDatasetUtils = rlequire("dendro", "src/utils/datasets/generalDatasetUtils.js"));
+const CkanUtils = rlequire("dendro", "src/utils/datasets/ckanUtils.js");
+const generalDatasetUtils = rlequire("dendro", "src/utils/datasets/generalDatasetUtils.js");
 
 const async = require("async");
-const nodemailer = require("nodemailer");
-const flash = require("connect-flash");
 const _ = require("underscore");
-const fs = require("fs");
 
-export_to_repository_sword = function (req, res)
+let exportToRepositorySword = function (req, res)
 {
     const requestedResourceUri = req.params.requestedResourceUri;
     const targetRepository = req.body.repository;
@@ -1142,7 +1133,7 @@ exports.export_to_repository = function (req, res)
             }
             else if (nick === "dspace" || nick === "eprints")
             {
-                export_to_repository_sword(req, res);
+                exportToRepositorySword(req, res);
             }
             else if (nick === "figshare")
             {

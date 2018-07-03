@@ -1240,7 +1240,7 @@ User.prototype.startPasswordReset = function (callback)
 
         const appDir = path.dirname(require.main.filename);
 
-        const emailHTMLFilePath = Pathfinder.absPathInSrcFolder("views/users/password_reset_email.ejs");
+        const emailHTMLFilePath = rlequire("dendro", "src/views/users/password_reset_email.ejs");
         const emailTXTFilePath = path.join(appDir, "views/users/password_reset_email_txt.ejs");
 
         const file = fs.readFileSync(emailHTMLFilePath, "ascii");

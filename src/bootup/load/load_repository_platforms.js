@@ -23,7 +23,7 @@ const loadRepositoryPlatforms = function (app, callback)
     }
     else
     {
-        activeConfigKey = JSON.parse(fs.readFileSync(active_config_file_path, "utf8").key;
+        activeConfigKey = JSON.parse(fs.readFileSync(active_config_file_path, "utf8")).key;
     }
 
     let active_config_for_repositoryPlatforms = repositoryPlatformConfigs[activeConfigKey];

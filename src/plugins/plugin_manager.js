@@ -13,7 +13,7 @@ function PluginManager ()
 
 PluginManager.registerPlugins = function (app, callback)
 {
-    const pluginsFolderAbsPath = Pathfinder.getAbsolutePathToPluginsFolder();
+    const pluginsFolderAbsPath = rlequire.absPathInApp("dendro", "src/plugins");
 
     const isHiddenFile = function (fileName)
     {

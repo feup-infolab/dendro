@@ -215,7 +215,7 @@ File.deleteOnLocalFileSystem = function (absPathToFile, callback)
 File.prototype.autorename = function ()
 {
     const moment = require("moment");
-    const fileNameDateSection = moment(new Date().format("YYYY_MM_DD_at_hh_mm_ss"));
+    const fileNameDateSection = moment(new Date()).format("YYYY_MM_DD_at_hh_mm_ss");
     const self = this;
     let extension = path.extname(self.nie.title);
     let fileName = path.basename(self.nie.title, path.extname(self.nie.title));
@@ -626,7 +626,7 @@ File.prototype.getThumbnail = function (size, callback)
                     // try to regenerate thumbnails, fire and forget
                     self.generateThumbnails(function (err, result)
                     {
-                        return callback(null, Pathfinder.absPathInPublicFolder("images/icons/page_white_gear.png"));
+                        return callback(null, rlequire("dendro", "public/images/icons/page_white_gear.png"));
                     });
                 }
                 else if (isNull(err))

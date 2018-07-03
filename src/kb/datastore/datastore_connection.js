@@ -266,7 +266,7 @@ DataStoreConnection.prototype.getDataByQuery = function (query, writeStream, ski
         }
         else
         {
-            cursor.stream().pipe(JSONStream.stringify().pipe(writeStream));
+            cursor.stream().pipe(JSONStream.stringify()).pipe(writeStream);
             cursor.on("end", function ()
             {
                 self.close();
@@ -275,7 +275,7 @@ DataStoreConnection.prototype.getDataByQuery = function (query, writeStream, ski
     }
     else
     {
-        return callback(1, "Must open connection to MongoDB datastore " + JSON.stringify(self) + "first!");
+        throw new Error("Must open connection to MongoDB datastore " + JSON.stringify(self) + "first!");
     }
 };
 DataStoreConnection.prototype.getData = function (writeStream, callback, sheetName, outputFormat)

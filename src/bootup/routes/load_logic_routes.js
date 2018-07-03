@@ -13,23 +13,23 @@ let RecommendationUtils = rlequire("dendro", "src/utils/recommendation.js").Reco
 const sendResponse = rlequire("dendro", "src/bootup/middleware/send_response.js").sendResponse;
 
 // app's own requires
-const index = rlequire("dendro", "src/controllers/index"));
-const users = rlequire("dendro", "src/controllers/users"));
-const search = rlequire("dendro", "src/controllers/search"));
-const admin = rlequire("dendro", "src/controllers/admin"));
-const projects = rlequire("dendro", "src/controllers/projects"));
-const files = rlequire("dendro", "src/controllers/files"));
-const records = rlequire("dendro", "src/controllers/records"));
-const interactions = rlequire("dendro", "src/controllers/interactions"));
-const descriptors = rlequire("dendro", "src/controllers/descriptors"));
-const evaluation = rlequire("dendro", "src/controllers/evaluation"));
-const ontologies = rlequire("dendro", "src/controllers/ontologies"));
-const research_domains = rlequire("dendro", "src/controllers/research_domains"));
-const repo_bookmarks = rlequire("dendro", "src/controllers/repo_bookmarks"));
-const datasets = rlequire("dendro", "src/controllers/datasets"));
-const posts = rlequire("dendro", "src/controllers/posts"));
-const timeline = rlequire("dendro", "src/controllers/timeline"));
-const notifications = rlequire("dendro", "src/controllers/notifications"));
+const index = rlequire("dendro", "src/controllers/index");
+const users = rlequire("dendro", "src/controllers/users");
+const search = rlequire("dendro", "src/controllers/search");
+const admin = rlequire("dendro", "src/controllers/admin");
+const projects = rlequire("dendro", "src/controllers/projects");
+const files = rlequire("dendro", "src/controllers/files");
+const records = rlequire("dendro", "src/controllers/records");
+const interactions = rlequire("dendro", "src/controllers/interactions");
+const descriptors = rlequire("dendro", "src/controllers/descriptors");
+const evaluation = rlequire("dendro", "src/controllers/evaluation");
+const ontologies = rlequire("dendro", "src/controllers/ontologies");
+const research_domains = rlequire("dendro", "src/controllers/research_domains");
+const repo_bookmarks = rlequire("dendro", "src/controllers/repo_bookmarks");
+const datasets = rlequire("dendro", "src/controllers/datasets");
+const posts = rlequire("dendro", "src/controllers/posts");
+const timeline = rlequire("dendro", "src/controllers/timeline");
+const notifications = rlequire("dendro", "src/controllers/notifications");
 
 let recommendation;
 
@@ -37,23 +37,23 @@ const recommendation_mode = RecommendationUtils.getActiveRecommender();
 
 if (recommendation_mode === "dendro_recommender")
 {
-    recommendation = rlequire("dendro", "src/controllers/dr_recommendation"));
+    recommendation = rlequire("dendro", "src/controllers/dr_recommendation");
 }
 else if (recommendation_mode === "standalone")
 {
-    recommendation = rlequire("dendro", "src/controllers/standalone_recommendation"));
+    recommendation = rlequire("dendro", "src/controllers/standalone_recommendation");
 }
 else if (recommendation_mode === "project_descriptors")
 {
-    recommendation = rlequire("dendro", "src/controllers/project_descriptors_recommendation"));
+    recommendation = rlequire("dendro", "src/controllers/project_descriptors_recommendation");
 }
 else if (recommendation_mode === "none")
 {
-    recommendation = rlequire("dendro", "src/controllers/no_recommendation"));
+    recommendation = rlequire("dendro", "src/controllers/no_recommendation");
 }
 
-const auth = rlequire("dendro", "src/controllers/auth"));
-const auth_orcid = rlequire("dendro", "src/controllers/auth_orcid"));
+const auth = rlequire("dendro", "src/controllers/auth");
+const auth_orcid = rlequire("dendro", "src/controllers/auth_orcid");
 
 const express = require("express"),
     domain = require("domain"),
