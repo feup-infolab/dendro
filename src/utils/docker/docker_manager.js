@@ -8,13 +8,13 @@ const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 const childProcess = require("child_process");
-const startContainersScript = rlequire.absPathInApp("dendro","conf/scripts/docker/start_containers.sh");
-const stopContainersScript = rlequire.absPathInApp("dendro","conf/scripts/docker/stop_containers.sh");
-const createCheckpointScript = rlequire.absPathInApp("dendro","conf/scripts/docker/create_checkpoint.sh");
-const restoreCheckpointScript = rlequire.absPathInApp("dendro","conf/scripts/docker/restore_checkpoint.sh");
-const restartContainersScript = rlequire.absPathInApp("dendro","conf/scripts/docker/restart_containers.sh");
-const nukeAndRebuildScript = rlequire.absPathInApp("dendro","conf/scripts/docker/nuke_and_rebuild.sh");
-const checkIfCheckpointExistsScript = rlequire.absPathInApp("dendro","conf/scripts/docker/check_if_checkpoint_exists.sh");
+const startContainersScript = rlequire.absPathInApp("dendro", "conf/scripts/docker/start_containers.sh");
+const stopContainersScript = rlequire.absPathInApp("dendro", "conf/scripts/docker/stop_containers.sh");
+const createCheckpointScript = rlequire.absPathInApp("dendro", "conf/scripts/docker/create_checkpoint.sh");
+const restoreCheckpointScript = rlequire.absPathInApp("dendro", "conf/scripts/docker/restore_checkpoint.sh");
+const restartContainersScript = rlequire.absPathInApp("dendro", "conf/scripts/docker/restart_containers.sh");
+const nukeAndRebuildScript = rlequire.absPathInApp("dendro", "conf/scripts/docker/nuke_and_rebuild.sh");
+const checkIfCheckpointExistsScript = rlequire.absPathInApp("dendro", "conf/scripts/docker/check_if_checkpoint_exists.sh");
 
 const DockerManager = function ()
 {

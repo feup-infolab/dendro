@@ -14,9 +14,9 @@ let folderData = {
     download_md5: "",
     backup_md5: "",
     files: [
-      rlequire("dendro", "test/mockdata/files/pdfMockFile.js"),
-      rlequire("dendro","test/mockdata/files/pngMockFile.js"),
-      rlequire("dendro","test/mockdata/files/xlsxMockFile.js")
+        rlequire("dendro", "test/mockdata/files/pdfMockFile.js"),
+        rlequire("dendro", "test/mockdata/files/pngMockFile.js"),
+        rlequire("dendro", "test/mockdata/files/xlsxMockFile.js")
     ],
     metadata: [
         {

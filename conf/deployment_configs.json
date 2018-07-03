@@ -1626,7 +1626,7 @@
       "active": true,
       "reuse_checkpoints": true,
       "create_checkpoints": true,
-      "destroy_existing_images_at_start": false,
+      "destroy_existing_images_at_start": true,
       "start_and_stop_containers_automatically" : false
     },
     "virtualbox": {

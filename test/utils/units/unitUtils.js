@@ -570,7 +570,7 @@ exports.shutdown = function (callback)
 
 exports.init = function (callback)
 {
-    const App = rlequire("dendro","src/bootup/app.js").App;
+    const App = rlequire("dendro", "src/bootup/app.js").App;
     const dendroInstance = new App();
 
     dendroInstance.initConnections(function (err, appInfo)

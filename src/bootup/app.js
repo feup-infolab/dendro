@@ -269,7 +269,7 @@ class App
         if (process.env.NODE_ENV !== "test")
         {
             // second arg = overwrite pid if exists
-            self.pid = npid.create(rlequire.absPathInApp("dendro","running.pid"), true);
+            self.pid = npid.create(rlequire.absPathInApp("dendro", "running.pid"), true);
             self.pid.removeOnExit();
         }
 
@@ -563,7 +563,7 @@ class App
         {
             Logger.log("Dumping heap snapshot!");
             const heapdump = require("heapdump");
-            const snapshotsFolder = rlequire.absPathInApp("dendro","profiling/snapshots");
+            const snapshotsFolder = rlequire.absPathInApp("dendro", "profiling/snapshots");
             const snapshotFile = path.join(snapshotsFolder, Date.now() + ".heapsnapshot");
 
             mkdirp.sync(snapshotsFolder);

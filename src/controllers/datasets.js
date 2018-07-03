@@ -6,7 +6,7 @@ const CKAN = require("ckan");
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
-const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder
+const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder;
 const RepositoryPlatform = rlequire("dendro", "src/models/harvesting/repo_platform").RepositoryPlatform;
 const swordConnection = rlequire("dendro", "src/export_libs/sword-connection/index.js");
 const Figshare = rlequire("dendro", "src/export_libs/figshare/figshare.js");

@@ -165,7 +165,7 @@ if (path.isAbsolute(getConfigParameter("tempFilesDir")))
 }
 else
 {
-    Config.tempFilesDir = rlequire.absPathInApp("dendro",getConfigParameter("tempFilesDir"));
+    Config.tempFilesDir = rlequire.absPathInApp("dendro", getConfigParameter("tempFilesDir"));
 }
 
 if (path.isAbsolute(getConfigParameter("tempUploadsDir")))
@@ -174,7 +174,7 @@ if (path.isAbsolute(getConfigParameter("tempUploadsDir")))
 }
 else
 {
-    Config.tempUploadsDir = rlequire.absPathInApp("dendro",getConfigParameter("tempUploadsDir"));
+    Config.tempUploadsDir = rlequire.absPathInApp("dendro", getConfigParameter("tempUploadsDir"));
 }
 
 Config.tempFilesCreationMode = getConfigParameter("tempFilesCreationMode");

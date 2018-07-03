@@ -4,10 +4,10 @@ const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const md5File = require("md5-file");
 
 module.exports = {
-    md5: md5File.sync(rlequire.absPathInApp("dendro","test/mockdata/files/test_uploads/odsTest.ods")),
+    md5: md5File.sync(rlequire.absPathInApp("dendro", "test/mockdata/files/test_uploads/odsTest.ods")),
     name: "odsTest.ods",
     extension: "ods",
-    location: rlequire.absPathInApp("dendro","test/mockdata/files/test_uploads/odsTest.ods"),
+    location: rlequire.absPathInApp("dendro", "test/mockdata/files/test_uploads/odsTest.ods"),
     metadata: [{
         prefix: "nie",
         shortName: "plainTextContent",

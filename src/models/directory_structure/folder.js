@@ -502,7 +502,7 @@ Folder.prototype.bagit = function (bagItOptions, callback)
             },
             function (absolutePathOfFinishedFolder, parentFolderPath, cb)
             {
-                const gladstone = rlequire("dendro","/node_modules/gladstone/gladstone.js");
+                const gladstone = rlequire("dendro","node_modules/gladstone/gladstone.js");
                 gladstone.createBagDirectory(bagItOptions)
                     .then(function (result)
                     {

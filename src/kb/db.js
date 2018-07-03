@@ -194,7 +194,7 @@ const queryObjectToString = function (query, argumentsArray, callback)
 
 const recordQueryConclusionInLog = function (query, queryStartTime)
 {
-    const logParentFolder = rlequire.absPathInApp("dendro","profiling");
+    const logParentFolder = rlequire.absPathInApp("dendro", "profiling");
     const queryProfileLogFilePath = path.join(logParentFolder, "database_profiling_" + bootStartTimestamp + ".csv");
 
     if (Config.debug.database.log_query_times)
@@ -738,7 +738,7 @@ DbConnection.prototype.create = function (callback)
         {
             jinst.addOption("-Xrs");
             jinst.setupClasspath([
-                rlequire.absPathInApp("dendro","conf/virtuoso-jdbc/jdbc-4.2/virtjdbc4_2.jar")
+                rlequire.absPathInApp("dendro", "conf/virtuoso-jdbc/jdbc-4.2/virtjdbc4_2.jar")
             ]);
         }
 

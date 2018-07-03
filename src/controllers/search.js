@@ -9,7 +9,7 @@ const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
 const Resource = rlequire("dendro", "src/models/resource.js").Resource;
 
 const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
-const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder
+const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder;
 const User = rlequire("dendro", "src/models/user.js").User;
 const Project = rlequire("dendro", "src/models/project.js").Project;
 const Administrator = rlequire("dendro", "src/models/administrator.js").Administrator;

@@ -509,7 +509,7 @@ describe("Export public project folderExportCkan level to ckan tests", function 
                 let hugeTxtFileMock = {
                     name: "hugeTxtFile.txt",
                     extension: "txt",
-                    location: rlequire.absPathInApp("dendro","test/mockdata/files/test_uploads/") + "hugeTxtFile.txt",
+                    location: rlequire.absPathInApp("dendro", "test/mockdata/files/test_uploads/") + "hugeTxtFile.txt",
                     sizeGb: 0.1
                 };
 
@@ -521,7 +521,7 @@ describe("Export public project folderExportCkan level to ckan tests", function 
                     /* fileSizeInBytes.should.be.above(hugeTxtFileMock.sizeGb * 1000000000); */
                     expect(fileSizeInBytes).to.be.at.least(hugeTxtFileMock.sizeGb * 1073741824);
                     fs.existsSync(hugeTxtFileMock.location).should.equal(true);
-                    hugeTxtFileMock.md5 = md5File.sync(rlequire.absPathInApp("dendro","test/mockdata/files/test_uploads/") + "hugeTxtFile.txt");
+                    hugeTxtFileMock.md5 = md5File.sync(rlequire.absPathInApp("dendro", "test/mockdata/files/test_uploads/") + "hugeTxtFile.txt");
                     fileUtils.uploadFile(true, agent, publicProject.handle, folderExportedCkanDendroDiffsData.nie.title, hugeTxtFileMock, function (err, res)
                     {
                         res.statusCode.should.equal(200);

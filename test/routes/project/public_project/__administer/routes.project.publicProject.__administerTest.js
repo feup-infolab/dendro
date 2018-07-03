@@ -8,7 +8,7 @@ chai.use(checkChai);
 const rlequire = require("rlequire");
 
 const async = require("async");
-const Config = rlequire("dendro", "src/models/meta/config.js").Config;;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const should = chai.should();
 const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");

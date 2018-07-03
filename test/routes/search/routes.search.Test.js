@@ -8,7 +8,7 @@ chai.use(chaiHttp);
 
 const rlequire = require("rlequire");
 const Project = rlequire("dendro", "src/models/project.js").Project;
-const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder
+const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder;
 const Resource = rlequire("dendro", "src/models/resource.js").Resource;
 
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;

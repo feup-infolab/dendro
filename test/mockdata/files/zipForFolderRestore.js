@@ -4,10 +4,10 @@ const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const md5File = require("md5-file");
 
 module.exports = {
-    md5: md5File.sync(rlequire.absPathInApp("dendro","test/mockdata/files/test_folder_restore/zipForFolderRestore.zip")),
+    md5: md5File.sync(rlequire.absPathInApp("dendro", "test/mockdata/files/test_folder_restore/zipForFolderRestore.zip")),
     name: "zipForFolderRestore.zip",
     extension: "zip",
-    location: rlequire.absPathInApp("dendro","test/mockdata/files/test_folder_restore/zipForFolderRestore.zip"),
+    location: rlequire.absPathInApp("dendro", "test/mockdata/files/test_folder_restore/zipForFolderRestore.zip"),
     metadata: [
         {
             prefix: "dcterms",

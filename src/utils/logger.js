@@ -70,7 +70,7 @@ Logger.init = function (startTime)
         const loggerLevel = (Config.logging.level) ? Config.logging.level : "debug";
         if (!isNull(Config.logging.app_logs_folder))
         {
-            const absPath = rlequire.absPathInApp("dendro",Config.logging.app_logs_folder);
+            const absPath = rlequire.absPathInApp("dendro", Config.logging.app_logs_folder);
 
             const exists = fs.existsSync(absPath);
             if (!exists)

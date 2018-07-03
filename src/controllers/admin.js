@@ -468,7 +468,7 @@ module.exports.logs = function (req, res)
 
 module.exports.configuration = function (req, res)
 {
-    const configFilePath = rlequire.absPathInApp("dendro","conf/deployment_configs.json");
+    const configFilePath = rlequire.absPathInApp("dendro", "conf/deployment_configs.json");
     const Config = rlequire("dendro", "src/models/meta/config.js").Config;
     if (req.originalMethod === "GET")
     {
@@ -545,10 +545,10 @@ module.exports.configuration = function (req, res)
     else if (req.originalMethod === "POST")
     {
         const config = req.body;
-        mkdirp(rlequire.absPathInApp("dendro","conf/deployment_config_backups"), function (err)
+        mkdirp(rlequire.absPathInApp("dendro", "conf/deployment_config_backups"), function (err)
         {
             // destination.txt will be created or overwritten by default
-            fs.copyFile(configFilePath, path.join(rlequire.absPathInApp("dendro","conf/deployment_config_backups"), path.basename(configFilePath) + "_" + slug(new Date().toISOString()) + ".bak"), function (err)
+            fs.copyFile(configFilePath, path.join(rlequire.absPathInApp("dendro", "conf/deployment_config_backups"), path.basename(configFilePath) + "_" + slug(new Date().toISOString()) + ".bak"), function (err)
             {
                 if (isNull(err))
                 {

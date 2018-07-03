@@ -146,7 +146,7 @@ File.createBlankFileRelativeToAppRoot = function (relativePathToFile, callback)
 {
     const fs = require("fs");
 
-    const absPathToFile = rlequire.absPathInApp("dendro",relativePathToFile);
+    const absPathToFile = rlequire.absPathInApp("dendro", relativePathToFile);
     const parentFolder = path.resolve(absPathToFile, "..");
 
     fs.stat(absPathToFile, function (err, stat)

@@ -81,7 +81,7 @@ InformationElement.prototype.getParent = function (callback)
                         if (!isNull(results[0].parent_folder))
                         {
                             result.uri = result.parent_folder;
-                            const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder
+                            const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder;
                             // let parent = new Folder(result);
                             // return callback(null, parent);
                             return Folder.findByUri(result.uri, function (err, parent)
@@ -240,7 +240,7 @@ InformationElement.prototype.getAllParentsUntilProject = function (callback)
             {
                 if (result instanceof Array)
                 {
-                    const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder
+                    const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder;
                     async.mapSeries(result, function (result, callback)
                     {
                         Folder.findByUri(result.uri, function (err, parentFolder)
@@ -327,7 +327,7 @@ InformationElement.prototype.needsRenaming = function (callback, newTitle, paren
         {
             parentUri = self.nie.isLogicalPartOf;
         }
-        const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder
+        const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder;
         const Project = rlequire("dendro", "src/models/project.js").Project;
 
         Folder.findByUri(parentUri, function (err, parentFolder)
@@ -497,7 +497,7 @@ InformationElement.prototype.rename = function (newTitle, callback, customGraphU
 
 InformationElement.prototype.moveToFolder = function (newParentFolder, callback)
 {
-    const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder
+    const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder;
     const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
     const self = this;
 
@@ -1094,7 +1094,7 @@ InformationElement.prototype.getHumanReadableUri = function (callback)
 InformationElement.prototype.refreshChildrenHumanReadableUris = function (callback, customGraphUri)
 {
     const self = this;
-    const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder
+    const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder;
     if (self.isA(Folder))
     {
         Folder.findByUri(self.uri, function (err, folder)

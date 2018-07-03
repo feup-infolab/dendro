@@ -3187,7 +3187,7 @@ Resource.prototype.getLogicalParts = function (callback)
 {
     const self = this;
     const fs = require("fs");
-    const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder
+    const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder;
     const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
 
     const childFoldersQuery =
