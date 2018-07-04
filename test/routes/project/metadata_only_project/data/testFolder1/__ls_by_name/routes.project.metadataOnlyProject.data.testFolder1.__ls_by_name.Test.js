@@ -127,15 +127,14 @@ describe("Metadata only project testFolder1 level ls_by_name tests", function ()
             });
         });
 
-        it("Should give an error if an invalid folder uri is specified for parent folder, even if the user is logged in as a creator or collaborator on the project", function (done)
+        it("Should give a not found error if an invalid folder uri is specified for parent folder, even if the user is logged in as a creator or collaborator on the project", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 folderUtils.ls_by_name(true, agent, "invalidUri", "folderA", function (err, res)
                 {
                     should.exist(err);
-                    should.not.exist(res);
-                    err.code.should.equal("ECONNREFUSED");
+                    res.statusCode.should.equal(404);
                     done();
                 });
             });
