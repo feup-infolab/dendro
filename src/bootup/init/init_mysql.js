@@ -1,169 +1,58 @@
-const fs = require("fs");
-const needle = require("needle");
-
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-let isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+let isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const DendroMySQLClient = rlequire("dendro", "src/kb/mysql.js").DendroMySQLClient;
 
 const initMySQL = function (app, callback)
 {
-    Logger.log_boot_message("Setting up MySQL connection pool.");
-    const mysql = require("mysql");
+    Logger.log("Setting up MySQL connection pool at host " + Config.mySQLHost + ":" + Config.mySQLPort);
 
-    const createDatabase = function (callback)
+    const client = new DendroMySQLClient(
+        Config.mySQLHost,
+        Config.mySQLPort,
+        Config.mySQLDBName,
+        Config.mySQLAuth.user,
+        Config.mySQLAuth.password
+    );
+
+    // TODO This is commented until the merge with the new structure using migrations.
+    return callback(null);
+
+    client.createDatabaseIfNotExists(function (err, result)
     {
-        var con = mysql.createConnection({
-            host: Config.mySQLHost,
-            user: Config.mySQLAuth.user,
-            password: Config.mySQLAuth.password
-        });
-
-        con.connect(
-            function (err, result)
+        if (isNull(err))
+        {
+            client.checkAndCreateInteractionsTable(Config.recommendation.getTargetTable(), function (err, results)
             {
-                if (isNull(err))
+                if (err)
                 {
-                    Logger.log_boot_message("Connected to MySQL!");
-                    con.query("CREATE DATABASE IF NOT EXISTS " + Config.mySQLDBName + ";\n", function (err, result)
-                    {
-                        if (!isNull(err))
-                        {
-                            Logger.log("error", "Error creating database in MySQL: " + Config.mySQLDBName);
-                        }
-
-                        callback(err, result);
-                    });
+                    callback("Unable to create interactions table " + Config.recommendation.getTargetTable() + " in MySQL ");
                 }
                 else
                 {
-                    callback(err, result);
+                    if (Config.getMySQLByID().connection)
+                    {
+                        Config.getMySQLByID().connection.releaseAllConnections(function ()
+                        {
+                            Config.getMySQLByID().connection = client;
+                            Logger.log("ReConnected to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort);
+                            return callback(null);
+                        });
+                    }
+                    else
+                    {
+                        Config.getMySQLByID().connection = client;
+                        Logger.log("Connected to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort);
+                        return callback(null);
+                    }
                 }
-            }
-        );
-    };
-
-    createDatabase(function (err, result)
-    {
-        if (!isNull(err))
+            });
+        }
+        else
         {
             callback(err, result);
         }
-
-        const pool = mysql.createPool({
-            host: Config.mySQLHost,
-            user: Config.mySQLAuth.user,
-            password: Config.mySQLAuth.password,
-            database: Config.mySQLDBName,
-            multipleStatements: true
-        });
-
-        const poolOK = function (pool)
-        {
-            Logger.log_boot_message("Connected to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort);
-            Config.mysql.default.pool = pool;
-            return callback(null);
-        };
-
-        pool.getConnection(function (err, connection)
-        {
-            // const freeConnectionsIndex = pool._freeConnections.indexOf(connection);
-
-            if (isNull(err))
-            {
-                const checkAndCreateTable = function (tablename, cb)
-                {
-                    connection.query("SHOW TABLES LIKE '" + tablename + "';", function (err, result, fields)
-                    {
-                        if (isNull(err))
-                        {
-                            if (result.length > 0)
-                            {
-                                Logger.log_boot_message("Interactions table " + tablename + " exists in the MySQL database.");
-                                poolOK(pool);
-                            }
-                            else
-                            {
-                                Logger.log_boot_message("Interactions table does not exist in the MySQL database. Attempting creation...");
-                                const createTableQuery = "CREATE TABLE `" + tablename + "` (\n" +
-                                    "   `id` int(11) NOT NULL AUTO_INCREMENT, \n" +
-                                    "   `uri` text, \n" +
-                                    "   `created` datetime DEFAULT NULL, \n" +
-                                    "   `modified` datetime DEFAULT NULL, \n" +
-                                    "   `performedBy` text, \n" +
-                                    "   `interactionType` text, \n" +
-                                    "   `executedOver` text, \n" +
-                                    "   `originallyRecommendedFor` text, \n" +
-                                    "   `rankingPosition` int(11) DEFAULT NULL, \n" +
-                                    "   `pageNumber` int(11) DEFAULT NULL, \n" +
-                                    "   `recommendationCallId` text DEFAULT NULL, \n" +
-                                    "   `recommendationCallTimeStamp` datetime DEFAULT NULL, \n" +
-                                    "   PRIMARY KEY (`id`) \n" +
-                                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8; \n" +
-                                    "\n" +
-                                    "CREATE INDEX " + tablename + "_uri_text ON " + tablename + "(uri(255)); \n" +
-                                    "CREATE INDEX " + tablename + "_performedBy_text ON " + tablename + "(performedBy(255)); \n" +
-                                    "CREATE INDEX " + tablename + "_interaction_type_text ON " + tablename + "(interactionType(255)); \n" +
-                                    "CREATE INDEX " + tablename + "_executedOver_text ON " + tablename + "(executedOver(255)); \n" +
-                                    "CREATE INDEX " + tablename + "_originallyRecommendedFor_text ON " + tablename + "(originallyRecommendedFor(255)); \n";
-
-                                Logger.log_boot_message("Interactions table " + tablename + " does not exist in the MySQL database. Running query for creating interactions table... \n" + createTableQuery);
-
-                                connection.query(
-                                    createTableQuery,
-                                    function (err, result, fields)
-                                    {
-                                        if (isNull(err))
-                                        {
-                                            Logger.log_boot_message("Interactions table " + tablename + " succesfully created in the MySQL database.");
-
-                                            connection.release();
-                                            if (isNull(err))
-                                            {
-                                                Logger.log_boot_message("Indexes on table  " + tablename + " succesfully created in the MySQL database.");
-                                                poolOK(pool);
-                                            }
-                                            else
-                                            {
-                                                return callback("[ERROR] Unable to create indexes on table  " + tablename + " in the MySQL database. Query was: \n" + createTableQuery + "\n . Result was: \n" + JSON.stringify(result, null, 4));
-                                            }
-                                        }
-                                        else
-                                        {
-                                            return callback("[ERROR] Unable to create the interactions table " + tablename + " on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
-                                        }
-                                    }
-                                );
-                            }
-                        }
-                        else
-                        {
-                            return callback("[ERROR] Unable to query for the interactions table " + tablename + " on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
-                        }
-                    });
-                };
-
-                const tableForRecommendations = Config.recommendation.getTargetTable();
-
-                checkAndCreateTable(tableForRecommendations, function (err, results)
-                {
-                    if (err)
-                    {
-                        return callback("Unable to create table " + tableForRecommendations + " in MySQL ");
-                    }
-
-                    poolOK(connection);
-                });
-            }
-            else
-            {
-                const msg = "[ERROR] Unable to connect to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err;
-                Logger.log("error", msg);
-                Logger.log("error", err);
-                Logger.log("error", connection);
-                return callback(msg);
-            }
-        });
     });
 };
 

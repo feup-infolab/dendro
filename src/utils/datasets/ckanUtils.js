@@ -1,16 +1,17 @@
 const async = require("async");
 const slug = require("slug");
 const _ = require("underscore");
-const Pathfinder = global.Pathfinder;
-const Utils = require(Pathfinder.absPathInPublicFolder("/js/utils.js")).Utils;
+const rlequire = require("rlequire");
 const CKAN = require("ckan");
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const generalDatasetUtils = require(Pathfinder.absPathInSrcFolder("/utils/datasets/generalDatasetUtils.js"));
+
+const Utils = rlequire("dendro", "public/js/utils.js").Utils;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder;
+const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const generalDatasetUtils = rlequire("dendro", "src/utils/datasets/generalDatasetUtils.js");
 
 // ------CKAN UTILS FOR BOTH EXPORT_TO_CKAN AND CALCULATE_CKAN_DIFFS-----------
 
@@ -665,7 +666,7 @@ const checkResourceTypeAndChildren = function (resourceUri, callback)
                 {
                     if (isNull(err))
                     {
-                        Logger.log("info", "The children are: " + JSON.stringify(children));
+                        Logger.log("The children are: " + JSON.stringify(children));
                         if (isNull(children) || children.length <= 0)
                         {
                             const errorMessage = "Error, you cannot export an empty folder to Ckan";

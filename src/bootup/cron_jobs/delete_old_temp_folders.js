@@ -1,11 +1,11 @@
 var CronJob = require("cron").CronJob;
-const Pathfinder = global.Pathfinder;
-const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const InformationElement = rlequire("dendro", "src/models/directory_structure/information_element.js").InformationElement;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const tmpLocation = Config.tempFilesDir;
 const exec = require("child_process").exec;
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const fs = require("fs");
 
 const deleteOldTempFolders = function (app, callback)
@@ -43,7 +43,16 @@ const deleteOldTempFolders = function (app, callback)
                                 }
                                 else
                                 {
-                                    const msg = "Executed the delete_old_temp_folders job successfully, deleted: " + resourcesToDelete;
+                                    let msg;
+                                    if (resourcesToDelete === "")
+                                    {
+                                        msg = "Executed the delete_old_temp_folders job successfully. No files deleted.";
+                                    }
+                                    else
+                                    {
+                                        msg = "Executed the delete_old_temp_folders job successfully, deleted: " + resourcesToDelete;
+                                    }
+
                                     cb(null, msg);
                                 }
                             });

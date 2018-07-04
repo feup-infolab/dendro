@@ -1,18 +1,18 @@
 const async = require("async");
 const fs = require("fs");
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const User = require(Pathfinder.absPathInSrcFolder("models/user.js")).User;
-const isNull = require(Pathfinder.absPathInSrcFolder("utils/null.js")).isNull;
-const UploadManager = require(Pathfinder.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const User = rlequire("dendro", "src/models/user.js").User;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const UploadManager = rlequire("dendro", "src/models/uploads/upload_manager.js").UploadManager;
 
 const signInDebugUser = function (app, callback)
 {
     const signInDebugUser = function (req, res, next)
     {
-    // Logger.log("info", "Dendro is in debug mode, user " + Config.debug.session.login_user +" automatically logged in.");
+    // Logger.log( "Dendro is in debug mode, user " + Config.debug.session.login_user +" automatically logged in.");
 
         if (isNull(req.user))
         {

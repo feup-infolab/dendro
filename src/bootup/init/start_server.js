@@ -1,7 +1,7 @@
 const timeout = require("connect-timeout");
 
-const Pathfinder = global.Pathfinder;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const rlequire = require("rlequire");
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 const startServer = function (app, server, callback)
 {

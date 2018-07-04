@@ -1,10 +1,10 @@
 const async = require("async");
 const _ = require("underscore");
-const Pathfinder = global.Pathfinder;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const rlequire = require("rlequire");
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Permissions = Object.create(require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Permissions = Object.create(rlequire("dendro", "src/models/meta/permissions.js").Permissions);
 
 const QueryBasedRouter = function ()
 {
@@ -21,7 +21,7 @@ QueryBasedRouter.applyRoutes = function (routes, req, res, next, validateExisten
         const resourceUri = req.params.requestedResourceUri;
         if (!isNull(resourceUri))
         {
-            const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+            const Resource = rlequire("dendro", "src/models/resource.js").Resource;
             Resource.findByUri(resourceUri, function (err, resource)
             {
                 if (isNull(err))

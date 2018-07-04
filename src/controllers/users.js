@@ -1,14 +1,14 @@
 const path = require("path");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
-const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
-const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const User = rlequire("dendro", "src/models/user.js").User;
+const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+const DbConnection = rlequire("dendro", "src/kb/db.js").DbConnection;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const contentDisposition = require("content-disposition");
 
 const async = require("async");
@@ -559,7 +559,7 @@ exports.get_avatar = function (req, res)
     const serveDefaultAvatar = function ()
     {
     // User does not have an avatar
-        let absPathOfFileToServe = Pathfinder.absPathInPublicFolder("images/default_avatar/defaultAvatar.png");
+        let absPathOfFileToServe = rlequire.absPathInApp("dendro", "public/images/default_avatar/defaultAvatar.png");
         let fileStream = fs.createReadStream(absPathOfFileToServe);
 
         let filename = path.basename(absPathOfFileToServe);
@@ -610,7 +610,7 @@ exports.get_avatar = function (req, res)
                             {
                                 if (!isNull(parentPath))
                                 {
-                                    const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+                                    const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
                                     File.deleteOnLocalFileSystem(parentPath, function (err, stdout, stderr)
                                     {
                                         if (err)
@@ -810,7 +810,7 @@ exports.edit = function (req, res, next)
                         {
                             if (!err)
                             {
-                                let auth = require(Pathfinder.absPathInSrcFolder("/controllers/auth.js"));
+                                let auth = rlequire("dendro", "src/controllers/auth.js");
                                 req.flash("success", "User " + editedUser.ddr.username + " edited.");
                                 // Logger.log("User " + editedUser.ddr.username + " edited.");
                                 // res.redirect('/me');

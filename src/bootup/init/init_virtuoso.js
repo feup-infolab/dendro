@@ -1,11 +1,8 @@
-const fs = require("fs");
-const async = require("async");
-
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const isNull = require(Pathfinder.absPathInSrcFolder("utils/null.js")).isNull;
-let DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+let DbConnection = rlequire("dendro", "src/kb/db.js").DbConnection;
 
 const initVirtuoso = function (app, callback)
 {
@@ -18,45 +15,25 @@ const initVirtuoso = function (app, callback)
         Config.virtuosoISQLPort,
         Config.virtuosoAuth.user,
         Config.virtuosoAuth.password,
-        Config.maxSimultaneousConnectionsToDb,
+        // Config.maxSimultaneousConnectionsToDb,
+        1, // it is one because Virtuoso cant handle more than one connection properly. Only ONE connection and not more!!
         Config.dbOperationTimeout
     );
 
-    const tryToConnect = function (callback)
+    db.tryToConnect(function (err)
     {
-        db.create(function (err, db)
+        if (isNull(err))
         {
-            if (isNull(err))
-            {
-                if (isNull(db))
-                {
-                    const msg = "[ERROR] Unable to connect to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort;
-                    Logger.log_boot_message(msg);
-                    return callback(msg);
-                }
-
-                Logger.log_boot_message("Connected to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort);
-                // set default connection. If you want to add other connections, add them in succession.
-                Config.db.default.connection = db;
-                return callback(null);
-            }
-            callback("[ERROR] Error connecting to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort);
-            Logger.log("error", JSON.stringify(err));
-            Logger.log("error", JSON.stringify(db));
-        });
-    };
-
-    // try calling apiMethod 10 times with exponential backoff
-    // (i.e. intervals of 100, 200, 400, 800, 1600, ... milliseconds)
-    async.retry({
-        times: 10,
-        interval: function (retryCount)
-        {
-            return 50 * Math.pow(2, retryCount);
+            Config.db.default.connection = db;
+            callback(err);
         }
-    }, tryToConnect, function (err, result)
-    {
-        callback(err);
+        else
+        {
+            const msg = "[FATAL ERROR] Virtuoso initialization at " + Config.virtuosoHost + ":" + Config.virtuosoPort + " failed!";
+            Logger.log("error", msg);
+            Logger.log("error", err);
+            throw new Error(msg);
+        }
     });
 };
 

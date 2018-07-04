@@ -7,18 +7,19 @@ const slug = require("slug");
 const async = require("async");
 const _ = require("underscore");
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const DbConnection = rlequire("dendro", "src/kb/db.js").DbConnection;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
-const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
-const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Class = rlequire("dendro", "src/models/meta/class.js").Class;
+const InformationElement = rlequire("dendro", "src/models/directory_structure/information_element.js").InformationElement;
+const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+const User = rlequire("dendro", "src/models/user.js").User;
+const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const Notification = rlequire("dendro", "src/models/notifications/notification.js").Notification;
 
 const db = Config.getDBByID();
 
@@ -502,7 +503,7 @@ Folder.prototype.bagit = function (bagItOptions, callback)
             },
             function (absolutePathOfFinishedFolder, parentFolderPath, cb)
             {
-                const gladstone = require(Pathfinder.absPathInApp("/node_modules/gladstone/gladstone.js"));
+                const gladstone = rlequire("dendro","node_modules/gladstone/gladstone.js");
                 gladstone.createBagDirectory(bagItOptions)
                     .then(function (result)
                     {
@@ -641,7 +642,7 @@ Folder.prototype.findChildWithDescriptor = function (descriptor, callback)
     }, null, null, null, null, null, true);
 };
 
-Folder.prototype.restoreFromLocalBackupZipFile = function (zipFileAbsLocation, userRestoringTheFolder, callback)
+Folder.prototype.restoreFromLocalBackupZipFile = function (zipFileAbsLocation, userRestoringTheFolder, callback, progressReporter)
 {
     const self = this;
     File.unzip(zipFileAbsLocation, function (err, unzippedContentsLocation)
@@ -657,6 +658,14 @@ Folder.prototype.restoreFromLocalBackupZipFile = function (zipFileAbsLocation, u
                     if (isNull(err) && files instanceof Array && files.length === 1)
                     {
                         const location = path.join(unzippedContentsLocation, files[0]);
+
+                        if(!isNull(progressReporter))
+                        {
+                            Notification.sendProgress(
+                                `Now restoring folder ${path.extname(location)}...`,
+                                userRestoringTheFolder.uri
+                            );
+                        }
 
                         self.restoreFromFolder(location, userRestoringTheFolder, true, true, function (err, result)
                         {
@@ -688,7 +697,7 @@ Folder.prototype.restoreFromLocalBackupZipFile = function (zipFileAbsLocation, u
     });
 };
 
-Folder.prototype.loadContentsOfFolderIntoThis = function (absolutePathOfLocalFolder, replaceExistingFolder, callback, runningOnRoot, userPerformingTheOperation)
+Folder.prototype.loadContentsOfFolderIntoThis = function (absolutePathOfLocalFolder, replaceExistingFolder, callback, runningOnRoot, userPerformingTheOperation, progressReporter)
 {
     const self = this;
     const path = require("path");
@@ -770,7 +779,7 @@ Folder.prototype.loadContentsOfFolderIntoThis = function (absolutePathOfLocalFol
                     {
                         cb(err, result);
                     }, userPerformingTheOperation.uri, true);
-                }, false, userPerformingTheOperation);
+                }, false, userPerformingTheOperation, progressReporter);
             }
             else
             {
@@ -1867,14 +1876,14 @@ Folder.prototype.getHumanReadableUri = function (callback)
         }
         else
         {
-            const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+            const Resource = rlequire("dendro", "src/models/resource.js").Resource;
             Resource.findByUri(self.nie.isLogicalPartOf, function (err, parentResource)
             {
                 if (isNull(err))
                 {
                     if (!isNull(parentResource))
                     {
-                        const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+                        const Project = rlequire("dendro", "src/models/project.js").Project;
                         if(parentResource.isA(Project))
                         {
                             callback(null, parentResource.ddr.humanReadableURI + "/data");
@@ -1906,7 +1915,7 @@ Folder.prototype.getHumanReadableUri = function (callback)
     }
 };
 
-Folder.prototype.refreshChildrenHumanReadableUris = function (callback, customGraphUri)
+Folder.prototype.refreshChildrenHumanReadableUris = function (callback, customGraphUri, progressReporter)
 {
     const self = this;
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
@@ -1923,7 +1932,15 @@ Folder.prototype.refreshChildrenHumanReadableUris = function (callback, customGr
                     {
                         if (!isNull(resource))
                         {
-                            resource.refreshHumanReadableUri(callback, graphUri);
+                            if(!isNull(progressReporter))
+                            {
+                              Notification.sendProgress(
+                                `Updating internal uri of resource ${resource.nie.title}...`,
+                                progressReporter
+                              );
+                            }
+
+                            resource.refreshHumanReadableUri(callback, graphUri, progressReporter);
                         }
                         else
                         {
@@ -1964,16 +1981,17 @@ Folder.prototype.refreshChildrenHumanReadableUris = function (callback, customGr
     );
 };
 
-Folder.prototype.rename = function(newTitle, callback)
+Folder.prototype.rename = function(newTitle, callback, userPerformingOperation, progressReporter)
 {
     const self = this;
+
     InformationElement.prototype.rename.call(self, newTitle, function(err, updatedFolder){
         if(isNull(err))
         {
             self.refreshChildrenHumanReadableUris(function (err, result)
             {
                 return callback(err, result);
-            });
+            }, null, progressReporter);
         }
         else
         {
@@ -1982,7 +2000,7 @@ Folder.prototype.rename = function(newTitle, callback)
             Logger.log("error", JSON.stringify(result));
             return callback(err, result);
         }
-    });
+    }, null, userPerformingOperation);
 };
 
 Folder = Class.extend(Folder, InformationElement, "nfo:Folder");

@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-mysql_database_to_create=$1
-mysql_username=$2
-mysql_root_password=$3
 NODE_VERSION=`cat .nvmrc`
 
 
@@ -20,10 +17,8 @@ export CODECLIMATE_TOKEN="d35a03f94b5472b37f30f55a2689d730e6e3bd03563357af841236
 
 export RUNNING_IN_JENKINS="1"
 
-echo "create database ${mysql_database_to_create};" | mysql -u $mysql_username -p$mysql_root_password
-
 npm run delete-coverage
-npm run calculate-coverage
+npm run calculate-coverage-travis
 
 #report_coverage()
 #{

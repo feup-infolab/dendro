@@ -1,11 +1,8 @@
-const path = require("path");
-const _ = require("underscore");
-const async = require("async");
 const validUrl = require("valid-url");
-const Pathfinder = global.Pathfinder;
-const Controls = require(Pathfinder.absPathInSrcFolder("/models/meta/controls.js")).Controls;
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const rlequire = require("rlequire");
+const Controls = rlequire("dendro", "src/models/meta/controls.js").Controls;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 function Elements ()
 {}
@@ -66,26 +63,27 @@ Elements.getInvalidTypeErrorMessageForDescriptor = function (currentDescriptor)
     return errorMessagesForTypes[currentDescriptor.type];
 };
 
+Elements.validateADescriptorValueAgainstItsType = function (descriptorType, descriptorValue)
+{
+    let typesValidators = {};
+    typesValidators[Elements.types.resourceNoEscape] = ((typeof descriptorValue === "string" || descriptorValue instanceof String) && validUrl.is_uri(descriptorValue));
+    typesValidators[Elements.types.resource] = ((typeof descriptorValue === "string" || descriptorValue instanceof String) && validUrl.is_uri(descriptorValue));
+    typesValidators[Elements.types.property] = ((typeof descriptorValue === "string" || descriptorValue instanceof String) && validUrl.is_uri(descriptorValue));
+    typesValidators[Elements.types.string] = (typeof descriptorValue === "string" || descriptorValue instanceof String);
+    typesValidators[Elements.types.int] = Number.isInteger(descriptorValue);
+    typesValidators[Elements.types.double] = !isNaN(descriptorValue);
+    typesValidators[Elements.types.boolean] = (descriptorValue === "true" || descriptorValue === "false" || descriptorValue === true || descriptorValue === false);
+    typesValidators[Elements.types.prefixedResource] = Elements.checkIfValidPrefixedResource(descriptorValue);
+    typesValidators[Elements.types.date] = !isNaN(Date.parse(descriptorValue));
+    typesValidators[Elements.types.long_string] = (typeof descriptorValue === "string" || descriptorValue instanceof String);
+    typesValidators[Elements.types.stringNoEscape] = (typeof descriptorValue === "string" || descriptorValue instanceof String);
+
+    return typesValidators[descriptorType];
+};
+
 Elements.validateDescriptorValueTypes = function (currentDescriptor)
 {
-    const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-    const validateADescriptorValueAgainstItsType = function (descriptorType, descriptorValue)
-    {
-        let typesValidators = {};
-        typesValidators[Elements.types.resourceNoEscape] = ((typeof descriptorValue === "string" || descriptorValue instanceof String) && validUrl.is_uri(descriptorValue));
-        typesValidators[Elements.types.resource] = ((typeof descriptorValue === "string" || descriptorValue instanceof String) && validUrl.is_uri(descriptorValue));
-        typesValidators[Elements.types.property] = ((typeof descriptorValue === "string" || descriptorValue instanceof String) && validUrl.is_uri(descriptorValue));
-        typesValidators[Elements.types.string] = (typeof descriptorValue === "string" || descriptorValue instanceof String);
-        typesValidators[Elements.types.int] = Number.isInteger(descriptorValue);
-        typesValidators[Elements.types.double] = !isNaN(descriptorValue);
-        typesValidators[Elements.types.boolean] = (descriptorValue === "true" || descriptorValue === "false" || descriptorValue === true || descriptorValue === false);
-        typesValidators[Elements.types.prefixedResource] = Elements.checkIfValidPrefixedResource(descriptorValue);
-        typesValidators[Elements.types.date] = !isNaN(Date.parse(descriptorValue));
-        typesValidators[Elements.types.long_string] = (typeof descriptorValue === "string" || descriptorValue instanceof String);
-        typesValidators[Elements.types.stringNoEscape] = (typeof descriptorValue === "string" || descriptorValue instanceof String);
-
-        return typesValidators[descriptorType];
-    };
+    const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
     if (Config.skipDescriptorValuesValidation === true)
     {
@@ -98,7 +96,7 @@ Elements.validateDescriptorValueTypes = function (currentDescriptor)
     {
         for (let i = 0; i !== currentDescriptor.value.length; i++)
         {
-            let resultOfValidation = validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value[i]);
+            let resultOfValidation = Elements.validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value[i]);
             if (isNull(resultOfValidation) || resultOfValidation === false)
             {
                 return false;
@@ -108,7 +106,7 @@ Elements.validateDescriptorValueTypes = function (currentDescriptor)
     else
     {
         // When there is only one instance of a descriptor (for example only one dcterms:abstract)
-        return validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value);
+        return Elements.validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value);
     }
     return true;
 
@@ -119,7 +117,7 @@ Elements.validateDescriptorValueTypes = function (currentDescriptor)
     {
         for (let i = 0; i !== currentDescriptor.value.length; i++)
         {
-            let resultOfValidation = validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value[i]);
+            let resultOfValidation = Elements.validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value[i]);
             if (isNull(resultOfValidation) || resultOfValidation === false)
             {
                 return false;
@@ -129,9 +127,16 @@ Elements.validateDescriptorValueTypes = function (currentDescriptor)
     else
     {
         // When there is only one instance of a descriptor (for example only one dcterms:abstract)
-        return validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value);
+        return Elements.validateADescriptorValueAgainstItsType(currentDescriptor.type, currentDescriptor.value);
     }
     return true;*/
+};
+
+Elements.validationFunctions = {
+    stringOrResourceNoEscape: function (value)
+    {
+        return Elements.validateADescriptorValueAgainstItsType(Elements.types.string, value) || Elements.validateADescriptorValueAgainstItsType(Elements.types.resourceNoEscape, value);
+    }
 };
 
 /**
@@ -259,6 +264,7 @@ Elements.ontologies.dcterms =
     creator:
   {
       type: Elements.types.string,
+      validationFunction: Elements.validationFunctions.stringOrResourceNoEscape,
       control: Controls.url_box,
       locked_for_projects: true,
       append_prefix_dendro_baseuri: true
@@ -798,6 +804,12 @@ Elements.ontologies.foaf =
  */
 
 Elements.ontologies.ddr = {
+    taskID:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box,
+            api_readable: true
+        },
     hasErrors:
         {
             type: Elements.types.string,
