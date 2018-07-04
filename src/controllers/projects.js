@@ -2300,7 +2300,16 @@ exports.import = function (req, res)
                     {
                         if (isNull(err))
                         {
-                            Logger.log("info", "Project with handle: " + req.query.imported_project_handle + " was successfully restored");
+                            const message = "Project with handle: " + req.query.imported_project_handle + " was successfully restored";
+                            Logger.log("info", message);
+
+                            if (!isNull(newProject))
+                            {
+                                Notification.buildAndSaveFromSystemMessage(message, req.user.uri, function (err, info)
+                                {
+                                    Logger.log("info", "Imported project notification sent");
+                                }, newProject.uri);
+                            }
                             return;
                         }
 

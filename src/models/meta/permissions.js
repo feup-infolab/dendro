@@ -280,7 +280,11 @@ const checkUsersRoleInNotification = function (req, user, role, notificationUri,
         {
             if (isNull(err))
             {
-                if (notification instanceof Notification)
+                if (isNull(notification))
+                {
+                    return callback(null, true);
+                }
+                else if (notification instanceof Notification)
                 {
                     notification.checkIfHasPredicateValue(role.predicate, user.uri, function (err, result)
                     {
