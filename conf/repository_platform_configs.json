@@ -72,6 +72,18 @@
         "nick" : "b2share",
         "homepage" : "https://b2share.eudat.eu/"
       }
+    },
+    {
+      "uri" : "/repository_platform/dendro",
+      "dcterms" :
+      {
+        "title" : "Dendro"
+      },
+      "foaf":
+      {
+        "nick" : "dendro",
+        "homepage" : "https://github.com/feup-infolab/dendro"
+      }
     }
   ],
   "dev": [
@@ -147,6 +159,18 @@
         "nick" : "b2share",
         "homepage" : "https://b2share.eudat.eu/"
       }
+    },
+    {
+      "uri" : "/repository_platform/dendro",
+      "dcterms" :
+      {
+        "title" : "Dendro"
+      },
+      "foaf":
+      {
+        "nick" : "dendro",
+        "homepage" : "https://github.com/feup-infolab/dendro"
+      }
     }
   ],
   "test": [
@@ -221,6 +245,18 @@
       {
         "nick" : "b2share",
         "homepage" : "https://b2share.eudat.eu/"
+      }
+    },
+    {
+      "uri" : "/repository_platform/dendro",
+      "dcterms" :
+      {
+        "title" : "Dendro"
+      },
+      "foaf":
+      {
+        "nick" : "dendro",
+        "homepage" : "https://github.com/feup-infolab/dendro"
       }
     }
   ]

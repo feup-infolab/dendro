@@ -9,7 +9,6 @@ const RepositoryPlatform = require(Pathfinder.absPathInSrcFolder("/models/harves
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const Deposit = require(Pathfinder.absPathInSrcFolder("/models/deposit.js")).Deposit;
 
 const async = require("async");
 const _ = require("underscore");
@@ -27,7 +26,7 @@ const validateNewBookmarkRequest = function (req, res)
         });
         return false;
     }
-    else if (isNull(req.body.ddr.username) && req.body.ddr.hasPlatform.foaf.nick !== "figshare" && req.body.ddr.hasPlatform.foaf.nick !== "zenodo" && req.body.ddr.hasPlatform.foaf.nick !== "b2share")
+    else if (isNull(req.body.ddr.username) && req.body.ddr.hasPlatform.foaf.nick !== "figshare" && req.body.ddr.hasPlatform.foaf.nick !== "zenodo" && req.body.ddr.hasPlatform.foaf.nick !== "b2share" && req.body.ddr.hasPlatform.foaf.nick !== "dendro")
     {
         res.status(400).json({
             result: "error",
@@ -244,27 +243,10 @@ exports.new = function (req, res)
                                 {
                                     if (isNull(err))
                                     {
-                                      const registryData = {
-                                        dcterms: {
-                                          title: req.body.dcterms.title,
-                                          creator: req.user.ddr.username,
-                                        },
-                                        ddr: {
-                                          exportedResource: req.body.ddr.exportedResource,
-                                          exportedToPlatform: repo_platform.dcterms.title,
-                                          hasExternalUri: req.body.ddr.hasExternalUri,  //repository url
-                                          privacyStatus: isNull(req.body.ddr.privacyStatus) || req.body.ddr.privacyStatus === false ? "private" : "public",
-                                          hasOrganization: req.body.ddr.hasOrganization,
-
-                                        }
-                                      };
-
-                                      Deposit.createDepositRegistry(registryData, function(err, result){
                                         res.json({
                                           result: "ok",
                                           message: "New bookmark saved as " + newBookmark.dcterms.title
                                         });
-                                      });
 
 
                                     }

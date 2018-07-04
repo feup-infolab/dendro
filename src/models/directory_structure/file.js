@@ -240,19 +240,22 @@ File.prototype.copyPaste = function ({destinationFolder}, callback)
     {
       if (isNull(err))
       {
+        destinationFolder.nie.hasLogicalPart = newFile.uri;
         return callback(null, {
           result: "success",
           message: "File copied successfully.",
           uri: newFile.uri
         });
+      }else{
+        const msg = "Error [" + err + "] reindexing file [" + newFile.uri + "]in GridFS :" + newFile;
+        return callback(500, {
+          result: "error",
+          message: "Unable to save files after buffering: " + JSON.stringify(newFile),
+          files: files,
+          errors: newFile
+        });
       }
-      const msg = "Error [" + err + "] reindexing file [" + newFile.uri + "]in GridFS :" + newFile;
-      return callback(500, {
-        result: "error",
-        message: "Unable to save files after buffering: " + JSON.stringify(newFile),
-        files: files,
-        errors: newFile
-      });
+
     });
   });
 };

@@ -342,7 +342,25 @@ InformationElement.prototype.needsRenaming = function (callback, newTitle, paren
                             }
                             else
                             {
-                                callback(true, "Error: Parent (with uri: " + parentUri + ") of :" + self.uri + " is neither a folder nor project");
+                                const Deposit = require(Pathfinder.absPathInSrcFolder("/models/deposit.js")).Deposit;
+                                Deposit.findByUri(parentUri, function(err, deposit)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        if(deposit instanceof Deposit)
+                                        {
+                                          callback(err, deposit);
+                                        }
+                                        else
+                                        {
+                                          callback(true, "Error: Parent (with uri: " + parentUri + ") of :" + self.uri + " is neither a folder nor project");
+                                        }
+                                    }
+                                    else
+                                    {
+                                      callback(err, deposit);
+                                    }
+                                });
                             }
                         }
                         else

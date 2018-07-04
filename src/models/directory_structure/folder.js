@@ -1904,8 +1904,9 @@ Folder.prototype.getHumanReadableUri = function (callback)
                 {
                     if (!isNull(parentResource))
                     {
-                        const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
-                        if(parentResource.isA(Project))
+                        const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project
+                        const Deposit = require(Pathfinder.absPathInSrcFolder("/models/deposit.js")).Deposit;
+                        if(parentResource.isA(Project) || parentResource.isA(Deposit))
                         {
                             callback(null, parentResource.ddr.humanReadableURI + "/data");
                         }

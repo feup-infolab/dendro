@@ -1217,6 +1217,47 @@ export_to_repository_b2share = function (req, res)
     });
 };
 
+export_to_dendro = function(req, res)
+{
+  const requestedResourceUri = req.params.requestedResourceUri;
+  const targetRepository = req.body.repository
+  const privacy = req.body.publicDeposit;
+
+  File.findByUri(requestedResourceUri, function (err, file) {
+    if (isNull(err)) {
+      if (!isNull(file)) {
+
+        file.getOwnerProject(function (err, project)
+        {
+          if (isNull(err))
+          {
+            const registryData = {
+              dcterms: {
+                title: file.dcterms.title,
+                creator: file.dcterms.creator,
+                identifier: "123456789",
+              },
+              ddr: {
+                exportedFromProject: project.uri,
+                exportedFromFolder: file.uri,
+                privacyStatus: isNull(privacy) || privacy === false ? "private" : "public",
+
+                exportedToRepository: "Dendro",
+                exportedToPlatform: "Dendro",
+              }
+
+            };
+            Deposit.createDepositRegistry({registryData: registryData, requestedResource: file}, function(err, msg){
+
+            });
+          }
+        });
+
+      }
+    }
+  });
+};
+
 exports.export_to_repository = function (req, res)
 {
     let nick;
@@ -1271,6 +1312,10 @@ exports.export_to_repository = function (req, res)
             else if (nick === "b2share")
             {
                 export_to_repository_b2share(req, res);
+            }
+            else if (nick === "dendro")
+            {
+                export_to_dendro(req, res);
             }
             else
             {

@@ -10,21 +10,14 @@ const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Utils = require(Pathfinder.absPathInPublicFolder("/js/utils.js")).Utils;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
-const Project = require(Pathfinder.absPathInSrcFolder("/models/project")).Project;
 const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
-const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
-const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-const Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
-const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
 const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js')).Elements;
 const db = Config.getDBByID();
 const gfs = Config.getGFSByID();
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+
 
 const B2ShareClient = require("@feup-infolab/node-b2share-v2");
 
@@ -49,7 +42,9 @@ function Deposit(object){
     return self;
 }
 
-Deposit.createDepositRegistry = function (object, callback) {
+Deposit.createDepositRegistry = function (data, callback) {
+    let object = data.registryData;
+    let content = data.requestedResource;
     const newRegistry = new Deposit(object);
 
     const requestedResourceURI = object.ddr.exportedFromFolder;
@@ -69,13 +64,18 @@ Deposit.createDepositRegistry = function (object, callback) {
 
       console.log("creating registry from deposit\n" + util.inspect(object));
 
-      newRegistry.save(function(err, newRegistry){
-        if(!err){
-          callback(err, newRegistry);
-        } else{
-
-        }
+      //save deposited contents to dendro
+      Deposit.saveContents({newDeposit: newRegistry, content: content}, function(err, msg){
+        newRegistry.save(function(err, newRegistry){
+          if(!err){
+            callback(err, newRegistry);
+          } else{
+            callback(err, "not good");
+          }
+        });
       });
+
+
     }else{
       callback(1);
     }
@@ -441,6 +441,57 @@ Deposit.getAllRepositories = function(params, callback){
       db.connection.executeViaJDBC(query,variables, function (err, regs){
         callback(err, regs);
       });
+};
+
+Deposit.saveContents = function(params, callback){
+  let newDeposit = params.newDeposit;
+  newDeposit.save(function(err, newDeposit){
+    const rootFolder = new Folder({
+      nie: {
+        title: "deposit",
+        isLogicalPartOf: newDeposit.uri
+      },
+      ddr: {
+        humanReadableURI: newDeposit.ddr.humanReadableURI + "/data"
+      }
+    });
+
+    rootFolder.save(function (err, result)
+    {
+      if (isNull(err))
+      {
+        newDeposit.ddr.rootFolder = rootFolder.uri;
+        newDeposit.nie.hasLogicalPart = rootFolder.uri;
+
+        newDeposit.save(function (err, result)
+        {
+          if (isNull(err)) {
+
+            let content = params.content;
+            //TODO check if file or folder
+            content.copyPaste({rootFolder}, function(err, msg){
+              a = 3;
+            });
+
+            //pass contents here
+
+            return callback(err, newDeposit);
+          }
+          else
+          {
+            Logger.log("error", "There was an error re-saving the project " + newDeposit.ddr.humanReadableURI + " while creating it: " + JSON.stringify(result));
+            callback(err, result);
+          }
+        });
+      }
+      else
+      {
+        Logger.log("error", "There was an error saving the root folder of project " + newDeposit.ddr.humanReadableURI + ": " + JSON.stringify(result));
+        return callback(err, result);
+      }
+    });
+  });
+
 };
 
 Deposit = Class.extend(Deposit, Resource, "ddr:Registry");
