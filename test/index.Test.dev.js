@@ -12,24 +12,21 @@ global.Config = Config;
 
 global.tests = {};
 
-// Archived versions test
-rlequire("dendro", "test/routes/archived_resource/routes.archivedResource.Test.js");
-
 // Import projects tests
-rlequire("dendro", "test/routes/projects/import/route.projects.import.Test.js");
+rlequire("dendro", "test//routes/projects/import/route.projects.import.Test.js");
 
 // Dendro Administration page
-rlequire("dendro", "test/routes/admin/routes.admin.Test.js");
+rlequire("dendro", "test//routes/admin/routes.admin.Test.js");
 
 // PUBLIC PROJECT FOLDER LEVEL ?restore_metadata_version
-rlequire("dendro", "test/routes/project/public_project/data/testFolder1/__restore_metadata_version/routes.project.publicProject.data.testFolder1.__restore_metadata_version.Test.js");
-rlequire("dendro", "test/routes/project/public_project/data/testFolder2/__restore_metadata_version/routes.project.publicProject.data.testFolder2.__restore_metadata_version.Test.js");
+rlequire("dendro", "test//routes/project/public_project/data/testFolder1/__restore_metadata_version/routes.project.publicProject.data.testFolder1.__restore_metadata_version.Test.js");
+rlequire("dendro", "test//routes/project/public_project/data/testFolder2/__restore_metadata_version/routes.project.publicProject.data.testFolder2.__restore_metadata_version.Test.js");
 
 // PRIVATE PROJECT FOLDER LEVEL ?restore_metadata_version
-rlequire("dendro", "test/routes/project/private_project/data/testFolder1/__restore_metadata_version/routes.project.privateProject.data.testFolder1.__restore_metadata_version.Test.js");
-rlequire("dendro", "test/routes/project/private_project/data/testFolder2/__restore_metadata_version/routes.project.privateProject.data.testFolder2.__restore_metadata_version.Test.js");
+rlequire("dendro", "test//routes/project/private_project/data/testFolder1/__restore_metadata_version/routes.project.privateProject.data.testFolder1.__restore_metadata_version.Test.js");
+rlequire("dendro", "test//routes/project/private_project/data/testFolder2/__restore_metadata_version/routes.project.privateProject.data.testFolder2.__restore_metadata_version.Test.js");
 
 // METADATA ONLY PROJECT FOLDER LEVEL ?restore_metadata_version
-rlequire("dendro", "test/routes/project/metadata_only_project/data/testFolder1/__restore_metadata_version/routes.project.metadataonlyProject.data.testFolder1.__restore_metadata_version.Test.js");
-rlequire("dendro", "test/routes/project/metadata_only_project/data/testFolder2/__restore_metadata_version/routes.project.metadataonlyProject.data.testFolder2.__restore_metadata_version.Test.js");
+rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder1/__restore_metadata_version/routes.project.metadataonlyProject.data.testFolder1.__restore_metadata_version.Test.js");
+rlequire("dendro", "test//routes/project/metadata_only_project/data/testFolder2/__restore_metadata_version/routes.project.metadataonlyProject.data.testFolder2.__restore_metadata_version.Test.js");
 
