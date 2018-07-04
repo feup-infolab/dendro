@@ -1,5 +1,7 @@
 const rlequire = require("rlequire");
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Notification = rlequire("dendro", "src/models/notifications/notification.js").Notification;
 
 const appSecret = Config.crypto.secret,
     express = require("express"),
@@ -74,6 +76,20 @@ const loadMiscMiddlewares = function (app, callback)
     app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument, {
         docExpansion: "list"
     }));
+
+    app.use(function (req, res, next)
+    {
+        res.on("finish", function ()
+        {
+            if (!isNull(res.progressReporter))
+            {
+                Notification.finishProgress(res.progressReporter);
+                res.progressReporter.dismiss();
+            }
+        });
+
+        next();
+    });
 
     callback(null);
 };

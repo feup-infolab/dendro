@@ -1,6 +1,5 @@
 // complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
-const path = require("path");
 const async = require("async");
 const _ = require("underscore");
 const rlequire = require("rlequire");
@@ -8,11 +7,11 @@ const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const Class = rlequire("dendro", "src/models/meta/class.js").Class;
-const DbConnection = rlequire("dendro", "src/kb/db.js").DbConnection;
 const Cache = rlequire("dendro", "src/kb/cache/cache.js").Cache;
 const Resource = rlequire("dendro", "src/models/resource.js").Resource;
 const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const Notification = rlequire("dendro", "src/models/notifications/notification.js").Notification;
 
 const db = Config.getDBByID();
 
@@ -404,10 +403,18 @@ InformationElement.prototype.needsRenaming = function (callback, newTitle, paren
     ], callback);
 };
 
-InformationElement.prototype.rename = function (newTitle, callback, customGraphUri)
+InformationElement.prototype.rename = function (newTitle, callback, customGraphUri, progressReporter)
 {
     const self = this;
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+    if (!isNull(progressReporter))
+    {
+        Notification.sendProgress(
+            `Updating internal uri of folder ${self.nie.title}...`,
+            progressReporter
+        );
+    }
 
     const query =
         "WITH [0] \n" +
@@ -482,7 +489,7 @@ InformationElement.prototype.rename = function (newTitle, callback, customGraphU
                         Logger.log("error", JSON.stringify(result));
                         return callback(1, msg);
                     }
-                });
+                }, customGraphUri);
             }
             else
             {

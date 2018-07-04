@@ -804,6 +804,12 @@ Elements.ontologies.foaf =
  */
 
 Elements.ontologies.ddr = {
+    taskID:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box,
+            api_readable: true
+        },
     hasErrors:
         {
             type: Elements.types.string,

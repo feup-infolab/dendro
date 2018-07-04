@@ -7,7 +7,7 @@ const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
-const Notification = require("../models/notifications/notification.js").Notification;
+const Notification = rlequire("dendro", "src/models/notifications/notification.js").Notification;
 const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const DbConnection = require("../kb/db.js").DbConnection;
@@ -95,7 +95,8 @@ exports.get_notification_info = function (req, res)
     const acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
 
-    if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
+    // will be null if the client does not accept html
+    if (acceptsJSON && !acceptsHTML)
     {
         const userUri = req.user.uri;
         const notificationUri = req.query.notificationUri;

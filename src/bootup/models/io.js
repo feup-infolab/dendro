@@ -1,7 +1,8 @@
-const Pathfinder = global.Pathfinder;
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const UserSession = require(Pathfinder.absPathInSrcFolder("bootup/models/user_session.js")).UserSession;
+const rlequire = require("rlequire");
+
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const UserSession = rlequire("dendro", "src/bootup/models/user_session.js").UserSession;
 
 class IO
 {

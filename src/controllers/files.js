@@ -14,6 +14,8 @@ const FileSystemPost = rlequire("dendro", "src/models/social/fileSystemPost.js")
 const Uploader = rlequire("dendro", "src/utils/uploader.js").Uploader;
 const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const Notification = rlequire("dendro", "src/models/notifications/notification.js").Notification;
+
 const contentDisposition = require("content-disposition");
 
 const async = require("async");
@@ -2450,7 +2452,7 @@ exports.serve_static = function (req, res, pathOfIntendedFileRelativeToProjectRo
     if (typeof pathOfIntendedFileRelativeToProjectRoot === "string")
     {
         const fileName = path.basename(pathOfIntendedFileRelativeToProjectRoot);
-        var absPathOfFileToServe = rlequire("dendro", "public" + pathOfIntendedFileRelativeToProjectRoot);
+        const absPathOfFileToServe = rlequire.absPathInApp("dendro", "public" + pathOfIntendedFileRelativeToProjectRoot);
 
         fs.exists(absPathOfFileToServe, function (exists)
         {
@@ -2861,6 +2863,8 @@ exports.rename = function (req, res)
                             ie = new Folder(ie);
                         }
 
+                        res.progressReporter = Notification.startProgress(req.user.uri, "Renaming folder " + ie.nie.title + " to " + newName + " ...");
+
                         if (isNull(ie.ddr.fileExtension) || ie.ddr.fileExtension === "folder" || ie.ddr.fileExtension === "")
                         {
                             ie.nie.title = newName;
@@ -2894,7 +2898,7 @@ exports.rename = function (req, res)
                                                 message: error
                                             });
                                         }
-                                    });
+                                    }, null, res.progressReporter);
                                 }
                                 else
                                 {

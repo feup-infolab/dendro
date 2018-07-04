@@ -11,7 +11,7 @@ const Share = require("../models/social/share.js").Share;
 const Ontology = require("../models/meta/ontology.js").Ontology;
 const Project = require("../models/project.js").Project;
 const FileVersion = require("../models/versions/file_version.js").FileVersion;
-const Notification = require("../models/notifications/notification.js").Notification;
+const Notification = rlequire("dendro", "src/models/notifications/notification.js").Notification;
 const DbConnection = require("../kb/db.js").DbConnection;
 const _ = require("underscore");
 

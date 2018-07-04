@@ -1,12 +1,12 @@
 const slug = require("slug");
 const path = require("path");
-
-const Pathfinder = global.Pathfinder;
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
 const _ = require("underscore");
+
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 class UserSession
 {
@@ -51,6 +51,24 @@ class UserSession
         _.map(self.__sockets, function (socket)
         {
             socket.emit(self.__userUri + ":message", {message: message});
+        });
+    }
+
+    emitProgress (notificationObject)
+    {
+        let self = this;
+        _.map(self.__sockets, function (socket)
+        {
+            socket.emit(self.__userUri + ":progress", notificationObject);
+        });
+    }
+
+    emitEnd (notificationObject)
+    {
+        let self = this;
+        _.map(self.__sockets, function (socket)
+        {
+            socket.emit(self.__userUri + ":end_task", notificationObject);
         });
     }
 

@@ -6,7 +6,7 @@ const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
 const Post = require("../models/social/post.js").Post;
 const Like = require("../models/social/like.js").Like;
-const Notification = require("../models/notifications/notification.js").Notification;
+const Notification = rlequire("dendro", "src/models/notifications/notification.js").Notification;
 const Comment = require("../models/social/comment.js").Comment;
 const Share = require("../models/social/share.js").Share;
 const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
