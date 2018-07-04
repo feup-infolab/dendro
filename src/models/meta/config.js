@@ -15,7 +15,7 @@ const isNull = require("../../utils/null.js").isNull;
 const Elements = require("./elements.js").Elements;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
-const activeConfigFilePath = rlequire("dendro", "conf/active_deployment_config.json");
+const activeConfigFilePath = rlequire.absPathInApp("dendro", "conf/active_deployment_config.json");
 const configs = rlequire("dendro", "conf/deployment_configs.json");
 
 let activeConfigKey;

@@ -13,11 +13,11 @@
     "eudatCommunityId": "e9b9792e-79fb-4b07-b6b4-b9c2bd06d095",
     "sendGridUser": "__FIXME",
     "sendGridPassword": "__FIXME",
-    "elasticSearchHost": "192.168.56.249",
+    "elasticSearchHost": "127.0.0.1",
     "elasticSearchPort": "9200",
     "datastore": {
       "database": "127.0.0.1:3001_datastore_dev",
-      "host": "192.168.56.249",
+      "host": "127.0.0.1",
       "port": "27017",
       "id": "default",
       "log": {
@@ -26,7 +26,7 @@
     },
     "ontologies_cache": {
       "database": "127.0.0.1:3001_ontologies",
-      "host": "192.168.56.249",
+      "host": "127.0.0.1",
       "port": "27017",
       "id": "default"
     },
@@ -36,19 +36,19 @@
         "active": false,
         "instances": {
           "default": {
-            "host": "192.168.56.249",
+            "host": "127.0.0.1",
             "port": "6780",
             "id": "default",
             "database_number": 1
           },
           "social": {
-            "host": "192.168.56.249",
+            "host": "127.0.0.1",
             "port": "6781",
             "id": "social",
             "database_number": 1
           },
           "notifications": {
-            "host": "192.168.56.249",
+            "host": "127.0.0.1",
             "port": "6782",
             "id": "notifications",
             "database_number": 1
@@ -62,7 +62,7 @@
             "database": "127.0.0.1:3001",
             "collection": "default_cache",
             "clear_on_startup": true,
-            "host": "192.168.56.249",
+            "host": "127.0.0.1",
             "port": "27017",
             "id": "default"
           },
@@ -70,7 +70,7 @@
             "database": "127.0.0.1:3001",
             "collection": "social_cache",
             "clear_on_startup": true,
-            "host": "192.168.56.249",
+            "host": "127.0.0.1",
             "port": "27017",
             "id": "social"
           },
@@ -78,7 +78,7 @@
             "database": "127.0.0.1:3001",
             "collection": "notifications_cache",
             "clear_on_startup": true,
-            "host": "192.168.56.249",
+            "host": "127.0.0.1",
             "port": "27017",
             "id": "notifications"
           }
@@ -89,7 +89,7 @@
         "cache_period_in_seconds": 3600
       }
     },
-    "virtuosoHost": "192.168.56.249",
+    "virtuosoHost": "127.0.0.1",
     "virtuosoPort": "8890",
     "virtuosoISQLPort": "1111",
     "virtuosoConnector": "jdbc",
@@ -98,7 +98,7 @@
       "password": "dba"
     },
     "virtuosoSQLLogLevel": 3,
-    "mongoDBHost": "192.168.56.249",
+    "mongoDBHost": "127.0.0.1",
     "mongoDbPort": "27017",
     "mongoDbCollectionName": "127.0.0.1:3001_files",
     "mongoDBSessionStoreCollection": "127.0.0.1:3001_sessions",
@@ -109,13 +109,13 @@
     },
     "storageDefaults": {
       "storageType": "mongoDB",
-      "host": "192.168.56.249",
+      "host": "127.0.0.1",
       "port": "27017",
       "collectionName": "127.0.0.1:3001_files",
       "username": "",
       "password": ""
     },
-    "mySQLHost": "192.168.56.249",
+    "mySQLHost": "127.0.0.1",
     "mySQLPort": "3306",
     "mySQLAuth": {
       "user": "root",
@@ -393,11 +393,11 @@
       "cooldown_secs": 20
     },
     "docker": {
-      "active": false,
+      "active": true,
       "reuse_checkpoints": false,
       "create_checkpoints": false,
-      "destroy_existing_images_at_start": true,
-      "start_and_stop_containers_automatically" : false
+      "destroy_existing_images_at_start": false,
+      "start_and_stop_containers_automatically" : true
     },
     "virtualbox": {
       "active": false,
@@ -411,7 +411,7 @@
         "mongodb"
       ],
       "vmName": "dendroVagrantDemo",
-      "vmIP" : "192.168.56.249"
+      "vmIP" : "127.0.0.1"
     }
   },
   "test": {
