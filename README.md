@@ -17,7 +17,29 @@ Dendro is the software powering [INESC TEC](https://dendro.inesctec.pt) and the 
 
 We provide a [Docker image](https://hub.docker.com/r/joaorosilva/dendro/) for getting you up and running quickly. For deployment in a production server, however, we recommend you use the Dendro install scripts.
 
-### Docker
+### NEW! Developing using Docker (for developers)
+
+If you just want to download dendro and start developing, Dendro now supports automatic deployment using Docker containers for all dependencies (MySQL, Virtuoso and ElasticSearch). This only works for Mac and Linux machines (for now).
+
+1. Install [Docker](https://docs.docker.com/docker-for-windows/install/)
+. Open a Terminal window on Linux/Mac or press Ctrl+R on Windows, type cmd.exe in the box that appears and press Enter
+3. Clone the Dendro Docker installation repository by pasting this code
+````bash
+git clone https://github.com/feup-infolab/dendro dendro
+````
+4. Run the installation command in the same terminal and wait until no more text is printed. It can take several minutes.
+````bash
+cd dendro
+./conf/scripts/install.sh
+````
+5. Start the app
+````bash
+npm start
+````
+6. Access Dendro at `http://127.0.0.1:3001`
+7. Start developing :-)
+
+### Quick installations using Docker image (for demos)
 
 To install Dendro using Docker, do the following:
 
@@ -25,20 +47,19 @@ To install Dendro using Docker, do the following:
 2. Open a Terminal window on Linux/Mac or press Ctrl+R on Windows, type cmd.exe in the box that appears and press Enter
 3. Clone the Dendro Docker installation repository by pasting this code
 ````bash
-git clone https://github.com/feup-infolab/dendro-install-docker dendro-install docker
+git clone https://github.com/feup-infolab/dendro-install-docker dendro-install-docker
 ````
 4. Run the installation command in the same terminal and wait until no more text is printed. It can take several minutes.
 ````bash
-cd dendro-install docker
+cd dendro-install-docker
 docker-compose up
 ````
 5. Access your dendro installation at [127.0.0.1:3001](http://127.0.0.1:3001) in your browser.
 6. When you want to stop Dendro, just press Ctrl+C at the terminal window
 
-### Installation scripts
+### Installation scripts for production machines (advanced)
 
 [Installation scripts for production machines](https://github.com/feup-infolab/dendro-install) (this is recommended for IT professionals).
-
 
 ## Description
 
