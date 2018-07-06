@@ -22,7 +22,7 @@ We provide a [Docker image](https://hub.docker.com/r/joaorosilva/dendro/) for ge
 If you just want to download dendro and start developing, Dendro now supports automatic deployment using Docker containers for all dependencies (MySQL, Virtuoso and ElasticSearch). This only works for Mac and Linux machines (for now).
 
 1. Install [Docker](https://docs.docker.com/docker-for-windows/install/)
-. Open a Terminal window on Linux/Mac or press Ctrl+R on Windows, type cmd.exe in the box that appears and press Enter
+2. Open a Terminal window on Linux/Mac
 3. Clone the Dendro Docker installation repository by pasting this code
 ````bash
 git clone https://github.com/feup-infolab/dendro dendro
