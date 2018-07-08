@@ -1,14 +1,14 @@
 const path = require("path");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const ExternalRepository = require(Pathfinder.absPathInSrcFolder("/models/harvesting/external_repository.js")).ExternalRepository;
-const RepositoryPlatform = require(Pathfinder.absPathInSrcFolder("/models/harvesting/repo_platform")).RepositoryPlatform;
-const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+const ExternalRepository = rlequire("dendro", "src/models/harvesting/external_repository.js").ExternalRepository;
+const RepositoryPlatform = rlequire("dendro", "src/models/harvesting/repo_platform").RepositoryPlatform;
+const Resource = rlequire("dendro", "src/models/resource.js").Resource;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 const async = require("async");
 const _ = require("underscore");
@@ -332,6 +332,11 @@ exports.my = function (req, res)
         {
             const getPlatformDetails = function (myRepositoryBookmark, callback)
             {
+                if (isNull(myRepositoryBookmark))
+                {
+                    return callback(null, []);
+                }
+
                 RepositoryPlatform.findByUri(myRepositoryBookmark.ddr.hasPlatform, function (err, platform)
                 {
                     if (isNull(err))
@@ -415,7 +420,7 @@ exports.all = function (req, res)
 
 exports.delete = function (req, res)
 {
-    const requestedResourceUri = Config.baseUri + req.originalUrl;
+    const requestedResourceUri = req.originalUrl;
 
     if (req.originalMethod === "DELETE")
     {

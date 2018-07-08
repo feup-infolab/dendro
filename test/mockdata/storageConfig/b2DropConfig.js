@@ -1,5 +1,5 @@
-const Pathfinder = global.Pathfinder;
-const b2dropAccount = require(Pathfinder.absPathInTestsFolder("/mockdata/accounts/b2DropAccount.js"));
+const rlequire = require("rlequire");
+const b2dropAccount = rlequire("dendro", "test//mockdata/accounts/b2DropAccount.js");
 
 const b2dropStorage = {
     username: b2dropAccount.username,

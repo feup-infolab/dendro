@@ -1,13 +1,13 @@
 const path = require("path");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("/models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const ObjectManipulator = require(Pathfinder.absPathInSrcFolder("/utils/object_manipulation.js"));
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const DbConnection = rlequire("dendro", "src/kb/db.js").DbConnection;
+const Ontology = rlequire("dendro", "src/models/meta/ontology.js").Ontology;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const ObjectManipulator = rlequire("dendro", "src/utils/object_manipulation.js");
 
 const db = Config.getDBByID();
 const async = require("async");
@@ -92,6 +92,11 @@ function Descriptor (object, typeConfigsToRetain)
             const element = Elements.ontologies[self.prefix][self.shortName];
             self.type = element.type;
             self.control = element.control;
+
+            if (element.validationFunction && typeof element.validationFunction === "function")
+            {
+                self.validationFunction = element.validationFunction;
+            }
 
             if (!isNull(object.label))
             {
@@ -181,8 +186,11 @@ function Descriptor (object, typeConfigsToRetain)
         else
         {
             self.type = Elements.types.string;
-            Logger.log("warn", "Descriptor " + self.uri + " is missing in the elements.js file");
-            Logger.log("warn", "Unable to determine type of descriptor " + self.prefixedForm + ". Defaulting to string.");
+            if (Config.debug.log_missing_unknown_descriptors)
+            {
+                Logger.log("warn", "Descriptor " + self.uri + " is missing in the elements.js file");
+                Logger.log("warn", "Unable to determine type of descriptor " + self.prefixedForm + ". Defaulting to string.");
+            }
         }
 
         return self;

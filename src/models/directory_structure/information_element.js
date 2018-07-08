@@ -1,18 +1,17 @@
 // complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
-const path = require("path");
 const async = require("async");
 const _ = require("underscore");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
-const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
-const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Class = rlequire("dendro", "src/models/meta/class.js").Class;
+const Cache = rlequire("dendro", "src/kb/cache/cache.js").Cache;
+const Resource = rlequire("dendro", "src/models/resource.js").Resource;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const Notification = rlequire("dendro", "src/models/notifications/notification.js").Notification;
 
 const db = Config.getDBByID();
 
@@ -81,16 +80,24 @@ InformationElement.prototype.getParent = function (callback)
                         if (!isNull(results[0].parent_folder))
                         {
                             result.uri = result.parent_folder;
-                            const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-                            let parent = new Folder(result);
-                            return callback(null, parent);
+                            const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder;
+                            // let parent = new Folder(result);
+                            // return callback(null, parent);
+                            return Folder.findByUri(result.uri, function (err, parent)
+                            {
+                                callback(err, parent);
+                            });
                         }
                         else if (!isNull(result[0].parent_project))
                         {
                             result.uri = result.parent_project;
-                            const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
-                            let parent = new Project(result);
-                            return callback(null, parent);
+                            const Project = rlequire("dendro", "src/models/project.js").Project;
+                            // let parent = new Project(result);
+                            // return callback(null, parent);
+                            return Project.findByUri(result.uri, function (err, parent)
+                            {
+                                callback(err, parent);
+                            });
                         }
 
                         return callback(1, "There was an error calculating the parent of resource " + self.uri);
@@ -232,7 +239,7 @@ InformationElement.prototype.getAllParentsUntilProject = function (callback)
             {
                 if (result instanceof Array)
                 {
-                    const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+                    const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder;
                     async.mapSeries(result, function (result, callback)
                     {
                         Folder.findByUri(result.uri, function (err, parentFolder)
@@ -291,7 +298,7 @@ InformationElement.prototype.getOwnerProject = function (callback)
             {
                 if (result instanceof Array && result.length === 1)
                 {
-                    const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+                    const Project = rlequire("dendro", "src/models/project.js").Project;
                     Project.findByUri(result[0].uri, function (err, project)
                     {
                         callback(err, project);
@@ -319,8 +326,8 @@ InformationElement.prototype.needsRenaming = function (callback, newTitle, paren
         {
             parentUri = self.nie.isLogicalPartOf;
         }
-        const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-        const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+        const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder;
+        const Project = rlequire("dendro", "src/models/project.js").Project;
 
         Folder.findByUri(parentUri, function (err, parentFolder)
         {
@@ -414,10 +421,18 @@ InformationElement.prototype.needsRenaming = function (callback, newTitle, paren
     ], callback);
 };
 
-InformationElement.prototype.rename = function (newTitle, callback, customGraphUri)
+InformationElement.prototype.rename = function (newTitle, callback, customGraphUri, progressReporter)
 {
     const self = this;
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+    if (!isNull(progressReporter))
+    {
+        Notification.sendProgress(
+            `Updating internal uri of folder ${self.nie.title}...`,
+            progressReporter
+        );
+    }
 
     const query =
         "WITH [0] \n" +
@@ -492,7 +507,7 @@ InformationElement.prototype.rename = function (newTitle, callback, customGraphU
                         Logger.log("error", JSON.stringify(result));
                         return callback(1, msg);
                     }
-                });
+                }, customGraphUri);
             }
             else
             {
@@ -507,8 +522,8 @@ InformationElement.prototype.rename = function (newTitle, callback, customGraphU
 
 InformationElement.prototype.moveToFolder = function (newParentFolder, callback)
 {
-    const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-    const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+    const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder;
+    const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
     const self = this;
 
     const oldParentUri = self.nie.isLogicalPartOf;
@@ -919,7 +934,7 @@ InformationElement.prototype.findMetadata = function (callback, typeConfigsToRet
                                                     metadataResult.hasLogicalParts.push(result2);
                                                     return callback(null);
                                                 }
-                                                Logger.log("info", "[findMetadata] error accessing metadata of resource " + self.nie.title);
+                                                Logger.log("[findMetadata] error accessing metadata of resource " + self.nie.title);
                                                 return callback(err);
                                             }, typeConfigsToRetain);
                                         },
@@ -969,14 +984,14 @@ InformationElement.prototype.findMetadata = function (callback, typeConfigsToRet
                         }
                         else
                         {
-                            Logger.log("info", "[Information Element find metadata] error accessing logical parts of folder " + resource.nie.title);
+                            Logger.log("[Information Element find metadata] error accessing logical parts of folder " + resource.nie.title);
                             return callback(true, null);
                         }
                     });
                 }
                 else
                 {
-                    Logger.log("info", "[Information Element find metadata] " + resource.nie.title + " is not a folder.");
+                    Logger.log("[Information Element find metadata] " + resource.nie.title + " is not a folder.");
                     return callback(null, metadataResult);
                 }
             }
@@ -1104,7 +1119,7 @@ InformationElement.prototype.getHumanReadableUri = function (callback)
 InformationElement.prototype.refreshChildrenHumanReadableUris = function (callback, customGraphUri)
 {
     const self = this;
-    const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+    const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder;
     if (self.isA(Folder))
     {
         Folder.findByUri(self.uri, function (err, folder)

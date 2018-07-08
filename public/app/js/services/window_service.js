@@ -97,8 +97,7 @@ angular.module("dendroApp.services")
 
                     function guid ()
                     {
-                        return s4() + s4() + "-" + s4() + "-" + s4() + "-" +
-                    s4() + "-" + s4() + s4() + s4();
+                        return s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4();
                     }
 
                     var hiddenIFrameID = "hiddenDownloader_" + guid();

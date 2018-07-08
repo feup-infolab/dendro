@@ -1,6 +1,6 @@
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 let _ = require("underscore");
 
 const binaryParser = function (res, cb)
@@ -360,10 +360,11 @@ module.exports.renameFileByUri = function (acceptsJSON, agent, fileUri, newName,
     }
 };
 
-module.exports.getFilePath = function (path)
+module.exports.getFilePath = function (relativePath)
 {
     const fs = require("fs");
-    const filePath = Pathfinder.absPathInTestsFolder(path);
+    const path = require("path");
+    const filePath = rlequire.absPathInApp("dendro", path.join("test", relativePath));
 
     if (fs.existsSync(filePath))
     {

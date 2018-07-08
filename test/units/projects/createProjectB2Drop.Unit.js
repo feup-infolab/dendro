@@ -1,100 +1,71 @@
 process.env.NODE_ENV = "test";
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const chai = require("chai");
 chai.use(require("chai-http"));
 const async = require("async");
 const path = require("path");
 
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const projectUtils = rlequire("dendro", "test/utils/project/projectUtils.js");
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const unitUtils = rlequire("dendro", "test/utils/units/unitUtils.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1");
+const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2");
 
-const b2dropProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/b2drop_project.js"));
+const b2dropProjectData = rlequire("dendro", "test/mockdata/projects/b2drop_project.js");
 
-function requireUncached (module)
+let CreateUsersUnit = rlequire("dendro", "test/units/users/createUsers.Unit.js");
+class CreateProjectB2Drop extends CreateUsersUnit
 {
-    delete require.cache[require.resolve(module)];
-    return require(module);
+    static load (callback)
+    {
+        const self = this;
+        unitUtils.startLoad(self);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+        {
+            if (err)
+            {
+                callback(err, agent);
+            }
+            else
+            {
+                projectUtils.createNewProject(true, agent, b2dropProjectData, function (err, res)
+                {
+                    async.mapSeries([b2dropProjectData], function (projectData, cb)
+                    {
+                        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                        {
+                            if (err)
+                            {
+                                cb(err, agent);
+                            }
+                            else
+                            {
+                                userUtils.addUserAscontributorToProject(true, agent, demouser2.username, projectData.handle, function (err, res)
+                                {
+                                    cb(err, res);
+                                });
+                            }
+                        });
+                    }, function (err, results)
+                    {
+                        unitUtils.endLoad(self, callback);
+                    });
+                });
+            }
+        });
+    }
+    static init (callback)
+    {
+        super.init(callback);
+    }
+    static shutdown (callback)
+    {
+        super.shutdown(callback);
+    }
 }
 
-const start = function ()
-{
-    if (Config.debug.tests.log_unit_completion_and_startup)
-    {
-        console.log("**********************************************".green);
-        console.log("[Create B2Drop Project Unit] Setting up projects...".green);
-        console.log("**********************************************".green);
-    }
-};
-
-const end = function ()
-{
-    if (Config.debug.tests.log_unit_completion_and_startup)
-    {
-        console.log("**********************************************".blue);
-        console.log("[Create B2Drop Project Unit] Complete...".blue);
-        console.log("**********************************************".blue);
-    }
-};
-
-module.exports.setup = function (finish)
-{
-    start();
-    let createUsersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
-
-    createUsersUnit.setup(function (err, results)
-    {
-        // should.equal(err, null);
-        if (err)
-        {
-            end();
-            finish(err, results);
-        }
-        else
-        {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                if (err)
-                {
-                    end();
-                    finish(err, agent);
-                }
-                else
-                {
-                    projectUtils.createNewProject(true, agent, b2dropProjectData, function (err, res)
-                    {
-                        async.mapSeries([b2dropProjectData], function (projectData, cb)
-                        {
-                            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-                            {
-                                if (err)
-                                {
-                                    cb(err, agent);
-                                }
-                                else
-                                {
-                                    userUtils.addUserAscontributorToProject(true, agent, demouser2.username, projectData.handle, function (err, res)
-                                    {
-                                        cb(err, res);
-                                    });
-                                }
-                            });
-                        }, function (err, results)
-                        {
-                            appUtils.registerStopTimeForUnit(path.basename(__filename));
-                            finish(err, results);
-                            end();
-                        });
-                    });
-                }
-            });
-        }
-    });
-};
-
+module.exports = CreateProjectB2Drop;

@@ -4,25 +4,25 @@ const should = chai.should();
 const _ = require("underscore");
 chai.use(chaiHttp);
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const projectUtils = rlequire("dendro", "test/utils/project/projectUtils.js");
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");
 
-const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
-const metadataOnlyProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
-const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
-const b2dropProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/b2drop_project.js"));
+const publicProject = rlequire("dendro", "test/mockdata/projects/public_project.js");
+const metadataOnlyProject = rlequire("dendro", "test/mockdata/projects/metadata_only_project.js");
+const privateProject = rlequire("dendro", "test/mockdata/projects/private_project.js");
+const b2dropProject = rlequire("dendro", "test/mockdata/projects/b2drop_project.js");
 
-const publicProjectHTMLTests = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project_for_html.js"));
-const metadataOnlyHTMLTests = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project_for_html.js"));
-const privateProjectHTMLTests = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project_for_html.js"));
+const publicProjectHTMLTests = rlequire("dendro", "test/mockdata/projects/public_project_for_html.js");
+const metadataOnlyHTMLTests = rlequire("dendro", "test/mockdata/projects/metadata_only_project_for_html.js");
+const privateProjectHTMLTests = rlequire("dendro", "test/mockdata/projects/private_project_for_html.js");
 
-let createUsersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
+let createUsersUnit = rlequire("dendro", "test/units/users/createUsers.Unit.js");
 
 describe("New project tests", function ()
 {

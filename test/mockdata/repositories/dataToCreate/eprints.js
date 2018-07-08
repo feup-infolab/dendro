@@ -6,16 +6,30 @@
  This data is used to create a new export repository configuration
  Use this JSON to create a new export config
  */
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+/* const newExportRepoData = {
+    ddr: {
+        hasExternalUrl: "http://demoprints.eprints.org",
+        username: "nelsonpereira1991",
+        hasPlatform: {
+            uri: "http://127.0.0.1:3001/repository_platform/eprints",
+            dcterms: {title: "EPrints"},
+            foaf: {nick: "eprints", "homepage": "http://www.eprints.org/"},
+            $$hashKey: "object:145"
+        }
+    },
+    dcterms: {title: "eprints export config 1"}
+}; */
+
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const newExportRepoData = {
     dcterms: {
         title: "EPrints"
     },
     ddr: {
-        hasExternalUri: "http://demoprints.eprints.org",
-        hasUsername: "nelsonpereira1991",
+        hasExternalUrl: "http://demoprints.eprints.org",
+        username: "nelsonpereira1991",
         hasPlatform: {
             uri: "/r/repo_platform/14a5d3e5-2654-4918-ba7e-d7230cf2a296",
             foaf: {

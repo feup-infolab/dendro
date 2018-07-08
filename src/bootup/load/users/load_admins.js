@@ -1,11 +1,11 @@
 const async = require("async");
 const fs = require("fs");
 
-const Pathfinder = global.Pathfinder;
-const isNull = require(Pathfinder.absPathInSrcFolder("utils/null.js")).isNull;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const Administrator = require(Pathfinder.absPathInSrcFolder("/models/administrator.js")).Administrator;
+const rlequire = require("rlequire");
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const Administrator = rlequire("dendro", "src/models/administrator.js").Administrator;
 
 const loadAdmins = function (app, callback)
 {

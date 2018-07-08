@@ -3,21 +3,19 @@
 // @see http://bloody-byte.net/rdf/dc_owl2dl/dc.ttl
 // creator is an URI to the author : http://dendro.fe.up.pt/user/<username>
 
-const path = require("path");
 const moment = require("moment");
+const rlequire = require("rlequire");
 const request = require("request");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
-const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
-const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js')).Elements;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Resource = rlequire("dendro", "src/models/resource.js").Resource;
+const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder;
+const Class = rlequire("dendro", "src//models/meta/class.js").Class;
+const Elements = rlequire("dendro", "src//models/meta/elements.js").Elements;
 const db = Config.getDBByID();
-const gfs = Config.getGFSByID();
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 const B2ShareClient = require("@feup-infolab/node-b2share-v2");
 

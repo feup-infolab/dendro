@@ -1,13 +1,13 @@
 const slug = require("slug");
 const path = require("path");
 
-const Pathfinder = global.Pathfinder;
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const rlequire = require("rlequire");
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 const B2Drop = require("@feup-infolab/node-b2drop").B2Drop;
-const Storage = require(Pathfinder.absPathInSrcFolder("/kb/storage/storage.js")).Storage;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Storage = rlequire("dendro", "src/kb/storage/storage.js").Storage;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 class StorageB2Drop extends Storage
 {
@@ -57,31 +57,18 @@ class StorageB2Drop extends Storage
 
         if (!isNull(self.connection))
         {
-            self.connection.login(function (err, response)
+            self.connection.createFolder(self.prefix, function (err, result)
             {
                 if (isNull(err))
                 {
-                    self.connection.createFolder(self.prefix, function (err, result)
-                    {
-                        if (isNull(err))
-                        {
-                            callback(err, self);
-                        }
-                        else
-                        {
-                            Logger.log("error", "Unable to create root folder in B2Drop!");
-                            Logger.log("error", err);
-                            Logger.log("error", result);
-                            return callback(err, response);
-                        }
-                    });
+                    callback(err, self);
                 }
                 else
                 {
-                    Logger.log("error", "Error opening connection to b2drop storage!");
+                    Logger.log("error", "Unable to create root folder in B2Drop!");
                     Logger.log("error", err);
-                    Logger.log("error", response);
-                    callback(err, self);
+                    Logger.log("error", result);
+                    return callback(err, result);
                 }
             });
         }

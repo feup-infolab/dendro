@@ -2,14 +2,14 @@ const path = require("path");
 const _ = require("underscore");
 const async = require("async");
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
-const Notification = require("../models/notifications/notification.js").Notification;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const Notification = rlequire("dendro", "src/models/notifications/notification.js").Notification;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const DbConnection = require("../kb/db.js").DbConnection;
 
 const db = Config.getDBByID();
@@ -95,13 +95,41 @@ exports.get_notification_info = function (req, res)
     const acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
 
-    if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
+    // will be null if the client does not accept html
+    if (acceptsJSON && !acceptsHTML)
     {
         const userUri = req.user.uri;
         const notificationUri = req.query.notificationUri;
 
         if (!isNull(userUri) && !isNull(notificationUri))
         {
+            Notification.findByUri(notificationUri, function (err, notification)
+            {
+                if (isNull(err))
+                {
+                    if (!isNull(notification))
+                    {
+                        res.json(notification);
+                    }
+                    else
+                    {
+                        const errorMsg = "Invalid notification uri";
+                        res.status(404).json({
+                            result: "Error",
+                            message: errorMsg
+                        });
+                    }
+                }
+                else
+                {
+                    const errorMsg = "Error getting info from a User's notification";
+                    res.status(500).json({
+                        result: "Error",
+                        message: errorMsg
+                    });
+                }
+            }, null, db_notifications.graphUri, false, null, null);
+            /*
             let query =
                 "WITH [0] \n" +
                 "SELECT ?actionType ?userWhoActed ?resourceTargetUri ?modified ?shareURI\n" +
@@ -157,6 +185,7 @@ exports.get_notification_info = function (req, res)
                         });
                     }
                 });
+            */
         }
         else
         {
@@ -189,7 +218,17 @@ exports.delete = function (req, res)
         const userUri = req.user.uri;
         const notificationUri = req.query.notificationUri;
 
-        if (!isNull(userUri) && !isNull(notificationUri))
+        const isAValidString = function (notificationUri)
+        {
+            if (typeof notificationUri === "string" || notificationUri instanceof String)
+            {
+                return true;
+            }
+
+            return false;
+        };
+
+        if (!isNull(userUri) && !isNull(notificationUri) && isAValidString(notificationUri) && notificationUri.length > 0)
         {
             let query =
                 "WITH [0] \n" +
@@ -262,8 +301,8 @@ exports.delete = function (req, res)
         }
         else
         {
-            const errorMsg = "Missing required field notification Uri";
-            res.status(500).json({
+            const errorMsg = "Missing required field notificationUri";
+            res.status(400).json({
                 result: "Error",
                 message: errorMsg
             });

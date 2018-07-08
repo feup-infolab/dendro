@@ -1,13 +1,13 @@
 const path = require("path");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
-const ResearchDomain = require(Pathfinder.absPathInSrcFolder("/models/meta/research_domain.js")).ResearchDomain;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const ResearchDomain = rlequire("dendro", "src/models/meta/research_domain.js").ResearchDomain;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 const async = require("async");
 const _ = require("underscore");

@@ -1,6 +1,6 @@
 const projectHandle = "unknownProjectHandle";
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const projectData = {
     creator: "http://" + Config.host + "/user/demouser1",

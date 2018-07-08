@@ -1,18 +1,17 @@
 // complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
 const path = require("path");
-const slug = require("slug");
 const XLSX = require("xlsx");
 const _ = require("underscore");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-const DataStoreConnection = require(Pathfinder.absPathInSrcFolder("/kb/datastore/datastore_connection.js")).DataStoreConnection;
-const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
-const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const InformationElement = rlequire("dendro", "src/models/directory_structure/information_element.js").InformationElement;
+const DataStoreConnection = rlequire("dendro", "src/kb/datastore/datastore_connection.js").DataStoreConnection;
+const Class = rlequire("dendro", "src/models/meta/class.js").Class;
+const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const gfs = Config.getGFSByID();
 
 const async = require("async");
@@ -147,7 +146,7 @@ File.createBlankFileRelativeToAppRoot = function (relativePathToFile, callback)
 {
     const fs = require("fs");
 
-    const absPathToFile = Pathfinder.absPathInApp(relativePathToFile);
+    const absPathToFile = rlequire.absPathInApp("dendro", relativePathToFile);
     const parentFolder = path.resolve(absPathToFile, "..");
 
     fs.stat(absPathToFile, function (err, stat)
@@ -661,7 +660,7 @@ File.prototype.getThumbnail = function (size, callback)
                     // try to regenerate thumbnails, fire and forget
                     self.generateThumbnails(function (err, result)
                     {
-                        return callback(null, Pathfinder.absPathInPublicFolder("images/icons/page_white_gear.png"));
+                        return callback(null, rlequire("dendro", "public/images/icons/page_white_gear.png"));
                     });
                 }
                 else if (isNull(err))
@@ -684,7 +683,7 @@ File.prototype.loadFromLocalFile = function (localFile, callback)
 
     self.getOwnerProject(function (err, ownerProject)
     {
-        const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+        const Project = rlequire("dendro", "src/models/project.js").Project;
         if (isNull && ownerProject instanceof Project)
         {
             /** SAVE FILE**/
@@ -759,9 +758,24 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
 
     const markErrorProcessingData = function (err, callback)
     {
+        let processingError;
+        const unknownErrorMessage = "Unknown error occurred while extracting data";
+        if (err instanceof Object)
+        {
+            processingError = (err.message) ? err.message : unknownErrorMessage;
+        }
+        else if (typeof err === "string")
+        {
+            processingError = err;
+        }
+        else
+        {
+            processingError = unknownErrorMessage;
+        }
+
         let hasDataProcessingErrorTrue = new Descriptor({
             prefixedForm: "ddr:hasDataProcessingError",
-            value: (err instanceof Object) ? err.message : err
+            value: processingError
         });
 
         self.insertDescriptors([hasDataProcessingErrorTrue], function (err, result)
@@ -778,7 +792,7 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
         });
     };
 
-    function safe_decode_range (range)
+    function safeDecodingRange (range)
     {
         let o = {s: {c: 0, r: 0}, e: {c: 0, r: 0}};
         let idx = 0, i = 0, cc = 0;
@@ -831,10 +845,10 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
         switch (typeof range)
         {
         case "string":
-            r = safe_decode_range(range);
+            r = safeDecodingRange(range);
             break;
         case "number":
-            r = safe_decode_range(sheet["!ref"]);
+            r = safeDecodingRange(sheet["!ref"]);
             r.s.r = range;
             break;
         default:
@@ -912,7 +926,7 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
     const xlsFileParser = function (filePath, callback)
     {
         let workbook;
-        let formats = ["biff8", "biff5", "biff2", "xlml"];
+        let formats = ["biff8", "biff5", "biff2", "xlml", "xlsx", "xlsm", "xlsb"];
 
         const handleWorkbook = function (workbook, callback)
         {
@@ -959,6 +973,7 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
             catch (error)
             {
                 Logger.log("error", error.message);
+                callback(null, false);
             }
         }, function (err, processedAtLeastOneFormatOK)
         {
@@ -1100,18 +1115,18 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
             },
             function (location, callback)
             {
-                parser(location, function (err)
+                parser(location, function (err, result)
                 {
                     if (!isNull(err))
                     {
                         markErrorProcessingData(err, function ()
                         {
-                            callback(err);
+                            callback(err, result);
                         });
                     }
                     else
                     {
-                        callback(err);
+                        callback(err, result);
                     }
                 });
             }
@@ -1481,7 +1496,7 @@ File.prototype.getProjectStorage = function (callback)
     {
         if (isNull(err))
         {
-            const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+            const Project = rlequire("dendro", "src/models/project.js").Project;
             if (isNull && ownerProject instanceof Project)
             {
                 ownerProject.getActiveStorageConnection(function (err, connection)

@@ -2,10 +2,10 @@ const fs = require("fs");
 const path = require("path");
 const _ = require("underscore");
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
 function PluginManager ()
 {
@@ -13,7 +13,7 @@ function PluginManager ()
 
 PluginManager.registerPlugins = function (app, callback)
 {
-    const pluginsFolderAbsPath = Pathfinder.getAbsolutePathToPluginsFolder();
+    const pluginsFolderAbsPath = rlequire.absPathInApp("dendro", "src/plugins");
 
     const isHiddenFile = function (fileName)
     {
@@ -52,7 +52,7 @@ PluginManager.registerPlugins = function (app, callback)
                 let setupFileLocation = pluginAbsolutePath + "/integration/setup.js";
                 let PluginSetup = require(setupFileLocation).Setup;
 
-                Logger.log("info", "Registering routes for plugin " + PluginConfig.name);
+                Logger.log("Registering routes for plugin " + PluginConfig.name);
                 app = PluginSetup.registerRoutes(app);
             }
         }
