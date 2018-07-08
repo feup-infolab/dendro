@@ -75,7 +75,7 @@ class IO
 
             clientSocket.on("disconnect", function (data)
             {
-                console.log("Got a socket disconnect event for user " + clientSocket.userUri);
+                Logger.log("debug", "Got a socket disconnect event for user " + clientSocket.userUri);
                 if (!isNull(clientSocket.userUri))
                 {
                     removeSocketFromUserSession(clientSocket.userUri, clientSocket);
