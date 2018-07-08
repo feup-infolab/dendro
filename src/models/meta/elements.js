@@ -471,7 +471,7 @@ Elements.ontologies.dcterms =
   {
       type: Elements.types.string,
       control: Controls.input_box
-  },
+  }
 };
 
 /**
@@ -1335,10 +1335,10 @@ Elements.ontologies.ddr = {
         },
     is_being_imported:
       {
-        type: Elements.types.boolean,
-        control: Controls.input_box,
-        locked: true,
-        api_readable: true
+          type: Elements.types.boolean,
+          control: Controls.input_box,
+          locked: true,
+          api_readable: true
       },
     exportedFromProject:
   {
@@ -1378,10 +1378,10 @@ Elements.ontologies.ddr = {
   },
     lastVerifiedDate:
   {
-    type: Elements.types.string,
-    locked: true,
-    control: Controls.input_box
-  },
+      type: Elements.types.string,
+      locked: true,
+      control: Controls.input_box
+  }
 };
 
 /**

@@ -23,15 +23,13 @@ require(Pathfinder.absPathInTestsFolder("/routes/deposits/get_deposits/routes.de
 
 return;
 
-
 require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/__copy_paste/routes.project.publicProject.__copy_paste.Test.js"));
-
 
 require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 
-//administer projects
+// administer projects
 require(Pathfinder.absPathInTestsFolder("routes/project/public_project/__administer/routes.project.publicProject.__administerTest.js"));
-require(Pathfinder.absPathInTestsFolder('/init/loadOntologiesCache.Test.js'));
+require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 
 // TODO
@@ -82,7 +80,7 @@ require(Pathfinder.absPathInTestsFolder("routes/project/public_project/__adminis
 require(Pathfinder.absPathInTestsFolder("/routes/users/loggedUser/route.users.loggedUser.Test.js"));
 require(Pathfinder.absPathInTestsFolder("/routes/users/route.users.Test.js"));
 
-//EDIT USERS
+// EDIT USERS
 require(Pathfinder.absPathInTestsFolder("/routes/user/edit/routes.user.edit.Test.js"));
 require(Pathfinder.absPathInTestsFolder("/routes/user/avatar/routes.user.avatar.Test.js"));
 require(Pathfinder.absPathInTestsFolder("/routes/user/avatar/routes.user.avatar.Test.js"));
@@ -112,7 +110,6 @@ require(Pathfinder.absPathInTestsFolder("/routes/projects/my/route.projects.my.T
 /* require(Pathfinder.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.dcterms.Test.js"));
  require(Pathfinder.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.foaf.Test.js")); */
 require(Pathfinder.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.Test.js"));
-
 
 // PUBLIC PROJECT
 /* require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/request_access/route.projects.publicProject.__request_access.Test.js")); */

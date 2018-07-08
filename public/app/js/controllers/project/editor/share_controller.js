@@ -172,7 +172,6 @@ angular.module("dendroApp.controllers")
                 }
                 new_repository.ddr.hasPlatform = $scope.new_repository_type;
 
-
                 var url = window.location.pathname;
                 var calling = $scope.get_currently_selected_resource();
                 var thumb = $scope.get_calling_uri_thumbnail();
@@ -181,11 +180,12 @@ angular.module("dendroApp.controllers")
 
                 let selectedUri = [];
 
-                for (index in shared.folder_contents){
-                    if(shared.folder_contents[index].selected) selectedUri.push(shared.folder_contents[index].uri);
+                for (index in shared.folder_contents)
+                {
+                    if (shared.folder_contents[index].selected) selectedUri.push(shared.folder_contents[index].uri);
                 }
 
-                if(selectedUri.length === 0) selectedUri.push(url);
+                if (selectedUri.length === 0) selectedUri.push(url);
 
                 new_repository.ddr.exportedResource = selectedUri;
                 new_repository.ddr.exportedFromFolder = url;
@@ -317,7 +317,9 @@ angular.module("dendroApp.controllers")
                 if (publicDeposit == null || publicDeposit == false)
                 {
                     payload.publicDeposit = false;
-                } else {
+                }
+                else
+                {
                     payload.publicDeposit = true;
                 }
 
@@ -376,7 +378,6 @@ angular.module("dendroApp.controllers")
                             {
                                 $scope.show_popup("success", "Success", "Operation completed successfully.");
                             }
-
                         }
                     }
                     else

@@ -226,38 +226,36 @@ File.prototype.autorename = function ()
 
 File.prototype.copyPaste = function ({destinationFolder}, callback)
 {
-  const self = this;
-  self.writeToTempFile(function (err, writtenFilePath)
-  {
-    const newFile = new File({
-      nie: {
-        title: self.nie.title,
-        isLogicalPartOf: destinationFolder.uri
-      }
-    });
-
-    newFile.saveWithFileAndContents(writtenFilePath, function (err, newFile)
+    const self = this;
+    self.writeToTempFile(function (err, writtenFilePath)
     {
-      if (isNull(err))
-      {
-        destinationFolder.nie.hasLogicalPart = newFile.uri;
-        return callback(null, {
-          result: "success",
-          message: "File copied successfully.",
-          uri: newFile.uri
+        const newFile = new File({
+            nie: {
+                title: self.nie.title,
+                isLogicalPartOf: destinationFolder.uri
+            }
         });
-      }else{
-        const msg = "Error [" + err + "] reindexing file [" + newFile.uri + "]in GridFS :" + newFile;
-        return callback(500, {
-          result: "error",
-          message: "Unable to save files after buffering: " + JSON.stringify(newFile),
-          files: files,
-          errors: newFile
-        });
-      }
 
+        newFile.saveWithFileAndContents(writtenFilePath, function (err, newFile)
+        {
+            if (isNull(err))
+            {
+                destinationFolder.nie.hasLogicalPart = newFile.uri;
+                return callback(null, {
+                    result: "success",
+                    message: "File copied successfully.",
+                    uri: newFile.uri
+                });
+            }
+            const msg = "Error [" + err + "] reindexing file [" + newFile.uri + "]in GridFS :" + newFile;
+            return callback(500, {
+                result: "error",
+                message: "Unable to save files after buffering: " + JSON.stringify(newFile),
+                files: files,
+                errors: newFile
+            });
+        });
     });
-  });
 };
 
 File.prototype.save = function (callback, rename)
@@ -945,14 +943,16 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
             });
         };
 
-        async.detectSeries(formats, function(format, callback){
+        async.detectSeries(formats, function (format, callback)
+        {
             try
             {
                 workbook = XLSX.readFile(filePath, {
                     format: format
                 });
 
-                handleWorkbook(workbook, function(err, result){
+                handleWorkbook(workbook, function (err, result)
+                {
                     callback(null, isNull(err));
                 });
             }
@@ -960,7 +960,8 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
             {
                 Logger.log("error", error.message);
             }
-        }, function(err, processedAtLeastOneFormatOK){
+        }, function (err, processedAtLeastOneFormatOK)
+        {
             if (!err && processedAtLeastOneFormatOK)
             {
                 callback(null);

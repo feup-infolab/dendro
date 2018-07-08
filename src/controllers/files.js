@@ -1318,40 +1318,49 @@ exports.restore = function (req, res)
     }
 };
 
+// TODO not done yet
+exports.copy_paste = function (req, res)
+{
+    const requestedResourceURI = req.params.requestedResourceUri;
+    const folderDestination = req.params.destination;
 
-//TODO not done yet
-exports.copy_paste = function (req, res) {
-  const requestedResourceURI = req.params.requestedResourceUri;
-  const folderDestination = req.params.destination;
-
-  function downloadFile(srcFileLocation, destFolder){
-    //File.download
-    File.copyPaste({destinationFolder: destFolder, });
-  }
-
-  function downloadFolder(srcFolder, destFolder){
-
-    Folder.findByUri(srcFolder, function(err, folder){
-      if(isNull(err)){
-
-      }
-
-    });
-  }
-
-  //create backup from selected folder
-  InformationElement.findByUri(requestedResourceURI, function (err, ie) {
-    if (isNull(err)) {
-      const path = require("path");
-      if (ie.isA(File)) {
-        downloadFile(requestedResourceURI, folderDestination);
-      }else if(ie.isA(Folder)){
-        downloadFolder(requestedResourceURI, folderDestination);
-      }else {
-        //error warning
-      }
+    function downloadFile (srcFileLocation, destFolder)
+    {
+    // File.download
+        File.copyPaste({destinationFolder: destFolder });
     }
-  });
+
+    function downloadFolder (srcFolder, destFolder)
+    {
+        Folder.findByUri(srcFolder, function (err, folder)
+        {
+            if (isNull(err))
+            {
+
+            }
+        });
+    }
+
+    // create backup from selected folder
+    InformationElement.findByUri(requestedResourceURI, function (err, ie)
+    {
+        if (isNull(err))
+        {
+            const path = require("path");
+            if (ie.isA(File))
+            {
+                downloadFile(requestedResourceURI, folderDestination);
+            }
+            else if (ie.isA(Folder))
+            {
+                downloadFolder(requestedResourceURI, folderDestination);
+            }
+            else
+            {
+                // error warning
+            }
+        }
+    });
 };
 
 exports.rm = function (req, res)

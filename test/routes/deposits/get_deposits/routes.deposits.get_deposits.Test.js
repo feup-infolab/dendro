@@ -1,11 +1,11 @@
-process.env.NODE_ENV = 'test';
+process.env.NODE_ENV = "test";
 
-const chai = require('chai');
-const chaiHttp = require('chai-http');
+const chai = require("chai");
+const chaiHttp = require("chai-http");
 chai.use(chaiHttp);
-const fs = require('fs');
-const path = require('path');
-const async = require('async');
+const fs = require("fs");
+const path = require("path");
+const async = require("async");
 const Config = global.Config;
 
 const should = chai.should();
@@ -13,9 +13,9 @@ const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"
 
 const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
 const metadataOnlyProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
-const privateProject= require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
+const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
 
-const md5File = require('md5-file');
+const md5File = require("md5-file");
 
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
@@ -33,32 +33,36 @@ const createDepositsUnit = requireUncached(Pathfinder.absPathInTestsFolder("unit
 let Project;
 let User;
 
-function requireUncached(module) {
-  delete require.cache[require.resolve(module)];
-  return require(module)
+function requireUncached (module)
+{
+    delete require.cache[require.resolve(module)];
+    return require(module);
 }
 
 const params = {
-  key : "project",
-  uuid : "aerg35tgsrh45h",
-  offset : 0,
-  page : 10
-}
+    key: "project",
+    uuid: "aerg35tgsrh45h",
+    offset: 0,
+    page: 10
+};
 
 let depositUri;
 
-//TODO create unit of mock deposits +- 5 6 of different types
+// TODO create unit of mock deposits +- 5 6 of different types
 
-describe("Deposits/latest", function (done) {
-  before(function (done) {
-    this.timeout(60000);
-    createDepositsUnit.setup(function (err, deposit) {
-      depositUri = deposit.uri;
-      should.equal(err, null);
-      done();
+describe("Deposits/latest", function (done)
+{
+    before(function (done)
+    {
+        this.timeout(60000);
+        createDepositsUnit.setup(function (err, deposit)
+        {
+            depositUri = deposit.uri;
+            should.equal(err, null);
+            done();
+        });
     });
-  });
-  /*describe('?get_deposits', function () {
+    /* describe('?get_deposits', function () {
 
     it("should not show private deposits to unauthenticated user", function (done) {
       let app = global.tests.app;
@@ -224,59 +228,71 @@ describe("Deposits/latest", function (done) {
     });
   });
 */
-  describe('verifying outside deposits', function () {
-    it("should confirm a deposit is still active in a ckan platform", function (done) {
-      const agent = aaa;
-      depositUtils.getDeposit(depositUri, agent, function(err, deposit){
-        if(isNull(deposit)){
-           const outsideUri = "https://" + deposit.ddr.exportedToRepository + "/dataset/" + deposit.dcterms.identifier;
-           request(outsideUri, function(err, response, body){
-              if(response.statusCode === 200){
-                done();
-              }
-           });
-        }
-        done(1);
-      });
+    describe("verifying outside deposits", function ()
+    {
+        it("should confirm a deposit is still active in a ckan platform", function (done)
+        {
+            const agent = aaa;
+            depositUtils.getDeposit(depositUri, agent, function (err, deposit)
+            {
+                if (isNull(deposit))
+                {
+                    const outsideUri = "https://" + deposit.ddr.exportedToRepository + "/dataset/" + deposit.dcterms.identifier;
+                    request(outsideUri, function (err, response, body)
+                    {
+                        if (response.statusCode === 200)
+                        {
+                            done();
+                        }
+                    });
+                }
+                done(1);
+            });
+        });
 
+        it("should confirm a deposit is still active in a dspace platform", function (done)
+        {
+            done();
+        });
+
+        it("should confirm a deposit is still active in a eprints platform", function (done)
+        {
+            done();
+        });
+
+        it("should confirm a deposit is still active in a figshare platform", function (done)
+        {
+            done();
+        });
+
+        it("should confirm a deposit is still active in a zenodo platform", function (done)
+        {
+            done();
+        });
+
+        it("should confirm a deposit is still active in a b2share platform", function (done)
+        {
+            done();
+        });
+
+        it("should report a deposit is non existing in an outside platform", function (done)
+        {
+            done();
+        });
     });
 
-    it("should confirm a deposit is still active in a dspace platform", function (done) {
-      done();
-    });
-
-    it("should confirm a deposit is still active in a eprints platform", function (done) {
-      done();
-    });
-
-    it("should confirm a deposit is still active in a figshare platform", function (done) {
-      done();
-    });
-
-    it("should confirm a deposit is still active in a zenodo platform", function (done) {
-      done();
-    });
-
-    it("should confirm a deposit is still active in a b2share platform", function (done) {
-      done();
-    });
-
-    it("should report a deposit is non existing in an outside platform", function (done) {
-      done();
-    });
-  });
-
- /* describe("copy selected contents from a project to a deposit", function(){
+    /* describe("copy selected contents from a project to a deposit", function(){
 
   });*/
 
-  after(function (done) {
+    after(function (done)
+    {
     // destroy graphs
 
-    appUtils.clearAppState(function (err, data)
-    {
-      should.equal(err, null);
-      done(err);
+        appUtils.clearAppState(function (err, data)
+        {
+            should.equal(err, null);
+            done(err);
+        });
     });
-  });
 });

@@ -343,22 +343,22 @@ InformationElement.prototype.needsRenaming = function (callback, newTitle, paren
                             else
                             {
                                 const Deposit = require(Pathfinder.absPathInSrcFolder("/models/deposit.js")).Deposit;
-                                Deposit.findByUri(parentUri, function(err, deposit)
+                                Deposit.findByUri(parentUri, function (err, deposit)
                                 {
                                     if (isNull(err))
                                     {
-                                        if(deposit instanceof Deposit)
+                                        if (deposit instanceof Deposit)
                                         {
-                                          callback(err, deposit);
+                                            callback(err, deposit);
                                         }
                                         else
                                         {
-                                          callback(true, "Error: Parent (with uri: " + parentUri + ") of :" + self.uri + " is neither a folder nor project");
+                                            callback(true, "Error: Parent (with uri: " + parentUri + ") of :" + self.uri + " is neither a folder nor project");
                                         }
                                     }
                                     else
                                     {
-                                      callback(err, deposit);
+                                        callback(err, deposit);
                                     }
                                 });
                             }
@@ -1109,9 +1109,9 @@ InformationElement.prototype.refreshChildrenHumanReadableUris = function (callba
     {
         Folder.findByUri(self.uri, function (err, folder)
         {
-            if(isNull(err))
+            if (isNull(err))
             {
-                if(!isNull(folder))
+                if (!isNull(folder))
                 {
                     folder.refreshChildrenHumanReadableUris(callback, customGraphUri);
                 }

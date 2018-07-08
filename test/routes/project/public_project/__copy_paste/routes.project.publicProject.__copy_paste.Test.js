@@ -34,46 +34,49 @@ const createFilesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder
 
 describe("Backup Public project", function ()
 {
-  this.timeout(Config.testsTimeout);
-  before(function (done)
-  {
-    createFilesUnit.setup(function (err, results)
+    this.timeout(Config.testsTimeout);
+    before(function (done)
     {
-      should.equal(err, null);
-      done();
-    });
-  });
-
-  describe("[PUBLIC PROJECT] /project/" + project.handle + "?copy_paste", function ()
-  {
-    it("Should create a copy from an existing folder", function (done)
-    {
-      userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-      {
-        userUtils.getLoggedUserDetails(true, agent, function(err, user){
-
-          Project.findByHandle(publicProject.handle, function(err, project){
-            Folder.findByUri(project.ddr.rootFolder, function(err, folder){
-              folder.getChildrenRecursive(function (err, children) {
-                const fileUri = children[26].uri;
-                const folderDestUri = children[1].uri;
-                File.findByUri(fileUri, function (err, file) {
-                  Folder.findByUri(folderDestUri, function (err, destFolder) {
-                    file.copyPaste({user: user, destinationFolder: destFolder}, function(err, writtenPath){
-
-                    });
-                  })
-
-                });
-              });
-            });
-
-          });
+        createFilesUnit.setup(function (err, results)
+        {
+            should.equal(err, null);
+            done();
         });
-      });
-
     });
-/*
+
+    describe("[PUBLIC PROJECT] /project/" + project.handle + "?copy_paste", function ()
+    {
+        it("Should create a copy from an existing folder", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                userUtils.getLoggedUserDetails(true, agent, function (err, user)
+                {
+                    Project.findByHandle(publicProject.handle, function (err, project)
+                    {
+                        Folder.findByUri(project.ddr.rootFolder, function (err, folder)
+                        {
+                            folder.getChildrenRecursive(function (err, children)
+                            {
+                                const fileUri = children[26].uri;
+                                const folderDestUri = children[1].uri;
+                                File.findByUri(fileUri, function (err, file)
+                                {
+                                    Folder.findByUri(folderDestUri, function (err, destFolder)
+                                    {
+                                        file.copyPaste({user: user, destinationFolder: destFolder}, function (err, writtenPath)
+                                        {
+
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
+        /*
 
     it("Should NOT create a copy when the source uri does not point to anything", function (done)
     {
@@ -95,7 +98,6 @@ describe("Backup Public project", function ()
                           const f = srcFolder;
                           const a = 2;
 
-
                           //testing
                           //TODO verify content of both folders
                         });
@@ -103,7 +105,6 @@ describe("Backup Public project", function ()
                     });
                   });
                 })
-
 
               });
             });
@@ -114,20 +115,20 @@ describe("Backup Public project", function ()
     });
 */
 
-    it("Should NOT give an error and produce a proper backup when the user is authenticated, even though not as a creator nor contributor of the project, because the project is public", function (done)
-    {
+        it("Should NOT give an error and produce a proper backup when the user is authenticated, even though not as a creator nor contributor of the project, because the project is public", function (done)
+        {
 
+        });
     });
-  });
 
-  after(function (done)
-  {
+    after(function (done)
+    {
     // destroy graphs
 
-    appUtils.clearAppState(function (err, data)
-    {
-      should.equal(err, null);
-      done(err);
+        appUtils.clearAppState(function (err, data)
+        {
+            should.equal(err, null);
+            done(err);
+        });
     });
-  });
 });

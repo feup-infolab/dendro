@@ -1438,17 +1438,16 @@ const loadRoutes = function (app, callback)
 
     app.delete("/interactions/delete_all", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), interactions.delete_all_interactions);
 
-    //TODO William
+    // TODO William
     app.get("/deposits/get_deposits", deposits.getDeposits);
 
     app.get([
-            getNonHumanReadableRouteRegex("deposit")
-        ],
-        extractUriFromRequest,
-        async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), deposits.getDeposit);
+        getNonHumanReadableRouteRegex("deposit")
+    ],
+    extractUriFromRequest,
+    async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), deposits.getDeposit);
 
-
-    //serve angular JS ejs-generated html partials
+    // serve angular JS ejs-generated html partials
     app.get(/\/images\/icons\/extensions\/file_extension_([a-z0-9]+)\.png$/, files.extension_icon);
 
     // serve angular JS ejs-generated html partials

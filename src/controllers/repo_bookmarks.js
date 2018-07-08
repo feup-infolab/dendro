@@ -244,11 +244,9 @@ exports.new = function (req, res)
                                     if (isNull(err))
                                     {
                                         res.json({
-                                          result: "ok",
-                                          message: "New bookmark saved as " + newBookmark.dcterms.title
+                                            result: "ok",
+                                            message: "New bookmark saved as " + newBookmark.dcterms.title
                                         });
-
-
                                     }
                                     else
                                     {

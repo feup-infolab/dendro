@@ -225,8 +225,7 @@ export_to_repository_ckan = function (req, res)
         const targetRepository = req.body.repository;
         const privacy = req.body.publicDeposit;
 
-
-      let overwrite = false;
+        let overwrite = false;
         let deleteChangesOriginatedFromCkan = false;
         let propagateDendroChangesIntoCkan = false;
         try
@@ -310,43 +309,43 @@ export_to_repository_ckan = function (req, res)
                 }
                 else
                 {
-
                     // The success case
                     // Update the exportedAt property in the ckan package
                     const client = new CKAN.Client(targetRepository.ddr.hasExternalUri, targetRepository.ddr.hasAPIKey);
                     let packageId = CkanUtils.createPackageID(requestedResourceUri);
 
                     const user = req.user;
-                      let registryData = {
+                    let registryData = {
                         dcterms: {
-                          title: targetRepository.dcterms.title,
-                          creator: targetRepository.dcterms.creator,
-                          identifier: result,
+                            title: targetRepository.dcterms.title,
+                            creator: targetRepository.dcterms.creator,
+                            identifier: result
                         },
                         ddr: {
-                          //exportedFromProject: project.uri,
-                          exportedFromFolder: requestedResourceUri,
-                          privacyStatus: isNull(privacy) || privacy === false ? "private" : "public",
-                          hasOrganization: organization,
-                          exportedToRepository: targetRepository.ddr.hasExternalUri,
-                          exportedToPlatform: "CKAN",
+                            // exportedFromProject: project.uri,
+                            exportedFromFolder: requestedResourceUri,
+                            privacyStatus: isNull(privacy) || privacy === false ? "private" : "public",
+                            hasOrganization: organization,
+                            exportedToRepository: targetRepository.ddr.hasExternalUri,
+                            exportedToPlatform: "CKAN"
                         }
-                      };
+                    };
                     CkanUtils.updateOrInsertExportedAtByDendroForCkanDataset(packageId, client, function (err, result)
                     {
-                        Folder.findByUri(requestedResourceUri, function(err, folder){
-                            folder.getOwnerProject(function( err, project){
-                              registryData.ddr.exportedFromProject = project.uri;
-                              Deposit.createDepositRegistry(registryData, function(err, deposit){
-                                res.json({
-                                  result: resultInfo.result,
-                                  message: resultInfo.message
+                        Folder.findByUri(requestedResourceUri, function (err, folder)
+                        {
+                            folder.getOwnerProject(function (err, project)
+                            {
+                                registryData.ddr.exportedFromProject = project.uri;
+                                Deposit.createDepositRegistry(registryData, function (err, deposit)
+                                {
+                                    res.json({
+                                        result: resultInfo.result,
+                                        message: resultInfo.message
+                                    });
                                 });
-                              })
-
                             });
                         });
-
                     });
                 }
             });
@@ -780,7 +779,7 @@ const export_to_repository_zenodo = function (req, res)
 export_to_repository_b2share = function (req, res)
 {
     const requestedResourceUri = req.params.requestedResourceUri;
-    const targetRepository = req.body.repository
+    const targetRepository = req.body.repository;
     const privacy = req.body.publicDeposit;
     // targetRepository.ddr.hasExternalUri -> the b2share host url
 
@@ -989,35 +988,36 @@ export_to_repository_b2share = function (req, res)
                                                                     {
                                                                         generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
 
-                                                                        //create deposit here
-                                                                      const registryData = {
-                                                                        dcterms: {
-                                                                          title: folder.dcterms.title,
-                                                                          creator: folder.dcterms.creator,
-                                                                          identifier: body.data.id,
-                                                                        },
-                                                                        ddr: {
-                                                                          exportedFromProject: project.uri,
-                                                                          exportedFromFolder: folder.uri,
-                                                                          privacyStatus: isNull(privacy) || privacy === false ? "private" : "public",
+                                                                        // create deposit here
+                                                                        const registryData = {
+                                                                            dcterms: {
+                                                                                title: folder.dcterms.title,
+                                                                                creator: folder.dcterms.creator,
+                                                                                identifier: body.data.id
+                                                                            },
+                                                                            ddr: {
+                                                                                exportedFromProject: project.uri,
+                                                                                exportedFromFolder: folder.uri,
+                                                                                privacyStatus: isNull(privacy) || privacy === false ? "private" : "public",
 
-                                                                          exportedToRepository: b2shareClient.host,
-                                                                          exportedToPlatform: "EUDAT B2Share",
-                                                                        }
-                                                                      };
+                                                                                exportedToRepository: b2shareClient.host,
+                                                                                exportedToPlatform: "EUDAT B2Share"
+                                                                            }
+                                                                        };
 
-                                                                      Deposit.createDepositRegistry(registryData, function(err, result){
-                                                                        if(isNull(err)) {
+                                                                        Deposit.createDepositRegistry(registryData, function (err, result)
+                                                                        {
+                                                                            if (isNull(err))
+                                                                            {
+                                                                                let msg = "Folder " + folder.nie.title + " successfully exported from Dendro";
 
-                                                                          let msg = "Folder " + folder.nie.title + " successfully exported from Dendro";
+                                                                                if (!isNull(body.data) && !isNull(body.data.metadata) && typeof body.data.metadata.ePIC_PID !== "undefined")
+                                                                                {
+                                                                                    // TODO This link is 404
+                                                                                    msg = msg + "<br/><br/><a href='" + body.data.metadata.ePIC_PID + "'>Click to see your published dataset<\/a>";
+                                                                                }
 
-                                                                          if (!isNull(body.data) && !isNull(body.data.metadata) && typeof body.data.metadata.ePIC_PID !== "undefined")
-                                                                          {
-                                                                              //TODO This link is 404
-                                                                            msg = msg + "<br/><br/><a href='" + body.data.metadata.ePIC_PID + "'>Click to see your published dataset<\/a>";
-                                                                          }
-
-                                                                          /*
+                                                                                /*
  const msg = "Folder " + folder.nie.title + " successfully exported from Dendro" ;
  var recordURL = B2Share.recordPath + "/" + data.body.record_id;
 
@@ -1049,7 +1049,7 @@ export_to_repository_b2share = function (req, res)
  }
  });
  */
-                                                                          /*
+                                                                                /*
                                                                            res.json(
                                                                            {
                                                                            "result": "OK",
@@ -1057,18 +1057,14 @@ export_to_repository_b2share = function (req, res)
                                                                            "recordURL": recordURL
                                                                            }
                                                                            ); */
-                                                                          res.json(
-                                                                            {
-                                                                              result: "OK",
-                                                                              message: msg
+                                                                                res.json(
+                                                                                    {
+                                                                                        result: "OK",
+                                                                                        message: msg
+                                                                                    }
+                                                                                );
                                                                             }
-                                                                          );
-                                                                        }
-
-                                                                      });
-
-
-
+                                                                        });
                                                                     }
                                                                 });
                                                             }
@@ -1217,45 +1213,47 @@ export_to_repository_b2share = function (req, res)
     });
 };
 
-export_to_dendro = function(req, res)
+export_to_dendro = function (req, res)
 {
-  const requestedResourceUri = req.params.requestedResourceUri;
-  const targetRepository = req.body.repository
-  const privacy = req.body.publicDeposit;
+    const requestedResourceUri = req.params.requestedResourceUri;
+    const targetRepository = req.body.repository;
+    const privacy = req.body.publicDeposit;
 
-  File.findByUri(requestedResourceUri, function (err, file) {
-    if (isNull(err)) {
-      if (!isNull(file)) {
-
-        file.getOwnerProject(function (err, project)
+    File.findByUri(requestedResourceUri, function (err, file)
+    {
+        if (isNull(err))
         {
-          if (isNull(err))
-          {
-            const registryData = {
-              dcterms: {
-                title: file.dcterms.title,
-                creator: file.dcterms.creator,
-                identifier: "123456789",
-              },
-              ddr: {
-                exportedFromProject: project.uri,
-                exportedFromFolder: file.uri,
-                privacyStatus: isNull(privacy) || privacy === false ? "private" : "public",
+            if (!isNull(file))
+            {
+                file.getOwnerProject(function (err, project)
+                {
+                    if (isNull(err))
+                    {
+                        const registryData = {
+                            dcterms: {
+                                title: file.dcterms.title,
+                                creator: file.dcterms.creator,
+                                identifier: "123456789"
+                            },
+                            ddr: {
+                                exportedFromProject: project.uri,
+                                exportedFromFolder: file.uri,
+                                privacyStatus: isNull(privacy) || privacy === false ? "private" : "public",
 
-                exportedToRepository: "Dendro",
-                exportedToPlatform: "Dendro",
-              }
+                                exportedToRepository: "Dendro",
+                                exportedToPlatform: "Dendro"
+                            }
 
-            };
-            Deposit.createDepositRegistry({registryData: registryData, requestedResource: file}, function(err, msg){
+                        };
+                        Deposit.createDepositRegistry({registryData: registryData, requestedResource: file}, function (err, msg)
+                        {
 
-            });
-          }
-        });
-
-      }
-    }
-  });
+                        });
+                    }
+                });
+            }
+        }
+    });
 };
 
 exports.export_to_repository = function (req, res)
