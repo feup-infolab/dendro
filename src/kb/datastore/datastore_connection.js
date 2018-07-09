@@ -7,7 +7,7 @@ const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const colors = require("colors");
 const MongoClient = require("mongodb").MongoClient;
-const slug = require("slug");
+const slug = rlequire("dendro", "src/utils/slugifier.js");
 
 function DataStoreConnection (options)
 {
@@ -17,7 +17,10 @@ function DataStoreConnection (options)
     self.host = options.host;
     self.database = options.database;
     self.resourceUri = options.resourceUri;
-    self.collection = slug(self.resourceUri, "_");
+    self.username = options.username;
+    self.password = options.password;
+
+    self.collection = slug(self.resourceUri);
     self.counter = 1;
 }
 
@@ -29,7 +32,16 @@ DataStoreConnection.prototype.open = function (callback)
     {
         return callback(1, "DataStoreConnection connection is already open.");
     }
-    const url = "mongodb://" + self.host + ":" + self.port + "/" + slug(self.database, "_");
+    let url;
+    if (self.username && self.password && self.username !== "" && self.password !== "" && self.username !== "")
+    {
+        url = "mongodb://" + self.username + ":" + self.password + "@" + self.host + ":" + self.port + "/" + self.collection + "?authSource=admin";
+    }
+    else
+    {
+        url = "mongodb://" + self.host + ":" + self.port + "/" + self.collection;
+    }
+
     MongoClient.connect(url, function (err, db)
     {
         if (isNull(err))

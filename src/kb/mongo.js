@@ -1,24 +1,35 @@
-const slug = require("slug");
-
 const rlequire = require("rlequire");
-const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const slug = rlequire("dendro", "src/utils/slugifier.js");
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
 const MongoClient = require("mongodb").MongoClient;
-const url = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + Config.mongoDbCollectionName;
 
-function DendroMongoClient (mongoDBHost, mongoDbPort, mongoDbCollectionName)
+function DendroMongoClient (mongoDBHost, mongoDbPort, mongoDbCollectionName, mongoDbUsername, mongoDbPassword)
 {
     let self = this;
 
     self.hostname = mongoDBHost;
     self.port = mongoDbPort;
-    self.collectionName = slug(mongoDbCollectionName, "_");
+    self.collectionName = slug(mongoDbCollectionName);
+    self.username = mongoDbUsername;
+    self.password = mongoDbPassword;
 }
 
 DendroMongoClient.prototype.connect = function (callback)
 {
-    const url = "mongodb://" + this.hostname + ":" + this.port + "/" + this.collectionName;
+    const self = this;
+
+    let url;
+    const sluggedCollectionName = slug(this.collectionName);
+    if (self.username && self.password && self.username !== "" && self.password !== "" && self.username !== "")
+    {
+        url = "mongodb://" + self.username + ":" + self.password + "@" + self.host + ":" + self.port + "/" + sluggedCollectionName + "?authSource=admin";
+    }
+    else
+    {
+        url = "mongodb://" + self.host + ":" + self.port + "/" + sluggedCollectionName;
+    }
+
     MongoClient.connect(url, function (err, db)
     {
         if (!err)

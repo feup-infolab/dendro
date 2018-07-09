@@ -8,7 +8,7 @@ if [[ tesseract > /dev/null ]]
 then
     # install text extraction dependencies
     if [ "$(uname)" == "Darwin" ]; then
-        brew cask install xquartz && brew install ghostscript xpdf tesseract imagemagick && brew cask install pdftotext
+        brew cask install xquartz && brew install ghostscript xpdf tesseract imagemagick@6 && brew cask install pdftotext
         brew tap caskroom/versions
         brew cask install java8
     elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then

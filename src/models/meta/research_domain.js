@@ -101,7 +101,7 @@ ResearchDomain.prototype.getHumanReadableUri = function (callback)
     {
         if (typeof self.dcterms.title === "string")
         {
-            const slug = require("slug");
+            const slug = rlequire("dendro", "src/utils/slugifier.js");
             const slugifiedTitle = slug(self.dcterms.title);
             callback(null, "/research_domains/" + slugifiedTitle);
         }

@@ -626,7 +626,7 @@ File.prototype.getThumbnail = function (size, callback)
                     // try to regenerate thumbnails, fire and forget
                     self.generateThumbnails(function (err, result)
                     {
-                        return callback(null, rlequire("dendro", "public/images/icons/page_white_gear.png"));
+                        return callback(null, rlequire.absPathInApp("dendro", "public/images/icons/page_white_gear.png"));
                     });
                 }
                 else if (isNull(err))
@@ -1277,7 +1277,18 @@ File.prototype.pipeData = function (res, skipRows, pageSize, sheetIndex, outputF
 File.prototype.connectToMongo = function (callback)
 {
     const MongoClient = require("mongodb").MongoClient;
-    const url = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + Config.mongoDbCollectionName;
+    const slug = rlequire("dendro", "src/utils/slugifier.js");
+
+    let url;
+    if (Config.mongoDBAuth.username && Config.mongoDBAuth.password && Config.mongoDBAuth.password !== "" && Config.mongoDBAuth.username !== "")
+    {
+        url = "mongodb://" + Config.mongoDBAuth.username + ":" + Config.mongoDBAuth.password + "@" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + slug(Config.mongoDbCollectionName) + "?authSource=admin";
+    }
+    else
+    {
+        url = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + slug(Config.mongoDbCollectionName);
+    }
+
     MongoClient.connect(url, function (err, db)
     {
         if (isNull(err))

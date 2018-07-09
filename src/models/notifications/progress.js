@@ -21,7 +21,7 @@ class Progress
         return this.lastUpdated;
     }
 
-    touch()
+    touch ()
     {
         this.lastUpdated = new Date();
     }
@@ -31,7 +31,7 @@ class Progress
         delete Progress.pendingProgresses[this.progressID];
     }
 
-    getProgressID()
+    getProgressID ()
     {
         return this.progressID;
     }
