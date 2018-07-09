@@ -4,8 +4,7 @@
 
 <!-- Services -->
 
-<div id="services" class="services">
-    <div class="row">
+<div id="services" class="row services">
         <div class="col-lg-4 col-md-12 col-sm-12">
             <div class="row">
                 <div class="col-md-4 col-md-offset-4 col-xs-12 text-center">
@@ -68,9 +67,9 @@
             </div>
         </div>
     </div>
-</div>
 
-<div id="splashmetrics" ng-controller="metricsController">
+<div id="showcase" class="row">
+<div id="splashmetrics" ng-controller="metricsController" class="row">
     <div ng-init="initsplash()">
         <div class="col-lg-12">
             <%- include metrics/splash_metrics.ejs %>
@@ -104,6 +103,7 @@
             </div>
         </div>
     </div>
+</div>
 
     <%- include registry/deposits_listing.ejs %>
 </div>
