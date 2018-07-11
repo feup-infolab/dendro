@@ -17,7 +17,7 @@ Dendro is the software powering [INESC TEC](https://dendro.inesctec.pt) and the 
 
 We offer three alternatives for installation: 1. Docker image (fast and easy) 2. Local code, dependencies as Docker containers (for developers) and 3. Installation using bash scripts and Vagrant (useful if you need a Virtual Machine running Dendro
 
-### Quick installations using Docker image (for end-users)
+### 1. Docker containers (for end-users)
 
 To install Dendro using Docker, do the following:
 
@@ -37,7 +37,7 @@ docker-compose up
 
 We provide a [Docker image](https://hub.docker.com/r/joaorosilva/dendro/) for getting you up and running quickly. For deployment in a production server, however, we recommend you use the Dendro install scripts.
 
-### Code locally, databases running as Docker containers (for development)
+### 2. Code in local folder, databases running as Docker containers (for development)
 
 If you just want to download dendro and start developing, Dendro now supports automatic deployment using Docker containers for all dependencies (MySQL, Virtuoso and ElasticSearch). This only works for Mac and Linux machines (for now).
 
@@ -59,9 +59,11 @@ npm start
 6. Access Dendro at `http://127.0.0.1:3001`
 7. Start developing :-)
 
-### Installation scripts for production machines (Advanced)
+### 3. Installation scripts for production machines (Advanced)
 
-[Installation scripts for production machines](https://github.com/feup-infolab/dendro-install) (this is recommended for IT professionals).
+[Installation scripts for production machines](https://github.com/feup-infolab/dendro-install) (this is recommended for IT professionals). 
+
+These scripts can be used not only to build a Virtual Machine that boots Dendro using Vagrant but also to set up an Ubuntu-powered production machine.
 
 ## Description
 
