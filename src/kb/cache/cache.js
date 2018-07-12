@@ -59,6 +59,8 @@ Cache.initConnections = function (callback)
                                     {
                                         if (!isNull(err))
                                         {
+                                            Logger.log("warn", "Unable to connect to MongoDB cache service with ID : " + mongoDBConnection.id + " running on " + mongoDBConnection.host + ":" + mongoDBConnection.port)
+                                            Logger.log("warn", JSON.stringify(mongoCacheConfig, null, 4));
                                             callback(err);
                                         }
                                         else
