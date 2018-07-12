@@ -184,7 +184,7 @@ MongoDBCache.prototype.getByQuery = function (query, callback)
         {
             if (!isNull(query))
             {
-                const cursor = self.client.collection(self.collection).find(query).sort({"ddr.modified": -1 });
+                const cursor = self.client.collection(self.collection).find(query).sort({ "ddr.modified": -1 });
 
                 cursor.next(function (err, result)
                 {
