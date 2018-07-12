@@ -90,7 +90,7 @@ if container_running "$VIRTUOSO_CONTAINER_NAME" == 0
 then
     if ! docker start "$VIRTUOSO_CONTAINER_NAME"
     then
-      docker pull joaorosilva/virtuoso:7.2.4-for-dendro-0.3
+      docker pull joaorosilva/virtuoso:7.2.4-for-dendro-0.4
       docker run \
           -p 8890:8890 \
           -p 1111:1111 \
