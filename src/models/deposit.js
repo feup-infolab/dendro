@@ -467,7 +467,7 @@ Deposit.saveContents = function(params, callback){
 
             let content = params.content;
             //TODO check if file or folder
-            content.copyPaste({rootFolder}, function(err, msg){
+            content.copyPaste({destinationFolder: rootFolder}, function(err, msg){
               a = 3;
             });
 

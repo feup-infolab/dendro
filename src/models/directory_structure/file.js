@@ -229,10 +229,26 @@ File.prototype.copyPaste = function ({destinationFolder}, callback)
     self.writeToTempFile(function (err, writtenFilePath)
     {
         const newFile = new File({
-            nie: {
-                title: self.nie.title,
-                isLogicalPartOf: destinationFolder.uri
-            }
+          nie: {
+            title: self.nie.title,
+            isLogicalPartOf: destinationFolder.uri
+          }
+        });
+      if (isNull(err))
+      {
+        destinationFolder.nie.hasLogicalPart = newFile.uri;
+        return callback(null, {
+          result: "success",
+          message: "File copied successfully.",
+          uri: newFile.uri
+        });
+      }else{
+        const msg = "Error [" + err + "] reindexing file [" + newFile.uri + "]in GridFS :" + newFile;
+        return callback(500, {
+          result: "error",
+          message: "Unable to save files after buffering: " + JSON.stringify(newFile),
+          files: newFile,
+          errors: newFile
         });
 
         newFile.saveWithFileAndContents(writtenFilePath, function (err, newFile)
@@ -717,7 +733,41 @@ File.prototype.loadFromLocalFile = function (localFile, callback)
         }
         else
         {
-            callback(err, ownerProject);
+            self.getOwnerDeposit(function(err, ownerDeposit){
+                const Deposit = require(Pathfinder.absPathInSrcFolder("/models/deposit.js")).Deposit;
+                if(isNull && ownerDeposit instanceof Deposit){
+                  /** SAVE FILE**/
+                  self.getDepositStorage(function (err, storageConnection)
+                  {
+                    if (isNull(err))
+                    {
+                      storageConnection.put(self,
+                        fs.createReadStream(localFile),
+                        function (err, result)
+                        {
+                          if (isNull(err))
+                          {
+                            return callback(null, self);
+                          }
+
+                          Logger.log("Error [" + err + "] saving file in GridFS :" + result);
+                          return callback(err, result);
+                        },
+                        {
+                          deposit: ownerDeposit,
+                          type: "nie:File"
+                        }
+                      );
+                    }
+                    else
+                    {
+                      return callback(true, storageConnection);
+                    }
+                  });
+                } else{
+                    callback(err, ownerProject);
+                }
+            });
         }
     });
 };
@@ -1514,6 +1564,34 @@ File.prototype.getProjectStorage = function (callback)
             return callback(true, "file with no project");
         }
     });
+};
+
+File.prototype.getDepositStorage = function (callback)
+{
+  const self = this;
+
+  self.getOwnerDeposit(function (err, ownerDeposit)
+  {
+    if (isNull(err))
+    {
+      const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+      if (isNull && ownerDeposit instanceof Deposit)
+      {
+        ownerProject.getActiveStorageConnection(function (err, connection)
+        {
+          callback(err, connection);
+        });
+      }
+      else
+      {
+        callback(err, ownerProject);
+      }
+    }
+    else
+    {
+      return callback(true, "file with no project");
+    }
+  });
 };
 
 File = Class.extend(File, InformationElement, "nfo:FileDataObject");
