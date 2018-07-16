@@ -1,10 +1,10 @@
 const path = require("path");
-const slug = require("slug");
+const rlequire = require("rlequire");
+const slug = rlequire("dendro", "src/utils/slugifier.js");
 const mkdirp = require("mkdirp");
 const pm2 = require("pm2");
 const _ = require("underscore");
 const async = require("async");
-const rlequire = require("rlequire");
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const fs = require("fs");
 

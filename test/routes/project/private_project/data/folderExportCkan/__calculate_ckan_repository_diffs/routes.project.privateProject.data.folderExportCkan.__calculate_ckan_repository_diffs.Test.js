@@ -3,7 +3,7 @@ process.env.NODE_ENV = "test";
 const chai = require("chai");
 const chaiHttp = require("chai-http");
 const should = chai.should();
-const slug = require("slug");
+const slug = rlequire("dendro", "src/utils/slugifier.js");
 const _ = require("underscore");
 chai.use(chaiHttp);
 it.optional = require("it-optional");

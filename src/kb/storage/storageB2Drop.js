@@ -1,7 +1,7 @@
-const slug = require("slug");
+const rlequire = require("rlequire");
+const slug = rlequire("dendro", "src/utils/slugifier.js");
 const path = require("path");
 
-const rlequire = require("rlequire");
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
@@ -31,7 +31,7 @@ class StorageB2Drop extends Storage
             dendroInstanceDataFolder += ("_" + Config.port);
         }
 
-        self.prefix = StorageB2Drop.getRootFolderName() + "/" + slug(dendroInstanceDataFolder, "_");
+        self.prefix = StorageB2Drop.getRootFolderName() + "/" + slug(dendroInstanceDataFolder);
     }
 
     _getB2DropPath (file)

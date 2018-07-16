@@ -45,6 +45,7 @@ DockerManager.startAllContainers = function (callback)
     if (Config.docker && Config.docker.active)
     {
         Logger.log("Starting all Docker containers.");
+        Logger.log("warn", "If it takes long in the first boot PLEASE WAIT! If after 10 minutes without heavy CPU activity please press Ctrl+C and try again.");
         childProcess.exec(`/bin/bash -c "${startContainersScript}"`, {
             cwd: rlequire.getRootFolder("dendro"),
             stdio: [0, 1, 2]

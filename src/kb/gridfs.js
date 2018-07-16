@@ -1,4 +1,3 @@
-const path = require("path");
 const async = require("async");
 const rlequire = require("rlequire");
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
@@ -6,7 +5,7 @@ const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
-const util = require("util");
+const MongoClient = require("mongodb").MongoClient;
 const GridFSBucket = require("mongodb").GridFSBucket;
 
 function GridFSConnection (mongodbHost, mongodbPort, collectionName, username, password)
@@ -29,24 +28,19 @@ GridFSConnection.prototype.open = function (callback, customBucket)
     {
         const mongo = require("mongodb");
         const Grid = require("gridfs-stream");
-        const slug = require("slug");
+        const slug = rlequire("dendro", "src/utils/slugifier.js");
 
-        const db = new mongo.Db(slug(self.collectionName, "_"), new mongo.Server(
-            self.hostname,
-            self.port,
-            {
-                auto_reconnect: false,
-                poolSize: 4
-            }),
+        let url;
+        if (Config.mongoDBAuth.username && Config.mongoDBAuth.password && Config.mongoDBAuth.password !== "" && Config.mongoDBAuth.username !== "")
         {
-            w: "majority",
-            safe: false,
-            strict: false
+            url = "mongodb://" + Config.mongoDBAuth.username + ":" + Config.mongoDBAuth.password + "@" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + slug(self.collectionName) + "?authSource=admin";
         }
-        );
+        else
+        {
+            url = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + slug(self.collectionName);
+        }
 
-        // make sure the db instance is open before passing into `Grid`
-        db.open(function (err)
+        MongoClient.connect(url, function (err, db)
         {
             if (isNull(err))
             {
@@ -72,7 +66,7 @@ GridFSConnection.prototype.open = function (callback, customBucket)
             }
             else
             {
-                return callback(1, err);
+                callback(err, db);
             }
         });
     }

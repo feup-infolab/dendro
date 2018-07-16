@@ -90,7 +90,7 @@ if container_running "$VIRTUOSO_CONTAINER_NAME" == 0
 then
     if ! docker start "$VIRTUOSO_CONTAINER_NAME"
     then
-      docker pull joaorosilva/virtuoso:7.2.4-for-dendro-0.3
+      docker pull joaorosilva/virtuoso:7.2.4-for-dendro-0.4
       docker run \
           -p 8890:8890 \
           -p 1111:1111 \
@@ -149,6 +149,10 @@ then
       docker pull mongo:3.4.10
       docker run \
           -p 27017:27017 \
+          -e AUTH=yes \
+          -e MONGO_INITDB_ROOT_USERNAME="admin" \
+          -e MONGO_INITDB_ROOT_PASSWORD="34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi" \
+          -e MONGO_INITDB_DATABASE="admin" \
           --name="$MONGODB_CONTAINER_NAME" \
           --hostname="$MONGODB_HOSTNAME" \
           "$MONGODB_VERSION_AND_TAG" > "$DIR/mongodb.log" &

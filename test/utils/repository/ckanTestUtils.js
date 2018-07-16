@@ -4,7 +4,7 @@ const chaiHttp = require("chai-http");
 const CKAN = require("ckan");
 const CkanUtils = rlequire("dendro", "src/utils/datasets/ckanUtils.js");
 const async = require("async");
-const slug = require("slug");
+const slug = rlequire("dendro", "src/utils/slugifier.js");
 chai.use(chaiHttp);
 
 const createCkanOrganization = function (jsonOnly, agent, ckanRepoData, organizationData, cb)

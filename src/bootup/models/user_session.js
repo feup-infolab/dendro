@@ -1,5 +1,3 @@
-const slug = require("slug");
-const path = require("path");
 const rlequire = require("rlequire");
 const _ = require("underscore");
 

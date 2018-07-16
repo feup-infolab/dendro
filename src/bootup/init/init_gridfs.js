@@ -12,7 +12,7 @@ const initGridFS = function (app, callback)
         Config.mongoDBHost,
         Config.mongoDbPort,
         Config.mongoDbCollectionName,
-        Config.mongoDBAuth.user,
+        Config.mongoDBAuth.username,
         Config.mongoDBAuth.password
     );
 

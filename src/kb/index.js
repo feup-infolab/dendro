@@ -3,6 +3,7 @@ const _ = require("underscore");
 const rlequire = require("rlequire");
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const slug = rlequire("dendro", "src/utils/slugifier.js");
 
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
@@ -10,7 +11,6 @@ const db = Config.getDBByID();
 const dbSocial = Config.getDBByID("social");
 const dbNotifications = Config.getDBByID("notifications");
 
-const slug = require("slug");
 const elasticsearch = require("elasticsearch");
 
 const getAddress = function(host, port)

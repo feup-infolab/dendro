@@ -1,7 +1,7 @@
 const async = require("async");
-const slug = require("slug");
-const _ = require("underscore");
 const rlequire = require("rlequire");
+const slug = rlequire("dendro", "src/utils/slugifier.js");
+const _ = require("underscore");
 const CKAN = require("ckan");
 
 const Utils = rlequire("dendro", "public/js/utils.js").Utils;
@@ -21,7 +21,7 @@ const generalDatasetUtils = rlequire("dendro", "src/utils/datasets/generalDatase
  */
 const createCkanFileIdBasedOnDendroFileName = function (fileName)
 {
-    const slug = require("slug");
+    const slug = rlequire("dendro", "src/utils/slugifier.js");
     let newCkanFileID = slug(fileName) + "_exported_by_dendro_" + fileName;
     return newCkanFileID;
 };
@@ -34,7 +34,7 @@ const verifyIfCkanFileWasCreatedInDendro = function (ckanFile)
 {
     let ckanFileID = ckanFile.id;
     let ckanFileIDParts = ckanFileID.split("_exported_by_dendro_");
-    const slug = require("slug");
+    const slug = rlequire("dendro", "src/utils/slugifier.js");
     // backup6txt_exported_by_dendro_backup6.txt
     if (ckanFileIDParts.length !== 2 || slug(ckanFileIDParts[1]) !== ckanFileIDParts[0])
     {

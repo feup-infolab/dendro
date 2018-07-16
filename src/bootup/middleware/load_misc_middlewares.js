@@ -5,7 +5,7 @@ const Notification = rlequire("dendro", "src/models/notifications/notification.j
 
 const appSecret = Config.crypto.secret,
     express = require("express"),
-    slug = require("slug"),
+    slug = require("slugify"),
     favicon = require("serve-favicon"),
     YAML = require("yamljs"),
     swaggerDocument = YAML.load(rlequire.absPathInApp("dendro", "swagger.yaml")),

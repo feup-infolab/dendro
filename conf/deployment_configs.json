@@ -22,13 +22,17 @@
       "id": "default",
       "log": {
         "log_datastore_ops": true
-      }
+      },
+      "username": "admin",
+      "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
     },
     "ontologies_cache": {
       "database": "127.0.0.1:3001_ontologies",
       "host": "127.0.0.1",
       "port": "27017",
-      "id": "default"
+      "id": "default",
+      "username": "admin",
+      "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
     },
     "cache": {
       "active": true,
@@ -64,7 +68,9 @@
             "clear_on_startup": true,
             "host": "127.0.0.1",
             "port": "27017",
-            "id": "default"
+            "id": "default",
+            "username": "admin",
+            "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
           },
           "social": {
             "database": "127.0.0.1:3001",
@@ -72,7 +78,9 @@
             "clear_on_startup": true,
             "host": "127.0.0.1",
             "port": "27017",
-            "id": "social"
+            "id": "social",
+            "username": "admin",
+            "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
           },
           "notifications": {
             "database": "127.0.0.1:3001",
@@ -80,7 +88,9 @@
             "clear_on_startup": true,
             "host": "127.0.0.1",
             "port": "27017",
-            "id": "notifications"
+            "id": "notifications",
+            "username": "admin",
+            "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
           }
         }
       },
@@ -104,8 +114,8 @@
     "mongoDBSessionStoreCollection": "127.0.0.1:3001_sessions",
     "mongoDbVersion": "",
     "mongoDBAuth": {
-      "user": "",
-      "password": ""
+      "username": "admin",
+      "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
     },
     "storageDefaults": {
       "storageType": "mongoDB",
@@ -256,7 +266,7 @@
       "load_databases": true,
       "reload_administrators_on_startup": false,
       "reload_demo_users_on_startup": false,
-      "reload_ontologies_on_startup": true,
+      "reload_ontologies_on_startup": false,
       "clear_session_store": true,
       "log_bootup_actions": true,
       "destroy_all_graphs": false,
@@ -437,13 +447,17 @@
       "id": "default",
       "log": {
         "log_datastore_ops": true
-      }
+      },
+      "username": "admin",
+      "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
     },
     "ontologies_cache": {
       "database": "127.0.0.1:3002_ontologies",
       "host": "192.168.56.249",
       "port": "27017",
-      "id": "default"
+      "id": "default",
+      "username": "admin",
+      "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
     },
     "cache": {
       "active": true,
@@ -479,7 +493,9 @@
             "clear_on_startup": true,
             "host": "192.168.56.249",
             "port": "27017",
-            "id": "default"
+            "id": "default",
+            "username": "admin",
+            "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
           },
           "social": {
             "database": "127.0.0.1:3002",
@@ -487,7 +503,9 @@
             "clear_on_startup": true,
             "host": "192.168.56.249",
             "port": "27017",
-            "id": "social"
+            "id": "social",
+            "username": "admin",
+            "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
           },
           "notifications": {
             "database": "127.0.0.1:3002",
@@ -495,7 +513,9 @@
             "clear_on_startup": true,
             "host": "192.168.56.249",
             "port": "27017",
-            "id": "notifications"
+            "id": "notifications",
+            "username": "admin",
+            "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
           }
         }
       },
@@ -519,8 +539,8 @@
     "mongoDBSessionStoreCollection": "127.0.0.1:3002_sessions",
     "mongoDbVersion": "",
     "mongoDBAuth": {
-      "user": "",
-      "password": ""
+      "username": "admin",
+      "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
     },
     "storageDefaults": {
       "storageType": "mongoDB",
@@ -847,13 +867,17 @@
       "id": "default",
       "log": {
         "log_datastore_ops": true
-      }
+      },
+      "username": "admin",
+      "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
     },
     "ontologies_cache": {
       "database": "127.0.0.1:3002_ontologies",
       "host": "127.0.0.1",
       "port": "27017",
-      "id": "default"
+      "id": "default",
+      "username": "admin",
+      "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
     },
     "cache": {
       "active": true,
@@ -889,7 +913,9 @@
             "clear_on_startup": true,
             "host": "127.0.0.1",
             "port": "27017",
-            "id": "default"
+            "id": "default",
+              "username": "admin",
+              "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
           },
           "social": {
             "database": "127.0.0.1:3002",
@@ -897,7 +923,9 @@
             "clear_on_startup": true,
             "host": "127.0.0.1",
             "port": "27017",
-            "id": "social"
+            "id": "social",
+            "username": "admin",
+            "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
           },
           "notifications": {
             "database": "127.0.0.1:3002",
@@ -905,7 +933,9 @@
             "clear_on_startup": true,
             "host": "127.0.0.1",
             "port": "27017",
-            "id": "notifications"
+            "id": "notifications",
+            "username": "admin",
+            "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
           }
         }
       },
@@ -929,8 +959,8 @@
     "mongoDBSessionStoreCollection": "127.0.0.1:3002_sessions",
     "mongoDbVersion": "",
     "mongoDBAuth": {
-      "user": "",
-      "password": ""
+      "username": "admin",
+      "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
     },
     "storageDefaults": {
       "storageType": "mongoDB",
@@ -1257,13 +1287,17 @@
       "id": "default",
       "log": {
         "log_datastore_ops": true
-      }
+      },
+      "username": "admin",
+      "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
     },
     "ontologies_cache": {
       "database": "127.0.0.1:3002_ontologies",
       "host": "127.0.0.1",
       "port": "27017",
-      "id": "default"
+      "id": "default",
+      "username": "admin",
+      "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
     },
     "cache": {
       "active": true,
@@ -1299,7 +1333,9 @@
             "clear_on_startup": true,
             "host": "127.0.0.1",
             "port": "27017",
-            "id": "default"
+            "id": "default",
+            "username": "admin",
+            "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
           },
           "social": {
             "database": "127.0.0.1:3002",
@@ -1307,7 +1343,9 @@
             "clear_on_startup": true,
             "host": "127.0.0.1",
             "port": "27017",
-            "id": "social"
+            "id": "social",
+            "username": "admin",
+            "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
           },
           "notifications": {
             "database": "127.0.0.1:3002",
@@ -1315,7 +1353,9 @@
             "clear_on_startup": true,
             "host": "127.0.0.1",
             "port": "27017",
-            "id": "notifications"
+            "id": "notifications",
+            "username": "admin",
+            "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
           }
         }
       },
@@ -1339,8 +1379,8 @@
     "mongoDBSessionStoreCollection": "127.0.0.1:3002_sessions",
     "mongoDbVersion": "",
     "mongoDBAuth": {
-      "user": "",
-      "password": ""
+      "username": "admin",
+      "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
     },
     "storageDefaults": {
       "storageType": "mongoDB",

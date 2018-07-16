@@ -6,7 +6,6 @@ const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
-const virtualbox = require("virtualbox");
 const childProcess = require("child_process");
 
 const VirtualBoxManager = function ()
@@ -27,6 +26,7 @@ VirtualBoxManager.stopVM = function (callback)
 {
     if (Config.virtualbox && Config.virtualbox.active)
     {
+        const virtualbox = require("virtualbox");
         virtualbox.isRunning(VirtualBoxManager.vmName, function (error, running)
         {
             if (isNull(error))
@@ -68,6 +68,7 @@ VirtualBoxManager.stopVM = function (callback)
 
 VirtualBoxManager.destroySnapshot = function (snapshotName, callback, onlyOnce)
 {
+    const virtualbox = require("virtualbox");
     if (!(VirtualBoxManager._deletedSnapshots[snapshotName] && onlyOnce) || isNull(onlyOnce))
     {
         virtualbox.snapshotList(VirtualBoxManager.vmName, function (error, snapshotList, currentSnapshotUUID)
@@ -81,6 +82,7 @@ VirtualBoxManager.destroySnapshot = function (snapshotName, callback, onlyOnce)
 
                 if (snapshotExists)
                 {
+                    const virtualbox = require("virtualbox");
                     virtualbox.snapshotDelete(VirtualBoxManager.vmName, snapshotName, function (error)
                     {
                         if (error) throw error;
@@ -111,6 +113,7 @@ VirtualBoxManager.destroySnapshot = function (snapshotName, callback, onlyOnce)
 
 VirtualBoxManager.returnToBaselineCheckpoint = function (callback)
 {
+    const virtualbox = require("virtualbox");
     if (Config.virtualbox && Config.virtualbox.active && Config.virtualbox.reuse_snapshots)
     {
         Logger.log("Checking if baseline snapshot exists...");
@@ -199,6 +202,7 @@ VirtualBoxManager.destroyAllSnapshots = function (callback, onlyOnce)
 {
     if (Config.virtualbox && Config.virtualbox.active)
     {
+        const virtualbox = require("virtualbox");
         if (onlyOnce && VirtualBoxManager._destroyedSnapshotsOnce)
         {
             Logger.log("Already deleted Virtualbox Snapshots once, skipping...");
@@ -249,6 +253,7 @@ VirtualBoxManager.startVM = function (callback)
     {
         Logger.log("Starting Virtualbox VM.");
 
+        const virtualbox = require("virtualbox");
         virtualbox.isRunning(VirtualBoxManager.vmName, function startCallback (error, running)
         {
             if (isNull(error))
@@ -297,6 +302,7 @@ VirtualBoxManager.checkpointExists = function (checkpointName, callback, dontAdd
 
     if (Config.virtualbox && Config.virtualbox.active)
     {
+        const virtualbox = require("virtualbox");
         virtualbox.snapshotList(VirtualBoxManager.vmName, function (error, snapshotList, currentSnapshotUUID)
         {
             if (isNull(error))
@@ -345,6 +351,7 @@ VirtualBoxManager.createCheckpoint = function (checkpointName, callback, dontAdd
 
     if (Config.virtualbox && Config.virtualbox.active && Config.virtualbox.create_snapshots)
     {
+        const virtualbox = require("virtualbox");
         virtualbox.snapshotTake(VirtualBoxManager.vmName, checkpointName, function (error, uuid)
         {
             if (error)
@@ -381,6 +388,7 @@ VirtualBoxManager.restoreCheckpoint = function (checkpointName, callback, dontAd
 
     if (Config.virtualbox && Config.virtualbox.active && Config.virtualbox.reuse_checkpoints)
     {
+        const virtualbox = require("virtualbox");
         VirtualBoxManager.checkpointExists(checkpointName, function (err, exists)
         {
             if (isNull(err))
@@ -516,6 +524,7 @@ VirtualBoxManager.restartVM = function (onlyOnce, callback)
     Logger.log("Restarting Virtualbox VM " + VirtualBoxManager.vmName);
     const performOperation = function (callback)
     {
+        const virtualbox = require("virtualbox");
         Logger.log("Restarting VM " + VirtualBoxManager.vmName);
 
         virtualbox.poweroff(VirtualBoxManager.vmName, function (error)

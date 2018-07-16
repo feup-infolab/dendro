@@ -2,7 +2,7 @@ const rlequire = require("rlequire");
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
 const fs = require("fs");
-const slug = require("slug");
+const slug = rlequire("dendro", "src/utils/slugifier.js");
 const mkdirp = require("mkdirp");
 const path = require("path");
 const winston = require("winston");

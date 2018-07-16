@@ -1,13 +1,13 @@
 // complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
+const rlequire = require("rlequire");
 const path = require("path");
 const fs = require("fs");
 const nfs = require("node-fs");
-const slug = require("slug");
 const async = require("async");
 const _ = require("underscore");
 
-const rlequire = require("rlequire");
+const slug = rlequire("dendro", "src/utils/slugifier.js");
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const DbConnection = rlequire("dendro", "src/kb/db.js").DbConnection;
 
@@ -1669,8 +1669,8 @@ Folder.prototype.undelete = function (callback, uriOfUserUnDeletingTheFolder, no
 Folder.prototype.autorename = function ()
 {
     const self = this;
-    const slug = require("slug");
-    self.nie.title = self.nie.title + "_Copy_created_" + slug(Date.now(), "_");
+    const slug = rlequire("dendro", "src/utils/slugifier.js");
+    self.nie.title = self.nie.title + "_Copy_created_" + slug(Date.now())
     return self.nie.title;
 };
 

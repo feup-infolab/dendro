@@ -14,6 +14,8 @@ function MongoDBCache (options)
     self.database = options.database;
     self.collection = options.collection;
     self.id = options.id;
+    self.username = options.username;
+    self.password = options.password;
 
     self.hits = 0;
     self.misses = 0;
@@ -37,8 +39,19 @@ MongoDBCache.prototype.open = function (callback)
     {
         return callback(1, "MongoDB connection is already open.");
     }
-    const slug = require("slug");
-    const url = "mongodb://" + self.host + ":" + self.port + "/" + slug(self.database, "_");
+    const slug = rlequire("dendro", "src/utils/slugifier.js");
+
+    let url;
+    const sluggedCollectionName = slug(self.database);
+    if (self.username && self.password && self.username !== "" && self.password !== "" && self.username !== "")
+    {
+        url = "mongodb://" + self.username + ":" + self.password + "@" + self.host + ":" + self.port + "/" + sluggedCollectionName + "?authSource=admin";
+    }
+    else
+    {
+        url = "mongodb://" + self.host + ":" + self.port + "/" + sluggedCollectionName;
+    }
+
     MongoClient.connect(url, function (err, db)
     {
         if (isNull(err))
@@ -171,7 +184,7 @@ MongoDBCache.prototype.getByQuery = function (query, callback)
         {
             if (!isNull(query))
             {
-                const cursor = self.client.collection(self.collection).find(query).sort({"ddr.modified": -1 });
+                const cursor = self.client.collection(self.collection).find(query).sort({ "ddr.modified": -1 });
 
                 cursor.next(function (err, result)
                 {

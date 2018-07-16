@@ -1,5 +1,5 @@
 const uuid = require("uuid");
-const slug = require("slug");
+const slug = rlequire("dendro", "src/utils/slugifier.js");
 
 const b2dropProjectHandle = "b2droproject" + Math.random().toString(36).substr(2, 5);
 const rlequire = require("rlequire");
