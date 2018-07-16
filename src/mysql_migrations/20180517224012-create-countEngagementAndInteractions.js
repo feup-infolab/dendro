@@ -1,9 +1,9 @@
 "use strict";
 
 module.exports = {
-    up: (queryInterface, Sequelize) => {
-        return queryInterface.sequelize.query("DROP PROCEDURE IF EXISTS countEngagementAndInteractions;").then(() => {
-            return queryInterface.sequelize.query("CREATE PROCEDURE countEngagementAndInteractions(IN userURI TEXT, IN projects TEXT, IN lastAccess TEXT)\n" +
+    up: (queryInterface, Sequelize) =>
+        queryInterface.sequelize.query("DROP PROCEDURE IF EXISTS countEngagementAndInteractions;").then(() =>
+            queryInterface.sequelize.query("CREATE PROCEDURE countEngagementAndInteractions(IN userURI TEXT, IN projects TEXT, IN lastAccess TEXT)\n" +
                 "BEGIN\n" +
                 "SET @sql = CONCAT('\n" +
                 "SELECT posts.postURI AS uri, posts.projectURI, posts.userURI AS authorURI, CAST(posts.createdAt AS DATETIME) AS created, CAST(SUM(if(events.typeId = 1, 1, 0)) AS UNSIGNED) AS likes, CAST(SUM(if(events.typeId = 2, 1, 0)) AS UNSIGNED) AS comments, CAST(SUM(if(events.typeId = 3, 1, 0)) AS UNSIGNED) AS shares, post_types.name AS postType\n" +
@@ -23,11 +23,8 @@ module.exports = {
                 "EXECUTE stmt;\n" +
                 "DEALLOCATE PREPARE stmt;\n" +
                 "    \n" +
-                "END");
-        });
-    },
+                "END")),
 
-    down: (queryInterface, Sequelize) => {
-        return queryInterface.sequelize.query("DROP PROCEDURE IF EXISTS countEngagementAndInteractions;");
-    }
+    down: (queryInterface, Sequelize) =>
+        queryInterface.sequelize.query("DROP PROCEDURE IF EXISTS countEngagementAndInteractions;")
 };

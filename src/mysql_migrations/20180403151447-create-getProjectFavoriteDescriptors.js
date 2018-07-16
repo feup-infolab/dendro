@@ -1,9 +1,9 @@
 "use strict";
 
 module.exports = {
-    up: (queryInterface, Sequelize) => {
-        return queryInterface.sequelize.query("DROP PROCEDURE IF EXISTS getProjectFavoriteDescriptors;").then(() => {
-            return queryInterface.sequelize.query("CREATE PROCEDURE getProjectFavoriteDescriptors (IN projectUri VARCHAR(255))" + " \n" +
+    up: (queryInterface, Sequelize) =>
+        queryInterface.sequelize.query("DROP PROCEDURE IF EXISTS getProjectFavoriteDescriptors;").then(() =>
+            queryInterface.sequelize.query("CREATE PROCEDURE getProjectFavoriteDescriptors (IN projectUri VARCHAR(255))" + " \n" +
                 "BEGIN \n" +
                 "SELECT DISTINCT favoritesInfo.executedOver, favoritesInfo.created, favoritesInfo.interactionType FROM interactions AS favoritesInfo \n" +
                 "JOIN interactions AS unfavoritesInfo \n" +
@@ -14,11 +14,8 @@ module.exports = {
                 "WHERE \n" +
                 "(favoritesInfo.created = (SELECT MAX(created) FROM interactions WHERE projectUri = projectUri AND interactions.interactionType in ('favorite_descriptor_from_manual_list_for_project', 'favorite_descriptor_from_quick_list_for_project', 'unfavorite_descriptor_from_quick_list_for_project') AND favoritesInfo.interactionType in ('favorite_descriptor_from_manual_list_for_project', 'favorite_descriptor_from_quick_list_for_project') AND unfavoritesInfo.interactionType in ('favorite_descriptor_from_manual_list_for_project', 'favorite_descriptor_from_quick_list_for_project') AND unfavoritesInfo.executedOver = favoritesInfo.executedOver AND interactions.executedOver = favoritesInfo.executedOver)) \n" +
                 "OR (favoritesInfo.created = (SELECT MAX(created) FROM interactions WHERE projectUri = projectUri AND interactions.interactionType in ('favorite_descriptor_from_manual_list_for_project', 'favorite_descriptor_from_quick_list_for_project', 'unfavorite_descriptor_from_quick_list_for_project') AND favoritesInfo.interactionType in ('favorite_descriptor_from_manual_list_for_project', 'favorite_descriptor_from_quick_list_for_project') AND unfavoritesInfo.interactionType = 'unfavorite_descriptor_from_quick_list_for_project' AND unfavoritesInfo.executedOver = favoritesInfo.executedOver AND interactions.executedOver = favoritesInfo.executedOver AND  unfavoritesInfo.created < favoritesInfo.created)); \n" +
-                "END");
-        });
-    },
+                "END")),
 
-    down: (queryInterface, Sequelize) => {
-        return queryInterface.sequelize.query("DROP PROCEDURE IF EXISTS getProjectFavoriteDescriptors;");
-    }
+    down: (queryInterface, Sequelize) =>
+        queryInterface.sequelize.query("DROP PROCEDURE IF EXISTS getProjectFavoriteDescriptors;")
 };

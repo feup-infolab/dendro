@@ -19,13 +19,12 @@ Post.prototype.saveToMySQL = function (callback)
         where: {
             name: typeName
         }
-    }).then(res => {
+    }).then(res =>
+    {
         self.typeId = res[0].dataValues.id;
-        return db.posts.create(self).then(() => {
-            return callback(null);
-        }).catch(err => {
-            return callback(err);
-        });
+        return db.posts.create(self).then(() =>
+            callback(null)).catch(err =>
+            callback(err));
     });
 };
 
@@ -36,7 +35,8 @@ Post.prototype.deleteFromMySQL = function (callback)
         where: {
             name: typeName
         }
-    }).then(res => {
+    }).then(res =>
+    {
         self.typeId = res[0].dataValues.id;
         db.posts.destroy({
             where: {
@@ -44,11 +44,9 @@ Post.prototype.deleteFromMySQL = function (callback)
                 userURI: self.userURI,
                 typeId: self.typeId
             }
-        }).then(() => {
-            return callback(null);
-        }).catch(err => {
-            return callback(err);
-        });
+        }).then(() =>
+            callback(null)).catch(err =>
+            callback(err));
     });
 };
 
@@ -59,18 +57,15 @@ Post.prototype.updateTimestamp = function (callback)
         updatedAt: new Date()
     }, {
         where: { postURI: self.postURI }
-    }).then(() => {
-        return db.timeline_post.destroy({
+    }).then(() =>
+        db.timeline_post.destroy({
             where: {
                 postURI: self.postURI,
                 type: "ranked"
             }
-        }).then(() => {
-            return callback(null);
-        });
-    }).catch(err => {
-        return callback(err);
-    });
+        }).then(() =>
+            callback(null))).catch(err =>
+        callback(err));
 };
 
 module.exports.Post = Post;

@@ -94,7 +94,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
 
         Project.findByUri(resourceUri, function (err, projectData)
         {
-            if(isNull(err))
+            if (isNull(err))
             {
                 if (!isNull(projectData) && projectData instanceof Project)
                 {
@@ -415,7 +415,6 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
         }
         else
         {
-
             callback(err, JSON.stringify(descriptors));
         }
     }, options.page_number, options.page_size);

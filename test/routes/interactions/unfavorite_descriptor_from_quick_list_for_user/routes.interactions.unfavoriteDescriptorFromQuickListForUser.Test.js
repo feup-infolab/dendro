@@ -729,14 +729,20 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] unfavorite_desc
                                     should.exist(res);
                                     should.exist(res.body);
                                     should.exist(res.body.descriptors);
-                                    expect(res.body.descriptors).to.be.an('array');
-                                    let demouser1DescriptorIndex = _.findIndex(res.body.descriptors, function(descriptor) { return descriptor.uri === demouser1InteractionObj.uri; });
+                                    expect(res.body.descriptors).to.be.an("array");
+                                    let demouser1DescriptorIndex = _.findIndex(res.body.descriptors, function (descriptor)
+                                    {
+                                        return descriptor.uri === demouser1InteractionObj.uri;
+                                    });
                                     should.exist(demouser1DescriptorIndex);
                                     expect(demouser1DescriptorIndex).to.be.above(-1);
                                     expect(res.body.descriptors.length).to.be.above(demouser1DescriptorIndex);
                                     should.equal(res.body.descriptors[demouser1DescriptorIndex].recommendation_types.user_favorite, undefined);
 
-                                    let demouser2DescriptorIndex = _.findIndex(res.body.descriptors, function(descriptor) { return descriptor.uri === demouser2InteractionObj.uri; });
+                                    let demouser2DescriptorIndex = _.findIndex(res.body.descriptors, function (descriptor)
+                                    {
+                                        return descriptor.uri === demouser2InteractionObj.uri;
+                                    });
                                     should.exist(demouser2DescriptorIndex);
                                     expect(demouser2DescriptorIndex).to.be.above(-1);
                                     demouser2DescriptorIndex.should.not.equal(demouser1DescriptorIndex);
@@ -793,20 +799,26 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] unfavorite_desc
                                     should.exist(res);
                                     should.exist(res.body);
                                     should.exist(res.body.descriptors);
-                                    expect(res.body.descriptors).to.be.an('array');
-                                    let demouser1DescriptorIndex = _.findIndex(res.body.descriptors, function(descriptor) { return descriptor.uri === demouser1InteractionObj.uri; });
+                                    expect(res.body.descriptors).to.be.an("array");
+                                    let demouser1DescriptorIndex = _.findIndex(res.body.descriptors, function (descriptor)
+                                    {
+                                        return descriptor.uri === demouser1InteractionObj.uri;
+                                    });
                                     should.exist(demouser1DescriptorIndex);
                                     expect(demouser1DescriptorIndex).to.be.above(-1);
                                     expect(res.body.descriptors.length).to.be.above(demouser1DescriptorIndex);
-                                    //because this descriptor was only unfavorited for demouser1 and the logged in user in this test is the demouser2
+                                    // because this descriptor was only unfavorited for demouser1 and the logged in user in this test is the demouser2
                                     should.equal(res.body.descriptors[demouser1DescriptorIndex].recommendation_types.user_favorite, undefined);
 
-                                    let demouser2DescriptorIndex = _.findIndex(res.body.descriptors, function(descriptor) { return descriptor.uri === demouser2InteractionObj.uri; });
+                                    let demouser2DescriptorIndex = _.findIndex(res.body.descriptors, function (descriptor)
+                                    {
+                                        return descriptor.uri === demouser2InteractionObj.uri;
+                                    });
                                     should.exist(demouser2DescriptorIndex);
                                     expect(demouser2DescriptorIndex).to.be.above(-1);
                                     demouser2DescriptorIndex.should.not.equal(demouser1DescriptorIndex);
                                     expect(res.body.descriptors.length).to.be.above(demouser2DescriptorIndex);
-                                    //because this descriptor was unfavorited only for demouser2 and the logged user in this test is the demouser2
+                                    // because this descriptor was unfavorited only for demouser2 and the logged user in this test is the demouser2
                                     should.equal(res.body.descriptors[demouser2DescriptorIndex].recommendation_types.user_favorite, undefined);
                                     done();
                                 });

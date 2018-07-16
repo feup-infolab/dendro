@@ -1,7 +1,7 @@
 "use strict";
 module.exports = {
-    up: (queryInterface, Sequelize) => {
-        return queryInterface.createTable("posts", {
+    up: (queryInterface, Sequelize) =>
+        queryInterface.createTable("posts", {
             postURI: {
                 allowNull: false,
                 primaryKey: true,
@@ -28,12 +28,11 @@ module.exports = {
                 allowNull: false,
                 type: Sequelize.DATE
             }
-        }).then(() => {
+        }).then(() =>
+        {
             queryInterface.addIndex("posts", ["userURI"]);
             return queryInterface.addIndex("posts", ["projectURI"]);
-        });
-    },
-    down: (queryInterface, Sequelize) => {
-        return queryInterface.dropTable("posts");
-    }
+        }),
+    down: (queryInterface, Sequelize) =>
+        queryInterface.dropTable("posts")
 };

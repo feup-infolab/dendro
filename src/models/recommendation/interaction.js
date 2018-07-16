@@ -274,7 +274,7 @@ Interaction.prototype.saveToMySQL = function (callback/*, overwrite*/)
             pageNumber: (isNull(self.ddr.pageNumber) ? -1 : self.ddr.pageNumber),
             recommendationCallId: self.ddr.recommendationCallId,
             projectUri: self.ddr.projectUri
-        }
+        };
 
         if (!isNull(self.ddr.recommendationCallTimeStamp) && typeof self.ddr.recommendationCallTimeStamp.slice(0, 19) !== "undefined")
         {
@@ -292,164 +292,21 @@ Interaction.prototype.saveToMySQL = function (callback/*, overwrite*/)
 
         dbMySQL.interactions
             .findOrCreate({where: {uri: self.uri}, defaults: insert})
-            .spread((interaction, created) => {
+            .spread((interaction, created) =>
+            {
                 if (!created)
+                {
                     return callback(1, "Interaction with URI " + self.uri + " already recorded in MYSQL.");
+                }
                 return callback(null, interaction);
-            }).catch(err => {
-                return callback(err, "Error inserting new interaction to MYSQL with URI " + self.uri);
-        });
+            }).catch(err =>
+                callback(err, "Error inserting new interaction to MYSQL with URI " + self.uri));
     };
 
     insertNewInteraction(function (err, result)
     {
         return callback(err);
     });
-
-    /*
-    const targetTable = Config.recommendation.getTargetTable();
-    const insertNewInteraction = function (callback)
-    {
-        const insertNewInteractionQuery = "INSERT INTO ?? " +
-            "(" +
-            "   uri," +
-            "   created," +
-            "   modified," +
-            "   performedBy," +
-            "   interactionType," +
-            "   executedOver," +
-            "   originallyRecommendedFor," +
-            "   rankingPosition," +
-            "   projectUri," +
-            "   pageNumber," +
-            "   recommendationCallId," +
-            "   recommendationCallTimeStamp" +
-            ")" +
-            "VALUES " +
-            "(" +
-            "   ?," +
-            "   ?," +
-            "   ?," +
-            "   ?," +
-            "   ?," +
-            "   ?," +
-            "   ?," +
-            "   ?," +
-            "   ?," +
-            "   ?," +
-            "   ?," +
-            "   ?" +
-            ");";
-
-        const inserts =
-      [
-          targetTable,
-          self.uri,
-          moment(self.ddr.created, moment.ISO_8601).format("YYYY-MM-DD HH:mm:ss"),
-          moment(self.ddr.created, moment.ISO_8601).format("YYYY-MM-DD HH:mm:ss"),
-          self.ddr.performedBy,
-          self.ddr.interactionType,
-          self.ddr.executedOver,
-          self.ddr.originallyRecommendedFor,
-          self.ddr.rankingPosition,
-          self.ddr.projectUri,
-          (isNull(self.ddr.pageNumber) ? -1 : self.ddr.pageNumber),
-          self.ddr.recommendationCallId
-      ];
-
-        if (!isNull(self.ddr.recommendationCallTimeStamp) && typeof self.ddr.recommendationCallTimeStamp.slice(0, 19) !== "undefined")
-        {
-            inserts.push(moment(self.ddr.recommendationCallTimeStamp, moment.ISO_8601).format("YYYY-MM-DD HH:mm:ss"));
-        }
-        else
-        {
-            inserts.push(null);
-        }
-
-        if (Config.debug.database.log_all_queries)
-        {
-            Logger.log(insertNewInteractionQuery);
-        }
-
-        mysql.pool.getConnection(function (err, connection)
-        {
-            if (isNull(err))
-            {
-                connection.query(
-                    insertNewInteractionQuery,
-                    inserts,
-                    function (err, rows, fields)
-                    {
-                        connection.release();
-
-                        if (isNull(err))
-                        {
-                            return callback(null, rows, fields);
-                        }
-
-                        const msg = "Error saving interaction to MySQL database : " + err;
-                        Logger.log("error", msg);
-                        return callback(1, msg);
-                    });
-            }
-            else
-            {
-                const msg = "Unable to get MYSQL connection when registering new interaction";
-                Logger.log("error", msg);
-                Logger.log("error", err.stack);
-                return callback(1, msg);
-            }
-        });
-    };
-
-    if (overwrite)
-    {
-        insertNewInteraction(function (err, rows, fields)
-        {
-            return callback(err);
-        });
-    }
-    else
-    {
-        mysql.pool.getConnection(function (err, connection)
-        {
-            if (isNull(err))
-            {
-                connection.query("SELECT * from ?? WHERE uri = ?", [targetTable, self.uri], function (err, rows, fields)
-                {
-                    connection.release();
-                    if (isNull(err))
-                    {
-                        if (!isNull(rows) && rows instanceof Array && rows.length > 0)
-                        {
-                            // an interaction with the same URI is already recorded, there must be some error!
-                            return callback(1, "Interaction with URI " + self.uri + " already recorded in MYSQL.");
-                        }
-                        // insert the new interaction
-                        insertNewInteraction(function (err, rows, fields)
-                        {
-                            if (err)
-                            {
-                                return callback(1, "Error inserting new interaction to MYSQL with URI " + self.uri);
-                            }
-                            return callback(null, rows);
-                        });
-                    }
-                    else
-                    {
-                        return callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database.");
-                    }
-                });
-            }
-            else
-            {
-                const msg = "Unable to get MYSQL connection when registering new interaction";
-                Logger.log("error", msg);
-                Logger.log("error", err.stack);
-                return callback(1, msg);
-            }
-        });
-    }*/
 };
 
 Interaction.types =

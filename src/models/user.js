@@ -403,61 +403,58 @@ User.prototype.hiddenDescriptors = function (maxResults, callback, allowedOntolo
     dbMySQL.sequelize
         .query(queryUserHiddenDescriptors,
             {replacements: { uri: self.uri }})
-        .then(result => {
-            if(isNull(result))
+        .then(result =>
+        {
+            if (isNull(result))
             {
                 return callback(null, []);
             }
-            else
+
+            async.mapSeries(result, function (row, callback)
             {
-                async.mapSeries(result, function (row, callback)
+                Descriptor.findByUri(row.executedOver, function (err, descriptor)
                 {
-                    Descriptor.findByUri(row.executedOver, function (err, descriptor) {
-                        if(isNull(err))
+                    if (isNull(err))
+                    {
+                        if (!isNull(descriptor))
                         {
-                            if(!isNull(descriptor))
+                            if (descriptor.recommendation_types != null)
                             {
-                                if(descriptor.recommendation_types != null)
-                                {
-                                    descriptor.recommendation_types.user_hidden = true;
-                                }
-                                else
-                                {
-                                    descriptor.recommendation_types = {};
-                                    descriptor.recommendation_types.user_hidden = true;
-                                }
-                                userHiddenDescriptorsList.push(descriptor);
-                                callback(null, null);
+                                descriptor.recommendation_types.user_hidden = true;
                             }
                             else
                             {
-                                const errorMsg = "Descriptor with uri: " + row.executedOver + " does not exist!";
-                                Logger.log("error", errorMsg);
-                                callback(true, errorMsg);
+                                descriptor.recommendation_types = {};
+                                descriptor.recommendation_types.user_hidden = true;
                             }
+                            userHiddenDescriptorsList.push(descriptor);
+                            callback(null, null);
                         }
                         else
                         {
-                            Logger.log("error", JSON.stringify(descriptor));
-                            callback(true, JSON.stringify(descriptor));
+                            const errorMsg = "Descriptor with uri: " + row.executedOver + " does not exist!";
+                            Logger.log("error", errorMsg);
+                            callback(true, errorMsg);
                         }
-                    });
-                }, function (err, results)
-                {
-                    if(isNull(err))
-                    {
-                        return callback(err, userHiddenDescriptorsList);
                     }
                     else
                     {
-                        return callback(err, results);
+                        Logger.log("error", JSON.stringify(descriptor));
+                        callback(true, JSON.stringify(descriptor));
                     }
                 });
-            }
+            }, function (err, results)
+            {
+                if (isNull(err))
+                {
+                    return callback(err, userHiddenDescriptorsList);
+                }
+
+                return callback(err, results);
+            });
         })
-        .catch(err => {
-            return callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database.");
-        });
+        .catch(err =>
+            callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database."));
 };
 
 User.prototype.favoriteDescriptors = function (maxResults, callback, allowedOntologies)
@@ -467,69 +464,66 @@ User.prototype.favoriteDescriptors = function (maxResults, callback, allowedOnto
     const targetTable = Config.recommendation.getTargetTable();
     let userFavoriteDescriptorsList = [];
 
-    //USING THE user uri
-    //query all the interactions of the interactions types "favorite_descriptor_from_manual_list_for_user" and "favorite_descriptor_from_quick_list_for_user" where the performedBy is done by the user
+    // USING THE user uri
+    // query all the interactions of the interactions types "favorite_descriptor_from_manual_list_for_user" and "favorite_descriptor_from_quick_list_for_user" where the performedBy is done by the user
 
     let queryUserDescriptorFavorites = "call " + Config.mySQLDBName + ".getUserFavoriteDescriptors(:uri);";
 
     dbMySQL.sequelize
         .query(queryUserDescriptorFavorites,
             {replacements: { uri: self.uri }})
-        .then(result => {
-            if(isNull(result))
+        .then(result =>
+        {
+            if (isNull(result))
             {
                 return callback(null, []);
             }
-            else
+
+            async.mapSeries(result, function (row, callback)
             {
-                async.mapSeries(result, function (row, callback)
+                Descriptor.findByUri(row.executedOver, function (err, descriptor)
                 {
-                    Descriptor.findByUri(row.executedOver, function (err, descriptor) {
-                        if(isNull(err))
+                    if (isNull(err))
+                    {
+                        if (!isNull(descriptor))
                         {
-                            if(!isNull(descriptor))
+                            if (descriptor.recommendation_types != null)
                             {
-                                if(descriptor.recommendation_types != null)
-                                {
-                                    descriptor.recommendation_types.user_favorite = true;
-                                }
-                                else
-                                {
-                                    descriptor.recommendation_types = {};
-                                    descriptor.recommendation_types.user_favorite = true;
-                                }
-                                userFavoriteDescriptorsList.push(descriptor);
-                                callback(null, null);
+                                descriptor.recommendation_types.user_favorite = true;
                             }
                             else
                             {
-                                const errorMsg = "Descriptor with uri: " + row.executedOver + " does not exist!";
-                                Logger.log("error", errorMsg);
-                                callback(true, errorMsg);
+                                descriptor.recommendation_types = {};
+                                descriptor.recommendation_types.user_favorite = true;
                             }
+                            userFavoriteDescriptorsList.push(descriptor);
+                            callback(null, null);
                         }
                         else
                         {
-                            Logger.log("error", JSON.stringify(descriptor));
-                            callback(true, JSON.stringify(descriptor));
+                            const errorMsg = "Descriptor with uri: " + row.executedOver + " does not exist!";
+                            Logger.log("error", errorMsg);
+                            callback(true, errorMsg);
                         }
-                    });
-                }, function (err, results)
-                {
-                    if(isNull(err))
-                    {
-                        return callback(err, userFavoriteDescriptorsList);
                     }
                     else
                     {
-                        return callback(err, results);
+                        Logger.log("error", JSON.stringify(descriptor));
+                        callback(true, JSON.stringify(descriptor));
                     }
                 });
-            }
+            }, function (err, results)
+            {
+                if (isNull(err))
+                {
+                    return callback(err, userFavoriteDescriptorsList);
+                }
+
+                return callback(err, results);
+            });
         })
-        .catch(err => {
-            return callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database.");
-        });
+        .catch(err =>
+            callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database."));
 };
 
 User.prototype.mostAcceptedFavoriteDescriptorsInMetadataEditor = function (maxResults, callback, allowedOntologies)

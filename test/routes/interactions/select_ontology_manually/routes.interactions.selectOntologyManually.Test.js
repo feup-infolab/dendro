@@ -29,8 +29,8 @@ let projectRootData = null;
 let dctermsUri = "http://purl.org/dc/terms/";
 let foafUri = "http://xmlns.com/foaf/0.1/";
 
-//let demouser1InteractionObj = {uri: dctermsUri};
-//let demouser2InteractionObj = {uri: foafUri};
+// let demouser1InteractionObj = {uri: dctermsUri};
+// let demouser2InteractionObj = {uri: foafUri};
 
 let demouser1InteractionObj = {};
 let demouser2InteractionObj = {};

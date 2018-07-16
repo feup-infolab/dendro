@@ -723,19 +723,26 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] favorite_descri
                                 info[0].recommendationCallId.should.equal(demouser1InteractionObj.recommendationCallId);
                                 should.exist(info[0].uri);
                                 info[0].uri.should.contain("interaction");
-                                itemUtils.getItemMetadataRecommendationsByItemUri(true, agent, demouser1InteractionObj.recommendedFor, function (err, res) {
+                                itemUtils.getItemMetadataRecommendationsByItemUri(true, agent, demouser1InteractionObj.recommendedFor, function (err, res)
+                                {
                                     should.equal(err, null);
                                     should.exist(res);
                                     should.exist(res.body);
                                     should.exist(res.body.descriptors);
-                                    expect(res.body.descriptors).to.be.an('array');
-                                    let demouser1DescriptorIndex = _.findIndex(res.body.descriptors, function(descriptor) { return descriptor.uri === demouser1InteractionObj.uri; });
+                                    expect(res.body.descriptors).to.be.an("array");
+                                    let demouser1DescriptorIndex = _.findIndex(res.body.descriptors, function (descriptor)
+                                    {
+                                        return descriptor.uri === demouser1InteractionObj.uri;
+                                    });
                                     should.exist(demouser1DescriptorIndex);
                                     expect(demouser1DescriptorIndex).to.be.above(-1);
                                     expect(res.body.descriptors.length).to.be.above(demouser1DescriptorIndex);
                                     res.body.descriptors[demouser1DescriptorIndex].recommendation_types.project_favorite.should.equal(true);
 
-                                    let demouser2DescriptorIndex = _.findIndex(res.body.descriptors, function(descriptor) { return descriptor.uri === demouser2InteractionObj.uri; });
+                                    let demouser2DescriptorIndex = _.findIndex(res.body.descriptors, function (descriptor)
+                                    {
+                                        return descriptor.uri === demouser2InteractionObj.uri;
+                                    });
                                     should.exist(demouser2DescriptorIndex);
                                     expect(demouser2DescriptorIndex).to.be.above(-1);
                                     demouser2DescriptorIndex.should.not.equal(demouser1DescriptorIndex);
@@ -786,19 +793,26 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] favorite_descri
                                 info[0].recommendationCallId.should.equal(demouser2InteractionObj.recommendationCallId);
                                 should.exist(info[0].uri);
                                 info[0].uri.should.contain("interaction");
-                                itemUtils.getItemMetadataRecommendationsByItemUri(true, agent, demouser1InteractionObj.recommendedFor, function (err, res) {
+                                itemUtils.getItemMetadataRecommendationsByItemUri(true, agent, demouser1InteractionObj.recommendedFor, function (err, res)
+                                {
                                     should.equal(err, null);
                                     should.exist(res);
                                     should.exist(res.body);
                                     should.exist(res.body.descriptors);
-                                    expect(res.body.descriptors).to.be.an('array');
-                                    let demouser1DescriptorIndex = _.findIndex(res.body.descriptors, function(descriptor) { return descriptor.uri === demouser1InteractionObj.uri; });
+                                    expect(res.body.descriptors).to.be.an("array");
+                                    let demouser1DescriptorIndex = _.findIndex(res.body.descriptors, function (descriptor)
+                                    {
+                                        return descriptor.uri === demouser1InteractionObj.uri;
+                                    });
                                     should.exist(demouser1DescriptorIndex);
                                     expect(demouser1DescriptorIndex).to.be.above(-1);
                                     expect(res.body.descriptors.length).to.be.above(demouser1DescriptorIndex);
                                     res.body.descriptors[demouser1DescriptorIndex].recommendation_types.project_favorite.should.equal(true);
 
-                                    let demouser2DescriptorIndex = _.findIndex(res.body.descriptors, function(descriptor) { return descriptor.uri === demouser2InteractionObj.uri; });
+                                    let demouser2DescriptorIndex = _.findIndex(res.body.descriptors, function (descriptor)
+                                    {
+                                        return descriptor.uri === demouser2InteractionObj.uri;
+                                    });
                                     should.exist(demouser2DescriptorIndex);
                                     expect(demouser2DescriptorIndex).to.be.above(-1);
                                     demouser2DescriptorIndex.should.not.equal(demouser1DescriptorIndex);

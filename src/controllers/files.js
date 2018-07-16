@@ -850,12 +850,14 @@ exports.upload = function (req, res)
                     if (isNull(err))
                     {
                         let post = new Post("file_upload", fileSystemPost.uri, fileSystemPost.dcterms.creator, fileSystemPost.ddr.projectUri);
-                        post.saveToMySQL(function (err) {
+                        post.saveToMySQL(function (err)
+                        {
                             if (isNull(err))
                             {
                                 Logger.log("Post \"file_upload\" saved to MySQL");
                                 let event = new Event("post", fileSystemPost.uri, fileSystemPost.dcterms.creator);
-                                event.saveToMySQL(function (err) {
+                                event.saveToMySQL(function (err)
+                                {
                                     if (isNull(err))
                                     {
                                         Logger.log("Event \"post\" saved to MySQL");
@@ -1378,12 +1380,14 @@ exports.rm = function (req, res)
                     if (isNull(error))
                     {
                         let postObj = new Post("file_delete", post.uri, post.dcterms.creator, post.ddr.projectUri);
-                        postObj.saveToMySQL(function (err) {
+                        postObj.saveToMySQL(function (err)
+                        {
                             if (isNull(err))
                             {
                                 Logger.log("Post \"file_delete\" saved to MySQL");
                                 let event = new Event("post", post.uri, post.dcterms.creator);
-                                event.saveToMySQL(function (err) {
+                                event.saveToMySQL(function (err)
+                                {
                                     if (isNull(err))
                                     {
                                         Logger.log("Event \"post\" saved to MySQL");
@@ -1447,12 +1451,14 @@ exports.rm = function (req, res)
                     if (isNull(err))
                     {
                         let postObj = new Post("rmdir", post.uri, post.dcterms.creator, post.ddr.projectUri);
-                        postObj.saveToMySQL(function (err) {
+                        postObj.saveToMySQL(function (err)
+                        {
                             if (isNull(err))
                             {
                                 Logger.log("Post \"rmdir\" saved to MySQL");
                                 let event = new Event("post", post.uri, post.dcterms.creator);
-                                event.saveToMySQL(function (err) {
+                                event.saveToMySQL(function (err)
+                                {
                                     if (isNull(err))
                                     {
                                         Logger.log("Event \"post\" saved to MySQL");
@@ -2134,12 +2140,14 @@ exports.mkdir = function (req, res)
                         if (!err)
                         {
                             let postObj = new Post("mkdir", post.uri, post.dcterms.creator, post.ddr.projectUri);
-                            postObj.saveToMySQL(function (err) {
+                            postObj.saveToMySQL(function (err)
+                            {
                                 if (isNull(err))
                                 {
                                     Logger.log("Post \"mkdir\" saved to MySQL");
                                     let event = new Event("post", post.uri, post.dcterms.creator);
-                                    event.saveToMySQL(function (err) {
+                                    event.saveToMySQL(function (err)
+                                    {
                                         if (isNull(err))
                                         {
                                             Logger.log("Event \"post\" saved to MySQL");

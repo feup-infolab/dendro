@@ -943,19 +943,17 @@ exports.getLatestInteractionInDB = function (callback)
     const latestInteractionQuery = "SELECT * FROM interactions ORDER BY ID DESC LIMIT 1" + ";\n";
     dbMySQL.sequelize
         .query(latestInteractionQuery, { type: dbMySQL.sequelize.QueryTypes.SELECT})
-        .then(result => {
-            if(isNull(result))
+        .then(result =>
+        {
+            if (isNull(result))
             {
                 return callback(null, []);
             }
-            else
-            {
-                return callback(null, result);
-            }
+
+            return callback(null, result);
         })
-        .catch(err => {
-            return callback(true, "[ERROR] Unable get the latest interaction info on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
-        })
+        .catch(err =>
+            callback(true, "[ERROR] Unable get the latest interaction info on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err));
 };
 
 exports.getNumberOfInteractionsInDB = function (callback)
@@ -963,17 +961,15 @@ exports.getNumberOfInteractionsInDB = function (callback)
     const countInteractionsQuery = "SELECT count(*) as nInteractions FROM interactions" + ";\n";
     dbMySQL.sequelize
         .query(countInteractionsQuery, { type: dbMySQL.sequelize.QueryTypes.SELECT})
-        .then(result => {
-            if(isNull(result))
+        .then(result =>
+        {
+            if (isNull(result))
             {
                 return callback(null, []);
             }
-            else
-            {
-                return callback(null, result);
-            }
+
+            return callback(null, result);
         })
-        .catch(err => {
-            return callback(true, "[ERROR] Unable to count the number of interations on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "and dbName: " + Config.mySQLDBName +  "\n Error description : " + err);
-        })
+        .catch(err =>
+            callback(true, "[ERROR] Unable to count the number of interations on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "and dbName: " + Config.mySQLDBName + "\n Error description : " + err));
 };

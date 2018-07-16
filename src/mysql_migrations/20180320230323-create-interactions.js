@@ -1,7 +1,7 @@
 "use strict";
 module.exports = {
-    up: (queryInterface, Sequelize) => {
-        return queryInterface.createTable("interactions", {
+    up: (queryInterface, Sequelize) =>
+        queryInterface.createTable("interactions", {
             id: {
                 allowNull: false,
                 autoIncrement: true,
@@ -50,7 +50,8 @@ module.exports = {
                 allowNull: false,
                 type: Sequelize.DATE
             }
-        }).then(() => {
+        }).then(() =>
+        {
             queryInterface.addIndex("interactions", ["uri"]);
             queryInterface.addIndex("interactions", ["performedBy"]);
             queryInterface.addIndex("interactions", ["interactionType"]);
@@ -58,11 +59,12 @@ module.exports = {
             queryInterface.addIndex("interactions", ["originallyRecommendedFor"]);
             queryInterface.addIndex("interactions", ["projectUri", "interactionType", "executedOver"]);
             queryInterface.addIndex("interactions", ["performedBy", "interactionType", "executedOver"]);
-            queryInterface.renameColumn("interactions", "createdAt", "created").then(() => { queryInterface.addIndex("interactions", ["created"]); });
+            queryInterface.renameColumn("interactions", "createdAt", "created").then(() =>
+            {
+                queryInterface.addIndex("interactions", ["created"]);
+            });
             return queryInterface.renameColumn("interactions", "updatedAt", "modified");
-        });
-    },
-    down: (queryInterface, Sequelize) => {
-        return queryInterface.dropTable("interactions");
-    }
+        }),
+    down: (queryInterface, Sequelize) =>
+        queryInterface.dropTable("interactions")
 };

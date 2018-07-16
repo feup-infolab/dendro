@@ -42,7 +42,7 @@ const getDescriptorsFromOntology = function (jsonOnly, agent, ontologyPrefix, cb
 
 const getResourceDescriptorsFromOntology = function (jsonOnly, agent, resourceUri, ontologyPrefix, cb)
 {
-    const path = resourceUri+ "?descriptors_from_ontology=" + ontologyPrefix;
+    const path = resourceUri + "?descriptors_from_ontology=" + ontologyPrefix;
     if (jsonOnly)
     {
         agent

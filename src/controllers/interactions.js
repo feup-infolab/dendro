@@ -2081,25 +2081,16 @@ exports.favorite_descriptor_from_manual_list_for_project = function (req, res)
     const validateBodyObject = function (req, callback)
     {
         async.waterfall([
-                function (callback)
+            function (callback)
+            {
+                if (req.body instanceof Object)
                 {
-                    if (req.body instanceof Object)
+                    try
                     {
-                        try
-                        {
-                            JSON.parse(JSON.stringify(req.body));
-                            callback(null);
-                        }
-                        catch (error)
-                        {
-                            let errorObj = {
-                                statusCode: 500,
-                                message: "Invalid request. Body contents is not a valid JSON when favoriting a descriptor from the manual list. Request body is : " + JSON.stringify(req.body)
-                            };
-                            callback(errorObj);
-                        }
+                        JSON.parse(JSON.stringify(req.body));
+                        callback(null);
                     }
-                    else
+                    catch (error)
                     {
                         let errorObj = {
                             statusCode: 500,
@@ -2107,94 +2098,103 @@ exports.favorite_descriptor_from_manual_list_for_project = function (req, res)
                         };
                         callback(errorObj);
                     }
-                },
-                function (callback)
-                {
-                    if (req.body.interactionType === Interaction.types.favorite_descriptor_from_manual_list_for_project.key)
-                    {
-                        callback(null);
-                    }
-                    else
-                    {
-                        let errorObj = {
-                            statusCode: 500,
-                            message: "Invalid interaction type in the request's body. It should be : " + Interaction.types.favorite_descriptor_from_manual_list_for_project.key
-                        };
-                        callback(errorObj);
-                    }
-                },
-                function (callback)
-                {
-                    if (!isNull(req.body.rankingPosition) && Number.isInteger(req.body.rankingPosition))
-                    {
-                        callback(null);
-                    }
-                    else
-                    {
-                        let errorObj = {
-                            statusCode: 500,
-                            message: "Invalid ranking position in the request's body. It should be an integer"
-                        };
-                        callback(errorObj);
-                    }
-                },
-                function (callback)
-                {
-                    if (!isNull(req.body.pageNumber) && Number.isInteger(req.body.pageNumber))
-                    {
-                        callback(null);
-                    }
-                    else
-                    {
-                        let errorObj = {
-                            statusCode: 500,
-                            message: "Invalid page number in the request's body. It should be an integer"
-                        };
-                        callback(errorObj);
-                    }
-                },
-                function (callback)
-                {
-                    if (!isNull(req.body.recommendationCallId))
-                    {
-                        callback(null);
-                    }
-                    else
-                    {
-                        let errorObj = {
-                            statusCode: 500,
-                            message: "Interaction type " + Interaction.types.favorite_descriptor_from_manual_list_for_project.key + " requires field recommendationCallId in the request's body."
-                        };
-                        callback(errorObj);
-                    }
-                },
-                function (callback)
-                {
-                    // recommendationCallTimeStamp
-                    if (!isNull(req.body.recommendationCallTimeStamp) && !isNaN(Date.parse(req.body.recommendationCallTimeStamp)))
-                    {
-                        callback(null);
-                    }
-                    else
-                    {
-                        let errorObj = {
-                            statusCode: 500,
-                            message: "Invalid recommendationCallTimeStamp in the request's body. It should be an valid date."
-                        };
-                        callback(errorObj);
-                    }
-                }],
-            function (err, results)
-            {
-                if (isNull(err))
-                {
-                    callback(null, null);
                 }
                 else
                 {
-                    callback(true, err);
+                    let errorObj = {
+                        statusCode: 500,
+                        message: "Invalid request. Body contents is not a valid JSON when favoriting a descriptor from the manual list. Request body is : " + JSON.stringify(req.body)
+                    };
+                    callback(errorObj);
                 }
+            },
+            function (callback)
+            {
+                if (req.body.interactionType === Interaction.types.favorite_descriptor_from_manual_list_for_project.key)
+                {
+                    callback(null);
+                }
+                else
+                {
+                    let errorObj = {
+                        statusCode: 500,
+                        message: "Invalid interaction type in the request's body. It should be : " + Interaction.types.favorite_descriptor_from_manual_list_for_project.key
+                    };
+                    callback(errorObj);
+                }
+            },
+            function (callback)
+            {
+                if (!isNull(req.body.rankingPosition) && Number.isInteger(req.body.rankingPosition))
+                {
+                    callback(null);
+                }
+                else
+                {
+                    let errorObj = {
+                        statusCode: 500,
+                        message: "Invalid ranking position in the request's body. It should be an integer"
+                    };
+                    callback(errorObj);
+                }
+            },
+            function (callback)
+            {
+                if (!isNull(req.body.pageNumber) && Number.isInteger(req.body.pageNumber))
+                {
+                    callback(null);
+                }
+                else
+                {
+                    let errorObj = {
+                        statusCode: 500,
+                        message: "Invalid page number in the request's body. It should be an integer"
+                    };
+                    callback(errorObj);
+                }
+            },
+            function (callback)
+            {
+                if (!isNull(req.body.recommendationCallId))
+                {
+                    callback(null);
+                }
+                else
+                {
+                    let errorObj = {
+                        statusCode: 500,
+                        message: "Interaction type " + Interaction.types.favorite_descriptor_from_manual_list_for_project.key + " requires field recommendationCallId in the request's body."
+                    };
+                    callback(errorObj);
+                }
+            },
+            function (callback)
+            {
+                // recommendationCallTimeStamp
+                if (!isNull(req.body.recommendationCallTimeStamp) && !isNaN(Date.parse(req.body.recommendationCallTimeStamp)))
+                {
+                    callback(null);
+                }
+                else
+                {
+                    let errorObj = {
+                        statusCode: 500,
+                        message: "Invalid recommendationCallTimeStamp in the request's body. It should be an valid date."
+                    };
+                    callback(errorObj);
+                }
+            }],
+        function (err, results)
+        {
+            if (isNull(err))
+            {
+                callback(null, null);
             }
+            else
+            {
+                callback(true, err);
+            }
+        }
         );
     };
 
@@ -2385,25 +2385,16 @@ exports.favorite_descriptor_from_manual_list_for_user = function (req, res)
     const validateBodyObject = function (req, callback)
     {
         async.waterfall([
-                function (callback)
+            function (callback)
+            {
+                if (req.body instanceof Object)
                 {
-                    if (req.body instanceof Object)
+                    try
                     {
-                        try
-                        {
-                            JSON.parse(JSON.stringify(req.body));
-                            callback(null);
-                        }
-                        catch (error)
-                        {
-                            let errorObj = {
-                                statusCode: 500,
-                                message: "Invalid request. Body contents is not a valid JSON when favoriting a descriptor from the manual list. Request body is : " + JSON.stringify(req.body)
-                            };
-                            callback(errorObj);
-                        }
+                        JSON.parse(JSON.stringify(req.body));
+                        callback(null);
                     }
-                    else
+                    catch (error)
                     {
                         let errorObj = {
                             statusCode: 500,
@@ -2411,94 +2402,103 @@ exports.favorite_descriptor_from_manual_list_for_user = function (req, res)
                         };
                         callback(errorObj);
                     }
-                },
-                function (callback)
-                {
-                    if (req.body.interactionType === Interaction.types.favorite_descriptor_from_manual_list_for_user.key)
-                    {
-                        callback(null);
-                    }
-                    else
-                    {
-                        let errorObj = {
-                            statusCode: 500,
-                            message: "Invalid interaction type in the request's body. It should be : " + Interaction.types.favorite_descriptor_from_manual_list_for_user.key
-                        };
-                        callback(errorObj);
-                    }
-                },
-                function (callback)
-                {
-                    if (!isNull(req.body.rankingPosition) && Number.isInteger(req.body.rankingPosition))
-                    {
-                        callback(null);
-                    }
-                    else
-                    {
-                        let errorObj = {
-                            statusCode: 500,
-                            message: "Invalid ranking position in the request's body. It should be an integer"
-                        };
-                        callback(errorObj);
-                    }
-                },
-                function (callback)
-                {
-                    if (!isNull(req.body.pageNumber) && Number.isInteger(req.body.pageNumber))
-                    {
-                        callback(null);
-                    }
-                    else
-                    {
-                        let errorObj = {
-                            statusCode: 500,
-                            message: "Invalid page number in the request's body. It should be an integer"
-                        };
-                        callback(errorObj);
-                    }
-                },
-                function (callback)
-                {
-                    if (!isNull(req.body.recommendationCallId))
-                    {
-                        callback(null);
-                    }
-                    else
-                    {
-                        let errorObj = {
-                            statusCode: 500,
-                            message: "Interaction type " + Interaction.types.favorite_descriptor_from_manual_list_for_user.key + " requires field recommendationCallId in the request's body."
-                        };
-                        callback(errorObj);
-                    }
-                },
-                function (callback)
-                {
-                    // recommendationCallTimeStamp
-                    if (!isNull(req.body.recommendationCallTimeStamp) && !isNaN(Date.parse(req.body.recommendationCallTimeStamp)))
-                    {
-                        callback(null);
-                    }
-                    else
-                    {
-                        let errorObj = {
-                            statusCode: 500,
-                            message: "Invalid recommendationCallTimeStamp in the request's body. It should be an valid date."
-                        };
-                        callback(errorObj);
-                    }
-                }],
-            function (err, results)
-            {
-                if (isNull(err))
-                {
-                    callback(null, null);
                 }
                 else
                 {
-                    callback(true, err);
+                    let errorObj = {
+                        statusCode: 500,
+                        message: "Invalid request. Body contents is not a valid JSON when favoriting a descriptor from the manual list. Request body is : " + JSON.stringify(req.body)
+                    };
+                    callback(errorObj);
                 }
+            },
+            function (callback)
+            {
+                if (req.body.interactionType === Interaction.types.favorite_descriptor_from_manual_list_for_user.key)
+                {
+                    callback(null);
+                }
+                else
+                {
+                    let errorObj = {
+                        statusCode: 500,
+                        message: "Invalid interaction type in the request's body. It should be : " + Interaction.types.favorite_descriptor_from_manual_list_for_user.key
+                    };
+                    callback(errorObj);
+                }
+            },
+            function (callback)
+            {
+                if (!isNull(req.body.rankingPosition) && Number.isInteger(req.body.rankingPosition))
+                {
+                    callback(null);
+                }
+                else
+                {
+                    let errorObj = {
+                        statusCode: 500,
+                        message: "Invalid ranking position in the request's body. It should be an integer"
+                    };
+                    callback(errorObj);
+                }
+            },
+            function (callback)
+            {
+                if (!isNull(req.body.pageNumber) && Number.isInteger(req.body.pageNumber))
+                {
+                    callback(null);
+                }
+                else
+                {
+                    let errorObj = {
+                        statusCode: 500,
+                        message: "Invalid page number in the request's body. It should be an integer"
+                    };
+                    callback(errorObj);
+                }
+            },
+            function (callback)
+            {
+                if (!isNull(req.body.recommendationCallId))
+                {
+                    callback(null);
+                }
+                else
+                {
+                    let errorObj = {
+                        statusCode: 500,
+                        message: "Interaction type " + Interaction.types.favorite_descriptor_from_manual_list_for_user.key + " requires field recommendationCallId in the request's body."
+                    };
+                    callback(errorObj);
+                }
+            },
+            function (callback)
+            {
+                // recommendationCallTimeStamp
+                if (!isNull(req.body.recommendationCallTimeStamp) && !isNaN(Date.parse(req.body.recommendationCallTimeStamp)))
+                {
+                    callback(null);
+                }
+                else
+                {
+                    let errorObj = {
+                        statusCode: 500,
+                        message: "Invalid recommendationCallTimeStamp in the request's body. It should be an valid date."
+                    };
+                    callback(errorObj);
+                }
+            }],
+        function (err, results)
+        {
+            if (isNull(err))
+            {
+                callback(null, null);
             }
+            else
+            {
+                callback(true, err);
+            }
+        }
         );
     };
 

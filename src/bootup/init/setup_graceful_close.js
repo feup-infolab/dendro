@@ -132,7 +132,7 @@ const setupGracefulClose = function (app, server, callback)
 
         const closeMySQLConnectionPool = function (cb)
         {
-            /*Config.getMySQLByID().pool.end(function (err)
+            /* Config.getMySQLByID().pool.end(function (err)
             {
                 if (isNull(err))
                 {
@@ -150,7 +150,7 @@ const setupGracefulClose = function (app, server, callback)
 
                 cb(err, null);
             });*/
-            /*Config.getMySQLByID().sequelize.close().then(() => {
+            /* Config.getMySQLByID().sequelize.close().then(() => {
                 Logger.log("info", "Closed MySQL connection pool");
                 cb(null, null);
             }).catch(err => {
@@ -207,35 +207,35 @@ const setupGracefulClose = function (app, server, callback)
         const waitForPendingConnectionsToFinishup = function (cb)
         {
             let count = 0;
-            //if (!isNull(self.server))
+            // if (!isNull(self.server))
             if (!isNull(server))
             {
                 Logger.log("Waiting for pending connections to finish up...");
                 async.during(function (callback)
+                {
+                    if (count > 20)
                     {
-                        if (count > 20)
+                        Logger.log("warn", "Still pending connections even after " + count + " attempts!");
+                        callback(null);
+                    }
+                    else
+                    {
+                        // self.server.getConnections(function (err, connections)
+                        server.getConnections(function (err, connections)
                         {
-                            Logger.log("warn", "Still pending connections even after " + count + " attempts!");
-                            callback(null);
-                        }
-                        else
-                        {
-                            //self.server.getConnections(function (err, connections)
-                            server.getConnections(function (err, connections)
-                            {
-                                callback(err, (connections > 0));
-                            });
-                        }
-                    },
-                    function (callback)
-                    {
-                        count++;
-                        setTimeout(callback, 1000);
-                    },
-                    function (err, result)
-                    {
-                        cb(err, result);
-                    });
+                            callback(err, (connections > 0));
+                        });
+                    }
+                },
+                function (callback)
+                {
+                    count++;
+                    setTimeout(callback, 1000);
+                },
+                function (err, result)
+                {
+                    cb(err, result);
+                });
             }
             else
             {

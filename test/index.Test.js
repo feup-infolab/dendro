@@ -44,8 +44,7 @@ require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
 // require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/folderExportCkan/__export_to_repository/routes.project.privateProject.data.folderExportCkan.__export_to_repository[CKAN].Test.js"));
 // END *** THESE TESTS NEED TO BE REVISITED AFTER FIXING TEST ASSERTIONS WITH TRY CATCH
 
-
-//BEGIN interaction tests
+// BEGIN interaction tests
 
 // /interactions/select_ontology_manually
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/select_ontology_manually/routes.interactions.selectOntologyManually.Test.js"));
@@ -53,10 +52,10 @@ require(Pathfinder.absPathInTestsFolder("/routes/interactions/select_ontology_ma
 // /interactions/favorite_descriptor_from_quick_list_for_project
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/favorite_descriptor_from_quick_list_for_project/routes.interactions.favoriteDescriptorFromQuickListForProject.Test.js"));
 
-//favorite_descriptor_from_manual_list_for_project
+// favorite_descriptor_from_manual_list_for_project
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/favorite_descriptor_from_manual_list_for_project/routes.interactions.favoriteDescriptorFromManualListForProject.Test.js"));
 
-//favorite_descriptor_from_manual_list_for_user
+// favorite_descriptor_from_manual_list_for_user
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/favorite_descriptor_from_manual_list_for_user/routes.interactions.favoriteDescriptorFromManualListForUser.Test.js"));
 
 // favorite_descriptor_from_quick_list_for_user
@@ -92,10 +91,10 @@ require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_descriptor_
 
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_descriptor_from_manual_list_while_it_was_a_project_favorite/routes.interactions.acceptDescriptorFromManualListWhileItWasAProjectFavorite.Test.js"));
 
-//accept_descriptor_from_manual_list_while_it_was_a_user_favorite
+// accept_descriptor_from_manual_list_while_it_was_a_user_favorite
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_favorite/routes.interactions.acceptDescriptorFromManualListWhileItWasAUserFavorite.Test.js"));
 
-//accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite
+// accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite/routes.interactions.acceptDescriptorFromManualListWhileItWasAUserAndProjectFavorite.Test.js"));
 
 // /interactions/accept_descriptor_from_autocomplete
@@ -112,7 +111,6 @@ require(Pathfinder.absPathInTestsFolder("/routes/interactions/accept_favorite_de
 
 // /interactions/delete_descriptor_in_metadata_editor
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/delete_descriptor_in_metadata_editor/routes.interactions.deleteDescriptorInMetadataEditor.Test.js"));
-
 
 // /interactions/fill_in_descriptor_from_manual_list_in_metadata_editor
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/fill_in_descriptor_from_manual_list_in_metadata_editor/routes.interactions.fillInDescriptorFromManualListInMetadataEditor.Test.js"));
@@ -143,7 +141,7 @@ require(Pathfinder.absPathInTestsFolder("/routes/interactions/fill_in_inherited_
 
 // /interactions/delete_all
 require(Pathfinder.absPathInTestsFolder("/routes/interactions/delete_all/routes.interactions.deleteAll.Test.js"));
-//END interaction tests
+// END interaction tests
 
 // list orphan resources tests /admin/list_orphan_resources
 require(Pathfinder.absPathInTestsFolder("/routes/admin/list_orphan_resources/routes.admin.listOrphanResources.Test.js"));

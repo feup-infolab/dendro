@@ -39,9 +39,11 @@ const addPostsToTimeline = function (posts, nextPosition, timelineId, callback)
     {
         return dbMySQL.timeline_post.bulkCreate(posts).then(function ()
         {
-            return dbMySQL.timeline.update({ nextPosition: nextPosition }, { where: { id: timelineId } }).then(function () {
+            return dbMySQL.timeline.update({ nextPosition: nextPosition }, { where: { id: timelineId } }).then(function ()
+            {
                 return callback();
-            }).catch(function (err) {
+            }).catch(function (err)
+            {
                 console.log(err);
             });
         });
@@ -158,7 +160,8 @@ const getAllPosts = function (projectUrisArray, callback, nextPosition, lastAcce
             dbMySQL.sequelize
                 .query(queryEngagement,
                     {replacements: { date: lastDate }, type: dbMySQL.sequelize.QueryTypes.SELECT})
-                .then(posts => {
+                .then(posts =>
+                {
                     // let newPosts = Object.keys(posts).map(function (k) { return posts[k]; });
                     console.log(posts);
                     if (posts.length > 0)
@@ -171,7 +174,8 @@ const getAllPosts = function (projectUrisArray, callback, nextPosition, lastAcce
                     // else
                     return getPostsPerPage(startingResultPosition, maxResults, timelineId, callback);
                 })
-                .catch(err => {
+                .catch(err =>
+                {
                     console.log(err);
                     return callback(true, "Error fetching posts in getAllPosts");
                 });
@@ -200,15 +204,30 @@ const getRankedPosts = function (projectUrisArray, callback, userUri, nextPositi
     const getMaximumNumbers = function (posts, interactions, now)
     {
         let maxs = {likes: -1, comments: -1, shares: -1, interactions: -1, time: -1};
-        maxs.likes = Math.max.apply(Math, posts.map(function (post) { return post.likes; }));
+        maxs.likes = Math.max.apply(Math, posts.map(function (post)
+        {
+            return post.likes;
+        }));
         maxs.likes = maxs.likes === 0 ? 1 : maxs.likes;
-        maxs.comments = Math.max.apply(Math, posts.map(function (post) { return post.comments; }));
+        maxs.comments = Math.max.apply(Math, posts.map(function (post)
+        {
+            return post.comments;
+        }));
         maxs.comments = maxs.comments === 0 ? 1 : maxs.comments;
-        maxs.shares = Math.max.apply(Math, posts.map(function (post) { return post.shares; }));
+        maxs.shares = Math.max.apply(Math, posts.map(function (post)
+        {
+            return post.shares;
+        }));
         maxs.shares = maxs.shares === 0 ? 1 : maxs.shares;
-        maxs.interactions = Math.max.apply(Math, interactions.map(function (project) { return project.interactions; }));
+        maxs.interactions = Math.max.apply(Math, interactions.map(function (project)
+        {
+            return project.interactions;
+        }));
         maxs.interactions = maxs.interactions === 0 ? 1 : maxs.interactions;
-        maxs.time = Math.max.apply(Math, posts.map(function (post) { return getTimeScore(post.created, now); }));
+        maxs.time = Math.max.apply(Math, posts.map(function (post)
+        {
+            return getTimeScore(post.created, now);
+        }));
         maxs.time = maxs.time === 0 ? 1 : maxs.time;
         return maxs;
     };
@@ -255,9 +274,16 @@ const getRankedPosts = function (projectUrisArray, callback, userUri, nextPositi
             dbMySQL.sequelize
                 .query(queryEngagement,
                     {replacements: { user: "'" + userUri + "'", projects: projectsUris, lastAccess: "'" + lastDate + "'" }, type: dbMySQL.sequelize.QueryTypes.SELECT})
-                .spread((posts, interactions) => {
-                    let newPosts = Object.keys(posts).map(function (k) { return posts[k]; });
-                    let interactionsArray = Object.keys(interactions).map(function (k) { return interactions[k]; });
+                .spread((posts, interactions) =>
+                {
+                    let newPosts = Object.keys(posts).map(function (k)
+                    {
+                        return posts[k];
+                    });
+                    let interactionsArray = Object.keys(interactions).map(function (k)
+                    {
+                        return interactions[k];
+                    });
                     let now = new Date();
                     let maxs = getMaximumNumbers(newPosts, interactionsArray, now);
                     newPosts.sort(function (post1, post2)
@@ -282,7 +308,8 @@ const getRankedPosts = function (projectUrisArray, callback, userUri, nextPositi
                     // else
                     return getPostsPerPage(startingResultPosition, maxResults, timelineId, callback);
                 })
-                .catch(err => {
+                .catch(err =>
+                {
                     console.log(err);
                     return callback(true, "Error fetching posts in getRankedPosts");
                 });
@@ -840,7 +867,7 @@ exports.getPosts_controller = function (req, res)
                 }, null, db_social.graphUri, false, null, null);
             }, function (err, results)
             {
-                if(isNull(err))
+                if (isNull(err))
                 {
                     cb(err, postsInfo);
                 }
@@ -875,7 +902,7 @@ exports.getPosts_controller = function (req, res)
             }
             else
             {
-                if(!(typeof postInfo === "string" || postInfo instanceof String))
+                if (!(typeof postInfo === "string" || postInfo instanceof String))
                 {
                     postInfo = JSON.stringify(postInfo);
                 }
@@ -1060,7 +1087,8 @@ exports.all = function (req, res)
                     };
                     dbMySQL.timeline
                         .findOrCreate({where: {userURI: req.user.uri, type: type}, defaults: newTimeline})
-                        .spread((timeline, created) => {
+                        .spread((timeline, created) =>
+                        {
                             if (currentPage === 1)
                             {
                                 if (!useRank)
@@ -1084,7 +1112,8 @@ exports.all = function (req, res)
                             {
                                 getRankedPostsPerPage(index, maxResults, timeline.id, cb);
                             }
-                        }).catch(err => {
+                        }).catch(err =>
+                        {
                             console.log(err);
                         });
                     /* dbMySQL.timeline
@@ -1186,12 +1215,14 @@ exports.new = function (req, res)
                                         if (!err)
                                         {
                                             let post = new PostObj("manual", manualPost.uri, currentUserUri, req.body.newPostProjectUri);
-                                            post.saveToMySQL(function (err) {
+                                            post.saveToMySQL(function (err)
+                                            {
                                                 if (isNull(err))
                                                 {
                                                     Logger.log("Post \"manual\" saved to MySQL");
                                                     let event = new Event("post", manualPost.uri, currentUserUri);
-                                                    event.saveToMySQL(function (err) {
+                                                    event.saveToMySQL(function (err)
+                                                    {
                                                         if (isNull(err))
                                                         {
                                                             Logger.log("Event \"post\" saved to MySQL");
@@ -1200,10 +1231,8 @@ exports.new = function (req, res)
                                                                 message: "Manual Post " + manualPost.uri + " successfully created"
                                                             });
                                                         }
-                                                        else
-                                                        {
-                                                            return Logger.log("error", err);
-                                                        }
+
+                                                        return Logger.log("error", err);
                                                     });
                                                 }
                                                 else
@@ -1408,12 +1437,14 @@ exports.share = function (req, res)
                                 if (isNull(err))
                                 {
                                     let newPost = new PostObj("share", newShare.uri, currentUser.uri, post.ddr.projectUri);
-                                    newPost.saveToMySQL(function (err) {
+                                    newPost.saveToMySQL(function (err)
+                                    {
                                         if (isNull(err))
                                         {
                                             Logger.log("Post \"share\" saved to MySQL");
                                             let event = new Event("share", newShare.uri, currentUser.uri);
-                                            event.saveToMySQL(function (err) {
+                                            event.saveToMySQL(function (err)
+                                            {
                                                 if (isNull(err))
                                                 {
                                                     Logger.log("Event \"share\" saved to MySQL");
@@ -1585,7 +1616,8 @@ exports.comment = function (req, res)
                         if (isNull(err))
                         {
                             let event = new Event("comment", post.uri, currentUser.uri);
-                            event.saveToMySQL(function (err) {
+                            event.saveToMySQL(function (err)
+                            {
                                 if (isNull(err))
                                 {
                                     Logger.log("Event \"comment\" saved to MySQL");
@@ -1596,7 +1628,8 @@ exports.comment = function (req, res)
                                 }
                             });
                             let postObj = new PostObj(null, post.uri, null, null);
-                            postObj.updateTimestamp(function (err) {
+                            postObj.updateTimestamp(function (err)
+                            {
                                 if (isNull(err))
                                 {
                                     Logger.log("Updated post timestamp upon new comment.");
@@ -1733,7 +1766,8 @@ exports.like = function (req, res)
                 {
                     // like was removed
                     let event = new Event("like", req.body.postID, currentUser.uri, "");
-                    event.deleteFromMySQL(function (err) {
+                    event.deleteFromMySQL(function (err)
+                    {
                         if (isNull(err))
                         {
                             Logger.log("Event \"like\" deleted from MySQL");
@@ -1784,7 +1818,8 @@ exports.like = function (req, res)
                                 if (isNull(err))
                                 {
                                     let event = new Event("like", post.uri, currentUser.uri);
-                                    event.saveToMySQL(function (err) {
+                                    event.saveToMySQL(function (err)
+                                    {
                                         if (isNull(err))
                                         {
                                             Logger.log("Event \"like\" saved to MySQL");
@@ -2296,22 +2331,27 @@ exports.move = function (req, res)
         }
         dbMySQL.timeline
             .findOne({where: {userURI: currentUser.uri, type: type}})
-            .then((timeline) => {
+            .then((timeline) =>
+            {
                 dbMySQL.timeline_post.update(
                     { fixedPosition: position },
                     { where: { fixedPosition: position + move, timelineId: timeline.id }
-                    }).then(() => {
+                    }).then(() =>
+                {
                     dbMySQL.timeline_post.update(
                         { fixedPosition: position + move },
                         { where: { postURI: postURI, timelineId: timeline.id } }
-                    ).then(() => {
+                    ).then(() =>
+                    {
                         res.json("success");
-                    }).catch(err => {
+                    }).catch(err =>
+                    {
                         console.log(err);
                         res.json("error");
                     });
                 });
-            }).catch(err => {
+            }).catch(err =>
+            {
                 console.log(err);
             });
     }

@@ -1021,15 +1021,15 @@ Resource.prototype.replaceDescriptorsInTripleStore = function (newDescriptors, d
  */
 
 Resource.prototype.save = function
-    (
-        callback,
-        saveVersion,
-        entitySavingTheResource,
-        descriptorsToExcludeFromChangesCalculation,
-        descriptorsToExcludeFromChangeLog,
-        descriptorsToExceptionFromChangeLog,
-        customGraphUri
-    )
+(
+    callback,
+    saveVersion,
+    entitySavingTheResource,
+    descriptorsToExcludeFromChangesCalculation,
+    descriptorsToExcludeFromChangeLog,
+    descriptorsToExceptionFromChangeLog,
+    customGraphUri
+)
 {
     const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
     const self = this;

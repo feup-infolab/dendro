@@ -1,5 +1,6 @@
 "use strict";
-module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize, DataTypes) =>
+{
     var interactions = sequelize.define("interactions", {
         uri: DataTypes.STRING,
         projectUri: DataTypes.STRING,
@@ -28,7 +29,8 @@ module.exports = (sequelize, DataTypes) => {
         createdAt: "created",
         updatedAt: "modified"
     });
-    interactions.associate = function (models) {
+    interactions.associate = function (models)
+    {
         // associations can be defined here
     };
     return interactions;

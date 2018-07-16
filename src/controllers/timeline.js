@@ -44,7 +44,8 @@ exports.my = function (req, res)
     };
     dbMySQL.timeline
         .findOrCreate({where: {userURI: req.user.uri, type: type}, defaults: newTimeline})
-        .spread((timeline, created) => {
+        .spread((timeline, created) =>
+        {
             if (!created)
             {
                 getURIsAndRender(useRank, timeline.nextPosition, timeline.lastAccess, timeline.id);
@@ -53,7 +54,8 @@ exports.my = function (req, res)
                 });
             }
             getURIsAndRender(useRank, timeline.nextPosition, null, timeline.id);
-        }).catch(err => {
+        }).catch(err =>
+        {
             console.log(err);
         });
 };
