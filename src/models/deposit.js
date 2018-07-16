@@ -16,6 +16,7 @@ const Class = rlequire("dendro", "src//models/meta/class.js").Class;
 const Elements = rlequire("dendro", "src//models/meta/elements.js").Elements;
 const db = Config.getDBByID();
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const StorageConfig = rlequire("dendro", "src/models/storage/storageConfig.js").StorageConfig;
 
 const B2ShareClient = require("@feup-infolab/node-b2share-v2");
 
@@ -62,16 +63,29 @@ Deposit.createDepositRegistry = function (data, callback) {
 
       console.log("creating registry from deposit\n" + util.inspect(object));
 
-      //save deposited contents to dendro
-      Deposit.saveContents({newDeposit: newRegistry, content: content}, function(err, msg){
-        newRegistry.save(function(err, newRegistry){
-          if(!err){
-            callback(err, newRegistry);
-          } else{
-            callback(err, "not good");
-          }
-        });
+      let storageConf = new StorageConfig({
+        ddr: {
+          hasStorageType: "local"
+        }
       });
+
+      storageConf.save(function (err, savedConfiguration)
+      {
+        if (isNull(err)) {
+          newRegistry.ddr.hasStorageConfig = savedConfiguration.uri;
+          //save deposited contents to dendro
+          Deposit.saveContents({newDeposit: newRegistry, content: content}, function(err, msg){
+            newRegistry.save(function(err, newRegistry){
+              if(!err){
+                callback(err, newRegistry);
+              } else{
+                callback(err, "not good");
+              }
+            });
+          });
+        }
+      });
+
 
 
     }else{
@@ -468,12 +482,11 @@ Deposit.saveContents = function(params, callback){
             let content = params.content;
             //TODO check if file or folder
             content.copyPaste({destinationFolder: rootFolder}, function(err, msg){
-              a = 3;
+              callback(err, newDeposit);
             });
 
             //pass contents here
 
-            return callback(err, newDeposit);
           }
           else
           {

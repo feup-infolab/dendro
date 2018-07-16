@@ -1155,9 +1155,19 @@ export_to_dendro = function (req, res)
                             }
 
                         };
-                        Deposit.createDepositRegistry({registryData: registryData, requestedResource: file}, function (err, msg)
+                        Deposit.createDepositRegistry({registryData: registryData, requestedResource: file}, function (err, registry)
                         {
-
+                          let msg = "<br/><br/>Deposited successfully to Dendro. Check deposit <a href='" + registry.uri + "'>here<\/a>";
+                          /*if (!isNull(body.data) && !isNull(body.data.metadata) && typeof body.data.metadata.ePIC_PID !== "undefined")
+                          {
+                            msg = msg + "<br/><br/><a href='" + body.data.metadata.ePIC_PID + "'>Click to see your published dataset<\/a>";
+                          }*/
+                          res.json(
+                            {
+                              result: "OK",
+                              message: msg
+                            }
+                          );
                         });
                     }
                 });

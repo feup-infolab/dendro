@@ -354,7 +354,7 @@ InformationElement.prototype.getOwnerDeposit = function (callback)
       {
         if (result instanceof Array && result.length === 1)
         {
-          const Deposit = require(Pathfinder.absPathInSrcFolder("/models/deposit.js")).Deposit;
+          const Deposit = rlequire("dendro", "src/models/deposit.js").Deposit;
           Deposit.findByUri(result[0].uri, function (err, deposit)
           {
             callback(err, deposit);
@@ -405,8 +405,8 @@ InformationElement.prototype.needsRenaming = function (callback, newTitle, paren
                             }
                             else
                             {
-                                const Deposit = require(Pathfinder.absPathInSrcFolder("/models/deposit.js")).Deposit;
-                                Deposit.findByUri(parentUri, function (err, deposit)
+                              const Deposit = rlequire("dendro", "src/models/deposit.js").Deposit;
+                              Deposit.findByUri(parentUri, function (err, deposit)
                                 {
                                     if (isNull(err))
                                     {

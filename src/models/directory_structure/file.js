@@ -228,48 +228,42 @@ File.prototype.copyPaste = function ({destinationFolder}, callback)
     const self = this;
     self.writeToTempFile(function (err, writtenFilePath)
     {
+      if (isNull(err))
+      {
         const newFile = new File({
           nie: {
             title: self.nie.title,
             isLogicalPartOf: destinationFolder.uri
           }
         });
-      if (isNull(err))
-      {
-        destinationFolder.nie.hasLogicalPart = newFile.uri;
-        return callback(null, {
-          result: "success",
-          message: "File copied successfully.",
-          uri: newFile.uri
+        newFile.saveWithFileAndContents(writtenFilePath, function (err, newFile)
+        {
+          if (isNull(err))
+          {
+            destinationFolder.nie.hasLogicalPart = newFile.uri;
+            return callback(null, {
+              result: "success",
+              message: "File copied successfully.",
+              uri: newFile.uri
+            });
+          }
+          const msg = "Error [" + err + "] reindexing file [" + newFile.uri + "]in GridFS :" + newFile;
+          return callback(500, {
+            result: "error",
+            message: "Unable to save files after buffering: " + JSON.stringify(newFile),
+            files: files,
+            errors: newFile
+          });
         });
-      }else{
+      }else {
         const msg = "Error [" + err + "] reindexing file [" + newFile.uri + "]in GridFS :" + newFile;
         return callback(500, {
           result: "error",
           message: "Unable to save files after buffering: " + JSON.stringify(newFile),
-          files: newFile,
-          errors: newFile
+          errors: err
         });
 
-        newFile.saveWithFileAndContents(writtenFilePath, function (err, newFile)
-        {
-            if (isNull(err))
-            {
-                destinationFolder.nie.hasLogicalPart = newFile.uri;
-                return callback(null, {
-                    result: "success",
-                    message: "File copied successfully.",
-                    uri: newFile.uri
-                });
-            }
-            const msg = "Error [" + err + "] reindexing file [" + newFile.uri + "]in GridFS :" + newFile;
-            return callback(500, {
-                result: "error",
-                message: "Unable to save files after buffering: " + JSON.stringify(newFile),
-                files: files,
-                errors: newFile
-            });
-        });
+      }
     });
 };
 
@@ -734,7 +728,7 @@ File.prototype.loadFromLocalFile = function (localFile, callback)
         else
         {
             self.getOwnerDeposit(function(err, ownerDeposit){
-                const Deposit = require(Pathfinder.absPathInSrcFolder("/models/deposit.js")).Deposit;
+              const Deposit = rlequire("dendro", "src/models/deposit.js").Deposit;
                 if(isNull && ownerDeposit instanceof Deposit){
                   /** SAVE FILE**/
                   self.getDepositStorage(function (err, storageConnection)
@@ -1585,17 +1579,17 @@ File.prototype.getDepositStorage = function (callback)
   {
     if (isNull(err))
     {
-      const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+      const Deposit = rlequire("dendro", "src/models/deposit.js").Deposit;
       if (isNull && ownerDeposit instanceof Deposit)
       {
-        ownerProject.getActiveStorageConnection(function (err, connection)
+        ownerDeposit.getActiveStorageConnection(function (err, connection)
         {
           callback(err, connection);
         });
       }
       else
       {
-        callback(err, ownerProject);
+        callback(err, ownerDeposit);
       }
     }
     else

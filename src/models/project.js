@@ -1763,7 +1763,7 @@ Project.prototype.clearCacheRecords = function (callback, customGraphUri)
     );
 };
 
-Project.prototype.getActiveStorageConfig = function (callback, customGraphUri)
+/*Project.prototype.getActiveStorageConfig = function (callback, customGraphUri)
 {
     const self = this;
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
@@ -1866,7 +1866,7 @@ Project.prototype.deleteAllStorageConfigs = function (callback, customGraphUri)
             callback(err, configs);
         }
     });
-};
+};*/
 
 Project.prototype.delete = function (callback, customGraphUri)
 {
