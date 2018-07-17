@@ -3,20 +3,20 @@ process.env.NODE_ENV = "test";
 const chai = require("chai");
 const chaiHttp = require("chai-http");
 chai.use(chaiHttp);
+const rlequire = require("rlequire");
 
-const Config = global.Config;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const should = chai.should();
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
 
-const administerUtils = require(Pathfinder.absPathInTestsFolder("utils/administer/administerUtils.js"));
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
+const administerUtils = rlequire("dendro", "test/utils/administer/administerUtils.js");
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
-const admin = require(Pathfinder.absPathInTestsFolder("mockdata/users/admin"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1");
+const admin = rlequire("dendro", "test/mockdata/users/admin");
 
-const addMetadataToFoldersSingleProjectUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFoldersSingleProject.Unit.js"));
-const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
+const AddMetadataToFoldersPublicProject = rlequire("dendro", "test/units/metadata/addMetadataToFoldersPublicProject.Unit.js");
 
 let app;
 let agent;
@@ -26,7 +26,7 @@ describe("Resource re-indexing page ( /admin/reindex )", function (done)
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        addMetadataToFoldersSingleProjectUnit.setup(publicProject, function (err, res)
+        AddMetadataToFoldersPublicProject.setup(function (err, res)
         {
             should.equal(err, null);
             app = global.tests.app;

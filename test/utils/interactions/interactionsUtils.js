@@ -1,7 +1,7 @@
-const Pathfinder = global.Pathfinder;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const dbMySQL = require(Pathfinder.absPathInSrcFolder("mysql_models"));
+const rlequire = require("rlequire");
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const isNull = rlequire("dendro", "src//utils/null.js").isNull;
+const dbMySQL = rlequire("dendro", "src/mysql_models");
 
 exports.recordInteraction = function (jsonOnly, folderUri, projectHandle, interactionData, agent, cb)
 {

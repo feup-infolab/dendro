@@ -7,24 +7,24 @@ const fs = require("fs");
 const path = require("path");
 chai.use(chaiHttp);
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
-const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-const descriptorUtils = require(Pathfinder.absPathInTestsFolder("utils/descriptor/descriptorUtils.js"));
-const interactionsUtils = require(Pathfinder.absPathInTestsFolder("utils/interactions/interactionsUtils.js"));
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const fileUtils = rlequire("dendro", "test/utils/file/fileUtils.js");
+const projectUtils = rlequire("dendro", "test/utils/project/projectUtils.js");
+const itemUtils = rlequire("dendro", "test/utils/item/itemUtils.js");
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
+const descriptorUtils = rlequire("dendro", "test/utils/descriptor/descriptorUtils.js");
+const interactionsUtils = rlequire("dendro", "test/utils/interactions/interactionsUtils.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
-const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");
+const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2.js");
+const demouser3 = rlequire("dendro", "test/mockdata/users/demouser3.js");
 
-const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
+const publicProject = rlequire("dendro", "test/mockdata/projects/public_project.js");
 
-const createFilesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/files/createFiles.Unit.js"));
+const createFilesUnit = rlequire("dendro", "test/units/files/createFiles.Unit.js");
 
 /* let bodyObj = {
     "prefix": "dcterms",

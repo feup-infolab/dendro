@@ -2,6 +2,8 @@ process.env.NODE_ENV = "test";
 
 const chai = require("chai");
 const chaiHttp = require("chai-http");
+const rlequire = require("rlequire");
+
 chai.use(chaiHttp);
 
 describe("/", function ()
@@ -9,7 +11,7 @@ describe("/", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        require(Pathfinder.absPathInTestsFolder("bootup.Unit.js"));
+        rlequire("dendro", "test/bootup.Unit.js");
         done();
     });
 

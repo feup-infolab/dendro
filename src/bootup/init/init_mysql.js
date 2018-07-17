@@ -1,9 +1,10 @@
+const rlequire = require("rlequire");
+const async = require("async");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+let isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const Sequelize = require("sequelize");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const Umzug = require("umzug");
-let isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const initMySQL = function (app, callback)
 {
@@ -30,13 +31,25 @@ const initMySQL = function (app, callback)
                     {
                         Logger.log("error", "Error creating database in MySQL: " + Config.mySQLDBName);
                         return callback(err, null);
-                    });
+                   });
             })
             .catch(err =>
-                callback(err, null));
+            {
+              Logger.log("error", "Error authenticating in MySQL database : " + Config.mySQLDBName);
+              Logger.log("error", "Error authenticating in MySQL database : " + Config.mySQLDBName);
+              return callback(err, null);
+            });
     };
 
-    createDatabase(function (err, result)
+    async.retry({
+        times: 240,
+        interval: function (retryCount)
+        {
+            const msecs = 500;
+            Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to determine ElasticSearch cluster health");
+            return msecs;
+        }
+    }, createDatabase, function (err)
     {
         if (!isNull(err))
         {
@@ -62,7 +75,8 @@ const initMySQL = function (app, callback)
             storageOptions: { sequelize: sequelize },
             migrations: {
                 params: [sequelize.getQueryInterface(), Sequelize],
-                path: Pathfinder.absPathInSrcFolder("/mysql_migrations")}
+                path: rlequire.absPathInApp("dendro", "src/mysql_migrations")
+            }
         });
 
         return umzug.up().then(function ()

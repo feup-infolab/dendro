@@ -1,8 +1,7 @@
-let app = require("../app");
-let postController = require("../controllers/posts");
+const rlequire = require("rlequire");
 
-const Pathfinder = global.Pathfinder;
-const dbMySQL = require(Pathfinder.absPathInSrcFolder("mysql_models"));
+let postController = rlequire("dendro", "src/controllers/posts");
+const dbMySQL = rlequire("dendro", "src/mysql_models/index");
 
 exports.my = function (req, res)
 {

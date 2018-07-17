@@ -1,13 +1,13 @@
 const path = require("path");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const md5File = require("md5-file");
 
 module.exports = {
-    md5: md5File.sync(Pathfinder.absPathInApp("/test/mockdata/files/test_folder_restore/folderWithAZipInside.zip")),
+    md5: md5File.sync(rlequire.absPathInApp("dendro", "test/mockdata/files/test_folder_restore/folderWithAZipInside.zip")),
     name: "folderWithAZipInside.zip",
     extension: "zip",
-    location: Pathfinder.absPathInApp("/test/mockdata/files/test_folder_restore/folderWithAZipInside.zip"),
+    location: rlequire.absPathInApp("dendro", "test/mockdata/files/test_folder_restore/folderWithAZipInside.zip"),
     metadata: [
         {
             prefix: "dcterms",

@@ -1,23 +1,20 @@
 const path = require("path");
-const slug = require("slug");
+const rlequire = require("rlequire");
+const slug = rlequire("dendro", "src/utils/slugifier.js");
 const mkdirp = require("mkdirp");
 const pm2 = require("pm2");
 const _ = require("underscore");
 const async = require("async");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const fs = require("fs");
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
-const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const IndexConnection = rlequire("dendro", "src/kb/index.js").IndexConnection;
+const Resource = rlequire("dendro", "src/models/resource.js").Resource;
 
-const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
-const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-const User = require(Pathfinder.absPathInSrcFolder("models/user.js")).User;
-const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
-const DendroMongoClient = require(Pathfinder.absPathInSrcFolder("/kb/mongo.js")).DendroMongoClient;
-const Serializers = require(Pathfinder.absPathInSrcFolder("/utils/serializers.js"));
+const User = rlequire("dendro", "src/models/user.js").User;
+const Project = rlequire("dendro", "src/models/project.js").Project;
+const DendroMongoClient = rlequire("dendro", "src/kb/mongo.js").DendroMongoClient;
 
 let classesToReindex = [User, Project];
 
@@ -26,7 +23,7 @@ let lastIndexingOK;
 
 const gfs = Config.getGFSByID();
 
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 module.exports.home = function (req, res)
 {
@@ -149,7 +146,7 @@ module.exports.reindex = function (req, res)
                 // delete current index if requested
                 function (callback)
                 {
-                    indexConnection.create_new_index(1, 1, deleteBeforeReindexing, function (err, result)
+                    indexConnection.create_new_index(deleteBeforeReindexing, function (err, result)
                     {
                         if (isNull(err) && isNull(result))
                         {
@@ -169,7 +166,7 @@ module.exports.reindex = function (req, res)
 
                     async.mapSeries(classesToReindex, function (classToReindex, callback)
                     {
-                        Logger.log("info", "Reindexing all instances of " + classToReindex.leafClass + " ...");
+                        Logger.log("Reindexing all instances of " + classToReindex.leafClass + " ...");
                         const db = Config.getDBByHandle(graphShortName);
                         if (!isNull(db) && !isNull(db.graphUri))
                         {
@@ -471,8 +468,8 @@ module.exports.logs = function (req, res)
 
 module.exports.configuration = function (req, res)
 {
-    const configFilePath = Pathfinder.absPathInApp("conf/deployment_configs.json");
-    const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+    const configFilePath = rlequire.absPathInApp("dendro", "conf/deployment_configs.json");
+    const Config = rlequire("dendro", "src/models/meta/config.js").Config;
     if (req.originalMethod === "GET")
     {
         async.parallel([
@@ -548,10 +545,10 @@ module.exports.configuration = function (req, res)
     else if (req.originalMethod === "POST")
     {
         const config = req.body;
-        mkdirp(Pathfinder.absPathInApp("conf/deployment_config_backups"), function (err)
+        mkdirp(rlequire.absPathInApp("dendro", "conf/deployment_config_backups"), function (err)
         {
             // destination.txt will be created or overwritten by default
-            fs.copyFile(configFilePath, path.join(Pathfinder.absPathInApp("conf/deployment_config_backups"), path.basename(configFilePath) + "_" + slug(new Date().toISOString()) + ".bak"), function (err)
+            fs.copyFile(configFilePath, path.join(rlequire.absPathInApp("dendro", "conf/deployment_config_backups"), path.basename(configFilePath) + "_" + slug(new Date().toISOString()) + ".bak"), function (err)
             {
                 if (isNull(err))
                 {
@@ -591,7 +588,7 @@ module.exports.restartServer = function (req, res)
 {
     if (process.env.NODE_ENV === "production")
     {
-        require(Pathfinder.absPathInSrcFolder("app.js")).reloadPM2Slave(function ()
+        rlequire("dendro", "src/app.js").reloadPM2Slave(function ()
         {
             process.kill(process.pid, "SIGINT");
         });

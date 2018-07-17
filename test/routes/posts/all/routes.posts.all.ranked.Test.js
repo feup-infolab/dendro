@@ -1,15 +1,14 @@
 const chai = require("chai");
+const rlequire = require("rlequire");
 const chaiHttp = require("chai-http");
 const should = chai.should();
 chai.use(chaiHttp);
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const appUtils = rlequire("dendro", "src/utils/app/appUtils.js");
+const socialDendroUtils = rlequire("dendro", "src//utils/social/socialDendroUtils");
 
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-const socialDendroUtils = require(Pathfinder.absPathInTestsFolder("/utils/social/socialDendroUtils"));
-
-const createSocialDendroTimelineWithPostsAndSharesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/createSocialDendroTimelineWithPostsAndShares.Unit.js"));
+const createSocialDendroTimelineWithPostsAndSharesUnit = rlequire("dendro", "test/units/social/createSocialDendroTimelineWithPostsAndShares.Unit.js");
 const pageNumber = 1;
 const useRank = 1;
 

@@ -1,5 +1,5 @@
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const folderName = "notFoundFolder";
 const publicProject = require("../projects/public_project");
@@ -14,9 +14,9 @@ let folderData = {
     download_md5: "",
     backup_md5: "",
     files: [
-        require(Pathfinder.absPathInTestsFolder("mockdata/files/pdfMockFile.js")),
-        require(Pathfinder.absPathInTestsFolder("mockdata/files/pngMockFile.js")),
-        require(Pathfinder.absPathInTestsFolder("mockdata/files/xlsxMockFile.js"))
+        rlequire("dendro", "test/mockdata/files/pdfMockFile.js"),
+        rlequire("dendro", "test/mockdata/files/pngMockFile.js"),
+        rlequire("dendro", "test/mockdata/files/xlsxMockFile.js")
     ],
     metadata: [
         {

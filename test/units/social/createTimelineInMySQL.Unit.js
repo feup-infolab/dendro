@@ -1,16 +1,16 @@
 process.env.NODE_ENV = "test";
 
-const Pathfinder = global.Pathfinder;
+const rlequire = require("rlequire");
 
 const chai = require("chai");
 chai.use(require("chai-http"));
 
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const socialDendroUtils = require(Pathfinder.absPathInTestsFolder("/utils/social/socialDendroUtils"));
+const userUtils = rlequire("dendro", "src/utils/user/userUtils.js"));
+const socialDendroUtils = rlequire("dendro", "src//utils/social/socialDendroUtils"));
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
-const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1"));
+const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2"));
+const demouser3 = rlequire("dendro", "test/mockdata/users/demouser3"));
 
 module.exports.setup = function (finish)
 {

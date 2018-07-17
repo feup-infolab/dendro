@@ -8,25 +8,25 @@ const path = require("path");
 const async = require("async");
 chai.use(chaiHttp);
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
-const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
-const versionUtils = require(Pathfinder.absPathInTestsFolder("utils/versions/versionUtils.js"));
-const descriptorUtils = require(Pathfinder.absPathInTestsFolder("utils/descriptor/descriptorUtils.js"));
-const socialDendroUtils = require(Pathfinder.absPathInTestsFolder("/utils/social/socialDendroUtils"));
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const fileUtils = rlequire("dendro", "test/utils/file/fileUtils.js");
+const itemUtils = rlequire("dendro", "test/utils/item/itemUtils.js");
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
+const projectUtils = rlequire("dendro", "test/utils/project/projectUtils.js");
+const versionUtils = rlequire("dendro", "test/utils/versions/versionUtils.js");
+const descriptorUtils = rlequire("dendro", "test/utils/descriptor/descriptorUtils.js");
+const socialDendroUtils = rlequire("dendro", "test//utils/social/socialDendroUtils");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
-const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
-const commentMock = require(Pathfinder.absPathInTestsFolder("mockdata/social/commentMock"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");
+const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2.js");
+const demouser3 = rlequire("dendro", "test/mockdata/users/demouser3.js");
+const commentMock = rlequire("dendro", "test/mockdata/social/commentMock");
 
-const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
-const createSocialDendroTimelineWithPostsAndSharesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/createSocialDendroTimelineWithPostsAndShares.Unit.js"));
+const db = rlequire("dendro", "test/utils/db/db.Test.js");
+const createSocialDendroTimelineWithPostsAndSharesUnit = rlequire("dendro", "test/units/social/createSocialDendroTimelineWithPostsAndShares.Unit.js");
 
 const pageNumber = 1;
 let useRank = 0;

@@ -1,0 +1,61 @@
+version: '3'
+
+services:
+  elasticsearch:
+    container_name: elasticsearch-dendro
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.2
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - "discovery.type=single-node"
+      - "http.host=0.0.0.0"
+      - "transport.host=127.0.0.1"
+    volumes:
+      - ./volumes/elasticsearch:/usr/share/elasticsearch/data:consistent
+    networks:
+      - dendro
+
+  virtuoso:
+    container_name: virtuoso-dendro
+    image: joaorosilva/virtuoso:7.2.4-for-dendro-0.4
+    ports:
+      - "8890:8890"
+      - "1111:1111"
+    environment:
+      - "SPARQL_UPDATE=true"
+      - "VIRT_Parameters_CheckpointSyncMode=2"
+      - "VIRT_Parameters_PageMapCheck=1"
+      - "VIRT_Parameters_CheckpointInterval=0"
+    networks:
+      - dendro
+
+  mysql:
+    container_name: mysql-dendro
+    image: mysql:5.7.22
+    ports:
+      - "3306:3306"
+    environment:
+      - "MYSQL_ROOT_PASSWORD=r00t_p4ssw0rd"
+    volumes:
+      - ./volumes/mysql:/var/lib/mysql:consistent
+    networks:
+      - dendro
+
+  mongodb:
+    container_name: mongodb-dendro
+    image: mongo:3.6.0
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_DATABASE=admin
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi
+    volumes:
+      - ./volumes/mongo:/data/db
+    networks:
+      - dendro
+    command: mongod --smallfiles --bind_ip_all
+
+networks:
+  dendro: {}

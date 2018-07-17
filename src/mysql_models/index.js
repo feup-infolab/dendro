@@ -5,8 +5,8 @@ let path = require("path");
 let Sequelize = require("sequelize");
 let basename = path.basename(__filename);
 let db = {};
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 let config = {
     username: Config.mySQLAuth.user,

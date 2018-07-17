@@ -10,43 +10,43 @@ const _ = require("underscore");
 chai.use(chaiHttp);
 it.optional = require("it-optional");
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
-const httpUtils = require(Pathfinder.absPathInTestsFolder("utils/http/httpUtils.js"));
-const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
-const ckanTestUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/ckanTestUtils.js"));
-const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
+const projectUtils = rlequire("dendro", "test/utils/project/projectUtils.js");
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const folderUtils = rlequire("dendro", "test/utils/folder/folderUtils.js");
+const httpUtils = rlequire("dendro", "test/utils/http/httpUtils.js");
+const repositoryUtils = rlequire("dendro", "test/utils/repository/repositoryUtils.js");
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
+const itemUtils = rlequire("dendro", "test/utils/item/itemUtils.js");
+const ckanTestUtils = rlequire("dendro", "test/utils/repository/ckanTestUtils.js");
+const fileUtils = rlequire("dendro", "test/utils/file/fileUtils.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
-const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");
+const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2.js");
+const demouser3 = rlequire("dendro", "test/mockdata/users/demouser3.js");
 
-const metadataOnlyProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
-const folderExportCkan = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportCkan.js"));
-const folderExportedCkanDendroDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanDendroDiffs.js"));
-const folderExportedCkanCkanDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanCkanDiffs.js"));
+const metadataOnlyProject = rlequire("dendro", "test/mockdata/projects/metadata_only_project.js");
+const folderExportCkan = rlequire("dendro", "test/mockdata/folders/folderExportCkan.js");
+const folderExportedCkanDendroDiffs = rlequire("dendro", "test/mockdata/folders/folderExportedCkanDendroDiffs.js");
+const folderExportedCkanCkanDiffs = rlequire("dendro", "test/mockdata/folders/folderExportedCkanCkanDiffs.js");
 
 // The file that is uploaded&deleted in dendro
-/* const pngMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/pngMockFile.js")); */
-const uploadedAndDeletedFileInDendroMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/uploadedAndDeletedFileInDendro.js"));
+/* const pngMockFile = rlequire("dendro", "test/mockdata/files/pngMockFile.js"); */
+const uploadedAndDeletedFileInDendroMockFile = rlequire("dendro", "test/mockdata/files/uploadedAndDeletedFileInDendro.js");
 // The file that is uploaded directly into the ckan repository
-const uploadedFileToCkan = require(Pathfinder.absPathInTestsFolder("mockdata/files/uploadedFileToCkan.js"));
+const uploadedFileToCkan = rlequire("dendro", "test/mockdata/files/uploadedFileToCkan.js");
 
-const emptyFileMock = require(Pathfinder.absPathInTestsFolder("mockdata/files/emptyFileMock.js"));
+const emptyFileMock = rlequire("dendro", "test/mockdata/files/emptyFileMock.js");
 
 let uploadedAndDeletedFileInDendroDataInDB, uploadedFileToCkanDataInDb, emptyFileDataInDb;
 
-const addChangesToExportedCkanPackagesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/addChangesToExportedCkanPackages.Unit.js"));
+const addChangesToExportedCkanPackagesUnit = rlequire("dendro", "test/units/repositories/addChangesToExportedCkanPackages.Unit.js");
 
-const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+const db = rlequire("dendro", "test/utils/db/db.Test.js");
 
-let createdUnknownRepo = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/created/created_unknown_export_repo.js"));
+let createdUnknownRepo = rlequire("dendro", "test/mockdata/repositories/created/created_unknown_export_repo.js");
 
 let folderExportCkanData, folderExportedCkanDendroDiffsData, folderExportedCkanCkanDiffsData;
 let ckanData;
@@ -57,7 +57,7 @@ describe("Export metadata only project folderExportCkan level to ckan tests", fu
     before(function (done)
     {
         appUtils.newTestRouteLog(path.basename(__filename));
-        addChangesToExportedCkanPackagesUnit.setup(metadataOnlyProject, function (err, results)
+        addChangesToExportedCkanPackagesUnit.setup(function (err, results)
         {
             should.equal(err, null);
             repositoryUtils.getMyExternalRepositories(true, agent, function (err, res)
@@ -508,7 +508,7 @@ describe("Export metadata only project folderExportCkan level to ckan tests", fu
                 let hugeTxtFileMock = {
                     name: "hugeTxtFile.txt",
                     extension: "txt",
-                    location: Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/") + "hugeTxtFile.txt",
+                    location: rlequire.absPathInApp("dendro", "test/mockdata/files/test_uploads/") + "hugeTxtFile.txt",
                     sizeGb: 0.1
                 };
 
@@ -520,7 +520,7 @@ describe("Export metadata only project folderExportCkan level to ckan tests", fu
                     /* fileSizeInBytes.should.be.above(hugeTxtFileMock.sizeGb * 1000000000); */
                     expect(fileSizeInBytes).to.be.at.least(hugeTxtFileMock.sizeGb * 1073741824);
                     fs.existsSync(hugeTxtFileMock.location).should.equal(true);
-                    hugeTxtFileMock.md5 = md5File.sync(Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/") + "hugeTxtFile.txt");
+                    hugeTxtFileMock.md5 = md5File.sync(rlequire.absPathInApp("dendro", "test/mockdata/files/test_uploads/") + "hugeTxtFile.txt");
                     fileUtils.uploadFile(true, agent, metadataOnlyProject.handle, folderExportedCkanDendroDiffsData.nie.title, hugeTxtFileMock, function (err, res)
                     {
                         res.statusCode.should.equal(200);
@@ -556,7 +556,7 @@ describe("Export metadata only project folderExportCkan level to ckan tests", fu
                 let hugeTxtFileMock = {
                     name : "hugeTxtFile.txt",
                     extension : "txt",
-                    location : Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/") + "hugeTxtFile.txt",
+                    location : rlequire.absPathInApp("dendro","test/mockdata/files/test_uploads/") + "hugeTxtFile.txt",
                     sizeGb: 0.6
                 };
 
@@ -567,7 +567,7 @@ describe("Export metadata only project folderExportCkan level to ckan tests", fu
                     /!*fileSizeInBytes.should.be.above(hugeTxtFileMock.sizeGb * 1000000000);*!/
                     expect(fileSizeInBytes).to.be.at.least(hugeTxtFileMock.sizeGb * 1073741824);
                     fs.existsSync(hugeTxtFileMock.location).should.equal(true);
-                    hugeTxtFileMock.md5 = md5File.sync(Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/") + "hugeTxtFile.txt");
+                    hugeTxtFileMock.md5 = md5File.sync(rlequire.absPathInApp("dendro","test/mockdata/files/test_uploads/") + "hugeTxtFile.txt");
                     fileUtils.uploadFile(true, agent, metadataOnlyProject.handle, folderExportedCkanDendroDiffsData.nie.title, hugeTxtFileMock, function (err, res) {
                         res.statusCode.should.equal(200);
                         itemUtils.getItemMetadataByUri(true, agent, res.body[0].uri, function (err, res) {

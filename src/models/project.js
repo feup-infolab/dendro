@@ -2,29 +2,27 @@
 // @see http://bloody-byte.net/rdf/dc_owl2dl/dc.ttl
 // creator is an URI to the author : http://dendro.fe.up.pt/user/<username>
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
-const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
-const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
-const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
-const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-const Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
-const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource")).ArchivedResource;
-const Storage = require(Pathfinder.absPathInSrcFolder("/kb/storage/storage.js")).Storage;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const DbConnection = rlequire("dendro", "src/kb/db.js").DbConnection;
+const Cache = rlequire("dendro", "src/kb/cache/cache.js").Cache;
+const Resource = rlequire("dendro", "src/models/resource.js").Resource;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder;
+const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
+const User = rlequire("dendro", "src/models/user.js").User;
+const Class = rlequire("dendro", "src/models/meta/class.js").Class;
+const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+const ArchivedResource = rlequire("dendro", "src/models/versions/archived_resource").ArchivedResource;
+const Storage = rlequire("dendro", "src/kb/storage/storage.js").Storage;
 
 const db = Config.getDBByID();
 const gfs = Config.getGFSByID();
 
-const dbMySQL = require(Pathfinder.absPathInSrcFolder("mysql_models"));
+const dbMySQL = rlequire("dendro", "src/mysql_models");
 
 const async = require("async");
 const _ = require("underscore");
@@ -958,12 +956,12 @@ Project.prototype.getStorageSize = function (callback, customBucket)
                 },
                 {
                     $group:
-          {
-              _id: null,
-              sum: {
-                  $sum: "$length"
-              }
-          }
+                    {
+                        _id: null,
+                        sum: {
+                            $sum: "$length"
+                        }
+                    }
                 }
             ], function (err, result)
             {
@@ -1652,7 +1650,7 @@ Project.prototype.getActiveStorageConfig = function (callback, customGraphUri)
 {
     const self = this;
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
-    const StorageConfig = require(Pathfinder.absPathInSrcFolder("/models/storage/storageConfig.js")).StorageConfig;
+    const StorageConfig = rlequire("dendro", "src/models/storage/storageConfig.js").StorageConfig;
 
     StorageConfig.findByUri(self.ddr.hasStorageConfig, function (err, config)
     {
@@ -1673,8 +1671,8 @@ Project.prototype.getActiveStorageConfig = function (callback, customGraphUri)
 Project.prototype.getActiveStorageConnection = function (callback)
 {
     const self = this;
-    const StorageB2drop = require(Pathfinder.absPathInSrcFolder("/kb/storage/storageB2Drop.js")).StorageB2drop;
-    const StorageGridFs = require(Pathfinder.absPathInSrcFolder("kb/storage/storageGridFs.js")).StorageGridFs;
+    const StorageB2drop = rlequire("dendro", "src/kb/storage/storageB2Drop.js").StorageB2drop;
+    const StorageGridFs = rlequire("dendro", "src/kb/storage/storageGridFs.js").StorageGridFs;
     self.getActiveStorageConfig(function (err, config)
     {
         if (isNull(err))
@@ -1729,7 +1727,7 @@ Project.prototype.deleteAllStorageConfigs = function (callback, customGraphUri)
 {
     const self = this;
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
-    const StorageConfig = require(Pathfinder.absPathInSrcFolder("/models/storage/storageConfig.js")).StorageConfig;
+    const StorageConfig = rlequire("dendro", "src/models/storage/storageConfig.js").StorageConfig;
 
     StorageConfig.findByProject(self.uri, function (err, configs)
     {
@@ -1972,6 +1970,27 @@ Project.prototype.getHumanReadableUri = function (callback)
     else
     {
         callback(null, "/project/" + self.ddr.handle);
+    }
+};
+
+Project.prototype.save = function (callback)
+{
+    const self = this;
+
+    if (isNull(self.dcterms.creator) || self.dcterms.creator instanceof Array && self.dcterms.creator.length === 0)
+    {
+        callback(1, "Cannot save project " + self.uri + " because it does not have a dcterms.creator property!");
+    }
+    else if (isNull(self.ddr.handle) || self.dcterms.creator instanceof Array && self.dcterms.creator.length === 0)
+    {
+        callback(1, "Cannot save project " + self.uri + " because it does not have a ddr.handle property!");
+    }
+    else
+    {
+        self.baseConstructor.prototype.save.call(self, function (err, result)
+        {
+            callback(err, result);
+        });
     }
 };
 

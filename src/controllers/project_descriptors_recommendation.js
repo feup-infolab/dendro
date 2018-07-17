@@ -1,18 +1,17 @@
 const path = require("path");
-const Pathfinder = global.Pathfinder;
-const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const Project = require(Pathfinder.absPathInSrcFolder("/models//project.js")).Project;
-const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
-
+const rlequire = require("rlequire");
 const _ = require("underscore");
 const async = require("async");
+
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const IndexConnection = rlequire("dendro", "src/kb/index.js").IndexConnection;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const Ontology = rlequire("dendro", "src/models/meta/ontology.js").Ontology;
+const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const Project = rlequire("dendro", "src/models//project.js").Project;
+const User = rlequire("dendro", "src/models/user.js").User;
 
 exports.recommend_descriptors = function (req, res)
 {
@@ -89,8 +88,8 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
 
     const getOwnerProjectUri = function (callback)
     {
-        const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-        const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+        const InformationElement = rlequire("dendro", "src//models/directory_structure/information_element.js").InformationElement;
+        const Project = rlequire("dendro", "src//models/project.js").Project;
 
         Project.findByUri(resourceUri, function (err, projectData)
         {

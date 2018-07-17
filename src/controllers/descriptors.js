@@ -1,12 +1,12 @@
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const Ontology = require(Pathfinder.absPathInSrcFolder("/models//meta/ontology.js")).Ontology;
-const Project = require(Pathfinder.absPathInSrcFolder("/models//project.js")).Project;
-const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+const Ontology = rlequire("dendro", "src/models//meta/ontology.js").Ontology;
+const Project = rlequire("dendro", "src/models//project.js").Project;
+const User = rlequire("dendro", "src/models/user.js").User;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 const async = require("async");
 const _ = require("underscore");
@@ -192,8 +192,8 @@ exports.from_ontology_in_project = function (req, res)
         }
         else
         {
-            const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-            const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+            const InformationElement = rlequire("dendro", "src/models/directory_structure/information_element.js").InformationElement;
+            const Project = rlequire("dendro", "src/models/project.js").Project;
 
             InformationElement.findByUri(req.params.requestedResourceUri, function (err, ie)
             {

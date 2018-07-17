@@ -4,17 +4,17 @@ const should = chai.should();
 const _ = require("underscore");
 chai.use(chaiHttp);
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
-const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");
+const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2.js");
+const demouser3 = rlequire("dendro", "test/mockdata/users/demouser3.js");
 
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-const createUserUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
+const createUserUnit = rlequire("dendro", "test/units/users/createUsers.Unit.js");
 
 // to review naming before mergin to master
 

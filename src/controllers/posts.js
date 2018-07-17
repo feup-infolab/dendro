@@ -1,33 +1,28 @@
-const path = require("path");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Post = rlequire("dendro", "src/models/social/post.js").Post;
+const Like = rlequire("dendro", "src/models/social/like.js").Like;
+const Notification = rlequire("dendro", "src/models/notifications/notification.js").Notification;
+const Comment = rlequire("dendro", "src/models/social/comment.js").Comment;
+const Share = rlequire("dendro", "src/models/social/share.js").Share;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Event = rlequire("dendro", "src/models/event.js").Event;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const Project = rlequire("dendro", "src/models/project.js").Project;
+const DbConnection = rlequire("dendro", "src/kb/db.js").DbConnection;
+const MetadataChangePost = rlequire("dendro", "src/models/social/metadataChangePost").MetadataChangePost;
+const ManualPost = rlequire("dendro", "src/models/social/manualPost").ManualPost;
+const FileSystemPost = rlequire("dendro", "src/models/social/fileSystemPost").FileSystemPost;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-
-const Post = require("../models/social/post.js").Post;
-const Like = require("../models/social/like.js").Like;
-const Notification = require("../models/notifications/notification.js").Notification;
-const Comment = require("../models/social/comment.js").Comment;
-const Share = require("../models/social/share.js").Share;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Event = require(Pathfinder.absPathInSrcFolder("/models/event.js")).Event;
-const PostObj = require(Pathfinder.absPathInSrcFolder("/models/post.js")).Post;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const Project = require("../models/project.js").Project;
-const DbConnection = require("../kb/db.js").DbConnection;
-const MetadataChangePost = require("../models/social/metadataChangePost").MetadataChangePost;
-const ManualPost = require("../models/social/manualPost").ManualPost;
-const FileSystemPost = require("../models/social/fileSystemPost").FileSystemPost;
 const _ = require("underscore");
-
 const flash = require("connect-flash");
-
 const async = require("async");
 const db = Config.getDBByID();
 const db_social = Config.getDBByID("social");
 const db_notifications = Config.getDBByID("notifications");
 
-const dbMySQL = require(Pathfinder.absPathInSrcFolder("mysql_models"));
+const dbMySQL = rlequire("dendro", "src/mysql_models");
 
 const app = require("../app");
 
@@ -751,7 +746,7 @@ exports.getPosts_controller = function (req, res)
                                             {
                                                 // [editChanges, addChanges, deleteChanges]
                                                 /* post.changesInfo = changesInfo;
-                                                    callback(err); */
+                                                        callback(err); */
                                                 if (isNull(err))
                                                 {
                                                     post.changesInfo = changesInfo;
@@ -761,15 +756,15 @@ exports.getPosts_controller = function (req, res)
                                                 {
                                                     // typeof "foo" === "string"
                                                     /* if(typeof changesInfo === "string" && changesInfo === "Resource at getChangesFromMetadataChangePost resource does not exist")
-                                                        {
-                                                            post = null;
-                                                            delete post;
-                                                            callback(null, null);
-                                                        }
-                                                        else
-                                                        {
-                                                            callback(err, changesInfo);
-                                                        } */
+                                                            {
+                                                                post = null;
+                                                                delete post;
+                                                                callback(null, null);
+                                                            }
+                                                            else
+                                                            {
+                                                                callback(err, changesInfo);
+                                                            } */
                                                     callback(err, changesInfo);
                                                 }
                                             });
@@ -1387,21 +1382,6 @@ exports.share = function (req, res)
                     }
                     else
                     {
-                        /* const newShare = new Share({
-                         ddr: {
-                         userWhoShared : currentUser.uri,
-                         postURI: post.uri,
-                         shareMsg: shareMsg,
-                         projectUri: post.ddr.projectUri
-                         },
-                         dcterms: {
-                         creator: currentUser.uri
-                         },
-                         rdf: {
-                         isShare : true
-                         }
-                         }); */
-
                         let newShareData = {
                             ddr: {
                                 userWhoShared: currentUser.uri,
@@ -1613,7 +1593,7 @@ exports.comment = function (req, res)
 
                     newComment.save(function (err, resultComment)
                     {
-                        if (isNull(err))
+                        if (isNull(err) && !isNull(resultComment))
                         {
                             let event = new Event("comment", post.uri, currentUser.uri);
                             event.saveToMySQL(function (err)
@@ -1639,11 +1619,7 @@ exports.comment = function (req, res)
                                     Logger.log("error", err);
                                 }
                             });
-                            /*
-                             res.json({
-                             result : "OK",
-                             message : "Post commented successfully"
-                             }); */
+
                             newNotification.save(function (error, resultNotification)
                             {
                                 if (isNull(error))
@@ -1657,7 +1633,7 @@ exports.comment = function (req, res)
                                 {
                                     res.status(500).json({
                                         result: "Error",
-                                        message: "Error saving a notification for a Comment " + JSON.stringify(resultNotification)
+                                        message: "Error saving a notification for a Comment " + JSON.stringify(info)
                                     });
                                 }
                             }, false, null, null, null, null, db_notifications.graphUri);
@@ -1691,63 +1667,6 @@ exports.comment = function (req, res)
             message: msg
         });
     }
-
-    /* Post.findByUri(req.body.postID, function(err, post)
-     {
-     const newComment = new Comment({
-     ddr: {
-     userWhoCommented : currentUser.uri,
-     postURI: post.uri,
-     commentMsg: commentMsg
-     }
-     });
-     const newNotification = new Notification({
-     ddr: {
-     userWhoActed : currentUser.uri,
-     resourceTargetUri: post.uri,
-     actionType: "Comment",
-     resourceAuthorUri: post.dcterms.creator
-     },
-     foaf :
-     {
-     status : "unread"
-     }
-     });
-     newComment.save(function(err, resultComment)
-     {
-     if(!err)
-     {
-     /!*
-     res.json({
-     result : "OK",
-     message : "Post commented successfully"
-     });*!/
-     newNotification.save(function (error, resultNotification) {
-     if(!error)
-     {
-     res.json({
-     result : "OK",
-     message : "Post commented successfully"
-     });
-     }
-     else
-     {
-     res.status(500).json({
-     result: "Error",
-     message: "Error saving a notification for a Comment " + JSON.stringify(resultNotification)
-     });
-     }
-     }, false, null, null, null, null, db_notifications.graphUri);
-     }
-     else
-     {
-     res.status(500).json({
-     result: "Error",
-     message: "Error Commenting a post. " + JSON.stringify(resultComment)
-     });
-     }
-     }, false, null, null, null, null, db_social.graphUri);
-     }, null, db_social.graphUri, null); */
 };
 
 exports.like = function (req, res)
@@ -1779,7 +1698,7 @@ exports.like = function (req, res)
                     });
                     res.json({
                         result: "OK",
-                        message: "Like was removed"
+                        message: "Like was removed successfully"
                     });
                 }
                 else
@@ -1795,28 +1714,22 @@ exports.like = function (req, res)
                                 }
                             });
 
-                            // resourceTargetUri -> a post etc
-                            // resourceAuthorUri -> the author of the post etc
-                            // userWhoActed -> user who commmented/etc
-                            // actionType -> comment/like/share
-                            // status-> read/unread
-
-                            let newNotification = new Notification({
-                                ddr: {
-                                    userWhoActed: currentUser.uri,
-                                    resourceTargetUri: post.uri,
-                                    actionType: "Like",
-                                    resourceAuthorUri: post.dcterms.creator
-                                },
-                                foaf: {
-                                    status: "unread"
-                                }
-                            });
-
                             newLike.save(function (err, resultLike)
                             {
-                                if (isNull(err))
+                                if (isNull(err) && !isNull(resultLike))
                                 {
+                                    let newNotification = new Notification({
+                                        ddr: {
+                                            userWhoActed: currentUser.uri,
+                                            resourceTargetUri: post.uri,
+                                            actionType: "Like",
+                                            resourceAuthorUri: post.dcterms.creator
+                                        },
+                                        foaf: {
+                                            status: "unread"
+                                        }
+                                    });
+
                                     let event = new Event("like", post.uri, currentUser.uri);
                                     event.saveToMySQL(function (err)
                                     {
@@ -1829,6 +1742,7 @@ exports.like = function (req, res)
                                             Logger.log("error", err);
                                         }
                                     });
+
                                     newNotification.save(function (error, resultNotification)
                                     {
                                         if (isNull(error))
@@ -1842,10 +1756,10 @@ exports.like = function (req, res)
                                         {
                                             res.status(500).json({
                                                 result: "Error",
-                                                message: "Error saving a notification for a Like " + JSON.stringify(resultNotification)
+                                                message: "Error saving a notification for a Like " + JSON.stringify(info)
                                             });
                                         }
-                                    }, false, null, null, null, null, db_notifications.graphUri);
+                                    });
                                 }
                                 else
                                 {

@@ -1,5 +1,5 @@
-const Pathfinder = global.Pathfinder;
-const db = require(Pathfinder.absPathInSrcFolder("mysql_models"));
+const rlequire = require("rlequire");
+const db = rlequire("dendro", "src/mysql_models");
 
 let typeName;
 

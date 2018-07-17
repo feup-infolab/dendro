@@ -20,7 +20,8 @@ angular.module("dendroApp.controllers")
         ontologiesService,
         storageService,
         recommendationService,
-        descriptorsService
+        descriptorsService,
+        usSpinnerService
     )
     {
         $scope.recover_metadata = function ()
@@ -224,6 +225,112 @@ angular.module("dendroApp.controllers")
             else
             {
                 return false;
+            }
+        };
+
+        $scope.clear_inherited = function ()
+        {
+            if ($scope.shared.metadata != null && $scope.shared.metadata instanceof Array && $scope.shared.metadata.length > 0)
+            {
+                var sharedMetadataClearedOfInheritedDescriptors = _.reject($scope.shared.metadata, function (metadata)
+                {
+                    return metadata.just_inherited === true;
+                });
+
+                if (sharedMetadataClearedOfInheritedDescriptors instanceof Array)
+                {
+                    $scope.shared.metadata = sharedMetadataClearedOfInheritedDescriptors;
+                }
+            }
+        };
+
+        $scope.closeImportMetadataFileModal = function ()
+        {
+            var fileElement = angular.element("#metadataFile");
+            angular.element(fileElement).val(null);
+            angular.element("#importMetadataFileModal").modal("hide");
+        };
+
+        $scope.startUploadMetadataFileSpinner = function ()
+        {
+            usSpinnerService.spin("upload-metadata-file-spinner");
+        };
+
+        $scope.stopUploadMetadataFileSpinner = function ()
+        {
+            $timeout(function ()
+            {
+                usSpinnerService.stop("upload-metadata-file-spinner");
+            }, 2000);
+        };
+
+        $scope.import_metadata = function ()
+        {
+            const removeImproperDescriptors = function (descriptors)
+            {
+                var allowedDescriptorsToImport = _.reject(descriptors, function (descriptor)
+                {
+                    return (descriptor.locked === true || descriptor.private === true);
+                });
+                return allowedDescriptorsToImport;
+            };
+
+            const markDescriptorsAsJustAdded = function (descriptors)
+            {
+                return _.map(descriptors, function (descriptor)
+                {
+                    descriptor.just_added = true;
+                    return descriptor;
+                });
+            };
+
+            var file = document.getElementById("metadataFile").files[0];
+            var reader = new FileReader();
+
+            reader.onloadend = function (ev)
+            {
+                var data = ev.target.result;
+                var metadataAsJSON = null;
+                try
+                {
+                    metadataAsJSON = JSON.parse(data);
+                    if (metadataAsJSON !== null && metadataAsJSON.descriptors !== null && metadataAsJSON.descriptors instanceof Array && metadataAsJSON.descriptors.length > 0)
+                    {
+                        var allowedDescriptorsToImport = removeImproperDescriptors(metadataAsJSON.descriptors);
+                        if (allowedDescriptorsToImport !== null && allowedDescriptorsToImport instanceof Array && allowedDescriptorsToImport.length > 0)
+                        {
+                            allowedDescriptorsToImport = markDescriptorsAsJustAdded(allowedDescriptorsToImport);
+                            // load them into $scope.shared.metadata
+                            $scope.add_all_descriptors(allowedDescriptorsToImport);
+                            $scope.$apply();
+                            windowService.show_popup("success", "Completed", "Imported " + allowedDescriptorsToImport.length);
+                            $scope.closeImportMetadataFileModal();
+                            $scope.stopUploadMetadataFileSpinner();
+                        }
+                        else
+                        {
+                            windowService.show_popup("info", "Could not import metadata", "There were no valid desciptors to import");
+                            $scope.closeImportMetadataFileModal();
+                            $scope.stopUploadMetadataFileSpinner();
+                        }
+                    }
+                }
+                catch (error)
+                {
+                    windowService.show_popup("error", "Error", "Are you sure the metadata file is a valid JSON?");
+                    $scope.closeImportMetadataFileModal();
+                    $scope.stopUploadMetadataFileSpinner();
+                }
+            };
+
+            if (file instanceof Blob)
+            {
+                $scope.startUploadMetadataFileSpinner();
+                reader.readAsText(file);
+            }
+            else
+            {
+                windowService.show_popup("info", "No JSON file detected", "Please upload a valid JSON file!");
             }
         };
 

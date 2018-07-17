@@ -1,11 +1,8 @@
-const util = require("util");
-const path = require("path");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const colors = require("colors");
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const redis = require("redis");
 
 function RedisCache (options)
@@ -140,7 +137,7 @@ RedisCache.prototype.get = function (resourceUri, callback)
 
                         return callback(null, JSON.parse(cachedJSON));
                     }
-                    return callback(err, "Unable to retrieve value of " + resourceUri + " as " + JSON.stringify(object) + " from redis cache");
+                    return callback(err, "Unable to retrieve value of " + resourceUri + " as " + JSON.stringify(cachedJSON) + " from redis cache");
                 });
             }
             else
