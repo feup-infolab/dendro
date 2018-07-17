@@ -41,6 +41,11 @@ function Deposit(object){
     return self;
 }
 
+/**
+ * Verifies input
+ * @param data
+ * @param callback
+ */
 Deposit.createDepositRegistry = function (data, callback) {
     let object = data.registryData;
     let content = data.requestedResource;
@@ -74,7 +79,7 @@ Deposit.createDepositRegistry = function (data, callback) {
         if (isNull(err)) {
           newRegistry.ddr.hasStorageConfig = savedConfiguration.uri;
           //save deposited contents to dendro
-          Deposit.saveContents({newDeposit: newRegistry, content: content}, function(err, msg){
+          Deposit.saveContents({newDeposit: newRegistry, content: content, user:data.user}, function(err, msg){
             newRegistry.save(function(err, newRegistry){
               if(!err){
                 callback(err, newRegistry);
@@ -93,6 +98,11 @@ Deposit.createDepositRegistry = function (data, callback) {
     }
 };
 
+/**
+ * Query to check a limited amount of deposits
+ * @param params
+ * @param callback
+ */
 Deposit.createQuery = function(params, callback){
     let query =
         "SELECT DISTINCT ?label ?user ?date ?platformsUsed ?projectTitle ?projused ?creator ?privacy ?uri ?folder ?folderName ?repository \n" +
@@ -109,6 +119,7 @@ Deposit.createQuery = function(params, callback){
         "   ?uri dcterms:date ?date . \n" +
         "   ?uri ddr:exportedFromFolder ?folder . \n" +
         "   ?uri ddr:exportedToRepository ?repository . \n" +
+        "   ?uri ddr:exportedToPlatform ?platformsUsed . \n" +
         "   ?folder nie:title ?folderName . \n";
 
     let i = 1;
@@ -207,7 +218,7 @@ Deposit.createQuery = function(params, callback){
             value: params.creator
         });
     }
-    if(params.platforms){
+    /*if(params.platforms){
       query +=
         "    VALUES ?platformsUsed {";
 
@@ -240,7 +251,7 @@ Deposit.createQuery = function(params, callback){
         "    ?uri ddr:hasExternalUri ?repository . \n";
 
 
-    }
+    }*/
     if(params.dateFrom){
         query += "  FILTER (?date > [" + i++ + "]^^xsd:dateTime )\n";
         variables.push({
@@ -262,6 +273,11 @@ Deposit.createQuery = function(params, callback){
         });
 };
 
+/**
+ *  Check if deposit still exists in outside repository
+ * @param deposit metadata to check
+ * @param callback function to call after the operation terminates
+ */
 Deposit.validatePlatformUri = function(deposit, callback){
 
   const appendPlatformUrl = function({ ddr : {exportedToPlatform : platform, exportedToRepository : url}}){
@@ -313,6 +329,11 @@ Deposit.validatePlatformUri = function(deposit, callback){
 
 };
 
+/**
+ * Creates a deposit
+ * @param object with metadata to be saved
+ * @param callback when function finishes
+ */
 Deposit.createAndInsertFromObject = function(object, callback){
     const self = Object.create(this.prototype);
     self.constructor(object);
@@ -325,6 +346,11 @@ Deposit.createAndInsertFromObject = function(object, callback){
     })
 };
 
+/**
+ * Gets a list of all the repositories used for all the existing deposits
+ * @param params
+ * @param callback
+ */
 Deposit.getAllRepositories = function(params, callback){
     let query =
       "SELECT ?repository COUNT(?repository) as ?count\n" +
@@ -455,6 +481,11 @@ Deposit.getAllRepositories = function(params, callback){
       });
 };
 
+/**
+ * Saves the exported contents to dendro
+ * @param params
+ * @param callback
+ */
 Deposit.saveContents = function(params, callback){
   let newDeposit = params.newDeposit;
   newDeposit.save(function(err, newDeposit){
@@ -481,7 +512,7 @@ Deposit.saveContents = function(params, callback){
 
             let content = params.content;
             //TODO check if file or folder
-            content.copyPaste({destinationFolder: rootFolder}, function(err, msg){
+            content.copyPaste({destinationFolder: rootFolder, user:params.user}, function(err, msg){
               callback(err, newDeposit);
             });
 

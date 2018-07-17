@@ -444,14 +444,13 @@ Folder.prototype.zipAndDownload = function (includeMetadata, callback, bagItOpti
     });
 };
 
-Folder.prototype.copyPaste = function ({includeMetadata, user, destinationFolderUri}, callback)
+Folder.prototype.copyPaste = function ({includeMetadata, user, destinationFolder}, callback)
 {
   const self = this;
   self.createTempFolderWithContents(includeMetadata, false, false, function (err, parentFolderPath, absolutePathOfFinishedFolder, metadata) {
     if (isNull(err)) {
-      Logger.log("Preparing to copy paste contents of folder : " + absolutePathOfFinishedFolder);
-      Folder.findByUri(destinationFolderUri, function(err, folder){
-        folder.restoreFromFolder(absolutePathOfFinishedFolder, user, true, false, function(err, result)
+        Logger.log("Preparing to copy paste contents of folder : " + absolutePathOfFinishedFolder);
+        destinationFolder.restoreFromFolder(absolutePathOfFinishedFolder, user, true, false, function(err, result)
         {
           if (isNull(err))
           {
@@ -465,9 +464,6 @@ Folder.prototype.copyPaste = function ({includeMetadata, user, destinationFolder
             return callback(err, "Unable to copy folder " + self.uri + " to another folder.");
           }
         }, true);
-      });
-
-
     }else{
         //callback()
     }

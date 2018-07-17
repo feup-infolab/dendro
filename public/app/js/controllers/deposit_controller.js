@@ -117,9 +117,9 @@ angular.module("dendroApp.controllers", [])
             {
                 $scope.offset = 1;
                 $scope.updateDeposits(data);
-                $scope.totalDeposits = 0;
+                $scope.totalDeposits = 1;
 
-                if (change && data.repositories instanceof Array)
+                if (change && data.repositories instanceof Array && data.repositories.length > 0)
                 {
                     const repository = data.repositories;
                     $scope.search.repositories = {
@@ -140,7 +140,7 @@ angular.module("dendroApp.controllers", [])
                         $scope.totalDeposits += parseInt(repo.count);
                     }
                 }
-                else
+                else if($scope.search.repositories !== undefined)
                 {
                     for (let repo of $scope.search.repositories.value)
                     {
@@ -150,7 +150,7 @@ angular.module("dendroApp.controllers", [])
                         }
                     }
                 }
-                $scope.totalDeposits = Math.ceil($scope.totalDeposits / $scope.page);
+                //$scope.totalDeposits = Math.ceil($scope.totalDeposits / $scope.page);
             };
 
             let url = $scope.get_current_url();
