@@ -1035,8 +1035,33 @@ exports.all = function (req, res)
     const currentUser = req.user;
     const acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
-    const currentPage = parseInt(req.query.currentPage);
-    const useRank = parseInt(req.query.useRank);
+    let currentPage = parseInt(req.query.currentPage);
+    let useRank = parseInt(req.query.useRank);
+
+    try{
+        currentPage = parseInt(req.query.currentPage);
+    }
+    catch(e)
+    {
+        return res.status(500).json({
+            result: "Error",
+            message: "Error getting posts. Invalid currentPage parameter, which must be an integer." + e.message,
+            error : e
+        });
+    }
+
+    try{
+        useRank = parseInt(req.query.useRank);
+    }
+    catch(e)
+    {
+        return res.status(500).json({
+            result: "Error",
+            message: "Error getting posts. Invalid useRank parameter, which must be either 1 or 0." + e.message,
+            error : e
+        });
+    }
+
     const maxResults = 30;
     const index = currentPage === 1 ? 0 : (currentPage * maxResults) - maxResults;
 
@@ -1209,7 +1234,7 @@ exports.new = function (req, res)
                                     {
                                         if (!err)
                                         {
-                                            let post = new PostObj("manual", manualPost.uri, currentUserUri, req.body.newPostProjectUri);
+                                            let post = new Post("manual", manualPost.uri, currentUserUri, req.body.newPostProjectUri);
                                             post.saveToMySQL(function (err)
                                             {
                                                 if (isNull(err))
@@ -1416,7 +1441,7 @@ exports.share = function (req, res)
                             {
                                 if (isNull(err))
                                 {
-                                    let newPost = new PostObj("share", newShare.uri, currentUser.uri, post.ddr.projectUri);
+                                    let newPost = new Post("share", newShare.uri, currentUser.uri, post.ddr.projectUri);
                                     newPost.saveToMySQL(function (err)
                                     {
                                         if (isNull(err))
@@ -1607,7 +1632,7 @@ exports.comment = function (req, res)
                                     Logger.log("error", err);
                                 }
                             });
-                            let postObj = new PostObj(null, post.uri, null, null);
+                            let postObj = new Post(null, post.uri, null, null);
                             postObj.updateTimestamp(function (err)
                             {
                                 if (isNull(err))

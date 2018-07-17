@@ -689,7 +689,7 @@
       "reload_administrators_on_startup": false,
       "reload_demo_users_on_startup": false,
       "reload_ontologies_on_startup": true,
-      "clear_session_store": true,
+      "clear_session_store": false,
       "log_bootup_actions": true,
       "destroy_all_graphs": true,
       "destroy_all_indexes": true,
@@ -1288,16 +1288,16 @@
       "log": {
         "log_datastore_ops": true
       },
-      "username": "admin",
-      "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
+      "username": "",
+      "password": ""
     },
     "ontologies_cache": {
       "database": "127.0.0.1:3002_ontologies",
       "host": "127.0.0.1",
       "port": "27017",
       "id": "default",
-      "username": "admin",
-      "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
+      "username": "",
+      "password": ""
     },
     "cache": {
       "active": true,
@@ -1334,8 +1334,8 @@
             "host": "127.0.0.1",
             "port": "27017",
             "id": "default",
-            "username": "admin",
-            "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
+            "username": "",
+            "password": ""
           },
           "social": {
             "database": "127.0.0.1:3002",
@@ -1344,8 +1344,8 @@
             "host": "127.0.0.1",
             "port": "27017",
             "id": "social",
-            "username": "admin",
-            "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
+            "username": "",
+            "password": ""
           },
           "notifications": {
             "database": "127.0.0.1:3002",
@@ -1354,8 +1354,8 @@
             "host": "127.0.0.1",
             "port": "27017",
             "id": "notifications",
-            "username": "admin",
-            "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
+            "username": "",
+            "password": ""
           }
         }
       },
@@ -1379,8 +1379,8 @@
     "mongoDBSessionStoreCollection": "127.0.0.1:3002_sessions",
     "mongoDbVersion": "",
     "mongoDBAuth": {
-      "username": "admin",
-      "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
+      "username": "",
+      "password": ""
     },
     "storageDefaults": {
       "storageType": "mongoDB",
@@ -1406,7 +1406,7 @@
     "tempFilesCreationMode": "0777",
     "administrators": [
       {
-        "username": "admin",
+        "username": "",
         "password": "adminteste123",
         "firstname": "Dendro",
         "surname": "Administrator",
@@ -1602,7 +1602,7 @@
         "bagit": {
           "dcterms": {
             "title": "Full contents of the dataset in ZIP format (Bagit Specification)",
-            "description": "This file contains all the files and corresponding metadata in a ZIP arghive that follows the BagIt (https://tools.ietf.org/html/draft-kunze-bagit-08) specification. Exported by the Dendro platform."
+            "description": "This file contains all the files and corresponding metadata in a ZIP archive that follows the BagIt (https://tools.ietf.org/html/draft-kunze-bagit-08) specification. Exported by the Dendro platform."
           }
         },
         "zip": {
