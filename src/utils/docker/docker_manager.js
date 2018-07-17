@@ -56,7 +56,7 @@ DockerManager.stopAllContainers = function (callback)
 
         if (process.env.NODE_ENV === "test")
         {
-            dockerSubProcess = childProcess.spawn(`/bin/bash -c "${stopContainersScript}"`, {
+            dockerSubProcess = childProcess.exec(`/bin/bash -c "${stopContainersScript}"`, {
                 cwd: rlequire.getRootFolder("dendro"),
                 stdio: [0, 1, 2]
             }, function (err, result)
@@ -67,7 +67,7 @@ DockerManager.stopAllContainers = function (callback)
         }
         else
         {
-            dockerSubProcess = childProcess.spawn("docker-compose down", {
+            dockerSubProcess = childProcess.exec("docker-compose down", {
                 cwd: rlequire.getRootFolder("dendro"),
                 stdio: [0, 1, 2]
             }, function (err, result)

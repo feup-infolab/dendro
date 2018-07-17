@@ -31,13 +31,13 @@ const initMySQL = function (app, callback)
                     {
                         Logger.log("error", "Error creating database in MySQL: " + Config.mySQLDBName);
                         return callback(err, null);
-                   });
+                    });
             })
             .catch(err =>
             {
-              Logger.log("error", "Error authenticating in MySQL database : " + Config.mySQLDBName);
-              Logger.log("error", "Error authenticating in MySQL database : " + Config.mySQLDBName);
-              return callback(err, null);
+                Logger.log("error", "Error authenticating in MySQL database : " + Config.mySQLDBName);
+                Logger.log("error", JSON.stringify(err));
+                return callback(err, null);
             });
     };
 

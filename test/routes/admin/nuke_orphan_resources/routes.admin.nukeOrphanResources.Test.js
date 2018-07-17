@@ -32,7 +32,7 @@ let agent;
 
 checkFileExistsInGridFs = function (fileUri, callback)
 {
-    const DendroMongoClient = rlequire("dendro", "src/kb/mongo.js")).DendroMongoClient;
+    const DendroMongoClient = rlequire("dendro", "src/kb/mongo.js").DendroMongoClient;
     let mongoClient = new DendroMongoClient(Config.mongoDBHost, Config.mongoDbPort, Config.mongoDbCollectionName);
     mongoClient.connect(function (err, mongoDb)
     {
@@ -45,7 +45,7 @@ checkFileExistsInGridFs = function (fileUri, callback)
         }
         else
         {
-            const msg = "Error when connencting to mongodb, error: " + JSON.stringify(err);
+            const msg = "Error when connecting to mongodb, error: " + JSON.stringify(err);
             Logger.log("error", msg);
             return callback(err, msg);
         }
@@ -138,7 +138,7 @@ describe("Administration nuke orphan resources tests ( /admin/nuke_orphan_resour
             userUtils.loginUser(admin.username, admin.password, function (err, agent)
             {
                 const rlequire = require("rlequire");
-                const Resource = rlequire("dendro", "src/models/resource.js")).Resource;
+                const Resource = rlequire("dendro", "src/models/resource.js").Resource;
                 async.mapSeries([txtMockFileUri, zipMockFileUri], function (fileUri, cb)
                 {
                     Resource.findByUri(fileUri, function (err, resource)

@@ -8,7 +8,7 @@ function DendroMongoClient (mongoDBHost, mongoDbPort, mongoDbCollectionName, mon
 {
     let self = this;
 
-    self.hostname = mongoDBHost;
+    self.host = mongoDBHost;
     self.port = mongoDbPort;
     self.collectionName = slug(mongoDbCollectionName);
     self.username = mongoDbUsername;
@@ -36,7 +36,7 @@ DendroMongoClient.prototype.connect = function (callback)
         {
             return callback(null, db);
         }
-        const msg = "Error connecting to MongoDB";
+        const msg = "Error connecting to MongoDB " + JSON.stringify(db, null, 4);
         return callback(true, msg);
     });
 };

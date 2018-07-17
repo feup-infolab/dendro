@@ -14,6 +14,8 @@ const MetadataChangePost = rlequire("dendro", "src/models/social/metadataChangeP
 const async = require("async");
 const contentDisposition = require("content-disposition");
 const db_social = Config.getDBByID("social");
+const Post = rlequire("dendro", "src/models/post.js").Post;
+const Event = rlequire("dendro", "src/models/event.js").Event;
 
 exports.show_deep = function (req, res)
 {
@@ -808,7 +810,7 @@ exports.show_version = function (req, res)
                 requestedVersion = parseInt(req.query.version);
                 if (isNaN(requestedVersion))
                 {
-                    throw "Invalid Integer";
+                    throw new Error("Invalid Integer");
                 }
 
                 ArchivedResource.findByResourceAndVersionNumber(requestedResourceURI, requestedVersion, function (err, version)

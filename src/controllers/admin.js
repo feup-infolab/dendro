@@ -602,7 +602,7 @@ module.exports.restartServer = function (req, res)
     }
 };
 
-listOrphanResourcesAux = function (callback)
+const listOrphanResourcesAux = function (callback)
 {
     let mongoClient = new DendroMongoClient(Config.mongoDBHost, Config.mongoDbPort, Config.mongoDbCollectionName);
     mongoClient.connect(function (err, mongoDb)
@@ -653,14 +653,14 @@ listOrphanResourcesAux = function (callback)
         }
         else
         {
-            const msg = "Error when connencting to mongodb, error: " + JSON.stringify(err);
+            const msg = "Error when connecting to mongodb, error: " + JSON.stringify(err);
             Logger.log("error", msg);
             return callback(err, msg);
         }
     });
 };
 
-nukeOrphanResourcesAuxFunction = function (callback)
+const nukeOrphanResourcesAuxFunction = function (callback)
 {
     // look for all resources in gridfs
     // for each see if they are in virtuoso graph

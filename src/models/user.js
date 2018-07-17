@@ -1265,13 +1265,14 @@ User.prototype.saveAvatarInGridFS = function (avatar, extension, callback)
                 {
                     let msg = "Error when finding the latest file with uri : " + avatarUri + " in Mongo";
                     Logger.log("error", msg);
+                    Logger.log("error", files);
                     return callback(err, msg);
                 }
             });
         }
         else
         {
-            let msg = "Error when connencting to mongodb, error: " + JSON.stringify(err);
+            let msg = "Error when connecting to mongodb, error: " + JSON.stringify(err);
             Logger.log("error", msg);
             return callback(err, msg);
         }

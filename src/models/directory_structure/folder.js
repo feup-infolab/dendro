@@ -1640,7 +1640,8 @@ Folder.prototype.autorename = function ()
 {
     const self = this;
     const slug = rlequire("dendro", "src/utils/slugifier.js");
-    self.nie.title = self.nie.title + "_Copy_created_" + slug(Date.now())
+    const now = new Date();
+    self.nie.title = self.nie.title + "_Copy_created_" + slug(now.toISOString());
     return self.nie.title;
 };
 

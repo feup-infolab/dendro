@@ -438,26 +438,26 @@
     "eudatToken": "__FIXME",
     "sendGridUser": "__FIXME",
     "sendGridPassword": "__FIXME",
-    "elasticSearchHost": "192.168.56.249",
+    "elasticSearchHost": "127.0.0.1",
     "elasticSearchPort": "9200",
     "datastore": {
       "database": "127.0.0.1:3002_datastore",
-      "host": "192.168.56.249",
+      "host": "127.0.0.1",
       "port": "27017",
       "id": "default",
       "log": {
         "log_datastore_ops": true
       },
-      "username": "admin",
-      "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
+      "username": "",
+      "password": ""
     },
     "ontologies_cache": {
       "database": "127.0.0.1:3002_ontologies",
-      "host": "192.168.56.249",
+      "host": "127.0.0.1",
       "port": "27017",
       "id": "default",
-      "username": "admin",
-      "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
+      "username": "",
+      "password": ""
     },
     "cache": {
       "active": true,
@@ -465,19 +465,19 @@
         "active": false,
         "instances": {
           "default": {
-            "host": "192.168.56.249",
+            "host": "127.0.0.1",
             "port": "6780",
             "id": "default",
             "database_number": 1
           },
           "social": {
-            "host": "192.168.56.249",
+            "host": "127.0.0.1",
             "port": "6781",
             "id": "social",
             "database_number": 1
           },
           "notifications": {
-            "host": "192.168.56.249",
+            "host": "127.0.0.1",
             "port": "6782",
             "id": "notifications",
             "database_number": 1
@@ -491,31 +491,31 @@
             "database": "127.0.0.1:3002",
             "collection": "default_cache",
             "clear_on_startup": true,
-            "host": "192.168.56.249",
+            "host": "127.0.0.1",
             "port": "27017",
             "id": "default",
-            "username": "admin",
-            "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
+            "username": "",
+            "password": ""
           },
           "social": {
             "database": "127.0.0.1:3002",
             "collection": "social_cache",
             "clear_on_startup": true,
-            "host": "192.168.56.249",
+            "host": "127.0.0.1",
             "port": "27017",
             "id": "social",
-            "username": "admin",
-            "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
+            "username": "",
+            "password": ""
           },
           "notifications": {
             "database": "127.0.0.1:3002",
             "collection": "notifications_cache",
             "clear_on_startup": true,
-            "host": "192.168.56.249",
+            "host": "127.0.0.1",
             "port": "27017",
             "id": "notifications",
-            "username": "admin",
-            "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
+            "username": "",
+            "password": ""
           }
         }
       },
@@ -524,7 +524,7 @@
         "cache_period_in_seconds": 3600
       }
     },
-    "virtuosoHost": "192.168.56.249",
+    "virtuosoHost": "127.0.0.1",
     "virtuosoPort": "8890",
     "virtuosoISQLPort": "1111",
     "virtuosoConnector": "jdbc",
@@ -533,24 +533,24 @@
       "password": "dba"
     },
     "virtuosoSQLLogLevel": 3,
-    "mongoDBHost": "192.168.56.249",
+    "mongoDBHost": "127.0.0.1",
     "mongoDbPort": "27017",
     "mongoDbCollectionName": "127.0.0.1:3002_files",
     "mongoDBSessionStoreCollection": "127.0.0.1:3002_sessions",
     "mongoDbVersion": "",
     "mongoDBAuth": {
-      "username": "admin",
-      "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
+      "username": "",
+      "password": ""
     },
     "storageDefaults": {
       "storageType": "mongoDB",
-      "host": "192.168.56.249",
+      "host": "127.0.0.1",
       "port": "27017",
       "collectionName": "127.0.0.1:3002_files",
       "username": "",
       "password": ""
     },
-    "mySQLHost": "192.168.56.249",
+    "mySQLHost": "127.0.0.1",
     "mySQLPort": "3306",
     "mySQLAuth": {
       "user": "root",
@@ -566,7 +566,7 @@
     "tempFilesCreationMode": "0777",
     "administrators": [
       {
-        "username": "admin",
+        "username": "",
         "password": "adminteste123",
         "firstname": "Dendro",
         "surname": "Administrator",
@@ -824,10 +824,10 @@
     },
     "docker": {
       "active": true,
-      "reuse_checkpoints": false,
-      "create_checkpoints": false,
-      "destroy_existing_images_at_start": false,
-      "start_and_stop_containers_automatically" : false
+      "reuse_checkpoints": true,
+      "create_checkpoints": true,
+      "destroy_existing_images_at_start": true,
+      "start_and_stop_containers_automatically" : true
     },
     "virtualbox": {
       "active": false,
@@ -841,7 +841,7 @@
         "mongodb"
       ],
       "vmName": "dendroVagrantDemo",
-      "vmIP" : "192.168.56.249"
+      "vmIP" : "127.0.0.1"
     }
   },
   "jenkins_buildserver_test": {
@@ -1394,7 +1394,7 @@
     "mySQLPort": "3306",
     "mySQLAuth": {
       "user": "root",
-      "password": "r00t"
+      "password": "r00t_p4ssw0rd"
     },
     "mySQLDBName": "TRAVISTESTSdendroVagrantDemo",
     "maxUploadSize": 2147483648,

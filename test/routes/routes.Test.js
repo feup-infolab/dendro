@@ -19,13 +19,10 @@ describe("/", function ()
     {
         chai.request(app)
             .get("/")
-            .end((err, res) =>
+            .end(err, res =>
             {
                 res.should.have.status(200);
                 res.text.should.contain("<h2>Welcome to Dendro Beta</h2>");
-
-                global.tests.app = app;
-
                 done();
             });
     });
