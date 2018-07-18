@@ -252,12 +252,12 @@ Post.prototype.getOwnerProject = function (callback)
                 }
                 else
                 {
-                    return callback(1, "Invalid result set or no parent PROJECT found when querying for the parent project of" + self.uri);
+                    callback(1, "Invalid result set or no parent PROJECT found when querying for the parent project of" + self.uri);
                 }
             }
             else
             {
-                return callback(1, "Error reported when querying for the parent PROJECT of" + self.uri + " . Error was ->" + result);
+                callback(1, "Error reported when querying for the parent PROJECT of" + self.uri + " . Error was ->" + result);
             }
         }
     );
@@ -288,9 +288,19 @@ Post.prototype.saveToMySQL = function (callback)
     }).then(res =>
     {
         self.typeId = res[0].dataValues.id;
-        return dbMySQL.posts.create(self).then(() =>
-            callback(null)).catch(err =>
-            callback(err));
+        dbMySQL.posts
+            .create(self)
+            .then(() =>
+                {
+                    callback(null);
+                    return null;
+                }
+            ).catch(err =>
+                {
+                    callback(err);
+                    return null;
+                }
+            );
     });
 };
 
@@ -304,15 +314,24 @@ Post.prototype.deleteFromMySQL = function (callback)
     }).then(res =>
     {
         self.typeId = res[0].dataValues.id;
-        dbMySQL.posts.destroy({
-            where: {
-                postURI: self.postURI,
-                userURI: self.userURI,
-                typeId: self.typeId
-            }
-        }).then(() =>
-            callback(null)).catch(err =>
-            callback(err));
+        dbMySQL.posts
+            .destroy({
+                where: {
+                    postURI: self.postURI,
+                    userURI: self.userURI,
+                    typeId: self.typeId
+                }
+            }).then(() =>
+                {
+                    callback(null)
+                    return null;
+                }
+            ).catch(err =>
+                {
+                    callback(err)
+                    return null;
+                }
+            );
     });
 };
 
@@ -324,14 +343,24 @@ Post.prototype.updateTimestamp = function (callback)
     }, {
         where: { postURI: self.postURI }
     }).then(() =>
+    {
         dbMySQL.timeline_post.destroy({
             where: {
                 postURI: self.postURI,
                 type: "ranked"
             }
-        }).then(() =>
-            callback(null))).catch(err =>
-        callback(err));
+        })
+            .then(() =>
+            {
+                callback(null)
+                return null;
+            })
+            .catch(err =>
+            {
+                callback(err);
+                return null;
+            })
+    });
 };
 
 Post = Class.extend(Post, Event, "ddr:Post");

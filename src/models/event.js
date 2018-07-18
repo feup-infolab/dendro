@@ -21,9 +21,17 @@ Event.prototype.saveToMySQL = function (callback)
     }).then(res =>
     {
         self.typeId = res[0].dataValues.id;
-        db.events.create(self).then(() =>
-            callback(null)).catch(err =>
-            callback(err));
+        db.events.create(self)
+        .then(() =>
+        {
+            callback(null);
+            return null;
+        })
+        .catch(err =>
+        {
+            callback(err)
+            return null;
+        });
     });
 };
 
@@ -43,9 +51,15 @@ Event.prototype.deleteFromMySQL = function (callback)
                 userURI: self.userURI,
                 typeId: self.typeId
             }
-        }).then(() =>
-            callback(null)).catch(err =>
-            callback(err));
+        }).then(() => {
+            callback(null);
+            return null;
+
+        }).catch(err =>
+        {
+            callback(err)
+            return null;
+        });
     });
 };
 
