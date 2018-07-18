@@ -1,53 +1,62 @@
 process.env.NODE_ENV = "test";
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
 
-const chai = require("chai");
-chai.use(require("chai-http"));
-const async = require("async");
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const socialDendroUtils = rlequire("dendro", "test//utils/social/socialDendroUtils");
+const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2");
+let ShareSomePostsUnit = rlequire("dendro", "test/units/social/shareSomePosts.Unit.js");
 
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
-const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils"));
-const socialDendroUtils = require(Pathfinder.absPathInTestsFolder("/utils/social/socialDendroUtils"));
+const unitUtils = rlequire("dendro", "test/utils/units/unitUtils.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
-
-function requireUncached (module)
+class LikeSomePosts extends ShareSomePostsUnit
 {
-    delete require.cache[require.resolve(module)];
-    return require(module);
+    static load (callback)
+    {
+        const self = this;
+        unitUtils.startLoad(self);
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
+        {
+            if (err)
+            {
+                callback(err, agent);
+            }
+            else
+            {
+                // TODO do the get posts request obtain a uri of a post then share it
+                let pageNumber = 1;
+                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                {
+                    if (isNull(err))
+                    {
+                        // para ter acesso nas outras units a seguir
+                        // we will like the second post, because position 0 is a share (we called ShareSomePostsUnit before). We want to like the original post and not its share.
+                        let postURI = res.body[1].uri;
+                        socialDendroUtils.likeAPost(true, agent, postURI, function (err, res)
+                        {
+                            unitUtils.endLoad(self, function (err)
+                            {
+                                callback(err, res);
+                            });
+                        });
+                    }
+                    else
+                    {
+                        callback(err, res);
+                    }
+                });
+            }
+        });
+    }
+    static init (callback)
+    {
+        super.init(callback);
+    }
+    static shutdown (callback)
+    {
+        super.shutdown(callback);
+    }
 }
 
-module.exports.setup = function (finish)
-{
-    let shareSomePostsUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/social/shareSomePosts.Unit.js"));
-    shareSomePostsUnit.setup(function (err, postURIToLike)
-    {
-        if (err)
-        {
-            finish(err, postURIToLike);
-        }
-        else
-        {
-            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
-            {
-                if (err)
-                {
-                    finish(err, agent);
-                }
-                else
-                {
-                    socialDendroUtils.likeAPost(true, agent, postURIToLike, function (err, res)
-                    {
-                        // finish(err, res);
-                        finish(err, postURIToLike);
-                    });
-                }
-            });
-        }
-    });
-};
+module.exports = LikeSomePosts;

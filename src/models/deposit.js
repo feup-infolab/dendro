@@ -3,28 +3,20 @@
 // @see http://bloody-byte.net/rdf/dc_owl2dl/dc.ttl
 // creator is an URI to the author : http://dendro.fe.up.pt/user/<username>
 
-const path = require("path");
 const moment = require("moment");
+const rlequire = require("rlequire");
 const request = require("request");
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Utils = require(Pathfinder.absPathInPublicFolder("/js/utils.js")).Utils;
-const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
-const Project = require(Pathfinder.absPathInSrcFolder("/models/project")).Project;
-const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
-const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
-const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
-const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-const Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
-const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-const Elements = require(Pathfinder.absPathInSrcFolder('/models/meta/elements.js')).Elements;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Resource = rlequire("dendro", "src/models/resource.js").Resource;
+const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder;
+const Class = rlequire("dendro", "src//models/meta/class.js").Class;
+const Elements = rlequire("dendro", "src//models/meta/elements.js").Elements;
 const db = Config.getDBByID();
-const gfs = Config.getGFSByID();
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const StorageConfig = rlequire("dendro", "src/models/storage/storageConfig.js").StorageConfig;
 
 const B2ShareClient = require("@feup-infolab/node-b2share-v2");
 
@@ -49,7 +41,14 @@ function Deposit(object){
     return self;
 }
 
-Deposit.createDepositRegistry = function (object, callback) {
+/**
+ * Verifies input
+ * @param data
+ * @param callback
+ */
+Deposit.createDepositRegistry = function (data, callback) {
+    let object = data.registryData;
+    let content = data.requestedResource;
     const newRegistry = new Deposit(object);
 
     const requestedResourceURI = object.ddr.exportedFromFolder;
@@ -69,18 +68,41 @@ Deposit.createDepositRegistry = function (object, callback) {
 
       console.log("creating registry from deposit\n" + util.inspect(object));
 
-      newRegistry.save(function(err, newRegistry){
-        if(!err){
-          callback(err, newRegistry);
-        } else{
-
+      let storageConf = new StorageConfig({
+        ddr: {
+          hasStorageType: "local"
         }
       });
+
+      storageConf.save(function (err, savedConfiguration)
+      {
+        if (isNull(err)) {
+          newRegistry.ddr.hasStorageConfig = savedConfiguration.uri;
+          //save deposited contents to dendro
+          Deposit.saveContents({newDeposit: newRegistry, content: content, user:data.user}, function(err, msg){
+            newRegistry.save(function(err, newRegistry){
+              if(!err){
+                callback(err, newRegistry);
+              } else{
+                callback(err, "not good");
+              }
+            });
+          });
+        }
+      });
+
+
+
     }else{
       callback(1);
     }
 };
 
+/**
+ * Query to check a limited amount of deposits
+ * @param params
+ * @param callback
+ */
 Deposit.createQuery = function(params, callback){
     let query =
         "SELECT DISTINCT ?label ?user ?date ?platformsUsed ?projectTitle ?projused ?creator ?privacy ?uri ?folder ?folderName ?repository \n" +
@@ -97,6 +119,7 @@ Deposit.createQuery = function(params, callback){
         "   ?uri dcterms:date ?date . \n" +
         "   ?uri ddr:exportedFromFolder ?folder . \n" +
         "   ?uri ddr:exportedToRepository ?repository . \n" +
+        "   ?uri ddr:exportedToPlatform ?platformsUsed . \n" +
         "   ?folder nie:title ?folderName . \n";
 
     let i = 1;
@@ -195,7 +218,7 @@ Deposit.createQuery = function(params, callback){
             value: params.creator
         });
     }
-    if(params.platforms){
+    /*if(params.platforms){
       query +=
         "    VALUES ?platformsUsed {";
 
@@ -228,7 +251,7 @@ Deposit.createQuery = function(params, callback){
         "    ?uri ddr:hasExternalUri ?repository . \n";
 
 
-    }
+    }*/
     if(params.dateFrom){
         query += "  FILTER (?date > [" + i++ + "]^^xsd:dateTime )\n";
         variables.push({
@@ -250,6 +273,11 @@ Deposit.createQuery = function(params, callback){
         });
 };
 
+/**
+ *  Check if deposit still exists in outside repository
+ * @param deposit metadata to check
+ * @param callback function to call after the operation terminates
+ */
 Deposit.validatePlatformUri = function(deposit, callback){
 
   const appendPlatformUrl = function({ ddr : {exportedToPlatform : platform, exportedToRepository : url}}){
@@ -301,6 +329,11 @@ Deposit.validatePlatformUri = function(deposit, callback){
 
 };
 
+/**
+ * Creates a deposit
+ * @param object with metadata to be saved
+ * @param callback when function finishes
+ */
 Deposit.createAndInsertFromObject = function(object, callback){
     const self = Object.create(this.prototype);
     self.constructor(object);
@@ -313,6 +346,11 @@ Deposit.createAndInsertFromObject = function(object, callback){
     })
 };
 
+/**
+ * Gets a list of all the repositories used for all the existing deposits
+ * @param params
+ * @param callback
+ */
 Deposit.getAllRepositories = function(params, callback){
     let query =
       "SELECT ?repository COUNT(?repository) as ?count\n" +
@@ -441,6 +479,61 @@ Deposit.getAllRepositories = function(params, callback){
       db.connection.executeViaJDBC(query,variables, function (err, regs){
         callback(err, regs);
       });
+};
+
+/**
+ * Saves the exported contents to dendro
+ * @param params
+ * @param callback
+ */
+Deposit.saveContents = function(params, callback){
+  let newDeposit = params.newDeposit;
+  newDeposit.save(function(err, newDeposit){
+    const rootFolder = new Folder({
+      nie: {
+        title: "deposit",
+        isLogicalPartOf: newDeposit.uri
+      },
+      ddr: {
+        humanReadableURI: newDeposit.ddr.humanReadableURI + "/data"
+      }
+    });
+
+    rootFolder.save(function (err, result)
+    {
+      if (isNull(err))
+      {
+        newDeposit.ddr.rootFolder = rootFolder.uri;
+        newDeposit.nie.hasLogicalPart = rootFolder.uri;
+
+        newDeposit.save(function (err, result)
+        {
+          if (isNull(err)) {
+
+            let content = params.content;
+            //TODO check if file or folder
+            content.copyPaste({destinationFolder: rootFolder, user:params.user}, function(err, msg){
+              callback(err, newDeposit);
+            });
+
+            //pass contents here
+
+          }
+          else
+          {
+            Logger.log("error", "There was an error re-saving the project " + newDeposit.ddr.humanReadableURI + " while creating it: " + JSON.stringify(result));
+            callback(err, result);
+          }
+        });
+      }
+      else
+      {
+        Logger.log("error", "There was an error saving the root folder of project " + newDeposit.ddr.humanReadableURI + ": " + JSON.stringify(result));
+        return callback(err, result);
+      }
+    });
+  });
+
 };
 
 Deposit = Class.extend(Deposit, Resource, "ddr:Registry");

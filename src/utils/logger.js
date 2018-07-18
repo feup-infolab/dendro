@@ -1,17 +1,20 @@
-const Pathfinder = global.Pathfinder;
-const isNull = require(Pathfinder.absPathInSrcFolder("utils/null.js")).isNull;
+const rlequire = require("rlequire");
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
 const fs = require("fs");
-const slug = require("slug");
+const slug = rlequire("dendro", "src/utils/slugifier.js");
 const mkdirp = require("mkdirp");
 const path = require("path");
 const winston = require("winston");
+const fsExtra = require("fs-extra");
 const colors = require("colors");
 
 const Logger = function ()
 {
 
 };
+
+Logger._initialized = false;
 
 Logger.setLogFilePath = function (newLogFilePath)
 {
@@ -33,24 +36,42 @@ Logger.getErrorLogFilePath = function ()
     return Logger.errorLogFilePath;
 };
 
-Logger.init = function (startTime, app)
+Logger.destroy = function ()
 {
+    Logger._initialized = false;
+    Logger.logger = null;
+};
+
+Logger.init = function (startTime)
+{
+    if (Logger._initialized)
+    {
+        return;
+    }
+
     if (isNull(startTime))
     {
-        startTime = new Date();
+        if (global.app_startup_time)
+        {
+            startTime = global.app_startup_time;
+        }
+        else
+        {
+            startTime = new Date();
+        }
     }
 
     const moment = require("moment");
     const fileNameDateSection = moment(startTime).format("YYYY_MM_DD");
 
-    const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+    const Config = rlequire("dendro", "src/models/meta/config.js").Config;
     // Setup logging
     if (!isNull(Config.logging))
     {
         const loggerLevel = (Config.logging.level) ? Config.logging.level : "debug";
         if (!isNull(Config.logging.app_logs_folder))
         {
-            const absPath = Pathfinder.absPathInApp(Config.logging.app_logs_folder);
+            const absPath = rlequire.absPathInApp("dendro", Config.logging.app_logs_folder);
 
             const exists = fs.existsSync(absPath);
             if (!exists)
@@ -126,7 +147,6 @@ Logger.init = function (startTime, app)
 
             mkdirp.sync(path.join(absPath, env, fileNameDateSection));
 
-            const fsExtra = require("fs-extra");
             fsExtra.ensureFileSync(logFilePath);
             fsExtra.ensureFileSync(errorLogFilePath);
 
@@ -190,14 +210,42 @@ Logger.init = function (startTime, app)
             logger.on("error", function (err)
             {
                 Logger.log("error", JSON.stringify(err));
-                process.nextTick(function ()
+
+                const exit = function ()
                 {
-                    process.kill(process.pid, "SIGTERM");
+                    process.nextTick(function ()
+                    {
+                        process.kill(process.pid, "SIGTERM");
+                    });
+                };
+
+                let numFlushes = 0;
+                let numFlushed = 0;
+                Object.keys(logger.transports).forEach(function (k)
+                {
+                    if (logger.transports[k]._stream)
+                    {
+                        numFlushes += 1;
+                        logger.transports[k]._stream.once("finish", function ()
+                        {
+                            numFlushed += 1;
+                            if (numFlushes === numFlushed)
+                            {
+                                exit();
+                            }
+                        });
+                        logger.transports[k]._stream.end();
+                    }
                 });
+                if (numFlushes === 0)
+                {
+                    exit();
+                }
             });
 
             logger.emitErrs = true;
             Logger.logger = logger;
+            Logger._initialized = true;
         }
         else
         {
@@ -212,6 +260,7 @@ Logger.init = function (startTime, app)
 
 Logger.add_middlewares = function (app)
 {
+    Logger.init();
     const expressWinston = require("express-winston");
     app.use(
         expressWinston.logger({
@@ -226,7 +275,7 @@ Logger.add_middlewares = function (app)
             // optional: allows to skip some log messages based on request and/or response
             ignoreRoute: function (req, res)
             {
-                const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+                const Config = rlequire("dendro", "src/models/meta/config.js").Config;
                 // do not log requests for public assets
                 if (
                     Config.logging.do_not_log_requests_to_public_assets &&
@@ -251,10 +300,11 @@ Logger.add_middlewares = function (app)
 
 Logger.log_boot_message = function (message)
 {
-    const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+    Logger.init();
+    const Config = rlequire("dendro", "src/models/meta/config.js").Config;
     if (Config.startup.log_bootup_actions)
     {
-        if (!isNull(Logger.logger))
+        if (!isNull(Logger.logger) && Logger._initialized)
         {
             Logger.logger.info(message);
         }
@@ -267,6 +317,32 @@ Logger.log_boot_message = function (message)
 
 Logger.log = function (type, message, printStack)
 {
+    // if (!isNull(type) && !isNull(message))
+    // {
+    //     if (type === "error")
+    //     {
+    //         console.log(`${type.red}: ${message}`);
+    //     }
+    //     else if (type === "info")
+    //     {
+    //         console.log(`${type.cyan}: ${message}`);
+    //     }
+    //     else if (type === "warn")
+    //     {
+    //         console.log(`${type.yellow}: ${message}`);
+    //     }
+    //     else
+    //     {
+    //         console.log(`${type.grey}: ${message}`);
+    //     }
+    // }
+    // else
+    // {
+    //     console.log(`${"info".cyan}: ${type}`);
+    // }
+    //
+    // return;
+
     // special case for when the message is null and we are logging an error
     if (type === "error")
     {
@@ -285,7 +361,7 @@ Logger.log = function (type, message, printStack)
             }
         }
 
-        if (!isNull(Logger.logger))
+        if (!isNull(Logger.logger) && !isNull(message) && Logger._initialized)
         {
             if (message instanceof Object)
             {
@@ -306,7 +382,7 @@ Logger.log = function (type, message, printStack)
 
     if (typeof type === "string" && !isNull(message))
     {
-        if (!isNull(Logger.logger))
+        if (!isNull(Logger.logger) && Logger._initialized)
         {
             if (!isNull(Logger.logger.levels[type]))
             {
@@ -332,7 +408,7 @@ Logger.log = function (type, message, printStack)
     else if (!isNull(type) && typeof type === "string" && isNull(message))
     {
         message = type;
-        if (!isNull(Logger.logger))
+        if (!isNull(Logger.logger) && Logger._initialized)
         {
             Logger.logger.info(message);
         }

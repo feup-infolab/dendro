@@ -1,16 +1,15 @@
 const path = require("path");
 const validator = require("validator");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Utils = require(Pathfinder.absPathInPublicFolder("/js/utils.js")).Utils;
-const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
-const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Class = rlequire("dendro", "src/models/meta/class.js").Class;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const DbConnection = rlequire("dendro", "src/kb/db.js").DbConnection;
+const IndexConnection = rlequire("dendro", "src/kb/index.js").IndexConnection;
+const Cache = rlequire("dendro", "src/kb/cache/cache.js").Cache;
 
 const async = require("async");
 const _ = require("underscore");
@@ -87,7 +86,7 @@ Resource.prototype.copyOrInitDescriptors = function (object, deleteIfNotInArgume
 Resource.prototype.loadObjectWithQueryResults = function (queryResults, ontologyURIsArray)
 {
     const self = this;
-    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+    const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
 
     self.clearDescriptors();
 
@@ -756,8 +755,8 @@ Resource.prototype.loadPropertiesFromOntologies = function (ontologyURIsArray, c
 Resource.prototype.getPropertiesFromOntologies = function (ontologyURIsArray, customGraphUri, typeConfigsToRetain)
 {
     const self = this;
-    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-    const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+    const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+    const Ontology = rlequire("dendro", "src/models/meta/ontology.js").Ontology;
 
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
@@ -1021,17 +1020,17 @@ Resource.prototype.replaceDescriptorsInTripleStore = function (newDescriptors, d
  */
 
 Resource.prototype.save = function
-    (
-        callback,
-        saveVersion,
-        entitySavingTheResource,
-        descriptorsToExcludeFromChangesCalculation,
-        descriptorsToExcludeFromChangeLog,
-        descriptorsToExceptionFromChangeLog,
-        customGraphUri
-    )
+(
+    callback,
+    saveVersion,
+    entitySavingTheResource,
+    descriptorsToExcludeFromChangesCalculation,
+    descriptorsToExcludeFromChangeLog,
+    descriptorsToExceptionFromChangeLog,
+    customGraphUri
+)
 {
-    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+    const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
     const self = this;
 
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
@@ -1599,7 +1598,8 @@ Resource.prototype.reindex = function (callback, customGraphUri)
                         Logger.log("debug", msg);
                         return callback(null, self);
                     }
-                    const msg = "Error deleting old document for resource " + self.uri + " error returned " + JSON.stringify(result, null, 4);
+
+                    const msg = "Error indexing document for resource " + self.uri + " error returned " + JSON.stringify(result, null, 4);
                     errorMessages.push(msg);
                     Logger.log("error", msg);
                     return callback(1, errorMessages);
@@ -2131,7 +2131,7 @@ Resource.findByUri = function (uri, callback, allowedGraphsArray, customGraphUri
 
     const getFromTripleStore = function (uri, callback, customGraphUri)
     {
-        const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+        const Ontology = rlequire("dendro", "src/models/meta/ontology.js").Ontology;
 
         if (uri instanceof Object && !isNull(uri.uri))
         {
@@ -2363,7 +2363,7 @@ Resource.findByPropertyValue = function (
     };
     const getFromTripleStore = function (callback, customGraphUri)
     {
-        const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+        const Ontology = rlequire("dendro", "src/models/meta/ontology.js").Ontology;
 
         let ontologiesArray;
         if (!isNull(allowedGraphsArray) && allowedGraphsArray instanceof Array)
@@ -2629,7 +2629,7 @@ Resource.findByPropertyValue = function (
 Resource.prototype.loadFromIndexHit = function (hit)
 {
     const self = this;
-    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+    const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
 
     if (isNull(self.indexData))
     {
@@ -2734,7 +2734,7 @@ Resource.prototype.getArchivedVersions = function (offset, limit, callback, cust
             {
                 const getVersionContents = function (versionRow, cb)
                 {
-                    const ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
+                    const ArchivedResource = rlequire("dendro", "src/models/versions/archived_resource.js").ArchivedResource;
                     ArchivedResource.findByUri(versionRow.uri, function (err, archivedResource)
                     {
                         cb(err, archivedResource);
@@ -2809,7 +2809,7 @@ Resource.prototype.makeArchivedVersion = function (entitySavingTheResource, call
             }
             else
             {
-                const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+                const User = rlequire("dendro", "src/models/user.js").User;
                 versionCreator = User.anonymous.uri;
             }
 
@@ -2819,7 +2819,7 @@ Resource.prototype.makeArchivedVersion = function (entitySavingTheResource, call
             objectValues.ddr.versionNumber = newVersionNumber;
             objectValues.ddr.humanReadableURI = self.ddr.humanReadableURI + "/version/" + newVersionNumber;
 
-            const ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
+            const ArchivedResource = rlequire("dendro", "src/models/versions/archived_resource.js").ArchivedResource;
             const archivedResource = new ArchivedResource(objectValues);
 
             return callback(null, archivedResource);
@@ -2852,7 +2852,7 @@ Resource.prototype.getPublicDescriptorsForAPICalls = function ()
 
 Resource.prototype.getDescriptors = function (descriptorTypesNotToGet, descriptorTypesToForcefullyGet, typeConfigsToRetain)
 {
-    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+    const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
     const self = this;
     let descriptorsArray = [];
 
@@ -2891,8 +2891,8 @@ Resource.prototype.getDescriptors = function (descriptorTypesNotToGet, descripto
  */
 Resource.prototype.calculateDescriptorDeltas = function (newResource, descriptorsToExclude)
 {
-    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-    const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+    const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+    const Ontology = rlequire("dendro", "src/models/meta/ontology.js").Ontology;
 
     const self = this;
     let deltas = [];
@@ -2922,7 +2922,7 @@ Resource.prototype.calculateDescriptorDeltas = function (newResource, descriptor
             }
         }
 
-        const Change = require(Pathfinder.absPathInSrcFolder("/models/versions/change.js")).Change;
+        const Change = rlequire("dendro", "src/models/versions/change.js").Change;
 
         const newChange = new Change({
             ddr: {
@@ -3056,7 +3056,7 @@ Resource.prototype.calculateDescriptorDeltas = function (newResource, descriptor
 Resource.prototype.checkIfHasPredicateValue = function (predicateInPrefixedForm, value, callback, customGraphUri)
 {
     const self = this;
-    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+    const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
 
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
@@ -3187,8 +3187,8 @@ Resource.prototype.getLogicalParts = function (callback)
 {
     const self = this;
     const fs = require("fs");
-    const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-    const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+    const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder;
+    const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
 
     const childFoldersQuery =
         "SELECT ?uri\n" +
@@ -3323,7 +3323,7 @@ Resource.prototype.findMetadata = function (callback, typeConfigsToRetain, recur
                                         metadataResult.hasLogicalParts.push(result2);
                                         return callback(null);
                                     }
-                                    Logger.log("info", "[findMetadata] error accessing metadata of resource " + self.nie.title);
+                                    Logger.log("[findMetadata] error accessing metadata of resource " + self.nie.title);
                                     return callback(err);
                                 }, typeConfigsToRetain);
                             },
@@ -3354,7 +3354,7 @@ Resource.prototype.findMetadata = function (callback, typeConfigsToRetain, recur
                                         metadataResult.hasLogicalParts.push(result2);
                                         return callback(null);
                                     }
-                                    Logger.log("info", "[findMetadata] error accessing metadata of resource " + self.nie.title);
+                                    Logger.log("[findMetadata] error accessing metadata of resource " + self.nie.title);
                                     return callback(err);
                                 }, typeConfigsToRetain);
                             },
@@ -3799,7 +3799,7 @@ Resource.prototype.isA = function (prototype)
 
         const prefix = prefixedForm.split(":")[0];
         const shortName = prefixedForm.split(":")[1];
-        const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+        const Ontology = rlequire("dendro", "src/models/meta/ontology.js").Ontology;
         return Ontology.allOntologies[prefix].uri + shortName;
     };
 
@@ -3858,7 +3858,7 @@ Resource.prototype.isA = function (prototype)
 
 Resource.arrayToCSVFile = function (resourceArray, fileName, callback)
 {
-    const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+    const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
 
     File.createBlankTempFile(fileName, function (err, tempFileAbsPath)
     {
@@ -4024,6 +4024,112 @@ Resource.prototype.refreshHumanReadableUri = function (callback, customGraphUri)
             }
         }
     );
+};
+
+
+Resource.prototype.getActiveStorageConfig = function (callback, customGraphUri)
+{
+  const self = this;
+  const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+  const StorageConfig = rlequire("dendro", "src/models/storage/storageConfig.js").StorageConfig;
+
+  StorageConfig.findByUri(self.ddr.hasStorageConfig, function (err, config)
+  {
+    if (!isNull(err))
+    {
+      config.deleteAllMyTriples(function (err, result)
+      {
+        callback(err, result);
+      }, graphUri);
+    }
+    else
+    {
+      callback(err, config);
+    }
+  });
+};
+
+Resource.prototype.getActiveStorageConnection = function (callback)
+{
+  const self = this;
+  const StorageB2drop = rlequire("dendro", "src/kb/storage/storageB2Drop.js").StorageB2drop;
+  const StorageGridFs = rlequire("dendro", "src/kb/storage/storageGridFs.js").StorageGridFs;
+  self.getActiveStorageConfig(function (err, config)
+  {
+    if (isNull(err))
+    {
+      if (config.ddr.hasStorageType === "local")
+      {
+        const newStorageLocal = new StorageGridFs(
+          Config.defaultStorageConfig.username,
+          Config.defaultStorageConfig.password,
+          Config.defaultStorageConfig.host,
+          Config.defaultStorageConfig.port,
+          Config.defaultStorageConfig.collectionName
+        );
+
+        return callback(null, newStorageLocal);
+      }
+      else if (config.ddr.hasStorageType === "b2drop")
+      {
+        const newStorageB2drop = new StorageB2drop(config.ddr.username, config.ddr.password);
+        return callback(null, newStorageB2drop);
+      }
+
+      return callback(true, "Unknown storage type");
+    }
+
+    return callback(true, "project " + self.uri + " has no storageConfig");
+  });
+};
+
+Resource.prototype.deleteActiveStorageConfig = function (callback, customGraphUri)
+{
+  const self = this;
+  const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+  self.getActiveStorageConfig(function (err, config)
+  {
+    if (!isNull(err))
+    {
+      config.deleteAllMyTriples(function (err, result)
+      {
+        callback(err, result);
+      }, graphUri);
+    }
+    else
+    {
+      callback(err, config);
+    }
+  });
+};
+
+Resource.prototype.deleteAllStorageConfigs = function (callback, customGraphUri)
+{
+  const self = this;
+  const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+  const StorageConfig = rlequire("dendro", "src/models/storage/storageConfig.js").StorageConfig;
+
+  StorageConfig.findByProject(self.uri, function (err, configs)
+  {
+    if (isNull(err))
+    {
+      async.mapSeries(configs, function (config, callback)
+      {
+        config.deleteAllMyTriples(function (err, result)
+        {
+          callback(err, result);
+        }, graphUri);
+      }, function (err, result)
+      {
+        callback(err);
+      });
+    }
+    else
+    {
+      callback(err, configs);
+    }
+  });
 };
 
 Resource = Class.extend(Resource, Class, "ddr:Resource");

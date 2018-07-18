@@ -1,18 +1,17 @@
 // complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
 const path = require("path");
-const slug = require("slug");
 const XLSX = require("xlsx");
 const _ = require("underscore");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-const DataStoreConnection = require(Pathfinder.absPathInSrcFolder("/kb/datastore/datastore_connection.js")).DataStoreConnection;
-const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
-const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const InformationElement = rlequire("dendro", "src/models/directory_structure/information_element.js").InformationElement;
+const DataStoreConnection = rlequire("dendro", "src/kb/datastore/datastore_connection.js").DataStoreConnection;
+const Class = rlequire("dendro", "src/models/meta/class.js").Class;
+const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const gfs = Config.getGFSByID();
 
 const async = require("async");
@@ -147,7 +146,7 @@ File.createBlankFileRelativeToAppRoot = function (relativePathToFile, callback)
 {
     const fs = require("fs");
 
-    const absPathToFile = Pathfinder.absPathInApp(relativePathToFile);
+    const absPathToFile = rlequire.absPathInApp("dendro", relativePathToFile);
     const parentFolder = path.resolve(absPathToFile, "..");
 
     fs.stat(absPathToFile, function (err, stat)
@@ -226,35 +225,46 @@ File.prototype.autorename = function ()
 
 File.prototype.copyPaste = function ({destinationFolder}, callback)
 {
-  const self = this;
-  self.writeToTempFile(function (err, writtenFilePath)
-  {
-    const newFile = new File({
-      nie: {
-        title: self.nie.title,
-        isLogicalPartOf: destinationFolder.uri
-      }
-    });
-
-    newFile.saveWithFileAndContents(writtenFilePath, function (err, newFile)
+    const self = this;
+    self.writeToTempFile(function (err, writtenFilePath)
     {
       if (isNull(err))
       {
-        return callback(null, {
-          result: "success",
-          message: "File copied successfully.",
-          uri: newFile.uri
+        const newFile = new File({
+          nie: {
+            title: self.nie.title,
+            isLogicalPartOf: destinationFolder.uri
+          }
         });
+        newFile.saveWithFileAndContents(writtenFilePath, function (err, newFile)
+        {
+          if (isNull(err))
+          {
+            destinationFolder.nie.hasLogicalPart = newFile.uri;
+            return callback(null, {
+              result: "success",
+              message: "File copied successfully.",
+              uri: newFile.uri
+            });
+          }
+          const msg = "Error [" + err + "] reindexing file [" + newFile.uri + "]in GridFS :" + newFile;
+          return callback(500, {
+            result: "error",
+            message: "Unable to save files after buffering: " + JSON.stringify(newFile),
+            files: files,
+            errors: newFile
+          });
+        });
+      }else {
+        const msg = "Error [" + err + "] reindexing file [" + newFile.uri + "]in GridFS :" + newFile;
+        return callback(500, {
+          result: "error",
+          message: "Unable to save files after buffering: " + JSON.stringify(newFile),
+          errors: err
+        });
+
       }
-      const msg = "Error [" + err + "] reindexing file [" + newFile.uri + "]in GridFS :" + newFile;
-      return callback(500, {
-        result: "error",
-        message: "Unable to save files after buffering: " + JSON.stringify(newFile),
-        files: files,
-        errors: newFile
-      });
     });
-  });
 };
 
 File.prototype.save = function (callback, rename)
@@ -660,7 +670,7 @@ File.prototype.getThumbnail = function (size, callback)
                     // try to regenerate thumbnails, fire and forget
                     self.generateThumbnails(function (err, result)
                     {
-                        return callback(null, Pathfinder.absPathInPublicFolder("images/icons/page_white_gear.png"));
+                        return callback(null, rlequire.absPathInApp("dendro", "public/images/icons/page_white_gear.png"));
                     });
                 }
                 else if (isNull(err))
@@ -683,7 +693,7 @@ File.prototype.loadFromLocalFile = function (localFile, callback)
 
     self.getOwnerProject(function (err, ownerProject)
     {
-        const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+        const Project = rlequire("dendro", "src/models/project.js").Project;
         if (isNull && ownerProject instanceof Project)
         {
             /** SAVE FILE**/
@@ -717,7 +727,41 @@ File.prototype.loadFromLocalFile = function (localFile, callback)
         }
         else
         {
-            callback(err, ownerProject);
+            self.getOwnerDeposit(function(err, ownerDeposit){
+              const Deposit = rlequire("dendro", "src/models/deposit.js").Deposit;
+                if(isNull && ownerDeposit instanceof Deposit){
+                  /** SAVE FILE**/
+                  self.getDepositStorage(function (err, storageConnection)
+                  {
+                    if (isNull(err))
+                    {
+                      storageConnection.put(self,
+                        fs.createReadStream(localFile),
+                        function (err, result)
+                        {
+                          if (isNull(err))
+                          {
+                            return callback(null, self);
+                          }
+
+                          Logger.log("Error [" + err + "] saving file in GridFS :" + result);
+                          return callback(err, result);
+                        },
+                        {
+                          deposit: ownerDeposit,
+                          type: "nie:File"
+                        }
+                      );
+                    }
+                    else
+                    {
+                      return callback(true, storageConnection);
+                    }
+                  });
+                } else{
+                    callback(err, ownerProject);
+                }
+            });
         }
     });
 };
@@ -758,9 +802,24 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
 
     const markErrorProcessingData = function (err, callback)
     {
+        let processingError;
+        const unknownErrorMessage = "Unknown error occurred while extracting data";
+        if (err instanceof Object)
+        {
+            processingError = (err.message) ? err.message : unknownErrorMessage;
+        }
+        else if (typeof err === "string")
+        {
+            processingError = err;
+        }
+        else
+        {
+            processingError = unknownErrorMessage;
+        }
+
         let hasDataProcessingErrorTrue = new Descriptor({
             prefixedForm: "ddr:hasDataProcessingError",
-            value: (err instanceof Object) ? err.message : err
+            value: processingError
         });
 
         self.insertDescriptors([hasDataProcessingErrorTrue], function (err, result)
@@ -777,7 +836,7 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
         });
     };
 
-    function safe_decode_range (range)
+    function safeDecodingRange (range)
     {
         let o = {s: {c: 0, r: 0}, e: {c: 0, r: 0}};
         let idx = 0, i = 0, cc = 0;
@@ -830,10 +889,10 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
         switch (typeof range)
         {
         case "string":
-            r = safe_decode_range(range);
+            r = safeDecodingRange(range);
             break;
         case "number":
-            r = safe_decode_range(sheet["!ref"]);
+            r = safeDecodingRange(sheet["!ref"]);
             r.s.r = range;
             break;
         default:
@@ -911,7 +970,7 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
     const xlsFileParser = function (filePath, callback)
     {
         let workbook;
-        let formats = ["biff8", "biff5", "biff2", "xlml"];
+        let formats = ["biff8", "biff5", "biff2", "xlml", "xlsx", "xlsm", "xlsb"];
 
         const handleWorkbook = function (workbook, callback)
         {
@@ -942,22 +1001,26 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
             });
         };
 
-        async.detectSeries(formats, function(format, callback){
+        async.detectSeries(formats, function (format, callback)
+        {
             try
             {
                 workbook = XLSX.readFile(filePath, {
                     format: format
                 });
 
-                handleWorkbook(workbook, function(err, result){
+                handleWorkbook(workbook, function (err, result)
+                {
                     callback(null, isNull(err));
                 });
             }
             catch (error)
             {
                 Logger.log("error", error.message);
+                callback(null, false);
             }
-        }, function(err, processedAtLeastOneFormatOK){
+        }, function (err, processedAtLeastOneFormatOK)
+        {
             if (!err && processedAtLeastOneFormatOK)
             {
                 callback(null);
@@ -1096,18 +1159,18 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
             },
             function (location, callback)
             {
-                parser(location, function (err)
+                parser(location, function (err, result)
                 {
                     if (!isNull(err))
                     {
                         markErrorProcessingData(err, function ()
                         {
-                            callback(err);
+                            callback(err, result);
                         });
                     }
                     else
                     {
-                        callback(err);
+                        callback(err, result);
                     }
                 });
             }
@@ -1292,7 +1355,18 @@ File.prototype.pipeData = function (res, skipRows, pageSize, sheetIndex, outputF
 File.prototype.connectToMongo = function (callback)
 {
     const MongoClient = require("mongodb").MongoClient;
-    const url = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + Config.mongoDbCollectionName;
+    const slug = rlequire("dendro", "src/utils/slugifier.js");
+
+    let url;
+    if (Config.mongoDBAuth.username && Config.mongoDBAuth.password && Config.mongoDBAuth.password !== "" && Config.mongoDBAuth.username !== "")
+    {
+        url = "mongodb://" + Config.mongoDBAuth.username + ":" + Config.mongoDBAuth.password + "@" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + slug(Config.mongoDbCollectionName) + "?authSource=admin";
+    }
+    else
+    {
+        url = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + slug(Config.mongoDbCollectionName);
+    }
+
     MongoClient.connect(url, function (err, db)
     {
         if (isNull(err))
@@ -1477,7 +1551,7 @@ File.prototype.getProjectStorage = function (callback)
     {
         if (isNull(err))
         {
-            const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+            const Project = rlequire("dendro", "src/models/project.js").Project;
             if (isNull && ownerProject instanceof Project)
             {
                 ownerProject.getActiveStorageConnection(function (err, connection)
@@ -1495,6 +1569,34 @@ File.prototype.getProjectStorage = function (callback)
             return callback(true, "file with no project");
         }
     });
+};
+
+File.prototype.getDepositStorage = function (callback)
+{
+  const self = this;
+
+  self.getOwnerDeposit(function (err, ownerDeposit)
+  {
+    if (isNull(err))
+    {
+      const Deposit = rlequire("dendro", "src/models/deposit.js").Deposit;
+      if (isNull && ownerDeposit instanceof Deposit)
+      {
+        ownerDeposit.getActiveStorageConnection(function (err, connection)
+        {
+          callback(err, connection);
+        });
+      }
+      else
+      {
+        callback(err, ownerDeposit);
+      }
+    }
+    else
+    {
+      return callback(true, "file with no project");
+    }
+  });
 };
 
 File = Class.extend(File, InformationElement, "nfo:FileDataObject");

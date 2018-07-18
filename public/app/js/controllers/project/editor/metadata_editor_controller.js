@@ -20,7 +20,8 @@ angular.module("dendroApp.controllers")
         ontologiesService,
         storageService,
         recommendationService,
-        descriptorsService
+        descriptorsService,
+        usSpinnerService
     )
     {
         $scope.recover_metadata = function ()
@@ -227,6 +228,112 @@ angular.module("dendroApp.controllers")
             }
         };
 
+        $scope.clear_inherited = function ()
+        {
+            if ($scope.shared.metadata != null && $scope.shared.metadata instanceof Array && $scope.shared.metadata.length > 0)
+            {
+                var sharedMetadataClearedOfInheritedDescriptors = _.reject($scope.shared.metadata, function (metadata)
+                {
+                    return metadata.just_inherited === true;
+                });
+
+                if (sharedMetadataClearedOfInheritedDescriptors instanceof Array)
+                {
+                    $scope.shared.metadata = sharedMetadataClearedOfInheritedDescriptors;
+                }
+            }
+        };
+
+        $scope.closeImportMetadataFileModal = function ()
+        {
+            var fileElement = angular.element("#metadataFile");
+            angular.element(fileElement).val(null);
+            angular.element("#importMetadataFileModal").modal("hide");
+        };
+
+        $scope.startUploadMetadataFileSpinner = function ()
+        {
+            usSpinnerService.spin("upload-metadata-file-spinner");
+        };
+
+        $scope.stopUploadMetadataFileSpinner = function ()
+        {
+            $timeout(function ()
+            {
+                usSpinnerService.stop("upload-metadata-file-spinner");
+            }, 2000);
+        };
+
+        $scope.import_metadata = function ()
+        {
+            const removeImproperDescriptors = function (descriptors)
+            {
+                var allowedDescriptorsToImport = _.reject(descriptors, function (descriptor)
+                {
+                    return (descriptor.locked === true || descriptor.private === true);
+                });
+                return allowedDescriptorsToImport;
+            };
+
+            const markDescriptorsAsJustAdded = function (descriptors)
+            {
+                return _.map(descriptors, function (descriptor)
+                {
+                    descriptor.just_added = true;
+                    return descriptor;
+                });
+            };
+
+            var file = document.getElementById("metadataFile").files[0];
+            var reader = new FileReader();
+
+            reader.onloadend = function (ev)
+            {
+                var data = ev.target.result;
+                var metadataAsJSON = null;
+                try
+                {
+                    metadataAsJSON = JSON.parse(data);
+                    if (metadataAsJSON !== null && metadataAsJSON.descriptors !== null && metadataAsJSON.descriptors instanceof Array && metadataAsJSON.descriptors.length > 0)
+                    {
+                        var allowedDescriptorsToImport = removeImproperDescriptors(metadataAsJSON.descriptors);
+                        if (allowedDescriptorsToImport !== null && allowedDescriptorsToImport instanceof Array && allowedDescriptorsToImport.length > 0)
+                        {
+                            allowedDescriptorsToImport = markDescriptorsAsJustAdded(allowedDescriptorsToImport);
+                            // load them into $scope.shared.metadata
+                            $scope.add_all_descriptors(allowedDescriptorsToImport);
+                            $scope.$apply();
+                            windowService.show_popup("success", "Completed", "Imported " + allowedDescriptorsToImport.length);
+                            $scope.closeImportMetadataFileModal();
+                            $scope.stopUploadMetadataFileSpinner();
+                        }
+                        else
+                        {
+                            windowService.show_popup("info", "Could not import metadata", "There were no valid desciptors to import");
+                            $scope.closeImportMetadataFileModal();
+                            $scope.stopUploadMetadataFileSpinner();
+                        }
+                    }
+                }
+                catch (error)
+                {
+                    windowService.show_popup("error", "Error", "Are you sure the metadata file is a valid JSON?");
+                    $scope.closeImportMetadataFileModal();
+                    $scope.stopUploadMetadataFileSpinner();
+                }
+            };
+
+            if (file instanceof Blob)
+            {
+                $scope.startUploadMetadataFileSpinner();
+                reader.readAsText(file);
+            }
+            else
+            {
+                windowService.show_popup("info", "No JSON file detected", "Please upload a valid JSON file!");
+            }
+        };
+
         $scope.clear_metadata = function ()
         {
             bootbox.confirm("Clear metadata?", function (confirmed)
@@ -245,18 +352,18 @@ angular.module("dendroApp.controllers")
 
             return $http
                 .get(requestUri)
-                .then(function (data)
+                .then(function (response)
                 {
-                    if (data.descriptors != null && data.descriptors instanceof Array && data.descriptors.length > 0)
+                    if (response.data.descriptors != null && response.data.descriptors instanceof Array && response.data.descriptors.length > 0)
                     {
-                        for (var i = 0; i < data.descriptors.length; i++)
+                        for (var i = 0; i < response.data.descriptors.length; i++)
                         {
-                            data.descriptors[i].just_inherited = true;
+                            response.data.descriptors[i].just_inherited = true;
                         }
 
-                        $scope.add_all_descriptors(data.descriptors);
+                        $scope.add_all_descriptors(response.data.descriptors);
 
-                        windowService.show_popup("success", "Completed", "Copied " + data.descriptors.length + " descriptors from parent folder.");
+                        windowService.show_popup("success", "Completed", "Copied " + response.data.descriptors.length + " descriptors from parent folder.");
 
                         return $scope.shared.metadata;
                     }

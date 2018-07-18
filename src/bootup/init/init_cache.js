@@ -1,19 +1,19 @@
 const fs = require("fs");
 
-const Pathfinder = global.Pathfinder;
-const Cache = require(Pathfinder.absPathInSrcFolder("kb/cache/cache.js")).Cache;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const rlequire = require("rlequire");
+const Cache = rlequire("dendro", "src/kb/cache/cache.js").Cache;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 const initCache = function (app, callback)
 {
     if (Config.cache.active)
     {
-        const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
+        const Cache = rlequire("dendro", "src/kb/cache/cache.js").Cache;
         Cache.initConnections(function (err, result)
         {
             callback(err);
-        }, Config.startup.clear_caches);
+        });
     }
     else
     {

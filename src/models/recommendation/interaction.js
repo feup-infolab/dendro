@@ -1,12 +1,12 @@
 const path = require("path");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
-const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const Class = rlequire("dendro", "src/models/meta/class.js").Class;
+const Resource = rlequire("dendro", "src/models/resource.js").Resource;
 
 const moment = require("moment");
 const async = require("async");
@@ -325,7 +325,7 @@ Interaction.prototype.saveToMySQL = function (callback, overwrite)
             Logger.log(insertNewInteractionQuery);
         }
 
-        mysql.pool.getConnection(function (err, connection)
+        mysql.getConnection(function (err, connection)
         {
             if (isNull(err))
             {
@@ -334,16 +334,17 @@ Interaction.prototype.saveToMySQL = function (callback, overwrite)
                     inserts,
                     function (err, rows, fields)
                     {
-                        connection.release();
-
-                        if (isNull(err))
+                        mysql.releaseConnection(connection, function ()
                         {
-                            return callback(null, rows, fields);
-                        }
+                            if (isNull(err))
+                            {
+                                return callback(null, rows, fields);
+                            }
 
-                        const msg = "Error saving interaction to MySQL database : " + err;
-                        Logger.log("error", msg);
-                        return callback(1, msg);
+                            const msg = "Error saving interaction to MySQL database : " + err;
+                            Logger.log("error", msg);
+                            return callback(1, msg);
+                        });
                     });
             }
             else
@@ -365,34 +366,36 @@ Interaction.prototype.saveToMySQL = function (callback, overwrite)
     }
     else
     {
-        mysql.pool.getConnection(function (err, connection)
+        mysql.getConnection(function (err, connection)
         {
             if (isNull(err))
             {
                 connection.query("SELECT * from ?? WHERE uri = ?", [targetTable, self.uri], function (err, rows, fields)
                 {
-                    connection.release();
-                    if (isNull(err))
+                    mysql.releaseConnection(connection, function ()
                     {
-                        if (!isNull(rows) && rows instanceof Array && rows.length > 0)
+                        if (isNull(err))
                         {
-                            // an interaction with the same URI is already recorded, there must be some error!
-                            return callback(1, "Interaction with URI " + self.uri + " already recorded in MYSQL.");
-                        }
-                        // insert the new interaction
-                        insertNewInteraction(function (err, rows, fields)
-                        {
-                            if (err)
+                            if (!isNull(rows) && rows instanceof Array && rows.length > 0)
                             {
-                                return callback(1, "Error inserting new interaction to MYSQL with URI " + self.uri);
+                                // an interaction with the same URI is already recorded, there must be some error!
+                                return callback(1, "Interaction with URI " + self.uri + " already recorded in MYSQL.");
                             }
-                            return callback(null, rows);
-                        });
-                    }
-                    else
-                    {
-                        return callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database.");
-                    }
+                            // insert the new interaction
+                            insertNewInteraction(function (err, rows, fields)
+                            {
+                                if (err)
+                                {
+                                    return callback(1, "Error inserting new interaction to MYSQL with URI " + self.uri);
+                                }
+                                return callback(null, rows);
+                            });
+                        }
+                        else
+                        {
+                            return callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database.");
+                        }
+                    });
                 });
             }
             else
@@ -560,7 +563,7 @@ Interaction.types =
 Interaction.prototype.getHumanReadableUri = function (callback)
 {
     const self = this;
-    const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+    const User = rlequire("dendro", "src/models/user.js").User;
     if (self.ddr.performedBy instanceof Object)
     {
         return callback(null, "/user/" + self.ddr.performedBy.ddr.username + "/interaction/" + self.ddr.created);

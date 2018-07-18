@@ -1,26 +1,24 @@
 const path = require("path");
 const _ = require("underscore");
-const Pathfinder = global.Pathfinder;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-
-const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
-const StorageConfig = require(Pathfinder.absPathInSrcFolder("/models/storage/storageConfig.js")).StorageConfig;
-const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
-const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const Permissions = require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions;
-const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
-const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Uploader = require(Pathfinder.absPathInSrcFolder("/utils/uploader.js")).Uploader;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const Deposit = require(Pathfinder.absPathInSrcFolder("/models/deposit.js")).Deposit;
-
+const Ontology = rlequire("dendro", "src/models/meta/ontology.js").Ontology;
+const Project = rlequire("dendro", "src/models/project.js").Project;
+const StorageConfig = rlequire("dendro", "src/models/storage/storageConfig.js").StorageConfig;
+const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder;
+const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
+const InformationElement = rlequire("dendro", "src/models/directory_structure/information_element.js").InformationElement;
+const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+const Permissions = rlequire("dendro", "src/models/meta/permissions.js").Permissions;
+const User = rlequire("dendro", "src/models/user.js").User;
+const DbConnection = rlequire("dendro", "src/kb/db.js").DbConnection;
+const Uploader = rlequire("dendro", "src/utils/uploader.js").Uploader;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const Deposit = rlequire("dendro", "src/models/deposit.js").Deposit;
 
 const nodemailer = require("nodemailer");
 const flash = require("connect-flash");
@@ -1228,7 +1226,7 @@ exports.administer = function (req, res)
                         {
                             async.mapSeries(req.body.contributors, function (contributor, callback)
                             {
-                                const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+                                const Resource = rlequire("dendro", "src/models/resource.js").Resource;
                                 const userUriRegexp = Resource.getResourceRegex("user");
                                 const userUsernameRegexp = new RegExp(/^[a-zA-Z0-9_]+$/);
 
@@ -1288,6 +1286,12 @@ exports.administer = function (req, res)
                             {
                                 if (isNull(err))
                                 {
+                                    if (req.body.contributors.length === 0)
+                                    {
+                                        project.dcterms.contributor = [];
+                                        return callback(null, project);
+                                    }
+
                                     // all users were invalid
                                     if (_.without(contributors, null).length === 0)
                                     {
@@ -2297,7 +2301,16 @@ exports.import = function (req, res)
                     {
                         if (isNull(err))
                         {
-                            Logger.log("info", "Project with handle: " + req.query.imported_project_handle + " was successfully restored");
+                            const message = "Project with handle: " + req.query.imported_project_handle + " was successfully restored";
+                            Logger.log("info", message);
+
+                            if (!isNull(newProject))
+                            {
+                                Notification.buildAndSaveFromSystemMessage(message, req.user.uri, function (err, info)
+                                {
+                                    Logger.log("info", "Imported project notification sent");
+                                }, newProject.uri);
+                            }
                             return;
                         }
 

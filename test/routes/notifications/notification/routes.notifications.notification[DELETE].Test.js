@@ -9,27 +9,27 @@ const path = require("path");
 const async = require("async");
 chai.use(chaiHttp);
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
-const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-const versionUtils = require(Pathfinder.absPathInTestsFolder("utils/versions/versionUtils.js"));
-const descriptorUtils = require(Pathfinder.absPathInTestsFolder("utils/descriptor/descriptorUtils.js"));
-const socialDendroUtils = require(Pathfinder.absPathInTestsFolder("/utils/social/socialDendroUtils"));
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const fileUtils = rlequire("dendro", "test/utils/file/fileUtils.js");
+const itemUtils = rlequire("dendro", "test/utils/item/itemUtils.js");
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
+const versionUtils = rlequire("dendro", "test/utils/versions/versionUtils.js");
+const descriptorUtils = rlequire("dendro", "test/utils/descriptor/descriptorUtils.js");
+const socialDendroUtils = rlequire("dendro", "test//utils/social/socialDendroUtils");
 
-const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
-const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
-const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtMockFile.js"));
-let manualPostMockData = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("mockdata/social/manualPostMock.js"));
-const shareMock = require(Pathfinder.absPathInTestsFolder("mockdata/social/shareMock"));
+const publicProject = rlequire("dendro", "test/mockdata/projects/public_project.js");
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");
+const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2.js");
+const demouser3 = rlequire("dendro", "test/mockdata/users/demouser3.js");
+const txtMockFile = rlequire("dendro", "test/mockdata/files/txtMockFile.js");
+let manualPostMockData = rlequire("dendro", "test/mockdata/social/manualPostMock.js");
+const shareMock = rlequire("dendro", "test/mockdata/social/shareMock");
 
-const createSocialDendroTimelineWithPostsAndSharesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/createSocialDendroTimelineWithPostsAndShares.Unit.js"));
-const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+const createSocialDendroTimelineWithPostsAndSharesUnit = rlequire("dendro", "test/units/social/createSocialDendroTimelineWithPostsAndShares.Unit.js");
+const db = rlequire("dendro", "test/utils/db/db.Test.js");
 
 let notificationsDemouser1;
 let notificationToDelete;
@@ -106,15 +106,15 @@ describe("Delete a specific notification tests", function ()
                 socialDendroUtils.getANotificationInfo(true, agent, notificationToDelete, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    res.body[0].actionType.should.equal("Comment");
+                    res.body.ddr.actionType.should.equal("Comment");
                     socialDendroUtils.deleteANotification(true, agent, notificationToDelete, function (err, res)
                     {
                         res.statusCode.should.equal(200);
                         // the notification was deleted, so when requesting the notification info of a notification that no longer exists -> should give a not found error
                         socialDendroUtils.getANotificationInfo(true, agent, notificationToDelete, function (err, res)
                         {
-                            res.statusCode.should.equal(401);
-                            res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to."); // TODO is this correct??
+                            res.statusCode.should.equal(404);
+                            res.body.message.should.equal("Invalid notification uri");
                             done();
                         });
                     });
@@ -123,80 +123,78 @@ describe("Delete a specific notification tests", function ()
         });
 
         // the case where the notification does not exist
-        it("[For demouser1, as the creator of all projects] Should give an unauthorized error when trying to delete a notification that does not exist", function (done)
+        // because there you be an error for the user in the ui
+        it("[For demouser1, as the creator of all projects] Should 'delete' a notification that does not exist", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 socialDendroUtils.deleteANotification(true, agent, notificationToDelete + "-bugHere", function (err, res)
                 {
-                    res.statusCode.should.equal(401);
-                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to.");
+                    res.statusCode.should.equal(200);
                     done();
                 });
             });
         });
 
-        it("[For demouser2, a collaborator in all projects] Should give an unauthorized error when trying to delete a notification that does not exist", function (done)
+        it("[For demouser2, a collaborator in all projects] Should 'delete' a notification that does not exist", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
                 socialDendroUtils.deleteANotification(true, agent, notificationToDelete + "-bugHere", function (err, res)
                 {
-                    res.statusCode.should.equal(401);
-                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to."); // TODO is this correct??
+                    res.statusCode.should.equal(200);
                     done();
                 });
             });
         });
 
-        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error when trying to delete a notification that does not exist", function (done)
+        it("[For demouser3, is not a creator or collaborator in any projects] Should 'delete' a notification that does not exist", function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
                 socialDendroUtils.deleteANotification(true, agent, notificationToDelete + "-bugHere", function (err, res)
                 {
-                    res.statusCode.should.equal(401);
-                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to."); // TODO is this correct??
+                    res.statusCode.should.equal(200);
                     done();
                 });
             });
         });
 
         // the case where the notificationUri is null
-        it("[For demouser1, as the creator of all projects] Should give an unauthorized error when trying to delete a notification uri that is null", function (done)
+        it("[For demouser1, as the creator of all projects] Should give a bad request error when trying to delete a notification uri that is null", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 socialDendroUtils.deleteANotification(true, agent, null, function (err, res)
                 {
-                    res.statusCode.should.equal(401);
-                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to."); // TODO is this correct??
+                    res.statusCode.should.equal(400);
+                    res.body.message.should.equal("Missing required field notificationUri");
                     done();
                 });
             });
         });
 
-        it("[For demouser2, a collaborator in all projects] Should give an unauthorized error when trying to delete a notification uri that is null", function (done)
+        it("[For demouser2, a collaborator in all projects] Should give a bad request error when trying to delete a notification uri that is null", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
                 socialDendroUtils.deleteANotification(true, agent, null, function (err, res)
                 {
-                    res.statusCode.should.equal(401);
-                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to."); // TODO is this correct??
+                    res.statusCode.should.equal(400);
+                    res.body.message.should.equal("Missing required field notificationUri");
                     done();
                 });
             });
         });
 
-        it("[For demouser3, is not a creator or collaborator in any projects] Should give an unauthorized error when trying to delete a notification uri that is null", function (done)
+        it("[For demouser3, is not a creator or collaborator in any projects] Should give a bad request error when trying to delete a notification uri that is null", function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
                 socialDendroUtils.deleteANotification(true, agent, null, function (err, res)
                 {
-                    res.statusCode.should.equal(401);
-                    res.body.message.should.equal("Permission denied : You are not the author of the resource that this notification points to."); // TODO is this correct??
+                    res.statusCode.should.equal(400);
+                    res.body.message.should.equal("Missing required field notificationUri");
                     done();
                 });
             });

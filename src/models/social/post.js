@@ -1,17 +1,17 @@
 const path = require("path");
 const async = require("async");
 const _ = require("underscore");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
-const Event = require(Pathfinder.absPathInSrcFolder("/models/social/event.js")).Event;
-const Comment = require(Pathfinder.absPathInSrcFolder("/models/social/comment.js")).Comment;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Class = rlequire("dendro", "src/models/meta/class.js").Class;
+const Event = rlequire("dendro", "src/models/social/event.js").Event;
+const Comment = rlequire("dendro", "src/models/social/comment.js").Comment;
 const uuid = require("uuid");
-const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const DbConnection = rlequire("dendro", "src/kb/db.js").DbConnection;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const db = Config.getDBByID();
 const db_social = Config.getDBByID("social");
 
@@ -174,7 +174,7 @@ Post.prototype.getShares = function (cb)
                 async.mapSeries(results, function (shareObject, callback)
                 {
                     // Share.findByUri(shareObject.shareURI, function(err, share)
-                    const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+                    const Resource = rlequire("dendro", "src/models/resource.js").Resource;
                     Resource.findByUri(shareObject.shareURI, function (err, share)
                     {
                         callback(false, share);
@@ -227,7 +227,7 @@ Post.prototype.getOwnerProject = function (callback)
             {
                 if (result instanceof Array && result.length === 1)
                 {
-                    const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+                    const Project = rlequire("dendro", "src/models/project.js").Project;
                     Project.findByUri(result[0].uri, function (err, project)
                     {
                         callback(err, project);

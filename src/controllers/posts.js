@@ -1,16 +1,16 @@
 const path = require("path");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
 const Post = require("../models/social/post.js").Post;
 const Like = require("../models/social/like.js").Like;
-const Notification = require("../models/notifications/notification.js").Notification;
+const Notification = rlequire("dendro", "src/models/notifications/notification.js").Notification;
 const Comment = require("../models/social/comment.js").Comment;
 const Share = require("../models/social/share.js").Share;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const Project = require("../models/project.js").Project;
 const DbConnection = require("../kb/db.js").DbConnection;
 const MetadataChangePost = require("../models/social/metadataChangePost").MetadataChangePost;
@@ -470,7 +470,7 @@ exports.getPosts_controller = function (req, res)
             {
                 Post.findByUri(postQueryInfo.uri, function (err, post)
                 {
-                    if (!err && post != null)
+                    if (isNull(err) && !isNull(post))
                     {
                         async.series([
                             function (callback)
@@ -510,7 +510,7 @@ exports.getPosts_controller = function (req, res)
                                             {
                                                 // [editChanges, addChanges, deleteChanges]
                                                 /* post.changesInfo = changesInfo;
-                                                    callback(err); */
+                                                        callback(err); */
                                                 if (isNull(err))
                                                 {
                                                     post.changesInfo = changesInfo;
@@ -520,15 +520,15 @@ exports.getPosts_controller = function (req, res)
                                                 {
                                                     // typeof "foo" === "string"
                                                     /* if(typeof changesInfo === "string" && changesInfo === "Resource at getChangesFromMetadataChangePost resource does not exist")
-                                                        {
-                                                            post = null;
-                                                            delete post;
-                                                            callback(null, null);
-                                                        }
-                                                        else
-                                                        {
-                                                            callback(err, changesInfo);
-                                                        } */
+                                                            {
+                                                                post = null;
+                                                                delete post;
+                                                                callback(null, null);
+                                                            }
+                                                            else
+                                                            {
+                                                                callback(err, changesInfo);
+                                                            } */
                                                     callback(err, changesInfo);
                                                 }
                                             });
@@ -613,20 +613,32 @@ exports.getPosts_controller = function (req, res)
                                 }
                                 else
                                 {
-                                    callback(err, results);
+                                    callback(err, results[res]);
                                 }
                             }
                         });
                     }
                     else
                     {
-                        const errorMsg = "Invalid post uri";
+                        let errorMsg = isNull(post) ? "Invalid post uri: " + postQueryInfo.uri : "Error at getSharesOrPostsInfo: " + JSON.stringify(post);
                         callback(true, errorMsg);
                     }
                 }, null, db_social.graphUri, false, null, null);
             }, function (err, results)
             {
-                cb(err, postsInfo);
+                if (isNull(err))
+                {
+                    cb(err, postsInfo);
+                }
+                else
+                {
+                    // results.pop() returns the last element of the results array and also removes it.
+                    // in this case it is the error message, as async.mapSeries runs the functions above one at a time for each postUri
+                    // if one fails, it gets here instantly without running the functions for the remaining postUris
+                    // so the last element in the results array is the error message of the postUri that failed
+                    let errorMessage = results.pop();
+                    cb(err, errorMessage);
+                }
             });
         };
 
@@ -649,9 +661,13 @@ exports.getPosts_controller = function (req, res)
             }
             else
             {
+                if (!(typeof postInfo === "string" || postInfo instanceof String))
+                {
+                    postInfo = JSON.stringify(postInfo);
+                }
                 res.status(500).json({
                     result: "Error",
-                    message: "Error getting a post. " + JSON.stringify(postInfo)
+                    message: "Error getting a post. " + postInfo
                 });
             }
         });
@@ -1017,21 +1033,6 @@ exports.share = function (req, res)
                     }
                     else
                     {
-                        /* const newShare = new Share({
-                         ddr: {
-                         userWhoShared : currentUser.uri,
-                         postURI: post.uri,
-                         shareMsg: shareMsg,
-                         projectUri: post.ddr.projectUri
-                         },
-                         dcterms: {
-                         creator: currentUser.uri
-                         },
-                         rdf: {
-                         isShare : true
-                         }
-                         }); */
-
                         let newShareData = {
                             ddr: {
                                 userWhoShared: currentUser.uri,
@@ -1049,56 +1050,50 @@ exports.share = function (req, res)
 
                         Share.buildFromInfo(newShareData, function (err, newShare)
                         {
-                            let newNotification = new Notification({
-                                ddr: {
-                                    userWhoActed: currentUser.uri,
-                                    resourceTargetUri: post.uri,
-                                    actionType: "Share",
-                                    resourceAuthorUri: post.dcterms.creator,
-                                    shareURI: newShare.uri
-                                },
-                                foaf: {
-                                    status: "unread"
-                                }
-                            });
-
-                            newShare.save(function (err, resultShare)
+                            if (isNull(err) && !isNull(newShare))
                             {
-                                if (isNull(err))
+                                newShare.save(function (err, resultShare)
                                 {
-                                    /*
-                                     res.json({
-                                     result : "OK",
-                                     message : "Post shared successfully"
-                                     }); */
-                                    newNotification.save(function (error, resultNotification)
+                                    if (isNull(err) && !isNull(resultShare))
                                     {
-                                        if (isNull(error))
+                                        Notification.buildAndSaveFromShare(currentUser, post, newShare, function (error, info)
                                         {
-                                            res.json({
-                                                result: "OK",
-                                                message: "Post shared successfully"
-                                            });
-                                        }
-                                        else
-                                        {
-                                            res.status(500).json({
-                                                result: "Error",
-                                                message: "Error saving a notification for a Share " + JSON.stringify(resultNotification)
-                                            });
-                                        }
-                                    }, false, null, null, null, null, db_notifications.graphUri);
-                                }
-                                else
-                                {
-                                    Logger.log("error", "Error share a post");
-                                    Logger.log("error", err);
-                                    res.status(500).json({
-                                        result: "Error",
-                                        message: "Error sharing a post. " + JSON.stringify(resultShare)
-                                    });
-                                }
-                            }, false, null, null, null, null, db_social.graphUri);
+                                            if (isNull(error))
+                                            {
+                                                res.json({
+                                                    result: "OK",
+                                                    message: "Post shared successfully"
+                                                });
+                                            }
+                                            else
+                                            {
+                                                res.status(500).json({
+                                                    result: "Error",
+                                                    message: "Error saving a notification for a Share " + JSON.stringify(info)
+                                                });
+                                            }
+                                        });
+                                    }
+                                    else
+                                    {
+                                        Logger.log("error", "Error sharing a post");
+                                        Logger.log("error", err);
+                                        res.status(500).json({
+                                            result: "Error",
+                                            message: "Error sharing a post. " + JSON.stringify(resultShare)
+                                        });
+                                    }
+                                }, false, null, null, null, null, db_social.graphUri);
+                            }
+                            else
+                            {
+                                Logger.log("error", "Error building a share of a post");
+                                Logger.log("error", err);
+                                res.status(500).json({
+                                    result: "Error",
+                                    message: "Error sharing a post. " + JSON.stringify(newShare)
+                                });
+                            }
                         });
                     }
                 }
@@ -1205,28 +1200,11 @@ exports.comment = function (req, res)
                         }
                     });
 
-                    let newNotification = new Notification({
-                        ddr: {
-                            userWhoActed: currentUser.uri,
-                            resourceTargetUri: post.uri,
-                            actionType: "Comment",
-                            resourceAuthorUri: post.dcterms.creator
-                        },
-                        foaf: {
-                            status: "unread"
-                        }
-                    });
-
                     newComment.save(function (err, resultComment)
                     {
-                        if (isNull(err))
+                        if (isNull(err) && !isNull(resultComment))
                         {
-                            /*
-                             res.json({
-                             result : "OK",
-                             message : "Post commented successfully"
-                             }); */
-                            newNotification.save(function (error, resultNotification)
+                            Notification.buildAndSaveFromComment(currentUser, post, function (error, info)
                             {
                                 if (isNull(error))
                                 {
@@ -1239,10 +1217,10 @@ exports.comment = function (req, res)
                                 {
                                     res.status(500).json({
                                         result: "Error",
-                                        message: "Error saving a notification for a Comment " + JSON.stringify(resultNotification)
+                                        message: "Error saving a notification for a Comment " + JSON.stringify(info)
                                     });
                                 }
-                            }, false, null, null, null, null, db_notifications.graphUri);
+                            });
                         }
                         else
                         {
@@ -1273,63 +1251,6 @@ exports.comment = function (req, res)
             message: msg
         });
     }
-
-    /* Post.findByUri(req.body.postID, function(err, post)
-     {
-     const newComment = new Comment({
-     ddr: {
-     userWhoCommented : currentUser.uri,
-     postURI: post.uri,
-     commentMsg: commentMsg
-     }
-     });
-     const newNotification = new Notification({
-     ddr: {
-     userWhoActed : currentUser.uri,
-     resourceTargetUri: post.uri,
-     actionType: "Comment",
-     resourceAuthorUri: post.dcterms.creator
-     },
-     foaf :
-     {
-     status : "unread"
-     }
-     });
-     newComment.save(function(err, resultComment)
-     {
-     if(!err)
-     {
-     /!*
-     res.json({
-     result : "OK",
-     message : "Post commented successfully"
-     });*!/
-     newNotification.save(function (error, resultNotification) {
-     if(!error)
-     {
-     res.json({
-     result : "OK",
-     message : "Post commented successfully"
-     });
-     }
-     else
-     {
-     res.status(500).json({
-     result: "Error",
-     message: "Error saving a notification for a Comment " + JSON.stringify(resultNotification)
-     });
-     }
-     }, false, null, null, null, null, db_notifications.graphUri);
-     }
-     else
-     {
-     res.status(500).json({
-     result: "Error",
-     message: "Error Commenting a post. " + JSON.stringify(resultComment)
-     });
-     }
-     }, false, null, null, null, null, db_social.graphUri);
-     }, null, db_social.graphUri, null); */
 };
 
 exports.like = function (req, res)
@@ -1349,7 +1270,7 @@ exports.like = function (req, res)
                     // like was removed
                     res.json({
                         result: "OK",
-                        message: "Like was removed"
+                        message: "Like was removed successfully"
                     });
                 }
                 else
@@ -1365,29 +1286,11 @@ exports.like = function (req, res)
                                 }
                             });
 
-                            // resourceTargetUri -> a post etc
-                            // resourceAuthorUri -> the author of the post etc
-                            // userWhoActed -> user who commmented/etc
-                            // actionType -> comment/like/share
-                            // status-> read/unread
-
-                            let newNotification = new Notification({
-                                ddr: {
-                                    userWhoActed: currentUser.uri,
-                                    resourceTargetUri: post.uri,
-                                    actionType: "Like",
-                                    resourceAuthorUri: post.dcterms.creator
-                                },
-                                foaf: {
-                                    status: "unread"
-                                }
-                            });
-
                             newLike.save(function (err, resultLike)
                             {
-                                if (isNull(err))
+                                if (isNull(err) && !isNull(resultLike))
                                 {
-                                    newNotification.save(function (error, resultNotification)
+                                    Notification.buildAndSaveFromLike(currentUser, post, function (error, info)
                                     {
                                         if (isNull(error))
                                         {
@@ -1400,10 +1303,10 @@ exports.like = function (req, res)
                                         {
                                             res.status(500).json({
                                                 result: "Error",
-                                                message: "Error saving a notification for a Like " + JSON.stringify(resultNotification)
+                                                message: "Error saving a notification for a Like " + JSON.stringify(info)
                                             });
                                         }
-                                    }, false, null, null, null, null, db_notifications.graphUri);
+                                    });
                                 }
                                 else
                                 {
