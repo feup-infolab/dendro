@@ -24,7 +24,7 @@ const deleteOldTempFolders = function (app, callback)
             {
                 if (!err && isSafe)
                 {
-                    exec("find " + tmpLocation + " -not -newermt '-7200 seconds' -mindepth 1", function (err, stdout, stderr)
+                    exec("find " + tmpLocation + " -not -newermt '-24 hours' -mindepth 1", function (err, stdout, stderr)
                     {
                         if (!isNull(err))
                         {
@@ -34,7 +34,7 @@ const deleteOldTempFolders = function (app, callback)
                         else
                         {
                             resourcesToDelete = stdout;
-                            exec("find " + tmpLocation + " -not -newermt '-7200 seconds' -mindepth 1 -delete", function (err, stdout, stderr)
+                            exec("find " + tmpLocation + " -not -newermt '-24 hours' -mindepth 1 -delete", function (err, stdout, stderr)
                             {
                                 if (!isNull(err))
                                 {

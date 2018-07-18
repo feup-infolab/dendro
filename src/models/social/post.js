@@ -34,14 +34,12 @@ let Post = function (object, type, postURI, userURI, projectURI)
 
         return self;
     }
-    else
-    {
-        this.typeName = type;
-        this.postURI = postURI;
-        this.userURI = userURI;
-        this.projectURI = projectURI;
-        return this;
-    }
+
+    this.typeName = type;
+    this.postURI = postURI;
+    this.userURI = userURI;
+    this.projectURI = projectURI;
+    return this;
 };
 
 Post.prototype.getComments = function (cb)
@@ -291,15 +289,15 @@ Post.prototype.saveToMySQL = function (callback)
         dbMySQL.posts
             .create(self)
             .then(() =>
-                {
-                    callback(null);
-                    return null;
-                }
+            {
+                callback(null);
+                return null;
+            }
             ).catch(err =>
-                {
-                    callback(err);
-                    return null;
-                }
+            {
+                callback(err);
+                return null;
+            }
             );
     });
 };
@@ -322,15 +320,15 @@ Post.prototype.deleteFromMySQL = function (callback)
                     typeId: self.typeId
                 }
             }).then(() =>
-                {
-                    callback(null)
-                    return null;
-                }
+            {
+                callback(null);
+                return null;
+            }
             ).catch(err =>
-                {
-                    callback(err)
-                    return null;
-                }
+            {
+                callback(err);
+                return null;
+            }
             );
     });
 };
@@ -352,14 +350,14 @@ Post.prototype.updateTimestamp = function (callback)
         })
             .then(() =>
             {
-                callback(null)
+                callback(null);
                 return null;
             })
             .catch(err =>
             {
                 callback(err);
                 return null;
-            })
+            });
     });
 };
 

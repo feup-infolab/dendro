@@ -193,7 +193,7 @@ class App
         }
     }
 
-    bootupDependencies(callback)
+    bootupDependencies (callback)
     {
         const self = this;
 
@@ -209,10 +209,10 @@ class App
                 // start docker containers
                 rlequire("dendro", "src/bootup/init/init_docker.js").initDockerContainers(self.app, callback);
             }
-        ], function(err)
+        ], function (err)
         {
             callback(err);
-        })
+        });
     }
 
     initConnections (callback, force)

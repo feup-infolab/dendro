@@ -651,8 +651,7 @@ exports.getInfoOnArrayOfPosts = function (req, res)
     const acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
 
-
-    if(isNull(req.query.postsQueryInfo))
+    if (isNull(req.query.postsQueryInfo))
     {
         return res.status(400).json({
             result: "Error",
@@ -660,13 +659,14 @@ exports.getInfoOnArrayOfPosts = function (req, res)
         });
     }
 
-    try{
-        if(!(req.query.postsQueryInfo instanceof Array))
+    try
+    {
+        if (!(req.query.postsQueryInfo instanceof Array))
         {
             throw new Error("Invalid postsQueryInfo parameter, which should be an array of post URIs");
         }
     }
-    catch(e)
+    catch (e)
     {
         return res.status(400).json({
             result: "Error",
@@ -1062,7 +1062,7 @@ exports.all = function (req, res)
 
     try
     {
-        if(isNull(req.query.currentPage))
+        if (isNull(req.query.currentPage))
         {
             currentPage = 0;
         }
@@ -1070,8 +1070,10 @@ exports.all = function (req, res)
         {
             currentPage = parseInt(req.query.currentPage);
 
-            if(currentPage === Number.NaN)
+            if (currentPage === Number.NaN)
+            {
                 throw new Error("Invalid currentPage parameter, which must be an integer.");
+            }
         }
     }
     catch (e)
@@ -1085,13 +1087,15 @@ exports.all = function (req, res)
 
     try
     {
-        if(isNull(req.query.useRank))
+        if (isNull(req.query.useRank))
         {
             useRank = 0;
         }
 
-        if(req.query.useRank !== "0" && req.query.useRank !== "1")
+        if (req.query.useRank !== "0" && req.query.useRank !== "1")
+        {
             throw new Error("Invalid useRank parameter, which must be either 1 or 0.");
+        }
 
         useRank = parseInt(req.query.useRank);
     }
@@ -1152,7 +1156,7 @@ exports.all = function (req, res)
                         .spread((timeline, created) =>
                         {
                             let lastAccess = timeline.lastAccess;
-                            if(created)
+                            if (created)
                             {
                                 lastAccess = null;
                             }

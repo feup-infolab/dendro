@@ -25,13 +25,11 @@ let Event = function (object, type, postURI, userURI)
 
         return self;
     }
-    else
-    {
-        this.typeName = type;
-        this.postURI = postURI;
-        this.userURI = userURI;
-        return this;
-    }
+
+    this.typeName = type;
+    this.postURI = postURI;
+    this.userURI = userURI;
+    return this;
 };
 
 Event.prototype.saveToMySQL = function (callback)

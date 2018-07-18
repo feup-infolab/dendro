@@ -16,7 +16,6 @@ class CreateSocialDendroTimelineWithPostsAndShares extends CommentSomePostsUnit
         const self = this;
         unitUtils.startLoad(self);
 
-
         createTimelineInMySQL.setup(function (err, results)
         {
             if (err)

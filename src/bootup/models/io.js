@@ -47,11 +47,11 @@ class IO
                 Logger.log("info", "user " + userUri + " has " + numberConnectedSocketsForUser + " active sockets!");
                 if (numberConnectedSocketsForUser === 0)
                 {
-                    Logger.log("info", "user " + userUri + " has no more active sockets!");
-                    Logger.log("info", "Before deletion -> IO.__usersSessions number : " + Object.keys(IO.__usersSessions).length);
+                    Logger.log("debug", "user " + userUri + " has no more active sockets!");
+                    Logger.log("debug", "Before deletion -> IO.__usersSessions number : " + Object.keys(IO.__usersSessions).length);
                     delete IO.__usersSessions[userUri];
-                    Logger.log("info", "user " + userUri + " was removed from IO.__usersSessions");
-                    Logger.log("info", "After deletion -> IO.__usersSessions number : " + Object.keys(IO.__usersSessions).length);
+                    Logger.log("debug", "user " + userUri + " was removed from IO.__usersSessions");
+                    Logger.log("debug", "After deletion -> IO.__usersSessions number : " + Object.keys(IO.__usersSessions).length);
                 }
             }
         };
@@ -63,7 +63,7 @@ class IO
                 if (!isNull(data.userUri))
                 {
                     clientSocket.userUri = data.userUri;
-                    Logger.log("info", "user: " + data.userUri + " identified with socket iD: " + clientSocket.id);
+                    Logger.log("debug", "user: " + data.userUri + " identified with socket iD: " + clientSocket.id);
                     updateUserSession(data.userUri, clientSocket);
                     clientSocket.emit(data.userUri + ":identified", {socketID: clientSocket.id, userUri: data.user});
                 }
@@ -75,7 +75,7 @@ class IO
 
             clientSocket.on("disconnect", function (data)
             {
-                console.log("Got a socket disconnect event for user " + clientSocket.userUri);
+                Logger.log("debug", "Got a socket disconnect event for user " + clientSocket.userUri);
                 if (!isNull(clientSocket.userUri))
                 {
                     removeSocketFromUserSession(clientSocket.userUri, clientSocket);

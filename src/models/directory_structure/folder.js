@@ -645,6 +645,13 @@ Folder.prototype.findChildWithDescriptor = function (descriptor, callback)
 Folder.prototype.restoreFromLocalBackupZipFile = function (zipFileAbsLocation, userRestoringTheFolder, callback, progressReporter)
 {
     const self = this;
+
+    Notification.sendProgress(
+        `Server now unzipping file ${path.basename(zipFileAbsLocation)}.`,
+        progressReporter,
+        self
+    );
+
     File.unzip(zipFileAbsLocation, function (err, unzippedContentsLocation)
     {
         fs.exists(unzippedContentsLocation, function (exists)
@@ -658,27 +665,18 @@ Folder.prototype.restoreFromLocalBackupZipFile = function (zipFileAbsLocation, u
                     if (isNull(err) && files instanceof Array && files.length === 1)
                     {
                         const location = path.join(unzippedContentsLocation, files[0]);
-
-                        if(!isNull(progressReporter))
-                        {
-                            Notification.sendProgress(
-                                `Now restoring folder ${path.extname(location)}...`,
-                                userRestoringTheFolder.uri
-                            );
-                        }
-
                         self.restoreFromFolder(location, userRestoringTheFolder, true, true, function (err, result)
                         {
                             if (isNull(err))
                             {
-                                self.undelete(callback, userRestoringTheFolder.uri, true);
+                                self.undelete(callback, userRestoringTheFolder.uri, true, progressReporter);
                                 // return callback(null, result);
                             }
                             else
                             {
                                 return callback(err, "Unable to restore folder " + self.uri + " from local folder " + unzippedContentsLocation);
                             }
-                        }, true);
+                        }, true, progressReporter);
                     }
                     else
                     {
@@ -709,7 +707,7 @@ Folder.prototype.loadContentsOfFolderIntoThis = function (absolutePathOfLocalFol
             self.delete(function (err, result)
             {
                 cb(err, result);
-            }, userPerformingTheOperation.uri, null, replaceExistingFolder);
+            }, userPerformingTheOperation.uri, null, replaceExistingFolder, progressReporter);
         }
         else
         {
@@ -724,7 +722,9 @@ Folder.prototype.loadContentsOfFolderIntoThis = function (absolutePathOfLocalFol
             return child.uri;
         });
 
-        self.save(cb);
+        self.save(function(err, result){
+            cb(err, result);
+        });
     };
 
     const loadChildFolder = function (folderName, cb)
@@ -808,7 +808,10 @@ Folder.prototype.loadContentsOfFolderIntoThis = function (absolutePathOfLocalFol
                             }
                         });
 
-                        childFile.save(cb);
+                        childFile.save(function (err, result)
+                        {
+                            cb(null, childFileObject);
+                        }, false, progressReporter);
                     }
                     else
                     {
@@ -828,7 +831,7 @@ Folder.prototype.loadContentsOfFolderIntoThis = function (absolutePathOfLocalFol
                         childFileObject.save(function (err, result)
                         {
                             cb(null, childFileObject);
-                        });
+                        }, false, progressReporter);
                     }
                 }
                 else
@@ -875,6 +878,12 @@ Folder.prototype.loadContentsOfFolderIntoThis = function (absolutePathOfLocalFol
         });
     };
 
+    Notification.sendProgress(
+        `Starting restore of folder ${self.nie.title}.`,
+        progressReporter,
+        self
+    );
+
     deleteFolder(function (err, result)
     {
         fs.readdir(absolutePathOfLocalFolder, function (err, files)
@@ -906,6 +915,13 @@ Folder.prototype.loadContentsOfFolderIntoThis = function (absolutePathOfLocalFol
                                 loadChildFile(fileName, function (err, savedChildFile)
                                 {
                                     // Logger.log("Saved FILE: " + savedChildFile.uri + ". result : " + err);
+
+                                    Notification.sendProgress(
+                                        `Restored file ${fileName}.`,
+                                        progressReporter,
+                                        self
+                                    );
+
                                     return cb(err, savedChildFile);
                                 });
                             }
@@ -914,6 +930,13 @@ Folder.prototype.loadContentsOfFolderIntoThis = function (absolutePathOfLocalFol
                                 loadChildFolder(fileName, function (err, savedChildFolder)
                                 {
                                     // Logger.log("Saved FOLDER: " + savedChildFolder.uri + " with title " +savedChildFolder.nie.title+ " . Error" + err);
+
+                                    Notification.sendProgress(
+                                        `Restored folder ${fileName}.`,
+                                        progressReporter,
+                                        self
+                                    );
+
                                     return cb(err, savedChildFolder);
                                 });
                             }
@@ -929,10 +952,20 @@ Folder.prototype.loadContentsOfFolderIntoThis = function (absolutePathOfLocalFol
                 {
                     if (isNull(err))
                     {
-                        // Logger.log("Adding pointers to children of " + path.basename(absolutePathOfLocalFolder) + " loaded into " + self.nie.title);
+                        Notification.sendProgress(
+                            `Adding children of " + ${path.basename(absolutePathOfLocalFolder)} + " to " + ${self.nie.title}...`,
+                            progressReporter,
+                            self
+                        );
+
                         addChildrenTriples(results, function (err, result)
                         {
-                            // Logger.log("All children of " + absolutePathOfLocalFolder + " loaded into " + self.uri);
+                            Notification.sendProgress(
+                                `All children of " + ${path.basename(absolutePathOfLocalFolder)} + " loaded into " + ${self.nie.title}.`,
+                                progressReporter,
+                                self
+                            );
+
                             return callback(null, self);
                         });
                     }
@@ -1316,7 +1349,9 @@ Folder.prototype.restoreFromFolder = function (absPathOfRootFolder,
     attemptToRestoreMetadata,
     replaceExistingFolder,
     callback,
-    runningOnRoot)
+    runningOnRoot,
+    progressReporter
+)
 {
     const self = this;
     let entityLoadingTheMetadataUri;
@@ -1391,10 +1426,10 @@ Folder.prototype.restoreFromFolder = function (absPathOfRootFolder,
         {
             return callback(err, result);
         }
-    }, runningOnRoot, entityLoadingTheMetadata);
+    }, runningOnRoot, entityLoadingTheMetadata, progressReporter);
 };
 
-Folder.prototype.setDescriptorsRecursively = function (descriptors, callback, uriOfUserDeletingTheFolder)
+Folder.prototype.setDescriptorsRecursively = function (descriptors, callback, uriOfUserDeletingTheFolder, progressReporter)
 {
     const self = this;
     const setDescriptors = function (node, cb)
@@ -1402,7 +1437,14 @@ Folder.prototype.setDescriptorsRecursively = function (descriptors, callback, ur
         if (node instanceof File)
         {
             node.updateDescriptors(descriptors);
-            node.save(cb);
+            node.save(function(err, result){
+                Notification.sendProgress(
+                    `Marked file ${self.nie.title} successfully as deleted.`,
+                    progressReporter,
+                    self
+                );
+                cb(err, result);
+            });
         }
         else if (node instanceof Folder)
         {
@@ -1421,11 +1463,11 @@ Folder.prototype.setDescriptorsRecursively = function (descriptors, callback, ur
                                 {
                                     if (isNull(err))
                                     {
-                                        /* if(Config.debug.active && Config.debug.files.log_all_restore_operations)
-                                        {
-                                            var message = "Finished updating a complete folder at " + node.uri;
-                                            Logger.log(message);
-                                        } */
+                                        Notification.sendProgress(
+                                            `Marked folder ${node.nie.title} as deleted successfully.`,
+                                            progressReporter,
+                                            self
+                                        );
 
                                         cb(null);
                                     }
@@ -1469,7 +1511,7 @@ Folder.prototype.setDescriptorsRecursively = function (descriptors, callback, ur
     setDescriptors(self, callback);
 };
 
-Folder.prototype.delete = function (callback, uriOfUserDeletingTheFolder, notRecursive, reallyDelete)
+Folder.prototype.delete = function (callback, uriOfUserDeletingTheFolder, notRecursive, reallyDelete, progressReporter)
 {
     const self = this;
 
@@ -1526,11 +1568,18 @@ Folder.prototype.delete = function (callback, uriOfUserDeletingTheFolder, notRec
                     // This is necessary because depending on the type the .delete function has different parameters. This was previously creating a bug that prevented child resources to be "really_deleted" when its parent was.
                     if (child instanceof Folder)
                     {
-                        child.delete(cb, uriOfUserDeletingTheFolder, notRecursive, reallyDelete);
+                        child.delete(cb, uriOfUserDeletingTheFolder, notRecursive, reallyDelete, progressReporter);
                     }
                     else if (child instanceof File)
                     {
-                        child.delete(cb, uriOfUserDeletingTheFolder, reallyDelete);
+                        if(isNull(reallyDelete))
+                        {
+                            child.delete(cb, uriOfUserDeletingTheFolder, false, progressReporter);
+                        }
+                        else
+                        {
+                            child.delete(cb, uriOfUserDeletingTheFolder, reallyDelete, progressReporter);
+                        }
                     }
                 };
 
@@ -1542,10 +1591,22 @@ Folder.prototype.delete = function (callback, uriOfUserDeletingTheFolder, notRec
                         {
                             if (isNull(err))
                             {
+                                Notification.sendProgress(
+                                    `Deleted ${self.nie.title} successfully.`,
+                                    progressReporter,
+                                    self
+                                );
+
                                 self.unindex(function (err, result)
                                 {
                                     if (isNull(err))
                                     {
+                                        Notification.sendProgress(
+                                            `Removed ${self.nie.title} successfully from search index.`,
+                                            progressReporter,
+                                            self
+                                        );
+
                                         self.unlinkFromParent(function (err, result)
                                         {
                                             if (isNull(err))
@@ -1591,13 +1652,13 @@ Folder.prototype.delete = function (callback, uriOfUserDeletingTheFolder, notRec
                     return callback(err, self);
                 },
 
-                uriOfUserDeletingTheFolder
+                uriOfUserDeletingTheFolder, progressReporter
             );
         }
     }
 };
 
-Folder.prototype.undelete = function (callback, uriOfUserUnDeletingTheFolder, notRecursive)
+Folder.prototype.undelete = function (callback, uriOfUserUnDeletingTheFolder, notRecursive, progressReporter)
 {
     const self = this;
 
@@ -1629,6 +1690,11 @@ Folder.prototype.undelete = function (callback, uriOfUserUnDeletingTheFolder, no
             ],
             function (err, result)
             {
+                Notification.sendProgress(
+                    `New folder ${self.nie.title} successfully restored.`,
+                    progressReporter,
+                    self
+                );
                 return callback(err, result);
             },
             uriOfUserUnDeletingTheFolder

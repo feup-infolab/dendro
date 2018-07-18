@@ -12,6 +12,7 @@ const DataStoreConnection = rlequire("dendro", "src/kb/datastore/datastore_conne
 const Class = rlequire("dendro", "src/models/meta/class.js").Class;
 const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const Notification = rlequire("dendro", "src/models/notifications/notification.js").Notification;
 const gfs = Config.getGFSByID();
 
 const async = require("async");
@@ -223,7 +224,7 @@ File.prototype.autorename = function ()
     return self.nie.title;
 };
 
-File.prototype.save = function (callback, rename)
+File.prototype.save = function (callback, rename, progressReporter)
 {
     const self = this;
 
@@ -294,7 +295,7 @@ File.prototype.save = function (callback, rename)
     });
 };
 
-File.prototype.saveWithFileAndContents = function (localFilePath, callback, customGraphUri)
+File.prototype.saveWithFileAndContents = function (localFilePath, callback, customGraphUri, progressReporter)
 {
     const self = this;
     const _ = require("underscore");
@@ -302,27 +303,109 @@ File.prototype.saveWithFileAndContents = function (localFilePath, callback, cust
     async.series([
         function (callback)
         {
-            self.save(callback, true);
+            Notification.sendProgress(
+                `Saving file ${self.nie.title} in knowledge graph...`,
+                progressReporter,
+                self
+            );
+
+
+            self.save(function(err, result){
+                Notification.sendProgress(
+                    `Saved file ${self.nie.title} in knowledge graph...`,
+                    progressReporter,
+                    self
+                );
+
+                callback(err, result);
+
+            }, true);
         },
         function (callback)
         {
-            self.loadFromLocalFile(localFilePath, callback);
+            Notification.sendProgress(
+                `Loading file ${self.nie.title} into storage layer...`,
+                progressReporter,
+                self
+            );
+
+            self.loadFromLocalFile(localFilePath, function(err, result){
+                Notification.sendProgress(
+                    `Loaded file ${self.nie.title} into storage layer...`,
+                    progressReporter,
+                    self
+                );
+                callback(err, result);
+            });
         },
         function (callback)
         {
-            self.generateThumbnails(callback);
+            Notification.sendProgress(
+                `Generating thumbnails for ${self.nie.title}...`,
+                progressReporter,
+                self
+            );
+
+            self.generateThumbnails(function(err, result)
+            {
+                Notification.sendProgress(
+                    `Generating thumbnails for ${self.nie.title}...`,
+                    progressReporter,
+                    self
+                );
+
+                callback(err, result);
+            });
         },
         function (callback)
         {
-            self.extractTextAndSaveIntoGraph(callback);
+            Notification.sendProgress(
+                `Extracting text from ${self.nie.title} for full-text search (if possible)...`,
+                progressReporter,
+                self
+            );
+
+            self.extractTextAndSaveIntoGraph(function(err, result){
+                Notification.sendProgress(
+                    `Extracted text from ${self.nie.title} for full-text search (if possible)...`,
+                    progressReporter,
+                    self
+                );
+                callback(err, result);
+            });
+        },
+        function (callback) {
+            Notification.sendProgress(
+                `Indexing ${self.nie.title} for searching...`,
+                progressReporter,
+                self
+            );
+
+            self.reindex(function (err, result) {
+                Notification.sendProgress(
+                    `Indexed ${self.nie.title} for searching...`,
+                    progressReporter,
+                    self
+                );
+                callback(err, result);
+            }, customGraphUri);
         },
         function (callback)
         {
-            self.reindex(callback, customGraphUri);
-        },
-        function (callback)
-        {
-            self.extractDataAndSaveIntoDataStore(localFilePath, callback);
+            Notification.sendProgress(
+                `Extracting data from ${self.nie.title} if it is a tabular dataset...`,
+                progressReporter,
+                self
+            );
+            self.extractDataAndSaveIntoDataStore(localFilePath, function(err, result)
+            {
+                Notification.sendProgress(
+                    `Extracted data from ${self.nie.title} if it is a tabular dataset...`,
+                    progressReporter,
+                    self
+                );
+                callback(err, result);
+            });
         }
     ], function (err)
     {
@@ -366,7 +449,7 @@ File.prototype.deleteDatastoreData = function (callback)
     });
 };
 
-File.prototype.delete = function (callback, uriOfUserDeletingTheFile, reallyDelete)
+File.prototype.delete = function (callback, uriOfUserDeletingTheFile, reallyDelete, progressReporter)
 {
     const self = this;
 
@@ -378,20 +461,58 @@ File.prototype.delete = function (callback, uriOfUserDeletingTheFile, reallyDele
             {
                 result.delete(self.uri, function (err, result)
                 {
+                    Notification.sendProgress(
+                        `Deleted ${self.nie.title} from file storage.`,
+                        progressReporter,
+                        self
+                    );
+
                     self.deleteThumbnails();
+
+                    Notification.sendProgress(
+                        `Removed thumbnails of ${self.nie.title}...`,
+                        progressReporter,
+                        self
+                    );
+
                     self.deleteDatastoreData();
+
+                    Notification.sendProgress(
+                        `Deleted queryable data from file ${self.nie.title}...`,
+                        progressReporter,
+                        self
+                    );
+
                     self.unindex(function (err, result)
                     {
                         if (isNull(err))
                         {
+                            Notification.sendProgress(
+                                `Removed file ${self.nie.title} from search index...`,
+                                progressReporter,
+                                self
+                            );
+
                             self.deleteAllMyTriples(function (err, result)
                             {
                                 if (isNull(err))
                                 {
+                                    Notification.sendProgress(
+                                        `Deleted ${self.nie.title} from knowledge graph...`,
+                                        progressReporter,
+                                        self
+                                    );
+
                                     self.unlinkFromParent(function (err, result)
                                     {
                                         if (isNull(err))
                                         {
+                                            Notification.sendProgress(
+                                                `File ${self.nie.title} completely deleted.`,
+                                                progressReporter,
+                                                self
+                                            );
+
                                             callback(err, result);
                                         }
                                         else

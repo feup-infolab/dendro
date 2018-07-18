@@ -989,10 +989,22 @@ exports.upload = function (req, res)
                             {
                                 if (project instanceof Project)
                                 {
+                                    Notification.sendProgress(
+                                        `Calculating total size of files...`,
+                                        res.progressReporter,
+                                        project
+                                    );
+
                                     calculateTotalSizeOfFiles(req.files, function (err, totalSize)
                                     {
                                         if (isNull(err))
                                         {
+                                            Notification.sendProgress(
+                                                `Calculating current size of the project...`,
+                                                res.progressReporter,
+                                                project
+                                            );
+
                                             project.getStorageSize(function (err, storageSize)
                                             {
                                                 if (isNull(err))
@@ -1001,6 +1013,12 @@ exports.upload = function (req, res)
 
                                                     if (totalSize + storageSize < storageLimit)
                                                     {
+                                                        Notification.sendProgress(
+                                                            `OK! There is enough storage space to save these files.`,
+                                                            res.progressReporter,
+                                                            project
+                                                        );
+
                                                         async.mapSeries(files, function (file, callback)
                                                         {
                                                             fileNames.push({
@@ -1015,6 +1033,12 @@ exports.upload = function (req, res)
                                                                         isLogicalPartOf: parentFolder.uri
                                                                     }
                                                                 });
+
+                                                                Notification.sendProgress(
+                                                                    `Saving file ${newFile.nie.title}`,
+                                                                    res.progressReporter,
+                                                                    project
+                                                                );
 
                                                                 newFile.saveWithFileAndContents(file.path, function (err, newFile)
                                                                 {
@@ -1033,7 +1057,7 @@ exports.upload = function (req, res)
                                                                         files: files,
                                                                         errors: newFile
                                                                     });
-                                                                });
+                                                                }, null, res.progressReporter);
                                                             }
                                                             else
                                                             {
@@ -1153,6 +1177,7 @@ exports.upload = function (req, res)
             }
             else
             {
+                res.progressReporter = Notification.startProgress(req.user.uri, "Processing uploaded files.");
                 saveFilesAfterFinishingUpload(result, function (err, result)
                 {
                     if (isNull(err))
@@ -1211,6 +1236,7 @@ exports.restore = function (req, res)
                             {
                                 if (isNull(err) && user instanceof User)
                                 {
+                                    res.progressReporter = Notification.startProgress(req.user.uri, "Restoring folder " + folder.nie.title + " from " + file.nie.title + "...");
                                     folder.restoreFromLocalBackupZipFile(tempFilePath, user, function (err, result)
                                     {
                                         if (isNull(err))
@@ -1237,7 +1263,7 @@ exports.restore = function (req, res)
                                                 }
                                             );
                                         }
-                                    });
+                                    }, res.progressReporter);
                                 }
                                 else
                                 {

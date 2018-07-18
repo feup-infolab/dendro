@@ -8,13 +8,13 @@
 <div ng-controller="timelineCtrl" ng-init="initTimeline('<%= posts %>', '<%= useRank %>');get_logged_user();">
     <div ng-cloak>
         <div class="container">
-            <h3 ng-if="useRank==0" class="text-center">Timeline Alfa</h3>
-            <h3 ng-if="useRank==1" class="text-center">Timeline Beta</h3>
+            <h3 ng-if="useRank==0" class="text-center">Recent posts</h3>
+            <h3 ng-if="useRank==1" class="text-center">Important posts</h3>
             <li class="text-center dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Change timeline <b class="caret"></b></a>
                 <ul class="text-center dropdown-menu">
-                    <li><a href="/socialDendro/my"><i ng-if="useRank==0" class="fa fa-check" aria-hidden="true"></i> Timeline Alfa</a></li>
-                    <li><a href="/socialDendro/my?rank=true"><i ng-if="useRank==1" class="fa fa-check" aria-hidden="true"></i> Timeline Beta</a></li>
+                    <li><a href="/social/my"><i ng-if="useRank==0" class="fa fa-check" aria-hidden="true"></i>More recent posts first</a></li>
+                    <li><a href="/social/my?rank=true"><i ng-if="useRank==1" class="fa fa-check" aria-hidden="true"></i>More important posts first</a></li>
                 </ul>
             </li>
             <hr>
