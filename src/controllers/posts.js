@@ -7,7 +7,7 @@ const Notification = rlequire("dendro", "src/models/notifications/notification.j
 const Comment = rlequire("dendro", "src/models/social/comment.js").Comment;
 const Share = rlequire("dendro", "src/models/social/share.js").Share;
 const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
-const Event = rlequire("dendro", "src/models/event.js").Event;
+const Event = rlequire("dendro", "src/models/social/event.js").Event;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const Project = rlequire("dendro", "src/models/project.js").Project;
 const DbConnection = rlequire("dendro", "src/kb/db.js").DbConnection;
@@ -80,7 +80,7 @@ const getPostsPerPage = function (startingResultPosition, maxResults, timelineId
         limit: maxResults
     }).then(function (posts)
     {
-        console.log(posts);
+        Logger.log("debug", posts);
         return callback(null, posts);
     });
 };
@@ -158,7 +158,7 @@ const getAllPosts = function (projectUrisArray, callback, nextPosition, lastAcce
                 .then(posts =>
                 {
                     // let newPosts = Object.keys(posts).map(function (k) { return posts[k]; });
-                    console.log(posts);
+                    Logger.log("debug", posts);
                     if (posts.length > 0)
                     {
                         return addPostsToTimeline(posts, nextPosition, timelineId, function ()
@@ -646,10 +646,33 @@ const getCommentsForAPost = function (postID, cb)
         });
 };
 
-exports.getPosts_controller = function (req, res)
+exports.getInfoOnArrayOfPosts = function (req, res)
 {
     const acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
+
+
+    if(isNull(req.query.postsQueryInfo))
+    {
+        return res.status(400).json({
+            result: "Error",
+            message: "Missing postsQueryInfo parameter, which should be an array of post URIs"
+        });
+    }
+
+    try{
+        if(!(req.query.postsQueryInfo instanceof Array))
+        {
+            throw new Error("Invalid postsQueryInfo parameter, which should be an array of post URIs");
+        }
+    }
+    catch(e)
+    {
+        return res.status(400).json({
+            result: "Error",
+            message: e.message
+        });
+    }
 
     if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
     {
@@ -705,9 +728,9 @@ exports.getPosts_controller = function (req, res)
             {
                 Post.findByUri(postQueryInfo.uri, function (err, post)
                 {
-                    post.fixedPosition = postQueryInfo.fixedPosition;
                     if (isNull(err) && !isNull(post))
                     {
+                        post.fixedPosition = postQueryInfo.fixedPosition;
                         async.series([
                             function (callback)
                             {
@@ -735,8 +758,7 @@ exports.getPosts_controller = function (req, res)
                             },
                             function (callback)
                             {
-                                // TODO HOW TO ACCESS THE FULL TYPE
-                                if (post.rdf.type.includes("http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost"))
+                                if (post.isA(MetadataChangePost))
                                 {
                                     MetadataChangePost.findByUri(post.uri, function (err, metadataChangePost)
                                     {
@@ -1035,30 +1057,50 @@ exports.all = function (req, res)
     const currentUser = req.user;
     const acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
-    let currentPage = parseInt(req.query.currentPage);
-    let useRank = parseInt(req.query.useRank);
+    let currentPage;
+    let useRank;
 
-    try{
-        currentPage = parseInt(req.query.currentPage);
+    try
+    {
+        if(isNull(req.query.currentPage))
+        {
+            currentPage = 0;
+        }
+        else
+        {
+            currentPage = parseInt(req.query.currentPage);
+
+            if(currentPage === Number.NaN)
+                throw new Error("Invalid currentPage parameter, which must be an integer.");
+        }
     }
-    catch(e)
+    catch (e)
     {
         return res.status(500).json({
             result: "Error",
-            message: "Error getting posts. Invalid currentPage parameter, which must be an integer." + e.message,
-            error : e
+            message: "Error getting posts." + e.message,
+            error: e
         });
     }
 
-    try{
+    try
+    {
+        if(isNull(req.query.useRank))
+        {
+            useRank = 0;
+        }
+
+        if(req.query.useRank !== "0" && req.query.useRank !== "1")
+            throw new Error("Invalid useRank parameter, which must be either 1 or 0.");
+
         useRank = parseInt(req.query.useRank);
     }
-    catch(e)
+    catch (e)
     {
         return res.status(500).json({
             result: "Error",
-            message: "Error getting posts. Invalid useRank parameter, which must be either 1 or 0." + e.message,
-            error : e
+            message: "Error getting posts." + e.message,
+            error: e
         });
     }
 
@@ -1109,15 +1151,21 @@ exports.all = function (req, res)
                         .findOrCreate({where: {userURI: req.user.uri, type: type}, defaults: newTimeline})
                         .spread((timeline, created) =>
                         {
+                            let lastAccess = timeline.lastAccess;
+                            if(created)
+                            {
+                                lastAccess = null;
+                            }
+
                             if (currentPage === 1)
                             {
                                 if (!useRank)
                                 {
-                                    getAllPosts(fullProjectsUris, cb, timeline.nextPosition, timeline.lastAccess, index, maxResults, timeline.id);
+                                    getAllPosts(fullProjectsUris, cb, timeline.nextPosition, lastAccess, index, maxResults, timeline.id);
                                 }
                                 else
                                 {
-                                    getRankedPosts(fullProjectsUris, cb, currentUser.uri, timeline.nextPosition, timeline.lastAccess, index, maxResults, timeline.id);
+                                    getRankedPosts(fullProjectsUris, cb, currentUser.uri, lastAccess, timeline.lastAccess, index, maxResults, timeline.id);
                                 }
                                 if (!created)
                                 {
@@ -1234,13 +1282,13 @@ exports.new = function (req, res)
                                     {
                                         if (!err)
                                         {
-                                            let post = new Post("manual", manualPost.uri, currentUserUri, req.body.newPostProjectUri);
+                                            let post = new Post(null, "manual", manualPost.uri, currentUserUri, req.body.newPostProjectUri);
                                             post.saveToMySQL(function (err)
                                             {
                                                 if (isNull(err))
                                                 {
                                                     Logger.log("Post \"manual\" saved to MySQL");
-                                                    let event = new Event("post", manualPost.uri, currentUserUri);
+                                                    let event = new Event(null, "post", manualPost.uri, currentUserUri);
                                                     event.saveToMySQL(function (err)
                                                     {
                                                         if (isNull(err))
@@ -1325,7 +1373,7 @@ exports.new = function (req, res)
     }
 };
 
-exports.getPost_controller = function (req, res)
+exports.getInfoOnSinglePost = function (req, res)
 {
     const acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
@@ -1441,13 +1489,13 @@ exports.share = function (req, res)
                             {
                                 if (isNull(err))
                                 {
-                                    let newPost = new Post("share", newShare.uri, currentUser.uri, post.ddr.projectUri);
+                                    let newPost = new Post(null, "share", newShare.uri, currentUser.uri, post.ddr.projectUri);
                                     newPost.saveToMySQL(function (err)
                                     {
                                         if (isNull(err))
                                         {
                                             Logger.log("Post \"share\" saved to MySQL");
-                                            let event = new Event("share", newShare.uri, currentUser.uri);
+                                            let event = new Event(null, "share", newShare.uri, currentUser.uri);
                                             event.saveToMySQL(function (err)
                                             {
                                                 if (isNull(err))
@@ -1620,7 +1668,7 @@ exports.comment = function (req, res)
                     {
                         if (isNull(err) && !isNull(resultComment))
                         {
-                            let event = new Event("comment", post.uri, currentUser.uri);
+                            let event = new Event(null, "comment", post.uri, currentUser.uri);
                             event.saveToMySQL(function (err)
                             {
                                 if (isNull(err))
@@ -1709,7 +1757,7 @@ exports.like = function (req, res)
                 if (likeExists)
                 {
                     // like was removed
-                    let event = new Event("like", req.body.postID, currentUser.uri, "");
+                    let event = new Event(null, "like", req.body.postID, currentUser.uri, "");
                     event.deleteFromMySQL(function (err)
                     {
                         if (isNull(err))
@@ -1755,7 +1803,7 @@ exports.like = function (req, res)
                                         }
                                     });
 
-                                    let event = new Event("like", post.uri, currentUser.uri);
+                                    let event = new Event(null, "like", post.uri, currentUser.uri);
                                     event.saveToMySQL(function (err)
                                     {
                                         if (isNull(err))

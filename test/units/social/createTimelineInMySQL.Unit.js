@@ -5,12 +5,12 @@ const rlequire = require("rlequire");
 const chai = require("chai");
 chai.use(require("chai-http"));
 
-const userUtils = rlequire("dendro", "src/utils/user/userUtils.js"));
-const socialDendroUtils = rlequire("dendro", "src//utils/social/socialDendroUtils"));
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const socialDendroUtils = rlequire("dendro", "test/utils/social/socialDendroUtils");
 
-const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1"));
-const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2"));
-const demouser3 = rlequire("dendro", "test/mockdata/users/demouser3"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1");
+const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2");
+const demouser3 = rlequire("dendro", "test/mockdata/users/demouser3");
 
 module.exports.setup = function (finish)
 {

@@ -35,7 +35,7 @@ describe("Social Dendro user timeline tests", function ()
         });
     });
 
-    describe("[GET] Gets the Social Dendro timeline for each user [Valid cases] /socialDendro/my", function ()
+    describe("[GET] Gets the Social Dendro timeline for each user [Valid cases] /social/my", function ()
     {
         it("[For an unauthenticated user] Should give an unauthorized error", function (done)
         {
@@ -56,7 +56,7 @@ describe("Social Dendro user timeline tests", function ()
                 socialDendroUtils.getMySocialDendroTimeline(true, agent, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    res.text.should.not.contain("initTimeline('[]')");
+                    res.text.should.not.contain("initTimeline('[]', '0');");
                     done();
                 });
             });
@@ -69,7 +69,7 @@ describe("Social Dendro user timeline tests", function ()
                 socialDendroUtils.getMySocialDendroTimeline(true, agent, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    res.text.should.not.contain("initTimeline('[]')");
+                    res.text.should.not.contain("initTimeline('[]', '0');");
                     done();
                 });
             });
@@ -82,7 +82,7 @@ describe("Social Dendro user timeline tests", function ()
                 socialDendroUtils.getMySocialDendroTimeline(true, agent, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    res.text.should.contain("initTimeline('[]')");
+                    res.text.should.contain("initTimeline('[]', '0');");
                     done();
                 });
             });

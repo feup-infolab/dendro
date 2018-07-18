@@ -6,8 +6,9 @@ const chai = require("chai");
 chai.use(require("chai-http"));
 
 const unitUtils = rlequire("dendro", "test/utils/units/unitUtils.js");
-
 let CommentSomePostsUnit = rlequire("dendro", "test/units/social/commentSomePosts.Unit.js");
+let createTimelineInMySQL = rlequire("dendro", "test/units/social/createTimelineInMySQL.Unit.js");
+
 class CreateSocialDendroTimelineWithPostsAndShares extends CommentSomePostsUnit
 {
     static load (callback)
@@ -15,7 +16,7 @@ class CreateSocialDendroTimelineWithPostsAndShares extends CommentSomePostsUnit
         const self = this;
         unitUtils.startLoad(self);
 
-        let createTimelineInMySQL = rlquire("dendro", "units/social/createTimelineInMySQL.Unit.js");
+
         createTimelineInMySQL.setup(function (err, results)
         {
             if (err)

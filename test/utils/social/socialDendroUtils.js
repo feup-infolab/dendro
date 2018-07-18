@@ -152,7 +152,7 @@ module.exports.commentAPost = function (jsonOnly, agent, postURIToComment, comme
 
 module.exports.getMySocialDendroTimeline = function (jsonOnly, agent, cb)
 {
-    const path = "/socialDendro/my";
+    const path = "/social/my";
     if (jsonOnly)
     {
         agent

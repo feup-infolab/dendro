@@ -4,7 +4,7 @@ const chai = require("chai");
 const chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 
-const Config = rlequire("dendro", "src/models/meta/config.js").Config;;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const rlequire = require("rlequire");
 
 const should = chai.should();

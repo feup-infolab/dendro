@@ -14,6 +14,8 @@ const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2");
 const commentMock = rlequire("dendro", "test/mockdata/social/commentMock");
 
 let LikeSomePostsUnit = rlequire("dendro", "test/units/social/likeSomePosts.Unit.js");
+let useRank = 0;
+
 class CommentSomePosts extends LikeSomePostsUnit
 {
     static load (callback)
@@ -30,7 +32,7 @@ class CommentSomePosts extends LikeSomePostsUnit
             {
                 // TODO do the get posts request obtain a uri of a post then share it
                 let pageNumber = 1;
-                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                 {
                     if (isNull(err))
                     {

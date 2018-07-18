@@ -15,7 +15,7 @@ let config = {
     host: Config.mySQLHost,
     dialect: "mysql",
     operatorsAliases: false,
-    logging: false
+    logging: true
 };
 
 var sequelize = new Sequelize(config.database, config.username, config.password, config);

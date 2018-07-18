@@ -14,10 +14,10 @@ const User = rlequire("dendro", "src/models/user.js").User;
 const FileSystemPost = rlequire("dendro", "src/models/social/fileSystemPost.js").FileSystemPost;
 const Uploader = rlequire("dendro", "src/utils/uploader.js").Uploader;
 const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
-const Event = rlequire("dendro", "src/models/event.js").Event;
+const Event = rlequire("dendro", "src/models/social/event.js").Event;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const Notification = rlequire("dendro", "src/models/notifications/notification.js").Notification;
-const Post = rlequire("dendro", "src/models/post.js").Post;
+const Post = rlequire("dendro", "src/models/social/post.js").Post;
 
 const async = require("async");
 
@@ -1356,13 +1356,13 @@ exports.rm = function (req, res)
                 {
                     if (isNull(error))
                     {
-                        let postObj = new Post("file_delete", post.uri, post.dcterms.creator, post.ddr.projectUri);
+                        let postObj = new Post(null, "file_delete", post.uri, post.dcterms.creator, post.ddr.projectUri);
                         postObj.saveToMySQL(function (err)
                         {
                             if (isNull(err))
                             {
                                 Logger.log("Post \"file_delete\" saved to MySQL");
-                                let event = new Event("post", post.uri, post.dcterms.creator);
+                                let event = new Event(null, "post", post.uri, post.dcterms.creator);
                                 event.saveToMySQL(function (err)
                                 {
                                     if (isNull(err))
@@ -1427,13 +1427,13 @@ exports.rm = function (req, res)
                 {
                     if (isNull(err))
                     {
-                        let postObj = new Post("rmdir", post.uri, post.dcterms.creator, post.ddr.projectUri);
+                        let postObj = new Post(null, "rmdir", post.uri, post.dcterms.creator, post.ddr.projectUri);
                         postObj.saveToMySQL(function (err)
                         {
                             if (isNull(err))
                             {
                                 Logger.log("Post \"rmdir\" saved to MySQL");
-                                let event = new Event("post", post.uri, post.dcterms.creator);
+                                let event = new Event(null, "post", post.uri, post.dcterms.creator);
                                 event.saveToMySQL(function (err)
                                 {
                                     if (isNull(err))
@@ -2116,13 +2116,13 @@ exports.mkdir = function (req, res)
                     {
                         if (!err)
                         {
-                            let postObj = new Post("mkdir", post.uri, post.dcterms.creator, post.ddr.projectUri);
+                            let postObj = new Post(null, "mkdir", post.uri, post.dcterms.creator, post.ddr.projectUri);
                             postObj.saveToMySQL(function (err)
                             {
                                 if (isNull(err))
                                 {
                                     Logger.log("Post \"mkdir\" saved to MySQL");
-                                    let event = new Event("post", post.uri, post.dcterms.creator);
+                                    let event = new Event(null, "post", post.uri, post.dcterms.creator);
                                     event.saveToMySQL(function (err)
                                     {
                                         if (isNull(err))

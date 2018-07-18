@@ -37,8 +37,10 @@ describe("Private project testFolder1 ?rename", function ()
         {
             createFilesUnit.setup(function (err, results)
             {
-                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                    folderUtils.getFolderContents(true, agent, privateProject.handle, testFolder1.name, function (err, res) {
+                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                {
+                    folderUtils.getFolderContents(true, agent, privateProject.handle, testFolder1.name, function (err, res)
+                    {
                         res.statusCode.should.equal(200);
                         should.equal(err, null);
                         JSON.parse(res.text).should.be.instanceof(Array);

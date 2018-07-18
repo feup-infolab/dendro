@@ -1067,7 +1067,7 @@ const loadRoutes = function (app, callback)
         Permissions.settings.role.in_post_s_project.creator,
         Permissions.settings.role.in_post_s_project.contributor
     ];
-    app.get("/socialDendro/my", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), timeline.my);
+    app.get("/social/my", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), timeline.my);
     app.get("/posts/all", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.all);
     app.post("/posts/move", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.move);
     app.get("/posts/post", function (req, res, next)
@@ -1080,7 +1080,7 @@ const loadRoutes = function (app, callback)
                 get: [
                     {
                         queryKeys: ["postID"],
-                        handler: posts.getPost_controller,
+                        handler: posts.getInfoOnSinglePost,
                         permissions: defaultSocialDendroPostPermissions,
                         authentication_error: "Permission denied : You are not a contributor or creator of the project to which this post belongs to."
                     }
@@ -1107,7 +1107,7 @@ const loadRoutes = function (app, callback)
                 get: [
                     {
                         queryKeys: ["postsQueryInfo"],
-                        handler: posts.getPosts_controller,
+                        handler: posts.getInfoOnArrayOfPosts,
                         permissions: defaultSocialDendroArrayOfPostsPermissions,
                         authentication_error: "Permission denied : You are not a contributor or creator of the project to which the posts belong to."
                     }
