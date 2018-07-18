@@ -13,12 +13,13 @@ let config = {
     password: Config.mySQLAuth.password,
     database: Config.mySQLDBName,
     host: Config.mySQLHost,
+    port: Config.mySQLPort,
     dialect: "mysql",
     operatorsAliases: false,
     logging: true
 };
 
-var sequelize = new Sequelize(config.database, config.username, config.password, config);
+let sequelize = new Sequelize(config.database, config.username, config.password, config);
 
 fs
     .readdirSync(__dirname)
@@ -26,7 +27,7 @@ fs
         (file.indexOf(".") !== 0) && (file !== basename) && (file.slice(-3) === ".js"))
     .forEach(file =>
     {
-        var model = sequelize.import(path.join(__dirname, file));
+        let model = sequelize.import(path.join(__dirname, file));
         db[model.name] = model;
     });
 

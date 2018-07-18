@@ -14,11 +14,11 @@
     "sendGridUser": "__FIXME",
     "sendGridPassword": "__FIXME",
     "elasticSearchHost": "127.0.0.1",
-    "elasticSearchPort": "9200",
+    "elasticSearchPort": "9201",
     "datastore": {
       "database": "127.0.0.1:3001_datastore_dev",
       "host": "127.0.0.1",
-      "port": "27017",
+      "port": "27018",
       "id": "default",
       "log": {
         "log_datastore_ops": true
@@ -29,7 +29,7 @@
     "ontologies_cache": {
       "database": "127.0.0.1:3001_ontologies",
       "host": "127.0.0.1",
-      "port": "27017",
+      "port": "27018",
       "id": "default",
       "username": "admin",
       "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
@@ -67,7 +67,7 @@
             "collection": "default_cache",
             "clear_on_startup": true,
             "host": "127.0.0.1",
-            "port": "27017",
+            "port": "27018",
             "id": "default",
             "username": "admin",
             "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
@@ -77,7 +77,7 @@
             "collection": "social_cache",
             "clear_on_startup": true,
             "host": "127.0.0.1",
-            "port": "27017",
+            "port": "27018",
             "id": "social",
             "username": "admin",
             "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
@@ -87,7 +87,7 @@
             "collection": "notifications_cache",
             "clear_on_startup": true,
             "host": "127.0.0.1",
-            "port": "27017",
+            "port": "27018",
             "id": "notifications",
             "username": "admin",
             "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
@@ -100,8 +100,8 @@
       }
     },
     "virtuosoHost": "127.0.0.1",
-    "virtuosoPort": "8890",
-    "virtuosoISQLPort": "1111",
+    "virtuosoPort": "8891",
+    "virtuosoISQLPort": "1112",
     "virtuosoConnector": "jdbc",
     "virtuosoAuth": {
       "user": "dba",
@@ -109,7 +109,7 @@
     },
     "virtuosoSQLLogLevel": 3,
     "mongoDBHost": "127.0.0.1",
-    "mongoDbPort": "27017",
+    "mongoDbPort": "27018",
     "mongoDbCollectionName": "127.0.0.1:3001_files",
     "mongoDBSessionStoreCollection": "127.0.0.1:3001_sessions",
     "mongoDbVersion": "",
@@ -120,13 +120,13 @@
     "storageDefaults": {
       "storageType": "mongoDB",
       "host": "127.0.0.1",
-      "port": "27017",
+      "port": "27018",
       "collectionName": "127.0.0.1:3001_files",
       "username": "",
       "password": ""
     },
     "mySQLHost": "127.0.0.1",
-    "mySQLPort": "3306",
+    "mySQLPort": "3307",
     "mySQLAuth": {
       "user": "root",
       "password": "r00t_p4ssw0rd"
