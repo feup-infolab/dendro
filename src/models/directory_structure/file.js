@@ -309,8 +309,8 @@ File.prototype.saveWithFileAndContents = function (localFilePath, callback, cust
                 self
             );
 
-
-            self.save(function(err, result){
+            self.save(function (err, result)
+            {
                 Notification.sendProgress(
                     `Saved file ${self.nie.title} in knowledge graph...`,
                     progressReporter,
@@ -318,7 +318,6 @@ File.prototype.saveWithFileAndContents = function (localFilePath, callback, cust
                 );
 
                 callback(err, result);
-
             }, true);
         },
         function (callback)
@@ -329,7 +328,8 @@ File.prototype.saveWithFileAndContents = function (localFilePath, callback, cust
                 self
             );
 
-            self.loadFromLocalFile(localFilePath, function(err, result){
+            self.loadFromLocalFile(localFilePath, function (err, result)
+            {
                 Notification.sendProgress(
                     `Loaded file ${self.nie.title} into storage layer...`,
                     progressReporter,
@@ -346,7 +346,7 @@ File.prototype.saveWithFileAndContents = function (localFilePath, callback, cust
                 self
             );
 
-            self.generateThumbnails(function(err, result)
+            self.generateThumbnails(function (err, result)
             {
                 Notification.sendProgress(
                     `Generating thumbnails for ${self.nie.title}...`,
@@ -365,7 +365,8 @@ File.prototype.saveWithFileAndContents = function (localFilePath, callback, cust
                 self
             );
 
-            self.extractTextAndSaveIntoGraph(function(err, result){
+            self.extractTextAndSaveIntoGraph(function (err, result)
+            {
                 Notification.sendProgress(
                     `Extracted text from ${self.nie.title} for full-text search (if possible)...`,
                     progressReporter,
@@ -374,14 +375,16 @@ File.prototype.saveWithFileAndContents = function (localFilePath, callback, cust
                 callback(err, result);
             });
         },
-        function (callback) {
+        function (callback)
+        {
             Notification.sendProgress(
                 `Indexing ${self.nie.title} for searching...`,
                 progressReporter,
                 self
             );
 
-            self.reindex(function (err, result) {
+            self.reindex(function (err, result)
+            {
                 Notification.sendProgress(
                     `Indexed ${self.nie.title} for searching...`,
                     progressReporter,
@@ -397,7 +400,7 @@ File.prototype.saveWithFileAndContents = function (localFilePath, callback, cust
                 progressReporter,
                 self
             );
-            self.extractDataAndSaveIntoDataStore(localFilePath, function(err, result)
+            self.extractDataAndSaveIntoDataStore(localFilePath, function (err, result)
             {
                 Notification.sendProgress(
                     `Extracted data from ${self.nie.title} if it is a tabular dataset...`,
