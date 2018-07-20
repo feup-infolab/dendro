@@ -88,7 +88,7 @@ Notification.sendProgress = function (message, progressReporter, referencedResou
 {
     if (isNull(progressReporter))
     {
-        Logger.log("error", "Progress reporting notification called without a progress reporter object!");
+        Logger.log("debug", "Progress reporting notification called without a progress reporter object...");
     }
     else
     {
