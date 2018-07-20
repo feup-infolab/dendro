@@ -282,10 +282,6 @@
       "do_not_log_requests_to_public_assets": true,
       "log_emailing": false
     },
-    "version": {
-      "number": 0.2,
-      "name": "Dendro Dev"
-    },
     "recommendation": {
       "modes": {
         "dendro_recommender": {
@@ -705,10 +701,6 @@
       "do_not_log_requests_to_public_assets": true,
       "log_emailing": false
     },
-    "version": {
-      "number": 0.2,
-      "name": "Test Config"
-    },
     "recommendation": {
       "modes": {
         "dendro_recommender": {
@@ -1125,10 +1117,6 @@
       "do_not_log_requests_to_public_assets": true,
       "log_emailing": false
     },
-    "version": {
-      "number": 0.2,
-      "name": "Test Config"
-    },
     "recommendation": {
       "modes": {
         "dendro_recommender": {
@@ -1544,10 +1532,6 @@
       "log_all_requests": true,
       "do_not_log_requests_to_public_assets": true,
       "log_emailing": false
-    },
-    "version": {
-      "number": 0.2,
-      "name": "Test Config"
     },
     "recommendation": {
       "modes": {

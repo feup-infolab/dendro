@@ -816,7 +816,6 @@ Folder.prototype.loadContentsOfFolderIntoThis = function (absolutePathOfLocalFol
                     else
                     {
                         const childFileObject = new File(childFile);
-                        Progress reporting notification called without a progress reporter object
                         if (childFileObject.nie.isLogicalPartOf instanceof Array)
                         {
                             childFileObject.nie.isLogicalPartOf.push(self.uri);

@@ -205,7 +205,10 @@ Config.baselines = getConfigParameter("baselines");
 Config.logging = getConfigParameter("logging");
 
 // load version description
-Config.version = getConfigParameter("version");
+Config.version = {
+    name: rlequire("dendro", "package.json").name,
+    number: rlequire("dendro", "package.json").version
+};
 
 // secrets
 Config.crypto = getConfigParameter("crypto");
