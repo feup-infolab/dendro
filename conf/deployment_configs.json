@@ -276,7 +276,7 @@
     },
     "baselines": {},
     "logging": {
-      "level": "silly",
+      "level": "debug",
       "app_logs_folder": "logs/app",
       "log_all_requests": true,
       "do_not_log_requests_to_public_assets": true,
