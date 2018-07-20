@@ -11,6 +11,7 @@ services:
       - "discovery.type=single-node"
       - "http.host=0.0.0.0"
       - "transport.host=127.0.0.1"
+      - "TAKE_FILE_OWNERSHIP=1"
     volumes:
       - ./volumes/elasticsearch:/usr/share/elasticsearch/data:consistent
     networks:
