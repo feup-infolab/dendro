@@ -31,7 +31,7 @@ const posts = rlequire("dendro", "src/controllers/posts");
 const timeline = rlequire("dendro", "src/controllers/timeline");
 const notifications = rlequire("dendro", "src/controllers/notifications");
 const deposits = rlequire("dendro", "src/controllers/deposits");
-const metrics = require(Pathfinder.absPathInSrcFolder("/controllers/metrics"));
+const metrics = rlequire("dendro", "src/controllers/metrics");
 
 let recommendation;
 
