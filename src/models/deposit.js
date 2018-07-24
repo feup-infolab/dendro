@@ -11,6 +11,7 @@ const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const Resource = rlequire("dendro", "src/models/resource.js").Resource;
+const Project = rlequire("dendro", "src/models/project.js").Project;
 const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder;
 const Class = rlequire("dendro", "src//models/meta/class.js").Class;
 const Elements = rlequire("dendro", "src//models/meta/elements.js").Elements;
@@ -534,6 +535,19 @@ Deposit.saveContents = function(params, callback){
     });
   });
 
+};
+
+/**
+ * Returns the project associated with the
+ * @param callback
+ */
+Deposit.prototype.getProject = function(callback){
+  let self = this;
+  let projectUri = self.ddr.exportedFromProject;
+
+  Project.findByUri(projectUri, function(err, project){
+    callback(err, project);
+  });
 };
 
 Deposit = Class.extend(Deposit, Resource, "ddr:Registry");

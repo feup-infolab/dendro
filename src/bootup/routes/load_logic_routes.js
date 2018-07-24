@@ -31,6 +31,7 @@ const posts = rlequire("dendro", "src/controllers/posts");
 const timeline = rlequire("dendro", "src/controllers/timeline");
 const notifications = rlequire("dendro", "src/controllers/notifications");
 const deposits = rlequire("dendro", "src/controllers/deposits");
+const resources = rlequire("dendro", "src/controllers/resources.js");
 let recommendation;
 
 const recommendation_mode = RecommendationUtils.getActiveRecommender();
@@ -750,6 +751,14 @@ const loadRoutes = function (app, callback)
                 Permissions.settings.role.in_owner_project.creator
             ];
 
+            const defaultPermissionsForViewingResources = [
+                Permissions.settings.privacy.of_owner_project.public,
+                Permissions.settings.role.in_owner_project.contributor,
+                Permissions.settings.role.in_owner_project.creator,
+                Permissions.settings.privacy.of_deposit.public,
+                Permissions.settings.role.users_role_in_deposit
+            ];
+
             const modificationPermissionsBranch = [
                 Permissions.settings.role.in_owner_project.contributor,
                 Permissions.settings.role.in_owner_project.creator
@@ -929,8 +938,8 @@ const loadRoutes = function (app, callback)
                     // default case
                     {
                         queryKeys: [],
-                        handler: projects.show,
-                        permissions: defaultPermissionsInProjectBranch,
+                        handler: resources.show,
+                        permissions: defaultPermissionsForViewingResources,
                         authentication_error: "Permission denied : cannot show the resource because you do not have permissions to access the project that contains this resource."
                     }
                 ],
@@ -1445,7 +1454,7 @@ const loadRoutes = function (app, callback)
         getNonHumanReadableRouteRegex("deposit")
     ],
     extractUriFromRequest,
-    async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), deposits.getDeposit);
+    async.apply(Permissions.require, [Permissions.settings.privacy.of_deposit.public, Permissions.settings.role.users_role_in_deposit]), deposits.getDeposit);
 
     // serve angular JS ejs-generated html partials
     app.get(/\/images\/icons\/extensions\/file_extension_([a-z0-9]+)\.png$/, files.extension_icon);

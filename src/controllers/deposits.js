@@ -218,3 +218,7 @@ exports.getDeposit = function (req, res)
         }
     });
 };
+
+exports.show = function (req, res){
+    a = 1;
+}

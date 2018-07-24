@@ -1142,7 +1142,7 @@ export_to_dendro = function (req, res)
                         const registryData = {
                             dcterms: {
                                 title: file.dcterms.title,
-                                creator: file.dcterms.creator,
+                                creator: req.user.uri,
                                 identifier: "123456789"
                             },
                             ddr: {
@@ -1180,7 +1180,7 @@ export_to_dendro = function (req, res)
                           const registryData = {
                             dcterms: {
                               title: folder.dcterms.title,
-                              creator: folder.dcterms.creator,
+                              creator: req.user.uri,
                               identifier: "123456789"
                             },
                             ddr: {
