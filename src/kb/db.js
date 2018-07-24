@@ -774,7 +774,8 @@ DbConnection.prototype.create = function (callback)
         {
             if (err)
             {
-                Logger.log("error", "Error initializing Virtuoso connection pool: " + JSON.stringify(err));
+                // Logger.log("error", "Error initializing Virtuoso connection pool: " + JSON.stringify(err));
+                Logger.log("error", "Error initializing Virtuoso connection pool: " + JSON.stringify(err) + " RESULT: " + JSON.stringify(result));
                 callback(err, result);
             }
             else
