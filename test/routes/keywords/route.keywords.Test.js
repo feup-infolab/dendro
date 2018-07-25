@@ -237,7 +237,7 @@ describe("Searches DBpedia for important terms", function (done)
                 });
             });
         });
-        /*
+/*
         it("Should pre process text", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
@@ -271,7 +271,7 @@ describe("Searches DBpedia for important terms", function (done)
                 done();
             });
         });
-        */
+*/
 
 
         var dbpediaconcepts = [];
@@ -303,7 +303,7 @@ describe("Searches DBpedia for important terms", function (done)
                 done();
             });
         });
-         it("Get properties from DBpedia", function (done)
+         it("Get properties from LOV", function (done)
         {
             this.timeout(1500000);
             keywordsUtils.dbpediaproperties(dbpediaconcepts, agent, function (err, db)

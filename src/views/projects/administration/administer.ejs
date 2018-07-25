@@ -355,7 +355,6 @@
             <div ng-show="filelist">
                 <h4>Select files for concept extraction</h4>
                 <div class="container-fluid" ng-controller="projectEditorCtrl" ng-init="init()">
-
                     <div class="col-md-6 col-sm-10" ng-controller="fileExplorerCtrl" ng-init="init()">
                         <div class="row">
                             <div class="col-xs-12">
@@ -378,8 +377,16 @@
 
                 <div class="row">
                     <div class="form-group">
+                        <div class="form-group col-md-2">
+                            <div class="form-group">
+                                <label for="storage_types_dropdown_list" class="control-label">Extraction method</label>
+                                <select class="form-control" id="extraction_methods_dropdown_list" ng-model="selected_method">
+                                    <option ng-repeat="x in extractionmethods" value="{{x}}">{{x}}</option>
+                                </select>
+                            </div>
+                        </div>
                         <div class="col-sm-7">
-                            <button class="btn btn-primary" type="button" ng-click="extract_terms()"><i class="fa fa-arrow-right" aria-hidden="true"></i> Continue
+                            <button class="btn btn-primary" style="position:absolute;top:25px" type="button" ng-click="extract_terms()"><i class="fa fa-arrow-right" aria-hidden="true"></i> Continue
                             </button>
                         </div>
                     </div>

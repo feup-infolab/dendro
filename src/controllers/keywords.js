@@ -27,7 +27,7 @@ const props = new corenlp.Properties({
 const pipeline = new corenlp.Pipeline(props, "English", connector);
 
 let doc;
-
+let method;
 var request = require("request");
 var baseRequest = request.defaults({
     headers: {
@@ -57,8 +57,8 @@ exports.processextract = function (req, res) {
 
     };
 
-
-    async.mapSeries(req.body, process, function (err, results)
+    method = req.body.method;
+    async.mapSeries(req.body.text, process, function (err, results)
     {
         if (err)
         {
@@ -73,7 +73,7 @@ exports.processextract = function (req, res) {
         {
 
             module.exports.termextraction(results, function(output){
-
+                console.log(output);
                 res.status(200).json(
                     {
                         output
@@ -244,7 +244,12 @@ exports.preprocessing = function (req, res)
                         }
                     }
                 }
-                nounphraselist = nounphraselist.concat(nounphrase("jj", JSON.parse(JSON.stringify(sent.sentences[i])).tokens, null));
+                if(method === "CValueJJ") {
+                    nounphraselist = nounphraselist.concat(nounphrase("jj", JSON.parse(JSON.stringify(sent.sentences[i])).tokens, null));
+                }
+                else if(method === "CValueNN") {
+                    nounphraselist = nounphraselist.concat(nounphrase("nn", JSON.parse(JSON.stringify(sent.sentences[i])).tokens, null));
+                }
             }
             nounphraselist = [...new Set(nounphraselist.map(obj => JSON.stringify(obj)))]
                 .map(str => JSON.parse(str));
@@ -262,6 +267,7 @@ exports.preprocessing = function (req, res)
             console.log(sentences.join(" ").length);
             res({
                 statusCode : 200,
+                method: req.method,
                 text: sentences.join(" "),
                 result,
                 nounphraselist
@@ -504,9 +510,6 @@ exports.termextraction = function (req, res)
                 words.frequency[i].cvalue = Math.log2(words.frequency[i].size) * (words.frequency[i].frequency - (1 / words.frequency[i].nestedterms.length) * words.frequency[i].nestedfreq);
                 //cv += words.frequency[i].cvalue;
             }
-            if(words.frequency[i].word === "electric vehicle model") {
-                console.log(words.frequency[i]);
-            }
         }
         words.frequency.sort(function (a, b)
         {
@@ -583,7 +586,7 @@ exports.termextraction = function (req, res)
         return ncvaluelist.frequency;
     };
 
-
+        console.log(req);
         var processedtest = req;
         var results = [];
         var documents = [];
@@ -596,8 +599,14 @@ exports.termextraction = function (req, res)
             documents.push(processedtest[i].text.toString());
             documentlength.push(WordCount(processedtest[i].text.toString()));
         }
+        var yakeflag;
+        if(method === "Yake!") {
+            yakeflag = true;
+        }
+        else {
+            yakeflag = false;
+        }
 
-        var yakeflag = false;
         if (yakeflag === true) {
             async.mapSeries(documents, yake, function (err, results)
             {
@@ -938,16 +947,30 @@ exports.dbpediaproperties = function (req, res)
                     {
                         lov_highlight = "";
                     }
-                    dbpediauri.result.push({
-                        searchterm: dbpediaresults[i].searchterm,
-                        score: dbpediaresults[i].score,
-                        lovscore: results[i].results[0].score,
-                        lovvocabulary: results[i].results[0]["vocabulary.prefix"][0],
-                        lovuri: results[i].results[0].uri[0],
-                        lovlabel: "",
-                        lov_highlight: lov_highlight,
-                        lov_label_and_highlight: Object.values(results[i].results[0].highlight)[0]
-                    });
+                    if(!dbpediauri.result.some(item => item.lovlabel === lovlabel)) {
+                        dbpediauri.result.push({
+                                searchterm: dbpediaresults[i].searchterm,
+                                score: dbpediaresults[i].score,
+                                lovscore: results[i].results[0].score,
+                                lovvocabulary: results[i].results[0]["vocabulary.prefix"][0],
+                                lovuri: results[i].results[0].uri[0],
+                                lovlabel: lovlabel,
+                                lov_highlight: lov_highlight,
+                                lov_label_and_highlight: Object.values(results[i].results[0].highlight)[0]
+                        });
+                    }
+                    else {
+                        dbpediauri.result.push({
+                                searchterm: dbpediaresults[i].searchterm,
+                                score: dbpediaresults[i].score,
+                                lovscore: results[i].results[0].score,
+                                lovvocabulary: results[i].results[0]["vocabulary.prefix"][0],
+                                lovuri: results[i].results[0].uri[0],
+                                lovlabel: "",
+                                lov_highlight: lov_highlight,
+                                lov_label_and_highlight: Object.values(results[i].results[0].highlight)[0]
+                        });
+                    }
                 }
                 else
                 {

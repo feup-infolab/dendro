@@ -39,7 +39,8 @@ angular.module("dendroApp.controllers")
         $scope.multiple_concept_selection = true;
         $scope.extra_terms = null;
         $scope.selected_term = null;
-
+        $scope.selected_method = "CValueJJ";
+        $scope.extractionmethods = ["CValueNN", "CValueJJ","Yake!"];
         //
         $scope.active_tab = null;
         $scope.contributors = [];
@@ -432,16 +433,18 @@ angular.module("dendroApp.controllers")
 
         $scope.extract_terms = function ()
         {
-            var data = {text:[]};
+            console.log($scope.selected_method);
+            var data = {method:$scope.selected_method,text:[]};
             for(let i = 0; i < $scope.get().length; i++) {
                 data.text.push({
                     text: $scope.get()[i].nie.plainTextContent
                 });
             }
+            console.log(data);
                 $http({
                     method: "POST",
                     url: "/keywords/processextract",
-                    data: JSON.stringify(data.text),
+                    data: JSON.stringify(data),
                     headers: {"Content-Type": "application/json; charset=UTF-8"}
                 }).then(function (response)
                 {
