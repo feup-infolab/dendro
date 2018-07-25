@@ -86,17 +86,24 @@ Notification.startProgress = function (targetUserUri, message)
 
 Notification.sendProgress = function (message, progressReporter, referencedResource)
 {
-    const newNotification = Notification.buildFromSystemMessage(
-        message,
-        progressReporter.getUserURI(),
-        referencedResource,
-        Notification.types.PROGRESS
-    );
+    if (isNull(progressReporter))
+    {
+        Logger.log("silly", "Progress reporting notification called without a progress reporter object.");
+    }
+    else
+    {
+        const newNotification = Notification.buildFromSystemMessage(
+            message,
+            progressReporter.getUserURI(),
+            referencedResource,
+            Notification.types.PROGRESS
+        );
 
-    newNotification.ddr.taskID = progressReporter.getProgressID();
-    progressReporter.touch();
+        newNotification.ddr.taskID = progressReporter.getProgressID();
+        progressReporter.touch();
 
-    Notification.sendSocketNotificationToUser(progressReporter.getUserURI(), newNotification);
+        Notification.sendSocketNotificationToUser(progressReporter.getUserURI(), newNotification);
+    }
 };
 
 Notification.finishProgress = function (progressReporter)
@@ -129,6 +136,7 @@ Notification.prototype.save = function (callback)
 
 Notification.buildFromSystemMessage = function (message, targetUserUri, referencedResource, actionType)
 {
+    let notificationType;
     if (isNull(actionType))
     {
         notificationType = Notification.types.SYSTEM;

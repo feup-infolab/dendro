@@ -12,7 +12,7 @@ function GridFSConnection (mongodbHost, mongodbPort, collectionName, username, p
 {
     let self = this;
 
-    self.hostname = mongodbHost;
+    self.host = mongodbHost;
     self.port = mongodbPort;
     self.collectionName = collectionName;
 

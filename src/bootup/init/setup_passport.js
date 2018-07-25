@@ -34,54 +34,51 @@ const setupPassport = function (app, callback)
             saveUninitialized: false
         };
 
-        if (process.env.NODE_ENV !== "test")
+        const mongoDBSessionsDBName = slug(Config.mongoDBSessionStoreCollection);
+
+        let url;
+        if (Config.mongoDBAuth.username && Config.mongoDBAuth.password && Config.mongoDBAuth.username !== "" && Config.mongoDBAuth.password !== "")
         {
-            const mongoDBSessionsDBName = slug(Config.mongoDBSessionStoreCollection);
+            url = "mongodb://" + Config.mongoDBAuth.username + ":" + Config.mongoDBAuth.password + "@" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + mongoDBSessionsDBName + "?authSource=admin";
+        }
+        else
+        {
+            url = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + mongoDBSessionsDBName;
+        }
 
-            let url;
-            if (Config.mongoDBAuth.username && Config.mongoDBAuth.password && Config.mongoDBAuth.username !== "" && Config.mongoDBAuth.password !== "")
+        MongoClient.connect(url, function (err, db)
+        {
+            if (isNull(err))
             {
-                url = "mongodb://" + Config.mongoDBAuth.username + ":" + Config.mongoDBAuth.password + "@" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + mongoDBSessionsDBName + "?authSource=admin";
-            }
-            else
-            {
-                url = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + mongoDBSessionsDBName;
-            }
+                const sessionMongoStore = new MongoStore({db: db});
+                expressSessionParameters.store = sessionMongoStore;
+                app.use(expressSession(expressSessionParameters));
 
-            MongoClient.connect(url, function (err, db)
-            {
-                if (isNull(err))
+                if (Config.startup.load_databases && Config.startup.clear_session_store && !isNull(db))
                 {
-                    const sessionMongoStore = new MongoStore({db: db});
-                    expressSessionParameters.store = sessionMongoStore;
-                    app.use(expressSession(expressSessionParameters));
-
-                    if (Config.startup.load_databases && Config.startup.clear_session_store && !isNull(db))
+                    Logger.log_boot_message("Clearing session store!");
+                    db.collection(mongoDBSessionsDBName).drop(function (err, result)
                     {
-                        Logger.log_boot_message("Clearing session store!");
-                        db.collection(mongoDBSessionsDBName).drop(function (err, result)
+                        if (isNull(err) || err.errmsg === "ns not found")
                         {
-                            if (isNull(err) || err.errmsg === "ns not found")
-                            {
-                                callback(null);
-                            }
-                            else
-                            {
-                                callback(err, result);
-                            }
-                        });
-                    }
-                    else
-                    {
-                        callback(null);
-                    }
+                            callback(null);
+                        }
+                        else
+                        {
+                            callback(err, result);
+                        }
+                    });
                 }
                 else
                 {
-                    callback(err, db);
+                    callback(null);
                 }
-            });
-        }
+            }
+            else
+            {
+                callback(err, db);
+            }
+        });
     };
 
     const setupPassport = function (callback)

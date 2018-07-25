@@ -1,6 +1,7 @@
 "use strict";
 
 const path = require("path");
+const rlequire = require("rlequire");
 
 const Pathfinder = function ()
 {

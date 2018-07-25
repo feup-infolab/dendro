@@ -22,7 +22,7 @@ const testFolder1 = rlequire("dendro", "test/mockdata/folders/testFolder1.js");
 const folderForDemouser2 = rlequire("dendro", "test/mockdata/folders/folderDemoUser2");
 
 const createFoldersB2DropUnit = rlequire("dendro", "test/units/folders/createFoldersB2drop.Unit.js");
-const createFilesUnit = rlequire("dendro", "test/units/files/createFiles.Unit.js");
+const itemUtils = rlequire("dendro", "test/utils/item/itemUtils.js");= rlequire("dendro", "test/units/files/createFiles.Unit.js");
 
 const allFiles = createFilesUnit.allFiles;
 

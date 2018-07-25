@@ -8,7 +8,7 @@ const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 function DendroMySQLClient (host, port, db, username, password)
 {
     let self = this;
-    self.hostname = host;
+    self.host = host;
     self.port = port;
     self.db = db;
     self.user = username;
@@ -26,7 +26,7 @@ DendroMySQLClient.prototype.releaseConnection = function (connection, callback)
         {
             if (err)
             {
-                Logger.log("error", "Error releasing connection to MySQL on database " + self.hostname + ":" + self.port + " " + self.db);
+                Logger.log("error", "Error releasing connection to MySQL on database " + self.host + ":" + self.port + " " + self.db);
                 Logger.log("error", err);
                 Logger.log("error", result);
             }
@@ -50,7 +50,7 @@ DendroMySQLClient.prototype.getConnection = function (callback)
             else
             {
                 self.pool = mysql.createPool({
-                    host: self.hostname,
+                    host: self.host,
                     user: self.user,
                     password: self.password,
                     database: self.db,
@@ -100,7 +100,7 @@ DendroMySQLClient.prototype.createDatabaseIfNotExists = function (callback)
     if (!self._databaseExists)
     {
         const connection = mysql.createConnection({
-            host: self.hostname,
+            host: self.host,
             user: self.user,
             password: self.password,
             multipleStatements: true
@@ -190,14 +190,14 @@ DendroMySQLClient.prototype.checkAndCreateInteractionsTable = function (tablenam
                                 return callback("[ERROR] Unable to create indexes on table  " + tablename + " in the MySQL database. Query was: \n" + createTableQuery + "\n . Result was: \n" + JSON.stringify(result, null, 4));
                             }
 
-                            return callback("[ERROR] Unable to create the interactions table " + tablename + " on the MySQL Database server running on " + self.hostname + ":" + self.port + "\n Error description : " + err);
+                            return callback("[ERROR] Unable to create the interactions table " + tablename + " on the MySQL Database server running on " + self.host + ":" + self.port + "\n Error description : " + err);
                         }
                     );
                 }
             }
             else
             {
-                return callback("[ERROR] Unable to query for the interactions table " + tablename + " on the MySQL Database server running on " + self.hostname + ":" + self.port + "\n Error description : " + err);
+                return callback("[ERROR] Unable to query for the interactions table " + tablename + " on the MySQL Database server running on " + self.host + ":" + self.port + "\n Error description : " + err);
             }
         });
     });

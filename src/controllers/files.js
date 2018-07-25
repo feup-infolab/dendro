@@ -1,6 +1,7 @@
 const humanize = require("humanize");
 const rlequire = require("rlequire");
 const path = require("path");
+const contentDisposition = require("content-disposition");
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
@@ -13,10 +14,10 @@ const User = rlequire("dendro", "src/models/user.js").User;
 const FileSystemPost = rlequire("dendro", "src/models/social/fileSystemPost.js").FileSystemPost;
 const Uploader = rlequire("dendro", "src/utils/uploader.js").Uploader;
 const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Event = rlequire("dendro", "src/models/social/event.js").Event;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const Notification = rlequire("dendro", "src/models/notifications/notification.js").Notification;
-
-const contentDisposition = require("content-disposition");
+const Post = rlequire("dendro", "src/models/social/post.js").Post;
 
 const async = require("async");
 
@@ -988,10 +989,22 @@ exports.upload = function (req, res)
                             {
                                 if (project instanceof Project)
                                 {
+                                    Notification.sendProgress(
+                                        `Calculating total size of files...`,
+                                        res.progressReporter,
+                                        project
+                                    );
+
                                     calculateTotalSizeOfFiles(req.files, function (err, totalSize)
                                     {
                                         if (isNull(err))
                                         {
+                                            Notification.sendProgress(
+                                                `Calculating current size of the project...`,
+                                                res.progressReporter,
+                                                project
+                                            );
+
                                             project.getStorageSize(function (err, storageSize)
                                             {
                                                 if (isNull(err))
@@ -1000,6 +1013,12 @@ exports.upload = function (req, res)
 
                                                     if (totalSize + storageSize < storageLimit)
                                                     {
+                                                        Notification.sendProgress(
+                                                            `OK! There is enough storage space to save these files.`,
+                                                            res.progressReporter,
+                                                            project
+                                                        );
+
                                                         async.mapSeries(files, function (file, callback)
                                                         {
                                                             fileNames.push({
@@ -1014,6 +1033,12 @@ exports.upload = function (req, res)
                                                                         isLogicalPartOf: parentFolder.uri
                                                                     }
                                                                 });
+
+                                                                Notification.sendProgress(
+                                                                    `Saving file ${newFile.nie.title}`,
+                                                                    res.progressReporter,
+                                                                    project
+                                                                );
 
                                                                 newFile.saveWithFileAndContents(file.path, function (err, newFile)
                                                                 {
@@ -1032,7 +1057,7 @@ exports.upload = function (req, res)
                                                                         files: files,
                                                                         errors: newFile
                                                                     });
-                                                                });
+                                                                }, null, res.progressReporter);
                                                             }
                                                             else
                                                             {
@@ -1152,6 +1177,7 @@ exports.upload = function (req, res)
             }
             else
             {
+                res.progressReporter = Notification.startProgress(req.user.uri, "Processing uploaded files.");
                 saveFilesAfterFinishingUpload(result, function (err, result)
                 {
                     if (isNull(err))
@@ -1210,6 +1236,7 @@ exports.restore = function (req, res)
                             {
                                 if (isNull(err) && user instanceof User)
                                 {
+                                    res.progressReporter = Notification.startProgress(req.user.uri, "Restoring folder " + folder.nie.title + " from " + file.nie.title + "...");
                                     folder.restoreFromLocalBackupZipFile(tempFilePath, user, function (err, result)
                                     {
                                         if (isNull(err))
@@ -1236,7 +1263,7 @@ exports.restore = function (req, res)
                                                 }
                                             );
                                         }
-                                    });
+                                    }, res.progressReporter);
                                 }
                                 else
                                 {
@@ -1355,6 +1382,30 @@ exports.rm = function (req, res)
                 {
                     if (isNull(error))
                     {
+                        let postObj = new Post(null, "file_delete", post.uri, post.dcterms.creator, post.ddr.projectUri);
+                        postObj.saveToMySQL(function (err)
+                        {
+                            if (isNull(err))
+                            {
+                                Logger.log("Post \"file_delete\" saved to MySQL");
+                                let event = new Event(null, "post", post.uri, post.dcterms.creator);
+                                event.saveToMySQL(function (err)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        Logger.log("Event \"post\" saved to MySQL");
+                                    }
+                                    else
+                                    {
+                                        Logger.log("error", err);
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                Logger.log("error", err);
+                            }
+                        });
                         /* res.status(200).json({
                             "result" : "success",
                             "message" : "Successfully deleted " + resourceToDelete
@@ -1402,6 +1453,30 @@ exports.rm = function (req, res)
                 {
                     if (isNull(err))
                     {
+                        let postObj = new Post(null, "rmdir", post.uri, post.dcterms.creator, post.ddr.projectUri);
+                        postObj.saveToMySQL(function (err)
+                        {
+                            if (isNull(err))
+                            {
+                                Logger.log("Post \"rmdir\" saved to MySQL");
+                                let event = new Event(null, "post", post.uri, post.dcterms.creator);
+                                event.saveToMySQL(function (err)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        Logger.log("Event \"post\" saved to MySQL");
+                                    }
+                                    else
+                                    {
+                                        Logger.log("error", err);
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                Logger.log("error", err);
+                            }
+                        });
                         /* res.status(200).json({
                             "result" : "success",
                             "message" : "Successfully deleted " + folder
@@ -2067,6 +2142,30 @@ exports.mkdir = function (req, res)
                     {
                         if (!err)
                         {
+                            let postObj = new Post(null, "mkdir", post.uri, post.dcterms.creator, post.ddr.projectUri);
+                            postObj.saveToMySQL(function (err)
+                            {
+                                if (isNull(err))
+                                {
+                                    Logger.log("Post \"mkdir\" saved to MySQL");
+                                    let event = new Event(null, "post", post.uri, post.dcterms.creator);
+                                    event.saveToMySQL(function (err)
+                                    {
+                                        if (isNull(err))
+                                        {
+                                            Logger.log("Event \"post\" saved to MySQL");
+                                        }
+                                        else
+                                        {
+                                            Logger.log("error", err);
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    Logger.log("error", err);
+                                }
+                            });
                             callback(err, folder, project);
                         }
                         else

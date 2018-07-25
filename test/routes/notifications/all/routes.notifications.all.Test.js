@@ -33,6 +33,7 @@ const createSocialDendroTimelineWithPostsAndSharesUnit = rlequire("dendro", "tes
 const db = rlequire("dendro", "test/utils/db/db.Test.js");
 
 const pageNumber = 1;
+let useRank = 0;
 let demouser2PostURIsArray;
 
 let folderName = "TestFolderFor_post_uri";
@@ -71,11 +72,11 @@ describe("Get all notifications URIs for a user tests", function ()
                     socialDendroUtils.createManualPostInProject(true, agent, publicProjectUri, manualPostMockData, function (err, res)
                     {
                         res.statusCode.should.equal(200);
-                        socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                        socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                         {
                             res.statusCode.should.equal(200);
                             demouser2PostURIsArray = res.body;
-                            res.body.length.should.equal(5);
+                            res.body.length.should.equal(30);
                             socialDendroUtils.getPostUriPage(true, agent, demouser2PostURIsArray[0].uri, function (err, res)
                             {
                                 res.statusCode.should.equal(200);// index 0 tem de ser o manual post que foi criado

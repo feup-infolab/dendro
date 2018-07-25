@@ -63,7 +63,7 @@ describe("Private project testFolder1 level ?paste", function ()
             });
         });
 
-        it("Should give an error when the user is logged in as demouser3(not a collaborador nor creator in a project by demouser1)", function (done)
+        it("Should give an error when the user is logged in as demouser3 (not a collaborador nor creator in a project by demouser1)", function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {

@@ -34,14 +34,14 @@ module.exports.createManualPostInProject = function (jsonOnly, agent, projectURI
     }
 };
 
-module.exports.getPostsURIsForUser = function (jsonOnly, agent, pageNumber, cb)
+module.exports.getPostsURIsForUser = function (jsonOnly, agent, pageNumber, useRank, cb)
 {
     const path = "/posts/all";
     if (jsonOnly)
     {
         agent
             .get(path)
-            .query({currentPage: pageNumber})
+            .query({currentPage: pageNumber, useRank: useRank})
             .set("Accept", "application/json")
             .set("Content-Type", "application/json")
             .end(function (err, res)
@@ -53,7 +53,7 @@ module.exports.getPostsURIsForUser = function (jsonOnly, agent, pageNumber, cb)
     {
         agent
             .get(path)
-            .query({currentPage: pageNumber})
+            .query({currentPage: pageNumber, useRank: useRank})
             .set("Accept", "text/html")
             .set("Content-Type", "application/json")
             .end(function (err, res)
@@ -152,7 +152,7 @@ module.exports.commentAPost = function (jsonOnly, agent, postURIToComment, comme
 
 module.exports.getMySocialDendroTimeline = function (jsonOnly, agent, cb)
 {
-    const path = "/socialDendro/my";
+    const path = "/social/my";
     if (jsonOnly)
     {
         agent

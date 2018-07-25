@@ -217,7 +217,7 @@ exports.restoreCheckpoint = function (checkpointIdentifier, callback)
             {
                 if (exists)
                 {
-                    if (Config.docker.active)
+                    if (Config.docker.active && Config.docker.reuse_checkpoints)
                     {
                         DockerManager.restoreCheckpoint(checkpointIdentifier, function (err, restoredCheckpoint)
                         {
@@ -626,10 +626,18 @@ exports.setup = function (targetUnit, callback, forceLoad)
             }
 
             Logger.log("Trying to recover checkpoint " + checkpointIdentifier + "...");
-            exports.restoreCheckpoint(checkpointIdentifier, function (err, result)
+
+            if (Config.docker.reuse_checkpoints && !forceLoad)
             {
-                callback(err, !!result);
-            }, !forceLoad);
+                exports.restoreCheckpoint(checkpointIdentifier, function (err, result)
+                {
+                    callback(err, !!result);
+                }, !forceLoad);
+            }
+            else
+            {
+                callback(null, null);
+            }
         }
         else if (Config.virtualbox && Config.virtualbox.active)
         {

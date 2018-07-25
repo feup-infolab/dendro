@@ -19,6 +19,8 @@ const _ = require("underscore");
 const db = Config.getDBByID();
 const gfs = Config.getGFSByID();
 
+const dbMySQL = rlequire("dendro", "src/mysql_models");
+
 function User (object)
 {
     const self = this;
@@ -392,389 +394,136 @@ User.prototype.getInteractions = function (callback)
 User.prototype.hiddenDescriptors = function (maxResults, callback, allowedOntologies)
 {
     const self = this;
+    const mysql = Config.getMySQLByID();
+    const targetTable = Config.recommendation.getTargetTable();
+    let userHiddenDescriptorsList = [];
 
-    // TODO FIXME JROCHA necessary to make two queries because something is wrong with virtuoso. making an UNION of both and projecting with SELECT * mixes up the descriptors!
+    let queryUserHiddenDescriptors = "call " + Config.mySQLDBName + ".getUserHiddenDescriptors(:uri);";
 
-    const createDescriptorsList = function (descriptors, callback)
-    {
-        const createDescriptor = function (result, callback)
+    dbMySQL.sequelize
+        .query(queryUserHiddenDescriptors,
+            {replacements: { uri: self.uri }})
+        .then(result =>
         {
-            const suggestion = new Descriptor({
-                uri: result.descriptor,
-                label: result.label,
-                comment: result.comment
-            });
-
-            // set recommendation type
-            suggestion.recommendation_types = {};
-
-            // TODO JROCHA Figure out under which circumstances this is null
-            if (typeof Descriptor.recommendation_types !== "undefined")
+            if (isNull(result))
             {
-                suggestion.recommendation_types[Descriptor.recommendation_types.user_hidden.key] = true;
+                return callback(null, []);
             }
 
-            suggestion.last_hidden = result.last_hidden;
-            suggestion.last_unhidden = Date.parse(result.last_unhidden);
-
-            if (suggestion instanceof Descriptor && suggestion.isAuthorized([Elements.access_types.private, Elements.access_types.locked]))
+            async.mapSeries(result, function (row, callback)
             {
-                return callback(null, suggestion);
-            }
-            return callback(null, null);
-        };
-
-        async.mapSeries(descriptors, createDescriptor, function (err, fullDescriptors)
-        {
-            if (isNull(err))
-            {
-                /** remove nulls (that were unauthorized descriptors)**/
-                fullDescriptors = _.without(fullDescriptors, null);
-
-                return callback(null, fullDescriptors);
-            }
-            return callback(1, null);
-        });
-    };
-
-    let argumentsArray =
-    [
-        {
-            value: db.graphUri,
-            type: Elements.types.resourceNoEscape
-        },
-        {
-            value: self.uri,
-            type: Elements.ontologies.ddr.performedBy.type
-        },
-        {
-            value: Interaction.types.hide_descriptor_from_quick_list_for_user.key,
-            type: Elements.ontologies.ddr.interactionType.type
-        },
-        {
-            value: Interaction.types.unhide_descriptor_from_quick_list_for_user.key,
-            type: Elements.ontologies.ddr.interactionType.type
-        }
-    ];
-
-    const publicOntologies = Ontology.getPublicOntologiesUris();
-    if (!isNull(allowedOntologies) && allowedOntologies instanceof Array)
-    {
-        allowedOntologies = _.intersection(publicOntologies, allowedOntologies);
-    }
-    else
-    {
-        allowedOntologies = publicOntologies;
-    }
-
-    let fromString = "";
-
-    const fromElements = DbConnection.buildFromStringAndArgumentsArrayForOntologies(allowedOntologies, argumentsArray.length);
-    argumentsArray = argumentsArray.concat(fromElements.argumentsArray);
-    fromString = fromString + fromElements.fromString;
-
-    const filterString = DbConnection.buildFilterStringForOntologies(allowedOntologies, "hidden_descriptor");
-
-    const query =
-        "SELECT * \n" +
-        "{ \n" +
-        "	{ \n" +
-        "		SELECT ?hidden_descriptor as ?descriptor ?label ?comment ?last_hidden ?last_unhidden \n" +
-        fromString + "\n" +
-        "		WHERE \n" +
-        "		{ \n" +
-        "			?hidden_descriptor rdfs:label ?label.  \n" +
-        "			?hidden_descriptor rdfs:comment ?comment.  \n" +
-        "			FILTER(    (str(?label) != \"\") && ( str(?comment) != \"\") ).  \n" +
-        "			FILTER(   lang(?label) = \"\" || lang(?label) = \"en\") .  \n" +
-        "			FILTER(   lang(?comment) = \"\" || lang(?comment) = \"en\")   \n" +
-        filterString + "\n" +
-        "			 \n" +
-        "			{ \n" +
-        "				SELECT ?hidden_descriptor MAX(?date_hidden) as ?last_hidden \n" +
-        "				FROM [0]  \n" +
-        "				WHERE  \n" +
-        "				{  \n" +
-        "				   	?hide_interaction rdf:type ddr:Interaction. \n" +
-        "				   	?hide_interaction ddr:executedOver ?hidden_descriptor. \n" +
-        "				   	?hide_interaction ddr:interactionType [2]. \n" +
-        "				   	?hide_interaction ddr:performedBy [1] .  \n" +
-        "				   	?hide_interaction ddr:created ?date_hidden. \n" +
-        "					FILTER NOT EXISTS \n" +
-        "					{ \n" +
-        "						SELECT ?unhidden_descriptor MAX(?date_unhidden) as ?last_unhidden \n" +
-        "						FROM [0]  \n" +
-        "						WHERE  \n" +
-        "						{  \n" +
-        "				   			?unhide_interaction rdf:type ddr:Interaction. \n" +
-        "				   			?unhide_interaction ddr:executedOver ?hidden_descriptor. \n" +
-        "				   			?unhide_interaction ddr:executedOver ?unhidden_descriptor. \n" +
-        "				   			?unhide_interaction ddr:interactionType [3]. \n" +
-        "				   			?unhide_interaction ddr:performedBy [1] .  \n" +
-        "				   			?unhide_interaction ddr:created ?date_unhidden. \n" +
-        "						} \n" +
-        "					} \n" +
-        "				} \n" +
-        "			} \n" +
-        "		} \n" +
-        "	} \n" +
-        "	UNION \n" +
-        "	{ \n" +
-        "		SELECT ?hidden_descriptor as ?descriptor ?label ?comment ?last_hidden ?last_unhidden \n" +
-        fromString + "\n" +
-        "		WHERE \n" +
-        "		{ \n" +
-        "			?hidden_descriptor rdfs:label ?label.  \n" +
-        "			?hidden_descriptor rdfs:comment ?comment.  \n" +
-        "			FILTER(    (str(?label) != \"\") && ( str(?comment) != \"\") ).  \n" +
-        "			FILTER(   lang(?label) = \"\" || lang(?label) = \"en\") .  \n" +
-        "			FILTER(   lang(?comment) = \"\" || lang(?comment) = \"en\")   \n" +
-        filterString + "\n" +
-        "			 \n" +
-        "			{ \n" +
-        "				SELECT ?hidden_descriptor MAX(?date_hidden) as ?last_hidden \n" +
-        "				FROM [0]  \n" +
-        "				WHERE  \n" +
-        "				{  \n" +
-        "				   	?hide_interaction rdf:type ddr:Interaction. \n" +
-        "				   	?hide_interaction ddr:executedOver ?hidden_descriptor. \n" +
-        "				   	?hide_interaction ddr:interactionType [2] . \n" +
-        "				   	?hide_interaction ddr:performedBy [1] .  \n" +
-        "				   	?hide_interaction ddr:created ?date_hidden. \n" +
-        "				} \n" +
-        "			}. \n" +
-        "			{ \n" +
-        "				SELECT ?hidden_descriptor MAX(?date_unhidden) as ?last_unhidden \n" +
-        "				FROM [0]  \n" +
-        "				WHERE  \n" +
-        "				{  \n" +
-        "				   	?unhide_interaction rdf:type ddr:Interaction. \n" +
-        "				   	?unhide_interaction ddr:executedOver ?hidden_descriptor. \n" +
-        "				   	?unhide_interaction ddr:interactionType [3]. \n" +
-        "				   	?unhide_interaction ddr:performedBy [1] .  \n" +
-        "				   	?unhide_interaction ddr:created ?date_unhidden. \n" +
-        "				} \n" +
-        "			} \n" +
-        "		   	FILTER(bound(?last_unhidden) && ?last_hidden > ?last_unhidden) \n" +
-        "		} \n" +
-        "	} \n" +
-        "} \n";
-
-    db.connection.executeViaJDBC(
-        query,
-        argumentsArray,
-
-        function (err, hidden)
-        {
-            if (isNull(err))
-            {
-                createDescriptorsList(hidden, function (err, fullDescriptors)
+                Descriptor.findByUri(row.executedOver, function (err, descriptor)
                 {
-                    return callback(err, fullDescriptors);
+                    if (isNull(err))
+                    {
+                        if (!isNull(descriptor))
+                        {
+                            if (descriptor.recommendation_types != null)
+                            {
+                                descriptor.recommendation_types.user_hidden = true;
+                            }
+                            else
+                            {
+                                descriptor.recommendation_types = {};
+                                descriptor.recommendation_types.user_hidden = true;
+                            }
+                            userHiddenDescriptorsList.push(descriptor);
+                            callback(null, null);
+                        }
+                        else
+                        {
+                            const errorMsg = "Descriptor with uri: " + row.executedOver + " does not exist!";
+                            Logger.log("error", errorMsg);
+                            callback(true, errorMsg);
+                        }
+                    }
+                    else
+                    {
+                        Logger.log("error", JSON.stringify(descriptor));
+                        callback(true, JSON.stringify(descriptor));
+                    }
                 });
-            }
-            else
+            }, function (err, results)
             {
-                const msg = "Unable to fetch hidden descriptors of the user " + self.uri + ". Error reported: " + hidden;
-                Logger.log(msg);
-                return callback(err, hidden);
-            }
-        }
-    );
+                if (isNull(err))
+                {
+                    return callback(err, userHiddenDescriptorsList);
+                }
+
+                return callback(err, results);
+            });
+        })
+        .catch(err =>
+            callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database."));
 };
 
 User.prototype.favoriteDescriptors = function (maxResults, callback, allowedOntologies)
 {
     const self = this;
+    const mysql = Config.getMySQLByID();
+    const targetTable = Config.recommendation.getTargetTable();
+    let userFavoriteDescriptorsList = [];
 
-    // TODO FIXME JROCHA necessary to make two queries because something is wrong with virtuoso. making an UNION of both and projecting with SELECT * mixes up the descriptors!
+    // USING THE user uri
+    // query all the interactions of the interactions types "favorite_descriptor_from_manual_list_for_user" and "favorite_descriptor_from_quick_list_for_user" where the performedBy is done by the user
 
-    const createDescriptorsList = function (descriptors, callback)
-    {
-        const createDescriptor = function (result, callback)
+    let queryUserDescriptorFavorites = "call " + Config.mySQLDBName + ".getUserFavoriteDescriptors(:uri);";
+
+    dbMySQL.sequelize
+        .query(queryUserDescriptorFavorites,
+            {replacements: { uri: self.uri }})
+        .then(result =>
         {
-            const suggestion = new Descriptor({
-                uri: result.descriptor,
-                label: result.label,
-                comment: result.comment
-            });
-
-            // set recommendation type
-            suggestion.recommendation_types = {};
-
-            // TODO JROCHA Figure out under which circumstances this is null
-            if (typeof Descriptor.recommendation_types !== "undefined")
+            if (isNull(result))
             {
-                suggestion.recommendation_types[Descriptor.recommendation_types.user_favorite.key] = true;
+                return callback(null, []);
             }
 
-            suggestion.last_favorited = result.last_favorited;
-            suggestion.last_unfavorited = Date.parse(result.last_unfavorited);
-
-            if (suggestion instanceof Descriptor && suggestion.isAuthorized([Elements.access_types.private, Elements.access_types.locked]))
+            async.mapSeries(result, function (row, callback)
             {
-                return callback(null, suggestion);
-            }
-            return callback(null, null);
-        };
-
-        async.mapSeries(descriptors, createDescriptor, function (err, fullDescriptors)
-        {
-            if (isNull(err))
-            {
-                /** remove nulls (that were unauthorized descriptors)**/
-                fullDescriptors = _.without(fullDescriptors, null);
-
-                return callback(null, fullDescriptors);
-            }
-            return callback(1, null);
-        });
-    };
-
-    let argumentsArray =
-    [
-        {
-            value: db.graphUri,
-            type: Elements.types.resourceNoEscape
-        },
-        {
-            value: self.uri,
-            type: Elements.ontologies.ddr.performedBy.type
-        },
-        {
-            value: Interaction.types.favorite_descriptor_from_quick_list_for_user.key,
-            type: Elements.ontologies.ddr.interactionType.type
-        },
-        {
-            value: Interaction.types.unfavorite_descriptor_from_quick_list_for_user.key,
-            type: Elements.ontologies.ddr.interactionType.type
-        }
-    ];
-
-    const publicOntologies = Ontology.getPublicOntologiesUris();
-    if (!isNull(allowedOntologies) && allowedOntologies instanceof Array)
-    {
-        allowedOntologies = _.intersection(publicOntologies, allowedOntologies);
-    }
-    else
-    {
-        allowedOntologies = publicOntologies;
-    }
-
-    let fromString = "";
-
-    const fromElements = DbConnection.buildFromStringAndArgumentsArrayForOntologies(allowedOntologies, argumentsArray.length);
-    argumentsArray = argumentsArray.concat(fromElements.argumentsArray);
-    fromString = fromString + fromElements.fromString;
-
-    const filterString = DbConnection.buildFilterStringForOntologies(allowedOntologies, "favorited_descriptor");
-
-    const query =
-        "SELECT * \n" +
-        "{ \n" +
-        "	{ \n" +
-        "		SELECT ?favorited_descriptor as ?descriptor ?label ?comment ?last_favorited ?last_unfavorited \n" +
-        fromString + "\n" +
-        "		WHERE \n" +
-        "		{ \n" +
-        "			?favorited_descriptor rdfs:label ?label.  \n" +
-        "			?favorited_descriptor rdfs:comment ?comment.  \n" +
-        "			FILTER(    (str(?label) != \"\") && ( str(?comment) != \"\") ).  \n" +
-        "			FILTER(   lang(?label) = \"\" || lang(?label) = \"en\") .  \n" +
-        "			FILTER(   lang(?comment) = \"\" || lang(?comment) = \"en\")   \n" +
-        filterString + "\n" +
-        "			 \n" +
-        "			{ \n" +
-        "				SELECT ?favorited_descriptor MAX(?date_favorited) as ?last_favorited \n" +
-        "				FROM [0]  \n" +
-        "				WHERE  \n" +
-        "				{  \n" +
-        "				   	?favorite_interaction rdf:type ddr:Interaction. \n" +
-        "				   	?favorite_interaction ddr:executedOver ?favorited_descriptor. \n" +
-        "				   	?favorite_interaction ddr:interactionType [2]. \n" +
-        "				   	?favorite_interaction ddr:performedBy [1] .  \n" +
-        "				   	?favorite_interaction ddr:created ?date_favorited. \n" +
-        "					FILTER NOT EXISTS \n" +
-        "					{ \n" +
-        "						SELECT ?unfavorited_descriptor MAX(?date_unfavorited) as ?last_unfavorited \n" +
-        "						FROM [0]  \n" +
-        "						WHERE  \n" +
-        "						{  \n" +
-        "				   			?unfavorite_interaction rdf:type ddr:Interaction. \n" +
-        "				   			?unfavorite_interaction ddr:executedOver ?favorited_descriptor. \n" +
-        "				   			?unfavorite_interaction ddr:executedOver ?unfavorited_descriptor. \n" +
-        "				   			?unfavorite_interaction ddr:interactionType [3]. \n" +
-        "				   			?unfavorite_interaction ddr:performedBy [1] .  \n" +
-        "				   			?unfavorite_interaction ddr:created ?date_unfavorited. \n" +
-        "						} \n" +
-        "					} \n" +
-        "				} \n" +
-        "			} \n" +
-        "		} \n" +
-        "	} \n" +
-        "	UNION \n" +
-        "	{ \n" +
-        "		SELECT ?favorited_descriptor as ?descriptor ?label ?comment ?last_favorited ?last_unfavorited \n" +
-        fromString + "\n" +
-        "		WHERE \n" +
-        "		{ \n" +
-        "			?favorited_descriptor rdfs:label ?label.  \n" +
-        "			?favorited_descriptor rdfs:comment ?comment.  \n" +
-        "			FILTER(    (str(?label) != \"\") && ( str(?comment) != \"\") ).  \n" +
-        "			FILTER(   lang(?label) = \"\" || lang(?label) = \"en\") .  \n" +
-        "			FILTER(   lang(?comment) = \"\" || lang(?comment) = \"en\")   \n" +
-        filterString + "\n" +
-        "			 \n" +
-        "			{ \n" +
-        "				SELECT ?favorited_descriptor MAX(?date_favorited) as ?last_favorited \n" +
-        "				FROM [0]  \n" +
-        "				WHERE  \n" +
-        "				{  \n" +
-        "				   	?favorite_interaction rdf:type ddr:Interaction. \n" +
-        "				   	?favorite_interaction ddr:executedOver ?favorited_descriptor. \n" +
-        "				   	?favorite_interaction ddr:interactionType [2] . \n" +
-        "				   	?favorite_interaction ddr:performedBy [1] .  \n" +
-        "				   	?favorite_interaction ddr:created ?date_favorited. \n" +
-        "				} \n" +
-        "			}. \n" +
-        "			{ \n" +
-        "				SELECT ?favorited_descriptor MAX(?date_unfavorited) as ?last_unfavorited \n" +
-        "				FROM [0]  \n" +
-        "				WHERE  \n" +
-        "				{  \n" +
-        "				   	?unfavorite_interaction rdf:type ddr:Interaction. \n" +
-        "				   	?unfavorite_interaction ddr:executedOver ?favorited_descriptor. \n" +
-        "				   	?unfavorite_interaction ddr:interactionType [3]. \n" +
-        "				   	?unfavorite_interaction ddr:performedBy [1] .  \n" +
-        "				   	?unfavorite_interaction ddr:created ?date_unfavorited. \n" +
-        "				} \n" +
-        "			} \n" +
-        "		   	FILTER(bound(?last_unfavorited) && ?last_favorited > ?last_unfavorited) \n" +
-        "		} \n" +
-        "	} \n" +
-        "} \n";
-
-    db.connection.executeViaJDBC(
-        query,
-        argumentsArray,
-
-        function (err, favorites)
-        {
-            if (isNull(err))
-            {
-                createDescriptorsList(favorites, function (err, fullDescriptors)
+                Descriptor.findByUri(row.executedOver, function (err, descriptor)
                 {
-                    return callback(err, fullDescriptors);
+                    if (isNull(err))
+                    {
+                        if (!isNull(descriptor))
+                        {
+                            if (descriptor.recommendation_types != null)
+                            {
+                                descriptor.recommendation_types.user_favorite = true;
+                            }
+                            else
+                            {
+                                descriptor.recommendation_types = {};
+                                descriptor.recommendation_types.user_favorite = true;
+                            }
+                            userFavoriteDescriptorsList.push(descriptor);
+                            callback(null, null);
+                        }
+                        else
+                        {
+                            const errorMsg = "Descriptor with uri: " + row.executedOver + " does not exist!";
+                            Logger.log("error", errorMsg);
+                            callback(true, errorMsg);
+                        }
+                    }
+                    else
+                    {
+                        Logger.log("error", JSON.stringify(descriptor));
+                        callback(true, JSON.stringify(descriptor));
+                    }
                 });
-            }
-            else
+            }, function (err, results)
             {
-                const msg = "Unable to fetch favorite descriptors of the user " + self.uri + ". Error reported: " + favorites;
-                Logger.log(msg);
-                return callback(err, favorites);
-            }
-        }
-    );
+                if (isNull(err))
+                {
+                    return callback(err, userFavoriteDescriptorsList);
+                }
+
+                return callback(err, results);
+            });
+        })
+        .catch(err =>
+            callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database."));
 };
 
 User.prototype.mostAcceptedFavoriteDescriptorsInMetadataEditor = function (maxResults, callback, allowedOntologies)
@@ -1516,13 +1265,14 @@ User.prototype.saveAvatarInGridFS = function (avatar, extension, callback)
                 {
                     let msg = "Error when finding the latest file with uri : " + avatarUri + " in Mongo";
                     Logger.log("error", msg);
+                    Logger.log("error", files);
                     return callback(err, msg);
                 }
             });
         }
         else
         {
-            let msg = "Error when connencting to mongodb, error: " + JSON.stringify(err);
+            let msg = "Error when connecting to mongodb, error: " + JSON.stringify(err);
             Logger.log("error", msg);
             return callback(err, msg);
         }

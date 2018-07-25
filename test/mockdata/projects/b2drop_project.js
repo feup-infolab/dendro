@@ -1,8 +1,8 @@
 const uuid = require("uuid");
+const rlequire = require("rlequire");
 const slug = rlequire("dendro", "src/utils/slugifier.js");
 
 const b2dropProjectHandle = "b2droproject" + Math.random().toString(36).substr(2, 5);
-const rlequire = require("rlequire");
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const fileUtils = rlequire("dendro", "test/utils/file/fileUtils.js");
 

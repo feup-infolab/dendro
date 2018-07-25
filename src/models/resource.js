@@ -1,4 +1,3 @@
-const path = require("path");
 const validator = require("validator");
 const rlequire = require("rlequire");
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
@@ -3522,7 +3521,7 @@ Resource.deleteAll = function (callback, customGraphUri)
         "WITH [0] \n" +
         "DELETE { ?uri ?p ?o} \n" +
         "WHERE { \n" +
-        "?uri ?p ?v. \n";
+        "?uri ?p ?o. \n";
 
     if (!isNull(type))
     {

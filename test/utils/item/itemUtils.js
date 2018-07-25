@@ -536,6 +536,31 @@ module.exports.getItemMetadataRecommendations = function (jsonOnly, agent, proje
     }
 };
 
+module.exports.getItemMetadataRecommendationsByItemUri = function (jsonOnly, agent, itemUri, cb)
+{
+    const path = itemUri + "?metadata_recommendations";
+    if (jsonOnly)
+    {
+        agent
+            .get(path)
+            .set("Accept", "application/json")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set("Accept", "text/html")
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+};
+
 module.exports.getItemRecommendationOntologies = function (jsonOnly, agent, projectHandle, itemPath, cb)
 {
     // recommendation_ontologies

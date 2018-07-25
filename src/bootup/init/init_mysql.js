@@ -1,58 +1,97 @@
 const rlequire = require("rlequire");
+const async = require("async");
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 let isNull = rlequire("dendro", "src/utils/null.js").isNull;
-const DendroMySQLClient = rlequire("dendro", "src/kb/mysql.js").DendroMySQLClient;
+const Sequelize = require("sequelize");
+const Umzug = require("umzug");
 
 const initMySQL = function (app, callback)
 {
-    Logger.log("Setting up MySQL connection pool at host " + Config.mySQLHost + ":" + Config.mySQLPort);
+    Logger.log_boot_message("Setting up MySQL connection pool.");
 
-    const client = new DendroMySQLClient(
-        Config.mySQLHost,
-        Config.mySQLPort,
-        Config.mySQLDBName,
-        Config.mySQLAuth.user,
-        Config.mySQLAuth.password
-    );
-
-    // TODO This is commented until the merge with the new structure using migrations.
-    return callback(null);
-
-    client.createDatabaseIfNotExists(function (err, result)
+    const createDatabase = function (callback)
     {
-        if (isNull(err))
+        // Create connection omitting database name, create database if not exists
+        const sequelize = new Sequelize("", Config.mySQLAuth.user, Config.mySQLAuth.password, {
+            dialect: "mysql",
+            host: Config.mySQLHost,
+            port: Config.mySQLPort,
+            logging: false,
+            operatorsAliases: false
+        });
+        let query = "CREATE DATABASE IF NOT EXISTS " + Config.mySQLDBName + ";";
+        if (Config.startup.load_databases && Config.startup.destroy_mysql_database)
         {
-            client.checkAndCreateInteractionsTable(Config.recommendation.getTargetTable(), function (err, results)
+            query = "DROP DATABASE IF EXISTS " + Config.mySQLDBName + ";" + query;
+        }
+        sequelize
+            .authenticate()
+            .then(() =>
             {
-                if (err)
-                {
-                    callback("Unable to create interactions table " + Config.recommendation.getTargetTable() + " in MySQL ");
-                }
-                else
-                {
-                    if (Config.getMySQLByID().connection)
+                Logger.log_boot_message("Connected to MySQL!");
+                return sequelize.query(query).then(data =>
+                    callback(null, data))
+                    .catch(err =>
                     {
-                        Config.getMySQLByID().connection.releaseAllConnections(function ()
-                        {
-                            Config.getMySQLByID().connection = client;
-                            Logger.log("ReConnected to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort);
-                            return callback(null);
-                        });
-                    }
-                    else
-                    {
-                        Config.getMySQLByID().connection = client;
-                        Logger.log("Connected to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort);
-                        return callback(null);
-                    }
-                }
+                        Logger.log("error", "Error creating database in MySQL: " + Config.mySQLDBName);
+                        return callback(err, null);
+                    });
+            })
+            .catch(err =>
+            {
+                Logger.log("error", "Error authenticating in MySQL database : " + Config.mySQLDBName);
+                Logger.log("error", JSON.stringify(err));
+                return callback(err, null);
             });
-        }
-        else
+    };
+
+    async.retry({
+        times: 240,
+        interval: function (retryCount)
         {
-            callback(err, result);
+            const msecs = 500;
+            Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to determine ElasticSearch cluster health");
+            return msecs;
         }
+    }, createDatabase, function (err)
+    {
+        if (!isNull(err))
+        {
+            return callback(err);
+        }
+
+        // run migrations
+        const sequelize = new Sequelize(Config.mySQLDBName, Config.mySQLAuth.user, Config.mySQLAuth.password, {
+            dialect: "mysql",
+            host: Config.mySQLHost,
+            port: Config.mySQLPort,
+            logging: false,
+            define: {
+                underscored: false,
+                freezeTableName: true,
+                charset: "utf8"
+            },
+            operatorsAliases: false
+        });
+
+        var umzug = new Umzug({
+            storage: "sequelize",
+            storageOptions: { sequelize: sequelize },
+            migrations: {
+                params: [sequelize.getQueryInterface(), Sequelize],
+                path: rlequire.absPathInApp("dendro", "src/mysql_migrations")
+            }
+        });
+
+        return umzug.up().then(function ()
+        {
+            return callback(null);
+        }).catch(err =>
+        {
+            console.log(err);
+            return callback(err);
+        });
     });
 };
 

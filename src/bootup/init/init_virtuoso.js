@@ -2,22 +2,24 @@ const rlequire = require("rlequire");
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
-let DbConnection = rlequire("dendro", "src/kb/db.js").DbConnection;
+const VirtuosoConnection = rlequire("dendro", "src/kb/db-adapters/virtuoso.js").VirtuosoConnection;
 
 const initVirtuoso = function (app, callback)
 {
     Logger.log_boot_message("Initializing Virtuoso Connection...");
 
-    let db = new DbConnection(
-        Config.db.default.graphHandle,
-        Config.virtuosoHost,
-        Config.virtuosoPort,
-        Config.virtuosoISQLPort,
-        Config.virtuosoAuth.user,
-        Config.virtuosoAuth.password,
-        // Config.maxSimultaneousConnectionsToDb,
-        1, // it is one because Virtuoso cant handle more than one connection properly. Only ONE connection and not more!!
-        Config.dbOperationTimeout
+    // maxSimultaneousConnections is 1 because Virtuoso cant handle more than one connection properly. Only ONE connection and not more!!
+    let db = new VirtuosoConnection(
+        {
+            handle: Config.db.default.graphHandle,
+            host: Config.virtuosoHost,
+            port: Config.virtuosoPort,
+            portISQL: Config.virtuosoISQLPort,
+            username: Config.virtuosoAuth.user,
+            password: Config.virtuosoAuth.password,
+            maxSimultaneousConnections: 1,
+            dbOperationsTimeout: Config.dbOperationTimeout
+        }
     );
 
     db.tryToConnect(function (err)

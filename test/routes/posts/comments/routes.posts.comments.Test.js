@@ -29,6 +29,7 @@ const db = rlequire("dendro", "test/utils/db/db.Test.js");
 const createSocialDendroTimelineWithPostsAndSharesUnit = rlequire("dendro", "test/units/social/createSocialDendroTimelineWithPostsAndShares.Unit.js");
 
 const pageNumber = 1;
+let useRank = 0;
 let demouser1PostURIsArray;
 
 describe("Get comments for a specific post tests", function ()
@@ -50,10 +51,10 @@ describe("Get comments for a specific post tests", function ()
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    res.body.length.should.equal(5);
+                    res.body.length.should.equal(30);
                     demouser1PostURIsArray = res.body;
                     // Force logout
                     const app = global.tests.app;

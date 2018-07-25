@@ -1,0 +1,6 @@
+Contact-Email: teste@teste.com
+Contact-Name: João Rocha da Silva
+Contact-Phone: +351 930000000
+External-Description: This is a test project description for a public project type
+Organization-Address: Universidade do Porto, Praça dos Leões 31
+Source-Organization: UP
