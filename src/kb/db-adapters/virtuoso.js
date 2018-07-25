@@ -19,8 +19,10 @@ class VirtuosoConnection extends DbConnection
     {
         super(options);
         const self = this;
-        const portISQL = options.portISQL;
-        self.port_isql = portISQL;
+        self.virtuosoSQLLogLevel = options.virtuosoSQLLogLevel;
+        self.port_isql = options.portISQL;
+        self.virtuosoConnector = options.virtuosoConnector;
+        self.virtuosoSQLLogLevel = options.virtuosoSQLLogLevel;
     }
 
     sendQueryViaJDBC (query, queryId, callback, runAsUpdate)
@@ -80,12 +82,6 @@ class VirtuosoConnection extends DbConnection
                     // difference between query and procedure (does not return anything. needed for deletes and inserts)
                     if (!isNull(runAsUpdate))
                     {
-                        // if (!isNull(Config.virtuosoSQLLogLevel))
-                        // {
-                        //     query = "log_enable(" + Config.virtuosoSQLLogLevel + "); \n" + query + "\n";
-                        // }
-                        // query = "set AUTOCOMMIT MANUAL;\n" + query + "\nCOMMIT WORK;\n set AUTOCOMMIT on;\n";
-
                         statement.executeUpdate(query, function (err, results)
                         {
                             if (isNull(err))
@@ -523,12 +519,12 @@ class VirtuosoConnection extends DbConnection
                 {
                     if (isNull(db))
                     {
-                        const msg = "[ERROR] Unable to connect to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort;
+                        const msg = "[ERROR] Unable to connect to Virtuoso graph database running on " + self.host + ":" + self.port;
                         Logger.log_boot_message(msg);
                         return callback(msg);
                     }
 
-                    Logger.log_boot_message("Connected to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort);
+                    Logger.log_boot_message("Connected to Virtuoso graph database running on " + self.host + ":" + self.port);
                     // set default connection. If you want to add other connections, add them in succession.
                     return callback(null);
                 }
@@ -543,21 +539,21 @@ class VirtuosoConnection extends DbConnection
             interval: function (retryCount)
             {
                 const msecs = 500;
-                Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to Virtuoso at " + Config.virtuosoHost + ":" + Config.virtuosoPort + "...");
+                Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to Virtuoso at " + self.host + ":" + self.port + "...");
                 return msecs;
             }
         }, tryToConnect, function (err, result)
         {
             if (!isNull(err))
             {
-                const msg = "[ERROR] Error connecting to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort;
+                const msg = "[ERROR] Error connecting to Virtuoso graph database running on " + self.host + ":" + self.port;
                 Logger.log("error", msg);
                 Logger.log("error", err);
                 Logger.log("error", result);
             }
             else
             {
-                const msg = "Connection to Virtuoso at " + Config.virtuosoHost + ":" + Config.virtuosoPort + " was established!";
+                const msg = "Connection to Virtuoso at " + self.host + ":" + self.port + " was established!";
                 Logger.log("info", msg);
             }
             callback(err);
@@ -757,6 +753,24 @@ class VirtuosoConnection extends DbConnection
         });
     }
 
+    execute(queryStringWithArguments, argumentsArray, callback, options)
+    {
+        const self = this;
+        if(self.virtuosoConnector === "http")
+        {
+
+        }
+        else if(self.virtuosoConnector === "jdbc")
+        {
+
+        }
+        else
+        {
+            throw new Error("Invalid virtuoso connector type: " + self.virtuosoConnector);
+        }
+
+    }
+
     executeViaHTTP (queryStringWithArguments, argumentsArray, callback, resultsFormat, maxRows, loglevel)
     {
         const self = this;
@@ -795,7 +809,7 @@ class VirtuosoConnection extends DbConnection
                     }
                     else
                     {
-                        query = "DEFINE sql:log-enable " + Config.virtuosoSQLLogLevel + "\n" + query;
+                        query = "DEFINE sql:log-enable " + self.virtuosoSQLLogLevel + "\n" + query;
                     }
 
                     const uuid = require("uuid");

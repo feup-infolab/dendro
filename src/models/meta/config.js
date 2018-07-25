@@ -110,6 +110,23 @@ Config.virtuosoHost = getConfigParameter("virtuosoHost");
 Config.virtuosoPort = getConfigParameter("virtuosoPort");
 Config.virtuosoISQLPort = getConfigParameter("virtuosoISQLPort");
 Config.virtuosoSQLLogLevel = getConfigParameter("virtuosoSQLLogLevel");
+
+Config.fusekiHost = getConfigParameter("fusekiHost");
+Config.fusekiPort = getConfigParameter("fusekiPort");
+Config.fusekiAuth = getConfigParameter("fusekiAuth");
+Config.fusekiDataset = getConfigParameter("fusekiDataset");
+
+Config.graphDatabase = (function ()
+{
+    const connectorType = getConfigParameter("graphDatabase");
+
+    if (connectorType === "virtuoso" || connectorType === "fuseki")
+    {
+        return connectorType;
+    }
+    throw new Error("Invalid graphDatabase type " + connectorType + " valid options: \"virtuoso\" or \"fuseki\"");
+}());
+
 Config.skipDescriptorValuesValidation = getConfigParameter("skipDescriptorValuesValidation", false);
 
 Config.virtuosoConnector = (function ()

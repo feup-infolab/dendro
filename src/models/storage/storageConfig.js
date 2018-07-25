@@ -87,7 +87,7 @@ StorageConfig.findByProject = function (projectUri, callback, customGraphUri)
             "   ?configuration ddr:handlesStorageForProject [1] \n" +
             "} \n";
 
-        db.connection.executeViaJDBC(query, [
+        db.connection.execute(query, [
             {
                 type: Elements.types.resourceNoEscape,
                 value: graphUri
@@ -152,7 +152,7 @@ StorageConfig.findByProjectAndType = function (projectUri, storageType, callback
             "   ?configuration rdf:hasStorageType [2] . \n" +
             "} \n";
 
-        db.connection.executeViaJDBC(query, [
+        db.connection.execute(query, [
             {
                 type: Elements.types.resourceNoEscape,
                 value: graphUri

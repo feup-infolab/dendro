@@ -525,54 +525,7 @@ class DbConnection
 
     tryToConnect (callback)
     {
-        const self = this;
-        const tryToConnect = function (callback)
-        {
-            self.create(function (err, db)
-            {
-                if (isNull(err))
-                {
-                    if (isNull(db))
-                    {
-                        const msg = "[ERROR] Unable to connect to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort;
-                        Logger.log_boot_message(msg);
-                        return callback(msg);
-                    }
-
-                    Logger.log_boot_message("Connected to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort);
-                    // set default connection. If you want to add other connections, add them in succession.
-                    return callback(null);
-                }
-                callback(1);
-            });
-        };
-
-        // try calling apiMethod 10 times with linear backoff
-        // (i.e. intervals of 100, 200, 400, 800, 1600, ... milliseconds)
-        async.retry({
-            times: 240,
-            interval: function (retryCount)
-            {
-                const msecs = 500;
-                Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to Virtuoso at " + Config.virtuosoHost + ":" + Config.virtuosoPort + "...");
-                return msecs;
-            }
-        }, tryToConnect, function (err, result)
-        {
-            if (!isNull(err))
-            {
-                const msg = "[ERROR] Error connecting to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort;
-                Logger.log("error", msg);
-                Logger.log("error", err);
-                Logger.log("error", result);
-            }
-            else
-            {
-                const msg = "Connection to Virtuoso at " + Config.virtuosoHost + ":" + Config.virtuosoPort + " was established!";
-                Logger.log("info", msg);
-            }
-            callback(err);
-        });
+        throw new Error("This can only be called from subclasses!");
     }
 
     close (callback)
@@ -580,12 +533,7 @@ class DbConnection
         throw new Error("This can only be called from subclasses!");
     }
 
-    executeViaHTTP (queryStringWithArguments, argumentsArray, callback, resultsFormat, maxRows, loglevel)
-    {
-        throw new Error("This can only be called from subclasses!");
-    }
-
-    executeViaJDBC (queryStringOrArray, argumentsArray, callback, resultsFormat, maxRows, loglevel, runAsUpdate, notSPARQL)
+    execute(queryStringWithArguments, argumentsArray, callback, options)
     {
         throw new Error("This can only be called from subclasses!");
     }
@@ -643,7 +591,7 @@ class DbConnection
 
         const runQuery = function (callback)
         {
-            self.executeViaJDBC(query,
+            self.execute(query,
                 function (error, results)
                 {
                     if (isNull(error))
@@ -652,7 +600,9 @@ class DbConnection
                     }
                     return callback(1, ("Error inserting triple " + triple.subject + " " + triple.predicate + " " + triple.object + "\n").substr(0, 200) + " . Server returned " + error);
                 }
-            );
+            ),{
+                runAsUpdate: true
+            };
         };
 
         if (Config.cache.active)
@@ -752,7 +702,7 @@ class DbConnection
 
             const runQuery = function (callback)
             {
-                self.executeViaJDBC(query, queryArguments, function (err, results)
+                self.execute(query, queryArguments, function (err, results)
                 {
                 /**
                  * Invalidate cached records because of the deletion
@@ -763,6 +713,9 @@ class DbConnection
                         return callback(err, results);
                     }
                     return callback(err, results);
+                },
+                {
+                    runAsUpdate: true
                 });
             };
 
@@ -853,10 +806,12 @@ class DbConnection
 
             const runQuery = function (callback)
             {
-                self.executeViaJDBC(query, queryArguments, function (err, results)
+                self.execute(query, queryArguments, function (err, results)
                 {
                     return callback(err, results);
-                }, null, null, null, true);
+                },{
+                    runAsUpdate: true
+                });
             };
 
             if (Config.cache.active)

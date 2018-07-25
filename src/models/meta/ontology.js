@@ -97,7 +97,7 @@ Ontology.all = function (callback)
         "   ?uri rdf:type ddr:Ontology . \n" +
         "} \n";
 
-    db.connection.executeViaJDBC(allOntologiesQuery,
+    db.connection.execute(allOntologiesQuery,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -263,7 +263,7 @@ Ontology.initAllFromDatabase = function (callback)
         {
             const getAlternativesForDescriptor = function (elementUri, callback)
             {
-                db.connection.executeViaJDBC(
+                db.connection.execute(
                     "WITH [0] \n" +
                     "SELECT ?alternative \n" +
                     "WHERE \n" +
@@ -307,7 +307,7 @@ Ontology.initAllFromDatabase = function (callback)
 
             const getRegexForDescriptor = function (elementUri, ontologyUri, callback)
             {
-                db.connection.executeViaJDBC(
+                db.connection.execute(
                     "WITH [0] \n" +
                     "SELECT ?regex \n" +
                     "WHERE \n" +
@@ -848,7 +848,7 @@ Ontology.autocomplete_research_domains = function (query, callback)
         "   FILTER regex(?domain, [1] , \"i\"). \n" +
         "} \n";
 
-    db.connection.executeViaJDBC(autocompleteResearchDomainsQuery,
+    db.connection.execute(autocompleteResearchDomainsQuery,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -900,7 +900,7 @@ Ontology.findByPrefix = function (prefix, callback)
         "   ?uri ddr:hasPrefix [1] \n" +
         "} \n";
 
-    db.connection.executeViaJDBC(findByPrefixQuery,
+    db.connection.execute(findByPrefixQuery,
         [
             {
                 type: Elements.types.resourceNoEscape,

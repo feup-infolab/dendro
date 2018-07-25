@@ -1031,7 +1031,7 @@ const countProjectTriples = module.exports.countProjectTriples = function (proje
         "} \n";
 
     const db = Config.getDBByID();
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         [
             {
                 type: Elements.types.resourceNoEscape,

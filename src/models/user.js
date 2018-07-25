@@ -154,7 +154,7 @@ User.autocomplete_search = function (value, maxResults, callback)
         "} \n" +
         " LIMIT [4]";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -270,7 +270,7 @@ User.allInPage = function (page, pageSize, callback)
         query = query + " OFFSET " + skip;
     }
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         [],
         function (err, users)
         {
@@ -345,7 +345,7 @@ User.prototype.getInteractions = function (callback)
         " ?interaction ddr:created ?created. \n" +
         "} \n";
 
-    db.connection.executeViaJDBC(query, [
+    db.connection.execute(query, [
         {
             type: Elements.types.resourceNoEscape,
             value: db.graphUri
@@ -589,7 +589,7 @@ User.prototype.mostAcceptedFavoriteDescriptorsInMetadataEditor = function (maxRe
         "    FILTER(   lang(?comment) = \"\" || lang(?comment) = \"en\") \n" +
         "} \n";
 
-    db.connection.executeViaJDBC(
+    db.connection.execute(
         query,
         argumentsArray,
 
@@ -713,7 +713,7 @@ User.prototype.mostAcceptedSmartDescriptorsInMetadataEditor = function (maxResul
         "    FILTER(   lang(?comment) = \"\" || lang(?comment) = \"en\") \n" +
         "} \n";
 
-    db.connection.executeViaJDBC(
+    db.connection.execute(
         query,
         argumentsArray,
 
@@ -837,7 +837,7 @@ User.prototype.mostRecentlyFilledInDescriptors = function (maxResults, callback,
         type: Elements.ontologies.ddr.performedBy.type
     }]);
 
-    db.connection.executeViaJDBC(
+    db.connection.execute(
         query,
         argumentsArray,
 

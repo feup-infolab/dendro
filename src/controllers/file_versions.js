@@ -28,8 +28,6 @@ const db_notifications = (function ()
     return Config.db.notifications;
 }());
 
-const app = require("../app");
-
 const getNumLikesForAFileVersion = function (fileVersionUri, cb)
 {
     const self = this;
@@ -43,7 +41,7 @@ const getNumLikesForAFileVersion = function (fileVersionUri, cb)
         "?likeURI ddr:userWhoLiked ?userURI . \n" +
         "} \n";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
                 type: Elements.types.resourceNoEscape,
@@ -80,7 +78,7 @@ const removeOrAdLikeFileVersion = function (fileVersionUri, currentUserUri, cb)
         "?likeURI ddr:userWhoLiked [2]. \n" +
         "} \n";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
                 type: Elements.types.resourceNoEscape,
@@ -111,7 +109,7 @@ const removeOrAdLikeFileVersion = function (fileVersionUri, currentUserUri, cb)
                             "[1] ?p ?v \n" +
                             "} \n";
 
-                        db.connection.executeViaJDBC(query,
+                        db.connection.execute(query,
                             DbConnection.pushLimitsArguments([
                                 {
                                     type: Elements.types.resourceNoEscape,
@@ -137,6 +135,8 @@ const removeOrAdLikeFileVersion = function (fileVersionUri, currentUserUri, cb)
                                 {
                                     cb(true, "Error Liking a fileVersion");
                                 }
+                            },{
+                                runAsUpdate: true
                             });
                     };
 
@@ -168,7 +168,7 @@ const getSharesForAFileVersion = function (fileVersionUri, cb)
         "?shareURI ddr:fileVersionUri [1]. \n" +
         "} \n";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
                 type: Elements.types.resourceNoEscape,
@@ -224,7 +224,7 @@ const numFileVersionsDatabaseAux = function (projectUrisArray, callback)
                 "?uri ddr:projectUri ?project. \n" +
                 "} \n ";
 
-            db.connection.executeViaJDBC(query,
+            db.connection.execute(query,
                 DbConnection.pushLimitsArguments([
                     {
                         type: Elements.types.resourceNoEscape,
@@ -318,7 +318,7 @@ const getProjectFileVersions = function (projectUrisArray, startingResultPositio
 
             query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
-            db.connection.executeViaJDBC(query,
+            db.connection.execute(query,
                 DbConnection.pushLimitsArguments([
                     {
                         type: Elements.types.resourceNoEscape,

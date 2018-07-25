@@ -520,6 +520,13 @@
         "cache_period_in_seconds": 3600
       }
     },
+    "fusekiHost": "127.0.0.1",
+    "fusekiPort": "3030",
+    "fusekiDataset": "test",
+    "fusekiAuth": {
+      "user": "admin",
+      "password": "pw123"
+    },
     "virtuosoHost": "127.0.0.1",
     "virtuosoPort": "8891",
     "virtuosoISQLPort": "1112",
@@ -529,6 +536,7 @@
       "password": "dba"
     },
     "virtuosoSQLLogLevel": 3,
+    "graphDatabase": "fuseki",
     "mongoDBHost": "127.0.0.1",
     "mongoDbPort": "27018",
     "mongoDbCollectionName": "127.0.0.1:3001_files",

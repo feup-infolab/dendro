@@ -83,7 +83,7 @@ Interaction.all = function (callback, streaming, customGraphUri)
             " ?uri rdf:type ddr:Interaction " +
             "} ";
 
-        db.connection.executeViaJDBC(query,
+        db.connection.execute(query,
             [
                 {
                     type: Elements.types.resourceNoEscape,
@@ -121,7 +121,7 @@ Interaction.all = function (callback, streaming, customGraphUri)
             " ?uri rdf:type ddr:Interaction " +
             "} ";
 
-        db.connection.executeViaJDBC(query,
+        db.connection.execute(query,
             [
                 {
                     type: Elements.types.resourceNoEscape,
@@ -177,7 +177,7 @@ Interaction.all = function (callback, streaming, customGraphUri)
                             " OFFSET [1] \n" +
                             " LIMIT [2] \n";
 
-                        db.connection.executeViaJDBC(query,
+                        db.connection.execute(query,
                             [
                                 {
                                     type: Elements.types.resourceNoEscape,

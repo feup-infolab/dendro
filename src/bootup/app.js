@@ -225,6 +225,11 @@ class App
                 function (callback)
                 {
                     // setup virtuoso
+                    rlequire("dendro", "src/bootup/init/init_fuseki.js").initFuseki(self.app, callback);
+                },
+                function (callback)
+                {
+                    // setup virtuoso
                     rlequire("dendro", "src/bootup/init/init_virtuoso.js").initVirtuoso(self.app, callback);
                 },
                 function (callback)

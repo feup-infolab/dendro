@@ -32,7 +32,7 @@ ResearchDomain.create = function (object, callback)
 };
 ResearchDomain.findByTitleOrDescription = function (query, callback, maxResults)
 {
-    var query =
+    query =
         "WITH [0] \n" +
         "SELECT DISTINCT (?uri) \n" +
         "WHERE \n" +
@@ -67,7 +67,7 @@ ResearchDomain.findByTitleOrDescription = function (query, callback, maxResults)
         });
     }
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         queryArguments,
         function (err, results)
         {

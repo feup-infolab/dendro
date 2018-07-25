@@ -57,7 +57,7 @@ InformationElement.prototype.getParent = function (callback)
         " } \n" +
         "} ";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -144,7 +144,7 @@ InformationElement.prototype.calculateHumanReadableUri = function (callback)
             "   }\n" +
             "}\n ";
 
-        db.connection.executeViaJDBC(query,
+        db.connection.execute(query,
             [
                 {
                     type: Elements.types.resourceNoEscape,
@@ -222,7 +222,7 @@ InformationElement.prototype.getAllParentsUntilProject = function (callback)
         "   }\n" +
         "}\n ";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -281,7 +281,7 @@ InformationElement.prototype.getOwnerProject = function (callback)
         "   }\n" +
         "} ";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -428,7 +428,7 @@ InformationElement.prototype.rename = function (newTitle, callback, customGraphU
         "   [1] nie:title [2] \n" +
         "} \n";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -495,7 +495,10 @@ InformationElement.prototype.rename = function (newTitle, callback, customGraphU
                 Logger.log("error", JSON.stringify(result));
                 return callback(err, result);
             }
-        }, null, null, null, true
+        },
+        {
+            runAsUpdate: true
+        }
     );
 };
 
@@ -591,7 +594,7 @@ InformationElement.prototype.moveToFolder = function (newParentFolder, callback)
                 "   [2] nie:isLogicalPartOf [3] \n" +
                 "} \n";
 
-            db.connection.executeViaJDBC(query,
+            db.connection.execute(query,
                 [
                     {
                         type: Elements.types.resourceNoEscape,
@@ -672,7 +675,10 @@ InformationElement.prototype.moveToFolder = function (newParentFolder, callback)
                     {
                         return callback(err, result);
                     }
-                }, null, null, null, true);
+                },
+                {
+                    runAsUpdate: true
+                });
         }
     ], function (err, results)
     {
@@ -1004,7 +1010,7 @@ InformationElement.prototype.containedIn = function (parentResource, callback, c
     {
         const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
-        db.connection.executeViaJDBC(
+        db.connection.execute(
             "WITH [0]\n" +
             "ASK \n" +
             "WHERE \n" +
@@ -1049,6 +1055,9 @@ InformationElement.prototype.containedIn = function (parentResource, callback, c
                 const msg = "Error checking if resource " + self.uri + " is contained in " + parentResource.uri;
                 Logger.log("error", msg);
                 return callback(err, msg);
+            },
+            {
+                runAsUpdate: true
             });
     }
 };

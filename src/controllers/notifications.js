@@ -43,7 +43,7 @@ exports.get_unread_user_notifications = function (req, res)
 
             query = DbConnection.addLimitsClauses(query, null, null);
 
-            db.connection.executeViaJDBC(query,
+            db.connection.execute(query,
                 DbConnection.pushLimitsArguments([
                     {
                         type: Elements.types.resourceNoEscape,
@@ -144,7 +144,7 @@ exports.get_notification_info = function (req, res)
 
             query = DbConnection.addLimitsClauses(query, null, null);
 
-            db.connection.executeViaJDBC(query,
+            db.connection.execute(query,
                 DbConnection.pushLimitsArguments([
                     {
                         type: Elements.types.resourceNoEscape,
@@ -240,7 +240,7 @@ exports.delete = function (req, res)
 
             query = DbConnection.addLimitsClauses(query, null, null);
 
-            db.connection.executeViaJDBC(query,
+            db.connection.execute(query,
                 DbConnection.pushLimitsArguments([
                     {
                         type: Elements.types.resourceNoEscape,
@@ -297,6 +297,9 @@ exports.delete = function (req, res)
                             message: errorMsg
                         });
                     }
+                },
+                {
+                    runAsUpdate: true
                 });
         }
         else

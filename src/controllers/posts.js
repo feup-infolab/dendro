@@ -125,7 +125,7 @@ const getAllPosts = function (projectUrisArray, callback, nextPosition, lastAcce
 
             query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
-            db.connection.executeViaJDBC(query,
+            db.connection.execute(query,
                 DbConnection.pushLimitsArguments([
                     {
                         type: Elements.types.resourceNoEscape,
@@ -374,7 +374,7 @@ const getNumLikesForAPost = function (postID, cb)
         "?likeURI ddr:userWhoLiked ?userURI . \n" +
         "} \n";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
                 type: Elements.types.resourceNoEscape,
@@ -428,7 +428,7 @@ const numPostsDatabaseAux = function (projectUrisArray, callback)
                 "?uri ddr:projectUri ?project. \n" +
                 "} \n ";
 
-            db.connection.executeViaJDBC(query,
+            db.connection.execute(query,
                 DbConnection.pushLimitsArguments([
                     {
                         type: Elements.types.resourceNoEscape,
@@ -466,7 +466,7 @@ const userLikedAPost = function (postID, userUri, cb)
         "?likeURI ddr:userWhoLiked [2]. \n" +
         "} \n";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
                 type: Elements.types.resourceNoEscape,
@@ -514,7 +514,7 @@ const removeOrAddLike = function (postID, userUri, cb)
         "?likeURI ddr:userWhoLiked [2]. \n" +
         "} \n";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
                 type: Elements.types.resourceNoEscape,
@@ -546,7 +546,7 @@ const removeOrAddLike = function (postID, userUri, cb)
                     // "?likeURI ddr:userWhoLiked [2]. \n" +
                     "} \n";
 
-                db.connection.executeViaJDBC(query,
+                db.connection.execute(query,
                     DbConnection.pushLimitsArguments([
                         {
                             type: Elements.types.resourceNoEscape,
@@ -572,6 +572,8 @@ const removeOrAddLike = function (postID, userUri, cb)
                         {
                             cb(true, "Error fetching children of project root folder");
                         }
+                    },{
+                        runAsUpdate: true
                     });
             };
 
@@ -612,7 +614,7 @@ const getCommentsForAPost = function (postID, cb)
         "} \n" +
         "ORDER BY ASC(?date) \n";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
                 type: Elements.types.resourceNoEscape,
@@ -953,7 +955,7 @@ const getSharesForAPost = function (postID, cb)
         "?shareURI ddr:postURI [1]. \n" +
         "} \n";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
                 type: Elements.types.resourceNoEscape,

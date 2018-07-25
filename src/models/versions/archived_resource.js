@@ -61,7 +61,7 @@ ArchivedResource.findByResourceAndVersionNumber = function (resourceUri, version
     {
         if (!isNull(versionNumber) && typeof versionNumber === "number" && versionNumber % 1 === 0)
         {
-            db.connection.executeViaJDBC(
+            db.connection.execute(
                 "SELECT ?archived_resource\n" +
                 "FROM [0]\n" +
                 "WHERE \n" +

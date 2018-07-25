@@ -135,7 +135,7 @@ HarvestedResource.prototype.save = function (callback, customGraphUri)
         "} \n" +
         "} \n";
 
-    db.connection.executeViaJDBC(
+    db.connection.execute(
         fullQueryString,
         argumentsArray,
         function (err, result)
@@ -157,7 +157,10 @@ HarvestedResource.prototype.save = function (callback, customGraphUri)
             {
                 return callback(1, "Error inserting metadata for resource : " + self.uri + " : Virtuoso error : " + result);
             }
-        }, null, null, null, true
+        },
+        {
+            runAsUpdate: true
+        }
     );
 };
 

@@ -158,7 +158,7 @@ Project.allNonPrivate = function (currentUser, callback)
         "   } " +
         "} ";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -210,7 +210,7 @@ Project.allNonPrivateUnlessTheyBelongToMe = function (currentUser, callback)
         "    }\n" +
         "}\n";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -265,7 +265,7 @@ Project.findByHandle = function (handle, callback)
         " ?uri ddr:handle [1] " +
         "} ";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         [
 
             {
@@ -338,7 +338,7 @@ Project.prototype.getCreatorsAndContributors = function (callback)
         "   } \n" +
         "} \n";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -388,7 +388,7 @@ Project.findByContributor = function (contributor, callback)
         " ?uri dcterms:subject ?subject . " +
         "} ";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -438,7 +438,7 @@ Project.findByCreator = function (creator, callback)
         " ?uri dcterms:subject ?subject . " +
         "} ";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -492,7 +492,7 @@ Project.findByCreatorOrContributor = function (creatorOrContributor, callback)
         "} \n" +
         "} \n";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -623,7 +623,7 @@ Project.prototype.isUserACreatorOrContributor = function (userUri, callback)
         "   } \n" +
         "} \n";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -720,7 +720,7 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
 
     // query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
                 type: Elements.types.resourceNoEscape,
@@ -817,7 +817,7 @@ Project.prototype.getRecentProjectWideChangesSocial = function (callback, starti
 
     query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
                 type: Elements.types.resourceNoEscape,
@@ -884,7 +884,7 @@ Project.prototype.getRecentProjectWideChanges = function (callback, startingResu
 
     query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -1006,7 +1006,7 @@ Project.prototype.getFilesCount = function (callback)
         "   } \n" +
         "} \n";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -1051,7 +1051,7 @@ Project.prototype.getMembersCount = function (callback)
         "} \n" +
         "} \n";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -1098,7 +1098,7 @@ Project.prototype.getFoldersCount = function (callback)
         "   } \n" +
         "} \n";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -1141,7 +1141,7 @@ Project.prototype.getRevisionsCount = function (callback)
         "   } \n" +
         "} \n";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -1599,7 +1599,7 @@ Project.prototype.clearCacheRecords = function (callback, customGraphUri)
 
         findQuery = DbConnection.addLimitsClauses(findQuery, pageSize * currentPage, pageSize);
 
-        db.connection.executeViaJDBC(findQuery,
+        db.connection.execute(findQuery,
             [
                 {
                     type: Elements.types.resourceNoEscape,
@@ -1769,7 +1769,7 @@ Project.prototype.delete = function (callback, customGraphUri)
             "    [1] nie:hasLogicalPart* ?resource\n" +
             "} \n";
 
-        db.connection.executeViaJDBC(deleteQuery,
+        db.connection.execute(deleteQuery,
             [
                 {
                     type: Elements.types.resourceNoEscape,
@@ -1783,6 +1783,9 @@ Project.prototype.delete = function (callback, customGraphUri)
             function (err, result)
             {
                 callback(err, result);
+            },
+            {
+                runAsUpdate: true
             }
         );
     };

@@ -56,7 +56,7 @@ Post.prototype.getComments = function (cb)
             "} \n" +
             "ORDER BY ASC(?date) \n";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
                 type: Elements.types.resourceNoEscape,
@@ -103,7 +103,7 @@ Post.prototype.getNumLikes = function (cb)
             "?likeURI ddr:userWhoLiked ?userURI . \n" +
             "} \n";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
                 type: Elements.types.resourceNoEscape,
@@ -171,7 +171,7 @@ Post.prototype.getShares = function (cb)
             "?shareURI ddr:postURI [1]. \n" +
             "} \n";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
                 type: Elements.types.resourceNoEscape,
@@ -221,7 +221,7 @@ Post.prototype.getOwnerProject = function (callback)
             "   ?uri rdf:type ddr:Project \n" +
             "} ";
 
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         [
             {
                 type: Elements.types.resourceNoEscape,

@@ -250,17 +250,7 @@ Folder.prototype.getChildrenRecursive = function (callback, includeSoftDeletedCh
             "} ";
     }
 
-    /* const query =
-        "SELECT ?uri, ?last_modified, ?name\n" +
-        "FROM [0] \n" +
-        "WHERE \n" +
-        "{ \n" +
-        "   [1] nie:hasLogicalPart+ ?uri. \n" +
-        "   ?uri ddr:modified ?last_modified. \n" +
-        "   ?uri nie:title ?name. \n" +
-        "} "; */
-
-    db.connection.executeViaJDBC(query,
+    db.connection.execute(query,
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -1873,7 +1863,7 @@ Folder.prototype.forAllChildren = function (
         },
         function (callback)
         {
-            db.connection.executeViaJDBC(
+            db.connection.execute(
                 query,
                 queryArguments,
                 function (err, results)
