@@ -504,7 +504,7 @@ Deposit.saveContents = function(params, callback){
     {
       if (isNull(err))
       {
-        newDeposit.ddr.rootFolder = rootFolder.uri;z
+        newDeposit.ddr.rootFolder = rootFolder.uri;
         newDeposit.nie.hasLogicalPart = rootFolder.uri;
 
         newDeposit.save(function (err, result)
@@ -529,7 +529,7 @@ Deposit.saveContents = function(params, callback){
       }
       else
       {
-        Logger.log("error", "There was an error saving the root folder of project " + newDeposit.ddr.humanReadableURI + ": " + JSON.stringify(result));
+        Logger.log("error", "There was an error saving the root folder of deposit " + newDeposit.ddr.humanReadableURI + ": " + JSON.stringify(result));
         return callback(err, result);
       }
     });
