@@ -336,15 +336,6 @@ exports.show = function (req, res){
           );
         }
       }
-      /*else if (isMetadataOnlyProject.length > 0)
-      {
-        if (askedForHtml(req, res))
-        {
-          res.render("projects/show_metadata",
-            viewVars
-          );
-        }
-      }*/
       else
       {
         if (askedForHtml(req, res))
@@ -407,18 +398,6 @@ exports.show = function (req, res){
 
               const breadcrumbs = [];
 
-                breadcrumbs.push(
-                  {
-                    uri: "/",
-                    title: "Home",
-                    icons: [
-                      "/images/icons/folders.png",
-                      "/images/icons/bullet_world.png"
-                    ]
-                  }
-                );
-              
-
               if (!isNull(immediateParent))
               {
                 if (immediateParent.uri === ownerDeposit.ddr.rootFolder)
@@ -455,15 +434,6 @@ exports.show = function (req, res){
                   ]
                 };
               }
-
-              breadcrumbs.push({
-                uri: ownerDeposit.uri,
-                title: ownerDeposit.dcterms.title,
-                icons: [
-                  "/images/icons/box_closed.png",
-                  "/images/icons/bullet_up.png"
-                ]
-              });
 
               for (let i = 0; i < parents.length; i++)
               {

@@ -772,7 +772,7 @@ const loadRoutes = function (app, callback)
                     {
                         queryKeys: ["download"],
                         handler: files.download,
-                        permissions: defaultPermissionsInProjectBranch,
+                        permissions: defaultPermissionsForViewingResources,
                         authentication_error: "Permission denied : cannot download this resource because you do not have permissions to access its project."
                     },
                     // backups
@@ -793,7 +793,7 @@ const loadRoutes = function (app, callback)
                     {
                         queryKeys: ["ls"],
                         handler: files.ls,
-                        permissions: defaultPermissionsInProjectBranch,
+                        permissions: defaultPermissionsForViewingResources,
                         authentication_error: "Permission denied : cannot list the contents of this resource because you do not have permissions to access its project."
                     },
                     {
@@ -862,7 +862,7 @@ const loadRoutes = function (app, callback)
                     {
                         queryKeys: ["metadata"],
                         handler: records.show,
-                        permissions: defaultPermissionsInProjectBranch,
+                        permissions: defaultPermissionsForViewingResources,
                         authentication_error: "Permission denied : cannot get metadata for this resource because you do not have permissions to access resources inside this project."
                     },
                     // metadata deep

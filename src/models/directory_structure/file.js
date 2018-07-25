@@ -511,22 +511,32 @@ File.prototype.saveIntoFolder = function (destinationFolderAbsPath, includeMetad
 
         const writeStream = fs.createWriteStream(tempFilePath);
 
+        const connect = function(err, connection){
+          connection.get(self, writeStream, function (err, result)
+          {
+            if (isNull(err))
+            {
+              return callback(null, tempFilePath);
+            }
+            return callback(1, result);
+          });
+        }
+
         self.getProjectStorage(function (err, connection)
         {
             if (isNull(err))
             {
-                connection.get(self, writeStream, function (err, result)
-                {
-                    if (isNull(err))
-                    {
-                        return callback(null, tempFilePath);
-                    }
-                    return callback(1, result);
-                });
+                connect(err, connection);
             }
             else
             {
-                return callback(err, "Error finding storage file " + self.uri + ". Error reported : " + connection);
+                self.getDepositStorage(function (err, connection){
+                    if(isNull(err)){
+                        connect(err, connection);
+                    }else{
+                      return callback(err, "Error finding storage file " + self.uri + ". Error reported : " + connection);
+                    }
+                });
             }
         });
     });
