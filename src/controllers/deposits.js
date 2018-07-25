@@ -322,7 +322,7 @@ exports.show = function (req, res){
       {
         if (askedForHtml(req, res))
         {
-          res.render("projects/show_readonly",
+          res.render("registry/show_readonly",
             viewVars
           );
         }
@@ -331,7 +331,7 @@ exports.show = function (req, res){
       {
         if (askedForHtml(req, res))
         {
-          res.render("projects/show_readonly",
+          res.render("registry/show_readonly",
             viewVars
           );
         }

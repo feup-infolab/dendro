@@ -607,22 +607,33 @@ File.prototype.writeToTempFile = function (callback)
                 const fs = require("fs");
                 const writeStream = fs.createWriteStream(tempFilePath);
 
+                const connectStorage = function(err, storageConnection){
+                  storageConnection.get(self, writeStream, function (err, result)
+                  {
+                    if (isNull(err))
+                    {
+                      return callback(null, tempFilePath);
+                    }
+                    return callback(1, result);
+                  });
+                }
+
                 self.getProjectStorage(function (err, storageConnection)
                 {
                     if (isNull(err))
                     {
-                        storageConnection.get(self, writeStream, function (err, result)
-                        {
-                            if (isNull(err))
-                            {
-                                return callback(null, tempFilePath);
-                            }
-                            return callback(1, result);
-                        });
+                        connectStorage(err, storageConnection);
                     }
                     else
                     {
-                        return callback(err, "Error finding storage file " + self.uri + ". Error reported : " + storageConnection);
+                        self.getDepositStorage(function(err, storageConnection){
+                            if(isNull(err)){
+                              connectStorage(err, storageConnection);
+                            }
+                            else{
+                              return callback(err, "Error finding storage file " + self.uri + ". Error reported : " + storageConnection);
+                            }
+                        })
                     }
                 });
             };

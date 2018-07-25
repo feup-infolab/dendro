@@ -504,7 +504,7 @@ Deposit.saveContents = function(params, callback){
     {
       if (isNull(err))
       {
-        newDeposit.ddr.rootFolder = rootFolder.uri;
+        newDeposit.ddr.rootFolder = rootFolder.uri;z
         newDeposit.nie.hasLogicalPart = rootFolder.uri;
 
         newDeposit.save(function (err, result)
@@ -513,7 +513,7 @@ Deposit.saveContents = function(params, callback){
 
             let content = params.content;
             //TODO check if file or folder
-            content.copyPaste({destinationFolder: rootFolder, user:params.user}, function(err, msg){
+            content.copyPaste({includeMetadata: true, destinationFolder: rootFolder, user:params.user}, function(err, msg){
               callback(err, newDeposit);
             });
 

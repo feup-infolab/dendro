@@ -214,7 +214,6 @@ InformationElement.prototype.getAllParentsUntilProject = function (callback)
         "WHERE \n" +
         "{ \n" +
         "   [1] nie:isLogicalPartOf+ ?uri. \n" +
-        "   ?uri rdf:type ddr:Resource. \n" +
         "   ?uri rdf:type nfo:Folder \n" +
         "   FILTER NOT EXISTS \n" +
         "   { \n" +

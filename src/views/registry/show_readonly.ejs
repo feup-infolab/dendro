@@ -1,0 +1,84 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" ng-app="dendroApp" ng-animate="'animate'" ng-cloak>
+<head>
+
+    <%- include ../layout/includes.ejs %>
+    <%- include ../layout/onload.ejs%>
+
+    <title>
+        <% if (locals.title != null) { %>
+        <%= title %> - <%= Config.version.name%>
+        <% } else { %>
+        <%= Config.version.name%>
+        <% } %>
+    </title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/logos/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="/images/logos/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/images/logos/favicon-16x16.png" sizes="16x16">
+    <link rel="manifest" href="/images/logos/manifest.json">
+    <link rel="mask-icon" href="/images/logos/safari-pinned-tab.svg" color="#5bbad5">
+    <link rel="shortcut icon" href="/images/logos/favicon.ico">
+    <meta name="msapplication-config" content="/images/logos/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+    <% if (Config.analytics_tracking_code != null && Config.analytics_tracking_code != "GOOGLE_ANALYTICS_DEVELOPMENT_ANALYTICS_TRACKING_CODE") { %>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', "<%= Config.analytics_tracking_code %>" , 'auto');
+      ga('send', 'pageview');
+
+    </script>
+    <% } %>
+</head>
+<body class="ng-cloak">
+<div id="wrap" ng-controller="windowCtrl">
+
+<!--&nbsp;-->
+    <div class="container-fluid" ng-controller="projectEditorCtrl" ng-init="init()">
+        <div class="row">
+            <div class="col-xs-12">
+                <%- include show/breadcrumbs.ejs %>
+            </div>
+        </div>
+
+            <div class="row">
+                <div class="col-xs-6 col-sm-3" ng-controller="fileExplorerCtrl" ng-init="init()">
+                    <h4>Folder</h4>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <button id="download_folder_button" class="btn btn-sm fa fa-download" data-loading-text="Preparing Package..." ng-click="download_folder()" onmouseover="$(this).toggleClass('btn-primary');" onmouseout="$(this).toggleClass('btn-primary');"></button>
+                            <button id="backup_button" ng-hide="showing_project_root()" class="btn btn-sm fa fa-archive" data-loading-text="Preparing Package..." ng-click="backup_folder()" onmouseover="$(this).toggleClass('btn-primary');" onmouseout="$(this).toggleClass('btn-primary');"></button>
+                            <button id="toggle_multiple_selection" ng-class="{active: shared.multiple_selection_active, 'btn-success': shared.multiple_selection_active}" class="btn btn-sm fa fa-check-square-o" ng-click="toggle_multiple_selection()" onmouseover="$(this).addClass('btn-primary');" onmouseout="$(this).removeClass('btn-primary');"></button>
+                        </div>
+                    </div>
+
+                    <script type="text/javascript">
+                        $('#download_folder_button').tooltip({title : "<h4>Download</h4>Download the current folder" , html: true});
+                        $('#backup_button').tooltip({title : "<h4>Backup</h4>Download the current folder, including information", html:true});
+                        $('#toggle_multiple_selection').tooltip({title : "<h4>Select several</h4>Select several files", html:true});
+                        $('#clear_selection_button').tooltip({title : "<h4>Deselect</h4>Deselect items", html:true});
+                        $('#download_selection_button').tooltip({title : "<h4>Download</h4>Download the selected items" , html: true});
+                        $('#backup_selection_button').tooltip({title : "<h4>Backup</h4>Backup the selected items" , html: true});
+                    </script>
+
+                    <br>
+                    <%- include show/file_explorer.ejs %>
+                </div>
+                <div class="col-xs-6 col-sm-9" ng-controller="metadataEditorCtrl" ng-init="init()">
+                    <div ng-if="shared.is_a_file">
+                        <%- include show/file_preview.ejs %>
+                    </div>
+                    <br/>
+                    <%- include show/metadata_viewer.ejs %>
+                </div>
+            </div>
+
+    </div>
+</div>
+</body>
+</html>
