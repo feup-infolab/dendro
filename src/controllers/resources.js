@@ -29,6 +29,4 @@ exports.show = function (req, res)
       projects.show(req, res);
     }
   });
-
-
 };

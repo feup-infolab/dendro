@@ -855,7 +855,7 @@ const loadRoutes = function (app, callback)
                     {
                         queryKeys: ["thumbnail"],
                         handler: files.thumbnail,
-                        permissions: defaultPermissionsInProjectBranch,
+                        permissions: defaultPermissionsForViewingResources,
                         authentication_error: "Permission denied : cannot get thumbnail for this resource because you do not have permissions to access resources inside this project."
                     },
                     // metadata
