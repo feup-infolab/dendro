@@ -22,10 +22,9 @@ module.exports.loadfiles = function (text, agent, cb)
         });
 };
 
-
 module.exports.processextract = function (text, agent, cb)
 {
-    const path = "/keywords/processextract";
+    const path = "/keywords/processExtract";
     agent
         .post(path)
         .set("Accept", "application/json")
@@ -43,10 +42,9 @@ module.exports.processextract = function (text, agent, cb)
         });
 };
 
-
 module.exports.preprocessing = function (text, agent, cb)
 {
-    const path = "/keywords/preprocessing";
+    const path = "/keywords/preProcessing";
     agent
         .post(path)
         .set("Accept", "application/json")
@@ -66,7 +64,7 @@ module.exports.preprocessing = function (text, agent, cb)
 
 module.exports.termextraction = function (text, documents, agent, cb)
 {
-    const path = "/keywords/termextraction";
+    const path = "/keywords/termExtraction";
 
     agent
         .post(path)
@@ -78,10 +76,10 @@ module.exports.termextraction = function (text, documents, agent, cb)
         });
 };
 
-// module.exports.termextraction = function (text, documents, agent, cb)
+// module.exports.termExtraction = function (text, documents, agent, cb)
 // {
 //     console.log(text);
-//     const path = "/keywords/termextraction";
+//     const path = "/keywords/termExtraction";
 //     agent
 //         .post(path)
 //         .attach("text", new Buffer.from(JSON.stringify({text: text, documents: documents})))
@@ -101,7 +99,7 @@ module.exports.termextraction = function (text, documents, agent, cb)
 
 module.exports.dbpedialookup = function (text, agent, cb)
 {
-    const path = "/keywords/dbpedialookup";
+    const path = "/keywords/dbpediaLookup";
     agent
         .post(path)
         .send({keywords: text})
@@ -125,7 +123,7 @@ module.exports.dbpedialookup = function (text, agent, cb)
 
 module.exports.dbpediaproperties = function (text, agent, cb)
 {
-    const path = "/keywords/dbpediaproperties";
+    const path = "/keywords/dbpediaProperties";
     agent
         .post(path)
         .send({concepts: text})

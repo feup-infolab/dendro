@@ -14,20 +14,18 @@ class IO
     {
         const getSessionForUser = function (userUri)
         {
-            if(IO.__usersSessions.hasOwnProperty(userUri))
+            if (IO.__usersSessions.hasOwnProperty(userUri))
             {
                 return IO.__usersSessions[userUri];
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         };
 
         const updateUserSession = function (userUri, newSocket)
         {
             let userSession = getSessionForUser(userUri);
-            if(!isNull(userSession))
+            if (!isNull(userSession))
             {
                 userSession.addNewSocket(newSocket);
             }
@@ -37,15 +35,16 @@ class IO
                 IO.__usersSessions[userUri] = userSession;
             }
         };
-        
-        const removeSocketFromUserSession = function (userUri, socket) {
+
+        const removeSocketFromUserSession = function (userUri, socket)
+        {
             let userSession = getSessionForUser(userUri);
-            if(!isNull(userSession))
+            if (!isNull(userSession))
             {
                 userSession.removeDisconnectedSockets();
                 let numberConnectedSocketsForUser = userSession.getUserSockets().length;
                 Logger.log("info", "user " + userUri + " has " + numberConnectedSocketsForUser + " active sockets!");
-                if(numberConnectedSocketsForUser === 0)
+                if (numberConnectedSocketsForUser === 0)
                 {
                     Logger.log("info", "user " + userUri + " has no more active sockets!");
                     Logger.log("info", "Before deletion -> IO.__usersSessions number : " + Object.keys(IO.__usersSessions).length);
@@ -54,15 +53,16 @@ class IO
                     Logger.log("info", "After deletion -> IO.__usersSessions number : " + Object.keys(IO.__usersSessions).length);
                 }
             }
-
         };
 
-        IO.__io.on("connection", function (clientSocket) {
-            clientSocket.on("identifyUser", function (data) {
-                if(!isNull(data.userUri))
+        IO.__io.on("connection", function (clientSocket)
+        {
+            clientSocket.on("identifyUser", function (data)
+            {
+                if (!isNull(data.userUri))
                 {
                     clientSocket.userUri = data.userUri;
-                    Logger.log("info", "user: " + data.userUri  + " identified with socket iD: " + clientSocket.id);
+                    Logger.log("info", "user: " + data.userUri + " identified with socket iD: " + clientSocket.id);
                     updateUserSession(data.userUri, clientSocket);
                     clientSocket.emit(data.userUri + ":identified", {socketID: clientSocket.id, userUri: data.user});
                 }
@@ -72,9 +72,10 @@ class IO
                 }
             });
 
-            clientSocket.on("disconnect", function(data) {
+            clientSocket.on("disconnect", function (data)
+            {
                 console.log("Got a socket disconnect event for user " + clientSocket.userUri);
-                if(!isNull(clientSocket.userUri))
+                if (!isNull(clientSocket.userUri))
                 {
                     removeSocketFromUserSession(clientSocket.userUri, clientSocket);
                 }
@@ -84,20 +85,17 @@ class IO
 
     static getUserSession (userUri)
     {
-        if(IO.__usersSessions.hasOwnProperty(userUri))
+        if (IO.__usersSessions.hasOwnProperty(userUri))
         {
             return IO.__usersSessions[userUri];
         }
-        else
-        {
-            return null;
-        }
-    }
 
+        return null;
+    }
 
     static destroyUserSession (userUri)
     {
-        if(IO.__usersSessions.hasOwnProperty(userUri))
+        if (IO.__usersSessions.hasOwnProperty(userUri))
         {
             IO.__usersSessions[userUri].disconnect();
             IO.__usersSessions[userUri].removeDisconnectedSockets();

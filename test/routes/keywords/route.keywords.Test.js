@@ -11,43 +11,24 @@ const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const keywordsUtils = require(Pathfinder.absPathInTestsFolder("utils/keywords/keywordsUtils.js"));
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
 const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
-const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
-const httpUtils = require(Pathfinder.absPathInTestsFolder("utils/http/httpUtils.js"));
 const descriptorUtils = require(Pathfinder.absPathInTestsFolder("utils/descriptor/descriptorUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
-const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
-const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
-const metadataOnlyProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
 const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
-const createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
 const createFoldersUnitKeywords = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFoldersKeywords.Unit.js"));
 
 const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
-const pdfMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/pdfMockFile.js"));
 const BusPerformance = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/BusPerformance.js"));
 const SimulatingVehicle = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/SimulatingVehicle.js"));
 const driverattitude = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/driverattitude.js"));
 const RegenerativeBraking = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/RegenerativeBraking.js"));
 const RoutePlanning = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/RoutePlanning.js"));
 
-const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
-const addContributorsToProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
-const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
-
-const csvResultMD5 = md5(fs.readFileSync(Pathfinder.absPathInTestsFolder("mockdata/files/test_data_serialization/xlsInCSV.csv"), "utf-8"));
-const jsonResultMD5 = md5(fs.readFileSync(Pathfinder.absPathInTestsFolder("mockdata/files/test_data_serialization/xlsInJSON.json"), "utf-8"));
-
-const csvResultMD5WithPageAndSkip = md5(fs.readFileSync(Pathfinder.absPathInTestsFolder("mockdata/files/test_data_serialization/xlsInCSV_200_to_250.csv"), "utf-8"));
-const jsonResultMD5WithPageAndSkip = md5(fs.readFileSync(Pathfinder.absPathInTestsFolder("mockdata/files/test_data_serialization/xlsInJSON_200_to_250.json"), "utf-8"));
-const emptyCSVMD5 = md5(fs.readFileSync(Pathfinder.absPathInTestsFolder("mockdata/files/test_data_serialization/emptyCSVResult.csv"), "utf-8"));
 
 // Dendro Keywords
 describe("Searches DBpedia for important terms", function (done)
@@ -62,7 +43,7 @@ describe("Searches DBpedia for important terms", function (done)
         });
     });
 
-    var artigo;
+    let artigo;
 
     describe("[POST] [PRIVATE PROJECT] [Valid Cases] /project/" + privateProject.handle + "/data/:foldername?upload", function ()
     {
@@ -103,7 +84,7 @@ describe("Searches DBpedia for important terms", function (done)
     //     {
     //         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
     //         {
-    //             keywordsUtils.preprocessing("a really Interesting string with some words", agent, function (err, res)
+    //             keywordsUtils.preProcessing("a really Interesting string with some words", agent, function (err, res)
     //             {
     //                 res.statusCode.should.equal(200);
     //                 // console.log(res.text);
@@ -119,13 +100,13 @@ describe("Searches DBpedia for important terms", function (done)
     //         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
     //         {
     //             // console.log(artigo.toString());
-    //             keywordsUtils.preprocessing(artigo, agent, function (err, res)
+    //             keywordsUtils.preProcessing(artigo, agent, function (err, res)
     //             {
     //                 res.statusCode.should.equal(200);
     //                 res.text.should.contain("introduction");
     //                 // console.log(res.text);
     //                 // res.text.should.contain("science");
-    //                 keywordsUtils.termextraction([res.text], [artigo.toString()], agent, function (err, te)
+    //                 keywordsUtils.termExtraction([res.text], [artigo.toString()], agent, function (err, te)
     //                 {
     //                     te.statusCode.should.equal(200);
     //                     // te.text.should.contain("google");
@@ -143,13 +124,13 @@ describe("Searches DBpedia for important terms", function (done)
     //         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
     //         {
     //             // console.log(artigo.toString());
-    //             keywordsUtils.preprocessing(artigo, agent, function (err, res)
+    //             keywordsUtils.preProcessing(artigo, agent, function (err, res)
     //             {
     //                 res.statusCode.should.equal(200);
     //                 res.text.should.contain("introduction");
     //                 // console.log(res.text);
     //                 // res.text.should.contain("science");
-    //                 keywordsUtils.termextraction([res.text], [artigo.toString()], agent, function (err, te)
+    //                 keywordsUtils.termExtraction([res.text], [artigo.toString()], agent, function (err, te)
     //                 {
     //                     te.statusCode.should.equal(200);
     //                     console.log(te.text);
@@ -158,10 +139,10 @@ describe("Searches DBpedia for important terms", function (done)
     //                     // te.text.should.contain("3.068528194400547");
     //                     // te.text.should.contain("3.068528194400547");
     //
-    //                     keywordsUtils.dbpedialookup(te.text, agent, function (err, db)
+    //                     keywordsUtils.dbpediaLookup(te.text, agent, function (err, db)
     //                     {
     //                         db.statusCode.should.equal(200);
-    //                         console.log(db.body.dbpediauri.result);
+    //                         console.log(db.body.dbpediaUri.result);
     //                         // db.text.should.contain("Google");
     //                         // db.text.should.contain("Kaggle");
     //                         done();
@@ -174,7 +155,7 @@ describe("Searches DBpedia for important terms", function (done)
 
     describe("[GET] Complete path using all 5 files", function ()
     {
-        var loadfiles = function (lookup, cb)
+        let loadfiles = function (lookup, cb)
         {
             fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, lookup, function (err, res)
             {
@@ -192,9 +173,10 @@ describe("Searches DBpedia for important terms", function (done)
                 });
             });
         };
-        var processfiles = function (lookup, cb)
+        /*
+        let processfiles = function (lookup, cb)
         {
-            keywordsUtils.preprocessing(lookup, agent, function (err, res)
+            keywordsUtils.preProcessing(lookup, agent, function (err, res)
             {
                 res.statusCode.should.equal(200);
                 cb(null, [res.text, JSON.parse(res.text).text]);
@@ -202,9 +184,10 @@ describe("Searches DBpedia for important terms", function (done)
                 // console.log(artigos[0]);
             });
         };
-        var artigos = [];
-        var dbpediaterms;
-        var doclist = [BusPerformance, SimulatingVehicle, driverattitude, RegenerativeBraking, RoutePlanning];
+        */
+        let artigos = [];
+        let dbpediaterms;
+        let doclist = [BusPerformance, SimulatingVehicle, driverattitude, RegenerativeBraking, RoutePlanning];
         it("Should load every pdf and extract their content", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
@@ -219,17 +202,16 @@ describe("Searches DBpedia for important terms", function (done)
                 });
             });
         });
-        it("Should preprocess and extract terms", function (done) {
+        it("Should preprocess and extract terms", function (done)
+        {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                keywordsUtils.processextract(artigos, agent, function (err, te)
+                keywordsUtils.processExtract(artigos, agent, function (err, te)
                 {
-                    var keyword;
                     te.statusCode.should.equal(200);
-                    console.log(te);
                     // console.log(te.text);
-                    dbpediaterms = te.body.output.dbpediaterms.keywords;
-                    //keyword = JSON.parse(te.text).dbpediaterms.keywords;
+                    dbpediaterms = te.body.output.dbpediaTerms.keywords;
+                    // keyword = JSON.parse(te.text).dbpediaTerms.keywords;
 
                     // console.log(keyword);
 
@@ -237,7 +219,7 @@ describe("Searches DBpedia for important terms", function (done)
                 });
             });
         });
-/*
+        /*
         it("Should pre process text", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
@@ -246,8 +228,8 @@ describe("Searches DBpedia for important terms", function (done)
                 {
                     for (let i = 0; i < results.length; i++)
                     {
-                        preprocessing.push(results[i][0]);
-                        //console.log(preprocessing);
+                        preProcessing.push(results[i][0]);
+                        //console.log(preProcessing);
                         textprocessado.push(results[i][1]);
                         console.log(textprocessado);
                     }
@@ -258,13 +240,13 @@ describe("Searches DBpedia for important terms", function (done)
 
         it("Should extract keywords", function (done)
         {
-            keywordsUtils.termextraction(preprocessing, textprocessado, agent, function (err, te)
+            keywordsUtils.termExtraction(preProcessing, textprocessado, agent, function (err, te)
             {
                 var keyword;
                 te.statusCode.should.equal(200);
                 // console.log(te.text);
-                dbpediaterms = te.text;
-                keyword = JSON.parse(te.text).dbpediaterms.keywords;
+                dbpediaTerms = te.text;
+                keyword = JSON.parse(te.text).dbpediaTerms.keywords;
 
                 // console.log(keyword);
 
@@ -273,29 +255,27 @@ describe("Searches DBpedia for important terms", function (done)
         });
 */
 
-
-        var dbpediaconcepts = [];
+        let dbpediaconcepts = [];
         it("Search terms in dbpedia", function (done)
         {
             this.timeout(1500000);
             // console.log(agent);
-            keywordsUtils.dbpedialookup(dbpediaterms, agent, function (err, db)
+            keywordsUtils.dbpediaLookup(dbpediaterms, agent, function (err, db)
             {
                 // console.log(err);
                 db.statusCode.should.equal(200);
-                dbpediaconcepts = db.body.dbpediauri.result;
-                console.log(dbpediaconcepts);
-                var writer = csvWriter();
+                dbpediaconcepts = db.body.dbpediaUri.result;
+                let writer = csvWriter();
                 if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/vehicle/vehicle-cvalue-jj.csv")))
                 {
-                    writer = csvWriter( { separator: ",", headers: [ "searchterm","score", "dbpedialabel", "dbpediauri", "dbpediadescription" ]});
+                    writer = csvWriter({ separator: ",", headers: [ "searchTerm", "score", "dbpediaLabel", "dbpediaUri", "dbpediaDescription" ]});
                 }
                 else
                 {
                     writer = csvWriter({sendHeaders: false});
                 }
                 writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/vehicle/vehicle-cvalue-jj.csv"), {flags: "a"}));
-                for (var i = 0; i < dbpediaconcepts.length; i++)
+                for (let i = 0; i < dbpediaconcepts.length; i++)
                 {
                     writer.write(dbpediaconcepts[i]);
                 }
@@ -303,35 +283,32 @@ describe("Searches DBpedia for important terms", function (done)
                 done();
             });
         });
-         it("Get properties from LOV", function (done)
+        it("Get properties from LOV", function (done)
         {
             this.timeout(1500000);
-            keywordsUtils.dbpediaproperties(dbpediaconcepts, agent, function (err, db)
+            keywordsUtils.dbpediaProperties(dbpediaconcepts, agent, function (err, db)
             {
                 // console.log(err);
                 db.statusCode.should.equal(200);
-                var writer = csvWriter();
+                let writer = csvWriter();
                 if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/vehicle/dbpediapropertiescvalue-jj.csv")))
                 {
-                    writer = csvWriter({ headers: ["searchterm", "lovscore","lovvocabulary","lovuri","lovlabel"]});
+                    writer = csvWriter({ headers: ["searchTerm", "lovScore", "lovVocabulary", "lovUri", "lovLabel"]});
                 }
                 else
                 {
                     writer = csvWriter({separator: ",", sendHeaders: false});
                 }
                 writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/vehicle/dbpediapropertiescvalue-jj.csv"), {flags: "a"}));
-                for (var i = 0; i < db.body.dbpediauri.result.length; i++)
+                for (let i = 0; i < db.body.dbpediaUri.result.length; i++)
                 {
-                    writer.write(db.body.dbpediauri.result[i]);
+                    writer.write(db.body.dbpediaUri.result[i]);
                 }
                 writer.end();
                 done();
             });
         });
     });
-
-
-
 
     after(function (done)
     {

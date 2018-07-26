@@ -23,7 +23,7 @@ angular.module("dendroApp.controllers")
     )
     {
         $scope.button = "Cluster";
-        //keyword extraction
+        // keyword extraction
         $scope.keywords;
         $scope.concepts;
         $scope.properties;
@@ -40,12 +40,11 @@ angular.module("dendroApp.controllers")
         $scope.extra_terms = null;
         $scope.selected_term = null;
         $scope.selected_method = "CValueJJ";
-        $scope.extractionmethods = ["CValueNN", "CValueJJ","Yake!"];
+        $scope.extractionmethods = ["CValueNN", "CValueJJ", "Yake!"];
         //
         $scope.active_tab = null;
         $scope.contributors = [];
         $scope.availableStorages = ["local", "b2drop"];
-
 
         $scope.get_project = function ()
         {
@@ -84,7 +83,6 @@ angular.module("dendroApp.controllers")
                         license: $scope.get_descriptor_by_prefixed_form(descriptors, "schema:license")
                     }
                 };
-
 
                 $scope.load_licenses()
                     .then(function (licenses)
@@ -422,63 +420,66 @@ angular.module("dendroApp.controllers")
         };
 
         $scope.msg = "";
-        $scope.get = function(){
-            $scope.$broadcast ('someEvent');
-            return  $scope.msg;
+        $scope.get = function ()
+        {
+            $scope.$broadcast("someEvent");
+            return $scope.msg;
         };
 
-        $scope.$on('getFiles', function(e, data) {
+        $scope.$on("getFiles", function (e, data)
+        {
             $scope.msg = data;
         });
 
         $scope.extract_terms = function ()
         {
             console.log($scope.selected_method);
-            var data = {method:$scope.selected_method,text:[]};
-            for(let i = 0; i < $scope.get().length; i++) {
+            var data = {method: $scope.selected_method, text: []};
+            for (let i = 0; i < $scope.get().length; i++)
+            {
                 data.text.push({
                     text: $scope.get()[i].nie.plainTextContent
                 });
             }
             console.log(data);
-                $http({
-                    method: "POST",
-                    url: "/keywords/processextract",
-                    data: JSON.stringify(data),
-                    headers: {"Content-Type": "application/json; charset=UTF-8"}
-                }).then(function (response)
+            $http({
+                method: "POST",
+                url: "/keywords/processExtract",
+                data: JSON.stringify(data),
+                headers: {"Content-Type": "application/json; charset=UTF-8"}
+            }).then(function (response)
+            {
+                $scope.keywords = response.data.output.dbpediaTerms.keywords;
+                console.log($scope.keywords);
+                $scope.filelist = false;
+                $scope.keywordlist = true;
+                $scope.termList = true;
+            }).catch(function (error)
+            {
+                if (error.data !== null && error.data.message !== null && error.data.title !== null)
                 {
-                    $scope.keywords = response.data.output.dbpediaterms.keywords;
-                    console.log($scope.keywords);
-                    $scope.filelist = false;
-                    $scope.keywordlist = true;
-                    $scope.termList = true;
-
-
-
-                }).catch(function (error)
+                    // Utils.show_popup("error", error.data.title, error.data.message);
+                }
+                else
                 {
-                    if (error.data !== null && error.data.message !== null && error.data.title !== null)
-                    {
-                        //Utils.show_popup("error", error.data.title, error.data.message);
-                    }
-                    else
-                    {
-                        // Utils.show_popup("error", "Error occurred while updating the storage options of the project: ", JSON.stringify(error));
-                    }
-                });
+                    // Utils.show_popup("error", "Error occurred while updating the storage options of the project: ", JSON.stringify(error));
+                }
+            });
         };
 
         $scope.cluster_concepts = function ()
         {
-            if($scope.button === "Cluster") {
+            if ($scope.button === "Cluster")
+            {
                 console.log($scope.clusters);
-                if(typeof $scope.clusters === "undefined") {
-                    var data = {terms:[]};
-                    for(let i = 0; i < $scope.keywords.length; i++) {
-                            data.terms.push({
-                                words: $scope.keywords[i].words, score: $scope.keywords[i].score
-                            });
+                if (typeof $scope.clusters === "undefined")
+                {
+                    var data = {terms: []};
+                    for (let i = 0; i < $scope.keywords.length; i++)
+                    {
+                        data.terms.push({
+                            words: $scope.keywords[i].words, score: $scope.keywords[i].score
+                        });
                     }
                     $http({
                         method: "POST",
@@ -487,18 +488,17 @@ angular.module("dendroApp.controllers")
                         headers: {"Content-Type": "application/json; charset=UTF-8"}
                     }).then(function (response)
                     {
-                        //$scope.keywords = response.data.output.dbpediaterms.keywords;
+                        // $scope.keywords = response.data.output.dbpediaTerms.keywords;
                         $scope.termList = false;
                         $scope.clusterList = true;
                         console.log(response.data);
                         $scope.clusters = response.data.clusters;
                         $scope.button = "Term List";
-
                     }).catch(function (error)
                     {
                         if (error.data !== null && error.data.message !== null && error.data.title !== null)
                         {
-                            //Utils.show_popup("error", error.data.title, error.data.message);
+                            // Utils.show_popup("error", error.data.title, error.data.message);
                         }
                         else
                         {
@@ -506,31 +506,40 @@ angular.module("dendroApp.controllers")
                         }
                     });
                 }
-                else {
+                else
+                {
                     $scope.termList = false;
                     $scope.clusterList = true;
                     $scope.button = "Term List";
                 }
             }
-            else {
+            else
+            {
                 $scope.termList = true;
                 $scope.clusterList = false;
                 $scope.button = "Cluster";
             }
         };
-        $scope.clickTerm = function (term) {
-            for(let k = 0; k < $scope.keywords.length; k++) {
-                if($scope.keywords[k].words === term.words) {
+        $scope.clickTerm = function (term)
+        {
+            for (let k = 0; k < $scope.keywords.length; k++)
+            {
+                if ($scope.keywords[k].words === term.words)
+                {
                     $scope.keywords[k].selected = true;
                     break;
                 }
             }
         };
 
-        $scope.clickCluster = function (cluster) {
-            for(let k = 0; k < cluster.length; k++) {
-                for(let h = 0; h < $scope.keywords.length; h++) {
-                    if(cluster[k].words === $scope.keywords[h].words) {
+        $scope.clickCluster = function (cluster)
+        {
+            for (let k = 0; k < cluster.length; k++)
+            {
+                for (let h = 0; h < $scope.keywords.length; h++)
+                {
+                    if (cluster[k].words === $scope.keywords[h].words)
+                    {
                         $scope.keywords[h].selected = true;
                         break;
                     }
@@ -540,9 +549,11 @@ angular.module("dendroApp.controllers")
 
         $scope.get_concepts = function ()
         {
-            var data = {keywords:[]};
-            for(let i = 0; i < $scope.keywords.length; i++) {
-                if($scope.keywords[i].selected) {
+            var data = {keywords: []};
+            for (let i = 0; i < $scope.keywords.length; i++)
+            {
+                if ($scope.keywords[i].selected)
+                {
                     data.keywords.push({
                         words: $scope.keywords[i].words, score: $scope.keywords[i].score
                     });
@@ -550,22 +561,21 @@ angular.module("dendroApp.controllers")
             }
             $http({
                 method: "POST",
-                url: "/keywords/dbpedialookup",
+                url: "/keywords/dbpediaLookup",
                 data: JSON.stringify(data),
                 headers: {"Content-Type": "application/json; charset=UTF-8"}
             }).then(function (response)
             {
-                //$scope.keywords = response.data.output.dbpediaterms.keywords;
-                console.log(response.data.dbpediauri.result);
-                $scope.concepts = response.data.dbpediauri.result;
+                // $scope.keywords = response.data.output.dbpediaTerms.keywords;
+                console.log(response.data.dbpediaUri.result);
+                $scope.concepts = response.data.dbpediaUri.result;
                 $scope.keywordlist = false;
                 $scope.conceptlist = true;
-
             }).catch(function (error)
             {
                 if (error.data !== null && error.data.message !== null && error.data.title !== null)
                 {
-                    //Utils.show_popup("error", error.data.title, error.data.message);
+                    // Utils.show_popup("error", error.data.title, error.data.message);
                 }
                 else
                 {
@@ -576,46 +586,47 @@ angular.module("dendroApp.controllers")
 
         $scope.get_properties = function ()
         {
-            var data = {concepts:[]};
-            for(let i = 0; i < $scope.concepts.length; i++) {
-                if($scope.concepts[i].selected) {
+            var data = {concepts: []};
+            for (let i = 0; i < $scope.concepts.length; i++)
+            {
+                if ($scope.concepts[i].selected)
+                {
                     data.concepts.push($scope.concepts[i]);
                 }
             }
             $http({
                 method: "POST",
-                url: "/keywords/dbpediaproperties",
+                url: "/keywords/dbpediaProperties",
                 data: JSON.stringify(data),
                 headers: {"Content-Type": "application/json; charset=UTF-8"}
             }).then(function (response)
             {
-                console.log(response.data.dbpediauri.result);
-                $scope.properties = response.data.dbpediauri.result;
+                console.log(response.data.dbpediaUri.result);
+                $scope.properties = response.data.dbpediaUri.result;
                 $scope.conceptlist = false;
                 $scope.descriptorlist = true;
-
             }).catch(function (error)
             {
                 if (error.data !== null && error.data.message !== null && error.data.title !== null)
                 {
-                    //Utils.show_popup("error", error.data.title, error.data.message);
+                    // Utils.show_popup("error", error.data.title, error.data.message);
                 }
                 else
                 {
                     // Utils.show_popup("error", "Error occurred while updating the storage options of the project: ", JSON.stringify(error));
                 }
             });
-
         };
 
-        $scope.add_terms = function() {
+        $scope.add_terms = function ()
+        {
             var temporary_terms = $scope.extra_terms.split(";");
-            for(var i = 0; i < temporary_terms.length; i++) {
-                $scope.keywords.unshift({words:temporary_terms[i],score:"important", selected:true});
+            for (var i = 0; i < temporary_terms.length; i++)
+            {
+                $scope.keywords.unshift({words: temporary_terms[i], score: "important", selected: true});
             }
             $scope.extra_terms = "";
         };
-
 
         $scope.toggle_multiple_term_selection = function ()
         {
@@ -636,63 +647,65 @@ angular.module("dendroApp.controllers")
 
         $scope.clear_selected_terms = function ()
         {
-
             if ($scope.keywords != null && $scope.keywords instanceof Array)
             {
                 for (var i = 0; i < $scope.keywords.length; i++)
                 {
-                    if($scope.keywords[i].score !== "important") {
+                    if ($scope.keywords[i].score !== "important")
+                    {
                         $scope.keywords[i].selected = false;
                     }
                 }
             }
             $scope.selected_term = null;
-
         };
 
         $scope.clear_selected_concepts = function ()
         {
-
             if ($scope.concepts != null && $scope.concepts instanceof Array)
             {
                 for (var i = 0; i < $scope.concepts.length; i++)
                 {
-                        $scope.concepts[i].selected = false;
+                    $scope.concepts[i].selected = false;
                 }
             }
             $scope.selected_term = null;
-
         };
         $scope.toggle_select_all_terms = function ()
         {
-            if(!$scope.multiple_term_selection) {
+            if (!$scope.multiple_term_selection)
+            {
                 $scope.multiple_term_selection = !$scope.multiple_term_selection;
                 $scope.select_all_terms(true);
             }
-            if($scope.get_selected_terms().length === $scope.keywords.length) {
+            if ($scope.get_selected_terms().length === $scope.keywords.length)
+            {
                 $scope.clear_selected_terms();
             }
-            else {
+            else
+            {
                 $scope.select_all_terms($scope.multiple_term_selection);
             }
         };
         $scope.toggle_select_all_concepts = function ()
         {
-            if(!$scope.multiple_concept_selection) {
+            if (!$scope.multiple_concept_selection)
+            {
                 $scope.multiple_concept_selection = !$scope.multiple_concept_selection;
                 $scope.select_all_concepts(true);
             }
-            if($scope.get_selected_concepts().length === $scope.concepts.length) {
+            if ($scope.get_selected_concepts().length === $scope.concepts.length)
+            {
                 $scope.clear_selected_concepts();
             }
-            else {
+            else
+            {
                 $scope.select_all_concepts($scope.multiple_concept_selection);
             }
         };
 
         $scope.select_all_terms = function (selected)
         {
-
             if ($scope.keywords != null && $scope.keywords instanceof Array)
             {
                 for (var i = 0; i < $scope.keywords.length; i++)
@@ -700,12 +713,9 @@ angular.module("dendroApp.controllers")
                     $scope.keywords[i].selected = selected;
                 }
             }
-
-
         };
         $scope.select_all_concepts = function (selected)
         {
-
             if ($scope.concepts != null && $scope.concepts instanceof Array)
             {
                 for (var i = 0; i < $scope.concepts.length; i++)
@@ -713,8 +723,6 @@ angular.module("dendroApp.controllers")
                     $scope.concepts[i].selected = selected;
                 }
             }
-
-
         };
         $scope.get_selected_terms = function ()
         {
@@ -749,7 +757,7 @@ angular.module("dendroApp.controllers")
             }
             return selected_files;
         };
-/*
+        /*
         $scope.set_selected_term = function (index)
         {
             if (
@@ -792,7 +800,7 @@ angular.module("dendroApp.controllers")
             }
             else
             {
-                //$scope.set_selected_term(index);
+                // $scope.set_selected_term(index);
             }
         };
         $scope.clicked_concept_explorer_node = function (index)
@@ -803,7 +811,7 @@ angular.module("dendroApp.controllers")
             }
             else
             {
-                //$scope.set_selected_term(index);
+                // $scope.set_selected_term(index);
             }
         };
     });

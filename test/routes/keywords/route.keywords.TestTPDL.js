@@ -91,7 +91,7 @@ describe("Searches DBpedia for important terms", function (done)
                         res.body.descriptors.should.be.instanceof(Array);
                         artigo = JSON.parse(res.text).descriptors[7].value;
                         descriptorUtils.noPrivateDescriptors(JSON.parse(res.text).descriptors).should.equal(true);
-                        descriptorUtils.containsAllMetadata(doc1.metadata,JSON.parse(res.text).descriptors
+                        descriptorUtils.containsAllMetadata(doc1.metadata, JSON.parse(res.text).descriptors
                         );
 
                         done();
@@ -124,11 +124,11 @@ describe("Searches DBpedia for important terms", function (done)
                     cb(null, JSON.parse(res.text).descriptors[7].value);
                 });
             });
-
         };
         var processfiles = function (lookup, cb)
         {
-            keywordsUtils.preprocessing(lookup, agent, function (err, res) {
+            keywordsUtils.preProcessing(lookup, agent, function (err, res)
+            {
                 res.statusCode.should.equal(200);
                 cb(null, [res.text, JSON.parse(res.text).text]);
 
@@ -168,13 +168,13 @@ describe("Searches DBpedia for important terms", function (done)
         it("Should extract keywords", function (done)
         {
             this.timeout(1500000);
-            keywordsUtils.termextraction(preprocessing, textprocessado, agent, function (err, te)
+            keywordsUtils.termExtraction(preprocessing, textprocessado, agent, function (err, te)
             {
                 var keyword;
                 te.statusCode.should.equal(200);
                 // console.log(te.text);
                 dbpediaterms = te.text;
-                keyword = JSON.parse(te.text).dbpediaterms.keywords;
+                keyword = JSON.parse(te.text).dbpediaTerms.keywords;
 
                 console.log(keyword);
 
@@ -186,16 +186,16 @@ describe("Searches DBpedia for important terms", function (done)
         {
             this.timeout(1500000);
             // console.log(agent);
-            keywordsUtils.dbpedialookup(dbpediaterms, agent, function (err, db)
+            keywordsUtils.dbpediaLookup(dbpediaterms, agent, function (err, db)
             {
                 // console.log(err);
                 db.statusCode.should.equal(200);
-                dbpediaconcepts = db.body.dbpediauri.result;
+                dbpediaconcepts = db.body.dbpediaUri.result;
                 console.log(dbpediaconcepts);
                 var writer = csvWriter();
                 if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/chemistry/chemistry-lov-nn3.csv")))
                 {
-                    writer = csvWriter({ separator: ",", headers: [ "searchterm", "score", "lovscore", "lovvocabulary", "lovuri", "lovlabel", "dbpedialabel", "dbpediauri", "dbpediadescription" ]});
+                    writer = csvWriter({ separator: ",", headers: [ "searchTerm", "score", "lovScore", "lovVocabulary", "lovUri", "lovLabel", "dbpediaLabel", "dbpediaUri", "dbpediaDescription" ]});
                 }
                 else
                 {
@@ -210,15 +210,15 @@ describe("Searches DBpedia for important terms", function (done)
                 done();
             });
         });
-        /*it("Get properties from DBpedia", function (done)
+        /* it("Get properties from DBpedia", function (done)
         {
             this.timeout(1500000);
-            keywordsUtils.dbpediaproperties(dbpediaconcepts, agent, function (err, db)
+            keywordsUtils.dbpediaProperties(dbpediaconcepts, agent, function (err, db)
             {
                 // console.log(err);
                 db.statusCode.should.equal(200);
                 var writer = csvWriter();
-                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/dbpediaproperties.csv")))
+                if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/dbpediaProperties.csv")))
                 {
                     writer = csvWriter({ headers: ["property", "frequency"]});
                 }
@@ -226,10 +226,10 @@ describe("Searches DBpedia for important terms", function (done)
                 {
                     writer = csvWriter({separator: ",", sendHeaders: false});
                 }
-                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/dbpediaproperties.csv"), {flags: "a"}));
-                for (var i = 0; i < db.body.dbpediaproperties.result.length; i++)
+                writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/dbpediaProperties.csv"), {flags: "a"}));
+                for (var i = 0; i < db.body.dbpediaProperties.result.length; i++)
                 {
-                    writer.write(db.body.dbpediaproperties.result[i]);
+                    writer.write(db.body.dbpediaProperties.result[i]);
                 }
                 writer.end();
                 done();

@@ -74,8 +74,6 @@ describe("Searches DBpedia for important terms", function (done)
         });
     });
 
-
-
     describe("[GET] Complete path using all 16 files", function ()
     {
         var loadfiles = function (lookup, cb)
@@ -98,7 +96,7 @@ describe("Searches DBpedia for important terms", function (done)
         };
         var processfiles = function (lookup, cb)
         {
-            keywordsUtils.preprocessing(lookup, agent, function (err, res)
+            keywordsUtils.preProcessing(lookup, agent, function (err, res)
             {
                 res.statusCode.should.equal(200);
                 cb(null, [res.text, JSON.parse(res.text).text]);
@@ -108,7 +106,7 @@ describe("Searches DBpedia for important terms", function (done)
         };
         var artigos = [];
         var dbpediaterms;
-        //var doclist = [doc1, doc2, doc3, doc4, doc5, doc6, doc7, doc8, doc9, doc10, doc11, doc12, doc13, doc14, doc15, doc16];
+        // var doclist = [doc1, doc2, doc3, doc4, doc5, doc6, doc7, doc8, doc9, doc10, doc11, doc12, doc13, doc14, doc15, doc16];
         var doclist = [doc11, doc12, doc15];
 
         it("Should load every pdf and extract their content", function (done)
@@ -125,15 +123,16 @@ describe("Searches DBpedia for important terms", function (done)
                 });
             });
         });
-        it("Should preprocess and extract terms", function (done) {
+        it("Should preprocess and extract terms", function (done)
+        {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                keywordsUtils.processextract(artigos, agent, function (err, te)
+                keywordsUtils.processExtract(artigos, agent, function (err, te)
                 {
                     te.statusCode.should.equal(200);
                     // console.log(te.text);
-                    dbpediaterms = te.body.output.dbpediaterms.keywords;
-                    //keyword = JSON.parse(te.text).dbpediaterms.keywords;
+                    dbpediaterms = te.body.output.dbpediaTerms.keywords;
+                    // keyword = JSON.parse(te.text).dbpediaTerms.keywords;
 
                     // console.log(keyword);
 
@@ -152,22 +151,21 @@ describe("Searches DBpedia for important terms", function (done)
             });
         });
 
-
         var dbpediaconcepts = [];
         it("Search terms in dbpedia", function (done)
         {
             this.timeout(1500000);
             // console.log(agent);
-            keywordsUtils.dbpedialookup(dbpediaterms, agent, function (err, db)
+            keywordsUtils.dbpediaLookup(dbpediaterms, agent, function (err, db)
             {
                 // console.log(err);
                 db.statusCode.should.equal(200);
-                dbpediaconcepts = db.body.dbpediauri.result;
+                dbpediaconcepts = db.body.dbpediaUri.result;
                 console.log(dbpediaconcepts);
                 var writer = csvWriter();
                 if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/chemistry/3 ficheiros/chemistry-cvalue-jj.csv")))
                 {
-                    writer = csvWriter( { separator: ",", headers: [ "searchterm", "dbpedialabel", "dbpediauri", "dbpediadescription" ]});
+                    writer = csvWriter({ separator: ",", headers: [ "searchTerm", "dbpediaLabel", "dbpediaUri", "dbpediaDescription" ]});
                 }
                 else
                 {
@@ -182,35 +180,32 @@ describe("Searches DBpedia for important terms", function (done)
                 done();
             });
         });
-         it("Get properties from DBpedia", function (done)
+        it("Get properties from DBpedia", function (done)
         {
             this.timeout(1500000);
-            keywordsUtils.dbpediaproperties(dbpediaconcepts, agent, function (err, db)
+            keywordsUtils.dbpediaProperties(dbpediaconcepts, agent, function (err, db)
             {
                 // console.log(err);
                 db.statusCode.should.equal(200);
                 var writer = csvWriter();
                 if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/chemistry/3 ficheiros/dbpediapropertiescvalue-jj.csv")))
                 {
-                    writer = csvWriter({ headers: ["searchterm", "lovscore","lovvocabulary","lovuri","lovlabel"]});
+                    writer = csvWriter({ headers: ["searchTerm", "lovScore", "lovVocabulary", "lovUri", "lovLabel"]});
                 }
                 else
                 {
                     writer = csvWriter({separator: ",", sendHeaders: false});
                 }
                 writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/chemistry/3 ficheiros/dbpediapropertiescvalue-jj.csv"), {flags: "a"}));
-                for (var i = 0; i < db.body.dbpediauri.result.length; i++)
+                for (var i = 0; i < db.body.dbpediaUri.result.length; i++)
                 {
-                    writer.write(db.body.dbpediauri.result[i]);
+                    writer.write(db.body.dbpediaUri.result[i]);
                 }
                 writer.end();
                 done();
             });
         });
     });
-
-
-
 
     after(function (done)
     {

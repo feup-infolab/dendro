@@ -909,14 +909,16 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
             });
         };
 
-        async.detectSeries(formats, function(format, callback){
+        async.detectSeries(formats, function (format, callback)
+        {
             try
             {
                 workbook = XLSX.readFile(filePath, {
                     format: format
                 });
 
-                handleWorkbook(workbook, function(err, result){
+                handleWorkbook(workbook, function (err, result)
+                {
                     callback(null, isNull(err));
                 });
             }
@@ -924,7 +926,8 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
             {
                 Logger.log("error", error.message);
             }
-        }, function(err, processedAtLeastOneFormatOK){
+        }, function (err, processedAtLeastOneFormatOK)
+        {
             if (!err && processedAtLeastOneFormatOK)
             {
                 callback(null);

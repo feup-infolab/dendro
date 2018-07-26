@@ -620,7 +620,7 @@ const export_to_repository_zenodo = function (req, res)
                                             {
                                                 zenodo = new Zenodo(accessToken, hasExternalUri);
                                             }
-                                            catch(error)
+                                            catch (error)
                                             {
                                                 generalDatasetUtils.deleteFolderRecursive(parentFolderPath);
                                                 const msg = "Error creating Zenodo client, error: " + error.message;
@@ -922,7 +922,6 @@ export_to_repository_b2share = function (req, res)
                                                     draftData.language = language;
                                                 }
 
-
                                                 let b2shareClient;
                                                 try
                                                 {
@@ -978,7 +977,7 @@ export_to_repository_b2share = function (req, res)
                                                             {
                                                                 b2shareClient.listUploadedFilesInRecord(fileBucketID, function (err, info)
                                                                 {
-                                                                    if(!isNull(err))
+                                                                    if (!isNull(err))
                                                                     {
                                                                         const msg = "Could not compare the Number of files uploaded to B2SHARE with files in Dendro, will not publish the draft!";
                                                                         Logger.log("error", msg);
@@ -992,7 +991,7 @@ export_to_repository_b2share = function (req, res)
                                                                     else
                                                                     {
                                                                         // TODO send email
-                                                                        if(isNull(info) || isNull(info.data) || isNull(info.data.contents) || !(info.data.contents instanceof Array))
+                                                                        if (isNull(info) || isNull(info.data) || isNull(info.data.contents) || !(info.data.contents instanceof Array))
                                                                         {
                                                                             const msg = "Could not compare the Number of files uploaded to B2SHARE with files in Dendro, will not publish the draft!";
                                                                             Logger.log("error", msg);
@@ -1003,7 +1002,7 @@ export_to_repository_b2share = function (req, res)
                                                                                 }
                                                                             );
                                                                         }
-                                                                        else if(info.data.contents.length === files.length)
+                                                                        else if (info.data.contents.length === files.length)
                                                                         {
                                                                             b2shareClient.submitDraftRecordForPublication(recordIDToUpdate, function (err, body)
                                                                             {
@@ -1251,7 +1250,6 @@ prepareFilesForUploadToB2share = function (files, fileBucketID, b2shareClient, c
 };
 */
 
-
 prepareFilesForUploadToB2share = function (files, fileBucketID, b2shareClient, cb)
 {
     async.mapSeries(files, function (file, callback)
@@ -1260,7 +1258,7 @@ prepareFilesForUploadToB2share = function (files, fileBucketID, b2shareClient, c
         const info = {fileBucketID: fileBucketID, absFilePath: file};
         b2shareClient.uploadFileIntoDraftRecord(info, function (err, data)
         {
-            if(isNull(err))
+            if (isNull(err))
             {
                 callback(err, data);
             }

@@ -1091,7 +1091,7 @@ const loadRoutes = function (app, callback)
     });
 
     const defaultSocialDendroArrayOfPostsPermissions = [
-        Permissions.settings.role.user_role_in_array_of_posts_project,
+        Permissions.settings.role.user_role_in_array_of_posts_project
     ];
     app.get("/posts/posts", function (req, res, next)
     {
@@ -1430,11 +1430,11 @@ const loadRoutes = function (app, callback)
     app.delete("/interactions/delete_all", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), interactions.delete_all_interactions);
 
     // keywords
-    app.post("/keywords/processextract", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.processextract);
-    app.post("/keywords/preprocessing", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.preprocessing);
-    app.post("/keywords/termextraction", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.termextraction);
-    app.post("/keywords/dbpedialookup", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.dbpedialookup);
-    app.post("/keywords/dbpediaproperties", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.dbpediaproperties);
+    app.post("/keywords/processExtract", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.processExtract);
+    app.post("/keywords/preProcessing", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.preProcessing);
+    app.post("/keywords/termExtraction", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.termExtraction);
+    app.post("/keywords/dbpediaLookup", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.dbpediaLookup);
+    app.post("/keywords/dbpediaProperties", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.dbpediaProperties);
     app.post("/keywords/clustering", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.clustering);
     // app.get("/keywords/loadfiles", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.loadfiles);
 

@@ -447,13 +447,15 @@ angular.module("dendroApp.controllers")
 
             return selected_files;
         };
-        $scope.$on('someEvent', function(e) {
+        $scope.$on("someEvent", function (e)
+        {
             $scope.$emit("getFiles", $scope.get());
         });
 
-        $scope.get = function(){
+        $scope.get = function ()
+        {
             return $scope.get_selected_files();
-        }
+        };
 
         $scope.set_selected_file = function (index)
         {
@@ -479,7 +481,6 @@ angular.module("dendroApp.controllers")
             }
 
             $scope.shared.selected_file = null;
-
         };
 
         $scope.select_all_files = function (selected)
@@ -496,7 +497,6 @@ angular.module("dendroApp.controllers")
             {
                 $scope.shared.selected_file = null;
             }
-
         };
 
         $scope.file_explorer_selected_contains_deleted = function ()
