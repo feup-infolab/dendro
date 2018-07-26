@@ -24,17 +24,17 @@ angular.module("dendroApp.controllers")
     {
         $scope.button = "Cluster";
         // keyword extraction
-        $scope.keywords;
-        $scope.concepts;
-        $scope.properties;
+        $scope.keywords=null;
+        $scope.concepts=null;
+        $scope.properties=null;
         $scope.clusters;
 
-        $scope.filelist;
-        $scope.keywordlist;
-        $scope.termList;
-        $scope.clusterList;
-        $scope.conceptlist;
-        $scope.descriptorlist;
+        $scope.filelist=null;
+        $scope.keywordlist=null;
+        $scope.termList=null;
+        $scope.clusterList=false;
+        $scope.conceptlist=null;
+        $scope.descriptorlist=null;
         $scope.multiple_term_selection = true;
         $scope.multiple_concept_selection = true;
         $scope.extra_terms = null;
@@ -433,15 +433,13 @@ angular.module("dendroApp.controllers")
 
         $scope.extract_terms = function ()
         {
-            console.log($scope.selected_method);
-            var data = {method: $scope.selected_method, text: []};
+            let data = {method: $scope.selected_method, text: []};
             for (let i = 0; i < $scope.get().length; i++)
             {
                 data.text.push({
                     text: $scope.get()[i].nie.plainTextContent
                 });
             }
-            console.log(data);
             $http({
                 method: "POST",
                 url: "/keywords/processExtract",
@@ -450,7 +448,6 @@ angular.module("dendroApp.controllers")
             }).then(function (response)
             {
                 $scope.keywords = response.data.output.dbpediaTerms.keywords;
-                console.log($scope.keywords);
                 $scope.filelist = false;
                 $scope.keywordlist = true;
                 $scope.termList = true;
@@ -471,10 +468,9 @@ angular.module("dendroApp.controllers")
         {
             if ($scope.button === "Cluster")
             {
-                console.log($scope.clusters);
                 if (typeof $scope.clusters === "undefined")
                 {
-                    var data = {terms: []};
+                    let data = {terms: []};
                     for (let i = 0; i < $scope.keywords.length; i++)
                     {
                         data.terms.push({
@@ -491,7 +487,6 @@ angular.module("dendroApp.controllers")
                         // $scope.keywords = response.data.output.dbpediaTerms.keywords;
                         $scope.termList = false;
                         $scope.clusterList = true;
-                        console.log(response.data);
                         $scope.clusters = response.data.clusters;
                         $scope.button = "Term List";
                     }).catch(function (error)
@@ -549,7 +544,7 @@ angular.module("dendroApp.controllers")
 
         $scope.get_concepts = function ()
         {
-            var data = {keywords: []};
+            let data = {keywords: []};
             for (let i = 0; i < $scope.keywords.length; i++)
             {
                 if ($scope.keywords[i].selected)
@@ -567,7 +562,6 @@ angular.module("dendroApp.controllers")
             }).then(function (response)
             {
                 // $scope.keywords = response.data.output.dbpediaTerms.keywords;
-                console.log(response.data.dbpediaUri.result);
                 $scope.concepts = response.data.dbpediaUri.result;
                 $scope.keywordlist = false;
                 $scope.conceptlist = true;
@@ -586,7 +580,7 @@ angular.module("dendroApp.controllers")
 
         $scope.get_properties = function ()
         {
-            var data = {concepts: []};
+            let data = {concepts: []};
             for (let i = 0; i < $scope.concepts.length; i++)
             {
                 if ($scope.concepts[i].selected)
@@ -601,7 +595,6 @@ angular.module("dendroApp.controllers")
                 headers: {"Content-Type": "application/json; charset=UTF-8"}
             }).then(function (response)
             {
-                console.log(response.data.dbpediaUri.result);
                 $scope.properties = response.data.dbpediaUri.result;
                 $scope.conceptlist = false;
                 $scope.descriptorlist = true;
@@ -620,8 +613,8 @@ angular.module("dendroApp.controllers")
 
         $scope.add_terms = function ()
         {
-            var temporary_terms = $scope.extra_terms.split(";");
-            for (var i = 0; i < temporary_terms.length; i++)
+            let temporary_terms = $scope.extra_terms.split(";");
+            for (let i = 0; i < temporary_terms.length; i++)
             {
                 $scope.keywords.unshift({words: temporary_terms[i], score: "important", selected: true});
             }
@@ -649,7 +642,7 @@ angular.module("dendroApp.controllers")
         {
             if ($scope.keywords != null && $scope.keywords instanceof Array)
             {
-                for (var i = 0; i < $scope.keywords.length; i++)
+                for (let i = 0; i < $scope.keywords.length; i++)
                 {
                     if ($scope.keywords[i].score !== "important")
                     {
@@ -664,7 +657,7 @@ angular.module("dendroApp.controllers")
         {
             if ($scope.concepts != null && $scope.concepts instanceof Array)
             {
-                for (var i = 0; i < $scope.concepts.length; i++)
+                for (let i = 0; i < $scope.concepts.length; i++)
                 {
                     $scope.concepts[i].selected = false;
                 }
@@ -708,7 +701,7 @@ angular.module("dendroApp.controllers")
         {
             if ($scope.keywords != null && $scope.keywords instanceof Array)
             {
-                for (var i = 0; i < $scope.keywords.length; i++)
+                for (let i = 0; i < $scope.keywords.length; i++)
                 {
                     $scope.keywords[i].selected = selected;
                 }
@@ -718,7 +711,7 @@ angular.module("dendroApp.controllers")
         {
             if ($scope.concepts != null && $scope.concepts instanceof Array)
             {
-                for (var i = 0; i < $scope.concepts.length; i++)
+                for (let i = 0; i < $scope.concepts.length; i++)
                 {
                     $scope.concepts[i].selected = selected;
                 }
@@ -726,11 +719,11 @@ angular.module("dendroApp.controllers")
         };
         $scope.get_selected_terms = function ()
         {
-            var selected_files = [];
+            let selected_files = [];
 
             if ($scope.keywords)
             {
-                for (var i = 0; i < $scope.keywords.length; i++)
+                for (let i = 0; i < $scope.keywords.length; i++)
                 {
                     if ($scope.keywords[i].selected)
                     {
@@ -743,11 +736,11 @@ angular.module("dendroApp.controllers")
 
         $scope.get_selected_concepts = function ()
         {
-            var selected_files = [];
+            let selected_files = [];
 
             if ($scope.concepts)
             {
-                for (var i = 0; i < $scope.concepts.length; i++)
+                for (let i = 0; i < $scope.concepts.length; i++)
                 {
                     if ($scope.concepts[i].selected)
                     {

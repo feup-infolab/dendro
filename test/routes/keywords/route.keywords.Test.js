@@ -43,7 +43,6 @@ describe("Searches DBpedia for important terms", function (done)
         });
     });
 
-    let artigo;
 
     describe("[POST] [PRIVATE PROJECT] [Valid Cases] /project/" + privateProject.handle + "/data/:foldername?upload", function ()
     {
@@ -77,7 +76,7 @@ describe("Searches DBpedia for important terms", function (done)
             });
         });
     });
-
+    // let artigo;
     // describe("[GET] /keywords/conceptextraction", function ()
     // {
     //     it("[HTML] Simple test to extract POS and lemma", function (done)
@@ -168,7 +167,6 @@ describe("Searches DBpedia for important terms", function (done)
                 {
                     res.statusCode.should.equal(200);
                     res.body.descriptors.should.be.instanceof(Array);
-                    // artigos.push(JSON.parse(res.text).descriptors[7].value);
                     cb(null, JSON.parse(res.text).descriptors[7].value);
                 });
             });
@@ -185,32 +183,32 @@ describe("Searches DBpedia for important terms", function (done)
             });
         };
         */
-        let artigos = [];
-        let dbpediaterms;
-        let doclist = [BusPerformance, SimulatingVehicle, driverattitude, RegenerativeBraking, RoutePlanning];
+        let articles = [];
+        let dbpediaTerms;
+        let docList = [BusPerformance, SimulatingVehicle, driverattitude, RegenerativeBraking, RoutePlanning];
         it("Should load every pdf and extract their content", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                async.mapSeries(doclist, loadfiles, function (err, results)
+                async.mapSeries(docList, loadfiles, function (err, results)
                 {
                     for (let i = 0; i < results.length; i++)
                     {
-                        artigos.push({text: results[i]});
+                        articles.push({text: results[i]});
                     }
                     done();
                 });
             });
         });
-        it("Should preprocess and extract terms", function (done)
+        it("Should preProcess and extract terms", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                keywordsUtils.processExtract(artigos, agent, function (err, te)
+                keywordsUtils.processExtract(articles, agent, function (err, te)
                 {
                     te.statusCode.should.equal(200);
                     // console.log(te.text);
-                    dbpediaterms = te.body.output.dbpediaTerms.keywords;
+                    dbpediaTerms = te.body.output.dbpediaTerms.keywords;
                     // keyword = JSON.parse(te.text).dbpediaTerms.keywords;
 
                     // console.log(keyword);
@@ -255,16 +253,17 @@ describe("Searches DBpedia for important terms", function (done)
         });
 */
 
-        let dbpediaconcepts = [];
+        let dbpediaConcepts = [];
         it("Search terms in dbpedia", function (done)
         {
             this.timeout(1500000);
             // console.log(agent);
-            keywordsUtils.dbpediaLookup(dbpediaterms, agent, function (err, db)
+            keywordsUtils.dbpediaLookup(dbpediaTerms, agent, function (err, db)
             {
                 // console.log(err);
                 db.statusCode.should.equal(200);
-                dbpediaconcepts = db.body.dbpediaUri.result;
+                dbpediaConcepts = db.body.dbpediaUri.result;
+                /*
                 let writer = csvWriter();
                 if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/vehicle/vehicle-cvalue-jj.csv")))
                 {
@@ -275,25 +274,27 @@ describe("Searches DBpedia for important terms", function (done)
                     writer = csvWriter({sendHeaders: false});
                 }
                 writer.pipe(fs.createWriteStream(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/vehicle/vehicle-cvalue-jj.csv"), {flags: "a"}));
-                for (let i = 0; i < dbpediaconcepts.length; i++)
+                for (let i = 0; i < dbpediaConcepts.length; i++)
                 {
-                    writer.write(dbpediaconcepts[i]);
+                    writer.write(dbpediaConcepts[i]);
                 }
                 writer.end();
+                */
                 done();
             });
         });
         it("Get properties from LOV", function (done)
         {
             this.timeout(1500000);
-            keywordsUtils.dbpediaProperties(dbpediaconcepts, agent, function (err, db)
+            keywordsUtils.dbpediaProperties(dbpediaConcepts, agent, function (err, db)
             {
                 // console.log(err);
                 db.statusCode.should.equal(200);
+                /*
                 let writer = csvWriter();
                 if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/vehicle/dbpediapropertiescvalue-jj.csv")))
                 {
-                    writer = csvWriter({ headers: ["searchTerm", "lovScore", "lovVocabulary", "lovUri", "lovLabel"]});
+                    writer = csvWriter({headers: ["searchTerm", "lovScore", "lovVocabulary", "lovUri", "lovLabel"]});
                 }
                 else
                 {
@@ -305,6 +306,7 @@ describe("Searches DBpedia for important terms", function (done)
                     writer.write(db.body.dbpediaUri.result[i]);
                 }
                 writer.end();
+                */
                 done();
             });
         });
