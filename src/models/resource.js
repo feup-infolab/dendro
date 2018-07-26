@@ -153,10 +153,10 @@ Resource.exists = function (uri, callback, customGraphUri)
     }
 
     db.connection.execute(
-        "WITH [0]\n" +
         "ASK \n" +
         "WHERE \n" +
         "{ \n" +
+        "   GRAPH [0]\n" +
         "   {\n" +
         "       [1] ?p ?o. \n" +
         typesRestrictions +

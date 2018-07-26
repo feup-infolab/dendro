@@ -129,63 +129,6 @@ exports.get_notification_info = function (req, res)
                     });
                 }
             }, null, db_notifications.graphUri, false, null, null);
-            /*
-            let query =
-                "WITH [0] \n" +
-                "SELECT ?actionType ?userWhoActed ?resourceTargetUri ?modified ?shareURI\n" +
-                "WHERE { \n" +
-                "[1] ddr:actionType ?actionType. \n" +
-                "[1] ddr:userWhoActed ?userWhoActed. \n" +
-                "[1] ddr:resourceTargetUri ?resourceTargetUri. \n" +
-                "[1] ddr:resourceAuthorUri [2]. \n" +
-                "[1] ddr:modified ?modified. \n" +
-                "OPTIONAL { [1] ddr:shareURI ?shareURI. } \n" +
-                "} \n";
-
-            query = DbConnection.addLimitsClauses(query, null, null);
-
-            db.connection.execute(query,
-                DbConnection.pushLimitsArguments([
-                    {
-                        type: Elements.types.resourceNoEscape,
-                        value: db_notifications.graphUri
-                    },
-                    {
-                        type: Elements.types.resourceNoEscape,
-                        value: notificationUri
-                    },
-                    {
-                        type: Elements.ontologies.ddr.resourceAuthorUri.type,
-                        value: userUri
-                    }
-                ]),
-                function (err, notification)
-                {
-                    if (isNull(err))
-                    {
-                        if (notification.length > 0)
-                        {
-                            res.json(notification);
-                        }
-                        else
-                        {
-                            const errorMsg = "Invalid notification uri";
-                            res.status(404).json({
-                                result: "Error",
-                                message: errorMsg
-                            });
-                        }
-                    }
-                    else
-                    {
-                        const errorMsg = "Error getting info from a User's notification";
-                        res.status(500).json({
-                            result: "Error",
-                            message: errorMsg
-                        });
-                    }
-                });
-            */
         }
         else
         {

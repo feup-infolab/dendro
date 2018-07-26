@@ -5,7 +5,10 @@ const path = require("path");
 const mkdirp = require("mkdirp");
 
 const rlequire = require("rlequire");
+const _ = require("underscore");
 const validator = require("validator");
+const SparqlParser = require("sparqljs").Parser;
+const parser = new SparqlParser();
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
@@ -51,6 +54,28 @@ class DbConnection
         self.pendingRequests = {};
         self.databaseName = "graph";
         self.created_profiling_logfile = false;
+    }
+
+    static getPrefixTrain ()
+    {
+        // Parse a SPARQL query to a JSON object
+        // const parsedQuery = parser.parse(query);
+
+        if (isNull(DbConnection.prefixTrain))
+        {
+            DbConnection.prefixTrain =
+                "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
+                "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
+                "PREFIX owl: <http://www.w3.org/2002/07/owl#>\n" +
+                "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\n";
+
+            _.map(Config.enabledOntologies, function (ontology)
+            {
+                DbConnection.prefixTrain += `PREFIX ${ontology.prefix}: <${ontology.uri}>\n`;
+            });
+        }
+
+        return DbConnection.prefixTrain;
     }
 
     static queryObjectToString (query, argumentsArray, callback)

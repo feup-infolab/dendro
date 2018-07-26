@@ -10,4 +10,5 @@ docker rm -f "$ELASTICSEARCH_CONTAINER_NAME" || true
 docker rm -f "$VIRTUOSO_CONTAINER_NAME" || true
 docker rm -f "$MYSQL_CONTAINER_NAME" || true
 docker rm -f "$MONGODB_CONTAINER_NAME" || true
+docker rm -f "$FUSEKI_CONTAINER_NAME" || true
 

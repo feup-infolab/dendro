@@ -1,5 +1,6 @@
 const util = require("util");
 const async = require("async");
+const request = require("request");
 
 const rlequire = require("rlequire");
 const uuid = require("uuid");
@@ -19,6 +20,12 @@ class FusekiConnection extends DbConnection
         super(options);
         const self = this;
         self.dataset = options.dataset;
+        self.databaseType = options.dbType;
+        self.requestAuth = {
+            user: self.username,
+            pass: self.password
+        };
+        self.ontologyGraphs = Object.values(options.ontologyGraphs);
     }
 
     create (callback)
@@ -35,9 +42,12 @@ class FusekiConnection extends DbConnection
                 {
                     if (xmlHttp.status === 200)
                     {
-                        return callback(null);
+                        callback(null);
                     }
-                    return callback(1, "Unable to contact Virtuoso Server at " + self.host + " : " + self.port);
+                    else
+                    {
+                        callback(1, "Unable to contact Fuseki Server at " + self.host + " : " + self.port);
+                    }
                 }
             };
 
@@ -54,6 +64,81 @@ class FusekiConnection extends DbConnection
             xmlHttp.send(null);
         };
 
+        const createDatasetIfNeeded = function (callback)
+        {
+            const checkIfDatasetExists = function (callback)
+            {
+                let fullUrl = "http://" + self.host;
+
+                if (self.port)
+                {
+                    fullUrl = fullUrl + ":" + self.port;
+                }
+
+                fullUrl = fullUrl + "/$/datasets/" + self.dataset;
+                request.get({
+                    url: fullUrl,
+                    auth: self.requestAuth
+                }, function (error, response, body)
+                {
+                    if (isNull(error))
+                    {
+                        if (response.statusCode === 404)
+                        {
+                            callback(error, false);
+                        }
+                        else
+                        {
+                            callback(error, true);
+                        }
+                    }
+                    else
+                    {
+                        callback(error);
+                    }
+                });
+            };
+
+            const createDataset = function (datasetExists, callback)
+            {
+                if (!datasetExists)
+                {
+                    let fullUrl = "http://" + self.host;
+
+                    if (self.port)
+                    {
+                        fullUrl = fullUrl + ":" + self.port;
+                    }
+
+                    fullUrl = fullUrl + "/$/datasets";
+
+                    request.post({
+                        url: fullUrl,
+                        form: {
+                            dbType: self.databaseType,
+                            dbName: self.dataset
+                        },
+                        auth: self.requestAuth
+                    }, function (err, response, body)
+                    {
+                        callback(err);
+                    });
+                }
+                else
+                {
+                    callback(null);
+                }
+            };
+
+            async.waterfall([
+                checkIfDatasetExists,
+                createDataset
+            ], function (err, results)
+            {
+                callback(err, results);
+            });
+        };
+
         const setupQueryQueues = function (callback)
         {
             self.queue_http = new Queue(
@@ -64,38 +149,85 @@ class FusekiConnection extends DbConnection
                         Logger.log("--POSTING QUERY (HTTP): \n" + queryObject.query);
                     }
 
-                    const queryRequest = rp({
+                    const payload = {
                         method: "POST",
                         uri: queryObject.fullUrl,
                         simple: false,
+                        qs: {
+                            output: "application/sparql-results+json"
+                        },
                         form: {
                             query: queryObject.query,
                             maxrows: queryObject.maxRows,
                             format: queryObject.resultsFormat
                         },
                         json: true,
+                        header: {
+                            Accept: "application/sparql-results+json"
+                        },
                         forever: true,
                         encoding: "utf8"
                         // timeout : Config.dbOperationTimeout
+                    };
 
-                    })
-                        .then(function (parsedBody)
+                    if (queryObject.runAsUpdate)
+                    {
+                        payload.qs.update = "";
+                    }
+
+                    const queryRequest = rp(payload)
+                        .then(function (body)
                         {
                             delete self.pendingRequests[queryObject.query_id];
                             const transformedResults = [];
                             // iterate through all the rows in the result list
 
-                            if (!isNull(parsedBody.boolean))
+                            if (!isNull(body.boolean))
                             {
                                 DbConnection.recordQueryConclusionInLog(queryObject);
                                 popQueueCallback();
-                                queryObject.callback(null, parsedBody.boolean);
+                                queryObject.callback(null, body.boolean);
                             }
                             else
                             {
-                                if (!isNull(parsedBody.results))
+                                if (queryObject.runAsUpdate)
                                 {
-                                    const rows = parsedBody.results.bindings;
+                                    const parseString = require("xml2js").parseString;
+                                    parseString(body, function (err, result)
+                                    {
+                                        if (!err)
+                                        {
+                                            let parsedResult;
+                                            try
+                                            {
+                                                parsedResult = result.html.body[0].h1[0];
+                                            }
+                                            catch (e)
+                                            {
+                                                queryObject.callback(1, "Invalid response from Fuseki server on update. Returned object was " + result);
+                                            }
+
+                                            if (parsedResult === "Success")
+                                            {
+                                                queryObject.callback(null, parsedResult);
+                                            }
+                                            else
+                                            {
+                                                queryObject.callback(1, "An Update operation did not succeed: Result from server was \"" + result.html.body.h1 + "\" and should be \"Success\"");
+                                            }
+                                        }
+                                        else
+                                        {
+                                            return callback(err, result);
+                                        }
+
+                                        DbConnection.recordQueryConclusionInLog(queryObject);
+                                        popQueueCallback();
+                                    });
+                                }
+                                else if (!isNull(body.results))
+                                {
+                                    const rows = body.results.bindings;
                                     const numberOfRows = rows.length;
 
                                     if (numberOfRows === 0)
@@ -110,14 +242,14 @@ class FusekiConnection extends DbConnection
                                         {
                                             let dataTypes = [];
 
-                                            let row = parsedBody.results.bindings[i];
+                                            let row = body.results.bindings[i];
 
                                             if (!isNull(row))
                                             {
                                                 transformedResults[i] = {};
-                                                for (let j = 0; j < parsedBody.head.vars.length; j++)
+                                                for (let j = 0; j < body.head.vars.length; j++)
                                                 {
-                                                    let cellHeader = parsedBody.head.vars[j];
+                                                    let cellHeader = body.head.vars[j];
                                                     const cell = row[cellHeader];
 
                                                     if (!isNull(cell))
@@ -166,7 +298,7 @@ class FusekiConnection extends DbConnection
                                 }
                                 else
                                 {
-                                    const msg = "Invalid response from server while running query \n" + queryObject.query + ": " + JSON.stringify(parsedBody, null, 4);
+                                    const msg = "Invalid response from server while running query \n" + queryObject.query + ": " + JSON.stringify(body, null, 4);
                                     Logger.log("error", msg);
                                     DbConnection.recordQueryConclusionInLog(queryObject);
                                     popQueueCallback(1, msg);
@@ -178,7 +310,7 @@ class FusekiConnection extends DbConnection
                         {
                             delete self.pendingRequests[queryObject.query_id];
                             Logger.log("error", "Query " + queryObject.query_id + " Failed!\n" + queryObject.query + "\n");
-                            const error = "Virtuoso server returned error: \n " + util.inspect(err);
+                            const error = "Fuseki server returned error: \n " + util.inspect(err);
                             Logger.log("error", error);
                             DbConnection.recordQueryConclusionInLog(queryObject);
                             popQueueCallback(1, error);
@@ -198,9 +330,82 @@ class FusekiConnection extends DbConnection
             callback(null);
         };
 
+        const loadGraphsIntoDatasetIfNeeded = function (callback)
+        {
+            const loadGraphOfOntology = function (ontology, callback)
+            {
+                const checkIfGraphExists = function (ontology, callback)
+                {
+                    self.graphExists(ontology, function (err, exists)
+                    {
+                        callback(err, exists);
+                    });
+                };
+
+                const loadGraph = function (ontology, callback)
+                {
+                    const queryArguments = [
+                        {
+                            type: Elements.types.resourceNoEscape,
+                            value: ontology.downloadURL
+                        },
+                        {
+                            type: Elements.types.resourceNoEscape,
+                            value: ontology.uri
+                        }
+                    ];
+
+                    self.execute(
+                        "CLEAR GRAPH [0]; \n" +
+                        "LOAD [0] INTO GRAPH [1];",
+                        queryArguments,
+                        function (err, result)
+                        {
+                            callback(err, result);
+                        },
+                        {
+                            runAsUpdate: true
+                        });
+                };
+
+                checkIfGraphExists(ontology.uri, function (err, exists)
+                {
+                    if (!err)
+                    {
+                        if (exists)
+                        {
+                            callback(null, null);
+                        }
+                        else
+                        {
+                            loadGraph(ontology, function (err, result)
+                            {
+                                callback(err, result);
+                            });
+                        }
+                    }
+                    else
+                    {
+                        callback(err);
+                    }
+                });
+            };
+
+            async.mapSeries(
+                self.ontologyGraphs,
+                loadGraphOfOntology,
+                function (err, results)
+                {
+                    callback(err, results);
+                }
+            );
+        };
+
         async.series([
             checkDatabaseConnectionViaHttp,
-            setupQueryQueues
+            createDatasetIfNeeded,
+            setupQueryQueues,
+            loadGraphsIntoDatasetIfNeeded
         ], function (err)
         {
             if (isNull(err))
@@ -245,7 +450,7 @@ class FusekiConnection extends DbConnection
             interval: function (retryCount)
             {
                 const msecs = 500;
-                Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to Virtuoso at " + self.host + ":" + self.port + "...");
+                Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to Fuseki at " + self.host + ":" + self.port + "...");
                 return msecs;
             }
         }, tryToConnect, function (err, result)
@@ -394,7 +599,7 @@ class FusekiConnection extends DbConnection
     {
         const self = this;
 
-        if(options instanceof Object)
+        if (options instanceof Object)
         {
             self._executeViaHTTP(queryStringWithArguments, argumentsArray, callback, options.resultsFormat, options.maxRows, options.runAsUpdate);
         }
@@ -434,18 +639,20 @@ class FusekiConnection extends DbConnection
 
                     fullUrl = fullUrl + "/" + self.dataset;
 
-                    if(runAsUpdate)
-                    {
-                        fullUrl = fullUrl + "/sparql";
-                    }
-                    else
+                    if (runAsUpdate)
                     {
                         fullUrl = fullUrl + "/update";
                     }
+                    else
+                    {
+                        fullUrl = fullUrl + "/sparql";
+                    }
 
                     const newQueryId = uuid.v4();
+                    query = DbConnection.getPrefixTrain() + query;
                     self.queue_http.push({
                         queryStartTime: new Date(),
+                        runAsUpdate: runAsUpdate,
                         query: query,
                         callback: callback,
                         query_id: newQueryId,

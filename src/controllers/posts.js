@@ -104,43 +104,6 @@ const getAllPosts = function (projectUrisArray, callback, nextPosition, lastAcce
             cb1(null, "'" + uri + "'");
         }, function (err, fullProjects)
         {
-            /* const projectsUris = fullProjects.join(" ");
-            let query =
-                "WITH [0] \n" +
-                // "SELECT DISTINCT ?uri ?postTypes\n" +
-                "SELECT DISTINCT ?uri\n" +
-                "WHERE { \n" +
-                "VALUES ?project { \n" +
-                projectsUris +
-                "} \n" +
-                /!* "VALUES ?postTypes { \n" +
-                "ddr:Post" + " ddr:Share" + " ddr:MetadataChangePost" + " ddr:FileSystemPost" + " ddr:ManualPost" +
-                "} \n" + *!/
-                "?uri ddr:modified ?date. \n" +
-                // "?uri rdf:type ?postTypes. \n" +
-                "?uri rdf:type ddr:Post. \n" +
-                "?uri ddr:projectUri ?project. \n" +
-                "} \n " +
-                "ORDER BY DESC(?date) \n";
-
-            query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
-
-            db.connection.execute(query,
-                DbConnection.pushLimitsArguments([
-                    {
-                        type: Elements.types.resourceNoEscape,
-                        value: db_social.graphUri
-                    }
-                ]),
-                function (err, results)
-                {
-                    if (isNull(err))
-                    {
-                        return callback(err, results);
-                    }
-                    return callback(true, "Error fetching posts in getAllPosts");
-                }); */
-
             let projectsUris = fullProjects.join(",");
             let queryEngagement = "SELECT postURI AS uri FROM " + Config.mySQLDBName + ".posts WHERE projectURI IN (" + projectsUris + ") AND createdAt >= :date ORDER BY createdAt ASC;";
             let lastDate;

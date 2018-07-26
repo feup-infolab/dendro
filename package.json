@@ -161,6 +161,7 @@
     "sleep": "^5.1.1",
     "slugify": "^1.3.0",
     "socket.io": "^2.1.0",
+    "sparqljs": "^2.0.3",
     "stream-meter": "^1.0.4",
     "stream-rotate": "^0.1.0",
     "stylus": "^0.54.5",

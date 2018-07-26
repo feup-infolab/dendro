@@ -17,19 +17,19 @@ services:
     networks:
       - dendro
 
-  virtuoso:
-    container_name: virtuoso-dendro-dev
-    image: joaorosilva/virtuoso:7.2.4-for-dendro-0.4
-    ports:
-      - "8891:8890"
-      - "1112:1111"
-    environment:
-      - "SPARQL_UPDATE=true"
-      - "VIRT_Parameters_CheckpointSyncMode=2"
-      - "VIRT_Parameters_PageMapCheck=1"
-      - "VIRT_Parameters_CheckpointInterval=0"
-    networks:
-      - dendro
+#  virtuoso:
+#    container_name: virtuoso-dendro-dev
+#    image: joaorosilva/virtuoso:7.2.4-for-dendro-0.4
+#    ports:
+#      - "8891:8890"
+#      - "1112:1111"
+#    environment:
+#      - "SPARQL_UPDATE=true"
+#      - "VIRT_Parameters_CheckpointSyncMode=2"
+#      - "VIRT_Parameters_PageMapCheck=1"
+#      - "VIRT_Parameters_CheckpointInterval=0"
+#    networks:
+#      - dendro
 
   mysql:
     container_name: mysql-dendro-dev
@@ -57,6 +57,18 @@ services:
     networks:
       - dendro
     command: mongod --smallfiles --bind_ip_all
+
+  fuseki:
+      container_name: fuseki-dendro-dev
+      image: stain/jena-fuseki:3.6.0
+      ports:
+        - 3030:3030
+      environment:
+        - ADMIN_PASSWORD=pw123
+      volumes:
+        - ./volumes/fuseki:/fuseki
+      networks:
+        - dendro
 
 networks:
   dendro: {}

@@ -20,7 +20,9 @@ const initFuseki = function (app, callback)
                 password: Config.fusekiAuth.password,
                 maxSimultaneousConnections: 1,
                 dbOperationsTimeout: Config.dbOperationTimeout,
-                dataset: Config.fusekiDataset
+                dataset: Config.fusekiDataset,
+                dbType: Config.fusekiDbType,
+                ontologyGraphs: Config.enabledOntologies
             }
         );
 

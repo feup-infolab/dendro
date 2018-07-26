@@ -99,6 +99,14 @@
         "cache_period_in_seconds": 3600
       }
     },
+    "fusekiHost": "127.0.0.1",
+    "fusekiPort": "3030",
+    "fusekiDataset": "test",
+    "fusekiDbType": "tdb",
+    "fusekiAuth": {
+      "user": "admin",
+      "password": "pw123"
+    },
     "virtuosoHost": "192.168.56.249",
     "virtuosoPort": "8890",
     "virtuosoISQLPort": "1111",
@@ -523,6 +531,7 @@
     "fusekiHost": "127.0.0.1",
     "fusekiPort": "3030",
     "fusekiDataset": "test",
+    "fusekiDbType": "tdb",
     "fusekiAuth": {
       "user": "admin",
       "password": "pw123"
@@ -949,6 +958,14 @@
         "cache_period_in_seconds": 3600
       }
     },
+    "fusekiHost": "127.0.0.1",
+    "fusekiPort": "3030",
+    "fusekiDataset": "test",
+    "fusekiDbType": "tdb",
+    "fusekiAuth": {
+      "user": "admin",
+      "password": "pw123"
+    },
     "virtuosoHost": "127.0.0.1",
     "virtuosoPort": "8890",
     "virtuosoISQLPort": "1111",
@@ -1051,7 +1068,7 @@
     "debug": {
       "active": true,
       "database": {
-        "log_all_queries": false,
+        "log_all_queries": true,
         "log_all_cache_queries": false,
         "log_query_times": false
       },
@@ -1365,6 +1382,14 @@
         "last_modified_caching": true,
         "cache_period_in_seconds": 3600
       }
+    },
+    "fusekiHost": "127.0.0.1",
+    "fusekiPort": "3030",
+    "fusekiDataset": "test",
+    "fusekiDbType": "tdb",
+    "fusekiAuth": {
+      "user": "admin",
+      "password": "pw123"
     },
     "virtuosoHost": "127.0.0.1",
     "virtuosoPort": "8890",
@@ -1781,6 +1806,14 @@
         "last_modified_caching": true,
         "cache_period_in_seconds": 3600
       }
+    },
+    "fusekiHost": "127.0.0.1",
+    "fusekiPort": "3030",
+    "fusekiDataset": "test",
+    "fusekiDbType": "tdb",
+    "fusekiAuth": {
+      "user": "admin",
+      "password": "pw123"
     },
     "virtuosoHost": "127.0.0.1",
     "virtuosoPort": "8890",

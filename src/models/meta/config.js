@@ -115,6 +115,7 @@ Config.fusekiHost = getConfigParameter("fusekiHost");
 Config.fusekiPort = getConfigParameter("fusekiPort");
 Config.fusekiAuth = getConfigParameter("fusekiAuth");
 Config.fusekiDataset = getConfigParameter("fusekiDataset");
+Config.fusekiDbType = getConfigParameter("fusekiDbType");
 
 Config.graphDatabase = (function ()
 {
@@ -419,6 +420,7 @@ Config.enabledOntologies = {
         elements: Elements.ontologies.dcterms,
         label: "Dublin Core terms",
         description: "Generic description. Creator, title, subject...",
+        downloadURL: "http://dublincore.org/2012/06/14/dcelements.rdf",
         domain: "Generic",
         domain_specific: false
     },
@@ -428,6 +430,7 @@ Config.enabledOntologies = {
         elements: Elements.ontologies.foaf,
         label: "Friend of a friend",
         description: "For expressing people-related metadata. Mailbox, web page...",
+        downloadURL: "http://xmlns.com/foaf/spec/INDEX.rdf",
         domain: "Generic",
         domain_specific: false
     },
@@ -438,6 +441,7 @@ Config.enabledOntologies = {
         elements: Elements.ontologies.ddr,
         label: "Dendro internal ontology",
         description: "Designed to represent internal system information important to Dendro",
+        downloadURL: "https://raw.githubusercontent.com/feup-infolab-rdm/dendro-ontologies/master/DENDRO/dendro.owl",
         domain: "Generic",
         domain_specific: false
     },
@@ -448,6 +452,7 @@ Config.enabledOntologies = {
         elements: Elements.ontologies.rdf,
         label: "Resource Description Framework",
         description: "Low-level technical ontology. It is the building block of all others.",
+        downloadURL: "https://www.w3.org/1999/02/22-rdf-syntax-ns.rdf",
         domain: "Low-level, System",
         domain_specific: false
     },
@@ -458,6 +463,7 @@ Config.enabledOntologies = {
         elements: Elements.ontologies.nie,
         label: "Nepomuk Information Element",
         description: "Ontology for representing files and folders. Information Elements",
+        downloadURL: "http://lov.okfn.org/dataset/lov/vocabs/nie/versions/2012-10-03.n3",
         domain: "Low-level, System",
         domain_specific: false
     },
@@ -469,6 +475,7 @@ Config.enabledOntologies = {
         label: "Nepomuk File Ontology",
         description: "Ontology for representing files and folders. Files and Folders.",
         domain: "Low-level, System",
+        downloadURL: "https://raw.githubusercontent.com/feup-infolab-rdm/dendro-ontologies/master/ACHEM/achem.owl",
         domain_specific: false
     },
     research: {
@@ -478,6 +485,7 @@ Config.enabledOntologies = {
         label: "Dendro research",
         description: "Experimental research-related metadata. Instrumentation, method...",
         domain: "Generic",
+        downloadURL: "https://raw.githubusercontent.com/feup-infolab-rdm/dendro-ontologies/master/RESEARCH/research.owl",
         domain_specific: true
     },
     dcb: {
@@ -487,6 +495,7 @@ Config.enabledOntologies = {
         label: "Double Cantilever Beam",
         description: "Fracture mechanics experiments. Initial crack length, Material type...",
         domain: "Mechanical Engineering",
+        downloadURL: "https://raw.githubusercontent.com/feup-infolab-rdm/dendro-ontologies/master/DCB/dcb.owl",
         domain_specific: true
     },
     achem: {
@@ -496,6 +505,7 @@ Config.enabledOntologies = {
         label: "Pollutant analysis",
         description: "Analytical Chemistry experimental studies... Analysed substances, Sample count...",
         domain: "Analytical Chemistry",
+        downloadURL: "https://raw.githubusercontent.com/feup-infolab-rdm/dendro-ontologies/master/ACHEM/achem.owl",
         domain_specific: true
     },
     bdv: {
@@ -505,6 +515,7 @@ Config.enabledOntologies = {
         label: "Biodiversity evolution studies",
         description: "For INSPIRE-represented observational data for biodiversity. Reference system identifier, Metadata point of contact...",
         domain: "Biodiversity, Georeferencing",
+        downloadURL: "https://raw.githubusercontent.com/feup-infolab-rdm/dendro-ontologies/master/BIODIV/BIODIV_17Jun_1557.owl",
         domain_specific: true
     },
     biocn: {
@@ -514,6 +525,7 @@ Config.enabledOntologies = {
         label: "Biological Oceanography",
         description: "Biological Oceanography observational and experimental studies...Life stage, Species count, individualPerSpecie...",
         domain: "Biological Oceanography",
+        downloadURL: "https://raw.githubusercontent.com/feup-infolab-rdm/dendro-ontologies/master/BIOOC/BioOc.owl",
         domain_specific: true
     },
     grav: {
@@ -523,6 +535,7 @@ Config.enabledOntologies = {
         label: "Gravimetry",
         description: "Gravimetry observational and experimental studies...Altitude resolution; Beginning time...",
         domain: "Gravimetry",
+        downloadURL: "https://raw.githubusercontent.com/feup-infolab-rdm/dendro-ontologies/master/GRAVIMETRY/gravimetry.owl",
         domain_specific: true
     },
     hdg: {
@@ -532,6 +545,7 @@ Config.enabledOntologies = {
         label: "Hydrogen Generation",
         description: "Hydrogen Generation experimental studies...Catalyst; Reagent...",
         domain: "Hydrogen Generation",
+        downloadURL: "https://raw.githubusercontent.com/feup-infolab-rdm/dendro-ontologies/master/HYDROGEN/hydrogen.owl",
         domain_specific: true
     },
     tsim: {
@@ -541,6 +555,7 @@ Config.enabledOntologies = {
         label: "Traffic Simulation",
         description: "Traffic Simulation studies...Driving cycle; Vehicle Mass...",
         domain: "Traffic Simulation",
+        downloadURL: "https://raw.githubusercontent.com/feup-infolab-rdm/dendro-ontologies/master/TRAFFIC_SIM/trafficSimDendro.owl",
         domain_specific: true
     },
     cep: {
@@ -550,6 +565,7 @@ Config.enabledOntologies = {
         label: "Cutting and Packing",
         description: "Cutting and packing optimization strategies...Solver configuration, Optimization strategy, Heuristics used...",
         domain: "Algorithms and optimization",
+        downloadURL: "https://raw.githubusercontent.com/feup-infolab-rdm/dendro-ontologies/master/CUTTING_PACKING/cep.owl",
         domain_specific: true
     },
     social: {
@@ -559,6 +575,7 @@ Config.enabledOntologies = {
         label: "Social Studies",
         description: "Social and Behavioural Studies... Methodology, Sample procedure, Kind of data...",
         domain: "Social and Behavioural Science",
+        downloadURL: "https://raw.githubusercontent.com/feup-infolab/dendro-ontologies/master/SOCIAL_STUDIES/SocialStudies.owl",
         domain_specific: true
     },
     cfd: {
@@ -568,6 +585,7 @@ Config.enabledOntologies = {
         label: "Fluid Dynamics",
         description: "Computational Fluid Dynamics... Flow Case, Initial Condition, Temporal Discretization...",
         domain: "Computational Fluid Dynamics",
+        downloadURL: "https://raw.githubusercontent.com/feup-infolab-rdm/dendro-ontologies/master/COMPUTATIONAL_FLUID_DYNAMICS/cfd.owl",
         domain_specific: true
     },
     tvu: {
@@ -577,6 +595,7 @@ Config.enabledOntologies = {
         label: "Audiovisual Content",
         description: "Concepts for the description of datasets generated in the scope of audiovisual production",
         domain: "Audiovisual",
+        downloadURL: "https://raw.githubusercontent.com/feup-infolab/dendro-ontologies/master/TVU/TVU_XML.owl",
         domain_specific: true
     },
     po: {
@@ -586,6 +605,7 @@ Config.enabledOntologies = {
         label: "Programmes Ontology",
         description: "A vocabulary for programme data. It defines concepts such as brands, series, episodes, broadcasts, etc.",
         domain: "Programmes",
+        downloadURL: "https://raw.githubusercontent.com/feup-infolab/dendro-ontologies/master/PO/1.1.ttl",
         domain_specific: true
     },
     schema: {
@@ -595,6 +615,7 @@ Config.enabledOntologies = {
         label: "Schema.org",
         description: "General Purpose schema",
         domain: "Generic",
+        downloadURL: "http://datashapes.org/schema.rdf",
         domain_specific: false
     },
     ddiup: {
@@ -604,6 +625,7 @@ Config.enabledOntologies = {
         label: "Data Documentation Initiative (DDI)",
         description: "Elements for the description of  data produced by surveys and other observational methods in the social, behavioral, economic, and health sciences",
         domain: "Generic",
+        downloadURL: "https://raw.githubusercontent.com/feup-infolab/dendro-ontologies/master/DDI_UP/ddi_up_ontology_2.0.rdf",
         domain_specific: false
     },
     disco: {
@@ -613,6 +635,7 @@ Config.enabledOntologies = {
         label: "DDI-RDF Discovery Vocabulary",
         description: "A vocabulary for publishing metadata about data sets (research and survey data) into the Web of Linked Data",
         domain: "Generic",
+        downloadURL: "https://raw.githubusercontent.com/feup-infolab/dendro-ontologies/master/DISCOVERY/discovery.rdf",
         domain_specific: false
     },
     ssn: {
@@ -622,6 +645,7 @@ Config.enabledOntologies = {
         label: "Semantic Sensor Network",
         description: "Describes sensors and observations, and related concepts. It does not describe domain concepts, time, locations, etc. these are intended to be included from other ontologies via OWL imports.",
         domain: "Sensors and Observations",
+        downloadURL: "https://raw.githubusercontent.com/feup-infolab/dendro-ontologies/master/SSN/SSN.owl",
         domain_specific: true
     },
     m3lite: {
@@ -631,6 +655,7 @@ Config.enabledOntologies = {
         label: "M3-lite Taxonomy",
         description: "A taxonomy that enables testbeds to semantically annotate the IoT data produced by heterogeneous devices. In this taxonomy, we classify devices, the domain of interests (health, smart home, smart kitchen, environmental monitoring, etc.), phenomena and unit of measurements",
         domain: "IoT",
+        downloadURL: "https://raw.githubusercontent.com/feup-infolab/dendro-ontologies/master/M3-LITE/M3-lite.owl",
         domain_specific: true
     }
 };
@@ -951,7 +976,7 @@ if (process.env.NODE_ENV === "production")
 
         // THANK YOU VIRTUOSO! ONLY ONE CONNECTION OTHERWISE DATABASE CRASHES
         // (Communications Link Failure), EVEN THOUGH I AM CONTROLLING
-        // SIMULTANEOUS CONNECTIONS WITH A QUEUE.
+        // SIMULTANEOUS CONNECTIONS with A QUEUE.
         Config.maxSimultaneousConnectionsToDb = 1;
     }
 }

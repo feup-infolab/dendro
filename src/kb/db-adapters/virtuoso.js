@@ -564,7 +564,7 @@ class VirtuosoConnection extends DbConnection
     {
         // silvae86
         // THIS FUNCTION IS A CONSEQUENCE OF VIRTUOSO's QUALITY AND MY STUPIDITY
-        // CONNECTIONS ARE NEVER CLOSED EVEN WITH PURGE METHOD!!!!
+        // CONNECTIONS ARE NEVER CLOSED EVEN with PURGE METHOD!!!!
         const self = this;
 
         const closeConnectionPool = function (cb)
