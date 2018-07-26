@@ -2,6 +2,7 @@ const util = require("util");
 const async = require("async");
 
 const rlequire = require("rlequire");
+const uuid = require("uuid");
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
@@ -389,7 +390,21 @@ class FusekiConnection extends DbConnection
         });
     }
 
-    executeViaHTTP (queryStringWithArguments, argumentsArray, callback, resultsFormat, maxRows, loglevel)
+    execute (queryStringWithArguments, argumentsArray, callback, options)
+    {
+        const self = this;
+
+        if(options instanceof Object)
+        {
+            self._executeViaHTTP(queryStringWithArguments, argumentsArray, callback, options.resultsFormat, options.maxRows, options.runAsUpdate);
+        }
+        else
+        {
+            self._executeViaHTTP(queryStringWithArguments, argumentsArray, callback);
+        }
+    }
+
+    _executeViaHTTP (queryStringWithArguments, argumentsArray, callback, resultsFormat, maxRows, runAsUpdate)
     {
         const self = this;
 
@@ -417,9 +432,17 @@ class FusekiConnection extends DbConnection
                         fullUrl = fullUrl + ":" + self.port;
                     }
 
-                    fullUrl = fullUrl + "/sparql";
+                    fullUrl = fullUrl + "/" + self.dataset;
 
-                    const uuid = require("uuid");
+                    if(runAsUpdate)
+                    {
+                        fullUrl = fullUrl + "/sparql";
+                    }
+                    else
+                    {
+                        fullUrl = fullUrl + "/update";
+                    }
+
                     const newQueryId = uuid.v4();
                     self.queue_http.push({
                         queryStartTime: new Date(),

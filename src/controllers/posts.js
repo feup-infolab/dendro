@@ -572,7 +572,7 @@ const removeOrAddLike = function (postID, userUri, cb)
                         {
                             cb(true, "Error fetching children of project root folder");
                         }
-                    },{
+                    }, {
                         runAsUpdate: true
                     });
             };

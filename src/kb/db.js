@@ -533,7 +533,7 @@ class DbConnection
         throw new Error("This can only be called from subclasses!");
     }
 
-    execute(queryStringWithArguments, argumentsArray, callback, options)
+    execute (queryStringWithArguments, argumentsArray, callback, options)
     {
         throw new Error("This can only be called from subclasses!");
     }
@@ -600,7 +600,7 @@ class DbConnection
                     }
                     return callback(1, ("Error inserting triple " + triple.subject + " " + triple.predicate + " " + triple.object + "\n").substr(0, 200) + " . Server returned " + error);
                 }
-            ),{
+            ), {
                 runAsUpdate: true
             };
         };
@@ -809,7 +809,7 @@ class DbConnection
                 self.execute(query, queryArguments, function (err, results)
                 {
                     return callback(err, results);
-                },{
+                }, {
                     runAsUpdate: true
                 });
             };

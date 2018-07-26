@@ -135,7 +135,7 @@ const removeOrAdLikeFileVersion = function (fileVersionUri, currentUserUri, cb)
                                 {
                                     cb(true, "Error Liking a fileVersion");
                                 }
-                            },{
+                            }, {
                                 runAsUpdate: true
                             });
                     };

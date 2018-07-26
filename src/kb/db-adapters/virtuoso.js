@@ -687,7 +687,7 @@ class VirtuosoConnection extends DbConnection
         const sendCheckpointCommand = function (callback)
         {
             Logger.log("Committing pending transactions via checkpoint; command before shutting down virtuoso....");
-            self.executeViaJDBC(
+            self._executeViaJDBC(
                 "EXEC=checkpoint;",
                 [],
                 function (err, result)
@@ -716,7 +716,7 @@ class VirtuosoConnection extends DbConnection
             // if (Config.docker.active && Config.docker.start_and_stop_containers_automatically)
             // {
             //     Logger.log("Shutting down virtuoso....!");
-            //     self.executeViaJDBC(
+            //     self._executeViaJDBC(
             //         "EXEC=checkpoint; shutdown;",
             //         [],
             //         function (err, result)
@@ -753,25 +753,24 @@ class VirtuosoConnection extends DbConnection
         });
     }
 
-    execute(queryStringWithArguments, argumentsArray, callback, options)
+    execute (queryStringWithArguments, argumentsArray, callback, options)
     {
         const self = this;
-        if(self.virtuosoConnector === "http")
+        if (self.virtuosoConnector === "http")
         {
-
+            self._executeViaHTTP(queryStringWithArguments, arguments, callback, options.resultsFormat, options.maxRows, options.logLevel);
         }
-        else if(self.virtuosoConnector === "jdbc")
+        else if (self.virtuosoConnector === "jdbc")
         {
-
+            self._executeViaJDBC(queryStringWithArguments, arguments, callback, options.resultsFormat, options.maxRows, options.logLevel, options.runAsUpdate, options.notSPARQL);
         }
         else
         {
             throw new Error("Invalid virtuoso connector type: " + self.virtuosoConnector);
         }
-
     }
 
-    executeViaHTTP (queryStringWithArguments, argumentsArray, callback, resultsFormat, maxRows, loglevel)
+    _executeViaHTTP (queryStringWithArguments, argumentsArray, callback, resultsFormat, maxRows, loglevel)
     {
         const self = this;
 
@@ -838,7 +837,7 @@ class VirtuosoConnection extends DbConnection
         });
     }
 
-    executeViaJDBC (queryStringOrArray, argumentsArray, callback, resultsFormat, maxRows, loglevel, runAsUpdate, notSPARQL)
+    _executeViaJDBC (queryStringOrArray, argumentsArray, callback, resultsFormat, maxRows, loglevel, runAsUpdate, notSPARQL)
     {
         const self = this;
 
@@ -899,7 +898,7 @@ class VirtuosoConnection extends DbConnection
 
         const runQuery = function (callback)
         {
-            self.executeViaJDBC("CLEAR GRAPH <" + graphUri + ">",
+            self._executeViaJDBC("CLEAR GRAPH <" + graphUri + ">",
                 [],
                 function (err, resultsOrErrMessage)
                 {
@@ -940,7 +939,7 @@ class VirtuosoConnection extends DbConnection
     {
         const self = this;
 
-        self.executeViaJDBC("ASK { GRAPH [0] { ?s ?p ?o . } }",
+        self._executeViaJDBC("ASK { GRAPH [0] { ?s ?p ?o . } }",
             [
                 {
                     type: Elements.types.resourceNoEscape,
