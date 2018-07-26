@@ -43,6 +43,7 @@ describe("Searches DBpedia for important terms", function (done)
         });
     });
 
+    let article;
 
     describe("[POST] [PRIVATE PROJECT] [Valid Cases] /project/" + privateProject.handle + "/data/:foldername?upload", function ()
     {
@@ -62,7 +63,7 @@ describe("Searches DBpedia for important terms", function (done)
                     {
                         res.statusCode.should.equal(200);
                         res.body.descriptors.should.be.instanceof(Array);
-                        artigo = JSON.parse(res.text).descriptors[7].value;
+                        article = JSON.parse(res.text).descriptors[7].value;
                         descriptorUtils.noPrivateDescriptors(JSON.parse(res.text).descriptors).should.equal(true);
 
                         descriptorUtils.containsAllMetadata(
@@ -76,81 +77,7 @@ describe("Searches DBpedia for important terms", function (done)
             });
         });
     });
-    // let artigo;
-    // describe("[GET] /keywords/conceptextraction", function ()
-    // {
-    //     it("[HTML] Simple test to extract POS and lemma", function (done)
-    //     {
-    //         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-    //         {
-    //             keywordsUtils.preProcessing("a really Interesting string with some words", agent, function (err, res)
-    //             {
-    //                 res.statusCode.should.equal(200);
-    //                 // console.log(res.text);
-    //                 res.text.should.contain("interesting");
-    //                 res.text.should.contain("string");
-    //                 res.text.should.contain("word");
-    //                 done();
-    //             });
-    //         });
-    //     });
-    //     it("[GET] single term extraction", function (done)
-    //     {
-    //         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-    //         {
-    //             // console.log(artigo.toString());
-    //             keywordsUtils.preProcessing(artigo, agent, function (err, res)
-    //             {
-    //                 res.statusCode.should.equal(200);
-    //                 res.text.should.contain("introduction");
-    //                 // console.log(res.text);
-    //                 // res.text.should.contain("science");
-    //                 keywordsUtils.termExtraction([res.text], [artigo.toString()], agent, function (err, te)
-    //                 {
-    //                     te.statusCode.should.equal(200);
-    //                     // te.text.should.contain("google");
-    //                     // te.text.should.contain("kaggle");
-    //                     // te.text.should.contain("3.068528194400547");
-    //                     // te.text.should.contain("3.068528194400547");
-    //
-    //                     done();
-    //                 });
-    //             });
-    //         });
-    //     });
-    //     it("[Get] DBpedia lookup higher frequency items", function (done)
-    //     {
-    //         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-    //         {
-    //             // console.log(artigo.toString());
-    //             keywordsUtils.preProcessing(artigo, agent, function (err, res)
-    //             {
-    //                 res.statusCode.should.equal(200);
-    //                 res.text.should.contain("introduction");
-    //                 // console.log(res.text);
-    //                 // res.text.should.contain("science");
-    //                 keywordsUtils.termExtraction([res.text], [artigo.toString()], agent, function (err, te)
-    //                 {
-    //                     te.statusCode.should.equal(200);
-    //                     console.log(te.text);
-    //                     // te.text.should.contain("google");
-    //                     // te.text.should.contain("kaggle");
-    //                     // te.text.should.contain("3.068528194400547");
-    //                     // te.text.should.contain("3.068528194400547");
-    //
-    //                     keywordsUtils.dbpediaLookup(te.text, agent, function (err, db)
-    //                     {
-    //                         db.statusCode.should.equal(200);
-    //                         console.log(db.body.dbpediaUri.result);
-    //                         // db.text.should.contain("Google");
-    //                         // db.text.should.contain("Kaggle");
-    //                         done();
-    //                     });
-    //                 });
-    //             });
-    //         });
-    //     });
-    // });
+
 
     describe("[GET] Complete path using all 5 files", function ()
     {
@@ -204,7 +131,7 @@ describe("Searches DBpedia for important terms", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                keywordsUtils.processExtract(articles, agent, function (err, te)
+                keywordsUtils.processExtract({method:"CValueJJ", text:articles}, agent, function (err, te)
                 {
                     te.statusCode.should.equal(200);
                     // console.log(te.text);
@@ -252,6 +179,15 @@ describe("Searches DBpedia for important terms", function (done)
             });
         });
 */
+        it("Should cluster terms", function (done)
+        {
+            this.timeout(1500000);
+            keywordsUtils.clustering(dbpediaTerms, agent, function (err, db)
+            {
+                db.statusCode.should.equal(200);
+                done();
+            });
+        });
 
         let dbpediaConcepts = [];
         it("Search terms in dbpedia", function (done)

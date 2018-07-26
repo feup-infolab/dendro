@@ -105,7 +105,7 @@ describe("Searches DBpedia for important terms", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                keywordsUtils.processExtract(articles, agent, function (err, te)
+                keywordsUtils.processExtract({method:"CValueJJ", text:articles}, agent, function (err, te)
                 {
                     te.statusCode.should.equal(200);
                     dbpediaTerms = te.body.output.dbpediaTerms.keywords;
@@ -115,17 +115,10 @@ describe("Searches DBpedia for important terms", function (done)
                 });
             });
         });
-        it("Cluster terms", function (done)
-        {
-            this.timeout(1500000);
-            keywordsUtils.clustering(dbpediaTerms, agent, function (err, db)
-            {
-                done();
-            });
-        });
+
 
         let dbpediaConcepts = [];
-        it("Search terms in dbpedia", function (done)
+        it("Should search terms in dbpedia", function (done)
         {
             this.timeout(1500000);
             // console.log(agent);
@@ -154,7 +147,7 @@ describe("Searches DBpedia for important terms", function (done)
                 done();
             });
         });
-        it("Get properties from DBpedia", function (done)
+        it("Get properties from LOV", function (done)
         {
             this.timeout(1500000);
             keywordsUtils.dbpediaProperties(dbpediaConcepts, agent, function (err, db)

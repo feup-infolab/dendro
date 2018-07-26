@@ -42,7 +42,6 @@ exports.processExtract = function (req, res) {
             }
         });
     };
-
     method = req.body.method;
     async.mapSeries(req.body.text, process, function (err, results) {
         if (err) {

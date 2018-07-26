@@ -22,7 +22,7 @@ module.exports.loadfiles = function (text, agent, cb)
         });
 };
 
-module.exports.processextract = function (text, agent, cb)
+module.exports.processExtract = function (text, agent, cb)
 {
     const path = "/keywords/processExtract";
     agent
@@ -42,7 +42,7 @@ module.exports.processextract = function (text, agent, cb)
         });
 };
 
-module.exports.preprocessing = function (text, agent, cb)
+module.exports.preProcessing = function (text, agent, cb)
 {
     const path = "/keywords/preProcessing";
     agent
@@ -62,7 +62,7 @@ module.exports.preprocessing = function (text, agent, cb)
         });
 };
 
-module.exports.termextraction = function (text, documents, agent, cb)
+module.exports.termExtraction = function (text, documents, agent, cb)
 {
     const path = "/keywords/termExtraction";
 
@@ -97,7 +97,7 @@ module.exports.termextraction = function (text, documents, agent, cb)
 //         });
 // };
 
-module.exports.dbpedialookup = function (text, agent, cb)
+module.exports.dbpediaLookup = function (text, agent, cb)
 {
     const path = "/keywords/dbpediaLookup";
     agent
@@ -121,7 +121,7 @@ module.exports.dbpedialookup = function (text, agent, cb)
         });
 };
 
-module.exports.dbpediaproperties = function (text, agent, cb)
+module.exports.dbpediaProperties = function (text, agent, cb)
 {
     const path = "/keywords/dbpediaProperties";
     agent
