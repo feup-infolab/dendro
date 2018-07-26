@@ -942,6 +942,57 @@ InformationElement.isSafePath = function (absPath, callback)
     });
 };
 
+InformationElement.getOwnerUri = function (resourceUri, callback){
+
+  /**
+   *   Note the sign (*) on the nie:isLogicalPartOf* of the query below.
+   *    (Recursive querying through inference).
+   *   @type {string}
+   */
+  const query =
+    "SELECT ?uri \n" +
+    "FROM [0] \n" +
+    "WHERE \n" +
+    "{ \n" +
+    "   [1] nie:isLogicalPartOf+ ?uri \n" +
+    "   FILTER EXISTS { \n" +
+    "       ?uri rdf:type ?parents . \n" +
+    "       VALUES ?parents {ddr:Project ddr:Registry} \n" +
+    "   }\n" +
+    "} ";
+
+  db.connection.executeViaJDBC(query,
+    [
+      {
+        type: Elements.types.resourceNoEscape,
+        value: db.graphUri
+      },
+      {
+        type: Elements.types.resource,
+        value: resourceUri
+      }
+    ],
+    function (err, result)
+    {
+      if (isNull(err))
+      {
+        if (result instanceof Array && result.length === 1)
+        {
+            callback(null, result[0].uri)
+        }
+        else
+        {
+          return callback(1, "Invalid result set when querying for the parent project of" + resourceUri);
+        }
+      }
+      else
+      {
+        return callback(1, "Error reported when querying for the parent resource of" + resourceUri + " . Error was ->" + result);
+      }
+    }
+  );
+}
+
 InformationElement.prototype.findMetadata = function (callback, typeConfigsToRetain, recursive)
 {
     const async = require("async");
