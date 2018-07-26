@@ -1077,6 +1077,29 @@ InformationElement.prototype.findMetadata = function (callback, typeConfigsToRet
     }, null, null, null, [Elements.access_types.private], [Elements.access_types.api_readable]);
 };
 
+InformationElement.prototype.saveMetadata = function({absolutePathOfFinishedFolder, metadata}, cb){
+  const fs = require("fs");
+  const path = require("path");
+  const outputFilename = path.join(absolutePathOfFinishedFolder, Config.packageMetadataFileName);
+
+  Logger.log("FINAL METADATA : " + JSON.stringify(metadata));
+
+  fs.writeFile(outputFilename, JSON.stringify(metadata, null, 4), "utf-8", function (err)
+  {
+    if (err)
+    {
+      Logger.log(err);
+      cb(err);
+    }
+    else
+    {
+      const msg = "JSON saved to " + outputFilename;
+      Logger.log(msg);
+      cb(null);
+    }
+  });
+}
+
 InformationElement.prototype.containedIn = function (parentResource, callback, customGraphUri)
 {
     const self = this;

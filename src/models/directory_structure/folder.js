@@ -367,25 +367,8 @@ Folder.prototype.zipAndDownload = function (includeMetadata, callback, bagItOpti
                 {
                     if (includeMetadata)
                     {
-                        const fs = require("fs");
-
-                        const outputFilename = path.join(absolutePathOfFinishedFolder, Config.packageMetadataFileName);
-
-                        Logger.log("FINAL METADATA : " + JSON.stringify(metadata));
-
-                        fs.writeFile(outputFilename, JSON.stringify(metadata, null, 4), "utf-8", function (err)
-                        {
-                            if (err)
-                            {
-                                Logger.log(err);
-                                cb(err);
-                            }
-                            else
-                            {
-                                const msg = "JSON saved to " + outputFilename;
-                                Logger.log(msg);
-                                cb(null);
-                            }
+                        self.saveMetadata({absolutePathOfFinishedFolder, metadata}, function(err){
+                           cb(err);
                         });
                     }
                     else
@@ -449,21 +432,40 @@ Folder.prototype.copyPaste = function ({includeMetadata, user, destinationFolder
   const self = this;
   self.createTempFolderWithContents(includeMetadata, false, false, function (err, parentFolderPath, absolutePathOfFinishedFolder, metadata) {
     if (isNull(err)) {
-        Logger.log("Preparing to copy paste contents of folder : " + absolutePathOfFinishedFolder);
-        destinationFolder.restoreFromFolder(absolutePathOfFinishedFolder, user, true, false, function(err, result)
+      async.series([
+        function (cb)
         {
-          if (isNull(err))
+          if (includeMetadata)
           {
-            Folder.deleteOnLocalFileSystem(absolutePathOfFinishedFolder, function (err, result) {
-              //self.undelete(callback, userRestoringTheFolder.uri, true);
-              callback(null, "copied folder successfully.");
+            self.saveMetadata({absolutePathOfFinishedFolder, metadata}, function(err){
+              cb(err);
             });
           }
           else
           {
-            return callback(err, "Unable to copy folder " + self.uri + " to another folder.");
+            cb(null);
           }
-        }, true);
+        }], function(err){
+          if(isNull(err)){
+            Logger.log("Preparing to copy paste contents of folder : " + absolutePathOfFinishedFolder);
+            destinationFolder.restoreFromFolder(absolutePathOfFinishedFolder, user, true, false, function(err, result)
+            {
+              if (isNull(err))
+              {
+                Folder.deleteOnLocalFileSystem(absolutePathOfFinishedFolder, function (err, result) {
+                  //self.undelete(callback, userRestoringTheFolder.uri, true);
+                  callback(null, "copied folder successfully.");
+                });
+              }
+              else
+              {
+                return callback(err, "Unable to copy folder " + self.uri + " to another folder.");
+              }
+            }, true);
+          }
+
+      });
+
     }else{
         //callback()
     }
