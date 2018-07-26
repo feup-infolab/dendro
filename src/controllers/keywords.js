@@ -7,16 +7,16 @@ let stringSimilarity = require("string-similarity");
 let stripTags = require("striptags");
 
 let stopWords = require("stopwords").english;
-const corenlp = require("corenlp");
-const coreNLP = corenlp.default;
-const connector = new corenlp.ConnectorServer({
+const coreNlp = require("corenlp");
+const coreNLP = coreNlp.default;
+const connector = new coreNlp.ConnectorServer({
     dsn: "http://localhost:9000"
 });
 
-const props = new corenlp.Properties({
+const props = new coreNlp.Properties({
     annotators: "tokenize,ssplit,pos,ner"
 });
-const pipeline = new corenlp.Pipeline(props, "English", connector);
+const pipeline = new coreNlp.Pipeline(props, "English", connector);
 
 let doc;
 let method;
@@ -77,7 +77,7 @@ exports.preProcessing = function (req, res) {
         if (type === "nn") {
             for (let j = 0; j < text.length; j++) {
                 comparision = text[j];
-                if (comparision.pos.charAt(0) === "N" && /^[a-zA-Z\/\-]+$/.test(comparision.lemma)) {
+                if (comparision.pos.charAt(0) === "N" && /^[a-zA-Z\\-]+$/.test(comparision.lemma)) {
                     if (stopWords.indexOf(comparision.lemma.toLowerCase()) > -1 || comparision.lemma.toString().length < 3 || comparision.ner.toString() === "PERSON" || comparision.ner.toString() === "LOCATION" || comparision.ner.toString() === "DATE" || comparision.ner.toString() === "TIME") {
                         // console.log(comparision.lemma.toString());
                     }
@@ -85,7 +85,7 @@ exports.preProcessing = function (req, res) {
                         current_word = comparision.lemma;
                         for (let index2 = j + 1; index2 < text.length; index2++) {
                             comparision = text[index2];
-                            if (comparision.pos.charAt(0) === "N" && /^[a-zA-Z\/\-]+$/.test(comparision.lemma)) {
+                            if (comparision.pos.charAt(0) === "N" && /^[a-zA-Z\\-]+$/.test(comparision.lemma)) {
                                 if (stopWords.indexOf(comparision.lemma.toLowerCase()) > -1 || comparision.lemma.toString().length < 3 || comparision.ner.toString() === "PERSON" || comparision.ner.toString() === "LOCATION" || comparision.ner.toString() === "DATE" || comparision.ner.toString() === "TIME") {
                                     // console.log(comparision.lemma.toString());
                                     break;
@@ -104,7 +104,7 @@ exports.preProcessing = function (req, res) {
         else if (type === "jj") {
             for (let j = 0; j < text.length; j++) {
                 comparision = text[j];
-                if ((comparision.pos.charAt(0) === "N" || comparision.pos.charAt(0) === "J") && /^[a-zA-Z\/\-]+$/.test(comparision.lemma)) {
+                if ((comparision.pos.charAt(0) === "N" || comparision.pos.charAt(0) === "J") && /^[a-zA-Z\\-]+$/.test(comparision.lemma)) {
                     if (stopWords.indexOf(comparision.lemma.toLowerCase()) > -1 || comparision.lemma.toString().length < 3 || comparision.ner.toString() === "PERSON" || comparision.ner.toString() === "LOCATION" || comparision.ner.toString() === "DATE" || comparision.ner.toString() === "TIME") {
                         // console.log(comparision.word);
                     }
@@ -112,18 +112,18 @@ exports.preProcessing = function (req, res) {
                         current_word = comparision.lemma;
                         for (let index2 = j + 1; index2 < text.length; index2++) {
                             comparision = text[index2];
-                            if (comparision.pos.charAt(0) === "N" && /^[a-zA-Z\/\-]+$/.test(comparision.lemma)) {
+                            if (comparision.pos.charAt(0) === "N" && /^[a-zA-Z\\-]+$/.test(comparision.lemma)) {
                                 if (stopWords.indexOf(comparision.lemma.toLowerCase()) > -1 || comparision.lemma.toString().length < 3 || comparision.ner.toString() === "PERSON" || comparision.ner.toString() === "LOCATION" || comparision.ner.toString() === "DATE" || comparision.ner.toString() === "TIME") {
                                     break;
                                 }
                                 current_word += (" " + comparision.lemma);
                                 multiTerm.push(current_word.toLowerCase());
                             }
-                            else if (comparision.pos.charAt(0) === "J" && /^[a-zA-Z\/\-]+$/.test(comparision.lemma)) {
+                            else if (comparision.pos.charAt(0) === "J" && /^[a-zA-Z\\-]+$/.test(comparision.lemma)) {
                                 if (stopWords.indexOf(comparision.lemma.toLowerCase()) > -1 || comparision.lemma.toString().length < 3 || comparision.ner.toString() === "PERSON" || comparision.ner.toString() === "LOCATION" || comparision.ner.toString() === "DATE" || comparision.ner.toString() === "TIME") {
                                     break;
                                 }
-                                if ((text[(index2 + 1)].pos.charAt(0) === "N" || text[(index2 + 1)].pos.charAt(0) === "J") && /^[a-zA-Z\/\-]+$/.test(text[(index2 + 1)].lemma)) {
+                                if ((text[(index2 + 1)].pos.charAt(0) === "N" || text[(index2 + 1)].pos.charAt(0) === "J") && /^[a-zA-Z\\-]+$/.test(text[(index2 + 1)].lemma)) {
                                     current_word += (" " + comparision.lemma);
                                 }
                                 else {
@@ -160,7 +160,7 @@ exports.preProcessing = function (req, res) {
                     comparision = JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j];
                     // console.log(comparision.word + " " + comparision.lemma);
 
-                    if (!/^[a-zA-Z\/\-]+$/.test(comparision.word) || comparision.word.indexOf("www") + 1 || comparision.word.indexOf("http") + 1 || comparision.word.indexOf("@") + 1 || hasNumber(comparision.word) || comparision.ner.toString() === "DATE" || comparision.ner.toString() === "TIME") {
+                    if (!/^[a-zA-Z\\-]+$/.test(comparision.word) || comparision.word.indexOf("www") + 1 || comparision.word.indexOf("http") + 1 || comparision.word.indexOf("@") + 1 || hasNumber(comparision.word) || comparision.ner.toString() === "DATE" || comparision.ner.toString() === "TIME") {
                         sentences.push(comparision.word);
                     }
                     else {
@@ -313,52 +313,44 @@ exports.termExtraction = function (req, res) {
         }
         return nestedList;
     };
-    /*
-    function countnestedterms (x, list)
+/*
+    function countNestedTerms (x, list)
     {
-        var nested = 0;
-        var nestedlist = [];
-        for (var i = 0; i < list.length; i++)
+        let nested = 0;
+        let nestedList = [];
+        for (let i = 0; i < list.length; i++)
         {
             if (tokenizer.tokenize(list[i]).length > tokenizer.tokenize(x).length)
             {
                 if (list[i].indexOf(x) > -1)
                 {
                     nested++;
-                    if (nestedlist.indexOf(list[i]) > -1)
+                    if (nestedList.indexOf(list[i]) > -1)
                     {
 
                     }
                     else
                     {
-                        nestedlist.push(list[i]);
+                        nestedList.push(list[i]);
                     }
                 }
             }
         }
-        return {nested: nested, nestedlist: nestedlist};
+        return {nested: nested, nestedList: nestedList};
 
-        let c = 0;
-        for (let y = 0; y < list.length; y++)
-        {
-            if (list[y].toString().includes(x.toString()) && list[y].toString() !== x.toString())
-            {
-                c++;
-            }
-        }
-        return c;
+
     }
-    function getcombination (word)
+    function getCombination (word)
     {
-        let combinationwords = [];
+        let combinationWords = [];
         for (let i = 0; i < tokenizer.tokenize(word).length; i++)
         {
             if ((i + 1) < tokenizer.tokenize(word).length)
             {
-                combinationwords.push(tokenizer.tokenize(word)[i] + " " + tokenizer.tokenize(word)[i + 1]);
+                combinationWords.push(tokenizer.tokenize(word)[i] + " " + tokenizer.tokenize(word)[i + 1]);
             }
         }
-        return combinationwords;
+        return combinationWords;
     }*/
     let cvalue = function (input, corpus, nGrams) {
         let words = {frequency: []};
@@ -380,22 +372,6 @@ exports.termExtraction = function (req, res) {
                 nestedFreq: 0,
                 nestedTerms: []
             });
-            /* if (frequency > 1 && Math.log2(frequency) >= maxthreshold)
-            {
-              threshold.push({term: input[i], threshold: Math.log2(frequency)});
-              substrings = getcombination(input[i]);
-              console.log(substrings);
-              for (var h = 0; h < substrings.length; h++)
-              {
-                var freq = 0;
-                for (var k = 0; k < corpus.length; k++)
-                {
-                  frequency += occurences(corpus[k].toLowerCase(), substrings[h]);
-                  frequencysubstrings = countnestedterms(substrings[h], input);
-                }
-                usedwords.push(substrings[h]);
-              }
-            }*/
         }
         words.frequency = isNested(words.frequency, nGrams);
         words.frequency = termhood(words.frequency);
@@ -540,26 +516,26 @@ exports.termExtraction = function (req, res) {
         nounPhraseSimple.sort(function (a, b) {
             return tokenizer.tokenize(b).length - tokenizer.tokenize(a).length;
         });
-
-        // var ngrams = [];
-        /* for (let i = 0; i < nounphrasesimple.length; i++)
+/*
+         let nGrams = [];
+         for (let i = 0; i < nounPhraseSimple.length; i++)
             {
-                if (tokenizer.tokenize(nounphrasesimple[i]).length <= 5 && tokenizer.tokenize(nounphrasesimple[i]).length >= 2)
+                if (tokenizer.tokenize(nounPhraseSimple[i]).length <= 5 && tokenizer.tokenize(nounPhraseSimple[i]).length >= 2)
                 {
-                    ngrams.push(nounphrasesimple[i]);
+                    nGrams.push(nounPhraseSimple[i]);
                 }
                 else
                 {
                     // console.log(nounphrasesimple[i]);
                 }
             }
-            ngrams.sort(function (a, b)
+            nGrams.sort(function (a, b)
             {
             // ASC  -> a.length - b.length
             // DESC -> b.length - a.length
                 return tokenizer.tokenize(b).length - tokenizer.tokenize(a).length;
-            });*/
-
+            });
+*/
         let cvaluengrams = cvalue(nounPhraseSimple, documents, tokenizer.tokenize(nounPhraseSimple[0]).length);
         ncvalue(cvaluengrams, cvaluengrams.length);
 
@@ -596,7 +572,6 @@ exports.dbpediaLookup = function (req, res) {
     let searchDb = function (lookup, cb) {
         // baseRequest("http://lookup.dbpedia.org/api/search/PrefixSearch?QueryClass=&MaxHits=25&QueryString=" + lookup.words, function getResponse (error, response, body)
         baseRequest("http://lookup.dbpedia.org/api/search/KeywordSearch?QueryClass=&MaxHits=25&QueryString=" + lookup.words, function getResponse(error, response, body)
-            // baseRequest("http://lov.okfn.org/dataset/lov/api/v2/term/search?q=" + lookup.words + "&type=property", function getResponse (error, response, body)
         {
             if (!error && response.statusCode === 200) {
                 cb(null, JSON.parse(body));
@@ -642,7 +617,6 @@ exports.dbpediaLookup = function (req, res) {
                 }
 
                 else {
-                    // console.log("results for word : " + dbpediaresults[i].words + " undefined");
                     dbpediaUri.result.push({
                         searchTerm: dbpediaResults[i].words,
                         score: dbpediaResults[i].score,
@@ -661,7 +635,7 @@ exports.dbpediaLookup = function (req, res) {
 
 exports.dbpediaProperties = function (req, res) {
     req.setTimeout(2500000);
-    let searchlov = function (dbpedia, cb) {
+    let searchLov = function (dbpedia, cb) {
         baseRequest("http://lov.okfn.org/dataset/lov/api/v2/term/search?q=" + dbpedia.searchTerm + "&type=property", function getResponse(error, response, body) {
             if (!error && response.statusCode === 200) {
                 cb(null, JSON.parse(body));
@@ -673,7 +647,7 @@ exports.dbpediaProperties = function (req, res) {
     };
 
     let dbpediaResults = req.body.concepts;
-    async.mapSeries(dbpediaResults, searchlov, function (err, results) {
+    async.mapSeries(dbpediaResults, searchLov, function (err, results) {
         let dbpediaUri = {
             result: []
         };
@@ -692,7 +666,7 @@ exports.dbpediaProperties = function (req, res) {
                         let similar = 0;
                         for (let x = 0; x < results[i].results.length; x++)
                         {
-                            let current = stringSimilarity.compareTwoStrings(dbpediaresults[i].words, results[i].results[x].uri[0]);
+                            let current = stringSimilarity.compareTwoStrings(dbpediaResults[i].words, results[i].results[x].uri[0]);
                             if (current > similar)
                             {
                                 similar = Number(current);
@@ -701,13 +675,13 @@ exports.dbpediaProperties = function (req, res) {
                         }*/
                     // var ret = results[i].results[position].prefixedName[0].toString().replace(results[i].results[position]["vocabulary.prefix"][0].toString(), "");
                     // console.log("highlight: " + ret);
-                    let lovlabel;
+                    let lovLabel;
                     let lov_highlight;
                     if (Object.values(results[i].results[0].highlight)[0] !== undefined) {
-                        lovlabel = stripTags(Object.values(results[i].results[0].highlight)[0].toString());
+                        lovLabel = stripTags(Object.values(results[i].results[0].highlight)[0].toString());
                     }
                     else {
-                        lovlabel = "";
+                        lovLabel = "";
                     }
                     if (Object.values(results[i].results[0].highlight)[1] !== undefined) {
                         lov_highlight = stripTags(Object.values(results[i].results[0].highlight)[1].toString());
@@ -715,14 +689,14 @@ exports.dbpediaProperties = function (req, res) {
                     else {
                         lov_highlight = "";
                     }
-                    if (!dbpediaUri.result.some(item => item.lovLabel === lovlabel)) {
+                    if (!dbpediaUri.result.some(item => item.lovLabel === lovLabel)) {
                         dbpediaUri.result.push({
                             searchTerm: dbpediaResults[i].searchTerm,
                             score: dbpediaResults[i].score,
                             lovScore: results[i].results[0].score,
                             lovVocabulary: results[i].results[0]["vocabulary.prefix"][0],
                             lovUri: results[i].results[0].uri[0],
-                            lovLabel: lovlabel,
+                            lovLabel: lovLabel,
                             lov_highlight: lov_highlight,
                             lov_label_and_highlight: Object.values(results[i].results[0].highlight)[0]
                         });
@@ -779,8 +753,7 @@ exports.clustering = function (req, res) {
         let similarity = 0;
         let equal = 0;
         if (tokenizer.tokenize(listA[0])[tokenizer.tokenize(listA[0]).length - 1] === tokenizer.tokenize(listB[0])[tokenizer.tokenize(listB[0]).length - 1]) {
-            // console.log(tokenizer.tokenize(listA[0]));
-            // console.log(tokenizer.tokenize(listB[0]));
+
             similarity = (1 / 2);
         }
         else {
