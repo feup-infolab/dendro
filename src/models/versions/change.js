@@ -29,11 +29,14 @@ function Change (object)
 Change.findByAssociatedRevision = function (revisionUri, callback)
 {
     const query =
-        "WITH [0] \n" +
         "SELECT ?uri \n" +
         "WHERE { \n" +
-        "?uri rdf:type ddr:Change . \n" +
-        "?uri ddr:pertainsTo [1] . \n" +
+        "{ \n" +
+        "   GRAPH [0] \n" +
+        "   { \n" +
+        "       ?uri rdf:type ddr:Change . \n" +
+        "       ?uri ddr:pertainsTo [1] . \n" +
+        "   } \n" +
         "} \n";
 
     db.connection.execute(query,

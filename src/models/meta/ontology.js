@@ -91,10 +91,13 @@ Ontology.findByUri = function (uri, callback)
 Ontology.all = function (callback)
 {
     const allOntologiesQuery =
-        "WITH [0] \n" +
         "SELECT ?uri \n" +
-        "WHERE { \n" +
-        "   ?uri rdf:type ddr:Ontology . \n" +
+        "WHERE " +
+        "{ \n" +
+        "   GRAPH [0] \n" +
+        "   { \n" +
+        "       ?uri rdf:type ddr:Ontology . \n" +
+        "   } \n" +
         "} \n";
 
     db.connection.execute(allOntologiesQuery,
@@ -264,11 +267,13 @@ Ontology.initAllFromDatabase = function (callback)
             const getAlternativesForDescriptor = function (elementUri, callback)
             {
                 db.connection.execute(
-                    "WITH [0] \n" +
                     "SELECT ?alternative \n" +
                     "WHERE \n" +
                     "{ \n" +
-                    "   [1] ddr:hasAlternative ?alternative\n" +
+                    "   GRAPH [0] \n" +
+                    "   { \n" +
+                    "       [1] ddr:hasAlternative ?alternative\n" +
+                    "   } \n",
                     "} \n",
                     [
                         {
@@ -308,11 +313,13 @@ Ontology.initAllFromDatabase = function (callback)
             const getRegexForDescriptor = function (elementUri, ontologyUri, callback)
             {
                 db.connection.execute(
-                    "WITH [0] \n" +
                     "SELECT ?regex \n" +
                     "WHERE \n" +
                     "{ \n" +
-                    "   [1] ddr:hasRegex ?regex\n" +
+                    "   GRAPH [0] \n" +
+                    "   { \n" +
+                    "       [1] ddr:hasRegex ?regex\n" +
+                    "   } \n",
                     "} \n",
                     [
                         {
@@ -839,13 +846,15 @@ Ontology.prototype.save = function (callback)
 Ontology.autocomplete_research_domains = function (query, callback)
 {
     const autocompleteResearchDomainsQuery =
-        "WITH [0] \n" +
         "SELECT * \n" +
         "WHERE \n" +
         "{ \n" +
-        "   ?uri rdf:type ddr:Ontology . \n" +
-        "   ?uri ddr:hasResearchDomain ?domain .\n" +
-        "   FILTER regex(?domain, [1] , \"i\"). \n" +
+        "   GRAPH [0] \n" +
+        "   { \n" +
+        "       ?uri rdf:type ddr:Ontology . \n" +
+        "       ?uri ddr:hasResearchDomain ?domain .\n" +
+        "       FILTER regex(?domain, [1] , \"i\"). \n" +
+        "       } \n" +
         "} \n";
 
     db.connection.execute(autocompleteResearchDomainsQuery,
@@ -892,12 +901,14 @@ Ontology.findByPrefix = function (prefix, callback)
     }
 
     const findByPrefixQuery =
-        "WITH [0] \n" +
         "SELECT * \n" +
         "WHERE \n" +
         "{ \n" +
-        "   ?uri rdf:type ddr:Ontology . \n" +
-        "   ?uri ddr:hasPrefix [1] \n" +
+        "   GRAPH [0] \n" +
+        "   { \n" +
+        "       ?uri rdf:type ddr:Ontology . \n" +
+        "       ?uri ddr:hasPrefix [1] \n" +
+        "   } \n" +
         "} \n";
 
     db.connection.execute(findByPrefixQuery,

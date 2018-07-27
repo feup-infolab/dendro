@@ -33,20 +33,22 @@ ResearchDomain.create = function (object, callback)
 ResearchDomain.findByTitleOrDescription = function (query, callback, maxResults)
 {
     query =
-        "WITH [0] \n" +
         "SELECT DISTINCT (?uri) \n" +
         "WHERE \n" +
         "{ \n" +
-        "   {\n" +
-        "      ?uri rdf:type ddr:ResearchDomain . \n" +
-        "      ?uri dcterms:title ?title .\n" +
-        "      FILTER regex(?title, \"" + query + "\", \"i\")  \n" +
-        "   }\n" +
-        "   UNION \n" +
-        "   {\n" +
-        "       ?uri rdf:type ddr:ResearchDomain . \n" +
-        "       ?uri dcterms:description ?description .\n" +
-        "       FILTER regex(?description, \"" + query + "\", \"i\")  \n" +
+        "   GRAPH [0] \n" +
+        "   { \n" +
+        "       {\n" +
+        "           ?uri rdf:type ddr:ResearchDomain . \n" +
+        "           ?uri dcterms:title ?title .\n" +
+        "           FILTER regex(?title, \"" + query + "\", \"i\")  \n" +
+        "       }\n" +
+        "       UNION \n" +
+        "       {\n" +
+        "           ?uri rdf:type ddr:ResearchDomain . \n" +
+        "           ?uri dcterms:description ?description .\n" +
+        "           FILTER regex(?description, \"" + query + "\", \"i\")  \n" +
+        "       } \n" +
         "   } \n" +
         "} \n";
 

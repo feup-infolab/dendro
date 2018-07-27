@@ -212,17 +212,25 @@ const numFileVersionsDatabaseAux = function (projectUrisArray, callback)
         {
             const projectsUris = fullProjectsUris.join(" ");
             const query =
-                "WITH [0] \n" +
                 "SELECT (COUNT(DISTINCT ?uri) AS ?count) \n" +
-                "WHERE { \n" +
-                "VALUES ?project { \n" +
-                projectsUris +
-                "}\n" +
-                "{?uri rdf:type ddr:FileVersion. }\n" +
-                "UNION \n" +
-                "{?uri ddr:fileVersionUri ?x }\n" +
-                "?uri ddr:projectUri ?project. \n" +
-                "} \n ";
+                "WHERE " +
+                "{ \n" +
+                "   GRAPH [0] \n" +
+                "   { \n" +
+                "       { \n" +
+                "           VALUES ?project { \n" +
+                            projectsUris +
+                "       }\n" +
+                "       {\n" +
+                "           ?uri rdf:type ddr:FileVersion. \n" +
+                "       }\n" +
+                "       UNION \n" +
+                "       {" +
+                "           ?uri ddr:fileVersionUri ?x \n" +
+                "       }\n" +
+                "       ?uri ddr:projectUri ?project. \n" +
+                "   } \n " +
+                "} \n";
 
             db.connection.execute(query,
                 DbConnection.pushLimitsArguments([
@@ -291,8 +299,6 @@ exports.numFileVersionsInDatabase = function (req, res)
 
 const getProjectFileVersions = function (projectUrisArray, startingResultPosition, maxResults, callback)
 {
-    const self = this;
-
     if (projectUrisArray && projectUrisArray.length > 0)
     {
         async.mapSeries(projectUrisArray, function (uri, cb1)
@@ -302,18 +308,26 @@ const getProjectFileVersions = function (projectUrisArray, startingResultPositio
         {
             const projectsUris = fullProjectsUris.join(" ");
             let query =
-                "WITH [0] \n" +
                 "SELECT DISTINCT ?fileVersion \n" +
-                "WHERE { \n" +
-                "VALUES ?project { \n" +
-                projectsUris + "\n" +
-                "}. \n" +
-                "?fileVersion ddr:modified ?date. \n" +
-                "{?fileVersion rdf:type ddr:FileVersion. }\n" +
-                "UNION \n" +
-                "{?fileVersion ddr:fileVersionUri ?x }\n" +
-                "?fileVersion ddr:projectUri ?project. \n" +
-                "} \n " +
+                "WHERE " +
+                "{ \n" +
+                "   GRAPH [0] \n" +
+                "   { \n" +
+                "           VALUES ?project \n" +
+                "           { \n" +
+                                projectsUris + "\n" +
+                "           }. \n" +
+                "           ?fileVersion ddr:modified ?date. \n" +
+                "           {\n" +
+                "               ?fileVersion rdf:type ddr:FileVersion. \n" +
+                "           }\n" +
+                "           UNION \n" +
+                "           {\n" +
+                "               ?fileVersion ddr:fileVersionUri ?x }\n" +
+                "               ?fileVersion ddr:projectUri ?project. \n" +
+                "           } \n " +
+                "   } \n" +
+                "} \n" +
                 "ORDER BY DESC(?date) \n";
 
             query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);

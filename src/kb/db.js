@@ -823,10 +823,12 @@ class DbConnection
             }
 
             const query =
-            "WITH GRAPH [0] \n" +
             "INSERT DATA\n" +
             "{ \n" +
-            insertString + " \n" +
+            "   GRAPH [0] \n" +
+            "   { \n" +
+                insertString + " \n" +
+            "   } \n" +
             "} \n";
 
             const runQuery = function (callback)

@@ -644,13 +644,14 @@ Resource.prototype.descriptorValue = function (descriptorWithNamespaceSeparatedB
 
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
-    db.connection.execute(
-        "WITH [0] \n" +
-            "SELECT ?p ?o \n" +
-            "WHERE " +
-            "{" +
-                " [1] [2] ?o " +
-            "} \n",
+    db.connection.execute("SELECT ?p ?o \n" +
+            "WHERE \n" +
+            "{ \n" +
+            "   GRAPH [0] \n" +
+            "   { \n" +
+            "       [1] [2] ?o \n" +
+            "   } \n",
+            "} \n" +
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -2709,13 +2710,15 @@ Resource.prototype.getArchivedVersions = function (offset, limit, callback, cust
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
     let query =
-        "WITH [0] \n" +
         "SELECT ?uri ?version_number\n" +
         "WHERE \n" +
         "{ \n" +
-        "   ?uri rdf:type ddr:ArchivedResource. \n" +
-        "   ?uri ddr:isVersionOf [1]. \n" +
-        "   ?uri ddr:versionNumber ?version_number. \n" +
+        "   GRAPH [0] \n" +
+        "   { \n" +
+        "       ?uri rdf:type ddr:ArchivedResource. \n" +
+        "       ?uri ddr:isVersionOf [1]. \n" +
+        "       ?uri ddr:versionNumber ?version_number. \n" +
+        "   }\n" +
         "}\n" +
         "ORDER BY DESC(?version_number)\n";
 
@@ -3081,9 +3084,12 @@ Resource.prototype.checkIfHasPredicateValue = function (predicateInPrefixedForm,
         const checkInTripleStore = function (callback)
         {
             const query =
-                "WITH [0] \n" +
-                "ASK {" +
-                "[1] [2] [3] ." +
+                "ASK " +
+                "{\n" +
+                "   GRAPH [0] \n" +
+                "   { \n" +
+                "       [1] [2] [3] .\n" +
+                "   \n}" +
                 "} \n";
 
             db.connection.execute(query,
@@ -3603,19 +3609,19 @@ Resource.deleteAll = function (callback, customGraphUri)
 
 Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function (descriptor, callback, customGraphUri)
 {
-    const async = require("async");
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
     const pagedFetchResourcesWithDescriptor = function (descriptor, page, pageSize, callback)
     {
         const offset = pageSize * page;
-
         db.connection.execute(
-            "WITH [0] \n" +
             "SELECT ?uri \n" +
             "WHERE \n" +
             "{ \n" +
-            "   ?uri [1] [2] \n" +
+            "   WITH [0] \n" +
+            "   { \n" +
+            "       ?uri [1] [2] \n" +
+            "   } \n" +
             "} \n" +
             "LIMIT [3] \n" +
             "OFFSET [4] \n",

@@ -710,11 +710,14 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
     // TODO test query first
 
     const query =
-        "WITH [0] \n" +
         "SELECT ?dataUri \n" +
-        "WHERE { \n" +
-        "?dataUri ddr:modified ?date. \n" +
-        "[1] nie:hasLogicalPart ?dataUri. \n" +
+        "WHERE " +
+        "{ \n" +
+        "   GRAPH [0] \n" +
+        "   { \n" +
+        "       ?dataUri ddr:modified ?date. \n" +
+        "       [1] nie:hasLogicalPart ?dataUri. \n" +
+        "   } \n" +
         "} \n" +
         "ORDER BY DESC(?date) \n";
 
@@ -802,16 +805,19 @@ Project.prototype.getRecentProjectWideChangesSocial = function (callback, starti
     Logger.log("maxResults: ", maxResults);
 
     let query =
-        "WITH [0] \n" +
         "SELECT ?version \n" +
-        "WHERE { \n" +
-        "?version ddr:created ?date. \n" +
-        "filter ( \n" +
-        "xsd:dateTime(?date) >= [2]" + "^^xsd:dateTime" + " ). \n" +
-        "?version rdf:type ddr:ArchivedResource . \n" +
-        " filter ( \n" +
-        "STRSTARTS(STR(?version), [1]) \n" +
-        " ) \n" +
+        "WHERE " +
+        "{ \n" +
+        "   GRAPH [0] \n" +
+        "   { \n" +
+        "       ?version ddr:created ?date. \n" +
+        "       filter ( \n" +
+        "       xsd:dateTime(?date) >= [2]" + "^^xsd:dateTime" + " ). \n" +
+        "       ?version rdf:type ddr:ArchivedResource . \n" +
+        "       filter ( \n" +
+        "           STRSTARTS(STR(?version), [1]) \n" +
+        "       ) \n" +
+        "   } \n" +
         "} \n" +
         "ORDER BY DESC(?date) \n";
 
@@ -871,14 +877,17 @@ Project.prototype.getRecentProjectWideChanges = function (callback, startingResu
     const self = this;
 
     let query =
-        "WITH [0]\n" +
         "SELECT ?version\n" +
-        "WHERE {\n" +
-        "   ?version ddr:created ?date.\n" +
-        "   ?version rdf:type ddr:ArchivedResource .\n" +
-        "   ?version ddr:isVersionOf ?resource.\n" +
-        "   ?resource nie:isLogicalPartOf+ ?parent.\n" +
-        "   [1] ddr:rootFolder ?parent.\n" +
+        "WHERE " +
+        "{\n" +
+        "   GRAPH [0] \n" +
+        "   {\n" +
+        "       ?version ddr:created ?date.\n" +
+        "       ?version rdf:type ddr:ArchivedResource .\n" +
+        "       ?version ddr:isVersionOf ?resource.\n" +
+        "       ?resource nie:isLogicalPartOf+ ?parent.\n" +
+        "       [1] ddr:rootFolder ?parent.\n" +
+        "   }\n" +
         "}\n" +
         "ORDER BY DESC(?date)\n";
 

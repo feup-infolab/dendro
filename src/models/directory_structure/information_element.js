@@ -1011,10 +1011,10 @@ InformationElement.prototype.containedIn = function (parentResource, callback, c
         const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
         db.connection.execute(
-            "WITH [0]\n" +
             "ASK \n" +
             "WHERE \n" +
             "{ \n" +
+            "   GRAPH [0]\n" +
             "   {\n" +
             "       [2] nie:isLogicalPartOf+ [1]. \n" +
             "       [1] nie:hasLogicalPart+ [2]. \n" +
