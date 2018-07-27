@@ -157,16 +157,20 @@ class FusekiConnection extends DbConnection
                             output: "application/sparql-results+json"
                         },
                         form: {
-                            query: queryObject.query,
-                            maxrows: queryObject.maxRows,
-                            format: queryObject.resultsFormat
+                            query: DbConnection.getPrefixTrain() + queryObject.query
+                            // maxrows: queryObject.maxRows,
+                            // format: queryObject.resultsFormat
                         },
-                        json: true,
+                        auth: {
+                            user: self.username,
+                            pass: self.password
+                        },
                         header: {
                             Accept: "application/sparql-results+json"
                         },
-                        forever: true,
                         encoding: "utf8"
+                        // json: true,
+                        // forever: true,
                         // timeout : Config.dbOperationTimeout
                     };
 
@@ -179,6 +183,7 @@ class FusekiConnection extends DbConnection
                         .then(function (body)
                         {
                             delete self.pendingRequests[queryObject.query_id];
+                            body = JSON.parse(body);
                             const transformedResults = [];
                             // iterate through all the rows in the result list
 
@@ -356,7 +361,7 @@ class FusekiConnection extends DbConnection
                     ];
 
                     self.execute(
-                        "CLEAR GRAPH [0]; \n" +
+                        "CLEAR GRAPH [1]; \n" +
                         "LOAD [0] INTO GRAPH [1];",
                         queryArguments,
                         function (err, result)
@@ -391,7 +396,7 @@ class FusekiConnection extends DbConnection
                 });
             };
 
-            async.mapSeries(
+            async.map(
                 self.ontologyGraphs,
                 loadGraphOfOntology,
                 function (err, results)
@@ -645,11 +650,10 @@ class FusekiConnection extends DbConnection
                     }
                     else
                     {
-                        fullUrl = fullUrl + "/sparql";
+                        fullUrl = fullUrl + "/query";
                     }
 
                     const newQueryId = uuid.v4();
-                    query = DbConnection.getPrefixTrain() + query;
                     self.queue_http.push({
                         queryStartTime: new Date(),
                         runAsUpdate: runAsUpdate,

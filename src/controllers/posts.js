@@ -377,18 +377,17 @@ const numPostsDatabaseAux = function (projectUrisArray, callback)
         {
             const projectsUris = fullProjectsUris.join(" ");
             const query =
-                "WITH [0] \n" +
                 "SELECT (COUNT(DISTINCT ?uri) AS ?count) \n" +
-                "WHERE { \n" +
-                "VALUES ?project { \n" +
-                projectsUris +
-                "} \n" +
-                /* "VALUES ?postTypes { \n" +
-                "ddr:Post" + " ddr:Share" + " ddr:MetadataChangePost" + " ddr:FileSystemPost" + " ddr:ManualPost" +
-                "} \n" + */
-                // "?uri rdf:type ?postTypes. \n" +
-                "?uri rdf:type ddr:Post. \n" +
-                "?uri ddr:projectUri ?project. \n" +
+                "WHERE " +
+                "{ \n" +
+                "   GRAPH [0] \n" +
+                "   { \n " +
+                "       VALUES ?project { \n" +
+                            projectsUris +
+                "       } \n" +
+                "       ?uri rdf:type ddr:Post. \n" +
+                "       ?uri ddr:projectUri ?project. \n" +
+                "   } \n " +
                 "} \n ";
 
             db.connection.execute(query,

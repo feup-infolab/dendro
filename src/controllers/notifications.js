@@ -31,13 +31,16 @@ exports.get_unread_user_notifications = function (req, res)
         if (!isNull(userUri))
         {
             let query =
-                "WITH [0] \n" +
                 "SELECT ?uri \n" +
                 "WHERE {\n" +
-                "?uri rdf:type ddr:Notification. \n" +
-                "?uri ddr:resourceAuthorUri [1]. \n" +
-                "?uri ddr:modified ?date. \n" +
-                "?uri foaf:status \"unread\". \n" +
+                "{ \n" +
+                "   GRAPH [0]\n" +
+                "   { \n" +
+                "       ?uri rdf:type ddr:Notification. \n" +
+                "       ?uri ddr:resourceAuthorUri [1]. \n" +
+                "       ?uri ddr:modified ?date. \n" +
+                "       ?uri foaf:status \"unread\". \n" +
+                "   } \n" +
                 "} \n" +
                 "ORDER BY DESC(?date)";
 
