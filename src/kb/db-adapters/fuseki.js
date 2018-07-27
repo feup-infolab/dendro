@@ -3,6 +3,9 @@ const async = require("async");
 const request = require("request");
 
 const rlequire = require("rlequire");
+const fs = require("fs");
+const path = require("path");
+const url = require("url");
 const uuid = require("uuid");
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
@@ -26,6 +29,7 @@ class FusekiConnection extends DbConnection
             pass: self.password
         };
         self.ontologyGraphs = Object.values(options.ontologyGraphs);
+        self.tempFilesDir = path.join(options.tempFilesDir, "fuseki_temp_directory");
     }
 
     create (callback)
@@ -146,7 +150,7 @@ class FusekiConnection extends DbConnection
                 {
                     if (Config.debug.active && Config.debug.database.log_all_queries)
                     {
-                        Logger.log("--POSTING QUERY (HTTP): \n" + queryObject.query);
+                        Logger.log("--POSTING QUERY (HTTP endpoint " + queryObject.fullUrl + "): \n" + queryObject.query);
                     }
 
                     const payload = {
@@ -183,52 +187,52 @@ class FusekiConnection extends DbConnection
                         .then(function (body)
                         {
                             delete self.pendingRequests[queryObject.query_id];
-                            body = JSON.parse(body);
                             const transformedResults = [];
                             // iterate through all the rows in the result list
 
-                            if (!isNull(body.boolean))
+                            if (queryObject.runAsUpdate)
                             {
-                                DbConnection.recordQueryConclusionInLog(queryObject);
-                                popQueueCallback();
-                                queryObject.callback(null, body.boolean);
-                            }
-                            else
-                            {
-                                if (queryObject.runAsUpdate)
+                                const parseString = require("xml2js").parseString;
+                                parseString(body, function (err, result)
                                 {
-                                    const parseString = require("xml2js").parseString;
-                                    parseString(body, function (err, result)
+                                    if (!err)
                                     {
-                                        if (!err)
+                                        let parsedResult;
+                                        try
                                         {
-                                            let parsedResult;
-                                            try
-                                            {
-                                                parsedResult = result.html.body[0].h1[0];
-                                            }
-                                            catch (e)
-                                            {
-                                                queryObject.callback(1, "Invalid response from Fuseki server on update. Returned object was " + result);
-                                            }
+                                            parsedResult = result.html.body[0].h1[0];
+                                        }
+                                        catch (e)
+                                        {
+                                            queryObject.callback(1, "Invalid response from Fuseki server on update. Returned object was " + result);
+                                        }
 
-                                            if (parsedResult === "Success")
-                                            {
-                                                queryObject.callback(null, parsedResult);
-                                            }
-                                            else
-                                            {
-                                                queryObject.callback(1, "An Update operation did not succeed: Result from server was \"" + result.html.body.h1 + "\" and should be \"Success\"");
-                                            }
+                                        if (parsedResult === "Success")
+                                        {
+                                            queryObject.callback(null, parsedResult);
                                         }
                                         else
                                         {
-                                            return callback(err, result);
+                                            queryObject.callback(1, "An Update operation did not succeed: Result from server was \"" + result.html.body.h1 + "\" and should be \"Success\"");
                                         }
+                                    }
+                                    else
+                                    {
+                                        return callback(err, result);
+                                    }
 
-                                        DbConnection.recordQueryConclusionInLog(queryObject);
-                                        popQueueCallback();
-                                    });
+                                    DbConnection.recordQueryConclusionInLog(queryObject);
+                                    popQueueCallback();
+                                });
+                            }
+                            else
+                            {
+                                body = JSON.parse(body);
+                                if (!isNull(body.boolean))
+                                {
+                                    DbConnection.recordQueryConclusionInLog(queryObject);
+                                    popQueueCallback();
+                                    queryObject.callback(null, body.boolean);
                                 }
                                 else if (!isNull(body.results))
                                 {
@@ -335,6 +339,31 @@ class FusekiConnection extends DbConnection
             callback(null);
         };
 
+        const recreateTempOntologiesDir = function (callback)
+        {
+            const rimraf = require("rimraf");
+            const mkdirp = require("mkdirp");
+
+            rimraf(Config.tempFilesDir, function (err)
+            {
+                if (isNull(err))
+                {
+                    const msg = "Deleted Fuseki ontologies temp dir at " + self.tempFilesDir;
+                    Logger.log("debug", msg);
+                    mkdirp(self.tempFilesDir, function (err)
+                    {
+                        callback(err, err);
+                    });
+                }
+                else
+                {
+                    const msg = "Unable to delete Fuseki ontologies temp dir at " + self.tempFilesDir
+                    Logger.log("error", msg);
+                    callback(err, msg);
+                }
+            });
+        };
+
         const loadGraphsIntoDatasetIfNeeded = function (callback)
         {
             const loadGraphOfOntology = function (ontology, callback)
@@ -352,25 +381,144 @@ class FusekiConnection extends DbConnection
                     const queryArguments = [
                         {
                             type: Elements.types.resourceNoEscape,
-                            value: ontology.downloadURL
-                        },
-                        {
-                            type: Elements.types.resourceNoEscape,
                             value: ontology.uri
                         }
                     ];
 
-                    self.execute(
-                        "CLEAR GRAPH [1]; \n" +
-                        "LOAD [0] INTO GRAPH [1];",
-                        queryArguments,
-                        function (err, result)
+                    let fullUrl = ontology.downloadURL;
+
+                    const deleteExistingGraph = function (callback)
+                    {
+                        self.execute(
+                            "CLEAR GRAPH [0]",
+                            queryArguments,
+                            function (err, result)
+                            {
+                                callback(err, result);
+                            },
+                            {
+                                runAsUpdate: true
+                            });
+                    };
+
+                    const getOntologyFileContents = function (callback)
+                    {
+                        request.get({
+                            url: fullUrl
+                        }, function (err, response, body)
+                        {
+                            if (isNull(err))
+                            {
+                                if (response.statusCode === 200)
+                                {
+                                    const parsed = url.parse(fullUrl);
+                                    const fileName = path.basename(parsed.pathname);
+                                    const ontologyFileLocation = path.join(self.tempFilesDir, fileName);
+
+                                    fs.writeFile(ontologyFileLocation, body, function (err)
+                                    {
+                                        if (!isNull(err))
+                                        {
+                                            const msg = "Unable to write local file from " + ontology.downloadURL + ". Status Code was not 200 but " + response.statusCode;
+                                            Logger.log("error", msg);
+                                            callback(err, msg);
+                                        }
+                                        else
+                                        {
+                                            Logger.log("debug", `Ontology ${ontology.uri} saved successfully to temporary file ${ontologyFileLocation}`);
+                                            callback(null, ontologyFileLocation);
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    const msg = "Unable to fetch file from " + ontology.downloadURL + ". Status Code was not 200 but " + response.statusCode;
+                                    Logger.log("error", msg);
+                                    callback(err, msg);
+                                }
+                            }
+                            else
+                            {
+                                const msg = "Unable to fetch file from " + ontology.downloadURL + ". Response: " + response + ". Error: " + body;
+                                Logger.log("error", msg);
+                                callback(err, msg);
+                            }
+                        });
+                    };
+
+                    const uploadDataToGraph = function (ontologyFileLocation, callback)
+                    {
+                        const uploadUrl = `http://${self.host}:${self.port}/${self.dataset}/data`;
+                        request.post({
+                            url: uploadUrl,
+                            qs: {
+                                graph: ontology.uri
+                            },
+                            formData: {
+                                attachments: [
+                                    fs.createReadStream(ontologyFileLocation)
+                                ]
+                            },
+                            auth: self.requestAuth
+                        }, function (err, response, body)
+                        {
+                            if (isNull(err))
+                            {
+                                if (response.statusCode === 201)
+                                {
+                                    callback(null);
+                                }
+                                else
+                                {
+                                    const msg = "Unable to create graph " + ontology.uri + ". Status Code was not 201 but " + response.statusCode;
+                                    Logger.log("error", msg);
+                                    callback(err, msg);
+                                }
+                            }
+                            else
+                            {
+                                const msg = "Unable to create graph" + ontology.uri + ". Response: " + response + ". Error: " + body;
+                                Logger.log("error", msg);
+                                callback(err);
+                            }
+                        });
+                    };
+
+                    recreateTempOntologiesDir(function (err, result)
+                    {
+                        if (isNull(err))
+                        {
+                            async.series(
+                                [
+                                    deleteExistingGraph,
+                                    getOntologyFileContents
+                                ],
+                                function (err, results)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        const ontologyFilePath = results[1];
+                                        if (!isNull(ontologyFilePath))
+                                        {
+                                            uploadDataToGraph(ontologyFilePath, callback);
+                                        }
+                                        else
+                                        {
+                                            callback(1, "Contents of ontology " + ontology.uri + " are empty! There was an error fetching " + ontology.downloadURL);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        callback(err, results);
+                                    }
+                                }
+                            );
+                        }
+                        else
                         {
                             callback(err, result);
-                        },
-                        {
-                            runAsUpdate: true
-                        });
+                        }
+                    });
                 };
 
                 checkIfGraphExists(ontology.uri, function (err, exists)
@@ -391,12 +539,12 @@ class FusekiConnection extends DbConnection
                     }
                     else
                     {
-                        callback(err);
+                        callback(err, exists);
                     }
                 });
             };
 
-            async.map(
+            async.mapSeries(
                 self.ontologyGraphs,
                 loadGraphOfOntology,
                 function (err, results)
@@ -408,6 +556,7 @@ class FusekiConnection extends DbConnection
 
         async.series([
             checkDatabaseConnectionViaHttp,
+            recreateTempOntologiesDir,
             createDatasetIfNeeded,
             setupQueryQueues,
             loadGraphsIntoDatasetIfNeeded

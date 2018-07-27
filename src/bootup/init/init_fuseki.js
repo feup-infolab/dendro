@@ -22,7 +22,8 @@ const initFuseki = function (app, callback)
                 dbOperationsTimeout: Config.dbOperationTimeout,
                 dataset: Config.fusekiDataset,
                 dbType: Config.fusekiDbType,
-                ontologyGraphs: Config.enabledOntologies
+                ontologyGraphs: Config.enabledOntologies,
+                tempFilesDir: Config.tempFilesDir
             }
         );
 

@@ -651,7 +651,7 @@ Resource.prototype.descriptorValue = function (descriptorWithNamespaceSeparatedB
             "   { \n" +
             "       [1] [2] ?o \n" +
             "   } \n",
-            "} \n" +
+    "} \n" +
         [
             {
                 type: Elements.types.resourceNoEscape,
@@ -666,20 +666,20 @@ Resource.prototype.descriptorValue = function (descriptorWithNamespaceSeparatedB
                 value: descriptorWithNamespaceSeparatedByColon
             }
         ],
-        function (err, results)
+    function (err, results)
+    {
+        if (isNull(err))
         {
-            if (isNull(err))
+            const extractedResults = [];
+            for (let i = 0; i < results.length; i++)
             {
-                const extractedResults = [];
-                for (let i = 0; i < results.length; i++)
-                {
-                    extractedResults.push(results[i].o);
-                }
-
-                return callback(err, extractedResults);
+                extractedResults.push(results[i].o);
             }
-            return callback(1, results);
-        });
+
+            return callback(err, extractedResults);
+        }
+        return callback(1, results);
+    });
 };
 
 Resource.prototype.clearOutgoingPropertiesFromOntologies = function (ontologyURIsArray, callback, customGraphUri)
