@@ -295,7 +295,7 @@ Deposit.validatePlatformUri = function(deposit, callback){
       case "EPrints":
         break;
       default:
-        return url;
+        return https + url;
     }
   };
   //if it has external repository uri
@@ -536,6 +536,24 @@ Deposit.saveContents = function(params, callback){
   });
 
 };
+
+
+Deposit.prototype.findMetadata = function (callback, typeConfigsToRetain)
+{
+  const self = this;
+
+  const descriptors = self.getPropertiesFromOntologies(
+    null,
+    typeConfigsToRetain);
+
+  return callback(null,
+    {
+      descriptors: descriptors,
+      title: self.dcterms.title
+    }
+  );
+};
+
 
 /**
  * Returns the project associated with the

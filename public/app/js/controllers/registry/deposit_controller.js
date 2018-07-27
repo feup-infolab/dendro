@@ -12,7 +12,6 @@ angular.module("dendroApp.controllers", [])
         $timeout,
         metadataService,
         windowService,
-        projectsService,
         usersService
     )
     {
@@ -105,6 +104,12 @@ angular.module("dendroApp.controllers", [])
         };
 
         $scope.hostUrl = window.location.protocol + "//" + window.location.host + "/user/";
+
+        $scope.initSingleDeposit = function (rootDepositUri, isRoot){
+            $scope.rootDepositUri = rootDepositUri;
+            $scope.isDepositRoot = isRoot;
+            console.log("hello");
+        };
 
         $scope.init = function ()
         {

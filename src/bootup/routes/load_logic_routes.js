@@ -1472,7 +1472,10 @@ const loadRoutes = function (app, callback)
         getNonHumanReadableRouteRegex("deposit")
     ],
     extractUriFromRequest,
-    async.apply(Permissions.require, [Permissions.settings.privacy.of_deposit.public, Permissions.settings.role.users_role_in_deposit]), deposits.getDeposit);
+    async.apply(Permissions.require, [Permissions.settings.privacy.of_deposit.public, Permissions.settings.role.users_role_in_deposit]), function(req, res){
+        req.params.is_deposit_root = true;
+        deposits.show(req, res);
+      });
 
     // serve angular JS ejs-generated html partials
     app.get(/\/images\/icons\/extensions\/file_extension_([a-z0-9]+)\.png$/, files.extension_icon);
