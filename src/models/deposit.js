@@ -346,6 +346,141 @@ Deposit.createAndInsertFromObject = function(object, callback){
     })
 };
 
+
+/**
+ * Gets a list of all the public or allowed repositories grouped by repository
+ * @param params
+ * @param callback
+ */
+Deposit.getSplashRepositories = function(params, callback){
+    let query =
+        "SELECT ?repository COUNT(?repository) as ?count\n" +
+        "FROM [0] \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   ?uri rdf:type ddr:Registry . \n" +
+        "   ?uri ddr:exportedToRepository ?repository . \n" +
+        "  ";
+
+    const ending = "} \n" +
+        "GROUP BY ?repository";
+
+    let variables = [
+        {
+            type: Elements.types.resourceNoEscape,
+            value: db.graphUri
+        }];
+
+    let i = 1;
+
+    if(params.self){
+        query +=
+            "   { \n" +
+            "       { \n" +
+            "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
+            "       } \n" +
+            "       UNION \n" +
+            "       { \n" +
+            "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
+            "         VALUES ?role { dcterms:creator dcterms:contributor } . \n" +
+            "         ?projused ?role [" + i++ + "] . \n" +
+            "       } \n" +
+            "   } \n";
+
+        variables = variables.concat([
+            {
+                type : Elements.ontologies.ddr.privacyStatus.type,
+                value : "public"
+            },
+            {
+                type : Elements.ontologies.ddr.privacyStatus.type,
+                value : "private"
+            },
+            {
+                type : Elements.ontologies.dcterms.creator.type,
+                value : params.self
+            }]);
+    } else{
+        query += "    ?uri ddr:privacyStatus [" + i++ + "]";
+        variables.push({
+            type : Elements.ontologies.ddr.privacyStatus.type,
+            value : "public"
+        });
+    }
+
+
+    if(params.project){
+        query += "  ?projused dcterms:title [" + i++ + "] \n";
+        variables.push({
+            type: Elements.ontologies.dcterms.title.type,
+            value: params.project
+        });
+    }
+    if(params.creator){
+        query += "  ?uri dcterms:creator [" + i++ + "] \n";
+        variables.push({
+            type: Elements.ontologies.dcterms.creator.type,
+            value: params.creator
+        });
+    }
+    if(params.platforms){
+        query +=
+            "    VALUES ?platformsUsed {";
+
+        for(let j = 0; j < params.platforms.length; j++) {
+            query += "[" + i++ + "] ";
+            variables.push({
+                type: Elements.types.string,
+                value: params.platforms[j]
+            });
+        }
+        query +=
+            "} . \n" +
+            "    ?uri ddr:exportedToPlatform ?platformsUsed . \n";
+
+
+    }
+    if(params.repositories){
+        query +=
+            "    VALUES ?repository { ";
+
+        for(let j = 0; j < params.repositories.length; j++) {
+            query += "[" + i++ + "] ";
+            variables.push({
+                type: Elements.ontologies.ddr.hasExternalUri.type ,
+                value: params.repositories[j]
+            });
+        }
+        query +=
+            "} . \n" +
+            "    ?uri ddr:hasExternalUri ?repository . \n";
+
+
+    }
+    if(params.dateFrom){
+        query += "  FILTER (?date > [" + i++ + "]^^xsd:dateTime )\n";
+        variables.push({
+            type: Elements.types.string,
+            value: params.dateFrom,
+        });
+    }
+    if(params.dateTo){
+        query += "  FILTER ([" + i++ + "]^^xsd:dateTime > ?date )\n";
+        variables.push({
+            type: Elements.types.string,
+            value: params.dateTo,
+        });
+    }
+
+
+
+    query += ending;
+
+    db.connection.executeViaJDBC(query,variables, function (err, regs){
+        callback(err, regs);
+    });
+};
+
 /**
  * Gets a list of all the repositories used for all the existing deposits
  * @param params

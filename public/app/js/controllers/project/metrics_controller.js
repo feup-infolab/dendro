@@ -134,7 +134,7 @@ angular.module('dendroApp.controllers')
                // setGraphs(depositsSet);
                 setUserGraphs(depositsSet);
 
-                //$scope.startDeposits();
+                $scope.startDeposits();
 
             };
 
@@ -160,37 +160,60 @@ angular.module('dendroApp.controllers')
 
 
             $scope.getDeposits = function () {
-                function startDeposits (uri)
-                {
+                function startDeposits(uri) {
                     metricsService.get_deposits(uri)
-                        .then(function (response)
-                        {
+                        .then(function (response) {
                             let res = response;
                             console.log(res);
                         });
                 }
-                if ($scope.showing_project_root())
-                {
+
+                if ($scope.showing_project_root()) {
                     startDeposits($scope.get_calling_uri());
                 }
-                else
-                {
+                else {
                     $scope.get_owner_project()
-                        .then(function (ownerProject)
-                        {
-                            if (ownerProject != null)
-                            {
+                        .then(function (ownerProject) {
+                            if (ownerProject != null) {
                                 startDeposits(ownerProject.uri);
                             }
                         })
-                        .catch(function (e)
-                        {
+                        .catch(function (e) {
                             console.log("error", "Unable to fetch parent project of the currently selected file.");
                             console.log("error", JSON.stringify(e));
                             windowService.show_popup("error", "Error", e.statusText);
                         });
                 }
             };
+
+
+            $scope.getDepositsSplash = function () {
+                function startDeposits(uri) {
+                    metricsService.get_deposits(uri)
+                        .then(function (response) {
+                            let res = response;
+                            console.log(res);
+                        });
+                }
+
+                if ($scope.showing_project_root()) {
+                    startDeposits($scope.get_calling_uri());
+                }
+                else {
+                    $scope.get_owner_project()
+                        .then(function (ownerProject) {
+                            if (ownerProject != null) {
+                                startDeposits(ownerProject.uri);
+                            }
+                        })
+                        .catch(function (e) {
+                            console.log("error", "Unable to fetch parent project of the currently selected file.");
+                            console.log("error", JSON.stringify(e));
+                            windowService.show_popup("error", "Error", e.statusText);
+                        });
+                }
+            };
+
 
 
 
@@ -211,7 +234,8 @@ angular.module('dendroApp.controllers')
                     headers: {"Accept": "application/json"}
                 }).then(function (response) {
                     let deposits = response.data;
-                    setTimeline(deposits);
+                    console.log(deposits);
+               //     setTimeline(deposits);
                 }).catch(function (error) {
                     console.log(error);
                 });
@@ -287,9 +311,6 @@ angular.module('dendroApp.controllers')
                     $scope.data.push(value);
 
                 }
-                console.log($scope.labels);
-
-                console.log($scope.data);
             }
 
 
@@ -313,9 +334,6 @@ angular.module('dendroApp.controllers')
                     $scope.data.push(value);
 
                 }
-                console.log($scope.labels);
-
-                console.log($scope.data);
             }
 
 
