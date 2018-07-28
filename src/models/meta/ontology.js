@@ -273,7 +273,7 @@ Ontology.initAllFromDatabase = function (callback)
                     "   GRAPH [0] \n" +
                     "   { \n" +
                     "       [1] ddr:hasAlternative ?alternative\n" +
-                    "   } \n",
+                    "   } \n" +
                     "} \n",
                     [
                         {
@@ -319,7 +319,7 @@ Ontology.initAllFromDatabase = function (callback)
                     "   GRAPH [0] \n" +
                     "   { \n" +
                     "       [1] ddr:hasRegex ?regex\n" +
-                    "   } \n",
+                    "   } \n" +
                     "} \n",
                     [
                         {

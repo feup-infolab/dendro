@@ -804,6 +804,18 @@ Elements.ontologies.foaf =
  */
 
 Elements.ontologies.ddr = {
+    baseUri:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box,
+            api_readable: true
+        },
+    htmlUrl:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box,
+            api_readable: true
+        },
     taskID:
         {
             type: Elements.types.string,

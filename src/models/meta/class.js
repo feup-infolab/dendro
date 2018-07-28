@@ -13,6 +13,7 @@ function Class ()
 
 const copyPrototypeFromParent = function (parentClass, childClass)
 {
+    let aClassMethod;
     if (isNull(parentClass) || parentClass === Class)
     {
         return childClass;
@@ -30,7 +31,8 @@ const copyPrototypeFromParent = function (parentClass, childClass)
             }
             else
             {
-                childClass[aClassMethod] = childClass[aClassMethod]; // superfluous, for debugging
+                // superfluous, for debugging
+                childClass[aClassMethod] = childClass[aClassMethod];
             }
         }
     }

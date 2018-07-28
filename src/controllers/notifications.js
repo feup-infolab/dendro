@@ -32,7 +32,7 @@ exports.get_unread_user_notifications = function (req, res)
         {
             let query =
                 "SELECT ?uri \n" +
-                "WHERE {\n" +
+                "WHERE\n" +
                 "{ \n" +
                 "   GRAPH [0]\n" +
                 "   { \n" +

@@ -30,6 +30,7 @@ class FusekiConnection extends DbConnection
         };
         self.ontologyGraphs = Object.values(options.ontologyGraphs);
         self.tempFilesDir = path.join(options.tempFilesDir, "fuseki_temp_directory");
+        self.baseUri = options.baseUri;
     }
 
     create (callback)
@@ -153,34 +154,52 @@ class FusekiConnection extends DbConnection
                         Logger.log("--POSTING QUERY (HTTP endpoint " + queryObject.fullUrl + "): \n" + queryObject.query);
                     }
 
-                    const payload = {
-                        method: "POST",
-                        uri: queryObject.fullUrl,
-                        simple: false,
-                        qs: {
-                            output: "application/sparql-results+json"
-                        },
-                        form: {
-                            query: DbConnection.getPrefixTrain() + queryObject.query
-                            // maxrows: queryObject.maxRows,
-                            // format: queryObject.resultsFormat
-                        },
-                        auth: {
-                            user: self.username,
-                            pass: self.password
-                        },
-                        header: {
-                            Accept: "application/sparql-results+json"
-                        },
-                        encoding: "utf8"
-                        // json: true,
-                        // forever: true,
-                        // timeout : Config.dbOperationTimeout
-                    };
+                    let payload;
 
                     if (queryObject.runAsUpdate)
                     {
-                        payload.qs.update = "";
+                        payload = {
+                            method: "POST",
+                            uri: queryObject.fullUrl,
+                            simple: false,
+                            form: {
+                                query: DbConnection.getPrefixTrain() + DbConnection.getBaseStatement() + queryObject.query
+                            },
+                            qs: {
+                                update: DbConnection.getPrefixTrain() + DbConnection.getBaseStatement() + queryObject.query
+                            },
+                            auth: {
+                                user: self.username,
+                                pass: self.password
+                            },
+                            header: {
+                                Accept: "text/plain"
+                            },
+                            encoding: "utf8"
+                        };
+                    }
+                    else
+                    {
+                        payload = {
+                            method: "GET",
+                            uri: queryObject.fullUrl,
+                            simple: false,
+                            qs: {
+                                query: DbConnection.getPrefixTrain() + DbConnection.getBaseStatement() + queryObject.query,
+                                output: "application/sparql-results+json"
+                            },
+                            auth: {
+                                user: self.username,
+                                pass: self.password
+                            },
+                            header: {
+                                Accept: "application/sparql-results+json"
+                            },
+                            encoding: "utf8"
+                            // json: true,
+                            // forever: true,
+                            // timeout : Config.dbOperationTimeout
+                        };
                     }
 
                     const queryRequest = rp(payload)
@@ -227,7 +246,18 @@ class FusekiConnection extends DbConnection
                             }
                             else
                             {
-                                body = JSON.parse(body);
+                                try
+                                {
+                                    body = JSON.parse(body);
+                                }
+                                catch (e)
+                                {
+                                    const msg = "Error parsing query results from Fuseki while running query: \n" + DbConnection.getPrefixTrain() + queryObject.query + "\nFuseki reported error: " + e.message;
+                                    Logger.log("error", msg);
+                                    Logger.log("error", e.stack);
+                                    return callback(1, msg);
+                                }
+
                                 if (!isNull(body.boolean))
                                 {
                                     DbConnection.recordQueryConclusionInLog(queryObject);
@@ -357,7 +387,7 @@ class FusekiConnection extends DbConnection
                 }
                 else
                 {
-                    const msg = "Unable to delete Fuseki ontologies temp dir at " + self.tempFilesDir
+                    const msg = "Unable to delete Fuseki ontologies temp dir at " + self.tempFilesDir;
                     Logger.log("error", msg);
                     callback(err, msg);
                 }
@@ -390,7 +420,7 @@ class FusekiConnection extends DbConnection
                     const deleteExistingGraph = function (callback)
                     {
                         self.execute(
-                            "CLEAR GRAPH [0]",
+                            "DROP GRAPH [0]",
                             queryArguments,
                             function (err, result)
                             {
@@ -767,6 +797,11 @@ class FusekiConnection extends DbConnection
     {
         const self = this;
 
+        if (!(argumentsArray instanceof Array))
+        {
+            throw new Error("Invalid type of arguments array when running a query!");
+        }
+
         DbConnection.queryObjectToString(queryStringWithArguments, argumentsArray, function (err, query)
         {
             if (isNull(err))
@@ -834,7 +869,7 @@ class FusekiConnection extends DbConnection
 
         const runQuery = function (callback)
         {
-            self.execute("CLEAR GRAPH <" + graphUri + ">",
+            self.execute("DROP GRAPH <" + graphUri + ">",
                 [],
                 function (err, resultsOrErrMessage)
                 {

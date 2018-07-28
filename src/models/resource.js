@@ -12,6 +12,7 @@ const Cache = rlequire("dendro", "src/kb/cache/cache.js").Cache;
 
 const async = require("async");
 const _ = require("underscore");
+const uuid = require("uuid");
 
 const db = Config.getDBByID();
 
@@ -71,14 +72,27 @@ Resource.prototype.copyOrInitDescriptors = function (object, deleteIfNotInArgume
         }
     }
 
-    if ((!isNull(object.ddr) && !isNull(object.ddr.created)))
+    const relativeHtmlUrl = self.getHtmlRelativeUrl();
+    if (!isNull(object.ddr))
     {
-        self.ddr.created = object.ddr.created;
+        if (!isNull(object.ddr.created))
+        {
+            self.ddr.created = object.ddr.created;
+        }
     }
     else
     {
         const now = new Date();
         self.ddr.created = now.toISOString();
+    }
+
+    if (!isNull(object.ddr))
+    {
+        if (object.ddr.baseUri !== Config.baseUri)
+        {
+            self.ddr.baseUri = Config.baseUri;
+            self.ddr.htmlUrl = Config.baseUri + "/" + relativeHtmlUrl;
+        }
     }
 };
 
@@ -992,7 +1006,7 @@ Resource.prototype.replaceDescriptorsInTripleStore = function (newDescriptors, d
             "   { \n" +
                     deleteString + " \n" +
             "   } \n" +
-            "} \n" +
+            "}; \n" +
             "INSERT DATA\n" +
             "{ \n" +
             "   GRAPH [0] \n" +
@@ -1900,7 +1914,6 @@ Resource.getUriFromHumanReadableUri = function (humanReadableUri, callback, cust
 
     const getFromCache = function (callback)
     {
-    // TODO
         return callback(null, null);
     };
 
@@ -3797,8 +3810,7 @@ Resource.prototype.addURIAndRDFType = function (object, resourceTypeSection, cla
     {
         if (isNull(self.uri))
         {
-            const uuid = require("uuid");
-            self.uri = "/r/" + resourceTypeSection + "/" + uuid.v4();
+            self.uri = ":r/" + resourceTypeSection + "/" + uuid.v4();
         }
     }
     else
@@ -4046,10 +4058,29 @@ Resource.prototype.refreshHumanReadableUri = function (callback, customGraphUri)
             }
             else
             {
-                callback(1, "Unable to determine new human readable uri for resource " + newResource.uri);
+                callback(1, "Unable to determine new human readable uri for resource " + newHumanReadableUri);
             }
         }
     );
+};
+
+Resource.prototype.getHtmlRelativeUrl = function ()
+{
+    const self = this;
+    if (!isNull(self.uri) && self.uri[0] === ":")
+    {
+        const relativeHtmlUrl = self.uri.substr(1);
+        return relativeHtmlUrl;
+    }
+};
+
+Resource.getUriFromRelativeUrl = function (relativeUrl)
+{
+    if (!isNull(relativeUrl) && relativeUrl[0] === "/")
+    {
+        const uri = ":" + relativeUrl.substr(1);
+        return uri;
+    }
 };
 
 Resource = Class.extend(Resource, Class, "ddr:Resource");

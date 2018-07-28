@@ -6,7 +6,7 @@
 <div class="panel panel-default" ng-repeat="research_domain in research_domains">
     <div class="panel-heading">
         <h3 ng-show="research_domain.not_saved"><span class="label label-warning" ng-show="research_domain.not_saved">Unsaved</span></h3>
-        <h3 ng-hide="research_domain.not_saved">{{research_domain.uri}}</h3>
+        <h3 ng-hide="research_domain.not_saved">{{research_domain.ddr.htmlUrl}}</h3>
     </div>
     <div class="panel-body">
 

@@ -54,7 +54,7 @@
                         {{version.ddr.created}}
                     </td>
                     <td>
-                        <a ng-if="version.ddr.versionCreator != null" ng-href="{{version.ddr.versionCreator.uri}}">{{version.ddr.versionCreator.foaf.firstName}} {{version.ddr.versionCreator.foaf.surname}}</a></li>
+                        <a ng-if="version.ddr.versionCreator != null" ng-href="{{version.ddr.versionCreator.ddr.htmlUrl}}">{{version.ddr.versionCreator.foaf.firstName}} {{version.ddr.versionCreator.foaf.surname}}</a></li>
                         <div ng-if="version.ddr.versionCreator == null">
                             Anonymous
                         </div>

@@ -56,6 +56,11 @@ class DbConnection
         self.created_profiling_logfile = false;
     }
 
+    static getBaseStatement ()
+    {
+        return "BASE <" + Config.baseUri + "> \n";
+    }
+
     static getPrefixTrain ()
     {
         // Parse a SPARQL query to a JSON object

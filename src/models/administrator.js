@@ -1,11 +1,7 @@
-const path = require("path");
 const rlequire = require("rlequire");
-const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const User = rlequire("dendro", "src/models/user.js").User;
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const Class = rlequire("dendro", "src/models/meta/class.js").Class;
-
-const db = Config.getDBByID();
 
 function Administrator (object)
 {

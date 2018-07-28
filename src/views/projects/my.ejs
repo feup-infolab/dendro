@@ -49,7 +49,7 @@
                             <%if(!project.ddr.hasErrors && !project.ddr.is_being_imported)
                             {
                             %>
-                                <button type="submit" class="btn btn-default" onclick="location.href='<%=project.uri%>'">
+                                <button type="submit" class="btn btn-default" onclick="location.href='<%=project.ddr.htmlUrl%>'">
                                     <img class="icon16" id="upload_button" src="/images/icons/box_closed.png"> <%= (project.dcterms.title)? project.dcterms.title : project.ddr.handle %>
                                 </button>
                             <%} else {%>
@@ -58,7 +58,7 @@
                                 </button>
                             <%}%>
                             <%
-                            if(locals.user != null && locals.user.uri == project.dcterms.creator)
+                            if(locals.user != null && locals.user.uri == project.ddr.creator.uri)
                             {
                             %>
                             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -67,34 +67,34 @@
                             </button>
                             <ul class="dropdown-menu">
                                 <%
-                                if(locals.user != null && locals.user.uri == project.dcterms.creator)
+                                if(locals.user != null && locals.user.uri === project.ddr.creator.uri)
                                 {
                                 %>
                                 <%if(!project.ddr.hasErrors && !project.ddr.is_being_imported)
                                 {
                                 %>
                                 <li>
-                                    <a href="<%=project.uri%>?administer"><i class="fa fa-cog"></i>Administer</a>
+                                    <a href="<%=project.ddr.htmlUrl%>?administer"><i class="fa fa-cog"></i>Administer</a>
                                 </li>
                                 <li>
-                                    <a href="<%=project.uri%>?bagit"><i class="fa fa-file-zip-o"></i>Backup</a>
+                                    <a href="<%=project.ddr.htmlUrl%>?bagit"><i class="fa fa-file-zip-o"></i>Backup</a>
                                 </li>
                                 <%} else {%>
                                 <li>
-                                    <!--<a href="<%=project.uri%>?administer"><i class="fa fa-cog"></i>&nbsp;&nbsp;Administer</a>-->
+                                    <!--<a href="<%=project.ddr.htmlUrl%>?administer"><i class="fa fa-cog"></i>&nbsp;&nbsp;Administer</a>-->
                                     <span style='color:red;text-decoration:line-through'>
                                         <span style='color:black'><i class="fa fa-cog"></i>Administer</span>
                                     </span>
                                 </li>
                                 <li>
-                                    <!--<a href="<%=project.uri%>?bagit"><i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Backup</a>-->
+                                    <!--<a href="<%=project.ddr.htmlUrl%>?bagit"><i class="fa fa-file-zip-o"></i>&nbsp;&nbsp;Backup</a>-->
                                     <span style='color:red;text-decoration:line-through'>
                                         <span style='color:black'><i class="fa fa-file-zip-o"></i>Backup</span>
                                     </span>
                                 </li>
                                 <%}%>
                                 <li>
-                                    <a href="<%=project.uri%>?delete"><i class="fa fa-bomb"></i>&nbsp;&nbsp;Delete</a>
+                                    <a href="<%=project.ddr.htmlUrl%>?delete"><i class="fa fa-bomb"></i>&nbsp;&nbsp;Delete</a>
                                 </li>
                                 <% } %>
 
@@ -132,14 +132,14 @@
             </td>
             <td>
                 <b>
-                    <%if(locals.user != null && locals.user.uri == project.dcterms.creator) {%>
-                    <a href="<%=locals.user.uri%>">
-                        <img class="img-circle show-avatar-in-project-list" src="<%=project.dcterms.creator%>?avatar"/>You
+                    <%if(locals.user != null && locals.user.uri === project.ddr.creator.uri) {%>
+                    <a href="<%=locals.user.ddr.htmlUrl%>">
+                        <img class="img-circle show-avatar-in-project-list" src="<%=project.ddr.creator.ddr.htmlUrl %>?avatar"/>You
                     </a>
                     <%} else {%>
-                    <a href="<%=project.dcterms.creator%>">
-                        <img class="img-circle show-avatar-in-project-list"  src="<%=project.dcterms.creator%>?avatar"/>
-                        <%=project.dcterms.creator%>
+                    <a href="<%=project.dcterms.creator.uri%>">
+                        <img class="img-circle show-avatar-in-project-list"  src="<%=project.ddr.creator.ddr.htmlUrl %>?avatar"/>
+                        <%=project.ddr.creator.foaf.firstName%> <%=project.ddr.creator.foaf.surname%>
                     </a>
                     <%} %>
                     <%if(project.ddr.deleted == 1) {%>
@@ -193,7 +193,7 @@
                 %>
             </td>
             <!--<td>
-                                                    <button type="submit" class="btn btn-default btn-small" onclick="location.href='<%=project.uri%>?recycle_bin'">
+                                                    <button type="submit" class="btn btn-default btn-small" onclick="location.href='<%=project.ddr.htmlUrl%>?recycle_bin'">
                                                         <img class="icon16" src="/images/icons/recycle.png">&nbsp;&nbsp;Recycle Bin
                                                     </button>
                                                 </td> -->

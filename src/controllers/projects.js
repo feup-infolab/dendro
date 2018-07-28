@@ -138,10 +138,23 @@ exports.my = function (req, res)
                     viewVars
                 );
 
-                viewVars.projects = projects;
-                res.render("projects/my",
-                    viewVars
-                );
+                const injectAuthorInfo = function(project, callback)
+                {
+                    User.findByUri(project.dcterms.creator, function(err, creator){
+                        if(!isNull(creator))
+                        {
+                            project.ddr.creator = creator;
+                        }
+                        callback(err, project);
+                    });
+                };
+
+                async.map(projects, injectAuthorInfo, function(err, injectedProjects){
+                    viewVars.projects = injectedProjects;
+                    res.render("projects/my",
+                        viewVars
+                    );
+                });
             }
         }
         else

@@ -68,8 +68,6 @@ const express = require("express"),
     csrfProtection = csrf({ cookie: true });
 
 let async = require("async");
-let util = require("util");
-let mkdirp = require("mkdirp");
 
 const getNonHumanReadableRouteRegex = function (resourceType)
 {
@@ -83,7 +81,7 @@ const extractUriFromRequest = function (req, res, next)
     const matches = req.path.match(/^\/r\/([^\/]+)\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/);
     if (matches && matches.length === 2)
     {
-        req.params.requestedResourceUri = matches[0];
+        req.params.requestedResourceUri = Resource.getUriFromRelativeUrl(matches[0]);
     }
 
     return next(null, req, res);

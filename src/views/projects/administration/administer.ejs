@@ -371,8 +371,8 @@
                                             </a>
                                         </td>
                                         <td>
-                                            <a ng-href="{{node.uri}}">
-                                                <img src="{{node.uri+'?thumbnail&size=icon'}}"/>
+                                            <a ng-href="{{node.ddr.htmlUrl}}">
+                                                <img src="{{node.ddr.htmlUrl+'?thumbnail&size=icon'}}"/>
                                                 <span>{{node.title}}</span>
                                             </a>
                                         </td>
@@ -390,12 +390,12 @@
                                 </div>
                             </div>
 
-                            <ol ui-tree-nodes="" ng-if="node.hasLogicalParts" ng-model="node.hasLogicalParts" ng-init="parent_uri = node.uri"  ng-class="{hidden: collapsed}">
+                            <ol ui-tree-nodes="" ng-if="node.hasLogicalParts" ng-model="node.hasLogicalParts" ng-init="parent_uri = node.ddr.htmlUrl"  ng-class="{hidden: collapsed}">
                                 <li
                                         ng-repeat="node in node.hasLogicalParts"
                                         ui-tree-node
                                         ng-include="'nodes_renderer.html'"
-                                        ng-init="node.uri = parent_uri +'/'+ node.title">
+                                        ng-init="node.ddr.htmlUrl = parent_uri +'/'+ node.title">
                                 </li>
                             </ol>
                         </script>
@@ -405,7 +405,7 @@
                                 <li ng-repeat="node in project.hasLogicalParts"
                                     ui-tree-node
                                     ng-include="'nodes_renderer.html'"
-                                    ng-init="node.uri = project.uri; node.root = true" ></li>
+                                    ng-init="node.ddr.htmlUrl = project.uri; node.root = true" ></li>
                             </ol>
                         </div>
 
