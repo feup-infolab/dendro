@@ -73,7 +73,7 @@ Notification.sendSocketNotificationToUser = function (userUri, notificationObjec
     }
     else
     {
-        Logger.log("error", "Could not emit message to user: " + userUri);
+        // Logger.log("debug", "Could not emit message to user: " + userUri);
     }
 };
 

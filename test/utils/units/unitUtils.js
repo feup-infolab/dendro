@@ -638,6 +638,10 @@ exports.setup = function (targetUnit, callback, forceLoad)
                     }
                 });
             }
+            else
+            {
+                callback(null, null);
+            }
         }
         else if (Config.virtualbox && Config.virtualbox.active)
         {

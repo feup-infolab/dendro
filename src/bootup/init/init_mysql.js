@@ -23,7 +23,7 @@ const initMySQL = function (app, callback)
         let query = "CREATE DATABASE IF NOT EXISTS " + Config.mySQLDBName + ";";
         if (Config.startup.load_databases && Config.startup.destroy_mysql_database)
         {
-            query = "DROP DATABASE IF EXISTS " + Config.mySQLDBName + ";" + query;
+            query = "DROP DATABASE IF EXISTS " + Config.mySQLDBName + "; " + query;
         }
         sequelize
             .authenticate()
@@ -35,6 +35,7 @@ const initMySQL = function (app, callback)
                     .catch(err =>
                     {
                         Logger.log("error", "Error creating database in MySQL: " + Config.mySQLDBName);
+                        Logger.log("error", JSON.stringify(err));
                         return callback(err, null);
                     });
             })

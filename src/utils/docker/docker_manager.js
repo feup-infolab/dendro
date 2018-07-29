@@ -262,18 +262,33 @@ DockerManager.nukeAndRebuild = function (onlyOnce, callback)
         {
             Logger.log("Rebuilding all Docker containers.");
 
-            let dockerSubProcess = childProcess.exec(`docker-compose rm -s -v -f && docker-compose up -d`, {
+            let dockerSubProcess = childProcess.exec(`docker-compose down && docker-compose rm -s -v -f`, {
                 cwd: rlequire.getRootFolder("dendro"),
                 stdio: [0, 1, 2],
                 env: DockerManager.getEnvVars()
-            }, function (err, result)
+            }, function (err1, result)
             {
-                if (err)
-                {
-                    Logger.log("Unable to destroy existing containers.");
-                }
+                const rimraf = require("rimraf");
+                rimraf(Config.docker.environment_variables.VOLUMES_FOLDER, function(err2, result){
+                    if (!isNull(err1) || !isNull(err2))
+                    {
+                        Logger.log("Unable to destroy existing containers.");
+                        callback(err1 || err2, result);
+                    }
+                    else
+                    {
+                        let dockerSubProcess = childProcess.exec(`docker-compose up -d`, {
+                            cwd: rlequire.getRootFolder("dendro"),
+                            stdio: [0, 1, 2],
+                            env: DockerManager.getEnvVars()
+                        }, function (err, result)
+                        {
+                            callback(err, result);
+                        });
 
-                callback(err, result);
+                        logEverythingFromChildProcess(dockerSubProcess);
+                    }
+                });
             });
 
             logEverythingFromChildProcess(dockerSubProcess);
@@ -285,6 +300,10 @@ DockerManager.nukeAndRebuild = function (onlyOnce, callback)
             {
                 performOperation();
                 DockerManager._nukedOnce = true;
+            }
+            else
+            {
+                callback(null, null);
             }
         }
         else

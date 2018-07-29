@@ -430,7 +430,7 @@ Config.enabledOntologies = {
         elements: Elements.ontologies.foaf,
         label: "Friend of a friend",
         description: "For expressing people-related metadata. Mailbox, web page...",
-        downloadURL: "http://xmlns.com/foaf/spec/INDEX.rdf",
+        downloadURL: "http://xmlns.com/foaf/spec/20140114.rdf",
         domain: "Generic",
         domain_specific: false
     },

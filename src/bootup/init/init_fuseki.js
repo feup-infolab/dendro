@@ -18,7 +18,7 @@ const initFuseki = function (app, callback)
                 port: Config.fusekiPort,
                 username: Config.fusekiAuth.user,
                 password: Config.fusekiAuth.password,
-                maxSimultaneousConnections: 1,
+                maxSimultaneousConnections: Config.maxSimultaneousConnectionsToDb,
                 dbOperationsTimeout: Config.dbOperationTimeout,
                 dataset: Config.fusekiDataset,
                 dbType: Config.fusekiDbType,
