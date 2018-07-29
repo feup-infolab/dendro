@@ -116,6 +116,7 @@
       "password": "dba"
     },
     "virtuosoSQLLogLevel": 3,
+    "graphDatabase": "fuseki",
     "mongoDBHost": "192.168.56.249",
     "mongoDbPort": "27017",
     "mongoDbCollectionName": "127.0.0.1:3001_files",
@@ -411,7 +412,14 @@
       "reuse_checkpoints": false,
       "create_checkpoints": false,
       "destroy_existing_images_at_start": true,
-      "start_and_stop_containers_automatically" : true
+      "start_and_stop_containers_automatically": true,
+      "environment_variables": {
+        "CONTAINER_NAME_SUFFIX": "dev",
+        "ELASTICSEARCH_PORT_1": "9200",
+        "ELASTICSEARCH_PORT_2": "9300",
+        "MYSQL_PORT": "3306",
+        "FUSEKI_PORT": "3030"
+      }
     },
     "virtualbox": {
       "active": false,
@@ -425,7 +433,7 @@
         "mongodb"
       ],
       "vmName": "dendroVagrantDemo",
-      "vmIP" : "192.168.56.249"
+      "vmIP": "192.168.56.249"
     }
   },
   "dev-docker": {
@@ -841,7 +849,15 @@
       "reuse_checkpoints": false,
       "create_checkpoints": false,
       "destroy_existing_images_at_start": true,
-      "start_and_stop_containers_automatically" : false
+      "start_and_stop_containers_automatically": false,
+      "environment_variables": {
+        "CONTAINER_NAME_SUFFIX": "dev-docker",
+        "ELASTICSEARCH_PORT_1": "9200",
+        "ELASTICSEARCH_PORT_2": "9300",
+        "MYSQL_PORT": "3306",
+        "FUSEKI_PORT": "3030",
+        "MONGODB_PORT": "27017"
+      }
     },
     "virtualbox": {
       "active": false,
@@ -855,7 +871,7 @@
         "mongodb"
       ],
       "vmName": "dendroVagrantDemo",
-      "vmIP" : "127.0.0.1"
+      "vmIP": "127.0.0.1"
     }
   },
   "test": {
@@ -974,6 +990,7 @@
       "user": "dba",
       "password": "dba"
     },
+    "graphDatabase": "fuseki",
     "virtuosoSQLLogLevel": 3,
     "mongoDBHost": "127.0.0.1",
     "mongoDbPort": "27017",
@@ -1263,10 +1280,18 @@
     },
     "docker": {
       "active": false,
-      "reuse_checkpoints": true,
-      "create_checkpoints": true,
+      "reuse_checkpoints": false,
+      "create_checkpoints": false,
       "destroy_existing_images_at_start": false,
-      "start_and_stop_containers_automatically" : true
+      "start_and_stop_containers_automatically": true,
+      "environment_variables": {
+        "CONTAINER_NAME_SUFFIX": "test",
+        "ELASTICSEARCH_PORT_1": "9200",
+        "ELASTICSEARCH_PORT_2": "9300",
+        "MYSQL_PORT": "3306",
+        "FUSEKI_PORT": "3030",
+        "MONGODB_PORT": "27017"
+      }
     },
     "virtualbox": {
       "active": false,
@@ -1280,7 +1305,7 @@
         "mongodb"
       ],
       "vmName": "dendroVagrantDemo",
-      "vmIP" : "127.0.0.1"
+      "vmIP": "127.0.0.1"
     }
   },
   "jenkins_buildserver_test": {
@@ -1353,8 +1378,8 @@
             "host": "127.0.0.1",
             "port": "27017",
             "id": "default",
-              "username": "admin",
-              "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
+            "username": "admin",
+            "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
           },
           "social": {
             "database": "127.0.0.1:3002",
@@ -1399,6 +1424,7 @@
       "user": "dba",
       "password": "dba"
     },
+    "graphDatabase": "fuseki",
     "virtuosoSQLLogLevel": 3,
     "mongoDBHost": "127.0.0.1",
     "mongoDbPort": "27017",
@@ -1690,7 +1716,15 @@
       "reuse_checkpoints": false,
       "create_checkpoints": false,
       "destroy_existing_images_at_start": true,
-      "start_and_stop_containers_automatically" : false
+      "start_and_stop_containers_automatically": false,
+      "environment_variables": {
+        "CONTAINER_NAME_SUFFIX": "jenkins_buildserver_test",
+        "ELASTICSEARCH_PORT_1": "9200",
+        "ELASTICSEARCH_PORT_2": "9300",
+        "MYSQL_PORT": "3306",
+        "FUSEKI_PORT": "3030",
+        "MONGODB_PORT": "27017"
+      }
     },
     "virtualbox": {
       "active": false,
@@ -1704,7 +1738,7 @@
         "mongodb"
       ],
       "vmName": "dendroVagrantDemo",
-      "vmIP" : "192.168.56.249"
+      "vmIP": "192.168.56.249"
     }
   },
   "travis": {
@@ -1722,25 +1756,25 @@
     "sendGridUser": "__FIXME",
     "sendGridPassword": "__FIXME",
     "elasticSearchHost": "127.0.0.1",
-    "elasticSearchPort": "9200",
+    "elasticSearchPort": "9201",
     "datastore": {
       "database": "127.0.0.1:3002_travis_test_datastore",
       "host": "127.0.0.1",
-      "port": "27017",
+      "port": "27018",
       "id": "default",
       "log": {
         "log_datastore_ops": true
       },
-      "username": "",
-      "password": ""
+      "username": "admin",
+      "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
     },
     "ontologies_cache": {
       "database": "127.0.0.1:3002_ontologies",
       "host": "127.0.0.1",
-      "port": "27017",
+      "port": "27018",
       "id": "default",
-      "username": "",
-      "password": ""
+      "username": "admin",
+      "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
     },
     "cache": {
       "active": true,
@@ -1775,30 +1809,30 @@
             "collection": "default_cache_travis_test",
             "clear_on_startup": true,
             "host": "127.0.0.1",
-            "port": "27017",
+            "port": "27018",
             "id": "default",
-            "username": "",
-            "password": ""
+            "username": "admin",
+            "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
           },
           "social": {
             "database": "127.0.0.1:3002",
             "collection": "social_cache_travis_test",
             "clear_on_startup": true,
             "host": "127.0.0.1",
-            "port": "27017",
+            "port": "27018",
             "id": "social",
-            "username": "",
-            "password": ""
+            "username": "admin",
+            "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
           },
           "notifications": {
             "database": "127.0.0.1:3002",
             "collection": "notifications_cache_travis_test",
             "clear_on_startup": true,
             "host": "127.0.0.1",
-            "port": "27017",
+            "port": "27018",
             "id": "notifications",
-            "username": "",
-            "password": ""
+            "username": "admin",
+            "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
           }
         }
       },
@@ -1808,7 +1842,7 @@
       }
     },
     "fusekiHost": "127.0.0.1",
-    "fusekiPort": "3030",
+    "fusekiPort": "3031",
     "fusekiDataset": "test",
     "fusekiDbType": "tdb",
     "fusekiAuth": {
@@ -1823,26 +1857,27 @@
       "user": "dba",
       "password": "dba"
     },
+    "graphDatabase": "fuseki",
     "virtuosoSQLLogLevel": 3,
     "mongoDBHost": "127.0.0.1",
-    "mongoDbPort": "27017",
+    "mongoDbPort": "27018",
     "mongoDbCollectionName": "127.0.0.1:3002_files",
     "mongoDBSessionStoreCollection": "127.0.0.1:3002_sessions",
     "mongoDbVersion": "",
     "mongoDBAuth": {
-      "username": "",
-      "password": ""
+      "username": "admin",
+      "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
     },
     "storageDefaults": {
       "storageType": "mongoDB",
       "host": "127.0.0.1",
-      "port": "27017",
+      "port": "27018",
       "collectionName": "127.0.0.1:3002_files",
-      "username": "",
-      "password": ""
+      "username": "admin",
+      "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
     },
     "mySQLHost": "127.0.0.1",
-    "mySQLPort": "3306",
+    "mySQLPort": "3307",
     "mySQLAuth": {
       "user": "root",
       "password": "r00t_p4ssw0rd"
@@ -2111,10 +2146,18 @@
     },
     "docker": {
       "active": true,
-      "reuse_checkpoints": true,
-      "create_checkpoints": true,
+      "reuse_checkpoints": false,
+      "create_checkpoints": false,
       "destroy_existing_images_at_start": true,
-      "start_and_stop_containers_automatically" : false
+      "start_and_stop_containers_automatically": false,
+      "environment_variables": {
+        "CONTAINER_NAME_SUFFIX": "travis",
+        "ELASTICSEARCH_PORT_1": "9201",
+        "ELASTICSEARCH_PORT_2": "9301",
+        "MYSQL_PORT": "3307",
+        "FUSEKI_PORT": "3031",
+        "MONGODB_PORT": "27018"
+      }
     },
     "virtualbox": {
       "active": false,
@@ -2128,7 +2171,7 @@
         "mongodb"
       ],
       "vmName": "dendroVagrantDemo",
-      "vmIP" : "192.168.56.249"
+      "vmIP": "192.168.56.249"
     }
   }
 }

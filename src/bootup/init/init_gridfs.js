@@ -38,7 +38,7 @@ const initGridFS = function (app, callback)
         interval: function (retryCount)
         {
             const msecs = 500;
-            Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to GridFS");
+            Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to GridFS " + Config.mongoDBHost + ":" + Config.mongoDbPort);
             return msecs;
         }
     }, attemptConnection, function (err, gfsConn)

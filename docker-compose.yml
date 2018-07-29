@@ -2,11 +2,11 @@ version: '3'
 
 services:
   elasticsearch:
-    container_name: elasticsearch-dendro-dev
+    container_name: elasticsearch-dendro${CONTAINER_NAME_SUFFIX}
     image: docker.elastic.co/elasticsearch/elasticsearch:6.2.2
     ports:
-      - "9201:9200"
-      - "9301:9300"
+      - ${ELASTICSEARCH_PORT_1}:9200
+      - ${ELASTICSEARCH_PORT_2}:9300
     environment:
       - "discovery.type=single-node"
       - "http.host=0.0.0.0"
@@ -18,7 +18,7 @@ services:
       - dendro
 
 #  virtuoso:
-#    container_name: virtuoso-dendro-dev
+#    container_name: virtuoso-dendro${SUFFIX}
 #    image: joaorosilva/virtuoso:7.2.4-for-dendro-0.4
 #    ports:
 #      - "8891:8890"
@@ -32,10 +32,10 @@ services:
 #      - dendro
 
   mysql:
-    container_name: mysql-dendro-dev
+    container_name: mysql-dendro${CONTAINER_NAME_SUFFIX}
     image: mysql:5.7.22
     ports:
-      - "3307:3306"
+      - ${MYSQL_PORT}:3306
     environment:
       - "MYSQL_ROOT_PASSWORD=r00t_p4ssw0rd"
     volumes:
@@ -44,10 +44,10 @@ services:
       - dendro
 
   mongodb:
-    container_name: mongodb-dendro-dev
+    container_name: mongodb-dendro${CONTAINER_NAME_SUFFIX}
     image: mongo:3.6.0
     ports:
-      - 27018:27017
+      - ${MONGODB_PORT}:27017
     environment:
       - MONGO_INITDB_DATABASE=admin
       - MONGO_INITDB_ROOT_USERNAME=admin
@@ -59,10 +59,10 @@ services:
     command: mongod --smallfiles --bind_ip_all
 
   fuseki:
-      container_name: fuseki-dendro-dev
+      container_name: fuseki-dendro${CONTAINER_NAME_SUFFIX}
       image: stain/jena-fuseki:3.6.0
       ports:
-        - 3030:3030
+        - ${FUSEKI_PORT}:3030
       environment:
         - ADMIN_PASSWORD=pw123
       volumes:

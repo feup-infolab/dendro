@@ -48,7 +48,7 @@ Cache.initConnections = function (callback)
                                     interval: function (retryCount)
                                     {
                                         const msecs = 500;
-                                        Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to MongoDB Cache " + cacheId + "...");
+                                        Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to MongoDB Cache " + cacheId + " at " + mongoCacheConfig.host + ":" + mongoCacheConfig.port + "...");
                                         return msecs;
                                     }
                                 },
@@ -61,7 +61,7 @@ Cache.initConnections = function (callback)
                                         {
                                             Logger.log("warn", "Unable to connect to MongoDB cache service!!");
                                             Logger.log("warn", "Mongodb connection Error: " + JSON.stringify(err));
-                                            Logger.log("warn", "Mongodb connection Returned Object: " + JSON.stringify(mongoDBConnection));
+                                            Logger.log("warn", "Mongodb connection Returned Object: " + err.message);
                                             callback(err);
                                         }
                                         else

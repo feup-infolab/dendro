@@ -622,21 +622,21 @@ exports.setup = function (targetUnit, callback, forceLoad)
 
             if (Config.docker.destroy_existing_images_at_start)
             {
-                DockerManager.nukeAndRebuild(true);
-            }
-
-            Logger.log("Trying to recover checkpoint " + checkpointIdentifier + "...");
-
-            if (Config.docker.reuse_checkpoints && !forceLoad)
-            {
-                exports.restoreCheckpoint(checkpointIdentifier, function (err, result)
+                DockerManager.nukeAndRebuild(true, function (err, result)
                 {
-                    callback(err, !!result);
-                }, !forceLoad);
-            }
-            else
-            {
-                callback(null, null);
+                    if (Config.docker.reuse_checkpoints && !forceLoad)
+                    {
+                        Logger.log("Trying to recover checkpoint " + checkpointIdentifier + "...");
+                        exports.restoreCheckpoint(checkpointIdentifier, function (err, result)
+                        {
+                            callback(err, !!result);
+                        }, !forceLoad);
+                    }
+                    else
+                    {
+                        callback(null, null);
+                    }
+                });
             }
         }
         else if (Config.virtualbox && Config.virtualbox.active)

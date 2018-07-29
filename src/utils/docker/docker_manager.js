@@ -45,6 +45,19 @@ const logEverythingFromChildProcess = function (childProcess)
     });
 };
 
+DockerManager.getEnvVars = function ()
+{
+    const defaultEnvs = JSON.parse(JSON.stringify(process.env));
+    const varKeys = Object.keys(Config.docker.environment_variables);
+    for (let i = 0; i < varKeys.length; i++)
+    {
+        let varKey = varKeys[i];
+        defaultEnvs[varKey] = Config.docker.environment_variables[varKey];
+    }
+
+    return defaultEnvs;
+};
+
 DockerManager.stopAllContainers = function (callback)
 {
     if (Config.docker && Config.docker.active)
@@ -58,7 +71,8 @@ DockerManager.stopAllContainers = function (callback)
         {
             dockerSubProcess = childProcess.exec(`/bin/bash -c "${stopContainersScript}"`, {
                 cwd: rlequire.getRootFolder("dendro"),
-                stdio: [0, 1, 2]
+                stdio: [0, 1, 2],
+                env: DockerManager.getEnvVars()
             }, function (err, result)
             {
                 Logger.log("Stopped all containers");
@@ -69,7 +83,8 @@ DockerManager.stopAllContainers = function (callback)
         {
             dockerSubProcess = childProcess.exec("docker-compose down", {
                 cwd: rlequire.getRootFolder("dendro"),
-                stdio: [0, 1, 2]
+                stdio: [0, 1, 2],
+                env: Config.docker.environment_variables
             }, function (err, result)
             {
                 Logger.log("Started all containers");
@@ -93,27 +108,15 @@ DockerManager.startAllContainers = function (callback)
         Logger.log("warn", "If it takes long in the first boot PLEASE WAIT! If after 10 minutes without heavy CPU activity please press Ctrl+C and try again.");
 
         let dockerSubProcess;
-        if (process.env.NODE_ENV === "test")
+        dockerSubProcess = childProcess.exec("docker-compose up -d", {
+            cwd: rlequire.getRootFolder("dendro"),
+            stdio: [0, 1, 2],
+            env: DockerManager.getEnvVars()
+        }, function (err, result)
         {
-            dockerSubProcess = childProcess.exec(`/bin/bash -c "${startContainersScript}"`, {
-                cwd: rlequire.getRootFolder("dendro"),
-                stdio: [0, 1, 2]
-            }, function (err, result)
-            {
-                Logger.log("Started all containers");
-                callback(err, result);
-            });
-        }
-        else
-        {
-            dockerSubProcess = childProcess.exec("docker-compose up -d", {
-                cwd: rlequire.getRootFolder("dendro")
-            }, function (err, result)
-            {
-                Logger.log("Started all containers");
-                callback(err, result);
-            });
-        }
+            Logger.log("Started all containers");
+            callback(err, result);
+        });
 
         logEverythingFromChildProcess(dockerSubProcess);
     }
@@ -133,9 +136,10 @@ DockerManager.checkpointExists = function (checkpointName, callback)
     {
         if (Config.docker && Config.docker.active)
         {
-            childProcess.exec(`/bin/bash -c "${checkIfCheckpointExistsScript} ${checkpointName}"`, {
+            let dockerSubProcess = childProcess.exec(`/bin/bash -c "${checkIfCheckpointExistsScript} ${checkpointName}"`, {
                 cwd: rlequire.getRootFolder("dendro"),
-                stdio: [0, 1, 2]
+                stdio: [0, 1, 2],
+                env: DockerManager.getEnvVars()
             }, function (err, result)
             {
                 if (isNull(err))
@@ -147,6 +151,8 @@ DockerManager.checkpointExists = function (checkpointName, callback)
                     callback(null, false);
                 }
             });
+
+            logEverythingFromChildProcess(dockerSubProcess);
         }
         else
         {
@@ -166,9 +172,10 @@ DockerManager.createCheckpoint = function (checkpointName, callback)
             {
                 if (!exists)
                 {
-                    childProcess.exec(`/bin/bash -c "${createCheckpointScript} ${checkpointName}"`, {
+                    let dockerSubProcess = childProcess.exec(`/bin/bash -c "${createCheckpointScript} ${checkpointName}"`, {
                         cwd: rlequire.getRootFolder("dendro"),
-                        stdio: [0, 1, 2]
+                        stdio: [0, 1, 2],
+                        env: DockerManager.getEnvVars()
                     }, function (err, result)
                     {
                         if (isNull(err))
@@ -177,6 +184,8 @@ DockerManager.createCheckpoint = function (checkpointName, callback)
                         }
                         callback(err, result);
                     });
+
+                    logEverythingFromChildProcess(dockerSubProcess);
                 }
                 else
                 {
@@ -207,9 +216,10 @@ DockerManager.restoreCheckpoint = function (checkpointName, callback)
             {
                 if (exists)
                 {
-                    childProcess.exec(`/bin/bash -c "${restoreCheckpointScript} ${checkpointName}"`, {
+                    let dockerSubProcess = childProcess.exec(`/bin/bash -c "${restoreCheckpointScript} ${checkpointName}"`, {
                         cwd: rlequire.getRootFolder("dendro"),
-                        stdio: [0, 1, 2]
+                        stdio: [0, 1, 2],
+                        env: DockerManager.getEnvVars()
                     }, function (err, result)
                     {
                         if (isNull(err))
@@ -222,6 +232,8 @@ DockerManager.restoreCheckpoint = function (checkpointName, callback)
                             callback(err, false);
                         }
                     });
+
+                    logEverythingFromChildProcess(dockerSubProcess);
                 }
                 else
                 {
@@ -242,7 +254,7 @@ DockerManager.restoreCheckpoint = function (checkpointName, callback)
     }
 };
 
-DockerManager.nukeAndRebuild = function (onlyOnce)
+DockerManager.nukeAndRebuild = function (onlyOnce, callback)
 {
     if (Config.docker && Config.docker.active)
     {
@@ -250,22 +262,21 @@ DockerManager.nukeAndRebuild = function (onlyOnce)
         {
             Logger.log("Rebuilding all Docker containers.");
 
-            if (process.env.NODE_ENV === "test")
+            let dockerSubProcess = childProcess.exec(`docker-compose rm -s -v -f && docker-compose up -d`, {
+                cwd: rlequire.getRootFolder("dendro"),
+                stdio: [0, 1, 2],
+                env: DockerManager.getEnvVars()
+            }, function (err, result)
             {
-                childProcess.execSync(`/bin/bash -c "${nukeAndRebuildScript}"`, {
-                    cwd: rlequire.getRootFolder("dendro"),
-                    stdio: [0, 1, 2]
-                });
-            }
-            else
-            {
-                childProcess.execSync(`docker-compose rm -s"`, {
-                    cwd: rlequire.getRootFolder("dendro"),
-                    stdio: [0, 1, 2]
-                });
-            }
+                if (err)
+                {
+                    Logger.log("Unable to destroy existing containers.");
+                }
 
-            Logger.log("Nuked and rebuilt all containers.");
+                callback(err, result);
+            });
+
+            logEverythingFromChildProcess(dockerSubProcess);
         };
 
         if (onlyOnce)
@@ -283,19 +294,30 @@ DockerManager.nukeAndRebuild = function (onlyOnce)
     }
 };
 
-DockerManager.restartContainers = function (onlyOnce)
+DockerManager.restartContainers = function (onlyOnce, callback)
 {
     Logger.log("Restarting all Docker containers.");
     if (Config.docker && Config.docker.active)
     {
         const performOperation = function ()
         {
-            childProcess.execSync(`/bin/bash -c "${restartContainersScript}"`, {
+            const dockerSubProcess = childProcess.exec("docker-compose restart -d", {
                 cwd: rlequire.getRootFolder("dendro"),
-                stdio: [0, 1, 2]
+                env: DockerManager.getEnvVars()
+            }, function (err, result)
+            {
+                if (err)
+                {
+
+                }
+                else
+                {
+                    Logger.log("Restarted all containers");
+                }
+                callback(err, result);
             });
 
-            Logger.log("Restarted all containers");
+            logEverythingFromChildProcess(dockerSubProcess);
         };
 
         if (onlyOnce)
