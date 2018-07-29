@@ -1,19 +1,13 @@
-const path = require("path");
 const rlequire = require("rlequire");
-const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
-const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const InformationElement = rlequire("dendro", "src/models/directory_structure/information_element.js").InformationElement;
 const Ontology = rlequire("dendro", "src/models/meta/ontology.js").Ontology;
-const Project = rlequire("dendro", "src/models/project.js").Project;
 const Interaction = rlequire("dendro", "src/models/recommendation/interaction.js").Interaction;
-const User = rlequire("dendro", "src/models/user.js").User;
 
 const async = require("async");
-const needle = require("needle");
 const _ = require("underscore");
 
 const translateRecommendedFor = function (req, callback)
