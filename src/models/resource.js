@@ -3551,8 +3551,9 @@ Resource.deleteAll = function (callback, customGraphUri)
     let query =
         "WITH [0] \n" +
         "DELETE { ?uri ?p ?o} \n" +
-        "WHERE { \n" +
-        "?uri ?p ?o. \n";
+        "WHERE " +
+        "{ \n" +
+        "   ?uri ?p ?o. \n";
 
     if (!isNull(type))
     {
@@ -3571,7 +3572,7 @@ Resource.deleteAll = function (callback, customGraphUri)
         let typeRestrictions = "";
         for (let i = 0; i < rdfTypes.length; i++)
         {
-            typeRestrictions = typeRestrictions + " ?uri rdf:type [" + argumentCount + "]";
+            typeRestrictions = typeRestrictions + "     ?uri rdf:type [" + argumentCount + "]";
             argumentCount++;
 
             queryArguments.push({

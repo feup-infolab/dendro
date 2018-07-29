@@ -164,15 +164,18 @@ Interaction.all = function (callback, streaming, customGraphUri)
                             "SELECT ?uri\n" +
                             "WHERE \n" +
                             "{ \n" +
-                            "{\n" +
-                            "SELECT ?uri \n" +
-                            "FROM [0] \n" +
-                            "WHERE \n" +
-                            "{ \n" +
-                            " ?uri rdf:type ddr:Interaction \n" +
-                            "} \n" +
-                            " ORDER BY ?uri \n" +
-                            "}\n" +
+                            "   GRAPH [0] \n" +
+                            "   {\n" +
+                            "       SELECT ?uri \n" +
+                            "       WHERE \n" +
+                            "       { \n" +
+                            "           GRAPH [0] \n" +
+                            "           { \n" +
+                            "               ?uri rdf:type ddr:Interaction \n" +
+                            "           } \n" +
+                            "       } \n" +
+                            "       ORDER BY ?uri \n" +
+                            "   }\n" +
                             "} \n" +
                             " OFFSET [1] \n" +
                             " LIMIT [2] \n";

@@ -1045,27 +1045,31 @@ Descriptor.mostUsedPublicDescriptors = function (maxResults, callback, allowedOn
 
     const query =
         "SELECT DISTINCT(?uri), ?label, ?comment, ?overall_use_count \n" +
-        "WHERE { \n" +
+        "WHERE \n" +
         "{ \n" +
-        "   SELECT DISTINCT(?uri), (count(?o) as ?overall_use_count) \n" +
-        "   FROM [0] \n" +
-        "   " + fromString + " \n" +
-        "   WHERE \n" +
+        "   GRAPH [0] \n" +
         "   { \n" +
-        "       ?s ?uri ?o \n" +
-        "   } \n" +
-        "   GROUP BY ?uri \n" +
-        "} . \n" +
-        "OPTIONAL {  \n" +
-        "   ?uri    rdfs:label  ?label . \n" +
-        "   FILTER (lang(?label) = \"\" || lang(?label) = \"en\")" +
-        "}. \n" +
-        "OPTIONAL {  \n" +
-        "   ?uri  rdfs:comment   ?comment.  \n " +
-        "   FILTER (lang(?comment) = \"\" || lang(?comment) = \"en\")" +
-        "} . \n" +
-        "   " + filterString + "\n" +
-        "   FILTER( (str(?label) != \"\") && ( str(?comment) != \"\") ). \n" +
+        "       { \n" +
+        "           SELECT DISTINCT(?uri), (count(?o) as ?overall_use_count) \n" +
+        "           FROM [0] \n" +
+        "           " + fromString + " \n" +
+        "           WHERE \n" +
+        "           { \n" +
+        "               ?s ?uri ?o \n" +
+        "           } \n" +
+        "           GROUP BY ?uri \n" +
+        "       } . \n" +
+        "       OPTIONAL {  \n" +
+        "           ?uri    rdfs:label  ?label . \n" +
+        "           FILTER (lang(?label) = \"\" || lang(?label) = \"en\")" +
+        "       }. \n" +
+        "       OPTIONAL {  \n" +
+        "           ?uri  rdfs:comment   ?comment.  \n " +
+        "           FILTER (lang(?comment) = \"\" || lang(?comment) = \"en\")" +
+        "       } . \n" +
+        "       " + filterString + "\n" +
+        "       FILTER( (str(?label) != \"\") && ( str(?comment) != \"\") ). \n" +
+        "   }" +
         "}" +
         "ORDER BY DESC(?overall_use_count) \n" +
         "LIMIT " + maxResults;
@@ -1152,18 +1156,21 @@ Descriptor.findByLabelOrComment = function (filterValue, maxResults, callback, a
 
     const query =
         "SELECT DISTINCT(?uri)\n" +
-        "FROM [0] \n" +
         fromString + " \n" +
-        "WHERE { \n" +
-        "   ?uri rdfs:comment ?comment . \n" +
-        "   ?uri rdfs:label ?label . \n" +
-        "   FILTER NOT EXISTS { ?uri rdf:type owl:Class } \n" + // eliminate classes, as all descriptors are properties
-        "   FILTER EXISTS { ?uri rdfs:comment ?comment } \n" +
-        "   FILTER EXISTS { ?uri rdfs:label ?label } \n" +
-        "   FILTER (regex(?label, \"" + filterValue + "\", \"i\") || regex(?comment, \"" + filterValue + "\", \"i\" )). \n" +
-        "   FILTER( (str(?label) != \"\") && ( str(?comment) != \"\") ). \n" +
-        "   " + filterString +
-        " } \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   GRAPH [0] \n" +
+        "   { \n" +
+        "       ?uri rdfs:comment ?comment . \n" +
+        "       ?uri rdfs:label ?label . \n" +
+        "       FILTER NOT EXISTS { ?uri rdf:type owl:Class } \n" + // eliminate classes, as all descriptors are properties
+        "       FILTER EXISTS { ?uri rdfs:comment ?comment } \n" +
+        "       FILTER EXISTS { ?uri rdfs:label ?label } \n" +
+        "       FILTER (regex(?label, \"" + filterValue + "\", \"i\") || regex(?comment, \"" + filterValue + "\", \"i\" )). \n" +
+        "       FILTER( (str(?label) != \"\") && ( str(?comment) != \"\") ). \n" +
+        "       " + filterString +
+        "   } \n" +
+        "} \n" +
         "ORDER BY DESC(regex(?label, \"^" + filterValue + "$\", \"i\")) \n" +
         " LIMIT  " + maxResults;
 

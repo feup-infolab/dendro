@@ -30,7 +30,7 @@ Change.findByAssociatedRevision = function (revisionUri, callback)
 {
     const query =
         "SELECT ?uri \n" +
-        "WHERE { \n" +
+        "WHERE\n" +
         "{ \n" +
         "   GRAPH [0] \n" +
         "   { \n" +

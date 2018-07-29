@@ -36,9 +36,10 @@ const getNumLikesForAFileVersion = function (fileVersionUri, cb)
         "SELECT ?likeURI ?userURI \n" +
         "FROM [0] \n" +
         "WHERE { \n" +
-        "?likeURI rdf:type ddr:Like. \n" +
-        "?likeURI ddr:postURI [1]. \n" +
-        "?likeURI ddr:userWhoLiked ?userURI . \n" +
+        "   ?likeURI rdf:type ddr:Like. \n" +
+        "   ?likeURI ddr:postURI [1]. \n" +
+        "   ?likeURI ddr:userWhoLiked ?userURI . \n" +
+        "   } \n" +
         "} \n";
 
     db.connection.execute(query,
@@ -71,11 +72,14 @@ const removeOrAdLikeFileVersion = function (fileVersionUri, currentUserUri, cb)
 
     const query =
         "SELECT ?likeURI \n" +
-        "FROM [0] \n" +
-        "WHERE { \n" +
-        "?likeURI rdf:type ddr:Like. \n" +
-        "?likeURI ddr:postURI [1]. \n" +
-        "?likeURI ddr:userWhoLiked [2]. \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   GRAPH [0] \n" +
+        "   { \n" +
+        "       ?likeURI rdf:type ddr:Like. \n" +
+        "       ?likeURI ddr:postURI [1]. \n" +
+        "       ?likeURI ddr:userWhoLiked [2]. \n" +
+        "   } \n" +
         "} \n";
 
     db.connection.execute(query,
@@ -162,10 +166,13 @@ const getSharesForAFileVersion = function (fileVersionUri, cb)
 {
     const query =
         "SELECT ?shareURI \n" +
-        "FROM [0] \n" +
-        "WHERE { \n" +
-        "?shareURI rdf:type ddr:Share. \n" +
-        "?shareURI ddr:fileVersionUri [1]. \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   GRAPH [0] \n" +
+        "   { \n" +
+        "       ?shareURI rdf:type ddr:Share. \n" +
+        "       ?shareURI ddr:fileVersionUri [1]. \n" +
+        "   } \n" +
         "} \n";
 
     db.connection.execute(query,

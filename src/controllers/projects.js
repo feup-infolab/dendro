@@ -18,6 +18,7 @@ const DbConnection = rlequire("dendro", "src/kb/db.js").DbConnection;
 const Uploader = rlequire("dendro", "src/utils/uploader.js").Uploader;
 const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const Notification = rlequire("dendro", "src/models/notifications/notification.js").Notification;
 
 const nodemailer = require("nodemailer");
 const flash = require("connect-flash");
@@ -138,10 +139,11 @@ exports.my = function (req, res)
                     viewVars
                 );
 
-                const injectAuthorInfo = function(project, callback)
+                const injectAuthorInfo = function (project, callback)
                 {
-                    User.findByUri(project.dcterms.creator, function(err, creator){
-                        if(!isNull(creator))
+                    User.findByUri(project.dcterms.creator, function (err, creator)
+                    {
+                        if (!isNull(creator))
                         {
                             project.ddr.creator = creator;
                         }
@@ -149,7 +151,8 @@ exports.my = function (req, res)
                     });
                 };
 
-                async.map(projects, injectAuthorInfo, function(err, injectedProjects){
+                async.map(projects, injectAuthorInfo, function (err, injectedProjects)
+                {
                     viewVars.projects = injectedProjects;
                     res.render("projects/my",
                         viewVars
@@ -592,7 +595,7 @@ exports.show = function (req, res)
                                     if (immediateParent.uri === ownerProject.ddr.rootFolder)
                                     {
                                         go_up_options = {
-                                            uri: ownerProject.uri,
+                                            uri: ownerProject.ddr.htmlUrl,
                                             title: ownerProject.dcterms.title,
                                             icons: [
                                                 "/images/icons/box_closed.png",
@@ -615,7 +618,7 @@ exports.show = function (req, res)
                                 else
                                 {
                                     go_up_options = {
-                                        uri: ownerProject.uri,
+                                        uri: ownerProject.ddr.htmlUrl,
                                         title: ownerProject.dcterms.title,
                                         icons: [
                                             "/images/icons/box_closed.png",
@@ -625,7 +628,7 @@ exports.show = function (req, res)
                                 }
 
                                 breadcrumbs.push({
-                                    uri: ownerProject.uri,
+                                    uri: ownerProject.ddr.htmlUrl,
                                     title: ownerProject.dcterms.title,
                                     icons: [
                                         "/images/icons/box_closed.png",
@@ -649,11 +652,11 @@ exports.show = function (req, res)
 
                                 breadcrumbs.push(
                                     {
-                                        uri: resourceBeingAccessed.uri,
+                                        uri: resourceBeingAccessed.ddr.htmlUrl,
                                         type: resourceBeingAccessed.rdf.type,
                                         title: resourceBeingAccessed.nie.title,
                                         icons: [
-                                            resourceBeingAccessed.uri + "?thumbnail&size=small"
+                                            resourceBeingAccessed.ddr.htmlUrl + "?thumbnail&size=small"
                                         ]
                                     }
                                 );

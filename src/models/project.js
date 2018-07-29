@@ -479,17 +479,20 @@ Project.findByCreatorOrContributor = function (creatorOrContributor, callback)
 {
     const query =
         "SELECT ?uri \n" +
-        "FROM [0] \n" +
-        "WHERE { \n" +
+        "WHERE \n" +
         "{ \n" +
-        " ?uri rdf:type ddr:Project . " +
-        " ?uri dcterms:creator [1] \n" +
-        "} \n" +
-        " UNION \n" +
-        "{ \n" +
-        " ?uri rdf:type ddr:Project . " +
-        " ?uri dcterms:contributor [1] \n" +
-        "} \n" +
+        "   GRAPH [0] \n" +
+        "   { \n" +
+        "       { \n" +
+        "           ?uri rdf:type ddr:Project . " +
+        "           ?uri dcterms:creator [1] \n" +
+        "       } \n" +
+        "       UNION \n" +
+        "       { \n" +
+        "           ?uri rdf:type ddr:Project . " +
+        "           ?uri dcterms:contributor [1] \n" +
+        "       } \n" +
+        "   } \n" +
         "} \n";
 
     db.connection.execute(query,
@@ -610,16 +613,19 @@ Project.prototype.isUserACreatorOrContributor = function (userUri, callback)
     const self = this;
     const query =
         "SELECT ?uri \n" +
-        "FROM [0] \n" +
-        "WHERE { \n" +
-        " { \n" +
-        "       [1] rdf:type ddr:Project . \n" +
-        "       ?uri dcterms:creator [2] \n" +
-        "   } \n" +
-        "   UNION \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   GRAPH [0] \n" +
         "   { \n" +
-        "       [1] rdf:type ddr:Project . \n" +
-        "       ?uri dcterms:contributor [3] \n" +
+        "       { \n" +
+        "           [1] rdf:type ddr:Project . \n" +
+        "           ?uri dcterms:creator [2] \n" +
+        "       } \n" +
+        "       UNION \n" +
+        "       { \n" +
+        "           [1] rdf:type ddr:Project . \n" +
+        "           ?uri dcterms:contributor [3] \n" +
+        "       } \n" +
         "   } \n" +
         "} \n";
 

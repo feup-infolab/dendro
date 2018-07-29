@@ -330,11 +330,14 @@ const getNumLikesForAPost = function (postID, cb)
 {
     const query =
         "SELECT ?likeURI ?userURI \n" +
-        "FROM [0] \n" +
-        "WHERE { \n" +
-        "?likeURI rdf:type ddr:Like. \n" +
-        "?likeURI ddr:postURI [1]. \n" +
-        "?likeURI ddr:userWhoLiked ?userURI . \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   GRAPH [0] \n" +
+        "   { \n" +
+        "       ?likeURI rdf:type ddr:Like. \n" +
+        "       ?likeURI ddr:postURI [1]. \n" +
+        "       ?likeURI ddr:userWhoLiked ?userURI . \n" +
+        "   } \n" +
         "} \n";
 
     db.connection.execute(query,
@@ -363,11 +366,6 @@ const getNumLikesForAPost = function (postID, cb)
 
 const numPostsDatabaseAux = function (projectUrisArray, callback)
 {
-    /* WITH <http://127.0.0.1:3001/social_dendro>
-     SELECT (COUNT(DISTINCT ?postURI) AS ?count)
-     WHERE {
-     ?postURI rdf:type ddr:Post.
-     } */
     if (projectUrisArray && projectUrisArray.length > 0)
     {
         async.mapSeries(projectUrisArray, function (uri, cb1)
@@ -421,11 +419,14 @@ const userLikedAPost = function (postID, userUri, cb)
 
     const query =
         "SELECT ?likeURI \n" +
-        "FROM [0] \n" +
-        "WHERE { \n" +
-        "?likeURI rdf:type ddr:Like. \n" +
-        "?likeURI ddr:postURI [1]. \n" +
-        "?likeURI ddr:userWhoLiked [2]. \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   GRAPH [0] \n" +
+        "   { \n" +
+        "       ?likeURI rdf:type ddr:Like. \n" +
+        "       ?likeURI ddr:postURI [1]. \n" +
+        "       ?likeURI ddr:userWhoLiked [2]. \n" +
+        "   } \n" +
         "} \n";
 
     db.connection.execute(query,
@@ -469,11 +470,14 @@ const removeOrAddLike = function (postID, userUri, cb)
 
     const query =
         "SELECT ?likeURI \n" +
-        "FROM [0] \n" +
-        "WHERE { \n" +
-        "?likeURI rdf:type ddr:Like. \n" +
-        "?likeURI ddr:postURI [1]. \n" +
-        "?likeURI ddr:userWhoLiked [2]. \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   GRAPH [0] \n" +
+        "   { \n" +
+        "       ?likeURI rdf:type ddr:Like. \n" +
+        "       ?likeURI ddr:postURI [1]. \n" +
+        "       ?likeURI ddr:userWhoLiked [2]. \n" +
+        "   } \n" +
         "} \n";
 
     db.connection.execute(query,
@@ -568,11 +572,14 @@ const getCommentsForAPost = function (postID, cb)
 
     const query =
         "SELECT ?commentURI \n" +
-        "FROM [0] \n" +
-        "WHERE { \n" +
-        "?commentURI rdf:type ddr:Comment. \n" +
-        "?commentURI ddr:postURI [1]. \n" +
-        "?commentURI ddr:modified ?date. \n " +
+        "WHERE \n" +
+        "{ \n" +
+        "   GRAPH [0] \n" +
+        "   { \n" +
+        "       ?commentURI rdf:type ddr:Comment. \n" +
+        "       ?commentURI ddr:postURI [1]. \n" +
+        "       ?commentURI ddr:modified ?date. \n " +
+        "   } \n" +
         "} \n" +
         "ORDER BY ASC(?date) \n";
 
@@ -911,10 +918,13 @@ const getSharesForAPost = function (postID, cb)
 
     const query =
         "SELECT ?shareURI \n" +
-        "FROM [0] \n" +
-        "WHERE { \n" +
-        "?shareURI rdf:type ddr:Share. \n" +
-        "?shareURI ddr:postURI [1]. \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   GRAPH [0] \n" +
+        "   { \n" +
+        "       ?shareURI rdf:type ddr:Share. \n" +
+        "       ?shareURI ddr:postURI [1]. \n" +
+        "   } \n" +
         "} \n";
 
     db.connection.execute(query,

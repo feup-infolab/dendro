@@ -436,7 +436,12 @@ exports.from_ontology_in_project = function (req, res)
                                                     {
                                                         return _.find(results, function (userFavoriteDescriptor)
                                                         {
-                                                            return userFavoriteDescriptor.uri === descriptor.uri;
+                                                            if (!isNull(userFavoriteDescriptor))
+                                                            {
+                                                                return userFavoriteDescriptor.uri === descriptor.uri;
+                                                            }
+
+                                                            return false;
                                                         });
                                                     };
 

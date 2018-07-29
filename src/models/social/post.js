@@ -48,11 +48,14 @@ Post.prototype.getComments = function (cb)
 
     var query =
             "SELECT ?commentURI \n" +
-            "FROM [0] \n" +
-            "WHERE { \n" +
-            "?commentURI rdf:type ddr:Comment. \n" +
-            "?commentURI ddr:postURI [1]. \n" +
-            "?commentURI ddr:modified ?date. \n " +
+            "WHERE \n" +
+            "{ \n" +
+            "   GRAPH [0] \n" +
+            "   { \n" +
+            "       ?commentURI rdf:type ddr:Comment. \n" +
+            "       ?commentURI ddr:postURI [1]. \n" +
+            "       ?commentURI ddr:modified ?date. \n " +
+            "   } \n" +
             "} \n" +
             "ORDER BY ASC(?date) \n";
 
@@ -96,11 +99,14 @@ Post.prototype.getNumLikes = function (cb)
 
     var query =
             "SELECT ?likeURI ?userURI \n" +
-            "FROM [0] \n" +
-            "WHERE { \n" +
-            "?likeURI rdf:type ddr:Like. \n" +
-            "?likeURI ddr:postURI [1]. \n" +
-            "?likeURI ddr:userWhoLiked ?userURI . \n" +
+            "WHERE \n" +
+            "{ \n" +
+            "   GRAPH [0] \n" +
+            "   { \n" +
+            "       ?likeURI rdf:type ddr:Like. \n" +
+            "       ?likeURI ddr:postURI [1]. \n" +
+            "       ?likeURI ddr:userWhoLiked ?userURI . \n" +
+            "   } \n" +
             "} \n";
 
     db.connection.execute(query,
@@ -165,10 +171,13 @@ Post.prototype.getShares = function (cb)
 
     var query =
             "SELECT ?shareURI \n" +
-            "FROM [0] \n" +
-            "WHERE { \n" +
-            "?shareURI rdf:type ddr:Share. \n" +
-            "?shareURI ddr:postURI [1]. \n" +
+            "WHERE " +
+            "{ \n" +
+            "   GRAPH [0] \n" +
+            "   { \n" +
+            "       ?shareURI rdf:type ddr:Share. \n" +
+            "       ?shareURI ddr:postURI [1]. \n" +
+            "   } \n" +
             "} \n";
 
     db.connection.execute(query,

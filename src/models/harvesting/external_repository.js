@@ -24,12 +24,13 @@ ExternalRepository.findByCreator = function (creatorUri, callback)
 {
     const query =
         "SELECT ?uri \n" +
-        "FROM [0] \n" +
-        "WHERE { \n" +
+        "WHERE " +
         "{ \n" +
-        " ?uri rdf:type ddr:ExternalRepository . " +
-        " ?uri dcterms:creator [1] \n" +
-        "} \n" +
+        "   GRAPH [0] \n" +
+        "   { \n" +
+        "       ?uri rdf:type ddr:ExternalRepository . " +
+        "       ?uri dcterms:creator [1] \n" +
+        "   } \n" +
         "} \n";
 
     db.connection.execute(query,

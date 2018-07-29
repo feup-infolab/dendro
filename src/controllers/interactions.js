@@ -16,6 +16,31 @@ const async = require("async");
 const needle = require("needle");
 const _ = require("underscore");
 
+const translateRecommendedFor = function (req, callback)
+{
+    if (isNull(req.body.recommendedFor))
+    {
+        callback(null);
+    }
+    else
+    {
+        const Resource = Object.create(rlequire("dendro", "src/models/resource.js").Resource);
+        try
+        {
+            req.body.recommendedFor = Resource.getUriFromRelativeUrl(req.body.recommendedFor);
+            callback(null);
+        }
+        catch (e)
+        {
+            let errorObj = {
+                statusCode: 500,
+                message: "Request not valid. field recommendedFor (" + req.body.recommendedFor + ")does not follow the right format: \"^/r/[folder|file]/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$\";. Check the request's body."
+            };
+            callback(null, errorObj);
+        }
+    }
+};
+
 const addOntologyToListOfActiveOntologiesInSession = function (ontology, req)
 {
     if (isNull(req.user.recommendations))
@@ -45,139 +70,154 @@ const recordInteractionOverAResource = function (user, resource, req, res)
     {
         if (!isNull(resource.recommendedFor) && typeof resource.recommendedFor === "string")
         {
-            InformationElement.findByUri(resource.recommendedFor, function (err, ie)
+            translateRecommendedFor(req, function (err, errorObj)
             {
                 if (!err)
                 {
-                    if (!isNull(ie))
+                    InformationElement.findByUri(resource.recommendedFor, function (err, ie)
                     {
-                        ie.getOwnerProject(function (err, project)
+                        if (!err)
                         {
-                            if (isNull(err))
+                            if (!isNull(ie))
                             {
-                                if (!isNull(project))
+                                ie.getOwnerProject(function (err, project)
                                 {
-                                    project.getCreatorsAndContributors(function (err, contributors)
+                                    if (isNull(err))
                                     {
-                                        if (isNull(err) && !isNull(contributors) && contributors instanceof Array)
+                                        if (!isNull(project))
                                         {
-                                            const createInteraction = function ()
+                                            project.getCreatorsAndContributors(function (err, contributors)
                                             {
-                                                Interaction.create({
-                                                    ddr: {
-                                                        performedBy: user.uri,
-                                                        interactionType: req.body.interactionType,
-                                                        executedOver: resource.uri,
-                                                        originallyRecommendedFor: req.body.recommendedFor,
-                                                        rankingPosition: req.body.rankingPosition,
-                                                        pageNumber: req.body.pageNumber,
-                                                        recommendationCallId: req.body.recommendationCallId,
-                                                        recommendationCallTimeStamp: req.body.recommendationCallTimeStamp,
-                                                        projectUri: project.uri
-                                                    }
-                                                }, function (err, interaction)
+                                                if (isNull(err) && !isNull(contributors) && contributors instanceof Array)
                                                 {
-                                                    interaction.save(
-                                                        function (err, result)
+                                                    const createInteraction = function ()
+                                                    {
+                                                        Interaction.create({
+                                                            ddr: {
+                                                                performedBy: user.uri,
+                                                                interactionType: req.body.interactionType,
+                                                                executedOver: resource.uri,
+                                                                originallyRecommendedFor: req.body.recommendedFor,
+                                                                rankingPosition: req.body.rankingPosition,
+                                                                pageNumber: req.body.pageNumber,
+                                                                recommendationCallId: req.body.recommendationCallId,
+                                                                recommendationCallTimeStamp: req.body.recommendationCallTimeStamp,
+                                                                projectUri: project.uri
+                                                            }
+                                                        }, function (err, interaction)
                                                         {
-                                                            if (isNull(err))
-                                                            {
-                                                                interaction.saveToMySQL(function (err, result)
+                                                            interaction.save(
+                                                                function (err, result)
                                                                 {
                                                                     if (isNull(err))
                                                                     {
-                                                                        const msg = "Interaction of type " + req.body.interactionType + " over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " recorded successfully";
-                                                                        Logger.log(msg);
-                                                                        return res.json({
-                                                                            result: "OK",
+                                                                        interaction.saveToMySQL(function (err, result)
+                                                                        {
+                                                                            if (isNull(err))
+                                                                            {
+                                                                                const msg = "Interaction of type " + req.body.interactionType + " over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " recorded successfully";
+                                                                                Logger.log(msg);
+                                                                                return res.json({
+                                                                                    result: "OK",
+                                                                                    message: msg
+                                                                                });
+                                                                            }
+                                                                            const msg = "Error saving interaction of type " + req.body.interactionType + " over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " to MYSQL. Error reported: " + result;
+                                                                            Logger.log(msg);
+                                                                            return res.status(500).json({
+                                                                                result: "Error",
+                                                                                message: msg
+                                                                            });
+                                                                        });
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        const msg = "Error recording interaction over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " : " + result;
+                                                                        Logger.log("error", msg);
+                                                                        return res.status(500).json({
+                                                                            result: "Error",
                                                                             message: msg
                                                                         });
                                                                     }
-                                                                    const msg = "Error saving interaction of type " + req.body.interactionType + " over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " to MYSQL. Error reported: " + result;
-                                                                    Logger.log(msg);
-                                                                    return res.status(500).json({
-                                                                        result: "Error",
-                                                                        message: msg
-                                                                    });
                                                                 });
-                                                            }
-                                                            else
-                                                            {
-                                                                const msg = "Error recording interaction over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " : " + result;
-                                                                Logger.log("error", msg);
-                                                                return res.status(500).json({
-                                                                    result: "Error",
-                                                                    message: msg
-                                                                });
-                                                            }
                                                         });
-                                                });
-                                            };
+                                                    };
 
-                                            if (req.user.isAdmin)
-                                            {
-                                                createInteraction();
-                                                return;
-                                            }
+                                                    if (req.user.isAdmin)
+                                                    {
+                                                        createInteraction();
+                                                        return;
+                                                    }
 
-                                            for (let i = 0; i < contributors.length; i++)
-                                            {
-                                                if (contributors[i].uri === user.uri)
-                                                {
-                                                    createInteraction();
-                                                    return;
+                                                    for (let i = 0; i < contributors.length; i++)
+                                                    {
+                                                        if (contributors[i].uri === user.uri)
+                                                        {
+                                                            createInteraction();
+                                                            return;
+                                                        }
+                                                    }
+
+                                                    const msg = "Unable to record interactions for resources of projects of which you are not a creator or contributor. User uri:  " + user.uri + ". Resource in question" + resource.uri + ". Owner project " + project.uri;
+                                                    Logger.log("error", msg);
+                                                    res.status(400).json({
+                                                        result: "Error",
+                                                        message: msg
+                                                    });
                                                 }
-                                            }
-
-                                            const msg = "Unable to record interactions for resources of projects of which you are not a creator or contributor. User uri:  " + user.uri + ". Resource in question" + resource.uri + ". Owner project " + project.uri;
-                                            Logger.log("error", msg);
-                                            res.status(400).json({
-                                                result: "Error",
-                                                message: msg
+                                                else
+                                                {
+                                                    const msg = "Unable to retrieve creators and contributors of parent project " + project.uri + " of resource " + resource.uri;
+                                                    Logger.log("error", msg);
+                                                    res.status(500).json({
+                                                        result: "Error",
+                                                        message: msg
+                                                    });
+                                                }
                                             });
                                         }
-                                        else
-                                        {
-                                            const msg = "Unable to retrieve creators and contributors of parent project " + project.uri + " of resource " + resource.uri;
-                                            Logger.log("error", msg);
-                                            res.status(500).json({
-                                                result: "Error",
-                                                message: msg
-                                            });
-                                        }
-                                    });
-                                }
+                                    }
+                                    else
+                                    {
+                                        const msg = "Unable to retrieve parent project of resource " + resource.uri;
+                                        Logger.log("error", msg);
+                                        res.status(404).json({
+                                            result: "Error",
+                                            message: msg
+                                        });
+                                    }
+                                });
                             }
                             else
                             {
-                                const msg = "Unable to retrieve parent project of resource " + resource.uri;
+                                const msg = "Resource with uri " + resource.recommendedFor + " not found in this system.";
+                                Logger.log("error", JSON.stringify(resource));
                                 Logger.log("error", msg);
                                 res.status(404).json({
                                     result: "Error",
                                     message: msg
                                 });
                             }
-                        });
-                    }
-                    else
-                    {
-                        const msg = "Resource with uri " + resource.recommendedFor + " not found in this system.";
-                        Logger.log("error", JSON.stringify(resource));
-                        Logger.log("error", msg);
-                        res.status(404).json({
-                            result: "Error",
-                            message: msg
-                        });
-                    }
+                        }
+                        else
+                        {
+                            const msg = "Error retriving resource " + resource.recommendedFor;
+                            Logger.log("error", JSON.stringify(resource));
+                            Logger.log("error", msg);
+                            res.status(500).json({
+                                result: "Error",
+                                message: msg
+                            });
+                        }
+                    });
                 }
                 else
                 {
-                    const msg = "Error retriving resource " + resource.recommendedFor;
-                    Logger.log("error", JSON.stringify(resource));
-                    Logger.log("error", msg);
-                    res.status(500).json({
+                    Logger.log("error", errorObj.msg);
+                    res.status(errorObj.statusCode).json({
                         result: "Error",
-                        message: msg
+                        message: errorObj.msg,
+                        error: errorObj
                     });
                 }
             });
