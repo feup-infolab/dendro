@@ -35,7 +35,7 @@
       "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
     },
     "cache": {
-      "active": true,
+      "active": false,
       "redis": {
         "active": false,
         "instances": {
@@ -60,7 +60,7 @@
         }
       },
       "mongodb": {
-        "active": true,
+        "active": false,
         "instances": {
           "default": {
             "database": "127.0.0.1:3001",
@@ -474,7 +474,7 @@
       "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
     },
     "cache": {
-      "active": true,
+      "active": false,
       "redis": {
         "active": false,
         "instances": {
@@ -499,7 +499,7 @@
         }
       },
       "mongodb": {
-        "active": true,
+        "active": false,
         "instances": {
           "default": {
             "database": "127.0.0.1:3001",
@@ -914,7 +914,7 @@
       "password": ""
     },
     "cache": {
-      "active": true,
+      "active": false,
       "redis": {
         "active": false,
         "instances": {
@@ -939,7 +939,7 @@
         }
       },
       "mongodb": {
-        "active": true,
+        "active": false,
         "instances": {
           "default": {
             "database": "127.0.0.1:3002",
@@ -1037,7 +1037,7 @@
       }
     ],
     "demo_mode": {
-      "active": true,
+      "active": false,
       "users": [
         {
           "username": "demouser1",
@@ -1349,7 +1349,7 @@
       "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
     },
     "cache": {
-      "active": true,
+      "active": false,
       "redis": {
         "active": false,
         "instances": {
@@ -1374,7 +1374,7 @@
         }
       },
       "mongodb": {
-        "active": true,
+        "active": false,
         "instances": {
           "default": {
             "database": "127.0.0.1:3002",
@@ -1784,7 +1784,7 @@
       "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
     },
     "cache": {
-      "active": true,
+      "active": false,
       "redis": {
         "active": false,
         "instances": {
@@ -1809,7 +1809,7 @@
         }
       },
       "mongodb": {
-        "active": true,
+        "active": false,
         "instances": {
           "default": {
             "database": "127.0.0.1:3002",
@@ -1851,7 +1851,7 @@
     "fusekiHost": "127.0.0.1",
     "fusekiPort": "3031",
     "fusekiDataset": "test",
-    "fusekiDbType": "tdb",
+    "fusekiDbType": "mem",
     "fusekiAuth": {
       "user": "admin",
       "password": "pw123"
@@ -2156,7 +2156,7 @@
       "active": true,
       "reuse_checkpoints": false,
       "create_checkpoints": false,
-      "destroy_existing_images_at_start": true,
+      "destroy_existing_images_at_start": false,
       "start_and_stop_containers_automatically": false,
       "environment_variables": {
         "CONTAINER_NAME_SUFFIX": "travis",

@@ -269,7 +269,8 @@ DockerManager.nukeAndRebuild = function (onlyOnce, callback)
             }, function (err1, result)
             {
                 const rimraf = require("rimraf");
-                rimraf(Config.docker.environment_variables.VOLUMES_FOLDER, function(err2, result){
+                rimraf(Config.docker.environment_variables.VOLUMES_FOLDER, function (err2, result)
+                {
                     if (!isNull(err1) || !isNull(err2))
                     {
                         Logger.log("Unable to destroy existing containers.");

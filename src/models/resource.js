@@ -496,48 +496,60 @@ Resource.prototype.deleteAllMyTriples = function (callback, customGraphUri)
         graphUri = customGraphUri;
     }
 
-    // Invalidate cache record for the updated resources
-    Cache.getByGraphUri(graphUri).delete(self.uri, function (err, result)
+    const deleteFromTripleStore = function (callback)
     {
-        self.unindex(function (err, result)
+        Config.getDBByGraphUri(graphUri).connection.execute(
+            "WITH [0] \n" +
+            "DELETE \n" +
+            "WHERE " +
+            "{ \n" +
+            "   [1] ?p ?o \n" +
+            "} \n",
+            [
+                {
+                    type: Elements.types.resourceNoEscape,
+                    value: graphUri
+                },
+                {
+                    type: Elements.types.resource,
+                    value: self.uri
+                }
+            ],
+            function (err, results)
+            {
+                if (isNull(err))
+                {
+                    return callback(err, results);
+                }
+                return callback(1, results);
+            },
+            {
+                runAsUpdate: true
+            });
+    };
+
+    if (Config.cache.active)
+    {
+        // Invalidate cache record for the updated resources
+        Cache.getByGraphUri(graphUri).delete(self.uri, function (err, result)
         {
-            if (isNull(err))
+            self.unindex(function (err, result)
             {
-                Config.getDBByGraphUri(graphUri).connection.execute(
-                    "WITH [0] \n" +
-                    "DELETE \n" +
-                    "WHERE " +
-                    "{ \n" +
-                    "   [1] ?p ?o \n" +
-                    "} \n",
-                    [
-                        {
-                            type: Elements.types.resourceNoEscape,
-                            value: graphUri
-                        },
-                        {
-                            type: Elements.types.resource,
-                            value: self.uri
-                        }
-                    ],
-                    function (err, results)
-                    {
-                        if (isNull(err))
-                        {
-                            return callback(err, results);
-                        }
-                        return callback(1, results);
-                    },
-                    {
-                        runAsUpdate: true
-                    });
-            }
-            else
-            {
-                callback(2, err);
-            }
-        }, customGraphUri);
-    });
+                if (isNull(err))
+                {
+                    deleteFromTripleStore(callback(err, result));
+                }
+                else
+                {
+                    callback(2, err);
+                }
+            }, customGraphUri);
+        });
+    }
+    else
+    {
+        deleteFromTripleStore(callback(err, result));
+    }
 };
 
 /**
@@ -586,11 +598,18 @@ Resource.prototype.deleteDescriptorTriples = function (descriptorInPrefixedForm,
                 {
                     if (isNull(err))
                     {
-                        // Invalidate cache record for the updated resources
-                        Cache.getByGraphUri(db).delete([self.uri, valueInPrefixedForm], function (err, result)
+                        if (Config.cache.active)
+                        {
+                            // Invalidate cache record for the updated resources
+                            Cache.getByGraphUri(db).delete([self.uri, valueInPrefixedForm], function (err, result)
+                            {
+                                return callback(err, result);
+                            });
+                        }
+                        else
                         {
                             return callback(err, result);
-                        });
+                        }
                     }
                     else
                     {
@@ -628,11 +647,18 @@ Resource.prototype.deleteDescriptorTriples = function (descriptorInPrefixedForm,
                 {
                     if (isNull(err))
                     {
-                        // Invalidate cache record for the updated resources
-                        Cache.getByGraphUri(graphUri).delete([self.uri, valueInPrefixedForm], function (err, result)
+                        if (Config.cache.active)
                         {
-                            return callback(err, result);
-                        });
+                            // Invalidate cache record for the updated resources
+                            Cache.getByGraphUri(graphUri).delete([self.uri, valueInPrefixedForm], function (err, result)
+                            {
+                                return callback(err, result);
+                            });
+                        }
+                        else
+                        {
+                            callback(err, result);
+                        }
                     }
                     else
                     {
@@ -1015,17 +1041,36 @@ Resource.prototype.replaceDescriptorsInTripleStore = function (newDescriptors, d
             "   } \n" +
             "} \n";
 
-        // Invalidate cache record for the updated resources
-        Cache.getByGraphUri(graphName).delete(subject, function (err, result)
-        {
-            db.connection.execute(query, queryArguments, function (err, results)
+        async.parallel([
+            function (callback)
             {
-                return callback(err, results);
-                // Logger.log(results);
+                // Invalidate cache record for the updated resources
+                if (Config.cache.active)
+                {
+                    Cache.getByGraphUri(graphName).delete(subject, function (err, result)
+                    {
+                        callback(err);
+                    });
+                }
+                else
+                {
+                    callback(null);
+                }
             },
+            function (callback)
             {
-                runAsUpdate: true
-            });
+                db.connection.execute(query, queryArguments, function (err, results)
+                {
+                    return callback(err, results);
+                    // Logger.log(results);
+                },
+                {
+                    runAsUpdate: true
+                });
+            }
+        ], function (err)
+        {
+            callback(err);
         });
     }
     else
@@ -3143,7 +3188,22 @@ Resource.prototype.checkIfHasPredicateValue = function (predicateInPrefixedForm,
                 });
         };
 
-        Cache.getByGraphUri(customGraphUri).get(self.uri, function (err, cachedResource)
+        const checkInCache = function (callback)
+        {
+            if (Config.cache.active)
+            {
+                Cache.getByGraphUri(customGraphUri).get(self.uri, function (err, cachedResource)
+                {
+                    callback(err, cachedResource);
+                });
+            }
+            else
+            {
+                callback(null, null);
+            }
+        };
+
+        checkInCache(function (err, cachedResource)
         {
             if (isNull(err) && !isNull(cachedResource))
             {
@@ -3151,7 +3211,7 @@ Resource.prototype.checkIfHasPredicateValue = function (predicateInPrefixedForm,
                 const element = descriptorToCheck.getShortName();
                 if (
                     !isNull(cachedResource[namespace]) &&
-                   !isNull(cachedResource[namespace][element])
+                !isNull(cachedResource[namespace][element])
                 )
                 {
                     let descriptorValue = cachedResource[namespace][element];
@@ -3595,9 +3655,22 @@ Resource.deleteAll = function (callback, customGraphUri)
 
     query = query + "} \n";
 
-    Cache.getByGraphUri(graphUri).deleteAlByType(self.prefixedRDFType, function (err, result)
-    {
-        if (isNull(err))
+    async.parallel([
+        function (callback)
+        {
+            if (Config.cache.active)
+            {
+                Cache.getByGraphUri(graphUri).deleteAlByType(self.prefixedRDFType, function (err, result)
+                {
+                    callback(err);
+                });
+            }
+            else
+            {
+                callback(null);
+            }
+        },
+        function (callback)
         {
             db.connection.execute(
                 query,
@@ -3613,6 +3686,12 @@ Resource.deleteAll = function (callback, customGraphUri)
                 {
                     runAsUpdate: true
                 });
+        }
+    ], function (err)
+    {
+        if (isNull(err))
+        {
+            callback(err);
         }
         else
         {

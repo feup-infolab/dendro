@@ -452,30 +452,57 @@ InformationElement.prototype.rename = function (newTitle, callback, customGraphU
                 {
                     if (isNull(err))
                     {
-                        Cache.getByGraphUri(db.graphUri).delete(self.uri, function (err, result)
+                        const invalidateCache = function (callback)
+                        {
+                            Cache.getByGraphUri(db.graphUri).delete(self.uri, function (err, result)
+                            {
+                                if (isNull(err))
+                                {
+                                    callback(err, result);
+                                }
+                                else
+                                {
+                                    const msg = "Error invalidating cache for information element : " + self.uri + JSON.stringify(result);
+                                    Logger.log("error", msg);
+                                    Logger.log("error", JSON.stringify(err));
+                                    Logger.log("error", JSON.stringify(result));
+                                    return callback(1, msg);
+                                }
+                            });
+                        };
+
+                        async.series([
+                            function (callback)
+                            {
+                                if (Config.cache.active)
+                                {
+                                    invalidateCache(function (err)
+                                    {
+                                        callback(err);
+                                    });
+                                }
+                                else
+                                {
+                                    callback(null, null);
+                                }
+                            },
+                            function (callback)
+                            {
+                                self.reindex(function (err)
+                                {
+                                    callback(err);
+                                });
+                            }
+                        ], function (err, result)
                         {
                             if (isNull(err))
                             {
-                                self.reindex(function (err, result)
-                                {
-                                    if (isNull(err))
-                                    {
-                                        return callback(err, self);
-                                    }
+                                return callback(err, self);
+                            }
 
-                                    const msg = "Error reindexing file " + self.uri + " : " + JSON.stringify(err, null, 4) + "\n" + JSON.stringify(result, null, 4);
-                                    Logger.log("error", msg);
-                                    return callback(1, msg);
-                                });
-                            }
-                            else
-                            {
-                                const msg = "Error invalidating cache for information element : " + self.uri + JSON.stringify(result);
-                                Logger.log("error", msg);
-                                Logger.log("error", JSON.stringify(err));
-                                Logger.log("error", JSON.stringify(result));
-                                return callback(1, msg);
-                            }
+                            const msg = "Error reindexing file " + self.uri + " : " + JSON.stringify(err, null, 4) + "\n" + JSON.stringify(result, null, 4);
+                            Logger.log("error", msg);
+                            return callback(1, msg);
                         });
                     }
                     else
@@ -621,15 +648,36 @@ InformationElement.prototype.moveToFolder = function (newParentFolder, callback)
                         async.series([
                             function (callback)
                             {
-                                Cache.getByGraphUri(db.graphUri).delete(self.uri, callback);
+                                if (Config.cache.active)
+                                {
+                                    Cache.getByGraphUri(db.graphUri).delete(self.uri, callback);
+                                }
+                                else
+                                {
+                                    callback(null);
+                                }
                             },
                             function (callback)
                             {
-                                Cache.getByGraphUri(db.graphUri).delete(newParentUri, callback);
+                                if (Config.cache.active)
+                                {
+                                    Cache.getByGraphUri(db.graphUri).delete(newParentUri, callback);
+                                }
+                                else
+                                {
+                                    callback(null);
+                                }
                             },
                             function (callback)
                             {
-                                Cache.getByGraphUri(db.graphUri).delete(oldParentUri, callback);
+                                if (Config.cache.active)
+                                {
+                                    Cache.getByGraphUri(db.graphUri).delete(oldParentUri, callback);
+                                }
+                                else
+                                {
+                                    callback(null);
+                                }
                             },
 
                             // refresh all human readable URIs on parent, old parent and child...

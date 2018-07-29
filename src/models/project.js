@@ -1837,10 +1837,17 @@ Project.prototype.delete = function (callback, customGraphUri)
 
     const clearCacheRecords = function (callback)
     {
-        self.clearCacheRecords(function (err, result)
+        if(Config.cache.active)
         {
-            callback(err, result);
-        });
+            self.clearCacheRecords(function (err, result)
+            {
+                callback(err, result);
+            });
+        }
+        else
+        {
+            callback(null);
+        }
     };
 
     async.series([

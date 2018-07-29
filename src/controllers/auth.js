@@ -194,7 +194,8 @@ module.exports.register = function (req, res)
     const acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
 
-    if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
+    // will be null if the client does not accept html
+    if (acceptsJSON && !acceptsHTML)
     {
         res.status(405).json(
             {

@@ -10,7 +10,7 @@ const loadOntologies = function (app, callback, forceLoadForTests)
     const Ontology = rlequire("dendro", "src/./models/meta/ontology.js").Ontology;
     const ontologiesCache = new OntologiesCache(Config.ontologies_cache);
 
-    const loadOntologiesFromDatabaseIntoCache = function (callback)
+    const loadOntologiesFromGraphDatabase = function (callback)
     {
         Ontology.initAllFromDatabase(function (err, ontologies, elements)
         {
@@ -18,34 +18,42 @@ const loadOntologies = function (app, callback, forceLoadForTests)
             {
                 Ontology.setAllOntologies(ontologies);
                 Elements.setAllElements(elements);
-                ontologiesCache.putOntologies(ontologies, function (err, result)
-                {
-                    if (isNull(err))
-                    {
-                        Logger.log_boot_message("Ontology information successfully loaded from database.");
 
-                        ontologiesCache.putElements(elements, function (err, result)
+                if (Config.cache.active)
+                {
+                    ontologiesCache.putOntologies(ontologies, function (err, result)
+                    {
+                        if (isNull(err))
                         {
-                            if (isNull(err))
+                            Logger.log_boot_message("Ontology information successfully loaded from database.");
+
+                            ontologiesCache.putElements(elements, function (err, result)
                             {
-                                Logger.log_boot_message("Elements information successfully loaded from database.");
-                                ontologiesCache.close();
-                                return callback(null);
-                            }
-                            Logger.log_boot_message("error", "Unable to save elements into cache!");
+                                if (isNull(err))
+                                {
+                                    Logger.log_boot_message("Elements information successfully loaded from database.");
+                                    ontologiesCache.close();
+                                    return callback(null);
+                                }
+                                Logger.log_boot_message("error", "Unable to save elements into cache!");
+                                Logger.log("error", JSON.stringify(err));
+                                Logger.log("error", JSON.stringify(result));
+                                return callback(err, result);
+                            });
+                        }
+                        else
+                        {
+                            Logger.log_boot_message("error", "Unable to save ontologies into cache!");
                             Logger.log("error", JSON.stringify(err));
                             Logger.log("error", JSON.stringify(result));
                             return callback(err, result);
-                        });
-                    }
-                    else
-                    {
-                        Logger.log_boot_message("error", "Unable to save ontologies into cache!");
-                        Logger.log("error", JSON.stringify(err));
-                        Logger.log("error", JSON.stringify(result));
-                        return callback(err, result);
-                    }
-                });
+                        }
+                    });
+                }
+                else
+                {
+                    return callback(err, null);
+                }
             }
             else
             {
@@ -58,7 +66,7 @@ const loadOntologies = function (app, callback, forceLoadForTests)
     {
         Logger.log_boot_message("Loading ontology parametrization from database... ");
 
-        loadOntologiesFromDatabaseIntoCache(callback);
+        loadOntologiesFromGraphDatabase(callback);
     }
     else
     {
@@ -69,7 +77,7 @@ const loadOntologies = function (app, callback, forceLoadForTests)
                 if (JSON.stringify(ontologies) === JSON.stringify({}))
                 {
                     Logger.log_boot_message("Forcing the loading of ontologies from database because the cache is not initialized!");
-                    loadOntologiesFromDatabaseIntoCache(callback);
+                    loadOntologiesFromGraphDatabase(callback);
                 }
                 else
                 {
