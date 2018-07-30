@@ -115,6 +115,7 @@ exports.from_ontology = function (req, res)
                                 {
                                     descriptors[i].recommendationCallId = recommendation_call_id;
                                     descriptors[i].recommendationCallTimeStamp = recommendation_call_timestamp;
+                                    descriptors[i].recommendedFor = req.params.requestedResourceUri;
                                 }
 
                                 res.json(
@@ -516,6 +517,7 @@ exports.from_ontology_in_project = function (req, res)
                                                         {
                                                             descriptors[i].recommendationCallId = recommendation_call_id;
                                                             descriptors[i].recommendationCallTimeStamp = recommendation_call_timestamp;
+                                                            descriptors[i].recommendedFor = req.params.requestedResourceUri;
                                                         }
 
                                                         res.json(

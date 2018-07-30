@@ -2,7 +2,7 @@ const demouser1 = require("../users/demouser1.js");
 const folder = require("../folders/folder.js");
 
 const dcAbstractDescriptor = require("../descriptors/dcterms_abstract");
-const Interaction = rlequire("dendro", "src/models/recommendation/interaction.js")).Interaction;
+const Interaction = rlequire("dendro", "src/models/recommendation/interaction.js").Interaction;
 
 // TODO
 const interactionTemplate = {

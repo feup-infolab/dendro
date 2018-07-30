@@ -20,24 +20,45 @@ const initMySQL = function (app, callback)
             logging: false,
             operatorsAliases: false
         });
-        let query = "CREATE DATABASE IF NOT EXISTS " + Config.mySQLDBName + ";";
-        if (Config.startup.load_databases && Config.startup.destroy_mysql_database)
-        {
-            query = "DROP DATABASE IF EXISTS " + Config.mySQLDBName + "; " + query;
-        }
         sequelize
             .authenticate()
             .then(() =>
             {
                 Logger.log_boot_message("Connected to MySQL!");
-                return sequelize.query(query).then(data =>
-                    callback(null, data))
-                    .catch(err =>
-                    {
-                        Logger.log("error", "Error creating database in MySQL: " + Config.mySQLDBName);
-                        Logger.log("error", JSON.stringify(err));
-                        return callback(err, null);
-                    });
+
+                const destroyDatabase = function ()
+                {
+                    let dropQuery = "DROP DATABASE IF EXISTS " + Config.mySQLDBName + "; ";
+                    return sequelize.query(dropQuery)
+                        .catch(err =>
+                        {
+                            Logger.log("error", "Error destroying database in MySQL: " + Config.mySQLDBName);
+                            Logger.log("error", JSON.stringify(err));
+                            throw err;
+                        });
+                };
+
+                const createDatabase = function ()
+                {
+                    let createQuery = "CREATE DATABASE IF NOT EXISTS " + Config.mySQLDBName + ";";
+                    return sequelize.query(createQuery)
+                        .catch(err =>
+                        {
+                            Logger.log("error", "Error creating database in MySQL: " + Config.mySQLDBName);
+                            Logger.log("error", JSON.stringify(err));
+                            throw err;
+                        });
+                };
+
+                if (Config.startup.load_databases && Config.startup.destroy_mysql_database)
+                {
+                    destroyDatabase()
+                        .then(data =>
+                            createDatabase()
+                                .then(data =>
+                                    callback(null, data))
+                        );
+                }
             })
             .catch(err =>
             {

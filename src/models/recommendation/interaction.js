@@ -262,7 +262,7 @@ Interaction.getRandomType = function (restrictions)
     return interactionType;
 };
 
-Interaction.prototype.saveToMySQL = function (callback/*, overwrite*/)
+Interaction.prototype.saveToMySQL = function (callback)
 {
     const self = this;
 

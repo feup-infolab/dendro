@@ -83,7 +83,7 @@ exports.recommend_descriptors = function (req, res)
                                     performedBy: req.user.uri,
                                     interactionType: interactionType,
                                     lastDescriptorRecommendationsList: lastRecommendationList,
-                                    originallyRecommendedFor: req.params.requestedResourceUri
+                                    originallyRecommendedFor: Resource.req.params.requestedResourceUri
                                 }
                             },
                             function (err, interaction)

@@ -19,21 +19,24 @@ const destroyAllGraphs = function (app, callback)
             {
                 if (err)
                 {
-                    return callback(err);
+                    callback(err);
                 }
-                conn.graphExists(graphUri, function (err, exists)
+                else
                 {
-                    if (exists)
+                    conn.graphExists(graphUri, function (err, exists)
                     {
-                        const msg = "Tried to delete graph " + graphUri + " but it still exists!";
-                        Logger.log("error", msg);
-                        throw new Error(msg);
-                    }
-                    else
-                    {
-                        cb(null, exists);
-                    }
-                });
+                        if (exists)
+                        {
+                            const msg = "Tried to delete graph " + graphUri + " but it still exists!";
+                            Logger.log("error", msg);
+                            cb(1, msg);
+                        }
+                        else
+                        {
+                            cb(null, exists);
+                        }
+                    });
+                }
             });
         }, function (err, res)
         {

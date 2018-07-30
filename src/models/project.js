@@ -1837,7 +1837,7 @@ Project.prototype.delete = function (callback, customGraphUri)
 
     const clearCacheRecords = function (callback)
     {
-        if(Config.cache.active)
+        if (Config.cache.active)
         {
             self.clearCacheRecords(function (err, result)
             {

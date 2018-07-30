@@ -35,7 +35,7 @@
       "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
     },
     "cache": {
-      "active": false,
+      "active": true,
       "redis": {
         "active": false,
         "instances": {
@@ -474,7 +474,7 @@
       "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
     },
     "cache": {
-      "active": false,
+      "active": true,
       "redis": {
         "active": false,
         "instances": {
@@ -1158,7 +1158,7 @@
       "destroy_all_indexes": true,
       "destroy_datastore": true,
       "destroy_files_store": true,
-      "destroy_mysql_database": false
+      "destroy_mysql_database": true
     },
     "baselines": {},
     "logging": {
@@ -1593,7 +1593,7 @@
       "destroy_all_indexes": true,
       "destroy_datastore": true,
       "destroy_files_store": true,
-      "destroy_mysql_database": false
+      "destroy_mysql_database": true
     },
     "baselines": {},
     "logging": {
@@ -2028,7 +2028,7 @@
       "destroy_all_indexes": true,
       "destroy_datastore": true,
       "destroy_files_store": true,
-      "destroy_mysql_database": false
+      "destroy_mysql_database": true
     },
     "baselines": {},
     "logging": {
@@ -2157,7 +2157,7 @@
       "reuse_checkpoints": false,
       "create_checkpoints": false,
       "destroy_existing_images_at_start": false,
-      "start_and_stop_containers_automatically": false,
+      "start_and_stop_containers_automatically": true,
       "environment_variables": {
         "CONTAINER_NAME_SUFFIX": "travis",
         "ELASTICSEARCH_PORT_1": "9201",

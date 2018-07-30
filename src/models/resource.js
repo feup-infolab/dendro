@@ -91,7 +91,7 @@ Resource.prototype.copyOrInitDescriptors = function (object, deleteIfNotInArgume
         if (object.ddr.baseUri !== Config.baseUri)
         {
             self.ddr.baseUri = Config.baseUri;
-            self.ddr.htmlUrl = Config.baseUri + "/" + relativeHtmlUrl;
+            self.ddr.htmlUrl = "/" + relativeHtmlUrl;
         }
     }
 };
@@ -3173,11 +3173,7 @@ Resource.prototype.checkIfHasPredicateValue = function (predicateInPrefixedForm,
                 {
                     if (isNull(err))
                     {
-                        if (result instanceof Array && result.length > 0)
-                        {
-                            return callback(null, true);
-                        }
-                        return callback(null, false);
+                        return callback(null, result);
                     }
                     const msg = "Error verifying existence of triple \"" + self.uri + " " + predicateInPrefixedForm + " " + value + "\". Error reported " + JSON.stringify(result);
                     if (Config.debug.resources.log_all_type_checks === true)
@@ -4149,17 +4145,49 @@ Resource.prototype.getHtmlRelativeUrl = function ()
     const self = this;
     if (!isNull(self.uri) && self.uri[0] === ":")
     {
-        const relativeHtmlUrl = self.uri.substr(1);
+        return Resource.getRelativeUrlFromUri(self.uri);
+    }
+};
+
+Resource.getRelativeUrlFromUri = function (uri)
+{
+    if (!isNull(uri) && uri[0] === "/")
+    {
+        const relativeHtmlUrl = uri.substr(1);
         return relativeHtmlUrl;
     }
 };
 
-Resource.getUriFromRelativeUrl = function (relativeUrl)
+Resource.getUriFromRelativeUrl = function (relativeUrl, callback)
 {
     if (!isNull(relativeUrl) && relativeUrl[0] === "/")
     {
-        const uri = ":" + relativeUrl.substr(1);
-        return uri;
+        const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+        Resource.findByPropertyValue(new Descriptor({
+            value: relativeUrl,
+            prefixedForm: "ddr:htmlUrl"
+        }), function (err, resource)
+        {
+            if (isNull(err))
+            {
+                if(!isNull(resource) && resource instanceof Resource)
+                {
+                    callback(null, resource.uri);
+                }
+                else
+                {
+                    callback(null, null);
+                }
+            }
+            else
+            {
+                callback(err, resource);
+            }
+        });
+    }
+    else
+    {
+        callback(1);
     }
 };
 

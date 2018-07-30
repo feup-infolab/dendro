@@ -953,7 +953,11 @@ exports.getLatestInteractionInDB = function (callback)
             return callback(null, result);
         })
         .catch(err =>
-            callback(true, "[ERROR] Unable get the latest interaction info on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err));
+        {
+            const msg = "[ERROR] Unable get the latest interaction info on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err;
+            Logger.log("error", msg);
+            callback(true, msg);
+        });
 };
 
 exports.getNumberOfInteractionsInDB = function (callback)
@@ -971,5 +975,9 @@ exports.getNumberOfInteractionsInDB = function (callback)
             return callback(null, result);
         })
         .catch(err =>
-            callback(true, "[ERROR] Unable to count the number of interations on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "and dbName: " + Config.mySQLDBName + "\n Error description : " + err));
+        {
+            const msg = "[ERROR] Unable to count the number of interations on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "and dbName: " + Config.mySQLDBName + "\n Error description : " + err;
+            Logger.log("error", msg);
+            callback(true, msg);
+        });
 };

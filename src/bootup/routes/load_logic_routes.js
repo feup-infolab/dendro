@@ -81,10 +81,30 @@ const extractUriFromRequest = function (req, res, next)
     const matches = req.path.match(/^\/r\/([^\/]+)\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/);
     if (matches && matches.length === 2)
     {
-        req.params.requestedResourceUri = Resource.getUriFromRelativeUrl(matches[0]);
+        Resource.getUriFromRelativeUrl(matches[0], function (err, translatedUri)
+        {
+            if (isNull(err))
+            {
+                if (!isNull(translatedUri))
+                {
+                    req.params.requestedResourceUri = translatedUri;
+                    next(null, req, res);
+                }
+                else
+                {
+                    next();
+                }
+            }
+            else
+            {
+                next();
+            }
+        });
     }
-
-    return next(null, req, res);
+    else
+    {
+        next();
+    }
 };
 
 const loadRoutes = function (app, callback)

@@ -122,8 +122,6 @@ angular.module("dendroApp.controllers")
                 autocompletedDescriptor.just_added = true;
 
                 $scope.add_descriptor(autocompletedDescriptor);
-                var currentUri = $scope.get_calling_uri();
-                suggestion.recommendedFor = currentUri;
                 interactionsService.accept_descriptor_from_autocomplete(suggestion);
             }
         };
