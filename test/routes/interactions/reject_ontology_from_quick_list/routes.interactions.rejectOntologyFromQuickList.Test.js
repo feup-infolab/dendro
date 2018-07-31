@@ -25,7 +25,7 @@ const demouser3 = rlequire("dendro", "test/mockdata/users/demouser3.js");
 
 const publicProject = rlequire("dendro", "test/mockdata/projects/public_project.js");
 
-const createFilesUnit = rlequire("dendro", "test/units/files/createFiles.Unit.js");
+const createFoldersUnit = rlequire("dendro", "test/units/folders/createFolders.Unit.js"); let agent;
 
 /* let bodyObj = {
     "prefix": "dcterms",
@@ -66,7 +66,7 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] reject_ontology
     // TODO THEN try the reject_ontology_from_quick_list interaction
     before(function (done)
     {
-        createFilesUnit.setup(function (err, results)
+        createFoldersUnit.setup(function (err, results)
         {
             should.equal(err, null);
             async.waterfall([
@@ -196,7 +196,7 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] reject_ontology
         it("Should give an error and not accept and register an interaction when an ontology is rejected from the quick list when unauthenticated", function (done)
         {
             const app = global.tests.app;
-            let agent = chai.request.agent(app);
+            agent = chai.request.agent(app);
             interactionsUtils.rejectOntologyFromQuickList(true, agent, demouser1InteractionObj, function (err, res)
             {
                 should.exist(err);

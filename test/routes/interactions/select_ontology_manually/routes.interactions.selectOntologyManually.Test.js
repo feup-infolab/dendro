@@ -23,7 +23,7 @@ const demouser3 = rlequire("dendro", "test/mockdata/users/demouser3.js");
 
 const publicProject = rlequire("dendro", "test/mockdata/projects/public_project.js");
 
-const createFilesUnit = rlequire("dendro", "test/units/files/createFiles.Unit.js");
+const createFoldersUnit = rlequire("dendro", "test/units/folders/createFolders.Unit.js"); let agent;
 
 let projectRootData = null;
 let dctermsUri = "http://purl.org/dc/terms/";
@@ -43,7 +43,7 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] select_ontology
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createFilesUnit.setup(function (err, results)
+        createFoldersUnit.setup(function (err, results)
         {
             should.equal(err, null);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
@@ -88,7 +88,7 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] select_ontology
         it("Should give an error and not accept and register an interaction when an ontology is selected manually when unauthenticated", function (done)
         {
             const app = global.tests.app;
-            let agent = chai.request.agent(app);
+            agent = chai.request.agent(app);
             interactionsUtils.selectOntologyManually(true, agent, demouser1InteractionObj, function (err, res)
             {
                 should.exist(err);

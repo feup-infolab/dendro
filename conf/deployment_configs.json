@@ -1959,7 +1959,7 @@
     "debug": {
       "active": true,
       "database": {
-        "log_all_queries": false,
+        "log_all_queries": true,
         "log_all_cache_queries": false,
         "log_query_times": false
       },
@@ -2156,7 +2156,7 @@
       "active": true,
       "reuse_checkpoints": false,
       "create_checkpoints": false,
-      "destroy_existing_images_at_start": false,
+      "destroy_existing_images_at_start": true,
       "start_and_stop_containers_automatically": true,
       "environment_variables": {
         "CONTAINER_NAME_SUFFIX": "travis",

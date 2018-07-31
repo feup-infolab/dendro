@@ -25,7 +25,7 @@ const demouser3 = rlequire("dendro", "test/mockdata/users/demouser3.js");
 
 const publicProject = rlequire("dendro", "test/mockdata/projects/public_project.js");
 
-const createFilesUnit = rlequire("dendro", "test/units/files/createFiles.Unit.js");
+const createFoldersUnit = rlequire("dendro", "test/units/folders/createFolders.Unit.js"); let agent;
 
 /* let bodyObj = {
     "prefix": "dcterms",
@@ -62,7 +62,7 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] unfavorite_desc
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createFilesUnit.setup(function (err, results)
+        createFoldersUnit.setup(function (err, results)
         {
             should.equal(err, null);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
@@ -109,7 +109,7 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] unfavorite_desc
         it("Should give an error and not accept and register an interaction when a descriptor is unfavorited from the quick list when unauthenticated", function (done)
         {
             const app = global.tests.app;
-            let agent = chai.request.agent(app);
+            agent = chai.request.agent(app);
             interactionsUtils.unfavoriteDescriptorFromQuickListForUser(true, agent, demouser1InteractionObj, function (err, res)
             {
                 should.exist(err);

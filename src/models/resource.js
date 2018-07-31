@@ -29,6 +29,13 @@ function Resource (object)
         self.rdf.type = object.rdf.type;
     }
 
+    const relativeHtmlUrl = self.getHtmlRelativeUrl();
+    if (!isNull(self.ddr))
+    {
+        self.ddr.baseUri = Config.baseUri;
+        self.ddr.htmlUrl = "/" + relativeHtmlUrl;
+    }
+
     return self;
 }
 
@@ -72,7 +79,6 @@ Resource.prototype.copyOrInitDescriptors = function (object, deleteIfNotInArgume
         }
     }
 
-    const relativeHtmlUrl = self.getHtmlRelativeUrl();
     if (!isNull(object.ddr))
     {
         if (!isNull(object.ddr.created))
@@ -80,19 +86,9 @@ Resource.prototype.copyOrInitDescriptors = function (object, deleteIfNotInArgume
             self.ddr.created = object.ddr.created;
         }
     }
-    else
-    {
+    else {
         const now = new Date();
         self.ddr.created = now.toISOString();
-    }
-
-    if (!isNull(object.ddr))
-    {
-        if (object.ddr.baseUri !== Config.baseUri)
-        {
-            self.ddr.baseUri = Config.baseUri;
-            self.ddr.htmlUrl = "/" + relativeHtmlUrl;
-        }
     }
 };
 
@@ -2521,9 +2517,9 @@ Resource.findByPropertyValue = function (
 
             db.connection.execute(
                 "SELECT ?resource_uri ?descriptor_uri ?value\n" +
-                "FROM [0]\n" +
                 "WHERE \n" +
                 "{ \n" +
+                "   GRAPH [0]\n" +
                 "   {\n" +
                 "       ?resource_uri ?descriptor_uri ?value ." + "\n " +
                         descriptorValueRestrictions +
@@ -2568,11 +2564,23 @@ Resource.findByPropertyValue = function (
                                     });
 
                                     const newResource = Object.create(self.prototype);
-                                    newResource.baseConstructor(
-                                        {
-                                            uri: uri
-                                        }
-                                    );
+
+                                    if(self !== Resource)
+                                    {
+                                        newResource.baseConstructor(
+                                            {
+                                                uri: uri
+                                            }
+                                        );
+                                    }
+                                    else
+                                    {
+                                        newResource.constructor(
+                                            {
+                                                uri: uri
+                                            }
+                                        );
+                                    }
 
                                     newResource.loadObjectWithQueryResults(descriptors, ontologiesArray);
                                     return callback(null, newResource);
@@ -4143,18 +4151,19 @@ Resource.prototype.refreshHumanReadableUri = function (callback, customGraphUri)
 Resource.prototype.getHtmlRelativeUrl = function ()
 {
     const self = this;
-    if (!isNull(self.uri) && self.uri[0] === ":")
-    {
-        return Resource.getRelativeUrlFromUri(self.uri);
-    }
+    return Resource.getRelativeUrlFromUri(self.uri);
+
 };
 
 Resource.getRelativeUrlFromUri = function (uri)
 {
-    if (!isNull(uri) && uri[0] === "/")
+    if (!isNull(uri) && uri[0] === ":")
     {
-        const relativeHtmlUrl = uri.substr(1);
-        return relativeHtmlUrl;
+        return uri.substr(1);
+    }
+    else
+    {
+        throw new Error("Invalid call to Resource.getRelativeUrlFromUri.");
     }
 };
 
@@ -4170,7 +4179,7 @@ Resource.getUriFromRelativeUrl = function (relativeUrl, callback)
         {
             if (isNull(err))
             {
-                if(!isNull(resource) && resource instanceof Resource)
+                if (!isNull(resource))
                 {
                     callback(null, resource.uri);
                 }

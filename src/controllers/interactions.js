@@ -11,33 +11,6 @@ const Resource = rlequire("dendro", "src/models/resource.js").Resource;
 const async = require("async");
 const _ = require("underscore");
 
-const translateRecommendedFor = function (req, callback)
-{
-    if (isNull(req.body.recommendedFor))
-    {
-        callback(null);
-    }
-    else
-    {
-        Resource.getUriFromRelativeUrl(req.body.recommendedFor, function (err, translatedUri)
-        {
-            if (isNull(err))
-            {
-                req.body.recommendedFor = translatedUri;
-                callback(null, translatedUri);
-            }
-            else
-            {
-                let errorObj = {
-                    statusCode: 500,
-                    message: "Request not valid. field recommendedFor (" + req.body.recommendedFor + ")does not follow the right format: \"^/r/[folder|file]/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$\";. Check the request's body."
-                };
-                callback(null, errorObj);
-            }
-        });
-    }
-};
-
 const addOntologyToListOfActiveOntologiesInSession = function (ontology, req)
 {
     if (isNull(req.user.recommendations))

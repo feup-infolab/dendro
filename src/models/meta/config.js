@@ -420,7 +420,7 @@ Config.enabledOntologies = {
         elements: Elements.ontologies.dcterms,
         label: "Dublin Core terms",
         description: "Generic description. Creator, title, subject...",
-        downloadURL: "http://dublincore.org/2012/06/14/dcelements.rdf",
+        downloadURL: "http://bloody-byte.net/rdf/dc_owl2dl/dcterms.rdf",
         domain: "Generic",
         domain_specific: false
     },

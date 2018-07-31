@@ -418,7 +418,7 @@ User.prototype.hiddenDescriptors = function (maxResults, callback, allowedOntolo
                     {
                         if (!isNull(descriptor))
                         {
-                            if (descriptor.recommendation_types != null)
+                            if (!isNull(descriptor.recommendation_types))
                             {
                                 descriptor.recommendation_types.user_hidden = true;
                             }
@@ -487,7 +487,7 @@ User.prototype.favoriteDescriptors = function (maxResults, callback, allowedOnto
                     {
                         if (!isNull(descriptor))
                         {
-                            if (descriptor.recommendation_types != null)
+                            if (!isNull(descriptor.recommendation_types))
                             {
                                 descriptor.recommendation_types.user_favorite = true;
                             }

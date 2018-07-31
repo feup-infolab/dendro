@@ -1208,7 +1208,7 @@ Project.prototype.getFavoriteDescriptors = function (maxResults, callback, allow
                     {
                         if (!isNull(descriptor))
                         {
-                            if (descriptor.recommendation_types != null)
+                            if (!isNull(descriptor.recommendation_types))
                             {
                                 descriptor.recommendation_types.project_favorite = true;
                             }
@@ -1274,7 +1274,7 @@ Project.prototype.getHiddenDescriptors = function (maxResults, callback, allowed
                     {
                         if (!isNull(descriptor))
                         {
-                            if (descriptor.recommendation_types != null)
+                            if (!isNull(descriptor.recommendation_types))
                             {
                                 descriptor.recommendation_types.project_hidden = true;
                             }

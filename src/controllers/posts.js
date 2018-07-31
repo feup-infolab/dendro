@@ -1555,12 +1555,11 @@ exports.getPostComments = function (req, res)
 
     if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
     {
-        const currentUser = req.user;
         const postUri = req.query.postID;
 
         Post.findByUri(postUri, function (err, post)
         {
-            if (isNull(err) && post != null)
+            if (isNull(err) && !isNull(post))
             {
                 getCommentsForAPost(postUri, function (err, comments)
                 {

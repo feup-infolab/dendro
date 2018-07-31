@@ -24,7 +24,7 @@ const admin = rlequire("dendro", "test/mockdata/users/admin.js");
 
 const publicProject = rlequire("dendro", "test/mockdata/projects/public_project.js");
 
-const createFilesUnit = rlequire("dendro", "test/units/files/createFiles.Unit.js");
+const createFoldersUnit = rlequire("dendro", "test/units/folders/createFolders.Unit.js"); let agent;
 
 /* let bodyObj = {
     "prefix": "dcterms",
@@ -61,7 +61,7 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] delete_all", fu
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createFilesUnit.setup(function (err, results)
+        createFoldersUnit.setup(function (err, results)
         {
             should.equal(err, null);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
@@ -187,7 +187,7 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] delete_all", fu
         it("Should give an error and not delete all interactions when unauthenticated", function (done)
         {
             const app = global.tests.app;
-            let agent = chai.request.agent(app);
+            agent = chai.request.agent(app);
             interactionsUtils.deleteAll(true, agent, function (err, res)
             {
                 should.exist(err);

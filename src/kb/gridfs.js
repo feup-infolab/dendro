@@ -282,7 +282,7 @@ GridFSConnection.prototype.deleteByQuery = function (query, callback, customBuck
                     // create a queue object with concurrency 1
                     const q = async.queue(function (fileRecord, callback)
                     {
-                        if (fileRecord != null)
+                        if (!isNull(fileRecord))
                         {
                             bucket.delete(fileRecord._id, function (err, result)
                             {
