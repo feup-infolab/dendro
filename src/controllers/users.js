@@ -74,7 +74,7 @@ exports.all = function (req, res)
         }, req, null, [Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_readable]);
     };
 
-    async.parallel(
+    async.series(
         [
             getUserCount, getAllUsers
         ], function (err, results)

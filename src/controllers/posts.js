@@ -2164,7 +2164,7 @@ exports.getShare = function (req, res)
         {
             if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
             {
-                async.parallel([
+                async.series([
                     function (callback)
                     {
                         getCommentsForAPost(share.uri, function (err, commentsData)

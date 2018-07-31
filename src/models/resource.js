@@ -1037,7 +1037,7 @@ Resource.prototype.replaceDescriptorsInTripleStore = function (newDescriptors, d
             "   } \n" +
             "} \n";
 
-        async.parallel([
+        async.series([
             function (callback)
             {
                 // Invalidate cache record for the updated resources
@@ -3659,7 +3659,7 @@ Resource.deleteAll = function (callback, customGraphUri)
 
     query = query + "} \n";
 
-    async.parallel([
+    async.series([
         function (callback)
         {
             if (Config.cache.active)

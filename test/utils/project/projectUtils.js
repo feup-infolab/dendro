@@ -886,11 +886,13 @@ const metadataMatchesBackup = module.exports.metadataMatchesBackup = function (p
                 const mockBackupFilePath = project.backup_path;
                 fs.writeFileSync(tempBackupFilePath, bodyBuffer);
 
-                async.parallel([
+                async.series([
                     function (callback)
                     {
                         File.unzip(tempBackupFilePath, function (err, pathOfUnzippedContents)
                         {
+                            let projectBagItMetadata;
+                            let projectTreeMetadata;
                             projectBagItMetadata = getProjectBagitMetadataFromBackup(pathOfUnzippedContents);
                             projectTreeMetadata = getFileTreeMetadataFromBackup(pathOfUnzippedContents, project.handle);
 
@@ -904,6 +906,8 @@ const metadataMatchesBackup = module.exports.metadataMatchesBackup = function (p
                     {
                         File.unzip(mockBackupFilePath, function (err, pathOfUnzippedContents)
                         {
+                            let projectBagItMetadata;
+                            let projectTreeMetadata;
                             projectBagItMetadata = getProjectBagitMetadataFromBackup(pathOfUnzippedContents);
 
                             if (!isNull(forcedBackupHandle))

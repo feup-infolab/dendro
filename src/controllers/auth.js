@@ -1,7 +1,5 @@
-const path = require("path");
 const rlequire = require("rlequire");
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
-const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;

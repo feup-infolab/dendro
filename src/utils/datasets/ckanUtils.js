@@ -138,7 +138,7 @@ const calculateDendroDiffs = function (folder, packageId, client, callback)
                                 let dendroIsMissing = _.difference(ckanIdOfResourcesInCkan, ckanIdOfResourcesInDendro);
                                 let ckanIsMissing = _.difference(ckanIdOfResourcesInDendro, ckanIdOfResourcesInCkan);
 
-                                async.parallel([
+                                async.series([
                                     function (callback)
                                     {
                                         if (dendroIsMissing.length > 0)
