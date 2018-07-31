@@ -59,6 +59,12 @@ const initMySQL = function (app, callback)
                                     callback(null, data))
                         );
                 }
+                else
+                {
+                    createDatabase()
+                        .then(data =>
+                            callback(null, data));
+                }
             })
             .catch(err =>
             {
