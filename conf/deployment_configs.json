@@ -263,16 +263,16 @@
       }
     },
     "startup": {
-      "load_databases": true,
+      "load_databases": false,
       "reload_administrators_on_startup": true,
       "reload_demo_users_on_startup": true,
       "reload_ontologies_on_startup": true,
       "clear_session_store": true,
       "log_bootup_actions": true,
-      "destroy_all_graphs": false,
-      "destroy_all_indexes": false,
-      "destroy_files_store": false,
-      "destroy_datastore": false
+      "destroy_all_graphs": true,
+      "destroy_all_indexes": true,
+      "destroy_files_store": true,
+      "destroy_datastore": true
     },
     "baselines": {},
     "logging": {
@@ -855,26 +855,26 @@
     "eudatToken": "__FIXME",
     "sendGridUser": "__FIXME",
     "sendGridPassword": "__FIXME",
-    "elasticSearchHost": "127.0.0.1",
+    "elasticSearchHost": "192.168.56.249",
     "elasticSearchPort": "9200",
     "datastore": {
       "database": "127.0.0.1:3002_datastore",
-      "host": "127.0.0.1",
+      "host": "192.168.56.249",
       "port": "27017",
       "id": "default",
       "log": {
         "log_datastore_ops": true
       },
-      "username": "",
-      "password": ""
+      "username": "admin",
+      "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
     },
     "ontologies_cache": {
       "database": "127.0.0.1:3002_ontologies",
-      "host": "127.0.0.1",
+      "host": "192.168.56.249",
       "port": "27017",
       "id": "default",
-      "username": "",
-      "password": ""
+      "username": "admin",
+      "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
     },
     "cache": {
       "active": true,
@@ -882,19 +882,19 @@
         "active": false,
         "instances": {
           "default": {
-            "host": "127.0.0.1",
+            "host": "192.168.56.249",
             "port": "6780",
             "id": "default",
             "database_number": 1
           },
           "social": {
-            "host": "127.0.0.1",
+            "host": "192.168.56.249",
             "port": "6781",
             "id": "social",
             "database_number": 1
           },
           "notifications": {
-            "host": "127.0.0.1",
+            "host": "192.168.56.249",
             "port": "6782",
             "id": "notifications",
             "database_number": 1
@@ -908,31 +908,31 @@
             "database": "127.0.0.1:3002",
             "collection": "default_cache",
             "clear_on_startup": true,
-            "host": "127.0.0.1",
+            "host": "192.168.56.249",
             "port": "27017",
             "id": "default",
-            "username": "",
-            "password": ""
+            "username": "admin",
+            "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
           },
           "social": {
             "database": "127.0.0.1:3002",
             "collection": "social_cache",
             "clear_on_startup": true,
-            "host": "127.0.0.1",
+            "host": "192.168.56.249",
             "port": "27017",
             "id": "social",
-            "username": "",
-            "password": ""
+            "username": "admin",
+            "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
           },
           "notifications": {
             "database": "127.0.0.1:3002",
             "collection": "notifications_cache",
             "clear_on_startup": true,
-            "host": "127.0.0.1",
+            "host": "192.168.56.249",
             "port": "27017",
             "id": "notifications",
-            "username": "",
-            "password": ""
+            "username": "admin",
+            "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
           }
         }
       },
@@ -941,7 +941,7 @@
         "cache_period_in_seconds": 3600
       }
     },
-    "virtuosoHost": "127.0.0.1",
+    "virtuosoHost": "192.168.56.249",
     "virtuosoPort": "8890",
     "virtuosoISQLPort": "1111",
     "virtuosoConnector": "jdbc",
@@ -950,30 +950,30 @@
       "password": "dba"
     },
     "virtuosoSQLLogLevel": 3,
-    "mongoDBHost": "127.0.0.1",
+    "mongoDBHost": "192.168.56.249",
     "mongoDbPort": "27017",
     "mongoDbCollectionName": "127.0.0.1:3002_files",
     "mongoDBSessionStoreCollection": "127.0.0.1:3002_sessions",
     "mongoDbVersion": "",
     "mongoDBAuth": {
-      "username": "",
-      "password": ""
+      "username": "admin",
+      "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
     },
     "storageDefaults": {
       "storageType": "mongoDB",
-      "host": "127.0.0.1",
+      "host": "192.168.56.249",
       "port": "27017",
       "collectionName": "127.0.0.1:3002_files",
       "username": "",
       "password": ""
     },
-    "mySQLHost": "127.0.0.1",
+    "mySQLHost": "192.168.56.249",
     "mySQLPort": "3306",
     "mySQLAuth": {
       "user": "root",
       "password": "r00t_p4ssw0rd"
     },
-    "mySQLDBName": "dendroVagrantDemo",
+    "mySQLDBName": "dendroVagrantDemo_tests",
     "maxUploadSize": 2147483648,
     "maxProjectSize": 5368709120,
     "maxSimultaneousConnectionsToDb": 1,
@@ -1255,7 +1255,7 @@
         "mongodb"
       ],
       "vmName": "dendroVagrantDemo",
-      "vmIP" : "127.0.0.1"
+      "vmIP" : "192.168.56.249"
     }
   },
   "jenkins_buildserver_test": {

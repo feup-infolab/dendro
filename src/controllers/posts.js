@@ -320,7 +320,7 @@ const getRankedPosts = function (projectUrisArray, callback, userUri, nextPositi
 
 exports.getUserPostsUris = function (userUri, currentPage, useRank, nextPosition, lastAccess, timelineId, callback)
 {
-    const maxResults = 30;
+    const maxResults = 5;
     const index = currentPage === 1 ? 0 : (currentPage * maxResults) - maxResults;
     const cb = function (err, results)
     {
@@ -1108,7 +1108,7 @@ exports.all = function (req, res)
         });
     }
 
-    const maxResults = 30;
+    const maxResults = 5;
     const index = currentPage === 1 ? 0 : (currentPage * maxResults) - maxResults;
 
     const cb = function (err, results)
@@ -1161,28 +1161,24 @@ exports.all = function (req, res)
                                 lastAccess = null;
                             }
 
-                            if (currentPage === 1)
+                            if (!useRank)
                             {
-                                if (!useRank)
-                                {
-                                    getAllPosts(fullProjectsUris, cb, timeline.nextPosition, lastAccess, index, maxResults, timeline.id);
-                                }
-                                else
-                                {
-                                    getRankedPosts(fullProjectsUris, cb, currentUser.uri, lastAccess, timeline.lastAccess, index, maxResults, timeline.id);
-                                }
-                                if (!created)
-                                {
-                                    var t = new Date();
-                                    t.setSeconds(t.getSeconds() + 1);
-                                    return timeline.update({
-                                        lastAccess: t
-                                    });
-                                }
+                                getAllPosts(fullProjectsUris, cb, timeline.nextPosition, lastAccess, index, maxResults, timeline.id);
                             }
                             else
                             {
-                                getRankedPostsPerPage(index, maxResults, timeline.id, cb);
+                                getRankedPosts(fullProjectsUris, cb, currentUser.uri, lastAccess, timeline.lastAccess, index, maxResults, timeline.id);
+                            }
+                            if (!created)
+                            {
+                                var t = new Date();
+                                if (Config.environment === "development")
+                                {
+                                    t.setSeconds(t.getSeconds() + 1);
+                                }
+                                return timeline.update({
+                                    lastAccess: t
+                                });
                             }
                         }).catch(err =>
                         {
