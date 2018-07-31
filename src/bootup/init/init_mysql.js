@@ -10,7 +10,7 @@ const initMySQL = function (app, callback)
 {
     Logger.log_boot_message("Setting up MySQL connection pool.");
 
-    const createDatabase = function (callback)
+    /*const createDatabase = function (callback)
     {
         // Create connection omitting database name, create database if not exists
         const sequelize = new Sequelize("", Config.mySQLAuth.user, Config.mySQLAuth.password, {
@@ -38,6 +38,70 @@ const initMySQL = function (app, callback)
             {
                 Logger.log("error", "Error authenticating in MySQL database : " + Config.mySQLDBName);
                 Logger.log("error", JSON.stringify(err));
+                return callback(err, null);
+            });
+    };*/
+
+    const createDatabase = function (callback)
+    {
+        // Create connection omitting database name, create database if not exists
+        const sequelize = new Sequelize('', Config.mySQLAuth.user, Config.mySQLAuth.password, {
+        dialect: 'mysql',
+        host: Config.mySQLHost,
+            port: Config.mySQLPort,
+        logging: false,
+        operatorsAliases: false
+    });
+        sequelize
+            .authenticate()
+            .then(() =>
+            {
+                Logger.log_boot_message('Connected to MySQL!');
+
+                const destroyDatabase = function ()
+                {
+                    let dropQuery = 'DROP DATABASE IF EXISTS ' + Config.mySQLDBName + '; ';
+                    return sequelize.query(dropQuery)
+                        .catch(err =>
+                        {
+                            Logger.log('error', 'Error destroying database in MySQL: ' + Config.mySQLDBName);
+                            Logger.log('error', JSON.stringify(err));
+                            throw err;
+                        });
+                };
+
+                const createDatabase = function ()
+                {
+                    let createQuery = 'CREATE DATABASE IF NOT EXISTS ' + Config.mySQLDBName + ';';
+                    return sequelize.query(createQuery)
+                        .catch(err =>
+                        {
+                            Logger.log('error', 'Error creating database in MySQL: ' + Config.mySQLDBName);
+                            Logger.log('error', JSON.stringify(err));
+                            throw err;
+                        });
+                };
+
+                if (Config.startup.load_databases && Config.startup.destroy_mysql_database)
+                {
+                    destroyDatabase()
+                        .then(data =>
+                            createDatabase()
+                                .then(data =>
+                                    callback(null, data))
+                        );
+                }
+                else
+                {
+                    createDatabase()
+                        .then(data =>
+                            callback(null, data));
+                }
+            })
+            .catch(err =>
+            {
+                Logger.log('error', 'Error authenticating in MySQL database : ' + Config.mySQLDBName);
+                Logger.log('error', JSON.stringify(err));
                 return callback(err, null);
             });
     };

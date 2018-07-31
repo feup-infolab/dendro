@@ -272,7 +272,8 @@
       "destroy_all_graphs": true,
       "destroy_all_indexes": true,
       "destroy_files_store": true,
-      "destroy_datastore": true
+      "destroy_datastore": true,
+      "destroy_mysql_database": true
     },
     "baselines": {},
     "logging": {
@@ -693,7 +694,8 @@
       "destroy_all_graphs": false,
       "destroy_all_indexes": false,
       "destroy_files_store": false,
-      "destroy_datastore": false
+      "destroy_datastore": false,
+      "destroy_mysql_database": true
     },
     "baselines": {},
     "logging": {
@@ -1528,7 +1530,8 @@
       "destroy_all_graphs": true,
       "destroy_all_indexes": true,
       "destroy_datastore": true,
-      "destroy_files_store": true
+      "destroy_files_store": true,
+      "destroy_mysql_database": true
     },
     "baselines": {},
     "logging": {
@@ -1944,7 +1947,8 @@
       "destroy_all_graphs": true,
       "destroy_all_indexes": true,
       "destroy_datastore": true,
-      "destroy_files_store": true
+      "destroy_files_store": true,
+      "destroy_mysql_database": true
     },
     "baselines": {},
     "logging": {
