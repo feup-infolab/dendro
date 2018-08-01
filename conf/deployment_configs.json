@@ -983,7 +983,7 @@
     "tempFilesCreationMode": "0777",
     "administrators": [
       {
-        "username": "",
+        "username": "admin",
         "password": "adminteste123",
         "firstname": "Dendro",
         "surname": "Administrator",
@@ -1816,7 +1816,7 @@
     "tempFilesCreationMode": "0777",
     "administrators": [
       {
-        "username": "",
+        "username": "admin",
         "password": "adminteste123",
         "firstname": "Dendro",
         "surname": "Administrator",

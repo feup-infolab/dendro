@@ -54,9 +54,10 @@ class LikeSomePosts extends ShareSomePostsUnit
     {
         super.init(callback);
     }
-    static shutdown (callback)
+
+    static setup (callback, forceLoad)
     {
-        super.shutdown(callback);
+        super.setup(callback, forceLoad);
     }
 }
 

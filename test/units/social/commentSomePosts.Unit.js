@@ -70,6 +70,11 @@ class CommentSomePosts extends LikeSomePostsUnit
     {
         super.shutdown(callback);
     }
+
+    static setup (callback, forceLoad)
+    {
+        super.setup(callback, forceLoad);
+    }
 }
 
 module.exports = CommentSomePosts;

@@ -581,6 +581,11 @@ class App
             {
                 // clear datastore
                 self.runIfMaster(rlequire("dendro", "src/bootup/load/clear_datastore.js").clearDataStore, self.app, callback);
+            },
+            function (callback)
+            {
+                // build mysql database from migrations
+                self.runIfMaster(rlequire("dendro", "src/bootup/load/build_mysql_database.js").buildMySQLDatabase, self.app, callback);
             }
         ], callback);
     }

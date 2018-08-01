@@ -851,12 +851,14 @@ exports.upload = function (req, res)
                     if (isNull(err))
                     {
                         let post = new Post(null, "file_upload", fileSystemPost.uri, fileSystemPost.dcterms.creator, fileSystemPost.ddr.projectUri);
-                        post.saveToMySQL(function (err) {
+                        post.saveToMySQL(function (err)
+                        {
                             if (isNull(err))
                             {
                                 Logger.log("Post \"file_upload\" saved to MySQL");
                                 let event = new Event(null, "post", fileSystemPost.uri, fileSystemPost.dcterms.creator);
-                                event.saveToMySQL(function (err) {
+                                event.saveToMySQL(function (err)
+                                {
                                     if (isNull(err))
                                     {
                                         Logger.log("Event \"post\" saved to MySQL");
