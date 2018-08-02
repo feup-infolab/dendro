@@ -178,7 +178,7 @@ Cache.initConnections = function (callback)
             }
             else
             {
-                throw new Error("[ERROR] Unable to setup some cache instances. Is the MongoDB server online?\n" + JSON.stringify(results));
+                throw new Error("[ERROR] Unable to setup some cache instances. Is the MongoDB server online?\n");
             }
         }
     );

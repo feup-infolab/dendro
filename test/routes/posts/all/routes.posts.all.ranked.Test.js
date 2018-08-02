@@ -5,8 +5,8 @@ const should = chai.should();
 chai.use(chaiHttp);
 
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
-const appUtils = rlequire("dendro", "src/utils/app/appUtils.js");
-const socialDendroUtils = rlequire("dendro", "src//utils/social/socialDendroUtils");
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
+const socialDendroUtils = rlequire("dendro", "test/utils/social/socialDendroUtils");
 
 const createSocialDendroTimelineWithPostsAndSharesUnit = rlequire("dendro", "test/units/social/createSocialDendroTimelineWithPostsAndShares.Unit.js");
 const pageNumber = 1;
@@ -17,7 +17,7 @@ describe("Get all posts URIs with pagination tests", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        // creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
+        // creates the 3 type of posts for the 3 types of projects(public, private, rmetadataOnly)
         createSocialDendroTimelineWithPostsAndSharesUnit.setup(function (err, results)
         {
             should.equal(err, null);

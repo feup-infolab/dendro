@@ -13,7 +13,7 @@ const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
 const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
-const socialDendroUtils = rlequire("dendro", "test//utils/social/socialDendroUtils");
+const socialDendroUtils = rlequire("dendro", "test/utils/social/socialDendroUtils");
 
 const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");
 const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2.js");

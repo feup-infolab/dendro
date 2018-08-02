@@ -4,7 +4,7 @@ const rlequire = require("rlequire");
 
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
-const socialDendroUtils = rlequire("dendro", "test//utils/social/socialDendroUtils");
+const socialDendroUtils = rlequire("dendro", "test/utils/social/socialDendroUtils");
 const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2");
 let ShareSomePostsUnit = rlequire("dendro", "test/units/social/shareSomePosts.Unit.js");
 
