@@ -234,6 +234,7 @@ angular.module('dendroApp.controllers')
                     headers: {"Accept": "application/json"}
                 }).then(function (response) {
                     let deposits = response.data;
+                    console.log("logging deposits");
                     console.log(deposits);
                //     setTimeline(deposits);
                 }).catch(function (error) {
@@ -253,7 +254,7 @@ angular.module('dendroApp.controllers')
                     event.title = "Deposit at " + deposits[i].platformsUsed;
                     event.content = "Deposit created at " + deposits[i].repository + " was created by "+ deposits[i].user + " on the "
                             + depositDate.date()+ "/"
-                            + (depositDate.month()+1) +"/" + depositDate.year(); + " for the "+ deposits[i].projectTitle + " project.";7
+                            + (depositDate.month()+1) +"/" + depositDate.year(); + " for the "+ deposits[i].projectTitle + " project.";
                     event.shortDate = depositDate.date()+ " of "+ depositDate.month();
 
                     if (deposits[i].platformsUsed === "CKAN"){
