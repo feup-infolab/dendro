@@ -7,12 +7,17 @@ chai.use(chaiHttp);
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
 const socialDendroUtils = rlequire("dendro", "test/utils/social/socialDendroUtils");
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");
+const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2.js");
+const demouser3 = rlequire("dendro", "test/mockdata/users/demouser3.js");
 
 const createSocialDendroTimelineWithPostsAndSharesUnit = rlequire("dendro", "test/units/social/createSocialDendroTimelineWithPostsAndShares.Unit.js");
 const pageNumber = 1;
 const useRank = 1;
 
-describe("Get all posts URIs with pagination tests", function ()
+describe("Get all posts URIs with pagination and ranking tests", function ()
 {
     this.timeout(Config.testsTimeout);
     before(function (done)
@@ -25,7 +30,7 @@ describe("Get all posts URIs with pagination tests", function ()
         });
     });
 
-    describe("[GET] Gets all posts URIs(with pagination) for each user [Valid cases] /posts/all", function ()
+    describe("[GET] Gets all posts URIs (with pagination, with ranking) for each user [Valid cases] /posts/all", function ()
     {
         it("[For an unauthenticated user] Should give an unauthorized error", function (done)
         {
@@ -36,6 +41,48 @@ describe("Get all posts URIs with pagination tests", function ()
                 res.statusCode.should.equal(401);
                 res.body.message.should.equal("Error detected. You are not authorized to perform this operation. You must be signed into Dendro.");
                 done();
+            });
+        });
+
+        it("[For demouser1, as the creator of all projects] Should give an array of five post URIs", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
+                {
+                    res.statusCode.should.equal(200);
+                    res.body.length.should.equal(5);
+                    postURIsToCompare = res.body;
+                    done();
+                });
+            });
+        });
+
+        it("[For demouser2, a collaborator in all projects] Should give an array of five post URIs that equals to the array of five post URIs that demouser1 also received(because they work on the same projects)", function (done)
+        {
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
+            {
+                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
+                {
+                    res.statusCode.should.equal(200);
+                    res.body.length.should.equal(5);
+                    expect(postURIsToCompare).to.eql(res.body);
+                    done();
+                });
+            });
+        });
+
+        it("[For demouser3, is not a creator or collaborator in any projects] the post URIs array should be empty and different from the post URIs array of demouser1 and demouser2", function (done)
+        {
+            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
+            {
+                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
+                {
+                    res.statusCode.should.equal(200);
+                    res.body.length.should.equal(0);
+                    expect(postURIsToCompare).to.not.eql(res.body);
+                    done();
+                });
             });
         });
     });

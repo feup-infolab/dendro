@@ -16,6 +16,12 @@ global.Config = Config;
 
 global.tests = {};
 
+rlequire("dendro", "test/routes/posts/all/routes.posts.all.Test.js");
+
+rlequire("dendro", "test/routes/posts/all/routes.posts.all.ranked.Test.js");
+
+return;
+
 // PROJECTS
 // Create projects of different visibilities and storage types
 rlequire("dendro", "test/routes/projects/new/route.projects.new.Test.js");

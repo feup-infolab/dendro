@@ -157,7 +157,6 @@ const getAllPosts = function (projectUrisArray, callback, nextPosition, lastAcce
                     {replacements: { date: lastDate }, type: dbMySQL.sequelize.QueryTypes.SELECT})
                 .then(posts =>
                 {
-                    // let newPosts = Object.keys(posts).map(function (k) { return posts[k]; });
                     Logger.log("debug", posts);
                     if (posts.length > 0)
                     {
@@ -292,7 +291,6 @@ const getRankedPosts = function (projectUrisArray, callback, userUri, nextPositi
                         }
                         return diff;
                     });
-                    console.log(newPosts);
                     if (newPosts.length > 0)
                     {
                         return addPostsToTimeline(newPosts, nextPosition, timelineId, function ()
@@ -1167,7 +1165,7 @@ exports.all = function (req, res)
                             }
                             else
                             {
-                                getRankedPosts(fullProjectsUris, cb, currentUser.uri, lastAccess, timeline.lastAccess, index, maxResults, timeline.id);
+                                getRankedPosts(fullProjectsUris, cb, currentUser.uri, timeline.nextPosition, lastAccess, index, maxResults, timeline.id);
                             }
                             if (!created)
                             {
