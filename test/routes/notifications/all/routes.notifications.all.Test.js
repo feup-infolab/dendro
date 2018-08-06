@@ -76,7 +76,7 @@ describe("Get all notifications URIs for a user tests", function ()
                         {
                             res.statusCode.should.equal(200);
                             demouser2PostURIsArray = res.body;
-                            res.body.length.should.equal(30);
+                            res.body.length.should.equal(5);
                             socialDendroUtils.getPostUriPage(true, agent, demouser2PostURIsArray[0].uri, function (err, res)
                             {
                                 res.statusCode.should.equal(200);// index 0 tem de ser o manual post que foi criado

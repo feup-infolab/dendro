@@ -54,7 +54,7 @@ describe("Get comments for a specific post tests", function ()
                 socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    res.body.length.should.equal(30);
+                    res.body.length.should.equal(5);
                     demouser1PostURIsArray = res.body;
                     // Force logout
                     const app = global.tests.app;
