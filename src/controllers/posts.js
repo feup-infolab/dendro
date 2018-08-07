@@ -320,7 +320,7 @@ const getRankedPosts = function (projectUrisArray, callback, userUri, nextPositi
 
 exports.getUserPostsUris = function (userUri, currentPage, useRank, nextPosition, lastAccess, timelineId, callback)
 {
-    const maxResults = 5;
+    const maxResults = 30;
     const index = currentPage === 1 ? 0 : (currentPage * maxResults) - maxResults;
     const cb = function (err, results)
     {
@@ -1108,7 +1108,7 @@ exports.all = function (req, res)
         });
     }
 
-    const maxResults = 5;
+    const maxResults = 30;
     const index = currentPage === 1 ? 0 : (currentPage * maxResults) - maxResults;
 
     const cb = function (err, results)
