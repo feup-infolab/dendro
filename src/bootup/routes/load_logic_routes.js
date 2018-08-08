@@ -30,6 +30,8 @@ const datasets = rlequire("dendro", "src/controllers/datasets");
 const posts = rlequire("dendro", "src/controllers/posts");
 const timeline = rlequire("dendro", "src/controllers/timeline");
 const notifications = rlequire("dendro", "src/controllers/notifications");
+const keywords = rlequire("dendro", "src/controllers/keywords");
+
 
 let recommendation;
 
