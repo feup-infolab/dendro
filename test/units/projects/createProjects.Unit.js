@@ -1,95 +1,118 @@
 process.env.NODE_ENV = "test";
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
 const chai = require("chai");
 chai.use(require("chai-http"));
-const should = chai.should();
 const async = require("async");
-const path = require("path");
 
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const projectUtils = rlequire("dendro", "test/utils/project/projectUtils.js");
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const unitUtils = rlequire("dendro", "test/utils/units/unitUtils.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1");
+const demouser3 = rlequire("dendro", "test/mockdata/users/demouser3");
 
-const publicProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
-const metadataOnlyProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
-const privateProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
-const projectCreatedByDemoUser3 = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project_created_by_demouser3.js"));
+const publicProject = rlequire("dendro", "test/mockdata/projects/public_project.js");
+const metadataOnlyProject = rlequire("dendro", "test/mockdata/projects/metadata_only_project.js");
+const privateProject = rlequire("dendro", "test/mockdata/projects/private_project.js");
+const projectCreatedByDemoUser3 = rlequire("dendro", "test/mockdata/projects/private_project_created_by_demouser3.js");
 
-const publicProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project_for_html.js"));
-const metadataOnlyProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project_for_html.js"));
-const privateProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project_for_html.js"));
+const publicProjectForHTMLTests = rlequire("dendro", "test/mockdata/projects/public_project_for_html.js");
+const metadataOnlyProjectForHTMLTests = rlequire("dendro", "test/mockdata/projects/metadata_only_project_for_html.js");
+const privateProjectForHTMLTests = rlequire("dendro", "test/mockdata/projects/private_project_for_html.js");
 
-const projectsData = module.exports.projectsData = [publicProjectData, metadataOnlyProjectData, privateProjectData, publicProjectForHTMLTestsData, metadataOnlyProjectForHTMLTestsData, privateProjectForHTMLTestsData, projectCreatedByDemoUser3];
+const projectsData = [publicProject, metadataOnlyProject, privateProject, publicProjectForHTMLTests, metadataOnlyProjectForHTMLTests, privateProjectForHTMLTests];
 
-function requireUncached (module)
+let CreateUsersUnit = rlequire("dendro", "test/units/users/createUsers.Unit.js");
+
+class CreateProjects extends CreateUsersUnit
 {
-    delete require.cache[require.resolve(module)];
-    return require(module);
-}
-
-const start = function ()
-{
-    if (Config.debug.tests.log_unit_completion_and_startup)
+    static load (callback)
     {
-        console.log("**********************************************".green);
-        console.log("[Create Projects Unit] Setting up projects...".green);
-        console.log("**********************************************".green);
-    }
-};
-
-const end = function ()
-{
-    if (Config.debug.tests.log_unit_completion_and_startup)
-    {
-        console.log("**********************************************".blue);
-        console.log("[Create Projects Unit] Complete...".blue);
-        console.log("**********************************************".blue);
-    }
-};
-
-module.exports.setup = function (finish)
-{
-    start();
-    let createUsersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
-
-    createUsersUnit.setup(function (err, results)
-    {
-        if (err)
-        {
-            end();
-            finish(err, results);
-        }
-        else
-        {
-            appUtils.registerStartTimeForUnit(path.basename(__filename));
-            async.mapSeries(projectsData, function (projectData, cb)
+        const self = this;
+        unitUtils.startLoad(self);
+        async.series([
+            function (cb1)
             {
                 userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                 {
-                    if (err)
+                    if (isNull(err))
                     {
-                        end();
-                        cb(err, agent);
+                        async.mapSeries(projectsData, function (projectData, cb2)
+                        {
+                            if (err)
+                            {
+                                cb2(err, agent);
+                            }
+                            else
+                            {
+                                projectUtils.createNewProject(true, agent, projectData, function (err, res)
+                                {
+                                    cb2(err, res);
+                                });
+                            }
+                        },
+                        function (err, result)
+                        {
+                            cb1(err, result);
+                        });
                     }
                     else
                     {
-                        projectUtils.createNewProject(true, agent, projectData, function (err, res)
+                        throw new Error(err);
+                    }
+                });
+            },
+            function (cb1)
+            {
+                userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
+                {
+                    if (err)
+                    {
+                        cb1(err, agent);
+                    }
+                    else
+                    {
+                        projectUtils.createNewProject(true, agent, projectCreatedByDemoUser3, function (err, res)
                         {
-                            end();
-                            cb(err, res);
+                            cb1(err, res);
                         });
                     }
                 });
-            }, function (err, results)
+            }
+
+        ], function (err, results)
+        {
+            if (isNull(err))
             {
-                appUtils.registerStopTimeForUnit(path.basename(__filename));
-                finish(err, results);
-            });
-        }
-    });
-};
+                unitUtils.endLoad(self, function (err, results)
+                {
+                    callback(err, results);
+                });
+            }
+            else
+            {
+                callback(err, results);
+            }
+        });
+    }
+    static init (callback)
+    {
+        super.init(callback);
+    }
+    static shutdown (callback)
+    {
+        super.shutdown(callback);
+    }
+
+    static setup (callback, forceLoad)
+    {
+        super.setup(callback, forceLoad);
+    }
+}
+
+CreateProjects.projectsData = projectsData;
+
+module.exports = CreateProjects;

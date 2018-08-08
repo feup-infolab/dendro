@@ -1,9 +1,9 @@
-const Pathfinder = global.Pathfinder;
+const rlequire = require("rlequire");
 
-const GridFSConnection = require(Pathfinder.absPathInSrcFolder("/kb/gridfs.js")).GridFSConnection;
-const Storage = require(Pathfinder.absPathInSrcFolder("/kb/storage/storage.js")).Storage;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const GridFSConnection = rlequire("dendro", "src/kb/gridfs.js").GridFSConnection;
+const Storage = rlequire("dendro", "src/kb/storage/storage.js").Storage;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
 class StorageGridFs extends Storage
 {

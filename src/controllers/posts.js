@@ -1,31 +1,89 @@
-const path = require("path");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Post = rlequire("dendro", "src/models/social/post.js").Post;
+const Like = rlequire("dendro", "src/models/social/like.js").Like;
+const Notification = rlequire("dendro", "src/models/notifications/notification.js").Notification;
+const Comment = rlequire("dendro", "src/models/social/comment.js").Comment;
+const Share = rlequire("dendro", "src/models/social/share.js").Share;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Event = rlequire("dendro", "src/models/social/event.js").Event;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const Project = rlequire("dendro", "src/models/project.js").Project;
+const DbConnection = rlequire("dendro", "src/kb/db.js").DbConnection;
+const MetadataChangePost = rlequire("dendro", "src/models/social/metadataChangePost").MetadataChangePost;
+const ManualPost = rlequire("dendro", "src/models/social/manualPost").ManualPost;
+const FileSystemPost = rlequire("dendro", "src/models/social/fileSystemPost").FileSystemPost;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-
-const Post = require("../models/social/post.js").Post;
-const Like = require("../models/social/like.js").Like;
-const Notification = require("../models/notifications/notification.js").Notification;
-const Comment = require("../models/social/comment.js").Comment;
-const Share = require("../models/social/share.js").Share;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const Project = require("../models/project.js").Project;
-const DbConnection = require("../kb/db.js").DbConnection;
-const MetadataChangePost = require("../models/social/metadataChangePost").MetadataChangePost;
-const ManualPost = require("../models/social/manualPost").ManualPost;
-const FileSystemPost = require("../models/social/fileSystemPost").FileSystemPost;
 const _ = require("underscore");
-
 const flash = require("connect-flash");
-
 const async = require("async");
 const db = Config.getDBByID();
 const db_social = Config.getDBByID("social");
 const db_notifications = Config.getDBByID("notifications");
 
+const dbMySQL = rlequire("dendro", "src/mysql_models");
+
 const app = require("../app");
+
+const addPostsToTimeline = function (posts, nextPosition, timelineId, callback)
+{
+    let insertArray = [];
+    let itemsProcessed = 0;
+    const insertInTimeline = function (posts, nextPosition)
+    {
+        return dbMySQL.timeline_post.bulkCreate(posts).then(function ()
+        {
+            return dbMySQL.timeline.update({ nextPosition: nextPosition }, { where: { id: timelineId } }).then(function ()
+            {
+                return callback();
+            }).catch(function (err)
+            {
+                console.log(err);
+            });
+        });
+        /* return dbMySQL.sequelize.transaction(function (t)
+        {
+            return dbMySQL.timeline_post.bulkCreate(posts, {transaction: t}).then(function ()
+            {
+                return dbMySQL.timeline.update({ nextPosition: nextPosition }, { where: { id: timelineId } }, {transaction: t});
+            });
+        }).then(function ()
+        {
+            return callback();
+        }).catch(function (err)
+        {
+            console.log(err);
+        }); */
+    };
+    const createInsertArray = function (post, index, array)
+    {
+        insertArray.push({timelineId: timelineId, postURI: post.uri, position: nextPosition, fixedPosition: nextPosition});
+        nextPosition++;
+        itemsProcessed++;
+        if (itemsProcessed === array.length)
+        {
+            return insertInTimeline(insertArray, nextPosition);
+        }
+    };
+    posts.forEach(createInsertArray);
+};
+
+const getPostsPerPage = function (startingResultPosition, maxResults, timelineId, callback)
+{
+    return dbMySQL.timeline_post.findAll({
+        raw: true,
+        where: { timelineId: timelineId },
+        attributes: [ ["postURI", "uri"], "position", "fixedPosition" ],
+        order: [ ["fixedPosition", "DESC"] ],
+        offset: startingResultPosition,
+        limit: maxResults
+    }).then(function (posts)
+    {
+        Logger.log("debug", posts);
+        return callback(null, posts);
+    });
+};
 
 /**
  * Gets all the posts ordered by modified date and using pagination
@@ -33,7 +91,7 @@ const app = require("../app");
  * @param startingResultPosition the starting position to start the query
  * @param maxResults the limit for the query
  */
-const getAllPosts = function (projectUrisArray, callback, startingResultPosition, maxResults)
+const getAllPosts = function (projectUrisArray, callback, nextPosition, lastAccess, startingResultPosition, maxResults, timelineId)
 {
     // based on getRecentProjectWideChangesSocial
     const self = this;
@@ -42,10 +100,11 @@ const getAllPosts = function (projectUrisArray, callback, startingResultPosition
     {
         async.mapSeries(projectUrisArray, function (uri, cb1)
         {
-            cb1(null, "<" + uri + ">");
+            // cb1(null, "<" + uri + ">");
+            cb1(null, "'" + uri + "'");
         }, function (err, fullProjects)
         {
-            const projectsUris = fullProjects.join(" ");
+            /* const projectsUris = fullProjects.join(" ");
             let query =
                 "WITH [0] \n" +
                 // "SELECT DISTINCT ?uri ?postTypes\n" +
@@ -54,9 +113,9 @@ const getAllPosts = function (projectUrisArray, callback, startingResultPosition
                 "VALUES ?project { \n" +
                 projectsUris +
                 "} \n" +
-                /* "VALUES ?postTypes { \n" +
+                /!* "VALUES ?postTypes { \n" +
                 "ddr:Post" + " ddr:Share" + " ddr:MetadataChangePost" + " ddr:FileSystemPost" + " ddr:ManualPost" +
-                "} \n" + */
+                "} \n" + *!/
                 "?uri ddr:modified ?date. \n" +
                 // "?uri rdf:type ?postTypes. \n" +
                 "?uri rdf:type ddr:Post. \n" +
@@ -80,21 +139,202 @@ const getAllPosts = function (projectUrisArray, callback, startingResultPosition
                         return callback(err, results);
                     }
                     return callback(true, "Error fetching posts in getAllPosts");
+                }); */
+
+            let projectsUris = fullProjects.join(",");
+            let queryEngagement = "SELECT postURI AS uri FROM " + Config.mySQLDBName + ".posts WHERE projectURI IN (" + projectsUris + ") AND createdAt >= :date ORDER BY createdAt ASC;";
+            let lastDate;
+            if (!isNull(lastAccess))
+            {
+                lastDate = lastAccess.toISOString();
+            }
+            else
+            {
+                lastDate = "1989-03-21T00:00:00.000Z";
+            }
+            dbMySQL.sequelize
+                .query(queryEngagement,
+                    {replacements: { date: lastDate }, type: dbMySQL.sequelize.QueryTypes.SELECT})
+                .then(posts =>
+                {
+                    // let newPosts = Object.keys(posts).map(function (k) { return posts[k]; });
+                    Logger.log("debug", posts);
+                    if (posts.length > 0)
+                    {
+                        return addPostsToTimeline(posts, nextPosition, timelineId, function ()
+                        {
+                            return getPostsPerPage(startingResultPosition, maxResults, timelineId, callback);
+                        });
+                    }
+                    // else
+                    return getPostsPerPage(startingResultPosition, maxResults, timelineId, callback);
+                })
+                .catch(err =>
+                {
+                    console.log(err);
+                    return callback(true, "Error fetching posts in getAllPosts");
                 });
         });
     }
     else
     {
-    // User has no projects
+        // User has no projects
         const results = [];
         return callback(null, results);
     }
 };
 
-exports.getUserPostsUris = function (userUri, currentPage, callback)
+const getRankedPosts = function (projectUrisArray, callback, userUri, nextPosition, lastAccess, startingResultPosition, maxResults, timelineId)
 {
-    const index = currentPage === 1 ? 0 : (currentPage * 5) - 5;
-    const maxResults = 5;
+    const getTimeScore = function (created, now)
+    {
+        let diff = now - created;
+        if (diff === 0)
+        {
+            return 1;
+        }
+        // else
+        return (1 / diff);
+    };
+    const getMaximumNumbers = function (posts, interactions, now)
+    {
+        let maxs = {likes: -1, comments: -1, shares: -1, interactions: -1, time: -1};
+        maxs.likes = Math.max.apply(Math, posts.map(function (post)
+        {
+            return post.likes;
+        }));
+        maxs.likes = maxs.likes === 0 ? 1 : maxs.likes;
+        maxs.comments = Math.max.apply(Math, posts.map(function (post)
+        {
+            return post.comments;
+        }));
+        maxs.comments = maxs.comments === 0 ? 1 : maxs.comments;
+        maxs.shares = Math.max.apply(Math, posts.map(function (post)
+        {
+            return post.shares;
+        }));
+        maxs.shares = maxs.shares === 0 ? 1 : maxs.shares;
+        maxs.interactions = Math.max.apply(Math, interactions.map(function (project)
+        {
+            return project.interactions;
+        }));
+        maxs.interactions = maxs.interactions === 0 ? 1 : maxs.interactions;
+        maxs.time = Math.max.apply(Math, posts.map(function (post)
+        {
+            return getTimeScore(post.created, now);
+        }));
+        maxs.time = maxs.time === 0 ? 1 : maxs.time;
+        return maxs;
+    };
+    const getPostScore = function (projectInteractionsArray, post, maxs, now)
+    {
+        const getProjectInteractions = function (array, projectURI)
+        {
+            let project = array.find(function (element)
+            {
+                return element.projectURI === projectURI;
+            });
+            if (isNull(project))
+            {
+                return 0;
+            }
+            return project.interactions;
+        };
+        let likes = post.likes / maxs.likes;
+        let comments = post.comments / maxs.comments;
+        let shares = post.shares / maxs.shares;
+        let projectInteractions = getProjectInteractions(projectInteractionsArray, post.projectURI) / maxs.interactions;
+        // let postType = post.postType;
+        let timeScore = getTimeScore(post.created, now) / maxs.time;
+        return shares * 0.35 + comments * 0.25 + projectInteractions * 0.2 + likes * 0.1 + timeScore * 0.1;
+    };
+    if (projectUrisArray && projectUrisArray.length > 0)
+    {
+        async.mapSeries(projectUrisArray, function (uri, cb1)
+        {
+            cb1(null, "'" + uri + "'");
+        }, function (err, fullProjects)
+        {
+            let projectsUris = fullProjects.join(",");
+            let queryEngagement = "call " + Config.mySQLDBName + ".countEngagementAndInteractions(:user, :projects, :lastAccess);";
+            let lastDate;
+            if (!isNull(lastAccess))
+            {
+                lastDate = lastAccess.toISOString();
+            }
+            else
+            {
+                lastDate = "1989-03-21T00:00:00.000Z";
+            }
+            dbMySQL.sequelize
+                .query(queryEngagement,
+                    {replacements: { user: "'" + userUri + "'", projects: projectsUris, lastAccess: "'" + lastDate + "'" }, type: dbMySQL.sequelize.QueryTypes.SELECT})
+                .spread((posts, interactions) =>
+                {
+                    let newPosts = Object.keys(posts).map(function (k)
+                    {
+                        return posts[k];
+                    });
+                    let interactionsArray = Object.keys(interactions).map(function (k)
+                    {
+                        return interactions[k];
+                    });
+                    let now = new Date();
+                    let maxs = getMaximumNumbers(newPosts, interactionsArray, now);
+                    newPosts.sort(function (post1, post2)
+                    {
+                        post1.score = getPostScore(interactionsArray, post1, maxs, now);
+                        post2.score = getPostScore(interactionsArray, post2, maxs, now);
+                        let diff = post1.score - post2.score;
+                        if (diff === 0)
+                        {
+                            return post1.created - post2.created;
+                        }
+                        return diff;
+                    });
+                    console.log(newPosts);
+                    if (newPosts.length > 0)
+                    {
+                        return addPostsToTimeline(newPosts, nextPosition, timelineId, function ()
+                        {
+                            return getPostsPerPage(startingResultPosition, maxResults, timelineId, callback);
+                        });
+                    }
+                    // else
+                    return getPostsPerPage(startingResultPosition, maxResults, timelineId, callback);
+                })
+                .catch(err =>
+                {
+                    console.log(err);
+                    return callback(true, "Error fetching posts in getRankedPosts");
+                });
+        });
+    }
+    else
+    {
+        // User has no projects
+        const results = [];
+        return callback(null, results);
+    }
+};
+
+exports.getUserPostsUris = function (userUri, currentPage, useRank, nextPosition, lastAccess, timelineId, callback)
+{
+    const maxResults = 30;
+    const index = currentPage === 1 ? 0 : (currentPage * maxResults) - maxResults;
+    const cb = function (err, results)
+    {
+        if (!err)
+        {
+            callback(err, results);
+        }
+        else
+        {
+            Logger.log("error", "Error getting a user post");
+            Logger.log("error", err);
+            callback(err, results);
+        }
+    };
     Project.findByCreatorOrContributor(userUri, function (err, projects)
     {
         if (!err)
@@ -104,19 +344,14 @@ exports.getUserPostsUris = function (userUri, currentPage, callback)
                 cb1(null, project.uri);
             }, function (err, fullProjectsUris)
             {
-                getAllPosts(fullProjectsUris, function (err, results)
+                if (!useRank)
                 {
-                    if (!err)
-                    {
-                        callback(err, results);
-                    }
-                    else
-                    {
-                        Logger.log("error", "Error getting a user post");
-                        Logger.log("error", err);
-                        callback(err, results);
-                    }
-                }, index, maxResults);
+                    getAllPosts(fullProjectsUris, cb, nextPosition, lastAccess, index, maxResults, timelineId);
+                }
+                else
+                {
+                    getRankedPosts(fullProjectsUris, cb, userUri, nextPosition, lastAccess, index, maxResults, timelineId);
+                }
             });
         }
         else
@@ -411,10 +646,33 @@ const getCommentsForAPost = function (postID, cb)
         });
 };
 
-exports.getPosts_controller = function (req, res)
+exports.getInfoOnArrayOfPosts = function (req, res)
 {
     const acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
+
+    if (isNull(req.query.postsQueryInfo))
+    {
+        return res.status(400).json({
+            result: "Error",
+            message: "Missing postsQueryInfo parameter, which should be an array of post URIs"
+        });
+    }
+
+    try
+    {
+        if (!(req.query.postsQueryInfo instanceof Array))
+        {
+            throw new Error("Invalid postsQueryInfo parameter, which should be an array of post URIs");
+        }
+    }
+    catch (e)
+    {
+        return res.status(400).json({
+            result: "Error",
+            message: e.message
+        });
+    }
 
     if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
     {
@@ -472,6 +730,7 @@ exports.getPosts_controller = function (req, res)
                 {
                     if (isNull(err) && !isNull(post))
                     {
+                        post.fixedPosition = postQueryInfo.fixedPosition;
                         async.series([
                             function (callback)
                             {
@@ -499,8 +758,7 @@ exports.getPosts_controller = function (req, res)
                             },
                             function (callback)
                             {
-                                // TODO HOW TO ACCESS THE FULL TYPE
-                                if (post.rdf.type.includes("http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost"))
+                                if (post.isA(MetadataChangePost))
                                 {
                                     MetadataChangePost.findByUri(post.uri, function (err, metadataChangePost)
                                     {
@@ -799,12 +1057,76 @@ exports.all = function (req, res)
     const currentUser = req.user;
     const acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
-    const currentPage = req.query.currentPage;
-    const index = currentPage === 1 ? 0 : (currentPage * 5) - 5;
-    const maxResults = 5;
+    let currentPage;
+    let useRank;
+
+    try
+    {
+        if (isNull(req.query.currentPage))
+        {
+            currentPage = 0;
+        }
+        else
+        {
+            currentPage = parseInt(req.query.currentPage);
+
+            if (currentPage === Number.NaN)
+            {
+                throw new Error("Invalid currentPage parameter, which must be an integer.");
+            }
+        }
+    }
+    catch (e)
+    {
+        return res.status(500).json({
+            result: "Error",
+            message: "Error getting posts." + e.message,
+            error: e
+        });
+    }
+
+    try
+    {
+        if (isNull(req.query.useRank))
+        {
+            useRank = 0;
+        }
+
+        if (req.query.useRank !== "0" && req.query.useRank !== "1")
+        {
+            throw new Error("Invalid useRank parameter, which must be either 1 or 0.");
+        }
+
+        useRank = parseInt(req.query.useRank);
+    }
+    catch (e)
+    {
+        return res.status(500).json({
+            result: "Error",
+            message: "Error getting posts." + e.message,
+            error: e
+        });
+    }
+
+    const maxResults = 30;
+    const index = currentPage === 1 ? 0 : (currentPage * maxResults) - maxResults;
+
+    const cb = function (err, results)
+    {
+        if (isNull(err))
+        {
+            res.json(results);
+        }
+        else
+        {
+            res.status(500).json({
+                result: "Error",
+                message: "Error getting posts. " + JSON.stringify(err)
+            });
+        }
+    };
 
     // TODO receber filters aqui para os posts da timeline de acordo com (order by numLikes, project, all my projects, etc)
-
     if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
     {
         Project.findByCreatorOrContributor(currentUser.uri, function (err, projects)
@@ -816,20 +1138,102 @@ exports.all = function (req, res)
                     cb1(null, project.uri);
                 }, function (err, fullProjectsUris)
                 {
-                    getAllPosts(fullProjectsUris, function (err, results)
+                    let type = "";
+                    if (useRank)
                     {
-                        if (isNull(err))
+                        type = "ranked";
+                    }
+                    else
+                    {
+                        type = "unranked";
+                    }
+                    let newTimeline = {
+                        userURI: req.userURI,
+                        type: type
+                    };
+                    dbMySQL.timeline
+                        .findOrCreate({where: {userURI: req.user.uri, type: type}, defaults: newTimeline})
+                        .spread((timeline, created) =>
                         {
-                            res.json(results);
+                            let lastAccess = timeline.lastAccess;
+                            if (created)
+                            {
+                                lastAccess = null;
+                            }
+
+                            if (currentPage === 1)
+                            {
+                                if (!useRank)
+                                {
+                                    getAllPosts(fullProjectsUris, cb, timeline.nextPosition, lastAccess, index, maxResults, timeline.id);
+                                }
+                                else
+                                {
+                                    getRankedPosts(fullProjectsUris, cb, currentUser.uri, lastAccess, timeline.lastAccess, index, maxResults, timeline.id);
+                                }
+                                if (!created)
+                                {
+                                    var t = new Date();
+                                    t.setSeconds(t.getSeconds() + 1);
+                                    return timeline.update({
+                                        lastAccess: t
+                                    });
+                                }
+                            }
+                            else
+                            {
+                                getRankedPostsPerPage(index, maxResults, timeline.id, cb);
+                            }
+                        }).catch(err =>
+                        {
+                            console.log(err);
+                        });
+                    /* dbMySQL.timeline
+                        .findOne({where: {userURI: currentUser.uri, type: type}})
+                        .then((timeline) => {
+                            if (currentPage === 1)
+                            {
+                                if (!useRank)
+                                {
+                                    getAllPosts(fullProjectsUris, cb, timeline.nextPosition, timeline.lastAccess, index, maxResults, timeline.id);
+                                }
+                                else
+                                {
+                                    getRankedPosts(fullProjectsUris, cb, currentUser.uri, timeline.nextPosition, timeline.lastAccess, index, maxResults, timeline.id);
+                                }
+                                var t = new Date();
+                                t.setSeconds(t.getSeconds() + 1);
+                                return timeline.update({
+                                    lastAccess: t
+                                });
+                            }
+                            // else
+                            getRankedPostsPerPage(index, maxResults, timeline.id, cb);
+                        }).catch(err => {
+                            console.log(err);
+                        }); */
+                    /* if (useRank === "false")
+                    {
+                        getAllPosts(fullProjectsUris, cb, index, maxResults);
+                    }
+                    else
+                    {
+                        if (currentPage === 1)
+                        {
+                            dbMySQL.timeline
+                                .findOne({where: {userURI: currentUser.uri}, raw: true})
+                                .then((timeline) => {
+                                    console.log(timeline);
+                                    return getRankedPosts(fullProjectsUris, cb, currentUser.uri, timeline.nextPosition, timeline.lastAccess, index, maxResults);
+                                }).catch(err => {
+                                    console.log(err);
+                                });
                         }
                         else
                         {
-                            res.status(500).json({
-                                result: "Error",
-                                message: "Error getting posts. " + JSON.stringify(err)
-                            });
+                            getRankedPostsPerPage(currentUser.uri, index, maxResults, cb);
                         }
-                    }, index, maxResults);
+                    } */
                 });
             }
             else
@@ -882,9 +1286,31 @@ exports.new = function (req, res)
                                     {
                                         if (!err)
                                         {
-                                            res.status(200).json({
-                                                result: "OK",
-                                                message: "Manual Post " + manualPost.uri + " successfully created"
+                                            let post = new Post(null, "manual", manualPost.uri, currentUserUri, req.body.newPostProjectUri);
+                                            post.saveToMySQL(function (err)
+                                            {
+                                                if (isNull(err))
+                                                {
+                                                    Logger.log("Post \"manual\" saved to MySQL");
+                                                    let event = new Event(null, "post", manualPost.uri, currentUserUri);
+                                                    event.saveToMySQL(function (err)
+                                                    {
+                                                        if (isNull(err))
+                                                        {
+                                                            Logger.log("Event \"post\" saved to MySQL");
+                                                            return res.status(200).json({
+                                                                result: "OK",
+                                                                message: "Manual Post " + manualPost.uri + " successfully created"
+                                                            });
+                                                        }
+
+                                                        return Logger.log("error", err);
+                                                    });
+                                                }
+                                                else
+                                                {
+                                                    Logger.log("error", err);
+                                                }
                                             });
                                         }
                                         else
@@ -951,7 +1377,7 @@ exports.new = function (req, res)
     }
 };
 
-exports.getPost_controller = function (req, res)
+exports.getInfoOnSinglePost = function (req, res)
 {
     const acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
@@ -1050,50 +1476,80 @@ exports.share = function (req, res)
 
                         Share.buildFromInfo(newShareData, function (err, newShare)
                         {
-                            if (isNull(err) && !isNull(newShare))
+                            let newNotification = new Notification({
+                                ddr: {
+                                    userWhoActed: currentUser.uri,
+                                    resourceTargetUri: post.uri,
+                                    actionType: "Share",
+                                    resourceAuthorUri: post.dcterms.creator,
+                                    shareURI: newShare.uri
+                                },
+                                foaf: {
+                                    status: "unread"
+                                }
+                            });
+
+                            newShare.save(function (err, resultShare)
                             {
-                                newShare.save(function (err, resultShare)
+                                if (isNull(err))
                                 {
-                                    if (isNull(err) && !isNull(resultShare))
+                                    let newPost = new Post(null, "share", newShare.uri, currentUser.uri, post.ddr.projectUri);
+                                    newPost.saveToMySQL(function (err)
                                     {
-                                        Notification.buildAndSaveFromShare(currentUser, post, newShare, function (error, info)
+                                        if (isNull(err))
                                         {
-                                            if (isNull(error))
+                                            Logger.log("Post \"share\" saved to MySQL");
+                                            let event = new Event(null, "share", newShare.uri, currentUser.uri);
+                                            event.saveToMySQL(function (err)
                                             {
-                                                res.json({
-                                                    result: "OK",
-                                                    message: "Post shared successfully"
-                                                });
-                                            }
-                                            else
-                                            {
-                                                res.status(500).json({
-                                                    result: "Error",
-                                                    message: "Error saving a notification for a Share " + JSON.stringify(info)
-                                                });
-                                            }
-                                        });
-                                    }
-                                    else
+                                                if (isNull(err))
+                                                {
+                                                    Logger.log("Event \"share\" saved to MySQL");
+                                                }
+                                                else
+                                                {
+                                                    Logger.log("error", err);
+                                                }
+                                            });
+                                        }
+                                        else
+                                        {
+                                            Logger.log("error", err);
+                                        }
+                                    });
+                                    /*
+                                     res.json({
+                                     result : "OK",
+                                     message : "Post shared successfully"
+                                     }); */
+                                    newNotification.save(function (error, resultNotification)
                                     {
-                                        Logger.log("error", "Error sharing a post");
-                                        Logger.log("error", err);
-                                        res.status(500).json({
-                                            result: "Error",
-                                            message: "Error sharing a post. " + JSON.stringify(resultShare)
-                                        });
-                                    }
-                                }, false, null, null, null, null, db_social.graphUri);
-                            }
-                            else
-                            {
-                                Logger.log("error", "Error building a share of a post");
-                                Logger.log("error", err);
-                                res.status(500).json({
-                                    result: "Error",
-                                    message: "Error sharing a post. " + JSON.stringify(newShare)
-                                });
-                            }
+                                        if (isNull(error))
+                                        {
+                                            res.json({
+                                                result: "OK",
+                                                message: "Post shared successfully"
+                                            });
+                                        }
+                                        else
+                                        {
+                                            res.status(500).json({
+                                                result: "Error",
+                                                message: "Error saving a notification for a Share " + JSON.stringify(resultNotification)
+                                            });
+                                        }
+                                    }, false, null, null, null, null, db_notifications.graphUri);
+                                }
+                                else
+                                {
+                                    Logger.log("error", "Error share a post");
+                                    Logger.log("error", err);
+                                    res.status(500).json({
+                                        result: "Error",
+                                        message: "Error sharing a post. " + JSON.stringify(resultShare)
+                                    });
+                                }
+                            }, false, null, null, null, null, db_social.graphUri);
                         });
                     }
                 }
@@ -1200,11 +1656,48 @@ exports.comment = function (req, res)
                         }
                     });
 
+                    let newNotification = new Notification({
+                        ddr: {
+                            userWhoActed: currentUser.uri,
+                            resourceTargetUri: post.uri,
+                            actionType: "Comment",
+                            resourceAuthorUri: post.dcterms.creator
+                        },
+                        foaf: {
+                            status: "unread"
+                        }
+                    });
+
                     newComment.save(function (err, resultComment)
                     {
                         if (isNull(err) && !isNull(resultComment))
                         {
-                            Notification.buildAndSaveFromComment(currentUser, post, function (error, info)
+                            let event = new Event(null, "comment", post.uri, currentUser.uri);
+                            event.saveToMySQL(function (err)
+                            {
+                                if (isNull(err))
+                                {
+                                    Logger.log("Event \"comment\" saved to MySQL");
+                                }
+                                else
+                                {
+                                    Logger.log("error", err);
+                                }
+                            });
+                            let postObj = new Post(null, post.uri, null, null);
+                            postObj.updateTimestamp(function (err)
+                            {
+                                if (isNull(err))
+                                {
+                                    Logger.log("Updated post timestamp upon new comment.");
+                                }
+                                else
+                                {
+                                    Logger.log("error", err);
+                                }
+                            });
+
+                            newNotification.save(function (error, resultNotification)
                             {
                                 if (isNull(error))
                                 {
@@ -1220,7 +1713,7 @@ exports.comment = function (req, res)
                                         message: "Error saving a notification for a Comment " + JSON.stringify(info)
                                     });
                                 }
-                            });
+                            }, false, null, null, null, null, db_notifications.graphUri);
                         }
                         else
                         {
@@ -1268,9 +1761,21 @@ exports.like = function (req, res)
                 if (likeExists)
                 {
                     // like was removed
+                    let event = new Event(null, "like", req.body.postID, currentUser.uri, "");
+                    event.deleteFromMySQL(function (err)
+                    {
+                        if (isNull(err))
+                        {
+                            Logger.log("Event \"like\" deleted from MySQL");
+                        }
+                        else
+                        {
+                            Logger.log("error", err);
+                        }
+                    });
                     res.json({
                         result: "OK",
-                        message: "Like was removed"
+                        message: "Like was removed successfully"
                     });
                 }
                 else
@@ -1290,7 +1795,32 @@ exports.like = function (req, res)
                             {
                                 if (isNull(err) && !isNull(resultLike))
                                 {
-                                    Notification.buildAndSaveFromLike(currentUser, post, function (error, info)
+                                    let newNotification = new Notification({
+                                        ddr: {
+                                            userWhoActed: currentUser.uri,
+                                            resourceTargetUri: post.uri,
+                                            actionType: "Like",
+                                            resourceAuthorUri: post.dcterms.creator
+                                        },
+                                        foaf: {
+                                            status: "unread"
+                                        }
+                                    });
+
+                                    let event = new Event(null, "like", post.uri, currentUser.uri);
+                                    event.saveToMySQL(function (err)
+                                    {
+                                        if (isNull(err))
+                                        {
+                                            Logger.log("Event \"like\" saved to MySQL");
+                                        }
+                                        else
+                                        {
+                                            Logger.log("error", err);
+                                        }
+                                    });
+
+                                    newNotification.save(function (error, resultNotification)
                                     {
                                         if (isNull(error))
                                         {
@@ -1767,5 +2297,54 @@ exports.getShare = function (req, res)
             }
         }
     }, null, db_social.graphUri, null);
+};
+
+exports.move = function (req, res)
+{
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
+    const currentUser = req.user;
+    const useRank = parseInt(req.query.useRank);
+    const postURI = req.query.postURI;
+    const move = parseInt(req.query.move);
+    const position = parseInt(req.query.position);
+
+    if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
+    {
+        let type = "";
+        if (useRank)
+        {
+            type = "ranked";
+        }
+        else
+        {
+            type = "unranked";
+        }
+        dbMySQL.timeline
+            .findOne({where: {userURI: currentUser.uri, type: type}})
+            .then((timeline) =>
+            {
+                dbMySQL.timeline_post.update(
+                    { fixedPosition: position },
+                    { where: { fixedPosition: position + move, timelineId: timeline.id }
+                    }).then(() =>
+                {
+                    dbMySQL.timeline_post.update(
+                        { fixedPosition: position + move },
+                        { where: { postURI: postURI, timelineId: timeline.id } }
+                    ).then(() =>
+                    {
+                        res.json("success");
+                    }).catch(err =>
+                    {
+                        console.log(err);
+                        res.json("error");
+                    });
+                });
+            }).catch(err =>
+            {
+                console.log(err);
+            });
+    }
 };
 

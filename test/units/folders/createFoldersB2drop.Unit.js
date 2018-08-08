@@ -1,69 +1,71 @@
 process.env.NODE_ENV = "test";
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const chai = require("chai");
 chai.use(require("chai-http"));
 const async = require("async");
-const should = chai.should();
+const path = require("path");
 
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
-const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils"));
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const itemUtils = rlequire("dendro", "test//utils/item/itemUtils");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1");
 
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-const createProjectB2DropUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjectB2Drop.Unit.js"));
+const unitUtils = rlequire("dendro", "test/utils/units/unitUtils.js");
+const CreateProjectB2DropUnit = rlequire("dendro", "test/units/projects/createProjectB2Drop.Unit.js");
 
-const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
-const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
-const testFolder2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder2.js"));
-const folderDemoUser2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderDemoUser2.js"));
+const folder = rlequire("dendro", "test/mockdata/folders/folder.js");
+const testFolder1 = rlequire("dendro", "test/mockdata/folders/testFolder1.js");
+const testFolder2 = rlequire("dendro", "test/mockdata/folders/testFolder2.js");
+const folderDemoUser2 = rlequire("dendro", "test/mockdata/folders/folderDemoUser2.js");
 
-const b2dropProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/b2drop_project.js"));
+const b2dropProjectData = rlequire("dendro", "test/mockdata/projects/b2drop_project.js");
 const projectsData = [b2dropProjectData];
 const foldersData = module.exports.foldersData = [folder, testFolder1, testFolder2, folderDemoUser2];
 
-module.exports.setup = function (finish)
+class CreateFoldersB2Drop extends CreateProjectB2DropUnit
 {
-    createProjectB2DropUnit.setup(function (err, results)
+    static load (callback)
     {
-        if (err)
+        const self = this;
+        unitUtils.startLoad(self, callback);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
         {
-            finish(err, results);
-        }
-        else
-        {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            if (err)
             {
-                if (err)
+                callback(err, agent);
+            }
+            else
+            {
+                async.mapSeries(projectsData, function (projectData, cb)
                 {
-                    finish(err, agent);
-                }
-                else
-                {
-                    async.mapSeries(projectsData, function (projectData, cb)
+                    async.mapSeries(foldersData, function (folderData, cb)
                     {
-                        async.mapSeries(foldersData, function (folderData, cb)
+                        itemUtils.createFolder(true, agent, projectData.handle, folderData.pathInProject, folderData.name, function (err, res)
                         {
-                            itemUtils.createFolder(true, agent, projectData.handle, folderData.pathInProject, folderData.name, function (err, res)
-                            {
-                                cb(err, res);
-                            });
-                        }, function (err, results)
-                        {
-                            cb(err, results);
+                            cb(err, res);
                         });
                     }, function (err, results)
                     {
-                        finish(err, results);
+                        cb(err, results);
                     });
-                }
-            });
-        }
-    });
-};
+                }, function (err, results)
+                {
+                    unitUtils.endLoad(self, callback);
+                });
+            }
+        });
+    }
+    static init (callback)
+    {
+        super.init(callback);
+    }
+    static shutdown (callback)
+    {
+        super.shutdown(callback);
+    }
+}
+
+module.exports = CreateFoldersB2Drop;

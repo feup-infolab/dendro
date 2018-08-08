@@ -1,56 +1,45 @@
 process.env.NODE_ENV = "test";
 
 const _ = require("underscore");
-const chai = require("chai");
-const slug = require("slug");
-const should = chai.should();
-const Pathfinder = global.Pathfinder;
-const path = require("path");
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const async = require("async");
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
-const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
-const ckanTestUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/ckanTestUtils.js"));
-const CkanUtils = require(Pathfinder.absPathInSrcFolder("/utils/datasets/ckanUtils.js"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
+const rlequire = require("rlequire");
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const repositoryUtils = rlequire("dendro", "test/utils/repository/repositoryUtils.js");
+const projectUtils = rlequire("dendro", "test/utils/project/projectUtils.js");
+const fileUtils = rlequire("dendro", "test/utils/file/fileUtils.js");
+const ckanTestUtils = rlequire("dendro", "test/utils/repository/ckanTestUtils.js");
+const CkanUtils = rlequire("dendro", "src/utils/datasets/ckanUtils.js");
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
+const unitUtils = rlequire("dendro", "test/utils/units/unitUtils.js");
 
-const folderExportedCkanDendroDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanDendroDiffs.js"));
-const folderExportedCkanCkanDiffs = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderExportedCkanCkanDiffs.js"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1");
 
-const uploadedDeletedFileDendroMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/uploadedAndDeletedFileInDendro.js"));
-const uploadedFileToCkan = require(Pathfinder.absPathInTestsFolder("mockdata/files/uploadedFileToCkan.js"));
+const folderExportedCkanDendroDiffs = rlequire("dendro", "test/mockdata/folders/folderExportedCkanDendroDiffs.js");
+const folderExportedCkanCkanDiffs = rlequire("dendro", "test/mockdata/folders/folderExportedCkanCkanDiffs.js");
+
+const uploadedDeletedFileDendroMockFile = rlequire("dendro", "test/mockdata/files/uploadedAndDeletedFileInDendro.js");
+const uploadedFileToCkan = rlequire("dendro", "test/mockdata/files/uploadedFileToCkan.js");
+
+const publicProject = rlequire("dendro", "test/mockdata/projects/public_project.js");
+const privateProject = rlequire("dendro", "test/mockdata/projects/private_project.js");
+const metadataOnlyProject = rlequire("dendro", "test/mockdata/projects/metadata_only_project.js");
 
 let ckanData;
 
-function requireUncached (module)
+const ExportFoldersToCkanRepositoryUnit = rlequire("dendro", "test/units/repositories/exportFoldersToCkanRepository.Unit.js");
+class AddChangesToExportedCKANPackages extends ExportFoldersToCkanRepositoryUnit
 {
-    delete require.cache[require.resolve(module)];
-    return require(module);
-}
-
-module.exports.setup = function (project, finish)
-{
-    const exportFoldersToCkanRepositoryUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/exportFoldersToCkanRepository.Unit.js"));
-
-    exportFoldersToCkanRepositoryUnit.setup(project, function (err, results)
+    static load (callback)
     {
-        if (err)
-        {
-            finish(err, results);
-        }
-        else
+        async.map([publicProject, privateProject, metadataOnlyProject], function (project, callback)
         {
             console.log("---------- RUNNING UNIT addChangesToExportedCkanPackages for: " + project.handle + " ----------");
-            appUtils.registerStartTimeForUnit(path.basename(__filename));
+
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 if (err)
                 {
-                    finish(err, agent);
+                    callback(err, agent);
                 }
                 else
                 {
@@ -94,9 +83,7 @@ module.exports.setup = function (project, finish)
                                         {
                                             repositoryUtils.calculate_ckan_repository_diffs(true, folderExportedCkanCkanDiffsData.uri, agent, {repository: ckanData}, function (err, res)
                                             {
-                                                /* cb(err, res); */
-                                                appUtils.registerStopTimeForUnit(path.basename(__filename));
-                                                finish(err, res);
+                                                unitUtils.endLoad(self, callback);
                                             });
                                         });
                                     });
@@ -106,6 +93,20 @@ module.exports.setup = function (project, finish)
                     });
                 }
             });
-        }
-    });
-};
+        }, function (err, result)
+        {
+            callback(err, result);
+        });
+    }
+    static init (callback)
+    {
+        super.init(callback);
+    }
+
+    static shutdown (callback)
+    {
+        super.shutdown(callback);
+    }
+}
+
+module.exports = AddChangesToExportedCKANPackages;

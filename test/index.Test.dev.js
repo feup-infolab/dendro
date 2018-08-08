@@ -1,22 +1,28 @@
 process.env.NODE_ENV = "test";
 
-const path = require("path");
-const appDir = path.resolve(path.dirname(require.main.filename), "../../..");
-const Pathfinder = require(path.join(appDir, "src", "models", "meta", "pathfinder.js")).Pathfinder;
-global.Pathfinder = Pathfinder;
-Pathfinder.appDir = appDir;
+global.app_startup_time = new Date();
 
-const Config = require(Pathfinder.absPathInSrcFolder(path.join("models", "meta", "config.js"))).Config;
+const path = require("path");
+const rlequire = require("rlequire");
+
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+
+// 30 min TIMEOUT!!!!
 Config.testsTimeout = 1800000;
-console.log("Running in test mode and the app directory is : " + Pathfinder.appDir);
+
+console.log("Running in test mode with Node Version " + process.version + " and the app directory is : " + rlequire.absPathInApp("dendro", "."));
 
 global.Config = Config;
 
 global.tests = {};
 
-// uncomment the first time you run the tests after installing dendro
-// require(Pathfinder.absPathInTestsFolder("/init/loadOntologiesCache.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/keywords/route.keywords.Test.js"));
-// administer projects
-// require(Pathfinder.absPathInTestsFolder("routes/project/public_project/__administer/routes.project.publicProject.__administerTest.js"));
+// TODO get proper order of posts and fix tests (join timeline, timeline_posts
+// TODO and posts query and see the place in the timeline where each post we need is. Update positions in these tests!
+
+// rlequire("dendro", "test/routes/posts/_uri/routes.posts._uri.Test.js");
+
+// rlequire("dendro", "test/routes/shares/_uri/routes.shares._uri.Test.js");
+
+// Import projects tests
+rlequire("dendro", "test/routes/keywords/route.keywords.Test");
 

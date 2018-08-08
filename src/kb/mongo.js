@@ -1,32 +1,42 @@
-const path = require("path");
-const slug = require("slug");
-
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder(path.join("models", "meta", "config.js"))).Config;
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const rlequire = require("rlequire");
+const slug = rlequire("dendro", "src/utils/slugifier.js");
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
 const MongoClient = require("mongodb").MongoClient;
-const url = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + Config.mongoDbCollectionName;
 
-function DendroMongoClient (mongoDBHost, mongoDbPort, mongoDbCollectionName)
+function DendroMongoClient (mongoDBHost, mongoDbPort, mongoDbCollectionName, mongoDbUsername, mongoDbPassword)
 {
     let self = this;
 
-    self.hostname = mongoDBHost;
+    self.host = mongoDBHost;
     self.port = mongoDbPort;
-    self.collectionName = slug(mongoDbCollectionName, "_");
+    self.collectionName = slug(mongoDbCollectionName);
+    self.username = mongoDbUsername;
+    self.password = mongoDbPassword;
 }
 
 DendroMongoClient.prototype.connect = function (callback)
 {
-    const url = "mongodb://" + this.hostname + ":" + this.port + "/" + this.collectionName;
+    const self = this;
+
+    let url;
+    const sluggedCollectionName = slug(this.collectionName);
+    if (self.username && self.password && self.username !== "" && self.password !== "" && self.username !== "")
+    {
+        url = "mongodb://" + self.username + ":" + self.password + "@" + self.host + ":" + self.port + "/" + sluggedCollectionName + "?authSource=admin";
+    }
+    else
+    {
+        url = "mongodb://" + self.host + ":" + self.port + "/" + sluggedCollectionName;
+    }
+
     MongoClient.connect(url, function (err, db)
     {
         if (!err)
         {
             return callback(null, db);
         }
-        const msg = "Error connecting to MongoDB";
+        const msg = "Error connecting to MongoDB " + JSON.stringify(db, null, 4);
         return callback(true, msg);
     });
 };

@@ -5,28 +5,28 @@ const should = chai.should();
 const _ = require("underscore");
 chai.use(chaiHttp);
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
-const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const itemUtils = rlequire("dendro", "test/utils/item/itemUtils.js");
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
+const fileUtils = rlequire("dendro", "test/utils/file/fileUtils.js");
+const folderUtils = rlequire("dendro", "test/utils/folder/folderUtils.js");
+const projectUtils = rlequire("dendro", "test/utils/project/projectUtils.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
-const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");
+const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2.js");
+const demouser3 = rlequire("dendro", "test/mockdata/users/demouser3.js");
 
-const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
+const privateProject = rlequire("dendro", "test/mockdata/projects/private_project.js");
 
-const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
-const createFilesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/files/createFiles.Unit.js"));
+const testFolder1 = rlequire("dendro", "test/mockdata/folders/testFolder1.js");
+const createFilesUnit = rlequire("dendro", "test/units/files/createFiles.Unit.js");
 
-const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtMockFile.js"));
+const txtMockFile = rlequire("dendro", "test/mockdata/files/txtMockFile.js");
 
-const allFiles = createFilesUnit.filesData;
+const allFiles = createFilesUnit.allFiles;
 
 describe("Private project testFolder1 ?rename", function ()
 {
@@ -37,8 +37,17 @@ describe("Private project testFolder1 ?rename", function ()
         {
             createFilesUnit.setup(function (err, results)
             {
-                should.equal(err, null);
-                done();
+                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                {
+                    folderUtils.getFolderContents(true, agent, privateProject.handle, testFolder1.name, function (err, res)
+                    {
+                        res.statusCode.should.equal(200);
+                        should.equal(err, null);
+                        JSON.parse(res.text).should.be.instanceof(Array);
+                        should.equal(err, null);
+                        done();
+                    });
+                });
             });
         });
 

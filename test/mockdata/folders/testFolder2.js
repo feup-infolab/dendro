@@ -1,5 +1,5 @@
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 let folderData = {
     name: "testFolder2",
@@ -9,25 +9,26 @@ let folderData = {
     backup_md5: "",
     searchTerms: "testFolder2",
     files: [
-        require(Pathfinder.absPathInTestsFolder("mockdata/files/pdfMockFile.js")),
-        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc1.js")),
-        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc2.js")),
-        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc3.js")),
-        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc4.js")),
-        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc5.js")),
-        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc6.js")),
-        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc7.js")),
-        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc8.js")),
-        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc9.js")),
-        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc10.js")),
-        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc11.js")),
-        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc12.js")),
-        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc13.js")),
-        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc14.js")),
-        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc15.js")),
-        require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc16.js")),
-        require(Pathfinder.absPathInTestsFolder("mockdata/files/pngMockFile.js")),
-        require(Pathfinder.absPathInTestsFolder("mockdata/files/xlsxMockFile.js"))
+        rlequire("dendro", "test/mockdata/files/pdfMockFile.js"),
+        rlequire("dendro", "test/mockdata/files/pngMockFile.js"),
+        rlequire("dendro", "test/mockdata/files/xlsxMockFile.js"),
+        rlequire("dendro", "test/mockdata/files/keywords/doc1.js"),
+        rlequire("dendro", "test/mockdata/files/keywords/doc2.js"),
+        rlequire("dendro", "test/mockdata/files/keywords/doc3.js"),
+        rlequire("dendro", "test/mockdata/files/keywords/doc4.js"),
+        rlequire("dendro", "test/mockdata/files/keywords/doc5.js"),
+        rlequire("dendro", "test/mockdata/files/keywords/doc6.js"),
+        rlequire("dendro", "test/mockdata/files/keywords/doc7.js"),
+        rlequire("dendro", "test/mockdata/files/keywords/doc8.js"),
+        rlequire("dendro", "test/mockdata/files/keywords/doc9.js"),
+        rlequire("dendro", "test/mockdata/files/keywords/doc10.js"),
+        rlequire("dendro", "test/mockdata/files/keywords/doc11.js"),
+        rlequire("dendro", "test/mockdata/files/keywords/doc12.js"),
+        rlequire("dendro", "test/mockdata/files/keywords/doc13.js"),
+        rlequire("dendro", "test/mockdata/files/keywords/doc14.js"),
+        rlequire("dendro", "test/mockdata/files/keywords/doc15.js"),
+        rlequire("dendro", "test/mockdata/files/keywords/doc16.js")
+
     ],
     metadata: [
         {
@@ -49,4 +50,3 @@ let folderData = {
 };
 
 module.exports = folderData;
-

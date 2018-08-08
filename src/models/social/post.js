@@ -1,45 +1,60 @@
 const path = require("path");
 const async = require("async");
 const _ = require("underscore");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
-const Event = require(Pathfinder.absPathInSrcFolder("/models/social/event.js")).Event;
-const Comment = require(Pathfinder.absPathInSrcFolder("/models/social/comment.js")).Comment;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Class = rlequire("dendro", "src/models/meta/class.js").Class;
+const Event = rlequire("dendro", "src/models/social/event.js").Event;
+const Comment = rlequire("dendro", "src/models/social/comment.js").Comment;
 const uuid = require("uuid");
-const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const DbConnection = rlequire("dendro", "src/kb/db.js").DbConnection;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const db = Config.getDBByID();
 const db_social = Config.getDBByID("social");
+const dbMySQL = rlequire("dendro", "src/mysql_models/index");
 
-function Post (object)
+let Post = function (object, type, postURI, userURI, projectURI)
 {
-    const self = this;
-    self.addURIAndRDFType(object, "post", Post);
-    Post.baseConstructor.call(this, object);
+    if (!isNull(object))
+    {
+        if (!isNull(type) || !isNull(postURI) || !isNull(userURI) || !isNull(projectURI))
+        {
+            throw new Error("invalid constructor call for Post class!");
+        }
 
-    self.copyOrInitDescriptors(object);
-    self.ddr.numLikes = 0;
+        const self = this;
+        self.addURIAndRDFType(object, "post", Post);
+        Post.baseConstructor.call(this, object);
 
-    return self;
-}
+        self.copyOrInitDescriptors(object);
+        self.ddr.numLikes = 0;
+
+        return self;
+    }
+
+    this.typeName = type;
+    this.postURI = postURI;
+    this.userURI = userURI;
+    this.projectURI = projectURI;
+    return this;
+};
 
 Post.prototype.getComments = function (cb)
 {
     var self = this;
 
     var query =
-        "SELECT ?commentURI \n" +
-        "FROM [0] \n" +
-        "WHERE { \n" +
-        "?commentURI rdf:type ddr:Comment. \n" +
-        "?commentURI ddr:postURI [1]. \n" +
-        "?commentURI ddr:modified ?date. \n " +
-        "} \n" +
-        "ORDER BY ASC(?date) \n";
+            "SELECT ?commentURI \n" +
+            "FROM [0] \n" +
+            "WHERE { \n" +
+            "?commentURI rdf:type ddr:Comment. \n" +
+            "?commentURI ddr:postURI [1]. \n" +
+            "?commentURI ddr:modified ?date. \n " +
+            "} \n" +
+            "ORDER BY ASC(?date) \n";
 
     db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
@@ -80,13 +95,13 @@ Post.prototype.getNumLikes = function (cb)
     var self = this;
 
     var query =
-        "SELECT ?likeURI ?userURI \n" +
-        "FROM [0] \n" +
-        "WHERE { \n" +
-        "?likeURI rdf:type ddr:Like. \n" +
-        "?likeURI ddr:postURI [1]. \n" +
-        "?likeURI ddr:userWhoLiked ?userURI . \n" +
-        "} \n";
+            "SELECT ?likeURI ?userURI \n" +
+            "FROM [0] \n" +
+            "WHERE { \n" +
+            "?likeURI rdf:type ddr:Like. \n" +
+            "?likeURI ddr:postURI [1]. \n" +
+            "?likeURI ddr:userWhoLiked ?userURI . \n" +
+            "} \n";
 
     db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
@@ -149,12 +164,12 @@ Post.prototype.getShares = function (cb)
     var self = this;
 
     var query =
-        "SELECT ?shareURI \n" +
-        "FROM [0] \n" +
-        "WHERE { \n" +
-        "?shareURI rdf:type ddr:Share. \n" +
-        "?shareURI ddr:postURI [1]. \n" +
-        "} \n";
+            "SELECT ?shareURI \n" +
+            "FROM [0] \n" +
+            "WHERE { \n" +
+            "?shareURI rdf:type ddr:Share. \n" +
+            "?shareURI ddr:postURI [1]. \n" +
+            "} \n";
 
     db.connection.executeViaJDBC(query,
         DbConnection.pushLimitsArguments([
@@ -174,7 +189,7 @@ Post.prototype.getShares = function (cb)
                 async.mapSeries(results, function (shareObject, callback)
                 {
                     // Share.findByUri(shareObject.shareURI, function(err, share)
-                    const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+                    const Resource = rlequire("dendro", "src/models/resource.js").Resource;
                     Resource.findByUri(shareObject.shareURI, function (err, share)
                     {
                         callback(false, share);
@@ -197,14 +212,14 @@ Post.prototype.getOwnerProject = function (callback)
 {
     const self = this;
     const query =
-        "SELECT ?uri \n" +
-        "FROM [0] \n" +
-        "FROM [1] \n" +
-        "WHERE \n" +
-        "{ \n" +
-        "   [2] ddr:projectUri ?uri. \n" +
-        "   ?uri rdf:type ddr:Project \n" +
-        "} ";
+            "SELECT ?uri \n" +
+            "FROM [0] \n" +
+            "FROM [1] \n" +
+            "WHERE \n" +
+            "{ \n" +
+            "   [2] ddr:projectUri ?uri. \n" +
+            "   ?uri rdf:type ddr:Project \n" +
+            "} ";
 
     db.connection.executeViaJDBC(query,
         [
@@ -227,7 +242,7 @@ Post.prototype.getOwnerProject = function (callback)
             {
                 if (result instanceof Array && result.length === 1)
                 {
-                    const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+                    const Project = rlequire("dendro", "src/models/project.js").Project;
                     Project.findByUri(result[0].uri, function (err, project)
                     {
                         callback(err, project);
@@ -235,12 +250,12 @@ Post.prototype.getOwnerProject = function (callback)
                 }
                 else
                 {
-                    return callback(1, "Invalid result set or no parent PROJECT found when querying for the parent project of" + self.uri);
+                    callback(1, "Invalid result set or no parent PROJECT found when querying for the parent project of" + self.uri);
                 }
             }
             else
             {
-                return callback(1, "Error reported when querying for the parent PROJECT of" + self.uri + " . Error was ->" + result);
+                callback(1, "Error reported when querying for the parent PROJECT of" + self.uri + " . Error was ->" + result);
             }
         }
     );
@@ -259,6 +274,91 @@ Post.prototype.getHumanReadableUri = function (callback)
     {
         callback(null, self.ddr.humanReadableURI);
     }
+};
+
+Post.prototype.saveToMySQL = function (callback)
+{
+    const self = this;
+    dbMySQL.post_types.findAll({
+        where: {
+            name: self.typeName
+        }
+    }).then(res =>
+    {
+        self.typeId = res[0].dataValues.id;
+        dbMySQL.posts
+            .create(self)
+            .then(() =>
+            {
+                callback(null);
+                return null;
+            }
+            ).catch(err =>
+            {
+                callback(err);
+                return null;
+            }
+            );
+    });
+};
+
+Post.prototype.deleteFromMySQL = function (callback)
+{
+    const self = this;
+    dbMySQL.post_types.findAll({
+        where: {
+            name: self.typeName
+        }
+    }).then(res =>
+    {
+        self.typeId = res[0].dataValues.id;
+        dbMySQL.posts
+            .destroy({
+                where: {
+                    postURI: self.postURI,
+                    userURI: self.userURI,
+                    typeId: self.typeId
+                }
+            }).then(() =>
+            {
+                callback(null);
+                return null;
+            }
+            ).catch(err =>
+            {
+                callback(err);
+                return null;
+            }
+            );
+    });
+};
+
+Post.prototype.updateTimestamp = function (callback)
+{
+    const self = this;
+    dbMySQL.posts.update({
+        updatedAt: new Date()
+    }, {
+        where: { postURI: self.postURI }
+    }).then(() =>
+    {
+        dbMySQL.timeline_post.destroy({
+            where: {
+                postURI: self.postURI,
+                type: "ranked"
+            }
+        })
+            .then(() =>
+            {
+                callback(null);
+                return null;
+            })
+            .catch(err =>
+            {
+                callback(err);
+                return null;
+            });
+    });
 };
 
 Post = Class.extend(Post, Event, "ddr:Post");

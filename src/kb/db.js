@@ -4,15 +4,14 @@ const fs = require("fs");
 const path = require("path");
 const mkdirp = require("mkdirp");
 
-const Pathfinder = global.Pathfinder;
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 const Queue = require("better-queue");
 const rp = require("request-promise-native");
-const uuid = require("uuid");
 const jinst = require("jdbc/lib/jinst");
 const Pool = require("jdbc/lib/pool");
 
@@ -122,7 +121,7 @@ const queryObjectToString = function (query, argumentsArray, callback)
                                     const prefix = currentArgument.value.substr(0, indexOfSeparator);
                                     const element = currentArgument.value.substr(indexOfSeparator + 1);
 
-                                    const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+                                    const Ontology = rlequire("dendro", "src/models/meta/ontology.js").Ontology;
                                     const ontology = Ontology.allOntologies[prefix].uri;
                                     const valueAsFullUri = ontology + element;
 
@@ -195,7 +194,7 @@ const queryObjectToString = function (query, argumentsArray, callback)
 
 const recordQueryConclusionInLog = function (query, queryStartTime)
 {
-    const logParentFolder = Pathfinder.absPathInApp("profiling");
+    const logParentFolder = rlequire.absPathInApp("dendro", "profiling");
     const queryProfileLogFilePath = path.join(logParentFolder, "database_profiling_" + bootStartTimestamp + ".csv");
 
     if (Config.debug.database.log_query_times)
@@ -303,33 +302,6 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
         });
     };
 
-    const releaseConnection = function (connection, callback)
-    {
-        if (!isNull(self.pool))
-        {
-            self.pool.release(connection, function (err, connection)
-            {
-                if (isNull(err))
-                {
-                    delete self.pendingRequests[queryId];
-                    delete self.pendingRequests[queryId];
-                    callback(null);
-                }
-                else
-                {
-                    Logger.log("error", "Error releasing JDBC connection on pool of database " + self.id);
-                    Logger.log("error", JSON.stringify(err));
-                    Logger.log("error", JSON.stringify(connection));
-                    callback(err, connection);
-                }
-            });
-        }
-        else
-        {
-            callback(null);
-        }
-    };
-
     const executeQueryOrUpdate = function (connection, callback)
     {
         connection.conn.createStatement(function (err, statement)
@@ -339,6 +311,12 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
                 // difference between query and procedure (does not return anything. needed for deletes and inserts)
                 if (!isNull(runAsUpdate))
                 {
+                    // if (!isNull(Config.virtuosoSQLLogLevel))
+                    // {
+                    //     query = "log_enable(" + Config.virtuosoSQLLogLevel + "); \n" + query + "\n";
+                    // }
+                    // query = "set AUTOCOMMIT MANUAL;\n" + query + "\nCOMMIT WORK;\n set AUTOCOMMIT on;\n";
+
                     statement.executeUpdate(query, function (err, results)
                     {
                         if (isNull(err))
@@ -418,6 +396,43 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
         });
     };
 
+    const releaseConnection = function (connection, callback)
+    {
+        if (!isNull(self.pool))
+        {
+            self.pool.release(connection, function (err, result)
+            {
+                if (!isNull(connection))
+                {
+                    const endIt = function (callback)
+                    {
+                        if (isNull(err))
+                        {
+                            callback(null);
+                        }
+                        else
+                        {
+                            Logger.log("error", "Error releasing JDBC connection on pool of database " + self.handle);
+                            Logger.log("error", JSON.stringify(err));
+                            Logger.log("error", JSON.stringify(connection));
+                            callback(err, connection);
+                        }
+                    };
+
+                    endIt(callback);
+                }
+                else
+                {
+                    callback(null, null);
+                }
+            });
+        }
+        else
+        {
+            callback(null);
+        }
+    };
+
     reserveConnection(function (err, connection)
     {
         if (isNull(err))
@@ -450,6 +465,8 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
                 releaseConnection(connection, function (err, result)
                 {
                     clearTimeout(timeout);
+
+                    delete self.pendingRequests[queryId];
                     callback(err, results);
                 });
             });
@@ -462,6 +479,52 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
             Logger.log("error", err.stack);
             Logger.log("error", msg);
         }
+    });
+};
+
+DbConnection.finishUpAllConnectionsAndClose = function (callback)
+{
+    let exited = false;
+    // we also register another handler if virtuoso connections take too long to close
+    setTimeout(function ()
+    {
+        if (!exited)
+        {
+            const msg = "Virtuoso did not close all connections in time!";
+            Logger.log("error", msg);
+            callback(1, msg);
+        }
+    }, Config.dbOperationTimeout * 10);
+
+    async.mapSeries(Object.keys(Config.db), function (dbConfigKey, cb)
+    {
+        const dbConfig = Config.db[dbConfigKey];
+
+        if (!isNull(dbConfig.connection) && dbConfig.connection instanceof DbConnection)
+        {
+            dbConfig.connection.close(function (err, result)
+            {
+                if (isNull(err))
+                {
+                    Logger.log("Virtuoso connection " + dbConfig.connection.databaseName + " closed gracefully.");
+                    cb(null, result);
+                }
+                else
+                {
+                    Logger.log("error", "Error closing Virtuoso connection " + dbConfig.connection.databaseName + ".");
+                    Logger.log("error", err);
+                    cb(err, result);
+                }
+            });
+        }
+        else
+        {
+            cb(null, null);
+        }
+    }, function (err, result)
+    {
+        exited = true;
+        callback(err, result);
     });
 };
 
@@ -675,7 +738,7 @@ DbConnection.prototype.create = function (callback)
         {
             jinst.addOption("-Xrs");
             jinst.setupClasspath([
-                Pathfinder.absPathInApp("conf/virtuoso-jdbc/jdbc-4.2/virtjdbc4_2.jar")
+                rlequire.absPathInApp("dendro", "conf/virtuoso-jdbc/jdbc-4.2/virtjdbc4_2.jar")
             ]);
         }
 
@@ -711,7 +774,8 @@ DbConnection.prototype.create = function (callback)
         {
             if (err)
             {
-                Logger.log("error", JSON.stringify(err));
+                // Logger.log("error", "Error initializing Virtuoso connection pool: " + JSON.stringify(err));
+                Logger.log("error", "Error initializing Virtuoso connection pool: " + JSON.stringify(err) + " RESULT: " + JSON.stringify(result));
                 callback(err, result);
             }
             else
@@ -853,7 +917,7 @@ DbConnection.prototype.create = function (callback)
                             else
                             {
                                 const msg = "Invalid response from server while running query \n" + queryObject.query + ": " + JSON.stringify(parsedBody, null, 4);
-                                Logger.log("error", JSON.stringify(parsedBody));
+                                Logger.log("error", msg);
                                 recordQueryConclusionInLog(queryObject);
                                 popQueueCallback(1, msg);
                                 queryObject.callback(1, "Invalid response from server");
@@ -901,22 +965,122 @@ DbConnection.prototype.create = function (callback)
     });
 };
 
-DbConnection.prototype.close = function (callback)
+DbConnection.prototype.tryToConnect = function (callback)
 {
     const self = this;
+    const tryToConnect = function (callback)
+    {
+        self.create(function (err, db)
+        {
+            if (isNull(err))
+            {
+                if (isNull(db))
+                {
+                    const msg = "[ERROR] Unable to connect to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort;
+                    Logger.log_boot_message(msg);
+                    return callback(msg);
+                }
+
+                Logger.log_boot_message("Connected to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort);
+                // set default connection. If you want to add other connections, add them in succession.
+                return callback(null);
+            }
+            callback(1);
+        });
+    };
+
+    // try calling apiMethod 10 times with linear backoff
+    // (i.e. intervals of 100, 200, 400, 800, 1600, ... milliseconds)
+    async.retry({
+        times: 240,
+        interval: function (retryCount)
+        {
+            const msecs = 500;
+            Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to Virtuoso at " + Config.virtuosoHost + ":" + Config.virtuosoPort + "...");
+            return msecs;
+        }
+    }, tryToConnect, function (err, result)
+    {
+        if (!isNull(err))
+        {
+            const msg = "[ERROR] Error connecting to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort;
+            Logger.log("error", msg);
+            Logger.log("error", err);
+            Logger.log("error", result);
+        }
+        else
+        {
+            const msg = "Connection to Virtuoso at " + Config.virtuosoHost + ":" + Config.virtuosoPort + " was established!";
+            Logger.log("info", msg);
+        }
+        callback(err);
+    });
+};
+
+DbConnection.prototype.close = function (callback)
+{
+    // silvae86
+    // THIS FUNCTION IS A CONSEQUENCE OF VIRTUOSO's QUALITY AND MY STUPIDITY
+    // CONNECTIONS ARE NEVER CLOSED EVEN WITH PURGE METHOD!!!!
+    const self = this;
+
+    const closeConnectionPool = function (cb)
+    {
+        if (self.pool)
+        {
+            async.map(self.pool._pool, function (connection, cb)
+            {
+                self.pool.release(connection, function (err, result)
+                {
+                    cb(null);
+                });
+            }, function (err, results)
+            {
+                cb(err, results);
+            });
+        }
+        else
+        {
+            cb(null);
+        }
+    };
 
     const closePendingConnections = function (callback)
     {
         if (Object.keys(self.pendingRequests).length > 0)
         {
-            Logger.log("info", "Telling Virtuoso connection " + self.handle + " to abort all queued requests.");
+            Logger.log("Telling Virtuoso connection " + self.handle + " to abort all queued requests.");
             async.mapSeries(Object.keys(self.pendingRequests), function (queryID, cb)
             {
                 if (self.pendingRequests.hasOwnProperty(queryID))
                 {
-                    if (!isNull(self.pendingRequests[queryID]) && typeof self.pendingRequests[queryID] === "function")
+                    if (!isNull(self.pendingRequests[queryID]) && self.pendingRequests[queryID].conn)
                     {
-                        self.pendingRequests[queryID].cancel(cb);
+                        if (!isNull(self.pendingRequests[queryID].conn))
+                        {
+                            self.pendingRequests[queryID].conn.commit(function (err, result)
+                            {
+                                if (isNull(err))
+                                {
+                                    self.pendingRequests[queryID].conn.close(function (err, result)
+                                    {
+                                        cb(err, result);
+                                    });
+                                }
+                                else
+                                {
+                                    cb(null);
+                                }
+                            });
+                        }
+                        else
+                        {
+                            cb(null);
+                        }
+                    }
+                    else
+                    {
+                        cb(null);
                     }
                 }
                 else
@@ -931,20 +1095,11 @@ DbConnection.prototype.close = function (callback)
                     Logger.log("error", JSON.stringify(err));
                     Logger.log("error", JSON.stringify(result));
                 }
-
-                /* if(!isNull(self.pool))
-                {
-                    Logger.log("error","Killing all connections of user " + self.jdbc + " via JDBC");
-                    self.executeViaJDBC("disconnect_user ('"+  self.username + "');", [], function(err, result){
-                        Logger.log("error","Killing all connections of user " + self.jdbc + " via JDBC");
-                        callback(err, result);
-                    });
-                } */
             });
         }
         else
         {
-            Logger.log("info", "No queued requests in Virtuoso connection " + self.handle + ". Continuing cleanup...");
+            Logger.log("No queued requests in Virtuoso connection " + self.handle + ". Continuing cleanup...");
             callback(null);
         }
     };
@@ -979,73 +1134,93 @@ DbConnection.prototype.close = function (callback)
         ], callback);
     };
 
-    const closeClientConnection = function (callback)
+    const sendCheckpointCommand = function (callback)
     {
-        let fullUrl = "http://" + self.host;
-        if (self.port)
-        {
-            fullUrl = fullUrl + ":" + self.port_isql;
-        }
-
-        rp({
-            method: "POST",
-            uri: fullUrl,
-            form: {
-                query: "disconnect_user ('" + Config.virtuosoAuth.username + "')"
-            },
-            json: true,
-            forever: true
-        })
-            .then(function (err, parsedBody)
+        Logger.log("Committing pending transactions via checkpoint; command before shutting down virtuoso....");
+        self.executeViaJDBC(
+            "EXEC=checkpoint;",
+            [],
+            function (err, result)
             {
-                callback(err, parsedBody);
-            });
-    };
-
-    const closeAllJDBCConnections = function (callback)
-    {
-        async.mapSeries(self.queue_jdbc, function (queryObject, callback)
-        {
-            if (!isNull(queryObject))
-            {
-                if (!isNull(queryObject.connection))
+                if (!isNull(err))
                 {
-                    queryObject.connection.release(callback);
+                    Logger.log("error", "Error committing pending transactions via checkpoint; command before shutting down virtuoso.");
+                    Logger.log("error", err);
+                    Logger.log("error", result);
+                    callback(err, result);
                 }
                 else
                 {
-                    callback(null, null);
+                    callback(null, result);
                 }
-            }
-            else
-            {
-                callback(null, null);
-            }
-        }, function (err, results)
-        {
-            if (!isNull(self.pool))
-            {
-                self.pool.purge(function (err, result)
-                {
-                    delete self.pool;
-                    callback(err, result);
-                });
-            }
-            else
-            {
-                callback(null);
-            }
-        });
+            }, null, null, null, true, true
+        );
+
+        callback(null);
+    };
+
+    const shutdownVirtuoso = function (callback)
+    {
+        callback(null);
+
+        // if (Config.docker.active && Config.docker.start_and_stop_containers_automatically)
+        // {
+        //     Logger.log("Shutting down virtuoso....!");
+        //     self.executeViaJDBC(
+        //         "EXEC=checkpoint; shutdown;",
+        //         [],
+        //         function (err, result)
+        //         {
+        //             if (!isNull(err))
+        //             {
+        //                 Logger.log("error", "Error shutting down virtuoso.");
+        //                 Logger.log("error", err);
+        //                 Logger.log("error", result);
+        //                 callback(err, result);
+        //             }
+        //             else
+        //             {
+        //                 callback(null, result);
+        //             }
+        //         }, null, null, null, true, true
+        //     );
+        // }
+        // else
+        // {
+        //     callback(null);
+        // }
     };
 
     async.series([
-        closeAllJDBCConnections,
+        sendCheckpointCommand,
+        closePendingConnections,
+        closeConnectionPool,
         destroyQueues,
-        closePendingConnections
+        shutdownVirtuoso
     ], function (err, result)
     {
         callback(err, result);
     });
+
+    const closeClientConnection = function (callback)
+    {
+        // self.sendQueryViaJDBC(
+        //     "disconnect_user ('" + Config.virtuosoAuth.username + "')",
+        //     [],
+        //     function (err, result)
+        //     {
+        //         if (!isNull(err))
+        //         {
+        //             Logger.log("error", "Error disconnecting user " + Config.virtuosoAuth.username + " before shutting down virtuoso.");
+        //             Logger.log("error", err);
+        //             Logger.log("error", result);
+        //         }
+        //         callback(err, result);
+        //     }, null, null, null, true, true
+        // );
+
+        callback(null);
+    };
 };
 
 DbConnection.prototype.executeViaHTTP = function (queryStringWithArguments, argumentsArray, callback, resultsFormat, maxRows, loglevel)
@@ -1089,12 +1264,14 @@ DbConnection.prototype.executeViaHTTP = function (queryStringWithArguments, argu
                     query = "DEFINE sql:log-enable " + Config.virtuosoSQLLogLevel + "\n" + query;
                 }
 
+                const uuid = require("uuid");
+                const newQueryId = uuid.v4();
                 self.queue_http.push({
                     queryStartTime: new Date(),
                     query: query,
                     callback,
                     callback,
-                    query_id: uuid.v4(),
+                    query_id: newQueryId,
                     fullUrl: fullUrl,
                     resultsFormat: resultsFormat,
                     maxRows: maxRows
@@ -1114,7 +1291,7 @@ DbConnection.prototype.executeViaHTTP = function (queryStringWithArguments, argu
     });
 };
 
-DbConnection.prototype.executeViaJDBC = function (queryStringOrArray, argumentsArray, callback, resultsFormat, maxRows, loglevel, runAsUpdate)
+DbConnection.prototype.executeViaJDBC = function (queryStringOrArray, argumentsArray, callback, resultsFormat, maxRows, loglevel, runAsUpdate, notSPARQL)
 {
     const self = this;
 
@@ -1125,7 +1302,10 @@ DbConnection.prototype.executeViaJDBC = function (queryStringOrArray, argumentsA
             if (!isNull(self.pool))
             {
                 // Add SPARQL keyword at the start of the query
-                query = "SPARQL\n" + query;
+                if (isNull(notSPARQL) || !isNull(notSPARQL) && notSPARQL === false)
+                {
+                    query = "SPARQL\n" + query;
+                }
 
                 // Uncomment to use JDBC-controlled query queuing
                 // self.sendQueryViaJDBC(
@@ -1139,10 +1319,12 @@ DbConnection.prototype.executeViaJDBC = function (queryStringOrArray, argumentsA
                 // );
 
                 // Uncomment to use NodeJS Query queues for concurrency control
+                const uuid = require("uuid");
+                const newQueryId = uuid.v4();
                 self.queue_jdbc.push({
                     queryStartTime: new Date(),
                     query: query,
-                    query_id: uuid.v4(),
+                    query_id: newQueryId,
                     runAsUpdate: runAsUpdate,
                     callback: function (err, results)
                     {
@@ -1262,7 +1444,7 @@ DbConnection.prototype.insertTriple = function (triple, graphUri, callback)
 
     if (Config.cache.active)
     {
-        const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
+        const Cache = rlequire("dendro", "src/kb/cache/cache.js").Cache;
         // Invalidate cache record for the updated resources
         Cache.getByGraphUri(graphUri).delete([triple.subject, triple.object], function (err, result)
         {
@@ -1466,7 +1648,7 @@ DbConnection.prototype.insertDescriptorsForSubject = function (subject, newDescr
         if (Config.cache.active)
         {
             // Invalidate cache record for the updated resource
-            const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
+            const Cache = rlequire("dendro", "src/kb/cache/cache.js").Cache;
             // Invalidate cache record for the updated resources
             Cache.getByGraphUri(graphName).delete(subject, function (err, result)
             {
@@ -1502,7 +1684,7 @@ DbConnection.prototype.deleteGraph = function (graphUri, callback)
     if (Config.cache.active)
     {
     // Invalidate cache record for the updated resource
-        const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
+        const Cache = rlequire("dendro", "src/kb/cache/cache.js").Cache;
         // Invalidate whole cache for this graph
 
         let graphCache;

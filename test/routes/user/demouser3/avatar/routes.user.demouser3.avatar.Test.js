@@ -5,13 +5,13 @@ var _ = require("underscore");
 chai.use(chaiHttp);
 
 let path = require("path");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder(path.join("models", "meta", "config.js"))).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
 
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-var createAvatarsForUsersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/users/createAvatarsForUsers.Unit.js"));
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
+var createAvatarsForUsersUnit = rlequire("dendro", "test/units/users/createAvatarsForUsers.Unit.js");
 const md5 = require("md5");
 
 describe("[GET] /user/demouser3?avatar", function (done)
@@ -26,9 +26,9 @@ describe("[GET] /user/demouser3?avatar", function (done)
         });
     });
 
-    const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
-    const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
-    const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
+    const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");
+    const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2.js");
+    const demouser3 = rlequire("dendro", "test/mockdata/users/demouser3.js");
 
     it("[HTML] should provide the avatar even if the current user is not authenticated", function (done)
     {

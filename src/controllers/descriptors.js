@@ -1,12 +1,12 @@
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const Ontology = require(Pathfinder.absPathInSrcFolder("/models//meta/ontology.js")).Ontology;
-const Project = require(Pathfinder.absPathInSrcFolder("/models//project.js")).Project;
-const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+const Ontology = rlequire("dendro", "src/models//meta/ontology.js").Ontology;
+const Project = rlequire("dendro", "src/models//project.js").Project;
+const User = rlequire("dendro", "src/models/user.js").User;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 const async = require("async");
 const _ = require("underscore");
@@ -192,8 +192,8 @@ exports.from_ontology_in_project = function (req, res)
         }
         else
         {
-            const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-            const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+            const InformationElement = rlequire("dendro", "src/models/directory_structure/information_element.js").InformationElement;
+            const Project = rlequire("dendro", "src/models/project.js").Project;
 
             InformationElement.findByUri(req.params.requestedResourceUri, function (err, ie)
             {
@@ -440,84 +440,86 @@ exports.from_ontology_in_project = function (req, res)
                                                         });
                                                     };
 
-                                                    for (let i = 0; i < descriptors.length; i++)
+                                                    async.map(descriptors, function (descriptor, cb)
                                                     {
-                                                        descriptors[i].recommendation_types = {};
+                                                        descriptor.recommendation_types = {};
 
-                                                        if (typeDetected(results[0], descriptors[i]))
+                                                        if (typeDetected(results[0], descriptor))
                                                         {
-                                                            descriptors[i].recommendation_types[Descriptor.recommendation_types.user_favorite.key] = true;
+                                                            descriptor.recommendation_types[Descriptor.recommendation_types.user_favorite.key] = true;
                                                         }
 
-                                                        if (typeDetected(results[1], descriptors[i]))
+                                                        if (typeDetected(results[1], descriptor))
                                                         {
-                                                            descriptors[i].recommendation_types[Descriptor.recommendation_types.project_favorite.key] = true;
+                                                            descriptor.recommendation_types[Descriptor.recommendation_types.project_favorite.key] = true;
                                                         }
 
-                                                        if (typeDetected(results[2], descriptors[i]))
+                                                        if (typeDetected(results[2], descriptor))
                                                         {
-                                                            descriptors[i].recommendation_types[Descriptor.recommendation_types.user_hidden.key] = true;
+                                                            descriptor.recommendation_types[Descriptor.recommendation_types.user_hidden.key] = true;
                                                         }
 
-                                                        if (typeDetected(results[3], descriptors[i]))
+                                                        if (typeDetected(results[3], descriptor))
                                                         {
-                                                            descriptors[i].recommendation_types[Descriptor.recommendation_types.project_hidden.key] = true;
+                                                            descriptor.recommendation_types[Descriptor.recommendation_types.project_hidden.key] = true;
                                                         }
 
-                                                        if (typeDetected(results[4], descriptors[i]))
+                                                        if (typeDetected(results[4], descriptor))
                                                         {
-                                                            descriptors[i].recommendation_types[Descriptor.recommendation_types.dc_element_forced.key] = true;
+                                                            descriptor.recommendation_types[Descriptor.recommendation_types.dc_element_forced.key] = true;
                                                         }
-                                                    }
-
-                                                    /*
+                                                        cb(null, null);
+                                                    }, function (err, results)
+                                                    {
+                                                        /*
                                                      Sort descriptors alphabetically
                                                      */
-                                                    descriptors = _.sortBy(descriptors, function (descriptor)
-                                                    {
-                                                        return descriptor.label;
-                                                    });
-
-                                                    const removeDuplicates = function (results)
-                                                    {
-                                                        const uniques = _.uniq(results, false, function (result)
+                                                        descriptors = _.sortBy(descriptors, function (descriptor)
                                                         {
-                                                            return result.uri;
+                                                            return descriptor.label;
                                                         });
 
-                                                        return uniques;
-                                                    };
-
-                                                    const removeLockedAndPrivate = function (results)
-                                                    {
-                                                        const filtered = _.filter(results, function (result)
+                                                        const removeDuplicates = function (results)
                                                         {
-                                                            let isLockedOrPrivate = (result.locked || result.private);
-                                                            return !isLockedOrPrivate;
-                                                        });
+                                                            const uniques = _.uniq(results, false, function (result)
+                                                            {
+                                                                return result.uri;
+                                                            });
 
-                                                        return filtered;
-                                                    };
+                                                            return uniques;
+                                                        };
 
-                                                    descriptors = removeDuplicates(descriptors);
-                                                    descriptors = removeLockedAndPrivate(descriptors);
-
-                                                    const uuid = require("uuid");
-                                                    const recommendation_call_id = uuid.v4();
-                                                    const recommendation_call_timestamp = new Date().toISOString();
-
-                                                    for (let i = 0; i < descriptors.length; i++)
-                                                    {
-                                                        descriptors[i].recommendationCallId = recommendation_call_id;
-                                                        descriptors[i].recommendationCallTimeStamp = recommendation_call_timestamp;
-                                                    }
-
-                                                    res.json(
+                                                        const removeLockedAndPrivate = function (results)
                                                         {
-                                                            result: "ok",
-                                                            descriptors: descriptors
+                                                            const filtered = _.filter(results, function (result)
+                                                            {
+                                                                let isLockedOrPrivate = (result.locked || result.private);
+                                                                return !isLockedOrPrivate;
+                                                            });
+
+                                                            return filtered;
+                                                        };
+
+                                                        descriptors = removeDuplicates(descriptors);
+                                                        descriptors = removeLockedAndPrivate(descriptors);
+
+                                                        const uuid = require("uuid");
+                                                        const recommendation_call_id = uuid.v4();
+                                                        const recommendation_call_timestamp = new Date().toISOString();
+
+                                                        for (let i = 0; i < descriptors.length; i++)
+                                                        {
+                                                            descriptors[i].recommendationCallId = recommendation_call_id;
+                                                            descriptors[i].recommendationCallTimeStamp = recommendation_call_timestamp;
                                                         }
-                                                    );
+
+                                                        res.json(
+                                                            {
+                                                                result: "ok",
+                                                                descriptors: descriptors
+                                                            }
+                                                        );
+                                                    });
                                                 }
                                                 else
                                                 {

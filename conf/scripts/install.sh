@@ -8,12 +8,14 @@ if [[ tesseract > /dev/null ]]
 then
     # install text extraction dependencies
     if [ "$(uname)" == "Darwin" ]; then
-        brew cask install xquartz && brew install ghostscript xpdf tesseract imagemagick && brew cask install pdftotext
+        brew cask install xquartz && brew install ghostscript xpdf tesseract imagemagick@6 && brew cask install pdftotext
         brew tap caskroom/versions
         brew cask install java8
     elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-        echo "I need your sudo password for installing text extraction dependencies..."
-        sudo apt-get -y -f install poppler-utils antiword unrtf tesseract-ocr
+        if [[ $(dpkg -l "poppler-utils" "antiword" "unrtf" "tesseract-ocr") ]]; then
+            echo "I need your sudo password for installing text extraction dependencies..."
+            sudo apt-get -y -f install poppler-utils antiword unrtf tesseract-ocr
+        fi
     fi
 fi
 
@@ -27,7 +29,7 @@ else
     chown -R "$(whoami)" "$HOME/.nvm"
 
     #install NVM, Node, Node Automatic Version switcher
-    curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.1/install.sh | bash &&
+    curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash &&
     export NVM_DIR="$HOME/.nvm" &&
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && # This loads nvm
 
@@ -40,11 +42,14 @@ else
     nvm use --delete-prefix $NODE_VERSION --silent &&
     echo "loaded NVM."
 
-    #update npm
-    npm install npm@latest -g
-
     #clear npm cache
     npm cache clean --force
+
+    #update npm (force 5.6.0 because of write after end issue: https://github.com/npm/npm/issues/19989)
+    npm i -g npm@5.6.0
+
+    #install nyc
+    npm i -g nyc
 
     #delete node_modules folder
     rm -rf node_modules
@@ -53,7 +58,7 @@ else
     chown -R "$(whoami)" "$HOME/.nvm"
 
     #install preliminary dependencies
-    npm i -g npm && npm i -g grunt && npm install gulp-cli -g && npm install bower -g && npm install pm2 -g && npm install -g npm-check-updates
+    npm i -g grunt && npm install gulp-cli -g && npm install bower -g && npm install pm2 -g && npm install -g npm-check-updates
 
     #install dependencies. Will also run bower install whenever needed
     npm install #this is needed when running npm install with sudo to install global modules

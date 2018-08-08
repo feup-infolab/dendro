@@ -4,7 +4,6 @@ chai.use(chaiHttp);
 
 const _ = require("underscore");
 const binaryParser = require("../file/fileUtils.js").binaryParser;
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 exports.createFolderInProject = function (jsonOnly, agent, targetFolderInProject, folderName, projectHandle, cb)
 {
@@ -19,7 +18,6 @@ exports.createFolderInProject = function (jsonOnly, agent, targetFolderInProject
 
     if (jsonOnly)
     {
-        // / project/PROJECTHANDLE?mkdir=FOLDERNAME
         agent
             .post(uri)
             .set("Accept", "application/json")

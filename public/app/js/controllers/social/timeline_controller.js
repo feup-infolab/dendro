@@ -6,9 +6,10 @@ angular.module("dendroApp.controllers")
     {
         $scope.myTab = $element;
         $scope.posts = [];
+        $scope.useRank = false;
         $scope.countCenas = 1;
         $scope.totalPosts = 0;
-        $scope.postsPerPage = 5; // this should match however many results your API puts on one page
+        $scope.postsPerPage = 30; // this should match however many results your API puts on one page
         $scope.postsContents = [];
         $scope.loggedUser = "";
         $scope.fullProjectsInfo = [];
@@ -73,13 +74,13 @@ angular.module("dendroApp.controllers")
         };
 
         // THIS IS THE FUNCTION THAT GETS THE postsURIs for the timeline
-        $scope.get_all_posts = function (currentPage)
+        $scope.get_all_posts = function (currentPage, useRank)
         {
             $scope.countNumPosts();
             $scope.getting_posts = true;
             $scope.doingARequest = true;
             usSpinnerService.spin("social-dendro-spinner");
-            timelineService.get_all_posts(currentPage)
+            timelineService.get_all_posts(currentPage, useRank)
                 .then(function (response)
                 {
                     $scope.posts = response.data;
@@ -258,7 +259,7 @@ angular.module("dendroApp.controllers")
                 {
                     $scope.getSharesFromPost(postID);
                     $scope.pagination.current = 1;
-                    $scope.pageChangeHandler($scope.pagination.current);
+                    $scope.pageChangeHandler($scope.pagination.current, $scope.useRank);
                     $window.scrollTo(0, 0);// to scroll up to the top on page change
                     $scope.doing_sharePost = false;
                     Utils.show_popup("success", "Success", "Post was shared successfully");
@@ -327,7 +328,7 @@ angular.module("dendroApp.controllers")
                 });
         };
 
-        $scope.initTimeline = function (posts)
+        $scope.initTimeline = function (posts, useRank)
         {
             $scope.doingARequest = true;
             usSpinnerService.spin("social-dendro-spinner");
@@ -338,6 +339,8 @@ angular.module("dendroApp.controllers")
             $scope.projectChosen = $scope.userProjects[0];
             $scope.newPostTitle = "";
             $scope.newPostContent = "";
+            $scope.useRank = useRank;
+            console.log($scope.useRank);
             $scope.getUserProjects();
 
             $scope.countNumPosts();
@@ -483,11 +486,11 @@ angular.module("dendroApp.controllers")
                 });
         };
 
-        $scope.pageChangeHandler = function (num)
+        $scope.pageChangeHandler = function (num, useRank)
         {
             console.log("Im here going to page: ", num);
             $scope.countNumPosts();
-            $scope.get_all_posts(num);
+            $scope.get_all_posts(num, useRank);
             $window.scrollTo(0, 0);// to scroll up to the top on page change
         };
 
@@ -507,7 +510,7 @@ angular.module("dendroApp.controllers")
                     $scope.newPostContent = "";
                     $scope.projectChosen = $scope.userProjects[0];
                     $scope.pagination.current = 1;
-                    $scope.pageChangeHandler($scope.pagination.current);
+                    $scope.pageChangeHandler($scope.pagination.current, $scope.useRank);
                     $window.scrollTo(0, 0);// to scroll up to the top on page change
                     $scope.doing_createNewPost = false;
                     $scope.doingARequest = false;
@@ -570,6 +573,25 @@ angular.module("dendroApp.controllers")
                     $scope.doing_getUserInfo = false;
                     $scope.doingARequest = false;
                     usSpinnerService.stop("social-dendro-spinner");
+                });
+        };
+        $scope.movePost = function (uri, move, position)
+        {
+            if ((move === 1 && position === ($scope.totalPosts - 1)) || (move === -1 && position === 0))
+            {
+                return;
+            }
+            timelineService.movePost(uri, $scope.useRank, move, position)
+                .then(function (response)
+                {
+                    if (response.data === "success")
+                    {
+                        document.location.reload(true);
+                    }
+                })
+                .catch(function (error)
+                {
+                    Utils.show_popup("error", "Error moving post", JSON.stringify(error));
                 });
         };
     });

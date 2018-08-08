@@ -1,3 +1,5 @@
+const rlequire = require("rlequire");
+
 /**
  * Configuration parameters
  */
@@ -10,14 +12,11 @@ const path = require("path");
 const _ = require("underscore");
 const isNull = require("../../utils/null.js").isNull;
 
-const Pathfinder = global.Pathfinder;
 const Elements = require("./elements.js").Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
-const configsFilePath = Pathfinder.absPathInApp("conf/deployment_configs.json");
-const activeConfigFilePath = Pathfinder.absPathInApp("conf/active_deployment_config.json");
-
-const configs = JSON.parse(fs.readFileSync(configsFilePath, "utf8"));
+const activeConfigFilePath = rlequire.absPathInApp("dendro", "conf/active_deployment_config.json");
+const configs = rlequire("dendro", "conf/deployment_configs.json");
 
 let activeConfigKey;
 
@@ -30,25 +29,19 @@ if (argv.config)
 }
 else
 {
-    if (process.env.RUNNING_IN_JENKINS)
+    if (argv.config)
     {
-        activeConfigKey = "jenkins_buildserver_test";
-        Logger.log("info", "Running in JENKINS server detected. RUNNING_IN_JENKINS environment var is " + process.env.RUNNING_IN_JENKINS);
-    }
-    else if (process.env.RUNNING_IN_TRAVIS)
-    {
-        activeConfigKey = "travis_buildserver_test";
-        Logger.log("info", "Running in TRAVIS server detected. RUNNING_IN_TRAVIS environment var is " + process.env.RUNNING_IN_TRAVIS);
+        activeConfigKey = argv.config;
     }
     else if (process.env.NODE_ENV === "test")
     {
         activeConfigKey = "test";
-        Logger.log("info", "Running in test environment detected");
+        Logger.log("Running in test environment detected");
     }
     else
     {
         activeConfigKey = JSON.parse(fs.readFileSync(activeConfigFilePath, "utf8")).key;
-        Logger.log("info", "Running with deployment config " + activeConfigKey);
+        Logger.log("Running with deployment config " + activeConfigKey);
     }
 }
 
@@ -56,7 +49,9 @@ const activeConfig = configs[activeConfigKey];
 
 if (isNull(activeConfig))
 {
-    Logger.log("error", "There is no configuration with key " + activeConfigKey + "in " + activeConfigFilePath + " ! The key is invalid or the file needs to be reconfigured.");
+    const noConfigPresentError = "There is no configuration with key " + activeConfigKey + " in " + activeConfigFilePath + " ! The key is invalid or the file needs to be reconfigured.";
+    Logger.log("error", noConfigPresentError);
+    throw new Error(noConfigPresentError);
 }
 
 const getConfigParameter = function (parameter, defaultValue)
@@ -170,7 +165,7 @@ if (path.isAbsolute(getConfigParameter("tempFilesDir")))
 }
 else
 {
-    Config.tempFilesDir = Pathfinder.absPathInApp(getConfigParameter("tempFilesDir"));
+    Config.tempFilesDir = rlequire.absPathInApp("dendro", getConfigParameter("tempFilesDir"));
 }
 
 if (path.isAbsolute(getConfigParameter("tempUploadsDir")))
@@ -179,7 +174,7 @@ if (path.isAbsolute(getConfigParameter("tempUploadsDir")))
 }
 else
 {
-    Config.tempUploadsDir = Pathfinder.absPathInApp(getConfigParameter("tempUploadsDir"));
+    Config.tempUploadsDir = rlequire.absPathInApp("dendro", getConfigParameter("tempUploadsDir"));
 }
 
 Config.tempFilesCreationMode = getConfigParameter("tempFilesCreationMode");
@@ -188,15 +183,32 @@ Config.administrators = getConfigParameter("administrators");
 
 // load debug and startup settings
 Config.debug = getConfigParameter("debug");
-
 Config.startup = getConfigParameter("startup");
+
+if (argv.seed_databases)
+{
+    Logger.log("info", "Seeding databases parameter overriden by --seed-databases argument. Will load databases and exit.");
+    Config.startup.load_databases = true;
+    Config.startup.reload_administrators_on_startup = true;
+    Config.startup.reload_demo_users_on_startup = true;
+    Config.startup.reload_ontologies_on_startup = true;
+    Config.startup.clear_session_store = true;
+    Config.startup.destroy_all_graphs = true;
+    Config.startup.destroy_all_indexes = true;
+    Config.startup.destroy_datastore = true;
+    Config.startup.destroy_files_store = true;
+}
+
 Config.baselines = getConfigParameter("baselines");
 
 // load logger options
 Config.logging = getConfigParameter("logging");
 
 // load version description
-Config.version = getConfigParameter("version");
+Config.version = {
+    name: rlequire("dendro", "package.json").name,
+    number: rlequire("dendro", "package.json").version
+};
 
 // secrets
 Config.crypto = getConfigParameter("crypto");
@@ -585,6 +597,24 @@ Config.enabledOntologies = {
         description: "A vocabulary for publishing metadata about data sets (research and survey data) into the Web of Linked Data",
         domain: "Generic",
         domain_specific: false
+    },
+    ssn: {
+        prefix: "ssn",
+        uri: "https://raw.githubusercontent.com/feup-infolab/dendro-ontologies/master/SSN/SSN.owl#",
+        elements: Elements.ontologies.ssn,
+        label: "Semantic Sensor Network",
+        description: "Describes sensors and observations, and related concepts. It does not describe domain concepts, time, locations, etc. these are intended to be included from other ontologies via OWL imports.",
+        domain: "Sensors and Observations",
+        domain_specific: true
+    },
+    m3lite: {
+        prefix: "m3lite",
+        uri: "https://raw.githubusercontent.com/feup-infolab/dendro-ontologies/master/M3-LITE/M3-lite.owl#",
+        elements: Elements.ontologies.m3lite,
+        label: "M3-lite Taxonomy",
+        description: "A taxonomy that enables testbeds to semantically annotate the IoT data produced by heterogeneous devices. In this taxonomy, we classify devices, the domain of interests (health, smart home, smart kitchen, environmental monitoring, etc.), phenomena and unit of measurements",
+        domain: "IoT",
+        domain_specific: true
     }
 };
 
@@ -674,13 +704,13 @@ Config.systemOrHiddenFilesRegexes = getConfigParameter("systemOrHiddenFilesRegex
 
 if (isNull(Config.thumbnailableExtensions))
 {
-    Config.thumbnailableExtensions = require(Pathfinder.absPathInPublicFolder("/shared/public_config.json")).thumbnailable_file_extensions;
+    Config.thumbnailableExtensions = rlequire("dendro", "public/shared/public_config.json").thumbnailable_file_extensions;
 }
 
 if (isNull(Config.iconableFileExtensions))
 {
     Config.iconableFileExtensions = {};
-    let extensions = fs.readdirSync(Pathfinder.absPathInPublicFolder("/images/icons/extensions"));
+    let extensions = fs.readdirSync(rlequire.absPathInApp("dendro", "public/images/icons/extensions"));
 
     for (let i = 0; i < extensions.length; i++)
     {
@@ -749,7 +779,7 @@ Config.swordConnection = {
     EprintsCollectionRef: "/id/contents"
 };
 
-const Serializers = require(Pathfinder.absPathInSrcFolder("/utils/serializers.js"));
+const Serializers = rlequire("dendro", "src/utils/serializers.js");
 
 Config.defaultMetadataSerializer = Serializers.dataToJSON;
 Config.defaultMetadataContentType = "text/json";
@@ -881,6 +911,14 @@ Config.regex_routes = {
 
 Config.authentication = getConfigParameter("authentication");
 Config.numCPUs = getConfigParameter("numCPUs");
+Config.testing = getConfigParameter("testing");
+Config.docker = getConfigParameter("docker");
+Config.virtualbox = getConfigParameter("virtualbox");
+
+if (Config.docker.active && Config.virtualbox.active)
+{
+    throw new Error("Cannot have docker and virtualbox flags active at the same time in the deployment config!");
+}
 
 if (process.env.NODE_ENV === "production")
 {
@@ -891,8 +929,13 @@ if (process.env.NODE_ENV === "production")
     if (!isNull(argv.pm2_slave))
     {
         Config.runningAsSlave = true;
-        const simultaneousConnections = Config.maxSimultaneousConnectionsToDb / Config.numCPUs;
-        Config.maxSimultaneousConnectionsToDb = (simultaneousConnections >= 1) ? simultaneousConnections : 1;
+        // const simultaneousConnections = Config.maxSimultaneousConnectionsToDb / Config.numCPUs;
+        // Config.maxSimultaneousConnectionsToDb = (simultaneousConnections >= 1) ? simultaneousConnections : 1;
+
+        // THANK YOU VIRTUOSO! ONLY ONE CONNECTION OTHERWISE DATABASE CRASHES
+        // (Communications Link Failure), EVEN THOUGH I AM CONTROLLING
+        // SIMULTANEOUS CONNECTIONS WITH A QUEUE.
+        Config.maxSimultaneousConnectionsToDb = 1;
     }
 }
 

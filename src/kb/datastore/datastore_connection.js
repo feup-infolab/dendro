@@ -1,13 +1,13 @@
 const util = require("util");
 const path = require("path");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const colors = require("colors");
 const MongoClient = require("mongodb").MongoClient;
-const slug = require("slug");
+const slug = rlequire("dendro", "src/utils/slugifier.js");
 
 function DataStoreConnection (options)
 {
@@ -17,7 +17,10 @@ function DataStoreConnection (options)
     self.host = options.host;
     self.database = options.database;
     self.resourceUri = options.resourceUri;
-    self.collection = slug(self.resourceUri, "_");
+    self.username = options.username;
+    self.password = options.password;
+
+    self.collection = slug(self.resourceUri);
     self.counter = 1;
 }
 
@@ -29,7 +32,16 @@ DataStoreConnection.prototype.open = function (callback)
     {
         return callback(1, "DataStoreConnection connection is already open.");
     }
-    const url = "mongodb://" + self.host + ":" + self.port + "/" + slug(self.database, "_");
+    let url;
+    if (self.username && self.password && self.username !== "" && self.password !== "" && self.username !== "")
+    {
+        url = "mongodb://" + self.username + ":" + self.password + "@" + self.host + ":" + self.port + "/" + self.collection + "?authSource=admin";
+    }
+    else
+    {
+        url = "mongodb://" + self.host + ":" + self.port + "/" + self.collection;
+    }
+
     MongoClient.connect(url, function (err, db)
     {
         if (isNull(err))
@@ -275,7 +287,7 @@ DataStoreConnection.prototype.getDataByQuery = function (query, writeStream, ski
     }
     else
     {
-        return callback(1, "Must open connection to MongoDB datastore " + JSON.stringify(self) + "first!");
+        throw new Error("Must open connection to MongoDB datastore " + JSON.stringify(self) + "first!");
     }
 };
 DataStoreConnection.prototype.getData = function (writeStream, callback, sheetName, outputFormat)

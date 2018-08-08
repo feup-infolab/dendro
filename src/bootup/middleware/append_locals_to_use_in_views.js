@@ -1,14 +1,14 @@
 const path = require("path");
 const fs = require("fs");
-const Pathfinder = global.Pathfinder;
-let isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const rlequire = require("rlequire");
+let isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 const appendLocalsToUseInViews = function (app, callback)
 {
     const appendLocalsToUseInViews = function (req, res, next)
     {
-        const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+        const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
         // append request and session to use directly in views and avoid passing around needless stuff
         res.locals.request = req;

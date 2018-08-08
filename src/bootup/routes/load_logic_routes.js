@@ -1,36 +1,35 @@
 const path = require("path");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Permissions = Object.create(require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
-const Resource = Object.create(require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource);
-const QueryBasedRouter = Object.create(require(Pathfinder.absPathInSrcFolder("/utils/query_based_router.js")).QueryBasedRouter);
-let RecommendationUtils = require(Pathfinder.absPathInSrcFolder("/utils/recommendation.js")).RecommendationUtils;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Permissions = Object.create(rlequire("dendro", "src/models/meta/permissions.js").Permissions);
+const Resource = Object.create(rlequire("dendro", "src/models/resource.js").Resource);
+const QueryBasedRouter = Object.create(rlequire("dendro", "src/utils/query_based_router.js").QueryBasedRouter);
+let RecommendationUtils = rlequire("dendro", "src/utils/recommendation.js").RecommendationUtils;
 
 // middlewares
-const sendResponse = require(Pathfinder.absPathInSrcFolder("/bootup/middleware/send_response.js")).sendResponse;
+const sendResponse = rlequire("dendro", "src/bootup/middleware/send_response.js").sendResponse;
 
 // app's own requires
-const index = require(Pathfinder.absPathInSrcFolder("/controllers/index"));
-const users = require(Pathfinder.absPathInSrcFolder("/controllers/users"));
-const search = require(Pathfinder.absPathInSrcFolder("/controllers/search"));
-const admin = require(Pathfinder.absPathInSrcFolder("/controllers/admin"));
-const projects = require(Pathfinder.absPathInSrcFolder("/controllers/projects"));
-const files = require(Pathfinder.absPathInSrcFolder("/controllers/files"));
-const records = require(Pathfinder.absPathInSrcFolder("/controllers/records"));
-const interactions = require(Pathfinder.absPathInSrcFolder("/controllers/interactions"));
-const descriptors = require(Pathfinder.absPathInSrcFolder("/controllers/descriptors"));
-const evaluation = require(Pathfinder.absPathInSrcFolder("/controllers/evaluation"));
-const ontologies = require(Pathfinder.absPathInSrcFolder("/controllers/ontologies"));
-const research_domains = require(Pathfinder.absPathInSrcFolder("/controllers/research_domains"));
-const repo_bookmarks = require(Pathfinder.absPathInSrcFolder("/controllers/repo_bookmarks"));
-const datasets = require(Pathfinder.absPathInSrcFolder("/controllers/datasets"));
-const posts = require(Pathfinder.absPathInSrcFolder("/controllers/posts"));
-const timeline = require(Pathfinder.absPathInSrcFolder("/controllers/timeline"));
-const notifications = require(Pathfinder.absPathInSrcFolder("/controllers/notifications"));
-const keywords = require(Pathfinder.absPathInSrcFolder("/controllers/keywords"));
+const index = rlequire("dendro", "src/controllers/index");
+const users = rlequire("dendro", "src/controllers/users");
+const search = rlequire("dendro", "src/controllers/search");
+const admin = rlequire("dendro", "src/controllers/admin");
+const projects = rlequire("dendro", "src/controllers/projects");
+const files = rlequire("dendro", "src/controllers/files");
+const records = rlequire("dendro", "src/controllers/records");
+const interactions = rlequire("dendro", "src/controllers/interactions");
+const descriptors = rlequire("dendro", "src/controllers/descriptors");
+const evaluation = rlequire("dendro", "src/controllers/evaluation");
+const ontologies = rlequire("dendro", "src/controllers/ontologies");
+const research_domains = rlequire("dendro", "src/controllers/research_domains");
+const repo_bookmarks = rlequire("dendro", "src/controllers/repo_bookmarks");
+const datasets = rlequire("dendro", "src/controllers/datasets");
+const posts = rlequire("dendro", "src/controllers/posts");
+const timeline = rlequire("dendro", "src/controllers/timeline");
+const notifications = rlequire("dendro", "src/controllers/notifications");
 
 let recommendation;
 
@@ -38,23 +37,24 @@ const recommendation_mode = RecommendationUtils.getActiveRecommender();
 
 if (recommendation_mode === "dendro_recommender")
 {
-    recommendation = require(Pathfinder.absPathInSrcFolder("/controllers/dr_recommendation"));
+    recommendation = rlequire("dendro", "src/controllers/dr_recommendation");
 }
 else if (recommendation_mode === "standalone")
 {
-    recommendation = require(Pathfinder.absPathInSrcFolder("/controllers/standalone_recommendation"));
+    recommendation = rlequire("dendro", "src/controllers/standalone_recommendation");
 }
 else if (recommendation_mode === "project_descriptors")
 {
-    recommendation = require(Pathfinder.absPathInSrcFolder("/controllers/project_descriptors_recommendation"));
+    // TODO apply in this controller the favorites and hidden flags
+    recommendation = rlequire("dendro", "src/controllers/project_descriptors_recommendation");
 }
 else if (recommendation_mode === "none")
 {
-    recommendation = require(Pathfinder.absPathInSrcFolder("/controllers/no_recommendation"));
+    recommendation = rlequire("dendro", "src/controllers/no_recommendation");
 }
 
-const auth = require(Pathfinder.absPathInSrcFolder("/controllers/auth"));
-const auth_orcid = require(Pathfinder.absPathInSrcFolder("/controllers/auth_orcid"));
+const auth = rlequire("dendro", "src/controllers/auth");
+const auth_orcid = rlequire("dendro", "src/controllers/auth_orcid");
 
 const express = require("express"),
     domain = require("domain"),
@@ -124,8 +124,8 @@ const loadRoutes = function (app, callback)
         },
         function (username, password, done)
         {
-            const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
-            const Administrator = require(Pathfinder.absPathInSrcFolder("/models/administrator.js")).Administrator;
+            const User = rlequire("dendro", "src/models/user.js").User;
+            const Administrator = rlequire("dendro", "src/models/administrator.js").Administrator;
             User.findByUsername(username, function (err, user)
             {
                 if (isNull(err))
@@ -174,8 +174,10 @@ const loadRoutes = function (app, callback)
                 }
                 else
                 {
+                    const msg = "Unknown error during authentication while fetching user with username " + username + " : " + err;
+                    Logger.log("error", msg);
                     Logger.log("error", err.stack);
-                    return done("Unknown error during authentication, fetching user with username " + username, null);
+                    return done(err, null);
                 }
             });
         })
@@ -196,7 +198,7 @@ const loadRoutes = function (app, callback)
         },
         function (accessToken, refreshToken, params, profile, done)
         {
-            const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+            const User = rlequire("dendro", "src/models/user.js").User;
             User.findByORCID(params.orcid, function (err, user)
             {
                 if (err)
@@ -1065,8 +1067,9 @@ const loadRoutes = function (app, callback)
         Permissions.settings.role.in_post_s_project.creator,
         Permissions.settings.role.in_post_s_project.contributor
     ];
-    app.get("/socialDendro/my", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), timeline.my);
+    app.get("/social/my", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), timeline.my);
     app.get("/posts/all", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.all);
+    app.post("/posts/move", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.move);
     app.get("/posts/post", function (req, res, next)
     {
         const processRequest = function (postUri)
@@ -1077,7 +1080,7 @@ const loadRoutes = function (app, callback)
                 get: [
                     {
                         queryKeys: ["postID"],
-                        handler: posts.getPost_controller,
+                        handler: posts.getInfoOnSinglePost,
                         permissions: defaultSocialDendroPostPermissions,
                         authentication_error: "Permission denied : You are not a contributor or creator of the project to which this post belongs to."
                     }
@@ -1093,16 +1096,18 @@ const loadRoutes = function (app, callback)
     const defaultSocialDendroArrayOfPostsPermissions = [
         Permissions.settings.role.user_role_in_array_of_posts_project
     ];
+
     app.get("/posts/posts", function (req, res, next)
     {
         const processRequest = function (postsQueryInfo)
         {
             req.query.postsQueryInfo = postsQueryInfo;
+            req.params.requestedResourceUri = postsQueryInfo;
             const queryBasedRoutes = {
                 get: [
                     {
                         queryKeys: ["postsQueryInfo"],
-                        handler: posts.getPosts_controller,
+                        handler: posts.getInfoOnArrayOfPosts,
                         permissions: defaultSocialDendroArrayOfPostsPermissions,
                         authentication_error: "Permission denied : You are not a contributor or creator of the project to which the posts belong to."
                     }
@@ -1400,7 +1405,9 @@ const loadRoutes = function (app, callback)
     app.post("/interactions/hide_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), interactions.hide_descriptor_from_quick_list_for_user);
     app.post("/interactions/unhide_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), interactions.unhide_descriptor_from_quick_list_for_user);
     app.post("/interactions/favorite_descriptor_from_quick_list_for_project", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), interactions.favorite_descriptor_from_quick_list_for_project);
+    app.post("/interactions/favorite_descriptor_from_manual_list_for_project", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), interactions.favorite_descriptor_from_manual_list_for_project);
     app.post("/interactions/favorite_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), interactions.favorite_descriptor_from_quick_list_for_user);
+    app.post("/interactions/favorite_descriptor_from_manual_list_for_user", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), interactions.favorite_descriptor_from_manual_list_for_user);
 
     app.post("/interactions/unfavorite_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), interactions.unfavorite_descriptor_from_quick_list_for_user);
     app.post("/interactions/unfavorite_descriptor_from_quick_list_for_project", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), interactions.unfavorite_descriptor_from_quick_list_for_project);
@@ -1445,7 +1452,7 @@ const loadRoutes = function (app, callback)
     app.get(/(\/app\/views\/.+)\.html$/,
         function (req, res, next)
         {
-            const requestedEJSPath = path.join(Pathfinder.getPathToPublicFolder(), req.params[0]) + ".ejs";
+            const requestedEJSPath = path.join(rlequire.absPathInApp("dendro", "public/"), req.params[0]) + ".ejs";
 
             fs.exists(requestedEJSPath, function (exists)
             {

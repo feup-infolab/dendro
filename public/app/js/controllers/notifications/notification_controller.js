@@ -69,6 +69,16 @@ angular.module("dendroApp.controllers")
                         Utils.show_popup("info", "Job Information", data.message);
                     });
 
+                    $scope.socket.on($scope.userUri + ":progress", function (data)
+                    {
+                        Utils.show_progress("Working...", data.schema.sharedContent, data.ddr.taskID);
+                    });
+
+                    $scope.socket.on($scope.userUri + ":end_task", function (data)
+                    {
+                        Utils.endTask(data.ddr.taskID);
+                    });
+
                     $scope.socket.on($scope.userUri + ":notification", function (notificationData)
                     {
                         Utils.show_popup("info", "Notification", "You have a new notification!");

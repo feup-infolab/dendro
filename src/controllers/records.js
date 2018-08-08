@@ -1,19 +1,21 @@
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
-const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
-const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
-const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const MetadataChangePost = require(Pathfinder.absPathInSrcFolder("/models/social/metadataChangePost.js")).MetadataChangePost;
+const Resource = rlequire("dendro", "src/models/resource.js").Resource;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const ArchivedResource = rlequire("dendro", "src/models/versions/archived_resource.js").ArchivedResource;
+const InformationElement = rlequire("dendro", "src/models/directory_structure/information_element.js").InformationElement;
+const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
+const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+const MetadataChangePost = rlequire("dendro", "src/models/social/metadataChangePost.js").MetadataChangePost;
 const async = require("async");
 const contentDisposition = require("content-disposition");
 const db_social = Config.getDBByID("social");
+const Post = rlequire("dendro", "src/models/social/post.js").Post;
+const Event = rlequire("dendro", "src/models/social/event.js").Event;
 
 exports.show_deep = function (req, res)
 {
@@ -469,6 +471,30 @@ exports.update = function (req, res)
                         {
                             if (isNull(err))
                             {
+                                let postObj = new Post(null, "metadata_change", post.uri, post.dcterms.creator, post.ddr.projectUri);
+                                postObj.saveToMySQL(function (err)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        Logger.log("Post \"metadata_change\" saved to MySQL");
+                                        let event = new Event(null, "post", post.uri, post.dcterms.creator);
+                                        event.saveToMySQL(function (err)
+                                        {
+                                            if (isNull(err))
+                                            {
+                                                Logger.log("Event \"post\" saved to MySQL");
+                                            }
+                                            else
+                                            {
+                                                Logger.log("error", err);
+                                            }
+                                        });
+                                    }
+                                    else
+                                    {
+                                        Logger.log("error", err);
+                                    }
+                                });
                                 callback(err, resource);
                             }
                             else
@@ -496,7 +522,7 @@ exports.update = function (req, res)
             function (resource, callback)
             {
                 // Refresh metadata evaluation
-                require(Pathfinder.absPathInSrcFolder("/controllers/evaluation.js")).shared.evaluate_metadata(req, function (err, evaluation)
+                rlequire("dendro", "src/controllers/evaluation.js").shared.evaluate_metadata(req, function (err, evaluation)
                 {
                     if (isNull(err))
                     {
@@ -610,7 +636,7 @@ exports.update = function (req, res)
                                             if(isNull(err))
                                             {
                                                 //Refresh metadata evaluation
-                                                require(Pathfinder.absPathInSrcFolder("/controllers/evaluation.js")).shared.evaluate_metadata(req, function(err, evaluation)
+                                                rlequire("dendro", "src/controllers/evaluation.js").shared.evaluate_metadata(req, function(err, evaluation)
                                                 {
                                                     //TODO create here MetadataChangePost
                                                     if (evaluation.metadata_evaluation !== resource.ddr.metadataQuality)
@@ -784,7 +810,7 @@ exports.show_version = function (req, res)
                 requestedVersion = parseInt(req.query.version);
                 if (isNaN(requestedVersion))
                 {
-                    throw "Invalid Integer";
+                    throw new Error("Invalid Integer");
                 }
 
                 ArchivedResource.findByResourceAndVersionNumber(requestedResourceURI, requestedVersion, function (err, version)
@@ -865,7 +891,7 @@ exports.restore_metadata_version = function (req, res)
                                         {
                                             res.status(200).json({
                                                 result: "OK",
-                                                message: "Resource " + requestedResourceURI + " succesfully restored to version " + requestedVersion
+                                                message: "Resource " + requestedResourceURI + " successfully restored to version " + requestedVersion
                                             });
                                         }
                                         else

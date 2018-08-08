@@ -5,29 +5,34 @@ const _ = require("underscore");
 chai.use(chaiHttp);
 const md5 = require("md5");
 const fs = require("fs");
+const rlequire = require("rlequire");
+
 var async = require("async");
 const csvWriter = require("csv-write-stream");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const keywordsUtils = require(Pathfinder.absPathInTestsFolder("utils/keywords/keywordsUtils.js"));
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
-const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
-const descriptorUtils = require(Pathfinder.absPathInTestsFolder("utils/descriptor/descriptorUtils.js"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
+const privateProject = rlequire("dendro", "test/mockdata/projects/private_project.js");
 
-const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
-const createFoldersUnitKeywords = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFoldersKeywords.Unit.js"));
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
 
-const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
-const BusPerformance = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/BusPerformance.js"));
-const SimulatingVehicle = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/SimulatingVehicle.js"));
-const driverattitude = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/driverattitude.js"));
-const RegenerativeBraking = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/RegenerativeBraking.js"));
-const RoutePlanning = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/RoutePlanning.js"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1");
+
+const keywordsUtils = rlequire("dendro", "test/utils/keywords/keywordsUtils.js");
+const fileUtils = rlequire("dendro", "test/utils/file/fileUtils.js");
+const itemUtils = rlequire("dendro", "test/utils/item/itemUtils.js");
+const descriptorUtils = rlequire("dendro", "test/utils/descriptor/descriptorUtils.js");
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
+
+
+const createFoldersUnitKeywords = rlequire("dendro", "test/units/folders/createFoldersKeywords.Unit.js");
+
+const testFolder1 = rlequire("dendro", "test/mockdata/folders/testFolder1.js");
+const BusPerformance = rlequire("dendro", "test/mockdata/files/keywords/BusPerformance.js");
+const SimulatingVehicle = rlequire("dendro", "test/mockdata/files/keywords/SimulatingVehicle.js");
+const driverattitude = rlequire("dendro", "test/mockdata/files/keywords/driverattitude.js");
+const RegenerativeBraking = rlequire("dendro", "test/mockdata/files/keywords/RegenerativeBraking.js");
+const RoutePlanning = rlequire("dendro", "test/mockdata/files/keywords/RoutePlanning.js");
 
 
 // Dendro Keywords

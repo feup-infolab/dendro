@@ -3,8 +3,8 @@ const path = require("path");
 const chaiHttp = require("chai-http");
 const _ = require("underscore");
 chai.use(chaiHttp);
-const Pathfinder = global.Pathfinder;
-const isNull = require(Pathfinder.absPathInSrcFolder(path.join("utils", "null.js"))).isNull;
+const rlequire = require("rlequire");
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
 module.exports.getVersionErrors = function (version, expectedVersion)
 {

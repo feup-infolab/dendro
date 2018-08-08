@@ -1,7 +1,7 @@
 const privateProjectHandle = "privateprojectcreatedbydemouser3";
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const fileUtils = rlequire("dendro", "test/utils/file/fileUtils.js");
 
 const projectData = {
     creator: "http://" + Config.host + "/user/demouser3",
