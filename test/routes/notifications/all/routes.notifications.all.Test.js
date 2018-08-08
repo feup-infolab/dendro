@@ -19,7 +19,7 @@ const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
 const projectUtils = rlequire("dendro", "test/utils/project/projectUtils.js");
 const versionUtils = rlequire("dendro", "test/utils/versions/versionUtils.js");
 const descriptorUtils = rlequire("dendro", "test/utils/descriptor/descriptorUtils.js");
-const socialDendroUtils = rlequire("dendro", "test//utils/social/socialDendroUtils");
+const socialDendroUtils = rlequire("dendro", "test/utils/social/socialDendroUtils");
 
 const publicProject = rlequire("dendro", "test/mockdata/projects/public_project.js");
 const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");
@@ -76,7 +76,7 @@ describe("Get all notifications URIs for a user tests", function ()
                         {
                             res.statusCode.should.equal(200);
                             demouser2PostURIsArray = res.body;
-                            res.body.length.should.equal(30);
+                            res.body.length.should.equal(5);
                             socialDendroUtils.getPostUriPage(true, agent, demouser2PostURIsArray[0].uri, function (err, res)
                             {
                                 res.statusCode.should.equal(200);// index 0 tem de ser o manual post que foi criado

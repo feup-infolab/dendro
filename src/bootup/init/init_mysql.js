@@ -4,13 +4,12 @@ const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 let isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const Sequelize = require("sequelize");
-const Umzug = require("umzug");
 
 const initMySQL = function (app, callback)
 {
     Logger.log_boot_message("Setting up MySQL connection pool.");
 
-    const createDatabase = function (callback)
+    const tryToCreateDatabaseIfNeeded = function (callback)
     {
         // Create connection omitting database name, create database if not exists
         const sequelize = new Sequelize("", Config.mySQLAuth.user, Config.mySQLAuth.password, {
@@ -20,23 +19,12 @@ const initMySQL = function (app, callback)
             logging: false,
             operatorsAliases: false
         });
-        let query = "CREATE DATABASE IF NOT EXISTS " + Config.mySQLDBName + ";";
-        if (Config.startup.load_databases && Config.startup.destroy_mysql_database)
-        {
-            query = "DROP DATABASE IF EXISTS " + Config.mySQLDBName + ";" + query;
-        }
         sequelize
             .authenticate()
             .then(() =>
             {
                 Logger.log_boot_message("Connected to MySQL!");
-                return sequelize.query(query).then(data =>
-                    callback(null, data))
-                    .catch(err =>
-                    {
-                        Logger.log("error", "Error creating database in MySQL: " + Config.mySQLDBName);
-                        return callback(err, null);
-                    });
+                callback(null);
             })
             .catch(err =>
             {
@@ -54,44 +42,16 @@ const initMySQL = function (app, callback)
             Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to determine ElasticSearch cluster health");
             return msecs;
         }
-    }, createDatabase, function (err)
+    }, tryToCreateDatabaseIfNeeded, function (err)
     {
         if (!isNull(err))
         {
-            return callback(err);
+            Logger.log("error", "Unable to connect to mysql server at " + Config.mySQLHost + ":" + Config.mySQLPort);
+            Logger.log("error", err.message);
+
         }
 
-        // run migrations
-        const sequelize = new Sequelize(Config.mySQLDBName, Config.mySQLAuth.user, Config.mySQLAuth.password, {
-            dialect: "mysql",
-            host: Config.mySQLHost,
-            port: Config.mySQLPort,
-            logging: false,
-            define: {
-                underscored: false,
-                freezeTableName: true,
-                charset: "utf8"
-            },
-            operatorsAliases: false
-        });
-
-        var umzug = new Umzug({
-            storage: "sequelize",
-            storageOptions: { sequelize: sequelize },
-            migrations: {
-                params: [sequelize.getQueryInterface(), Sequelize],
-                path: rlequire.absPathInApp("dendro", "src/mysql_migrations")
-            }
-        });
-
-        return umzug.up().then(function ()
-        {
-            return callback(null);
-        }).catch(err =>
-        {
-            console.log(err);
-            return callback(err);
-        });
+        return callback(err);
     });
 };
 

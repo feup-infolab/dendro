@@ -24,7 +24,7 @@ const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2.js");
 const demouser3 = rlequire("dendro", "test/mockdata/users/demouser3.js");
 const commentMock = rlequire("dendro", "test/mockdata/social/commentMock");
 
-const socialDendroUtils = rlequire("dendro", "test//utils/social/socialDendroUtils");
+const socialDendroUtils = rlequire("dendro", "test/utils/social/socialDendroUtils");
 
 const db = rlequire("dendro", "test/utils/db/db.Test.js");
 const createSocialDendroTimelineWithPostsAndSharesUnit = rlequire("dendro", "test/units/social/createSocialDendroTimelineWithPostsAndShares.Unit.js");
@@ -54,7 +54,7 @@ describe("Comment a specific post tests", function ()
                 socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    res.body.length.should.equal(30);
+                    res.body.length.should.equal(5);
                     demouser1PostURIsArray = res.body;
                     // Force logout
                     const app = global.tests.app;

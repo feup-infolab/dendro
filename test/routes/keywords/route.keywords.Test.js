@@ -24,7 +24,6 @@ const itemUtils = rlequire("dendro", "test/utils/item/itemUtils.js");
 const descriptorUtils = rlequire("dendro", "test/utils/descriptor/descriptorUtils.js");
 const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
 
-
 const createFoldersUnitKeywords = rlequire("dendro", "test/units/folders/createFoldersKeywords.Unit.js");
 
 const testFolder1 = rlequire("dendro", "test/mockdata/folders/testFolder1.js");
@@ -33,7 +32,6 @@ const SimulatingVehicle = rlequire("dendro", "test/mockdata/files/keywords/Simul
 const driverattitude = rlequire("dendro", "test/mockdata/files/keywords/driverattitude.js");
 const RegenerativeBraking = rlequire("dendro", "test/mockdata/files/keywords/RegenerativeBraking.js");
 const RoutePlanning = rlequire("dendro", "test/mockdata/files/keywords/RoutePlanning.js");
-
 
 // Dendro Keywords
 describe("Searches DBpedia for important terms", function (done)

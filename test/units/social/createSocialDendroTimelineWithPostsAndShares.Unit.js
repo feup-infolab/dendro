@@ -15,8 +15,9 @@ class CreateSocialDendroTimelineWithPostsAndShares extends CommentSomePostsUnit
     {
         const self = this;
         unitUtils.startLoad(self);
+        unitUtils.endLoad(self, callback);
 
-        createTimelineInMySQL.setup(function (err, results)
+        /*createTimelineInMySQL.setup(function (err, results)
         {
             if (err)
             {
@@ -26,7 +27,7 @@ class CreateSocialDendroTimelineWithPostsAndShares extends CommentSomePostsUnit
             {
                 unitUtils.endLoad(self, callback);
             }
-        });
+        });*/
     }
     static init (callback)
     {
@@ -36,6 +37,11 @@ class CreateSocialDendroTimelineWithPostsAndShares extends CommentSomePostsUnit
     static shutdown (callback)
     {
         super.shutdown(callback);
+    }
+
+    static setup (callback, forceLoad)
+    {
+        super.setup(callback, forceLoad);
     }
 }
 

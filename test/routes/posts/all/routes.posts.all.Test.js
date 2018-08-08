@@ -14,7 +14,7 @@ const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
 const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
-const socialDendroUtils = rlequire("dendro", "test//utils/social/socialDendroUtils");
+const socialDendroUtils = rlequire("dendro", "test/utils/social/socialDendroUtils");
 
 const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");
 const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2.js");
@@ -24,6 +24,16 @@ const createSocialDendroTimelineWithPostsAndSharesUnit = rlequire("dendro", "tes
 const pageNumber = 1;
 let useRank = 0;
 let postURIsToCompare;
+
+function stripArrayToPostURISOnly (uris)
+{
+    uris.forEach(function(element)
+    {
+        delete element.position;
+        delete element.fixedPosition;
+    });
+    return uris;
+}
 
 describe("Get all posts URIs with pagination tests", function ()
 {
@@ -52,29 +62,30 @@ describe("Get all posts URIs with pagination tests", function ()
             });
         });
 
-        it("[For demouser1, as the creator of all projects] Should give an array of thirty post URIs", function (done)
+        it("[For demouser1, as the creator of all projects] Should give an array of five post URIs", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    res.body.length.should.equal(30);
-                    postURIsToCompare = res.body;
+                    res.body.length.should.equal(5);
+                    postURIsToCompare = stripArrayToPostURISOnly(res.body);
                     done();
                 });
             });
         });
 
-        it("[For demouser2, a collaborator in all projects] Should give an array of thirty post URIs that equals to the array of thirty post URIs that demouser1 also received(because they work on the same projects)", function (done)
+        it("[For demouser2, a collaborator in all projects] Should give an array of five post URIs that equals to the array of five post URIs that demouser1 also received(because they work on the same projects)", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
                 socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    res.body.length.should.equal(30);
-                    expect(postURIsToCompare).to.eql(res.body);
+                    res.body.length.should.equal(5);
+                    console.log(res.body);
+                    expect(postURIsToCompare).to.eql(stripArrayToPostURISOnly(res.body));
                     done();
                 });
             });

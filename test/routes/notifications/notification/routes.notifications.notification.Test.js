@@ -19,7 +19,7 @@ const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
 const projectUtils = rlequire("dendro", "test/utils/project/projectUtils.js");
 const versionUtils = rlequire("dendro", "test/utils/versions/versionUtils.js");
 const descriptorUtils = rlequire("dendro", "test/utils/descriptor/descriptorUtils.js");
-const socialDendroUtils = rlequire("dendro", "test//utils/social/socialDendroUtils");
+const socialDendroUtils = rlequire("dendro", "test/utils/social/socialDendroUtils");
 
 const publicProject = rlequire("dendro", "test/mockdata/projects/public_project.js");
 const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");
