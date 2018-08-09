@@ -15,18 +15,19 @@ class CreateSocialDendroTimelineWithPostsAndShares extends CommentSomePostsUnit
     {
         const self = this;
         unitUtils.startLoad(self);
+        unitUtils.endLoad(self, callback);
 
-        createTimelineInMySQL.setup(function (err, results)
-        {
-            if (err)
-            {
-                callback(err, results);
-            }
-            else
-            {
-                unitUtils.endLoad(self, callback);
-            }
-        });
+        // createTimelineInMySQL.setup(function (err, results)
+        // {
+        //     if (err)
+        //     {
+        //         callback(err, results);
+        //     }
+        //     else
+        //     {
+        //         unitUtils.endLoad(self, callback);
+        //     }
+        // });
     }
     static init (callback)
     {
