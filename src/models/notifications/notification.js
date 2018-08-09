@@ -71,10 +71,10 @@ Notification.sendSocketNotificationToUser = function (userUri, notificationObjec
             userSession.emitNotification(notificationObject);
         }
     }
-    else
-    {
-        Logger.log("error", "Could not emit message to user: " + userUri);
-    }
+    // else
+    // {
+    //     Logger.log("debug", "Could not emit message to user: " + userUri);
+    // }
 };
 
 Notification.startProgress = function (targetUserUri, message)

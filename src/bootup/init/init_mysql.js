@@ -48,7 +48,6 @@ const initMySQL = function (app, callback)
         {
             Logger.log("error", "Unable to connect to mysql server at " + Config.mySQLHost + ":" + Config.mySQLPort);
             Logger.log("error", err.message);
-
         }
 
         return callback(err);

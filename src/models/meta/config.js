@@ -136,6 +136,7 @@ Config.mongoDBHost = getConfigParameter("mongoDBHost");
 Config.mongoDbPort = getConfigParameter("mongoDbPort");
 Config.mongoDbCollectionName = getConfigParameter("mongoDbCollectionName");
 Config.mongoDBSessionStoreCollection = getConfigParameter("mongoDBSessionStoreCollection");
+Config.useMongoDBSessionStore = getConfigParameter("useMongoDBSessionStore");
 Config.mongoDbVersion = getConfigParameter("mongoDbVersion");
 Config.mongoDBAuth = getConfigParameter("mongoDBAuth");
 // storage default config

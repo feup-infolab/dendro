@@ -110,7 +110,8 @@ GridFSConnection.prototype.put = function (fileUri, inputStream, callback, metad
         uploadStream.on("error", function (err)
         {
             hasError = true;
-            Logger.log("error", "An error occurred saving the file to the database!" + JSON.stringify(err));
+            Logger.log("error", "An error occurred saving the file to the database!");
+            Logger.log("error", JSON.stringify(err));
             return callback(1, err);
         });
 

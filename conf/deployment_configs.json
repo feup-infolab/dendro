@@ -111,6 +111,7 @@
     "mongoDBHost": "192.168.56.249",
     "mongoDbPort": "27017",
     "mongoDbCollectionName": "127.0.0.1:3001_files",
+    "useMongoDBSessionStore": true,
     "mongoDBSessionStoreCollection": "127.0.0.1:3001_sessions",
     "mongoDbVersion": "",
     "mongoDBAuth": {
@@ -533,6 +534,7 @@
     "mongoDBHost": "127.0.0.1",
     "mongoDbPort": "27018",
     "mongoDbCollectionName": "127.0.0.1:3001_files",
+    "useMongoDBSessionStore": true,
     "mongoDBSessionStoreCollection": "127.0.0.1:3001_sessions",
     "mongoDbVersion": "",
     "mongoDBAuth": {
@@ -955,6 +957,7 @@
     "mongoDBHost": "192.168.56.249",
     "mongoDbPort": "27017",
     "mongoDbCollectionName": "127.0.0.1:3002_files",
+    "useMongoDBSessionStore": false,
     "mongoDBSessionStoreCollection": "127.0.0.1:3002_sessions",
     "mongoDbVersion": "",
     "mongoDBAuth": {
@@ -1108,7 +1111,7 @@
       "reload_administrators_on_startup": false,
       "reload_demo_users_on_startup": false,
       "reload_ontologies_on_startup": false,
-      "clear_session_store": false,
+      "clear_session_store": true,
       "log_bootup_actions": true,
       "destroy_all_graphs": true,
       "destroy_all_indexes": true,
@@ -1372,6 +1375,7 @@
     "mongoDBHost": "127.0.0.1",
     "mongoDbPort": "27017",
     "mongoDbCollectionName": "127.0.0.1:3002_files",
+    "useMongoDBSessionStore": false,
     "mongoDBSessionStoreCollection": "127.0.0.1:3002_sessions",
     "mongoDbVersion": "",
     "mongoDBAuth": {
@@ -1789,6 +1793,7 @@
     "mongoDBHost": "127.0.0.1",
     "mongoDbPort": "27017",
     "mongoDbCollectionName": "127.0.0.1:3002_files",
+    "useMongoDBSessionStore": false,
     "mongoDBSessionStoreCollection": "127.0.0.1:3002_sessions",
     "mongoDbVersion": "",
     "mongoDBAuth": {
