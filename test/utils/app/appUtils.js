@@ -80,7 +80,7 @@ exports.clearAppState = function (cb)
         return cb(1, "Server did not start successfully");
     }
 
-    appUtils.saveRouteLogsToFile(function (err, info)
+    exports.saveRouteLogsToFile(function (err, info)
     {
         const dendroInstance = global.tests.dendroInstance;
         dendroInstance.freeResources(function (err, results)
@@ -100,9 +100,9 @@ exports.clearAppState = function (cb)
     });
 };
 
-exports.resource_id_uuid_regex = function (resource_type)
+exports.resource_id_uuid_regex = function (resourceType)
 {
-    const regex = "^/r/" + resource_type + "/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
+    const regex = "^/r/" + resourceType + "/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
     return new RegExp(regex);
 };
 
@@ -160,7 +160,7 @@ exports.saveRouteLogsToFile = function (callback)
     }
 };
 
-const printRoutesLog = function (routesLog)
+exports.printRoutesLog = function (routesLog)
 {
     if (isNull(routesLog))
     {

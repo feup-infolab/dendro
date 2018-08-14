@@ -137,7 +137,7 @@ rlequire("dendro", "test/routes/interactions/delete_all/routes.interactions.dele
 // END interaction tests
 
 // Ranking tests
-rlequire("dendro", "test/routes/posts/all/routes.posts.all.ranked.Test.js");
+// rlequire("dendro", "test/routes/posts/all/routes.posts.all.ranked.Test.js");
 
 // list orphan resources tests /admin/list_orphan_resources
 // rlequire("dendro", "test/routes/admin/list_orphan_resources/routes.admin.listOrphanResources.Test.js");
@@ -372,7 +372,7 @@ rlequire("dendro", "test/routes/project/metadata_only_project/data/testFolder2/_
 rlequire("dendro", "test/routes/project/public_project/data/testFolder1/__metadata&deep/routes.project.publicProject.data.testFolder1.__metadata&deep.Test");
 rlequire("dendro", "test/routes/project/public_project/data/testFolder2/__metadata&deep/routes.project.publicProject.data.testFolder2.__metadata&deep.Test");
 
-// PRIVATE PROJECT FOLDER LEVEL ?metadata&deep
+ // PRIVATE PROJECT FOLDER LEVEL ?metadata&deep
 rlequire("dendro", "test/routes/project/private_project/data/testFolder1/__metadata&deep/routes.project.privateProject.data.testFolder1.__metadata&deep.Test");
 rlequire("dendro", "test/routes/project/private_project/data/testFolder2/__metadata&deep/routes.project.privateProject.data.testFolder2.__metadata&deep.Test");
 
