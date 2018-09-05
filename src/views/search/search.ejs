@@ -51,8 +51,8 @@ if(results.length > 0)
                             <% if(resultType === "folder") { %>
                                 <div class="col-lg-10">
                                     <h4>
-                                        <img src="<%=result.ddr.htmlUrl%>?thumbnail&size=tiny">
-                                        <a href="<%= result.ddr.htmlUrl %>"><%=result.nie.title %></a>
+                                        <img src="<%=result.ddr.humanReadableURI%>?thumbnail&size=tiny">
+                                        <a href="<%= result.ddr.humanReadableURI %>"><%=result.nie.title %></a>
                                     </h4>
                                 </div>
                                 <div class="col-lg-2">
@@ -61,23 +61,23 @@ if(results.length > 0)
                             <%} else if(resultType === "project") { %>
                                 <h4>
                                     <img src="/images/icons/box_closed.png">
-                                    <a href="<%= result.ddr.htmlUrl %>"><%=result.dcterms.title %></a>
+                                    <a href="<%= result.ddr.humanReadableURI %>"><%=result.dcterms.title %></a>
                                 </h4>
                                 <div class="col-lg-2">
                                     Project
                                 </div>
                             <%} else if(resultType === "file") { %>
                                 <h4>
-                                    <img src="<%=result.ddr.htmlUrl%>?thumbnail&size=tiny">
-                                    <a href="<%= result.ddr.htmlUrl %>"><%=result.nie.title %></a>
+                                    <img src="<%=result.ddr.humanReadableURI%>?thumbnail&size=tiny">
+                                    <a href="<%= result.ddr.humanReadableURI %>"><%=result.nie.title %></a>
                                 </h4>
                                 <div class="col-lg-2">
                                     File
                                 </div>
                             <%} else if(resultType === "user") { %>
                                 <h4>
-                                    <img class="show-avatar-in-project-list" src="<%=result.ddr.htmlUrl%>?avatar&size=thumbnail">
-                                    <a href="<%= result.ddr.htmlUrl %>"><%=result.foaf.firstName + " " + result.foaf.surname %></a>
+                                    <img class="show-avatar-in-project-list" src="<%=result.ddr.humanReadableURI%>?avatar&size=thumbnail">
+                                    <a href="<%= result.ddr.humanReadableURI %>"><%=result.foaf.firstName + " " + result.foaf.surname %></a>
                                 </h4>
                                 <div class="col-lg-2">
                                     User

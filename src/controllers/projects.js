@@ -595,7 +595,7 @@ exports.show = function (req, res)
                                     if (immediateParent.uri === ownerProject.ddr.rootFolder)
                                     {
                                         go_up_options = {
-                                            uri: ownerProject.ddr.htmlUrl,
+                                            uri: ownerProject.ddr.humanReadableURI,
                                             title: ownerProject.dcterms.title,
                                             icons: [
                                                 "/images/icons/box_closed.png",
@@ -618,7 +618,7 @@ exports.show = function (req, res)
                                 else
                                 {
                                     go_up_options = {
-                                        uri: ownerProject.ddr.htmlUrl,
+                                        uri: ownerProject.ddr.humanReadableURI,
                                         title: ownerProject.dcterms.title,
                                         icons: [
                                             "/images/icons/box_closed.png",
@@ -628,7 +628,7 @@ exports.show = function (req, res)
                                 }
 
                                 breadcrumbs.push({
-                                    uri: ownerProject.ddr.htmlUrl,
+                                    uri: ownerProject.ddr.humanReadableURI,
                                     title: ownerProject.dcterms.title,
                                     icons: [
                                         "/images/icons/box_closed.png",
@@ -652,11 +652,11 @@ exports.show = function (req, res)
 
                                 breadcrumbs.push(
                                     {
-                                        uri: resourceBeingAccessed.ddr.htmlUrl,
+                                        uri: resourceBeingAccessed.ddr.humanReadableURI,
                                         type: resourceBeingAccessed.rdf.type,
                                         title: resourceBeingAccessed.nie.title,
                                         icons: [
-                                            resourceBeingAccessed.ddr.htmlUrl + "?thumbnail&size=small"
+                                            resourceBeingAccessed.ddr.humanReadableURI + "?thumbnail&size=small"
                                         ]
                                     }
                                 );

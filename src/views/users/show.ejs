@@ -2,7 +2,7 @@
 
 <h1 class="page-header">
     Viewing user <%= locals.user.foaf.firstName %> <%= locals.user.foaf.surname %>
-    <img class="img-circle show-avatar-in-profile" ng-src="/user/<%=locals.user.ddr.username%>?avatar">
+    <img class="img-circle show-avatar-in-profile" ng-src="<%=locals.user.ddr.humanReadableURI%>?avatar">
 </h1>
 
 <br/>
@@ -37,7 +37,7 @@
             <b>URI</b>
         </td>
         <td>
-            <a href="<%= locals.user.ddr.htmlUrl %>"><%= locals.user.ddr.htmlUrl %></a>
+            <a href="<%= locals.user.ddr.humanReadableURI %>"><%= locals.user.ddr.humanReadableURI %></a>
         </td>
     </tr>
 </table>

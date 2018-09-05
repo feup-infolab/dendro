@@ -373,7 +373,7 @@ MongoDBCache.prototype.deleteByQuery = function (queryObject, callback)
     }
 };
 
-MongoDBCache.prototype.deleteAlByType = function (typeOrTypesArray, callback)
+MongoDBCache.prototype.deleteAllByType = function (typeOrTypesArray, callback)
 {
     const self = this;
 

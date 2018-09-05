@@ -553,7 +553,7 @@ angular.module("dendroApp.controllers")
                                 $scope.shared.initial_metadata = $filter("filter")($scope.shared.initial_metadata, $scope.only_editable_metadata_descriptors);
                                 $scope.shared.metadata = $filter("filter")($scope.shared.metadata, $scope.only_editable_metadata_descriptors);
                                 $scope.change_location(
-                                    $scope.shared.folder_contents[index].ddr.htmlUrl,
+                                    $scope.shared.folder_contents[index].ddr.humanReadableURI,
                                     metadataService.dirty_metadata(
                                         $scope.shared.initial_metadata,
                                         $scope.shared.metadata
@@ -719,7 +719,7 @@ angular.module("dendroApp.controllers")
                                 }
                                 if ($scope.showing_history != null && $scope.showing_history)
                                 {
-                                    $scope.get_change_log(newSelectedFile.ddr.htmlUrl);
+                                    $scope.get_change_log(newSelectedFile.ddr.humanReadableURI);
                                 }
                             }
                         );

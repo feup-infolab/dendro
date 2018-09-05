@@ -7,19 +7,11 @@ const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 const initCache = function (app, callback)
 {
-    if (Config.cache.active)
+    const Cache = rlequire("dendro", "src/kb/cache/cache.js").Cache;
+    Cache.initConnections(function (err, result)
     {
-        const Cache = rlequire("dendro", "src/kb/cache/cache.js").Cache;
-        Cache.initConnections(function (err, result)
-        {
-            callback(err);
-        });
-    }
-    else
-    {
-        Logger.log_boot_message("Cache not active in deployment configuration. Continuing Dendro startup without connecting to any cache servers.");
-        return callback(null);
-    }
+        callback(err);
+    });
 };
 
 module.exports.initCache = initCache;

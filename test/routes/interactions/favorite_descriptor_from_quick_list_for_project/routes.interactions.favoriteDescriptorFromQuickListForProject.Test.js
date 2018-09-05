@@ -723,7 +723,7 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] favorite_descri
                                 info[0].recommendationCallId.should.equal(demouser1InteractionObj.recommendationCallId);
                                 should.exist(info[0].uri);
                                 info[0].uri.should.contain("interaction");
-                                itemUtils.getItemMetadataRecommendationsByItemUri(true, agent, projectRootData[0].ddr.htmlUrl, function (err, res)
+                                itemUtils.getItemMetadataRecommendationsByItemUri(true, agent, projectRootData[0].ddr.humanReadableURI, function (err, res)
                                 {
                                     should.equal(err, null);
                                     should.exist(res);
@@ -793,7 +793,7 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] favorite_descri
                                 info[0].recommendationCallId.should.equal(demouser2InteractionObj.recommendationCallId);
                                 should.exist(info[0].uri);
                                 info[0].uri.should.contain("interaction");
-                                itemUtils.getItemMetadataRecommendationsByItemUri(true, agent, projectRootData[0].ddr.htmlUrl, function (err, res)
+                                itemUtils.getItemMetadataRecommendationsByItemUri(true, agent, projectRootData[0].ddr.humanReadableURI, function (err, res)
                                 {
                                     should.equal(err, null);
                                     should.exist(res);

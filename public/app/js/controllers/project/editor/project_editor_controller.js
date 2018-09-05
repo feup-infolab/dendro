@@ -85,7 +85,7 @@ angular.module("dendroApp.controllers")
                 {
                     if ($scope.shared.selected_file != null)
                     {
-                        uri = $scope.shared.selected_file.uri + queryParametersString;
+                        uri = $scope.shared.selected_file.ddr.humanReadableURI + queryParametersString;
                     }
                     else
                     {
@@ -96,7 +96,7 @@ angular.module("dendroApp.controllers")
                 {
                     if ($scope.shared.selected_file != null)
                     {
-                        uri = $scope.shared.selected_file.uri;
+                        uri = $scope.shared.selected_file.ddr.humanReadableURI;
                     }
                     else
                     {
@@ -263,7 +263,7 @@ angular.module("dendroApp.controllers")
                 }
                 else
                 {
-                    preview.load($scope, $scope.shared.selected_file.ddr.fileExtension, $scope.shared.selected_file.uri);
+                    preview.load($scope, $scope.shared.selected_file.ddr.fileExtension, $scope.shared.selected_file.ddr.humanReadableURI);
                 }
             }
         };

@@ -2892,7 +2892,8 @@ exports.owner_project = function (req, res)
                         {
                             res.json({
                                 result: "ok",
-                                uri: ownerProject.uri
+                                uri: ownerProject.uri,
+                                humanReadableURI: ownerProject.ddr.humanReadableURI
                             });
                         }
                         else

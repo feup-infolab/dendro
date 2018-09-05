@@ -20,7 +20,7 @@
             {{recent_version.ddr.created}}
         </td>
         <td>
-            <a ng-show="recent_version.ddr.versionCreator != null" href="{{recent_version.ddr.versionCreator.ddr.htmlUrl}}">
+            <a ng-show="recent_version.ddr.versionCreator != null" href="{{recent_version.ddr.versionCreator.ddr.humanReadableURI}}">
                 {{recent_version.ddr.versionCreator.foaf.firstName}} {{recent_version.ddr.versionCreator.foaf.surname}}
             </a>
             <div ng-show="recent_version.ddr.versionCreator == null">
@@ -52,8 +52,8 @@
             </div>
         </td>
         <td>
-            <img ng-src="{{get_thumbnail_uri(recent_version.ddr.htmlUrl) | trustAsResourceUrl}}"/>
-            <a href="{{recent_version.ddr.isVersionOf.ddr.htmlUrl}}">{{recent_version.ddr.isVersionOf.nie.title}}</a>
+            <img ng-src="{{get_thumbnail_uri(recent_version.ddr.humanReadableURI) | trustAsResourceUrl}}"/>
+            <a href="{{recent_version.ddr.isVersionOf.ddr.humanReadableURI}}">{{recent_version.ddr.isVersionOf.nie.title}}</a>
         </td>
     </tr>
 </table>

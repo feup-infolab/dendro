@@ -49,11 +49,11 @@ angular.module("dendroApp.controllers")
                     {
                         if (ownerProject != null)
                         {
-                            getStats(ownerProject.uri);
+                            getStats(ownerProject.humanReadableURI);
                         }
                     })
                     .catch(function (e)
-                    {
+                    {getChangesOfProject
                         console.log("error", "Unable to fetch parent project of the currently selected file.");
                         console.log("error", JSON.stringify(e));
                         windowService.show_popup("error", "Error", e.statusText);
@@ -108,7 +108,7 @@ angular.module("dendroApp.controllers")
                 projectsService.get_owner_project_of_resource($scope.get_calling_uri())
                     .then(function (rootProject)
                     {
-                        getChangesOfProject(rootProject.uri);
+                        getChangesOfProject(rootProject.humanReadableURI);
                     });
             }
         };

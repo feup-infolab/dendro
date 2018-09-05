@@ -33,7 +33,7 @@ function Resource (object)
     if (!isNull(self.ddr))
     {
         self.ddr.baseUri = Config.baseUri;
-        self.ddr.htmlUrl = "/" + relativeHtmlUrl;
+        self.ddr.humanReadableURI = "/" + relativeHtmlUrl;
     }
 
     return self;
@@ -86,7 +86,8 @@ Resource.prototype.copyOrInitDescriptors = function (object, deleteIfNotInArgume
             self.ddr.created = object.ddr.created;
         }
     }
-    else {
+    else
+    {
         const now = new Date();
         self.ddr.created = now.toISOString();
     }
@@ -1041,17 +1042,10 @@ Resource.prototype.replaceDescriptorsInTripleStore = function (newDescriptors, d
             function (callback)
             {
                 // Invalidate cache record for the updated resources
-                if (Config.cache.active)
+                Cache.getByGraphUri(graphName).delete(subject, function (err, result)
                 {
-                    Cache.getByGraphUri(graphName).delete(subject, function (err, result)
-                    {
-                        callback(err);
-                    });
-                }
-                else
-                {
-                    callback(null);
-                }
+                    callback(err);
+                });
             },
             function (callback)
             {
@@ -2565,7 +2559,7 @@ Resource.findByPropertyValue = function (
 
                                     const newResource = Object.create(self.prototype);
 
-                                    if(self !== Resource)
+                                    if (self !== Resource)
                                     {
                                         newResource.baseConstructor(
                                             {
@@ -3664,7 +3658,7 @@ Resource.deleteAll = function (callback, customGraphUri)
         {
             if (Config.cache.active)
             {
-                Cache.getByGraphUri(graphUri).deleteAlByType(self.prefixedRDFType, function (err, result)
+                Cache.getByGraphUri(graphUri).deleteAllByType(self.prefixedRDFType, function (err, result)
                 {
                     callback(err);
                 });
@@ -4052,8 +4046,7 @@ Resource.getCount = function (callback)
     }
 
     const countQuery =
-        "SELECT \n" +
-        "COUNT(?uri) as ?count \n" +
+        "SELECT (COUNT (?uri) as ?count) \n" +
         "FROM [0] \n" +
         "WHERE \n" +
         "{ \n" +
@@ -4152,7 +4145,6 @@ Resource.prototype.getHtmlRelativeUrl = function ()
 {
     const self = this;
     return Resource.getRelativeUrlFromUri(self.uri);
-
 };
 
 Resource.getRelativeUrlFromUri = function (uri)
@@ -4161,10 +4153,8 @@ Resource.getRelativeUrlFromUri = function (uri)
     {
         return uri.substr(1);
     }
-    else
-    {
-        throw new Error("Invalid call to Resource.getRelativeUrlFromUri.");
-    }
+
+    throw new Error("Invalid call to Resource.getRelativeUrlFromUri.");
 };
 
 Resource.getUriFromRelativeUrl = function (relativeUrl, callback)

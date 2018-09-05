@@ -180,7 +180,7 @@ angular.module("dendroApp.controllers")
                 {
                     if ($scope.shared.selected_file != null)
                     {
-                        uri = $scope.shared.selected_file.uri + queryParametersString;
+                        uri = $scope.shared.selected_file.ddr.humanReadableURI + queryParametersString;
                     }
                     else
                     {

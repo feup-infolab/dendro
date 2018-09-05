@@ -37,14 +37,14 @@
                     <div dir-paginate="post in posts | filter:q | itemsPerPage: postsPerPage" total-items="totalPosts"
                          current-page="pagination.current">
                         <div>
-                            <div ng-if="postsContents[post.ddr.htmlUrl].rdf.type.includes('http://dendro.fe.up.pt/ontology/0.1/Share')">
+                            <div ng-if="postsContents[post.ddr.humanReadableURI].rdf.type.includes('http://dendro.fe.up.pt/ontology/0.1/Share')">
                                 <ng-include src="'/app/views/social/showShare.html'"
-                                            onload="shareUri = post.ddr.htmlUrl; userWhoShared = postsContents[post.uri].ddr.userWhoShared; postUri = postsContents[post.uri].ddr.postURI;"></ng-include>
+                                            onload="shareUri = post.ddr.humanReadableURI; userWhoShared = postsContents[post.uri].ddr.userWhoShared; postUri = postsContents[post.uri].ddr.postURI;"></ng-include>
                             </div>
 
-                            <div class="timelineShowShare" ng-if="!postsContents[post.ddr.htmlUrl].rdf.type.includes('http://dendro.fe.up.pt/ontology/0.1/Share')">
+                            <div class="timelineShowShare" ng-if="!postsContents[post.ddr.humanReadableURI].rdf.type.includes('http://dendro.fe.up.pt/ontology/0.1/Share')">
                                 <ng-include src="'/app/views/social/showPost.html'"
-                                            onload="postUri = post.ddr.htmlUrl;"></ng-include>
+                                            onload="postUri = post.ddr.humanReadableURI;"></ng-include>
                             </div>
                         </div>
                     </div>

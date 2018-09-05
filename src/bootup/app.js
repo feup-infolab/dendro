@@ -221,7 +221,7 @@ class App
 
         if (!self._connectionsUp || force)
         {
-            async.parallel([
+            async.series([
                 function (callback)
                 {
                     // setup virtuoso
