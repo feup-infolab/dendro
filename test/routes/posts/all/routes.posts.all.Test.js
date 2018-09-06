@@ -27,7 +27,7 @@ let postURIsToCompare;
 
 function stripArrayToPostURISOnly (uris)
 {
-    uris.forEach(function(element)
+    uris.forEach(function (element)
     {
         delete element.position;
         delete element.fixedPosition;
