@@ -697,7 +697,7 @@
       "destroy_all_indexes": false,
       "destroy_files_store": false,
       "destroy_datastore": false,
-      "destroy_mysql_database": true
+      "destroy_mysql_database": false
     },
     "baselines": {},
     "logging": {
