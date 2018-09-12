@@ -28,16 +28,15 @@ GridFSConnection.prototype.open = function (callback, customBucket)
     {
         const mongo = require("mongodb");
         const Grid = require("gridfs-stream");
-        const slug = rlequire("dendro", "src/utils/slugifier.js");
 
         let url;
         if (Config.mongoDBAuth.username && Config.mongoDBAuth.password && Config.mongoDBAuth.password !== "" && Config.mongoDBAuth.username !== "")
         {
-            url = "mongodb://" + Config.mongoDBAuth.username + ":" + Config.mongoDBAuth.password + "@" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + slug(self.collectionName) + "?authSource=admin";
+            url = "mongodb://" + Config.mongoDBAuth.username + ":" + Config.mongoDBAuth.password + "@" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + self.collectionName + "?authSource=admin";
         }
         else
         {
-            url = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + slug(self.collectionName);
+            url = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + self.collectionName;
         }
 
         MongoClient.connect(url, function (err, db)
