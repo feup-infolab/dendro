@@ -10,7 +10,7 @@ function DendroMongoClient (mongoDBHost, mongoDbPort, mongoDbCollectionName, mon
 
     self.host = mongoDBHost;
     self.port = mongoDbPort;
-    self.collectionName = slug(mongoDbCollectionName);
+    self.collectionName = mongoDbCollectionName;
     self.username = mongoDbUsername;
     self.password = mongoDbPassword;
 }
@@ -20,14 +20,13 @@ DendroMongoClient.prototype.connect = function (callback)
     const self = this;
 
     let url;
-    const sluggedCollectionName = slug(this.collectionName);
     if (self.username && self.password && self.username !== "" && self.password !== "" && self.username !== "")
     {
-        url = "mongodb://" + self.username + ":" + self.password + "@" + self.host + ":" + self.port + "/" + sluggedCollectionName + "?authSource=admin";
+        url = "mongodb://" + self.username + ":" + self.password + "@" + self.host + ":" + self.port + "/" + self.collectionName;
     }
     else
     {
-        url = "mongodb://" + self.host + ":" + self.port + "/" + sluggedCollectionName;
+        url = "mongodb://" + self.host + ":" + self.port + "/" + self.collectionName;
     }
 
     MongoClient.connect(url, function (err, db)
