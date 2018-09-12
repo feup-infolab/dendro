@@ -33,7 +33,7 @@ let agent;
 checkFileExistsInGridFs = function (fileUri, callback)
 {
     const DendroMongoClient = rlequire("dendro", "src/kb/mongo.js").DendroMongoClient;
-    let mongoClient = new DendroMongoClient(Config.mongoDBHost, Config.mongoDbPort, Config.mongoDbCollectionName);
+    let mongoClient = new DendroMongoClient(Config.mongoDBHost, Config.mongoDbPort, Config.mongoDbCollectionName, Config.mongoDBAuth.username, Config.mongoDBAuth.password);
     mongoClient.connect(function (err, mongoDb)
     {
         if (isNull(err) && !isNull(mongoDb))

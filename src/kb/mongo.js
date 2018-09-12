@@ -3,6 +3,7 @@ const slug = rlequire("dendro", "src/utils/slugifier.js");
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
 const MongoClient = require("mongodb").MongoClient;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 function DendroMongoClient (mongoDBHost, mongoDbPort, mongoDbCollectionName, mongoDbUsername, mongoDbPassword)
 {
@@ -29,6 +30,7 @@ DendroMongoClient.prototype.connect = function (callback)
         url = "mongodb://" + self.host + ":" + self.port + "/" + self.collectionName;
     }
 
+    Logger.log("debug", "Connecting to MongoDB using connection string: " + url);
     MongoClient.connect(url, function (err, db)
     {
         if (!err)
@@ -49,7 +51,7 @@ DendroMongoClient.prototype.findFileByFilenameOrderedByDate = function (db, file
         {
             return callback(null, files);
         }
-        const msg = "Error findind document with uri: " + fileUri + " in Mongo error: " + JSON.stringify(err);
+        const msg = "Error finding document with uri: " + fileUri + " in Mongo. error: " + JSON.stringify(err);
         return callback(true, msg);
     });
 };
@@ -64,7 +66,7 @@ DendroMongoClient.prototype.getNonAvatarNorThumbnailFiles = function (db, callba
         {
             return callback(null, files);
         }
-        const msg = "Error when looking for non Avatar nor thumbnail files in Mongo, error: " + JSON.stringify(err);
+        const msg = "Error when looking for non Avatar nor thumbnail files in Mongo. error: " + JSON.stringify(err);
         return callback(true, msg);
     });
 };
