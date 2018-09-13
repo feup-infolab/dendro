@@ -24,13 +24,14 @@ DendroMongoClient.prototype.connect = function (callback)
     if (self.username && self.password && self.username !== "" && self.password !== "" && self.username !== "")
     {
         url = "mongodb://" + self.username + ":" + self.password + "@" + self.host + ":" + self.port + "/" + self.collectionName;
+        Logger.log("debug", "Connecting to MongoDB using connection string: " + "mongodb://" + self.username + ":" + "PASSWORD" + "@" + self.host + ":" + self.port + "/" + self.collectionName);
     }
     else
     {
         url = "mongodb://" + self.host + ":" + self.port + "/" + self.collectionName;
+        Logger.log("debug", "Connecting to MongoDB using connection string: " + url);
     }
 
-    Logger.log("debug", "Connecting to MongoDB using connection string: " + url);
     MongoClient.connect(url, function (err, db)
     {
         if (!err)

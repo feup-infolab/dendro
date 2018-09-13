@@ -34,13 +34,13 @@ GridFSConnection.prototype.open = function (callback, customBucket)
         {
             // + "?authSource=admin";
             url = "mongodb://" + Config.mongoDBAuth.username + ":" + Config.mongoDBAuth.password + "@" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + self.collectionName;
+            Logger.log("debug", "Connecting to GridFS using connection string: " + "mongodb://" + Config.mongoDBAuth.username + ":" + "PASSWORD" + "@" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + self.collectionName);
         }
         else
         {
             url = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + self.collectionName;
+            Logger.log("debug", "Connecting to GridFS using connection string: " + url);
         }
-
-        Logger.log("debug", "Connecting to GridFS using connection string: " + url);
 
         MongoClient.connect(url, function (err, db)
         {

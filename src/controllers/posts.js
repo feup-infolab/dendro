@@ -411,10 +411,11 @@ const numPostsDatabaseAux = function (projectUrisArray, callback)
                 .then(result =>
                 {
                     Logger.log("debug", result);
-                    try{
+                    try
+                    {
                         callback(null, result[0][0].num_posts);
                     }
-                    catch(e)
+                    catch (e)
                     {
                         callback(true, "Invalid response from server while querying for the posts count.");
                     }
