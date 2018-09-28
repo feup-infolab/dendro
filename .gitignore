@@ -64,3 +64,5 @@ test/mockdata/files/test_uploads/hugeTxtFile.txt
 .Rproj.user
 
 data/
+volumes/
+conf/profile_queries/
