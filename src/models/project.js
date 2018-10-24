@@ -15,14 +15,14 @@ const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Fo
 const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
 const User = rlequire("dendro", "src/models/user.js").User;
 const Class = rlequire("dendro", "src/models/meta/class.js").Class;
-const Ontology = rlequire("dendro", "src/models/meta/ontology.js").Ontology;
-const Interaction = rlequire("dendro", "src/models/recommendation/interaction.js").Interaction;
 const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
 const ArchivedResource = rlequire("dendro", "src/models/versions/archived_resource").ArchivedResource;
 const Storage = rlequire("dendro", "src/kb/storage/storage.js").Storage;
 
 const db = Config.getDBByID();
 const gfs = Config.getGFSByID();
+
+const dbMySQL = rlequire("dendro", "src/mysql_models");
 
 const async = require("async");
 const _ = require("underscore");
@@ -1169,250 +1169,133 @@ Project.prototype.getRevisionsCount = function (callback)
 Project.prototype.getFavoriteDescriptors = function (maxResults, callback, allowedOntologies)
 {
     const self = this;
+    const mysql = Config.getMySQLByID();
+    const targetTable = Config.recommendation.getTargetTable();
+    let projectFavoriteDescriptorsList = [];
 
-    let argumentsArray = [
+    let queryProjectDescriptorFavorites = "call " + Config.mySQLDBName + ".getProjectFavoriteDescriptors(:uri);";
+
+    dbMySQL.sequelize
+        .query(queryProjectDescriptorFavorites,
+            {replacements: { uri: self.uri }})
+        .then(result =>
         {
-            type: Elements.types.resourceNoEscape,
-            value: db.graphUri
-        },
-        {
-            type: Elements.types.stringNoEscape,
-            value: self.uri
-        },
-        {
-            type: Elements.types.string,
-            value: Interaction.types.favorite_descriptor_from_quick_list_for_project.key
-        },
-        {
-            type: Elements.types.string,
-            value: Interaction.types.unfavorite_descriptor_from_quick_list_for_project.key
-        }
-    ];
-
-    const publicOntologies = Ontology.getPublicOntologiesUris();
-    if (!isNull(allowedOntologies) && allowedOntologies instanceof Array)
-    {
-        allowedOntologies = _.intersection(publicOntologies, allowedOntologies);
-    }
-    else
-    {
-        allowedOntologies = publicOntologies;
-    }
-
-    let fromString = "";
-
-    const fromElements = DbConnection.buildFromStringAndArgumentsArrayForOntologies(allowedOntologies, argumentsArray.length);
-    argumentsArray = argumentsArray.concat(fromElements.argumentsArray);
-    fromString = fromString + fromElements.fromString;
-
-    const filterString = DbConnection.buildFilterStringForOntologies(allowedOntologies, "favorited_descriptor");
-
-    const query =
-    "       SELECT ?favorited_descriptor as ?descriptor ?label ?comment ?last_favorited ?last_unfavorited \n" +
-    fromString + "\n" +
-    "		WHERE \n" +
-    "		{ \n" +
-    "			?favorited_descriptor rdfs:label ?label.  \n" +
-    "			?favorited_descriptor rdfs:comment ?comment.  \n" +
-    "			FILTER(    (str(?label) != \"\") && ( str(?comment) != \"\") ).  \n" +
-    "			FILTER(   lang(?label) = \"\" || lang(?label) = \"en\") .  \n" +
-    "			FILTER(   lang(?comment) = \"\" || lang(?comment) = \"en\")   \n" +
-    filterString + "\n" +
-    "			{ \n" +
-    "				SELECT ?favorited_descriptor MAX(?date_favorited) as ?last_favorited \n" +
-    "				FROM [0]  \n" +
-    "				WHERE  \n" +
-    "				{  \n" +
-    "				   	?favorite_interaction ddr:executedOver ?favorited_descriptor. \n" +
-    "				   	?favorite_interaction ddr:interactionType [2] . \n" +
-    "					?favorite_interaction ddr:originallyRecommendedFor ?information_element. \n" +
-    "				   	?favorite_interaction ddr:created ?date_favorited. \n" +
-    "				    FILTER( STRSTARTS(STR(?information_element), [1] ) ) \n" +
-    "				} \n" +
-    "			}. \n" +
-    "			OPTIONAL " +
-    "           { \n" +
-    "				SELECT ?favorited_descriptor MAX(?date_unfavorited) as ?last_unfavorited \n" +
-    "				FROM [0]  \n" +
-    "				WHERE  \n" +
-    "				{  \n" +
-    "				   	?unfavorite_interaction ddr:executedOver ?favorited_descriptor. \n" +
-    "				   	?unfavorite_interaction ddr:interactionType [3]. \n" +
-
-    "				   	?unfavorite_interaction ddr:originallyRecommendedFor ?information_element. \n" +
-    "				   	?unfavorite_interaction ddr:created ?date_unfavorited. \n" +
-    "				    FILTER( STRSTARTS(STR(?information_element), [1] ) ) \n" +
-    "				} \n" +
-    "			} \n" +
-    "		   	FILTER" +
-    "           ( \n" +
-    "		   	    ( \n" +
-    "		   	        bound(?last_unfavorited) && (?last_favorited > ?last_unfavorited)\n" +
-    "		   	    ) \n" +
-    "		   	    || \n" +
-    "		   	    ( \n" +
-    "                   !bound(?last_unfavorited)\n" +
-    "		   	    ) \n" +
-    "		   	) \n" +
-    "		} \n";
-
-    db.connection.executeViaJDBC(
-        query,
-        argumentsArray,
-        function (err, descriptors)
-        {
-            if (isNull(err))
+            if (isNull(result))
             {
-                if (descriptors instanceof Array)
-                {
-                    const fullDescriptors = [];
-                    for (let i = 0; i < descriptors.length; i++)
-                    {
-                        const d = new Descriptor({
-                            uri: descriptors[i].descriptor,
-                            label: descriptors[i].label,
-                            comment: descriptors[i].comment
-                        });
-
-                        d.recommendation_types = {};
-                        d.recommendation_types[Descriptor.recommendation_types.project_favorite.key] = true;
-
-                        d.last_favorited = descriptors.last_favorited;
-
-                        fullDescriptors.push(d);
-                    }
-
-                    return callback(null, fullDescriptors);
-                }
-                return callback(1, "invalid result retrieved when querying for project's favorite descriptors");
+                return callback(null, []);
             }
-            return callback(err, -1);
-        });
+
+            async.mapSeries(result, function (row, callback)
+            {
+                Descriptor.findByUri(row.executedOver, function (err, descriptor)
+                {
+                    if (isNull(err))
+                    {
+                        if (!isNull(descriptor))
+                        {
+                            if (descriptor.recommendation_types != null)
+                            {
+                                descriptor.recommendation_types.project_favorite = true;
+                            }
+                            else
+                            {
+                                descriptor.recommendation_types = {};
+                                descriptor.recommendation_types.project_favorite = true;
+                            }
+                            projectFavoriteDescriptorsList.push(descriptor);
+                            callback(null, null);
+                        }
+                        else
+                        {
+                            const errorMsg = "Descriptor with uri: " + row.executedOver + " does not exist!";
+                            Logger.log("error", errorMsg);
+                            callback(true, errorMsg);
+                        }
+                    }
+                    else
+                    {
+                        Logger.log("error", JSON.stringify(descriptor));
+                        callback(true, JSON.stringify(descriptor));
+                    }
+                });
+            }, function (err, results)
+            {
+                if (isNull(err))
+                {
+                    return callback(err, projectFavoriteDescriptorsList);
+                }
+
+                return callback(err, results);
+            });
+        })
+        .catch(err =>
+            callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database."));
 };
 
 Project.prototype.getHiddenDescriptors = function (maxResults, callback, allowedOntologies)
 {
     const self = this;
+    const mysql = Config.getMySQLByID();
+    const targetTable = Config.recommendation.getTargetTable();
+    let projectHiddenDescriptorsList = [];
 
-    let argumentsArray = [
+    let queryProjectHiddenDescriptors = "call " + Config.mySQLDBName + ".getProjectHiddenDescriptors(:uri);";
+
+    dbMySQL.sequelize
+        .query(queryProjectHiddenDescriptors,
+            {replacements: { uri: self.uri }})
+        .then(result =>
         {
-            type: Elements.types.resourceNoEscape,
-            value: db.graphUri
-        },
-        {
-            type: Elements.types.stringNoEscape,
-            value: self.uri
-        },
-        {
-            type: Elements.types.string,
-            value: Interaction.types.hide_descriptor_from_quick_list_for_project.key
-        },
-        {
-            type: Elements.types.string,
-            value: Interaction.types.unhide_descriptor_from_quick_list_for_project.key
-        }
-    ];
-
-    const publicOntologies = Ontology.getPublicOntologiesUris();
-    if (!isNull(allowedOntologies) && allowedOntologies instanceof Array)
-    {
-        allowedOntologies = _.intersection(publicOntologies, allowedOntologies);
-    }
-    else
-    {
-        allowedOntologies = publicOntologies;
-    }
-
-    let fromString = "";
-
-    const fromElements = DbConnection.buildFromStringAndArgumentsArrayForOntologies(allowedOntologies, argumentsArray.length);
-    argumentsArray = argumentsArray.concat(fromElements.argumentsArray);
-    fromString = fromString + fromElements.fromString;
-
-    const filterString = DbConnection.buildFilterStringForOntologies(allowedOntologies, "hidden_descriptor");
-
-    const query =
-        "		SELECT ?hidden_descriptor as ?descriptor ?label ?comment ?last_hidden ?last_unhidden \n" +
-        fromString + "\n" +
-        "		WHERE \n" +
-        "		{ \n" +
-        "			?hidden_descriptor rdfs:label ?label.  \n" +
-        "			?hidden_descriptor rdfs:comment ?comment.  \n" +
-        "			FILTER(    (str(?label) != \"\") && ( str(?comment) != \"\") ).  \n" +
-        "			FILTER(   lang(?label) = \"\" || lang(?label) = \"en\") .  \n" +
-        "			FILTER(   lang(?comment) = \"\" || lang(?comment) = \"en\")   \n" +
-        filterString + "\n" +
-        "			{ \n" +
-        "				SELECT ?hidden_descriptor MAX(?date_hidden) as ?last_hidden \n" +
-        "				FROM [0]  \n" +
-        "				WHERE  \n" +
-        "				{  \n" +
-        "				   	?hiding_interaction ddr:executedOver ?hidden_descriptor. \n" +
-        "				   	?hiding_interaction ddr:interactionType [2] . \n" +
-
-        "					?hiding_interaction ddr:originallyRecommendedFor ?information_element. \n" +
-        "				   	?hiding_interaction ddr:created ?date_hidden. \n" +
-        "				    FILTER( STRSTARTS(STR(?information_element), [1] ) ) \n" +
-        "				} \n" +
-        "			}. \n" +
-        "			OPTIONAL" +
-        "           { \n" +
-        "				SELECT ?hidden_descriptor MAX(?date_unhidden) as ?last_unhidden \n" +
-        "				FROM [0]  \n" +
-        "				WHERE  \n" +
-        "				{  \n" +
-        "				   	?unhiding_interaction ddr:executedOver ?hidden_descriptor. \n" +
-        "				   	?unhiding_interaction ddr:interactionType [3]. \n" +
-
-        "				   	?unhiding_interaction ddr:originallyRecommendedFor ?information_element. \n" +
-        "				   	?unhiding_interaction ddr:created ?date_unhidden. \n" +
-        "				    FILTER( STRSTARTS(STR(?information_element), [1] ) ) \n" +
-        "				} \n" +
-        "			} \n" +
-        "		   	FILTER" +
-        "           ( \n" +
-        "		   	    ( \n" +
-        "		   	        bound(?last_unhidden) && (?last_hidden > ?last_unhidden)\n" +
-        "		   	    ) \n" +
-        "		   	    || \n" +
-        "		   	    ( \n" +
-        "                   !bound(?last_unhidden)\n" +
-        "		   	    ) \n" +
-        "		   	) \n" +
-        "		} \n";
-
-    db.connection.executeViaJDBC(
-        query,
-        argumentsArray,
-        function (err, descriptors)
-        {
-            if (isNull(err))
+            if (isNull(result))
             {
-                if (descriptors instanceof Array)
-                {
-                    const fullDescriptors = [];
-                    for (let i = 0; i < descriptors.length; i++)
-                    {
-                        const d = new Descriptor({
-                            uri: descriptors[i].descriptor,
-                            label: descriptors[i].label,
-                            comment: descriptors[i].comment
-                        });
-
-                        d.recommendation_types = {};
-                        d.recommendation_types[Descriptor.recommendation_types.project_hidden.key] = true;
-
-                        d.last_hidden = descriptors.last_hidden;
-
-                        fullDescriptors.push(d);
-                    }
-
-                    return callback(null, fullDescriptors);
-                }
-                return callback(1, "invalid result retrieved when querying for project's favorite descriptors");
+                return callback(null, []);
             }
-            return callback(err, -1);
-        });
+
+            async.mapSeries(result, function (row, callback)
+            {
+                Descriptor.findByUri(row.executedOver, function (err, descriptor)
+                {
+                    if (isNull(err))
+                    {
+                        if (!isNull(descriptor))
+                        {
+                            if (descriptor.recommendation_types != null)
+                            {
+                                descriptor.recommendation_types.project_hidden = true;
+                            }
+                            else
+                            {
+                                descriptor.recommendation_types = {};
+                                descriptor.recommendation_types.project_hidden = true;
+                            }
+                            projectHiddenDescriptorsList.push(descriptor);
+                            callback(null, null);
+                        }
+                        else
+                        {
+                            const errorMsg = "Descriptor with uri: " + row.executedOver + " does not exist!";
+                            Logger.log("error", errorMsg);
+                            callback(true, errorMsg);
+                        }
+                    }
+                    else
+                    {
+                        Logger.log("error", JSON.stringify(descriptor));
+                        callback(true, JSON.stringify(descriptor));
+                    }
+                });
+            }, function (err, results)
+            {
+                if (isNull(err))
+                {
+                    return callback(err, projectHiddenDescriptorsList);
+                }
+
+                return callback(err, results);
+            });
+        })
+        .catch(err =>
+            callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database."));
 };
 
 Project.prototype.findMetadata = function (callback, typeConfigsToRetain)

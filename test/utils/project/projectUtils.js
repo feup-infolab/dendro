@@ -1105,7 +1105,7 @@ const countProjectFilesInGridFS = module.exports.countProjectFilesInGridFS = fun
     });
 };
 
-const getProjectUriFromHandle = module.exports.getProjectUriFromHandle = function (agent, projectHandle, callback)
+module.exports.getProjectUriFromHandle = function (agent, projectHandle, callback)
 {
     listAllMyProjects(true, agent, function (err, res)
     {
@@ -1119,7 +1119,7 @@ const getProjectUriFromHandle = module.exports.getProjectUriFromHandle = functio
     });
 };
 
-const projectStorage = module.exports.projectStorage = function (modify, agent, projectHandle, callback, storageConfig)
+module.exports.projectStorage = function (modify, agent, projectHandle, callback, storageConfig)
 {
     if (modify && storageConfig)
     {

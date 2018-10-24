@@ -14,6 +14,8 @@ const MetadataChangePost = rlequire("dendro", "src/models/social/metadataChangeP
 const async = require("async");
 const contentDisposition = require("content-disposition");
 const db_social = Config.getDBByID("social");
+const Post = rlequire("dendro", "src/models/social/post.js").Post;
+const Event = rlequire("dendro", "src/models/social/event.js").Event;
 
 exports.show_deep = function (req, res)
 {
@@ -469,6 +471,30 @@ exports.update = function (req, res)
                         {
                             if (isNull(err))
                             {
+                                let postObj = new Post(null, "metadata_change", post.uri, post.dcterms.creator, post.ddr.projectUri);
+                                postObj.saveToMySQL(function (err)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        Logger.log("Post \"metadata_change\" saved to MySQL");
+                                        let event = new Event(null, "post", post.uri, post.dcterms.creator);
+                                        event.saveToMySQL(function (err)
+                                        {
+                                            if (isNull(err))
+                                            {
+                                                Logger.log("Event \"post\" saved to MySQL");
+                                            }
+                                            else
+                                            {
+                                                Logger.log("error", err);
+                                            }
+                                        });
+                                    }
+                                    else
+                                    {
+                                        Logger.log("error", err);
+                                    }
+                                });
                                 callback(err, resource);
                             }
                             else
@@ -784,7 +810,7 @@ exports.show_version = function (req, res)
                 requestedVersion = parseInt(req.query.version);
                 if (isNaN(requestedVersion))
                 {
-                    throw "Invalid Integer";
+                    throw new Error("Invalid Integer");
                 }
 
                 ArchivedResource.findByResourceAndVersionNumber(requestedResourceURI, requestedVersion, function (err, version)

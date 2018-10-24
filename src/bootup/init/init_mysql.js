@@ -1,58 +1,56 @@
 const rlequire = require("rlequire");
+const async = require("async");
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 let isNull = rlequire("dendro", "src/utils/null.js").isNull;
-const DendroMySQLClient = rlequire("dendro", "src/kb/mysql.js").DendroMySQLClient;
+const Sequelize = require("sequelize");
 
 const initMySQL = function (app, callback)
 {
-    Logger.log("Setting up MySQL connection pool at host " + Config.mySQLHost + ":" + Config.mySQLPort);
+    Logger.log_boot_message("Setting up MySQL connection pool.");
 
-    const client = new DendroMySQLClient(
-        Config.mySQLHost,
-        Config.mySQLPort,
-        Config.mySQLDBName,
-        Config.mySQLAuth.user,
-        Config.mySQLAuth.password
-    );
-
-    // TODO This is commented until the merge with the new structure using migrations.
-    return callback(null);
-
-    client.createDatabaseIfNotExists(function (err, result)
+    const tryToCreateDatabaseIfNeeded = function (callback)
     {
-        if (isNull(err))
-        {
-            client.checkAndCreateInteractionsTable(Config.recommendation.getTargetTable(), function (err, results)
+        // Create connection omitting database name, create database if not exists
+        const sequelize = new Sequelize("", Config.mySQLAuth.user, Config.mySQLAuth.password, {
+            dialect: "mysql",
+            host: Config.mySQLHost,
+            port: Config.mySQLPort,
+            logging: false,
+            operatorsAliases: false
+        });
+        sequelize
+            .authenticate()
+            .then(() =>
             {
-                if (err)
-                {
-                    callback("Unable to create interactions table " + Config.recommendation.getTargetTable() + " in MySQL ");
-                }
-                else
-                {
-                    if (Config.getMySQLByID().connection)
-                    {
-                        Config.getMySQLByID().connection.releaseAllConnections(function ()
-                        {
-                            Config.getMySQLByID().connection = client;
-                            Logger.log("ReConnected to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort);
-                            return callback(null);
-                        });
-                    }
-                    else
-                    {
-                        Config.getMySQLByID().connection = client;
-                        Logger.log("Connected to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort);
-                        return callback(null);
-                    }
-                }
+                Logger.log_boot_message("Connected to MySQL!");
+                callback(null);
+            })
+            .catch(err =>
+            {
+                Logger.log("error", "Error authenticating in MySQL database : " + Config.mySQLDBName);
+                Logger.log("error", JSON.stringify(err));
+                return callback(err, null);
             });
-        }
-        else
+    };
+
+    async.retry({
+        times: 240,
+        interval: function (retryCount)
         {
-            callback(err, result);
+            const msecs = 500;
+            Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to determine ElasticSearch cluster health");
+            return msecs;
         }
+    }, tryToCreateDatabaseIfNeeded, function (err)
+    {
+        if (!isNull(err))
+        {
+            Logger.log("error", "Unable to connect to mysql server at " + Config.mySQLHost + ":" + Config.mySQLPort);
+            Logger.log("error", err.message);
+        }
+
+        return callback(err);
     });
 };
 

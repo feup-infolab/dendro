@@ -20,19 +20,64 @@ const DockerManager = function ()
 {
 };
 
+const logEverythingFromChildProcess = function (childProcess)
+{
+    childProcess.stdout.on("data", function (data)
+    {
+        Logger.log("info", data);
+    });
+
+    childProcess.stderr.on("data", function (data)
+    {
+        Logger.log("warn", data);
+    });
+
+    childProcess.on("exit", function (code)
+    {
+        if (!code)
+        {
+            Logger.log("info", "Process " + childProcess.cmd + " exited successfully (code 0). ");
+        }
+        else
+        {
+            Logger.log("warn", "Process " + childProcess.cmd + " exited with non-zero exit code (code " + code + ".");
+        }
+    });
+};
+
 DockerManager.stopAllContainers = function (callback)
 {
     if (Config.docker && Config.docker.active)
     {
         Logger.log("Stopping all Docker containers.");
-        childProcess.exec(`/bin/bash -c "${stopContainersScript}"`, {
-            cwd: rlequire.getRootFolder("dendro"),
-            stdio: [0, 1, 2]
-        }, function (err, result)
+        Logger.log("warn", "If it takes long in the first boot PLEASE WAIT! If after 10 minutes without heavy CPU activity please press Ctrl+C and try again.");
+
+        let dockerSubProcess;
+
+        if (process.env.NODE_ENV === "test")
         {
-            Logger.log("Stopped all containers");
-            callback(err, result);
-        });
+            dockerSubProcess = childProcess.exec(`/bin/bash -c "${stopContainersScript}"`, {
+                cwd: rlequire.getRootFolder("dendro"),
+                stdio: [0, 1, 2]
+            }, function (err, result)
+            {
+                Logger.log("Stopped all containers");
+                callback(err, result);
+            });
+        }
+        else
+        {
+            dockerSubProcess = childProcess.exec("docker-compose down", {
+                cwd: rlequire.getRootFolder("dendro"),
+                stdio: [0, 1, 2]
+            }, function (err, result)
+            {
+                Logger.log("Started all containers");
+                callback(err, result);
+            });
+        }
+
+        logEverythingFromChildProcess(dockerSubProcess);
     }
     else
     {
@@ -46,14 +91,33 @@ DockerManager.startAllContainers = function (callback)
     {
         Logger.log("Starting all Docker containers.");
         Logger.log("warn", "If it takes long in the first boot PLEASE WAIT! If after 10 minutes without heavy CPU activity please press Ctrl+C and try again.");
-        childProcess.exec(`/bin/bash -c "${startContainersScript}"`, {
-            cwd: rlequire.getRootFolder("dendro"),
-            stdio: [0, 1, 2]
-        }, function (err, result)
+
+        let dockerSubProcess;
+        if (process.env.NODE_ENV === "test")
         {
-            Logger.log("Started all containers");
-            callback(err, result);
-        });
+            dockerSubProcess = childProcess.exec(`/bin/bash -c "${startContainersScript}"`, {
+                cwd: rlequire.getRootFolder("dendro"),
+                stdio: [0, 1, 2]
+            }, function (err, result)
+            {
+                Logger.log("Started all containers");
+                callback(err, result);
+            });
+        }
+        else
+        {
+            const mkdirp = require("mkdirp");
+            mkdirp.sync(rlequire.absPathInApp("dendro", "volumes"));
+            dockerSubProcess = childProcess.exec("docker-compose up -d", {
+                cwd: rlequire.getRootFolder("dendro")
+            }, function (err, result)
+            {
+                Logger.log("Started all containers");
+                callback(err, result);
+            });
+        }
+
+        logEverythingFromChildProcess(dockerSubProcess);
     }
     else
     {
@@ -187,10 +251,21 @@ DockerManager.nukeAndRebuild = function (onlyOnce)
         const performOperation = function ()
         {
             Logger.log("Rebuilding all Docker containers.");
-            childProcess.execSync(`/bin/bash -c "${nukeAndRebuildScript}"`, {
-                cwd: rlequire.getRootFolder("dendro"),
-                stdio: [0, 1, 2]
-            });
+
+            if (process.env.NODE_ENV === "test")
+            {
+                childProcess.execSync(`/bin/bash -c "${nukeAndRebuildScript}"`, {
+                    cwd: rlequire.getRootFolder("dendro"),
+                    stdio: [0, 1, 2]
+                });
+            }
+            else
+            {
+                childProcess.execSync(`docker-compose rm -s"`, {
+                    cwd: rlequire.getRootFolder("dendro"),
+                    stdio: [0, 1, 2]
+                });
+            }
 
             Logger.log("Nuked and rebuilt all containers.");
         };

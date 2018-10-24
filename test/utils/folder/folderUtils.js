@@ -18,7 +18,6 @@ exports.createFolderInProject = function (jsonOnly, agent, targetFolderInProject
 
     if (jsonOnly)
     {
-        // / project/PROJECTHANDLE?mkdir=FOLDERNAME
         agent
             .post(uri)
             .set("Accept", "application/json")

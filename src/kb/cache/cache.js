@@ -60,8 +60,8 @@ Cache.initConnections = function (callback)
                                         if (!isNull(err))
                                         {
                                             Logger.log("warn", "Unable to connect to MongoDB cache service!!");
-                                            Logger.log("warn", "Mongodb connection Error: " + JSON.stringify(err, null, 4));
-                                            Logger.log("warn", "Mongodb connection Returned Object: " + JSON.stringify(mongoDBConnection, null, 4));
+                                            Logger.log("warn", "Mongodb connection Error: " + JSON.stringify(err));
+                                            Logger.log("warn", "Mongodb connection Returned Object: " + JSON.stringify(mongoDBConnection));
                                             callback(err);
                                         }
                                         else
@@ -178,7 +178,7 @@ Cache.initConnections = function (callback)
             }
             else
             {
-                throw new Error("[ERROR] Unable to setup some cache instances. Is the MongoDB server online?\n" + JSON.stringify(results));
+                throw new Error("[ERROR] Unable to setup some cache instances. Is the MongoDB server online?\n");
             }
         }
     );

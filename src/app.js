@@ -1,3 +1,4 @@
+/* eslint-disable quotes,indent */
 const path = require("path");
 const argv = require("yargs").argv;
 const rlequire = require("rlequire");

@@ -19,8 +19,6 @@ const setupPassport = function (app, callback)
 
     const setupMongoStore = function (callback)
     {
-        const MongoStore = require("connect-mongo")(expressSession);
-
         const expressSessionParameters = {
             secret: Config.crypto.secret,
             genid: function ()
@@ -34,8 +32,9 @@ const setupPassport = function (app, callback)
             saveUninitialized: false
         };
 
-        if (process.env.NODE_ENV !== "test")
+        const connectToMongoStore = function (callback)
         {
+            const MongoStore = require("connect-mongo")(expressSession);
             const mongoDBSessionsDBName = slug(Config.mongoDBSessionStoreCollection);
 
             let url;
@@ -52,35 +51,99 @@ const setupPassport = function (app, callback)
             {
                 if (isNull(err))
                 {
-                    const sessionMongoStore = new MongoStore({db: db});
-                    expressSessionParameters.store = sessionMongoStore;
-                    app.use(expressSession(expressSessionParameters));
-
-                    if (Config.startup.load_databases && Config.startup.clear_session_store && !isNull(db))
+                    const dropCollectionIfNeeded = function (callback)
                     {
-                        Logger.log_boot_message("Clearing session store!");
-                        db.collection(mongoDBSessionsDBName).drop(function (err, result)
+                        if (Config.startup.load_databases && Config.startup.clear_session_store && !isNull(db))
                         {
-                            if (isNull(err) || err.errmsg === "ns not found")
+                            Logger.log_boot_message("Clearing session store!");
+                            db.collection(mongoDBSessionsDBName).drop(function (err, result)
                             {
-                                callback(null);
-                            }
-                            else
-                            {
-                                callback(err, result);
-                            }
-                        });
-                    }
-                    else
+                                if (isNull(err) || err.errmsg === "ns not found")
+                                {
+                                    callback(null);
+                                }
+                                else
+                                {
+                                    callback(err, result);
+                                }
+                            });
+                        }
+                        else
+                        {
+                            callback(null);
+                        }
+                    };
+
+                    const createIndexOnUsername = function (callback)
                     {
-                        callback(null);
-                    }
+                        db.collection(mongoDBSessionsDBName).ensureIndex(
+                            "ddr.username",
+                            function (err, result)
+                            {
+                                if (isNull(err))
+                                {
+                                    callback(null);
+                                }
+                                else
+                                {
+                                    callback(err);
+                                }
+                            }
+                        );
+                    };
+
+                    const createIndexOnUri = function (callback)
+                    {
+                        db.collection(mongoDBSessionsDBName).ensureIndex(
+                            "uri",
+                            function (err, result)
+                            {
+                                if (isNull(err))
+                                {
+                                    callback(null);
+                                }
+                                else
+                                {
+                                    callback(err);
+                                }
+                            }
+                        );
+                    };
+
+                    async.series([
+                        dropCollectionIfNeeded,
+                        createIndexOnUsername,
+                        createIndexOnUri
+                    ], function (err, results)
+                    {
+                        if (isNull(err))
+                        {
+                            expressSessionParameters.store = new MongoStore({db: db});
+                            app.use(expressSession(expressSessionParameters));
+                            callback(err);
+                        }
+                        else
+                        {
+                            Logger.log("error", "Unable to set up indexes on sessions collection " + mongoDBSessionsDBName + " on MongoDB during startup.");
+                            callback(err, results);
+                        }
+                    });
                 }
                 else
                 {
                     callback(err, db);
                 }
             });
+        };
+
+        if (Config.useMongoDBSessionStore)
+        {
+            connectToMongoStore(callback);
+        }
+        else
+        {
+            app.use(expressSession(expressSessionParameters));
+            callback(null);
         }
     };
 

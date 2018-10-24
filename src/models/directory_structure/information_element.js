@@ -481,13 +481,10 @@ InformationElement.prototype.rename = function (newTitle, callback, customGraphU
     const self = this;
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
-    if (!isNull(progressReporter))
-    {
-        Notification.sendProgress(
-            `Updating internal uri of folder ${self.nie.title}...`,
-            progressReporter
-        );
-    }
+    Notification.sendProgress(
+        `Updating internal uri of folder ${self.nie.title}...`,
+        progressReporter
+    );
 
     const query =
         "WITH [0] \n" +

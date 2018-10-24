@@ -131,7 +131,7 @@ describe("Metadata only project testFolder1 level ls_by_name tests", function ()
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                folderUtils.ls_by_name(true, agent, "invalidUri", "folderA", function (err, res)
+                folderUtils.ls_by_name(true, agent, "/invalidUri", "folderA", function (err, res)
                 {
                     should.exist(err);
                     res.statusCode.should.equal(404);

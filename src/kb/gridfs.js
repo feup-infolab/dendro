@@ -12,7 +12,7 @@ function GridFSConnection (mongodbHost, mongodbPort, collectionName, username, p
 {
     let self = this;
 
-    self.hostname = mongodbHost;
+    self.host = mongodbHost;
     self.port = mongodbPort;
     self.collectionName = collectionName;
 
@@ -28,16 +28,18 @@ GridFSConnection.prototype.open = function (callback, customBucket)
     {
         const mongo = require("mongodb");
         const Grid = require("gridfs-stream");
-        const slug = rlequire("dendro", "src/utils/slugifier.js");
 
         let url;
         if (Config.mongoDBAuth.username && Config.mongoDBAuth.password && Config.mongoDBAuth.password !== "" && Config.mongoDBAuth.username !== "")
         {
-            url = "mongodb://" + Config.mongoDBAuth.username + ":" + Config.mongoDBAuth.password + "@" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + slug(self.collectionName) + "?authSource=admin";
+            // + "?authSource=admin";
+            url = "mongodb://" + Config.mongoDBAuth.username + ":" + Config.mongoDBAuth.password + "@" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + self.collectionName;
+            Logger.log("debug", "Connecting to GridFS using connection string: " + "mongodb://" + Config.mongoDBAuth.username + ":" + "PASSWORD" + "@" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + self.collectionName);
         }
         else
         {
-            url = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + slug(self.collectionName);
+            url = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + self.collectionName;
+            Logger.log("debug", "Connecting to GridFS using connection string: " + url);
         }
 
         MongoClient.connect(url, function (err, db)
@@ -110,7 +112,8 @@ GridFSConnection.prototype.put = function (fileUri, inputStream, callback, metad
         uploadStream.on("error", function (err)
         {
             hasError = true;
-            Logger.log("error", "An error occurred saving the file to the database!" + JSON.stringify(err));
+            Logger.log("error", "An error occurred saving the file to the database!");
+            Logger.log("error", JSON.stringify(err));
             return callback(1, err);
         });
 

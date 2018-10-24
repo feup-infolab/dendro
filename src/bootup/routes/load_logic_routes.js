@@ -46,6 +46,7 @@ else if (recommendation_mode === "standalone")
 }
 else if (recommendation_mode === "project_descriptors")
 {
+    // TODO apply in this controller the favorites and hidden flags
     recommendation = rlequire("dendro", "src/controllers/project_descriptors_recommendation");
 }
 else if (recommendation_mode === "none")
@@ -1099,8 +1100,9 @@ const loadRoutes = function (app, callback)
         Permissions.settings.role.in_post_s_project.creator,
         Permissions.settings.role.in_post_s_project.contributor
     ];
-    app.get("/socialDendro/my", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), timeline.my);
+    app.get("/social/my", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), timeline.my);
     app.get("/posts/all", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.all);
+    app.post("/posts/move", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), posts.move);
     app.get("/posts/post", function (req, res, next)
     {
         const processRequest = function (postUri)
@@ -1111,7 +1113,7 @@ const loadRoutes = function (app, callback)
                 get: [
                     {
                         queryKeys: ["postID"],
-                        handler: posts.getPost_controller,
+                        handler: posts.getInfoOnSinglePost,
                         permissions: defaultSocialDendroPostPermissions,
                         authentication_error: "Permission denied : You are not a contributor or creator of the project to which this post belongs to."
                     }
@@ -1127,16 +1129,18 @@ const loadRoutes = function (app, callback)
     const defaultSocialDendroArrayOfPostsPermissions = [
         Permissions.settings.role.user_role_in_array_of_posts_project
     ];
+
     app.get("/posts/posts", function (req, res, next)
     {
         const processRequest = function (postsQueryInfo)
         {
             req.query.postsQueryInfo = postsQueryInfo;
+            req.params.requestedResourceUri = postsQueryInfo;
             const queryBasedRoutes = {
                 get: [
                     {
                         queryKeys: ["postsQueryInfo"],
-                        handler: posts.getPosts_controller,
+                        handler: posts.getInfoOnArrayOfPosts,
                         permissions: defaultSocialDendroArrayOfPostsPermissions,
                         authentication_error: "Permission denied : You are not a contributor or creator of the project to which the posts belong to."
                     }
@@ -1434,7 +1438,9 @@ const loadRoutes = function (app, callback)
     app.post("/interactions/hide_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), interactions.hide_descriptor_from_quick_list_for_user);
     app.post("/interactions/unhide_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), interactions.unhide_descriptor_from_quick_list_for_user);
     app.post("/interactions/favorite_descriptor_from_quick_list_for_project", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), interactions.favorite_descriptor_from_quick_list_for_project);
+    app.post("/interactions/favorite_descriptor_from_manual_list_for_project", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), interactions.favorite_descriptor_from_manual_list_for_project);
     app.post("/interactions/favorite_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), interactions.favorite_descriptor_from_quick_list_for_user);
+    app.post("/interactions/favorite_descriptor_from_manual_list_for_user", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), interactions.favorite_descriptor_from_manual_list_for_user);
 
     app.post("/interactions/unfavorite_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), interactions.unfavorite_descriptor_from_quick_list_for_user);
     app.post("/interactions/unfavorite_descriptor_from_quick_list_for_project", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), interactions.unfavorite_descriptor_from_quick_list_for_project);

@@ -4,7 +4,7 @@ const chai = require("chai");
 const chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 
-const Config = rlequire("dendro", "src/models/meta/config.js").Config;;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const should = chai.should();
 const async = require("async");
@@ -32,8 +32,8 @@ let agent;
 
 checkFileExistsInGridFs = function (fileUri, callback)
 {
-    const DendroMongoClient = rlequire("dendro", "src/kb/mongo.js")).DendroMongoClient;
-    let mongoClient = new DendroMongoClient(Config.mongoDBHost, Config.mongoDbPort, Config.mongoDbCollectionName);
+    const DendroMongoClient = rlequire("dendro", "src/kb/mongo.js").DendroMongoClient;
+    let mongoClient = new DendroMongoClient(Config.mongoDBHost, Config.mongoDbPort, Config.mongoDbCollectionName, Config.mongoDBAuth.username, Config.mongoDBAuth.password);
     mongoClient.connect(function (err, mongoDb)
     {
         if (isNull(err) && !isNull(mongoDb))
@@ -45,7 +45,7 @@ checkFileExistsInGridFs = function (fileUri, callback)
         }
         else
         {
-            const msg = "Error when connencting to mongodb, error: " + JSON.stringify(err);
+            const msg = "Error when connecting to mongodb, error: " + JSON.stringify(err);
             Logger.log("error", msg);
             return callback(err, msg);
         }
@@ -140,7 +140,7 @@ describe("Administration list orphan resources tests ( /admin/list_orphan_resour
             userUtils.loginUser(admin.username, admin.password, function (err, agent)
             {
                 const rlequire = require("rlequire");
-                const Resource = rlequire("dendro", "src/models/resource.js")).Resource;
+                const Resource = rlequire("dendro", "src/models/resource.js").Resource;
                 async.mapSeries([txtMockFileUri, zipMockFileUri], function (fileUri, cb)
                 {
                     Resource.findByUri(fileUri, function (err, resource)
