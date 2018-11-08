@@ -5,23 +5,23 @@ const expect = chai.expect;
 const _ = require("underscore");
 chai.use(chaiHttp);
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
+const folderUtils = rlequire("dendro", "test/utils/folder/folderUtils.js");
+const projectUtils = rlequire("dendro", "test/utils/project/projectUtils.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
-const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");
+const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2.js");
+const demouser3 = rlequire("dendro", "test/mockdata/users/demouser3.js");
 
-const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
-const testFolder1 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
-const createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
-let rootsFoldersForProject;
+const privateProject = rlequire("dendro", "test/mockdata/projects/private_project.js");
+const testFolder1 = rlequire("dendro", "test/mockdata/folders/testFolder1.js");
+
+const createFoldersForLsByName = appUtils.requireUncached(rlequire.absPathInApp("dendro", "test/units/folders/createFoldersForLsByName.Unit.js"));
+
 let testFolder1Data;
 
 describe("Private project testFolder1 level ls_by_name tests", function ()
@@ -29,36 +29,20 @@ describe("Private project testFolder1 level ls_by_name tests", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createFoldersUnit.setup(function (err, results)
+        createFoldersForLsByName.setup(function (err, results)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                should.equal(err, null);
-                should.not.equal(agent, null);
                 projectUtils.getProjectRootContent(true, agent, privateProject.handle, function (err, info)
                 {
-                    rootsFoldersForProject = info.body;
+                    let rootsFoldersForProject = info.body;
                     should.exist(rootsFoldersForProject);
                     testFolder1Data = _.find(rootsFoldersForProject, function (folder)
                     {
                         return folder.nie.title === testFolder1.name;
                     });
                     should.exist(testFolder1Data);
-                    itemUtils.createFolder(true, agent, privateProject.handle, testFolder1.name, "folderA", function (err, res)
-                    {
-                        res.statusCode.should.equal(200);
-                        res.body.result.should.equal("ok");
-                        res.body.new_folder.nie.title.should.equal("folderA");
-                        res.body.new_folder.nie.isLogicalPartOf.should.match(appUtils.resource_id_uuid_regex("folder"));
-                        itemUtils.createFolder(true, agent, privateProject.handle, testFolder1.name, "folderC", function (err, res)
-                        {
-                            res.statusCode.should.equal(200);
-                            res.body.result.should.equal("ok");
-                            res.body.new_folder.nie.title.should.equal("folderC");
-                            res.body.new_folder.nie.isLogicalPartOf.should.match(appUtils.resource_id_uuid_regex("folder"));
-                            done();
-                        });
-                    });
+                    done(err);
                 });
             });
         });
@@ -143,15 +127,14 @@ describe("Private project testFolder1 level ls_by_name tests", function ()
             });
         });
 
-        it("Should give an error if an invalid folder uri is specified for parent folder, even if the user is logged in as a creator or collaborator on the project", function (done)
+        it("Should give a not found error if an invalid folder uri is specified for parent folder, even if the user is logged in as a creator or collaborator on the project", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                folderUtils.ls_by_name(true, agent, "invalidUri", "folderA", function (err, res)
+                folderUtils.ls_by_name(true, agent, "/invalidUri", "folderA", function (err, res)
                 {
                     should.exist(err);
-                    should.not.exist(res);
-                    err.code.should.equal("ECONNREFUSED");
+                    res.statusCode.should.equal(404);
                     done();
                 });
             });

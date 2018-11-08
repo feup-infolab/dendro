@@ -1,11 +1,11 @@
 const async = require("async");
 
-const Pathfinder = global.Pathfinder;
-const Resource = require(Pathfinder.absPathInSrcFolder("models/resource.js")).Resource;
-const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Resource = rlequire("dendro", "src/models/resource.js").Resource;
+const Class = rlequire("dendro", "src/models/meta/class.js").Class;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const db = Config.getDBByID();
 
 let StorageConfig = function (object)

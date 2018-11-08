@@ -9,26 +9,31 @@ const path = require("path");
 const async = require("async");
 chai.use(chaiHttp);
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
-const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
-const versionUtils = require(Pathfinder.absPathInTestsFolder("utils/versions/versionUtils.js"));
-const descriptorUtils = require(Pathfinder.absPathInTestsFolder("utils/descriptor/descriptorUtils.js"));
-const socialDendroUtils = require(Pathfinder.absPathInTestsFolder("/utils/social/socialDendroUtils"));
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
+const socialDendroUtils = rlequire("dendro", "test/utils/social/socialDendroUtils");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
-const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");
+const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2.js");
+const demouser3 = rlequire("dendro", "test/mockdata/users/demouser3.js");
 
-const createSocialDendroTimelineWithPostsAndSharesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/createSocialDendroTimelineWithPostsAndShares.Unit.js"));
-const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+const createSocialDendroTimelineWithPostsAndSharesUnit = rlequire("dendro", "test/units/social/createSocialDendroTimelineWithPostsAndShares.Unit.js");
 const pageNumber = 1;
+let useRank = 0;
 let postURIsToCompare;
+
+function stripArrayToPostURISOnly (uris)
+{
+    uris.forEach(function (element)
+    {
+        delete element.position;
+        delete element.fixedPosition;
+    });
+    return uris;
+}
 
 describe("Get all posts URIs with pagination tests", function ()
 {
@@ -49,7 +54,7 @@ describe("Get all posts URIs with pagination tests", function ()
         {
             const app = global.tests.app;
             const agent = chai.request.agent(app);
-            socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+            socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
             {
                 res.statusCode.should.equal(401);
                 res.body.message.should.equal("Error detected. You are not authorized to perform this operation. You must be signed into Dendro.");
@@ -61,11 +66,11 @@ describe("Get all posts URIs with pagination tests", function ()
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    res.body.length.should.equal(5);
-                    postURIsToCompare = res.body;
+                    res.body.length.should.equal(30);
+                    postURIsToCompare = stripArrayToPostURISOnly(res.body);
                     done();
                 });
             });
@@ -75,11 +80,12 @@ describe("Get all posts URIs with pagination tests", function ()
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
-                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    res.body.length.should.equal(5);
-                    expect(postURIsToCompare).to.eql(res.body);
+                    res.body.length.should.equal(30);
+                    console.log(res.body);
+                    expect(postURIsToCompare).to.eql(stripArrayToPostURISOnly(res.body));
                     done();
                 });
             });
@@ -89,7 +95,7 @@ describe("Get all posts URIs with pagination tests", function ()
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
             {
-                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                 {
                     res.statusCode.should.equal(200);
                     res.body.length.should.equal(0);

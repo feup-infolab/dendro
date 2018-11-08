@@ -1,10 +1,10 @@
 const uuid = require("uuid");
-const slug = require("slug");
+const rlequire = require("rlequire");
+const slug = rlequire("dendro", "src/utils/slugifier.js");
 
 const b2dropProjectHandle = "b2droproject" + Math.random().toString(36).substr(2, 5);
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const fileUtils = rlequire("dendro", "test/utils/file/fileUtils.js");
 
 const projectData = {
     creator: "http://" + Config.host + "/user/demouser1",

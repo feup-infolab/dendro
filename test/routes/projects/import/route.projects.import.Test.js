@@ -95,9 +95,81 @@ describe("Import projects", function (done)
         });
     });
 
-    describe("[POST] [Invalid Cases] /projects/import", function ()
+    describe("[POST] [Valid Cases] /projects/import", function ()
     {
-        beforeEach(function (done)
+    // The controller function for the import of projects has changed
+    // The dendro webapp now responds to the client right after the project zip is uploaded
+    // If there are any errors after the zip upload stage-> they are show on the projects list page
+    // The user then has to delete the project or try again
+    // This was necessary because some projects being imported were so large that timeouts were occurring
+    // So if there are any errors post upload of the zip file -> the project is now not deleted automatically -> the user is shown a status with an error and error message in the projects list page
+    // this "before" call bellow is needed because in the previous "describe"
+    // In the stub "Should give an error with a status code of 500 when the zip file used to import the project is not in a correct BagIt Format, even though the user is logged in"
+    // The import fails but the error given occurs after the project is already created
+    // So the project privateproject is leftover with an errored stated
+    // This is why this "before" call is needed
+        before(function (done)
+        {
+            createUsersUnit.setup(function (err, results)
+            {
+                should.equal(err, null);
+                done();
+            });
+        });
+
+        it("Should import all projects correctly when the user is logged in and the zip file used to import the project is not corrupted", function (done)
+        {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                should.equal(err, null);
+                async.mapSeries(projectsData, function (projectData, callback)
+                {
+                    projectUtils.importProject(true, agent, projectData, function (err, res)
+                    {
+                        should.equal(err, null);
+                        res.statusCode.should.equal(200);
+
+                        projectUtils.bagit(agent, projectData.handle, function (err, res)
+                        {
+                            should.equal(err, null);
+                            res.statusCode.should.equal(200);
+
+                            async.series([
+                                function (callback)
+                                {
+                                    projectUtils.contentsMatchBackup(projectData, res.body, function (err, result)
+                                    {
+                                        should.equal(err, null);
+                                        should.equal(result, true);
+                                        callback(null);
+                                    });
+                                },
+                                function (callback)
+                                {
+                                    projectUtils.metadataMatchesBackup(projectData, res.body, function (err, result)
+                                    {
+                                        should.equal(err, null);
+                                        should.equal(result, true);
+                                        callback(null);
+                                    });
+                                }
+                            ], function (err, results)
+                            {
+                                callback(err, results);
+                            });
+                        });
+                    });
+                }, function (err, results)
+                {
+                    done(err);
+                });
+            });
+        });
+    });
+
+    describe("[POST] [Easy Invalid Cases] /projects/import", function ()
+    {
+        before(function (done)
         {
             createUsersUnit.setup(function (err, results)
             {
@@ -157,37 +229,6 @@ describe("Import projects", function (done)
             });
         });
 
-        it("Should give an error with a status code of 400 if the proposed handle of the imported project is the same as a currently existing project", function (done)
-        {
-            const app = global.tests.app;
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                should.equal(err, null);
-                async.mapSeries(projectsData, function (projectData, callback)
-                {
-                    projectUtils.importProject(true, agent, projectData, function (err, res)
-                    {
-                        should.equal(err, null);
-                        res.statusCode.should.equal(200);
-
-                        // we import a second time every project. Should be refused for every second attempt
-                        projectUtils.importProject(true, agent, projectData, function (err, res)
-                        {
-                            res.statusCode.should.equal(400);
-                            const result = JSON.parse(res.text);
-                            result.result.should.equal("error");
-                            result.message.should.be.instanceof(Array);
-                            result.message[0].should.equal("A project with handle " + projectData.handle + " already exists. Please choose another one.");
-                            callback(null);
-                        });
-                    });
-                }, function (err, results)
-                {
-                    done(err);
-                });
-            });
-        });
-
         it("Should give an error with a status code of 500 when the zip file used to import the project is not in a correct BagIt Format, even though the user is logged in", function (done)
         {
             const app = global.tests.app;
@@ -197,7 +238,7 @@ describe("Import projects", function (done)
                 should.equal(err, null);
 
                 const projectData = JSON.parse(JSON.stringify(privateProject));
-                projectData.backup_path = Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/zipTest.zip");
+                projectData.backup_path = rlequire.absPathInApp("dendro", "test/mockdata/files/test_uploads/zipTest.zip");
 
                 projectUtils.importProject(true, agent, projectData, function (err, res)
                 {
@@ -211,25 +252,25 @@ describe("Import projects", function (done)
             });
         });
 
-        // TODO
-        /* it("Should give an error with a status code of 400 when the zip file used to import the project specifies children in a node of the metadata.json file when the node is a file (which cannot have children)", function (done) {
-            done(1);
-        });
-
-        it("Should give an error with a status code of 400 when the zip file used to import the project specifies unparametrized metadata in the metadata.json file", function (done) {
-            done(1);
-        });
-
-        it("Should give an error with a status code of 400 when the zip file used to import the project contains a wrong nie:title in the metadata section (title does not match the title of the folder that it refers to", function (done) {
-            done(1);
-        });
-
-        it("Should give an error with a status code of 400 when the zip file used to import the project contains a wrong nie:title in the metadata section (title does not match the title of the file that it refers to", function (done) {
-            done(1);
-        }); */
+    // TODO
+    /* it("Should give an error with a status code of 400 when the zip file used to import the project specifies children in a node of the metadata.json file when the node is a file (which cannot have children)", function (done) {
+        done(1);
     });
 
-    describe("[POST] [Valid Cases] /projects/import", function ()
+    it("Should give an error with a status code of 400 when the zip file used to import the project specifies unparametrized metadata in the metadata.json file", function (done) {
+        done(1);
+    });
+
+    it("Should give an error with a status code of 400 when the zip file used to import the project contains a wrong nie:title in the metadata section (title does not match the title of the folder that it refers to", function (done) {
+        done(1);
+    });
+
+    it("Should give an error with a status code of 400 when the zip file used to import the project contains a wrong nie:title in the metadata section (title does not match the title of the file that it refers to", function (done) {
+        done(1);
+    }); */
+    });
+
+    describe("[POST] [Hard Invalid Cases, requiring a first import] /projects/import", function ()
     {
         // The controller function for the import of projects has changed
         // The dendro webapp now responds to the client right after the project zip is uploaded
@@ -251,11 +292,12 @@ describe("Import projects", function (done)
             });
         });
 
-        it("Should import all projects correctly when the user is logged in and the zip file used to import the project is not corrupted", function (done)
+        it("Should give an error with a status code of 400 if the proposed handle of the imported project is the same as a currently existing project", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 should.equal(err, null);
+
                 async.mapSeries(projectsData, function (projectData, callback)
                 {
                     projectUtils.importProject(true, agent, projectData, function (err, res)
@@ -263,34 +305,15 @@ describe("Import projects", function (done)
                         should.equal(err, null);
                         res.statusCode.should.equal(200);
 
-                        projectUtils.bagit(agent, projectData.handle, function (err, res)
+                        // we import a second time every project. Should be refused for every second attempt
+                        projectUtils.importProject(true, agent, projectData, function (err, res)
                         {
-                            should.equal(err, null);
-                            res.statusCode.should.equal(200);
-
-                            async.series([
-                                function (callback)
-                                {
-                                    projectUtils.contentsMatchBackup(projectData, res.body, function (err, result)
-                                    {
-                                        should.equal(err, null);
-                                        should.equal(result, true);
-                                        callback(null);
-                                    });
-                                },
-                                function (callback)
-                                {
-                                    projectUtils.metadataMatchesBackup(projectData, res.body, function (err, result)
-                                    {
-                                        should.equal(err, null);
-                                        should.equal(result, true);
-                                        callback(null);
-                                    });
-                                }
-                            ], function (err, results)
-                            {
-                                callback(err, results);
-                            });
+                            res.statusCode.should.equal(400);
+                            const result = JSON.parse(res.text);
+                            result.result.should.equal("error");
+                            result.message.should.be.instanceof(Array);
+                            result.message[0].should.equal("A project with handle " + projectData.handle + " already exists. Please choose another one.");
+                            callback(null);
                         });
                     });
                 }, function (err, results)

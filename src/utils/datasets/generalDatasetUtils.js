@@ -1,10 +1,10 @@
 const fs = require("fs");
 const async = require("async");
 const path = require("path");
-const Pathfinder = global.Pathfinder;
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Serializers = require(Pathfinder.absPathInSrcFolder("/utils/serializers.js"));
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const rlequire = require("rlequire");
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Serializers = rlequire("dendro", "src/utils/serializers.js");
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 const deleteFolderRecursive = function (path)
 {
@@ -104,7 +104,7 @@ const createPackage = function (parentFolderPath, folder, callback)
                     {
                         if (isNull(err))
                         {
-                            Logger.log("info", "The file " + outputFilenameRDF + " was saved!");
+                            Logger.log("The file " + outputFilenameRDF + " was saved!");
                             filesToIncludeInPackage.push(outputFilenameRDF);
                             extraFiles.push(outputFilenameRDF);
                             // add the metadata rdf file to the zip folder
@@ -114,7 +114,7 @@ const createPackage = function (parentFolderPath, folder, callback)
                             {
                                 if (isNull(err))
                                 {
-                                    Logger.log("info", "The file " + outputFilenameTXT + " was saved!");
+                                    Logger.log("The file " + outputFilenameTXT + " was saved!");
                                     filesToIncludeInPackage.push(outputFilenameTXT);
                                     extraFiles.push(outputFilenameTXT);
                                     // add the metadata txt file to the zip folder
@@ -124,7 +124,7 @@ const createPackage = function (parentFolderPath, folder, callback)
                                     {
                                         if (isNull(err))
                                         {
-                                            Logger.log("info", "The file " + outputFilenameJSON + " was saved!");
+                                            Logger.log("The file " + outputFilenameJSON + " was saved!");
                                             filesToIncludeInPackage.push(outputFilenameJSON);
                                             extraFiles.push(outputFilenameJSON);
                                             // add the metadata JSON file to the zip folder
@@ -140,7 +140,7 @@ const createPackage = function (parentFolderPath, folder, callback)
                                             });
                                             output.on("close", function ()
                                             {
-                                                Logger.log("info", "Done with the zip" + folderToZip);
+                                                Logger.log("Done with the zip" + folderToZip);
                                                 cb(null, null);
                                             });
                                         }

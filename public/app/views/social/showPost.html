@@ -1,9 +1,13 @@
 <!--<div class="panel panel-default" style="margin-left: 20%; margin-right: 20%">-->
-<div class="centered-spinner">
-            <span spinner-key="social-dendro-spinner" us-spinner="{radius:30, width:8, length: 16}"
-                  spinner-start-active="true"></span>
-</div>
 
+<!--<div class="position-arrows">
+    <i class="fa fa-arrow-up" ng-click="movePost(postsContents[postUri].uri, 1, postsContents[postUri].fixedPosition)"></i>
+    <i class="fa fa-arrow-down click-down" ng-click="movePost(postsContents[postUri].uri, -1, postsContents[postUri].fixedPosition)"></i>
+</div>-->
+<div class="centered-spinner">
+        <span spinner-key="social-dendro-spinner" us-spinner="{radius:30, width:8, length: 16}"
+              spinner-start-active="true"></span>
+</div>
 <div class="panel panel-default" ng-show="!doingARequest">
     <div class="panel-heading text-center">
         <!--<div ng-if="postsContents[postUri].rdf.type == 'http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost'">-->
@@ -19,7 +23,6 @@
             <h3 class="panel-title"> <span class="label label-success">Manual Post</span> {{postsContents[postUri].dcterms.title}}</h3>
         </div>
     </div>
-
     <!--<div ng-if="postsContents[postUri].rdf.type == 'http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost'">-->
     <div ng-if="postsContents[postUri].rdf.type.includes('http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost')">
         <ng-include src="'/app/views/social/partial/showMetadataChangePost.html'" onload="postUri = postUri;"></ng-include>

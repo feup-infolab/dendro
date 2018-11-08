@@ -1,13 +1,13 @@
-const Pathfinder = global.Pathfinder;
-const isNull = require(Pathfinder.absPathInSrcFolder("utils/null.js")).isNull;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const OntologiesCache = require(Pathfinder.absPathInSrcFolder("kb/ontologies_cache/ontologies_cache.js")).OntologiesCache;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const rlequire = require("rlequire");
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const OntologiesCache = rlequire("dendro", "src/kb/ontologies_cache/ontologies_cache.js").OntologiesCache;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
 
 const loadOntologies = function (app, callback, forceLoadForTests)
 {
-    const Ontology = require(Pathfinder.absPathInSrcFolder("./models/meta/ontology.js")).Ontology;
+    const Ontology = rlequire("dendro", "src/./models/meta/ontology.js").Ontology;
     const ontologiesCache = new OntologiesCache(Config.ontologies_cache);
 
     const loadOntologiesFromDatabaseIntoCache = function (callback)
@@ -54,7 +54,7 @@ const loadOntologies = function (app, callback, forceLoadForTests)
         });
     };
 
-    if (Config.startup.load_databases && Config.startup.reload_ontologies_on_startup || forceLoadForTests)
+    if ((Config.startup.load_databases && Config.startup.reload_ontologies_on_startup) || forceLoadForTests)
     {
         Logger.log_boot_message("Loading ontology parametrization from database... ");
 

@@ -10,12 +10,12 @@ const recursive = require("recursive-readdir");
 
 chai.use(chaiHttp);
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const File = require(Pathfinder.absPathInSrcFolder("models/directory_structure/file.js")).File;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
 const binaryParser = module.exports.binaryParser = function (res, cb)
 {
@@ -932,7 +932,7 @@ const metadataMatchesBackup = module.exports.metadataMatchesBackup = function (p
 
                         if (!bagitMetadataIsValid)
                         {
-                            console.log("error", JSON.stringify(returnedBagitMetadata, null, 4));
+                            Logger.log("error", JSON.stringify(returnedBagitMetadata, null, 4));
                         }
 
                         const returnedProjectTreeMetadata = results[0].projectTreeMetadata;
@@ -946,7 +946,7 @@ const metadataMatchesBackup = module.exports.metadataMatchesBackup = function (p
 
                         if (!fileTreeMetadataIsValid)
                         {
-                            console.log("error", JSON.stringify(fileTreeMetadataDiffs, null, 4));
+                            Logger.log("error", JSON.stringify(fileTreeMetadataDiffs, null, 4));
                         }
 
                         callback(null, bagitMetadataIsValid && fileTreeMetadataIsValid);
@@ -992,8 +992,8 @@ const contentsMatchBackup = module.exports.contentsMatchBackup = function (proje
                         {
                             if (result1 !== result2)
                             {
-                                console.log("error", result1);
-                                console.log("error", result2);
+                                Logger.log("error", result1);
+                                Logger.log("error", result2);
                             }
 
                             callback(null, result1 === result2);
@@ -1093,19 +1093,19 @@ const countProjectFilesInGridFS = module.exports.countProjectFilesInGridFS = fun
                         }
                         return callback(null, 0);
                     }
-                    console.log("error", "* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
+                    Logger.log("error", "* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
                     return callback(1, "Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
                 });
         }
         else
         {
-            console.log("error", "* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
+            Logger.log("error", "* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
             return callback(1, "Error retrieving files collection : " + collection);
         }
     });
 };
 
-const getProjectUriFromHandle = module.exports.getProjectUriFromHandle = function (agent, projectHandle, callback)
+module.exports.getProjectUriFromHandle = function (agent, projectHandle, callback)
 {
     listAllMyProjects(true, agent, function (err, res)
     {
@@ -1119,7 +1119,7 @@ const getProjectUriFromHandle = module.exports.getProjectUriFromHandle = functio
     });
 };
 
-const projectStorage = module.exports.projectStorage = function (modify, agent, projectHandle, callback, storageConfig)
+module.exports.projectStorage = function (modify, agent, projectHandle, callback, storageConfig)
 {
     if (modify && storageConfig)
     {

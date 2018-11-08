@@ -4,26 +4,25 @@ const chai = require("chai");
 const chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 
-const Config = global.Config;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const rlequire = require("rlequire");
 
 const should = chai.should();
 const async = require("async");
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
 
-const administerUtils = require(Pathfinder.absPathInTestsFolder("utils/administer/administerUtils.js"));
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const itemUtils = require(Pathfinder.absPathInTestsFolder("/utils/item/itemUtils"));
-const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
+const administerUtils = rlequire("dendro", "test/utils/administer/administerUtils.js");
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const fileUtils = rlequire("dendro", "test/utils/file/fileUtils.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
-const admin = require(Pathfinder.absPathInTestsFolder("mockdata/users/admin"));
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1");
+const admin = rlequire("dendro", "test/mockdata/users/admin");
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
-const addMetadataToFoldersSingleProjectUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFoldersSingleProject.Unit.js"));
-const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
-const zipMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/zipMockFile.js"));
-const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtMockFile.js"));
-const odsMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/odsMockFile.js"));
+const publicProject = rlequire("dendro", "test/mockdata/projects/public_project.js");
+const zipMockFile = rlequire("dendro", "test/mockdata/files/zipMockFile.js");
+const txtMockFile = rlequire("dendro", "test/mockdata/files/txtMockFile.js");
+const odsMockFile = rlequire("dendro", "test/mockdata/files/odsMockFile.js");
 let txtMockFileUri;
 let zipMockFileUri;
 let odsMockFileUri;
@@ -33,8 +32,8 @@ let agent;
 
 checkFileExistsInGridFs = function (fileUri, callback)
 {
-    const DendroMongoClient = require(Pathfinder.absPathInSrcFolder("/kb/mongo.js")).DendroMongoClient;
-    let mongoClient = new DendroMongoClient(Config.mongoDBHost, Config.mongoDbPort, Config.mongoDbCollectionName);
+    const DendroMongoClient = rlequire("dendro", "src/kb/mongo.js").DendroMongoClient;
+    let mongoClient = new DendroMongoClient(Config.mongoDBHost, Config.mongoDbPort, Config.mongoDbCollectionName, Config.mongoDBAuth.username, Config.mongoDBAuth.password);
     mongoClient.connect(function (err, mongoDb)
     {
         if (isNull(err) && !isNull(mongoDb))
@@ -46,7 +45,7 @@ checkFileExistsInGridFs = function (fileUri, callback)
         }
         else
         {
-            const msg = "Error when connencting to mongodb, error: " + JSON.stringify(err);
+            const msg = "Error when connecting to mongodb, error: " + JSON.stringify(err);
             Logger.log("error", msg);
             return callback(err, msg);
         }
@@ -58,9 +57,9 @@ describe("Administration nuke orphan resources tests ( /admin/nuke_orphan_resour
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        let createFoldersSingleProjectUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFoldersSingleProject.Unit.js"));
+        let CreateFoldersPublicProject = rlequire("dendro", "test/units/folders/createFoldersPublicProject.Unit.js");
         const foldersData = createFoldersSingleProjectUnit.foldersData;
-        addMetadataToFoldersSingleProjectUnit.setup(publicProject, function (err, res)
+        CreateFoldersPublicProject.setup(function (err, res)
         {
             should.equal(err, null);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
@@ -138,8 +137,8 @@ describe("Administration nuke orphan resources tests ( /admin/nuke_orphan_resour
         {
             userUtils.loginUser(admin.username, admin.password, function (err, agent)
             {
-                const Pathfinder = global.Pathfinder;
-                const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+                const rlequire = require("rlequire");
+                const Resource = rlequire("dendro", "src/models/resource.js").Resource;
                 async.mapSeries([txtMockFileUri, zipMockFileUri], function (fileUri, cb)
                 {
                     Resource.findByUri(fileUri, function (err, resource)

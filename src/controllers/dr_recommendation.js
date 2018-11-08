@@ -1,16 +1,16 @@
 const path = require("path");
-const Pathfinder = global.Pathfinder;
-const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const IndexConnection = rlequire("dendro", "src/kb/index.js").IndexConnection;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
-const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-const Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
-const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+const Resource = rlequire("dendro", "src/models/resource.js").Resource;
+const Ontology = rlequire("dendro", "src/models/meta/ontology.js").Ontology;
+const Interaction = rlequire("dendro", "src/models/recommendation/interaction.js").Interaction;
+const InformationElement = rlequire("dendro", "src/models/directory_structure/information_element.js").InformationElement;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 const async = require("async");
 const _ = require("underscore");

@@ -2,13 +2,13 @@ const util = require("util");
 const async = require("async");
 const path = require("path");
 const _ = require("underscore");
-const Pathfinder = global.Pathfinder;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const rlequire = require("rlequire");
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const colors = require("colors");
 const MongoClient = require("mongodb").MongoClient;
-const slug = require("slug");
+const slug = rlequire("dendro", "src/utils/slugifier.js");
 
 const OntologiesCache = function (options)
 {
@@ -16,6 +16,8 @@ const OntologiesCache = function (options)
 
     self.port = options.port;
     self.host = options.host;
+    self.username = options.username;
+    self.password = options.password;
     self.database = options.database;
     self.ontologies_collection = (options.ontologies_collection) ? options.ontologies_collection : "ontologies";
     self.elements_collection = (options.elements_collection) ? options.elements_collection : "elements";
@@ -28,7 +30,16 @@ OntologiesCache.prototype.open = function (callback)
     {
         return callback(null, self.client);
     }
-    const url = "mongodb://" + self.host + ":" + self.port + "/" + slug(self.database, "_");
+    let url;
+    if (self.username && self.password && self.username !== "" && self.password !== "" && self.username !== "")
+    {
+        url = "mongodb://" + self.username + ":" + self.password + "@" + self.host + ":" + self.port + "/" + slug(self.database) + "?authSource=admin";
+    }
+    else
+    {
+        url = "mongodb://" + self.host + ":" + self.port + "/" + slug(self.database);
+    }
+
     MongoClient.connect(url, function (err, db)
     {
         if (isNull(err))

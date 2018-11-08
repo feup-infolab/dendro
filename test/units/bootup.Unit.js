@@ -2,62 +2,61 @@ process.env.NODE_ENV = "test";
 
 const chai = require("chai");
 const chaiHttp = require("chai-http");
-const colors = require("colors");
-const path = require("path");
 chai.use(chaiHttp);
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const rlequire = require("rlequire");
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
-const should = chai.should();
-function requireUncached (module)
+const TestUnit = rlequire("dendro", "test/units/testUnit.js");
+const unitUtils = rlequire("dendro", "test/utils/units/unitUtils.js");
+
+class BootupUnit extends TestUnit
 {
-    delete require.cache[require.resolve(module)];
-    return require(module);
+    static load (callback)
+    {
+        const self = this;
+        unitUtils.startLoad(self);
+        const dendroInstance = global.tests.dendroInstance;
+        dendroInstance.seedDatabases(function (err, result)
+        {
+            if (isNull(err))
+            {
+                unitUtils.endLoad(self, function (err, results)
+                {
+                    callback(err, dendroInstance.app);
+                });
+            }
+            else
+            {
+                Logger.log("error", "Error seeding databases when booting up dendro instance!");
+                Logger.log("error", err);
+                Logger.log("error", result);
+                callback(err, result);
+            }
+        });
+    }
+
+    static shutdown (callback)
+    {
+        super.shutdown(function (err, result)
+        {
+            unitUtils.shutdown(function (err, result)
+            {
+                callback(err, result);
+            });
+        });
+    }
+
+    static setup (callback, forceLoad)
+    {
+        super.setup(callback, forceLoad);
+    }
+
+    static init (callback)
+    {
+        unitUtils.init(callback);
+    }
 }
 
-const start = function ()
-{
-    if (Config.debug.tests.log_unit_completion_and_startup)
-    {
-        console.log("**********************************************".green);
-        console.log("[Boot up Unit] Booting Dendro test instance...".green);
-        console.log("**********************************************".green);
-    }
-};
-
-const end = function ()
-{
-    if (Config.debug.tests.log_unit_completion_and_startup)
-    {
-        console.log("**********************************************".blue);
-        console.log("[Boot up Unit] Complete".blue);
-        console.log("**********************************************".blue);
-    }
-};
-
-module.exports.setup = function (finish)
-{
-    appUtils.registerStartTimeForUnit(path.basename(__filename));
-    start();
-    requireUncached(Pathfinder.absPathInSrcFolder("app.js"))
-        .serverListening.then(function (appInfo)
-        {
-            chai.request(appInfo.app)
-                .get("/")
-                .end((err, res) =>
-                {
-                    appUtils.registerStopTimeForUnit(path.basename(__filename));
-                    global.tests.app = appInfo.app;
-                    global.tests.server = appInfo.server;
-                    end();
-                    finish(err, res);
-                });
-        })
-        .catch(function (error)
-        {
-            end();
-            finish(error);
-        });
-};
+module.exports = BootupUnit;

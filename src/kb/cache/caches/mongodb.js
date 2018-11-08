@@ -1,8 +1,9 @@
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const async = require("async");
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const MongoClient = require("mongodb").MongoClient;
 
 function MongoDBCache (options)
@@ -14,6 +15,8 @@ function MongoDBCache (options)
     self.database = options.database;
     self.collection = options.collection;
     self.id = options.id;
+    self.username = options.username;
+    self.password = options.password;
 
     self.hits = 0;
     self.misses = 0;
@@ -21,7 +24,7 @@ function MongoDBCache (options)
 
 MongoDBCache.prototype.getHitRatio = function ()
 {
-    var self = this;
+    const self = this;
     if ((self.hits + self.misses) !== 0)
     {
         return self.hits / (self.hits + self.misses);
@@ -37,27 +40,55 @@ MongoDBCache.prototype.open = function (callback)
     {
         return callback(1, "MongoDB connection is already open.");
     }
-    const slug = require("slug");
-    const url = "mongodb://" + self.host + ":" + self.port + "/" + slug(self.database, "_");
+    const slug = rlequire("dendro", "src/utils/slugifier.js");
+
+    let url;
+    const sluggedCollectionName = slug(self.database);
+    if (self.username && self.password && self.username !== "" && self.password !== "" && self.username !== "")
+    {
+        url = "mongodb://" + self.username + ":" + self.password + "@" + self.host + ":" + self.port + "/" + sluggedCollectionName + "?authSource=admin";
+    }
+    else
+    {
+        url = "mongodb://" + self.host + ":" + self.port + "/" + sluggedCollectionName;
+    }
+
     MongoClient.connect(url, function (err, db)
     {
         if (isNull(err))
         {
             self.client = db;
-            self.client.collection(self.collection).ensureIndex(
-                "uri",
-                function (err, result)
+
+            const createIndexOnUri = function (callback)
+            {
+                self.client.collection(self.collection).ensureIndex(
+                    "uri",
+                    callback
+                );
+            };
+
+            const createIndexOnRDFType = function (callback)
+            {
+                self.client.collection(self.collection).ensureIndex(
+                    "rdf.type",
+                    callback
+                );
+            };
+
+            async.parallel([
+                createIndexOnUri,
+                createIndexOnRDFType
+            ], function (err, results)
+            {
+                if (isNull(err))
                 {
-                    if (isNull(err))
-                    {
-                        callback(null, self);
-                    }
-                    else
-                    {
-                        callback(err, self);
-                    }
+                    callback(null, self);
                 }
-            );
+                else
+                {
+                    callback(err, self);
+                }
+            });
         }
         else
         {
@@ -171,7 +202,7 @@ MongoDBCache.prototype.getByQuery = function (query, callback)
         {
             if (!isNull(query))
             {
-                const cursor = self.client.collection(self.collection).find(query).sort({"ddr.modified": -1 });
+                const cursor = self.client.collection(self.collection).find(query).sort({ "ddr.modified": -1 });
 
                 cursor.next(function (err, result)
                 {
@@ -204,9 +235,8 @@ MongoDBCache.prototype.getByQuery = function (query, callback)
                     }
                     Logger.log("error", "Error running query: " + JSON.stringify(query, null, 4));
                     Logger.log("error", err.stack);
-                    return callback(err, "Unable to execute query " + JSON.stringify(query) + " from mongodb cache.");
-
                     cursor.close();
+                    return callback(err, "Unable to execute query " + JSON.stringify(query) + " from mongodb cache.");
                 });
             }
             else

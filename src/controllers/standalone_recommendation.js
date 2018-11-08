@@ -1,19 +1,19 @@
 const path = require("path");
-const Pathfinder = global.Pathfinder;
-const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const IndexConnection = rlequire("dendro", "src/kb/index.js").IndexConnection;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
-const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-const Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
-const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
-const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+const Ontology = rlequire("dendro", "src/models/meta/ontology.js").Ontology;
+const Interaction = rlequire("dendro", "src/models/recommendation/interaction.js").Interaction;
+const Resource = rlequire("dendro", "src/models/resource.js").Resource;
+const InformationElement = rlequire("dendro", "src/models/directory_structure/information_element.js").InformationElement;
+const User = rlequire("dendro", "src/models/user.js").User;
 
 const async = require("async");
 const _ = require("underscore");
@@ -191,7 +191,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
 
     ie.getOwnerProject(function (err, ownerProject)
     {
-        const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+        const Project = rlequire("dendro", "src/models/project.js").Project;
 
         if (isNull(err) && ownerProject instanceof Project)
         {

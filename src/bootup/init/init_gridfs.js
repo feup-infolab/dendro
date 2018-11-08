@@ -1,9 +1,10 @@
-const fs = require("fs");
+const async = require("async");
+const rlequire = require("rlequire");
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-let GridFSConnection = require(Pathfinder.absPathInSrcFolder("/kb/gridfs.js")).GridFSConnection;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+let GridFSConnection = rlequire("dendro", "src/kb/gridfs.js").GridFSConnection;
 
 const initGridFS = function (app, callback)
 {
@@ -12,19 +13,48 @@ const initGridFS = function (app, callback)
         Config.mongoDBHost,
         Config.mongoDbPort,
         Config.mongoDbCollectionName,
-        Config.mongoDBAuth.user,
+        Config.mongoDBAuth.username,
         Config.mongoDBAuth.password
     );
 
-    gfs.open(function (err, gfsConn)
+
+    const attemptConnection = function (callback)
     {
-        if (err)
+        gfs.open(function (err, gfsConn)
         {
-            return callback("[ERROR] Unable to connect to MongoDB file storage cluster running on " + Config.mongoDBHost + ":" + Config.mongoDbPort + "\n Error description : " + gfsConn);
+            if (err)
+            {
+                return callback(err, gfsConn);
+            }
+            else
+            {
+                return callback(null, gfsConn);
+            }
+        });
+    }
+
+    async.retry({
+        times: 240,
+        interval: function (retryCount)
+        {
+            const msecs = 500;
+            Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to GridFS");
+            return msecs;
         }
-        Logger.log_boot_message("Connected to MongoDB file storage running on " + Config.mongoDBHost + ":" + Config.mongoDbPort);
-        Config.gfs.default.connection = gfs;
-        return callback(null);
+    }, attemptConnection, function (err, gfsConn)
+    {
+        if (isNull(err))
+        {
+            Logger.log_boot_message("Connected to MongoDB file storage running on " + Config.mongoDBHost + ":" + Config.mongoDbPort);
+            Config.gfs.default.connection = gfs;
+            callback(null);
+        }
+        else
+        {
+            callback("[ERROR] Unable to connect to MongoDB file storage cluster running on " + Config.mongoDBHost + ":" + Config.mongoDbPort + "\n Error description : " + gfsConn);
+            Logger.log("error", );
+            throw new Error(msg);
+        }
     });
 };
 

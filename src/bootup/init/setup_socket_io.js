@@ -1,5 +1,5 @@
-const Pathfinder = global.Pathfinder;
-const IO = require(Pathfinder.absPathInSrcFolder("bootup/models/io.js")).IO;
+const rlequire = require("rlequire");
+const IO = rlequire("dendro", "src/bootup/models/io.js").IO;
 
 const setupSocketIO = function (app, server, callback)
 {

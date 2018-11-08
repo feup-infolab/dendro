@@ -1,38 +1,70 @@
-const Pathfinder = require("../../../src/models/meta/pathfinder").Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const async = require("async");
-const jsonfile = require("jsonfile");
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const rlequire = require("rlequire");
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
-const db = require(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
-const index = require(Pathfinder.absPathInTestsFolder("utils/index/index.Test.js"));
-
-const chai = require("chai");
 const fs = require("fs");
-const should = chai.should();
-const moment = require("moment");
+const async = require("async");
 
 const mkdirp = require("mkdirp");
 const getDirName = require("path").dirname;
 
-// to try to cool down tests so that virtuoso does not clog up.
+// to try to cool down tests so that virtuoso does not clog up...
 let numberofTestsRun = 0;
-// 10 sec cooldown every 7 test files
-const testsBatchSizeBeforeCooldown = 7;
-const testsCooldownTime = 10;
 
-const applyCooldownToTests = function ()
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
+
+const applyCooldownToTests = function (callback)
 {
     numberofTestsRun++;
-    console.log("Ran " + numberofTestsRun + " test files.");
-    return;
+    Logger.log("Ran " + numberofTestsRun + " test files.");
 
-    if (numberofTestsRun % testsBatchSizeBeforeCooldown === 0)
+    async.series([
+        function (cb)
+        {
+            if (Config.testing.apply_cooldown_every_x_tests > 0 && numberofTestsRun % Config.testing.apply_cooldown_every_x_tests === 0)
+            {
+                Logger.log("Waiting " + Config.testing.cooldown_secs + " seconds to allow databases to cooldown.");
+                const sleep = require("sleep");
+                sleep.sleep(Config.testing.cooldown_secs);
+            }
+            cb(null);
+        },
+        function (cb)
+        {
+            if (Config.virtualbox.active && Config.virtualbox.restart_vm_every_x_tests > 0 && numberofTestsRun % Config.virtualbox.restart_vm_every_x_tests === 0)
+            {
+                Logger.log("Restarting Virtual Machine " + Config.virtualbox.vmName);
+                const VirtualBoxManager = rlequire("dendro", "src/utils/virtualbox/vm_manager.js").VirtualBoxManager;
+                VirtualBoxManager.restartVM(false, function (err, result)
+                {
+                    cb(err, result);
+                });
+            }
+            else
+            {
+                cb(null);
+            }
+        },
+        function (cb)
+        {
+            if (Config.virtualbox.active && Config.virtualbox.restart_services_every_x_tests > 0 && numberofTestsRun % Config.virtualbox.restart_services_every_x_tests === 0)
+            {
+                Logger.log("Restarting Services on Virtual Machine " + Config.virtualbox.vmName);
+                const VirtualBoxManager = rlequire("dendro", "src/utils/virtualbox/vm_manager.js").VirtualBoxManager;
+                VirtualBoxManager.restartServices(Config.virtualbox.services_to_be_restarted, function (err, result)
+                {
+                    cb(err, result);
+                });
+            }
+            else
+            {
+                cb(null);
+            }
+        }
+    ], function (err, results)
     {
-        console.log("Ran " + numberofTestsRun + " test files. Waiting " + testsCooldownTime + " seconds to allow databases to cooldown.");
-        const sleep = require("sleep");
-        sleep.sleep(testsCooldownTime);
-    }
+        callback(err, results);
+    });
 };
 
 exports.requireUncached = function (module)
@@ -47,28 +79,30 @@ exports.clearAppState = function (cb)
     {
         return cb(1, "Server did not start successfully");
     }
-    saveRouteLogsToFile(function (err, info)
-    {
-        applyCooldownToTests();
-        global.tests.app.freeResources(function (err, results)
-        {
-            setTimeout(function ()
-            {
-                delete global.tests.app;
-                delete global.tests.server;
-                return cb(err, results);
-            }, 1000);
 
-            // delete global.tests.app;
-            // delete global.tests.server;
-            // return cb(err, results);
+    exports.saveRouteLogsToFile(function (err, info)
+    {
+        const dendroInstance = global.tests.dendroInstance;
+        dendroInstance.freeResources(function (err, results)
+        {
+            delete global.tests.app;
+            delete global.tests.server;
+            delete global.tests.dendroInstance;
+            applyCooldownToTests(function (err)
+            {
+                if (err)
+                {
+                    Logger.log("error", "Error occurred while applying cooldown to tests!");
+                }
+                cb(err, results);
+            });
         });
     });
 };
 
-exports.resource_id_uuid_regex = function (resource_type)
+exports.resource_id_uuid_regex = function (resourceType)
 {
-    const regex = "^/r/" + resource_type + "/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
+    const regex = "^/r/" + resourceType + "/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
     return new RegExp(regex);
 };
 
@@ -92,7 +126,7 @@ exports.newTestRouteLog = function (routeName)
     return global.routesLog;
 };
 
-const saveRouteLogsToFile = function (callback)
+exports.saveRouteLogsToFile = function (callback)
 {
     if (isNull(global.testingRoute) || isNull(global.routesLog) || isNull(global.routesLog[global.testingRoute]))
     {
@@ -103,7 +137,7 @@ const saveRouteLogsToFile = function (callback)
     }
     else
     {
-        const filePath = Pathfinder.absPathInTestsFolder("logs/") + global.testingRoute + "_" + Date.now() + ".json";
+        const filePath = rlequire.absPathInApp("dendro", "test/logs/" + global.testingRoute + "_" + Date.now() + ".json");
 
         mkdirp(getDirName(filePath), function (err)
         {
@@ -126,65 +160,11 @@ const saveRouteLogsToFile = function (callback)
     }
 };
 
-exports.registerStartTimeForUnit = function (unitName)
-{
-    if (isNull(unitName))
-    {
-        const msg = "Error at registerStartTimeForUnit: Argument unitName is REQUIRED";
-        return msg;
-    }
-    if (isNull(global.testingRoute) || isNull(global.routesLog) || isNull(global.routesLog[global.testingRoute]))
-    {
-        const msg = "Error at registerStartTimeForUnit: newTestRouteLog was not properly initialized";
-        return msg;
-    }
-    const timeMilliseconds = Date.now();
-    if (isNull(global.routesLog[global.testingRoute].unitsData))
-    {
-        global.routesLog[global.testingRoute].unitsData = {};
-    }
-    let unit = {
-        name: unitName,
-        startTime: timeMilliseconds
-    };
-
-    global.routesLog[global.testingRoute].unitsData[unitName] = unit;
-    return global.routesLog;
-};
-
-exports.registerStopTimeForUnit = function (unitName)
-{
-    if (isNull(unitName))
-    {
-        const msg = "Error at registerStopTimeForUnit: Argument unitName is REQUIRED";
-        return msg;
-    }
-    if (isNull(global.testingRoute) || isNull(global.routesLog) || isNull(global.routesLog[global.testingRoute]))
-    {
-        const msg = "Error at registerStopTimeForUnit: newTestRouteLog was not properly initialized";
-        return msg;
-    }
-    if (isNull(global.routesLog[global.testingRoute].unitsData[unitName]) || isNull(global.routesLog[global.testingRoute].unitsData[unitName].startTime))
-    {
-        const msg = "Error at registerStopTimeForUnit: unit: " + unitName + "was not properly initialized at registerStartTimeForUnit";
-        return msg;
-    }
-    const timeMilliseconds = Date.now();
-    global.routesLog[global.testingRoute].unitsData[unitName].stopTime = timeMilliseconds;
-    // https://github.com/moment/moment/issues/1048
-    let duration = moment.duration(timeMilliseconds - global.routesLog[global.testingRoute].unitsData[unitName].startTime);
-    let delta = Math.floor(duration.asHours()) + moment.utc(duration.asMilliseconds()).format(":mm:ss");
-    /* let delta = moment.duration(timeMilliseconds - global.routesLog[global.testingRoute].unitsData[unitName].startTime, "milliseconds").humanize(); */
-    global.routesLog[global.testingRoute].unitsData[unitName].delta = delta;
-    /* printRoutesLog(global.routesLog); */
-    return global.routesLog;
-};
-
-const printRoutesLog = function (routesLog)
+exports.printRoutesLog = function (routesLog)
 {
     if (isNull(routesLog))
     {
-        console.log("error", "ERROR: CANNOT PRINT ROUTES LOG. UNITS LOG IS NULL");
+        Logger.log("error", "ERROR: CANNOT PRINT ROUTES LOG. UNITS LOG IS NULL");
     }
     else
     {

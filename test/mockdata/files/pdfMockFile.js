@@ -1,13 +1,13 @@
 const path = require("path");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const md5File = require("md5-file");
 
 module.exports = {
-    md5: md5File.sync(Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/pdfTest.pdf")),
+    md5: md5File.sync(rlequire.absPathInApp("dendro", "test/mockdata/files/test_uploads/pdfTest.pdf")),
     name: "pdfTest.pdf",
     extension: "pdf",
-    location: Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/pdfTest.pdf"),
+    location: rlequire.absPathInApp("dendro", "test/mockdata/files/test_uploads/pdfTest.pdf"),
     metadata: [{
         prefix: "nie",
         shortName: "plainTextContent",

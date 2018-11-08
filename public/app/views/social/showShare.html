@@ -1,12 +1,16 @@
 
 <div class="centered-spinner">
-            <span spinner-key="social-dendro-spinner" us-spinner="{radius:30, width:8, length: 16}"
-                  spinner-start-active="true"></span>
+        <span spinner-key="social-dendro-spinner" us-spinner="{radius:30, width:8, length: 16}"
+              spinner-start-active="true"></span>
 </div>
 
 <div ng-show="!doingARequest">
     <div class="panel panel-info show-share-panel">
         <div class="panel-heading">
+            <div class="position-arrows">
+                <i class="fa fa-arrow-up" ng-click="movePost(postsContents[shareUri].uri, 1, postsContents[shareUri].fixedPosition)"></i>
+                <i class="fa fa-arrow-down click-down" ng-click="movePost(postsContents[shareUri].uri, -1, postsContents[shareUri].fixedPosition)"></i>
+            </div>
             <h3 class="panel-title"> {{postsContents[shareUri].ddr.modified | date : 'dd/MMM/yyyy'}} <img
                     class="img-circle" width="5%" height="5%"
                     ng-src='{{postsContents[shareUri].ddr.userWhoShared}}?avatar'> <a
@@ -52,4 +56,4 @@
                class="btn btn-default btn-primary">Send</a>
         </div>
     </div>
-</div>
+    </div>

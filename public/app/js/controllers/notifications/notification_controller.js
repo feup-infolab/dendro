@@ -62,11 +62,21 @@ angular.module("dendroApp.controllers")
 
                 $scope.socket.on($scope.userUri + ":identified", function (data)
                 {
-                    console.log("user: " + $scope.userUri + " is now identified");
-                    console.log("Will now handle the rest of the events!");
+                    // console.log("user: " + $scope.userUri + " is now identified");
+                    // console.log("Will now handle the rest of the events!");
                     $scope.socket.on($scope.userUri + ":message", function (data)
                     {
                         Utils.show_popup("info", "Job Information", data.message);
+                    });
+
+                    $scope.socket.on($scope.userUri + ":progress", function (data)
+                    {
+                        Utils.show_progress("Working...", data.schema.sharedContent, data.ddr.taskID);
+                    });
+
+                    $scope.socket.on($scope.userUri + ":end_task", function (data)
+                    {
+                        Utils.endTask(data.ddr.taskID);
                     });
 
                     $scope.socket.on($scope.userUri + ":notification", function (notificationData)

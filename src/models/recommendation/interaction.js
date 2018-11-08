@@ -1,18 +1,18 @@
 const path = require("path");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
-const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const Class = rlequire("dendro", "src/models/meta/class.js").Class;
+const Resource = rlequire("dendro", "src/models/resource.js").Resource;
 
 const moment = require("moment");
 const async = require("async");
 const db = Config.getDBByID();
 
-const mysql = Config.getMySQLByID();
+const dbMySQL = rlequire("dendro", "src/mysql_models");
 
 let Interaction = function (object)
 {
@@ -259,161 +259,80 @@ Interaction.getRandomType = function (restrictions)
     return interactionType;
 };
 
-Interaction.prototype.saveToMySQL = function (callback, overwrite)
+Interaction.prototype.saveToMySQL = function (callback/*, overwrite*/)
 {
     const self = this;
 
-    const targetTable = Config.recommendation.getTargetTable();
-
     const insertNewInteraction = function (callback)
     {
-        const insertNewInteractionQuery = "INSERT INTO ?? " +
-            "(" +
-            "   uri," +
-            "   created," +
-            "   modified," +
-            "   performedBy," +
-            "   interactionType," +
-            "   executedOver," +
-            "   originallyRecommendedFor," +
-            "   rankingPosition," +
-            "   pageNumber," +
-            "   recommendationCallId," +
-            "   recommendationCallTimeStamp" +
-            ")" +
-            "VALUES " +
-            "(" +
-            "   ?," +
-            "   ?," +
-            "   ?," +
-            "   ?," +
-            "   ?," +
-            "   ?," +
-            "   ?," +
-            "   ?," +
-            "   ?," +
-            "   ?," +
-            "   ?" +
-            ");";
-
-        const inserts =
-      [
-          targetTable,
-          self.uri,
-          moment(self.ddr.created, moment.ISO_8601).format("YYYY-MM-DD HH:mm:ss"),
-          moment(self.ddr.created, moment.ISO_8601).format("YYYY-MM-DD HH:mm:ss"),
-          self.ddr.performedBy,
-          self.ddr.interactionType,
-          self.ddr.executedOver,
-          self.ddr.originallyRecommendedFor,
-          self.ddr.rankingPosition,
-          (isNull(self.ddr.pageNumber) ? -1 : self.ddr.pageNumber),
-          self.ddr.recommendationCallId
-      ];
+        let insert = {
+            performedBy: self.ddr.performedBy,
+            interactionType: self.ddr.interactionType,
+            executedOver: self.ddr.executedOver,
+            originallyRecommendedFor: self.ddr.originallyRecommendedFor,
+            rankingPosition: self.ddr.rankingPosition,
+            pageNumber: (isNull(self.ddr.pageNumber) ? -1 : self.ddr.pageNumber),
+            recommendationCallId: self.ddr.recommendationCallId,
+            projectUri: self.ddr.projectUri
+        };
 
         if (!isNull(self.ddr.recommendationCallTimeStamp) && typeof self.ddr.recommendationCallTimeStamp.slice(0, 19) !== "undefined")
         {
-            inserts.push(moment(self.ddr.recommendationCallTimeStamp, moment.ISO_8601).format("YYYY-MM-DD HH:mm:ss"));
+            insert.recommendationCallTimeStamp = moment(self.ddr.recommendationCallTimeStamp, moment.ISO_8601).format("YYYY-MM-DD HH:mm:ss");
         }
         else
         {
-            inserts.push(null);
+            insert.recommendationCallTimeStamp = null;
         }
 
         if (Config.debug.database.log_all_queries)
         {
-            Logger.log(insertNewInteractionQuery);
+            Logger.log("INSERT INTO interactions table");
         }
 
-        mysql.pool.getConnection(function (err, connection)
-        {
-            if (isNull(err))
+        dbMySQL.interactions
+            .findOrCreate({where: {uri: self.uri}, defaults: insert})
+            .spread((interaction, created) =>
             {
-                connection.query(
-                    insertNewInteractionQuery,
-                    inserts,
-                    function (err, rows, fields)
-                    {
-                        connection.release();
-
-                        if (isNull(err))
-                        {
-                            return callback(null, rows, fields);
-                        }
-
-                        const msg = "Error saving interaction to MySQL database : " + err;
-                        Logger.log("error", msg);
-                        return callback(1, msg);
-                    });
-            }
-            else
-            {
-                const msg = "Unable to get MYSQL connection when registering new interaction";
-                Logger.log("error", msg);
-                Logger.log("error", err.stack);
-                return callback(1, msg);
-            }
-        });
+                if (!created)
+                {
+                    return callback(1, "Interaction with URI " + self.uri + " already recorded in MYSQL.");
+                }
+                return callback(null, interaction);
+            }).catch(err =>
+                callback(err, "Error inserting new interaction to MYSQL with URI " + self.uri));
     };
 
-    if (overwrite)
+    insertNewInteraction(function (err, result)
     {
-        insertNewInteraction(function (err, rows, fields)
-        {
-            return callback(err);
-        });
-    }
-    else
-    {
-        mysql.pool.getConnection(function (err, connection)
-        {
-            if (isNull(err))
-            {
-                connection.query("SELECT * from ?? WHERE uri = ?", [targetTable, self.uri], function (err, rows, fields)
-                {
-                    connection.release();
-                    if (isNull(err))
-                    {
-                        if (!isNull(rows) && rows instanceof Array && rows.length > 0)
-                        {
-                            // an interaction with the same URI is already recorded, there must be some error!
-                            return callback(1, "Interaction with URI " + self.uri + " already recorded in MYSQL.");
-                        }
-                        // insert the new interaction
-                        insertNewInteraction(function (err, rows, fields)
-                        {
-                            if (err)
-                            {
-                                return callback(1, "Error inserting new interaction to MYSQL with URI " + self.uri);
-                            }
-                            return callback(null, rows);
-                        });
-                    }
-                    else
-                    {
-                        return callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database.");
-                    }
-                });
-            }
-            else
-            {
-                const msg = "Unable to get MYSQL connection when registering new interaction";
-                Logger.log("error", msg);
-                Logger.log("error", err.stack);
-                return callback(1, msg);
-            }
-        });
-    }
+        return callback(err);
+    });
 };
 
 Interaction.types =
 {
+    select_descriptor_from_manual_list: {
+        key: "select_descriptor_from_manual_list",
+        positive: true
+    },
     accept_descriptor_from_quick_list: {
         key: "accept_descriptor_from_quick_list",
         positive: true
     },
     accept_descriptor_from_manual_list: {
         key: "accept_descriptor_from_manual_list",
+        positive: true
+    },
+    accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite: {
+        key: "accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite",
+        positive: true
+    },
+    accept_descriptor_from_quick_list_while_it_was_a_user_favorite: {
+        key: "accept_descriptor_from_quick_list_while_it_was_a_user_favorite",
+        positive: true
+    },
+    accept_descriptor_from_quick_list_while_it_was_a_project_favorite: {
+        key: "accept_descriptor_from_quick_list_while_it_was_a_project_favorite",
         positive: true
     },
     accept_descriptor_from_manual_list_while_it_was_a_project_favorite: {
@@ -466,6 +385,11 @@ Interaction.types =
         negative: true
     },
 
+    favorite_descriptor_from_manual_list_for_user: {
+        key: "favorite_descriptor_from_manual_list_for_user",
+        positive: true
+    },
+
     favorite_descriptor_from_quick_list_for_user: {
         key: "favorite_descriptor_from_quick_list_for_user",
         positive: true
@@ -473,6 +397,11 @@ Interaction.types =
 
     unfavorite_descriptor_from_quick_list_for_user: {
         key: "unfavorite_descriptor_from_quick_list_for_user",
+        positive: true
+    },
+
+    favorite_descriptor_from_manual_list_for_project: {
+        key: "favorite_descriptor_from_manual_list_for_project",
         positive: true
     },
 
@@ -560,7 +489,7 @@ Interaction.types =
 Interaction.prototype.getHumanReadableUri = function (callback)
 {
     const self = this;
-    const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+    const User = rlequire("dendro", "src/models/user.js").User;
     if (self.ddr.performedBy instanceof Object)
     {
         return callback(null, "/user/" + self.ddr.performedBy.ddr.username + "/interaction/" + self.ddr.created);

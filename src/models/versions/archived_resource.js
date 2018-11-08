@@ -1,15 +1,15 @@
 const path = require("path");
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
-const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
-const Change = require(Pathfinder.absPathInSrcFolder("/models/versions/change.js")).Change;
-const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
-const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Class = rlequire("dendro", "src/models/meta/class.js").Class;
+const Resource = rlequire("dendro", "src/models/resource.js").Resource;
+const Change = rlequire("dendro", "src/models/versions/change.js").Change;
+const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+const User = rlequire("dendro", "src/models/user.js").User;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 const db = Config.getDBByID();
 

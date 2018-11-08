@@ -5,42 +5,31 @@ const chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 const checkChai = require("check-chai");
 chai.use(checkChai);
+const rlequire = require("rlequire");
 
-const fs = require("fs");
-const path = require("path");
 const async = require("async");
-const Config = global.Config;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const should = chai.should();
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
 
-const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
-const metadataOnlyProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
-const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
+const publicProject = rlequire("dendro", "test/mockdata/projects/public_project.js");
+const privateProject = rlequire("dendro", "test/mockdata/projects/private_project.js");
 
-const md5File = require("md5-file");
+const projectUtils = rlequire("dendro", "test/utils/project/projectUtils.js");
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
 
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1");
+const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2");
+const demouser3 = rlequire("dendro", "test/mockdata/users/demouser3");
+const demouser4 = rlequire("dendro", "test/mockdata/users/demouser4");
+const demouser5 = rlequire("dendro", "test/mockdata/users/demouser5");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
-const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3"));
-const demouser4 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser4"));
-const demouser5 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser5"));
+const db = rlequire("dendro", "test/utils/db/db.Test.js");
+const createProjectsUnit = rlequire("dendro", "test/units/projects/createProjects.Unit.js");
 
-const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
-const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
-const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
-
-const Project = require(Pathfinder.absPathInSrcFolder("models/project.js")).Project;
-const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
-
-function requireUncached (module)
-{
-    delete require.cache[require.resolve(module)];
-    return require(module);
-}
+const Project = rlequire("dendro", "src/models/project.js").Project;
+const User = rlequire("dendro", "src/models/user.js").User;
 
 describe("Administer projects", function (done)
 {
@@ -89,14 +78,17 @@ describe("Administer projects", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                //
-                // SELECT *
-                // FROM
-                // <http://127.0.0.1:3001/dendro_graph>
-                // WHERE
-                // {
-                // <http://127.0.0.1:3001/project/publicprojectcreatedbydemouser1> ?p ?o
-                //     }
+                /*
+                SELECT *
+                FROM
+                <http://127.0.0.1:3002/dendro_graph>
+                WHERE
+                {
+                     ?project dcterms:creator ?user.
+                     ?project rdf:type ddr:Project.
+                     ?project ?p ?o
+                }
+                */
                 projectUtils.administer(agent, false, {}, publicProject.handle, function (err, res)
                 {
                     res.should.have.status(200);
