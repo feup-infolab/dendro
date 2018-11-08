@@ -44,17 +44,17 @@ then
         brew cask install java8
     # In Ubuntu
     elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-        info "Installing Java 8 JDK. This will take a few minutes."
+        echo "Installing Java 8 JDK. This will take a few minutes."
         sudo apt-get install --yes python-software-properties
         sudo add-apt-repository -y ppa:webupd8team/java
         sudo apt-get update -qq
         echo debconf shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
         echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo /usr/bin/debconf-set-selections
-        info "This will take a few minutes and no messages will be shown. PLEASE WAIT!"
+        echo "This will take a few minutes and no messages will be shown. PLEASE WAIT!"
         sudo apt-get install -qq --yes oracle-java8-installer > /dev/null
         yes "" | sudo apt-get -f install > /dev/null || die "There was an error installing Oracle JDK 8."
 
-        info "Installing Oracle JDK 8. There is no output but the installation is working in the background. Please WAIT!"
+        echo "Installing Oracle JDK 8. There is no output but the installation is working in the background. Please WAIT!"
         sudo apt install oracle-java8-set-default > /dev/null
     fi
 else
@@ -63,7 +63,7 @@ fi
 
 echo "Installing Dendro in $INITIAL_DIR with username $(whoami) and Node $NODE_VERSION"
 
-if [ "$NODE_VERSION" == "" ]
+if [ "$NODE_VERSION" == "" ]Installing Java 8 JDK. This will take a few minutes.
 then
     echo "Unable to determine the version of NodeJS to install!"
     exit 1
