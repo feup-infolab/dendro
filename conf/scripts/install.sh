@@ -5,7 +5,7 @@ NODE_VERSION=`cat .nvmrc`
 EXPECTED_JAVA_VERSION="18"
 JAVA_VERSION=$(java -version 2>&1 | sed -n ';s/.* version "\(.*\)\.\(.*\)\..*"/\1\2/p;')
 
-if [[ make > /dev/null ]]
+if ! [[ make > /dev/null ]]
 then
     if [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
         sudo apt-get -qq -y install build-essential
@@ -13,7 +13,7 @@ then
 fi
 
 # check to see if text extraction tools need to be installed
-if [[ tesseract > /dev/null ]]
+if ! [[ tesseract > /dev/null ]]
 then
     # install text extraction dependencies
     echo "Text extraction libraries not detected on your system, starting installation..."
@@ -36,7 +36,7 @@ echo "Checking for Java 1.8..."
 echo "Current Java Version: $JAVA_VERSION"
 echo "Expected Java Version: $EXPECTED_JAVA_VERSION"
 
-if [ "$JAVA_VERSION" = "$EXPECTED_JAVA_VERSION" ]
+if ! [ "$JAVA_VERSION" = "$EXPECTED_JAVA_VERSION" ]
 then
     #For the Mac
     if [ "$(uname)" == "Darwin" ]; then
@@ -63,7 +63,7 @@ fi
 
 echo "Installing Dendro in $INITIAL_DIR with username $(whoami) and Node $NODE_VERSION"
 
-if [ "$NODE_VERSION" == "" ]Installing Java 8 JDK. This will take a few minutes.
+if [ "$NODE_VERSION" == "" ]
 then
     echo "Unable to determine the version of NodeJS to install!"
     exit 1
