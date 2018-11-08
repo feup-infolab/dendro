@@ -4,11 +4,9 @@ NODE_VERSION=`cat .nvmrc`
 
 
 #install NVM, Node 6.10, Node Automatic Version switcher
-curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.1/install.sh | bash &&
 export NVM_DIR="$HOME/.nvm" &&
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-nvm install "$NODE_VERSION"
 nvm use "$NODE_VERSION"
 
 export COVERALLS_SERVICE_NAME="Jenkins"
