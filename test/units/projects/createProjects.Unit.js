@@ -1,18 +1,14 @@
 process.env.NODE_ENV = "test";
 
 const rlequire = require("rlequire");
-const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
 const chai = require("chai");
 chai.use(require("chai-http"));
-const should = chai.should();
 const async = require("async");
-const path = require("path");
 
 const projectUtils = rlequire("dendro", "test/utils/project/projectUtils.js");
 const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
-const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
 const unitUtils = rlequire("dendro", "test/utils/units/unitUtils.js");
 
 const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1");

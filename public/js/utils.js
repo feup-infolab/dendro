@@ -246,4 +246,5 @@ Utils.bufferToString = function (buffer) {
 
     const cent = Buffer.from(buffer)
     return decoder.write(cent)
-}
+};
+

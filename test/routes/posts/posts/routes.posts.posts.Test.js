@@ -18,7 +18,7 @@ const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
 const projectUtils = rlequire("dendro", "test/utils/project/projectUtils.js");
 const versionUtils = rlequire("dendro", "test/utils/versions/versionUtils.js");
 const descriptorUtils = rlequire("dendro", "test/utils/descriptor/descriptorUtils.js");
-const socialDendroUtils = rlequire("dendro", "test//utils/social/socialDendroUtils");
+const socialDendroUtils = rlequire("dendro", "test/utils/social/socialDendroUtils");
 
 const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");
 const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2.js");
@@ -28,8 +28,8 @@ const publicProjectForDemouser2 = rlequire("dendro", "test/mockdata/projects/pub
 
 const createSocialDendroTimelineWithPostsAndSharesUnit = rlequire("dendro", "test/units/social/createSocialDendroTimelineWithPostsAndShares.Unit.js");
 const db = rlequire("dendro", "test/utils/db/db.Test.js");
-
 const pageNumber = 1;
+let useRank = 0;
 let demouser1PostURIsArray;
 let invalidPostURIsArray = [];
 
@@ -52,10 +52,10 @@ describe("Get information on an array of posts(given an array of post URIs) test
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    res.body.length.should.equal(5);
+                    res.body.length.should.equal(30);
                     demouser1PostURIsArray = res.body;
                     invalidPostURIsArray = demouser1PostURIsArray.concat();
                     invalidPostURIsArray.push({uri: demouser1PostURIsArray[4].uri + "-errorHere"});
@@ -175,10 +175,10 @@ describe("Get information on an array of posts(given an array of post URIs) test
                     projectUtils.createFolderInProjectRoot(true, agent, publicProjectForDemouser2.handle, "testFolderForDemouser2Project", function (err, res)
                     {
                         res.statusCode.should.equal(200);
-                        socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, function (err, res)
+                        socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                         {
                             res.statusCode.should.equal(200);
-                            res.body.length.should.equal(5);
+                            res.body.length.should.equal(30);
                             let demouser2PostURIsArray = res.body;
                             socialDendroUtils.getPostsArrayInfo(true, agent, JSON.stringify(demouser2PostURIsArray), function (err, res)
                             {

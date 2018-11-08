@@ -3,14 +3,15 @@ const slug = rlequire("dendro", "src/utils/slugifier.js");
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
 const MongoClient = require("mongodb").MongoClient;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 function DendroMongoClient (mongoDBHost, mongoDbPort, mongoDbCollectionName, mongoDbUsername, mongoDbPassword)
 {
     let self = this;
 
-    self.hostname = mongoDBHost;
+    self.host = mongoDBHost;
     self.port = mongoDbPort;
-    self.collectionName = slug(mongoDbCollectionName);
+    self.collectionName = mongoDbCollectionName;
     self.username = mongoDbUsername;
     self.password = mongoDbPassword;
 }
@@ -20,14 +21,15 @@ DendroMongoClient.prototype.connect = function (callback)
     const self = this;
 
     let url;
-    const sluggedCollectionName = slug(this.collectionName);
     if (self.username && self.password && self.username !== "" && self.password !== "" && self.username !== "")
     {
-        url = "mongodb://" + self.username + ":" + self.password + "@" + self.host + ":" + self.port + "/" + sluggedCollectionName + "?authSource=admin";
+        url = "mongodb://" + self.username + ":" + self.password + "@" + self.host + ":" + self.port + "/" + self.collectionName;
+        Logger.log("debug", "Connecting to MongoDB using connection string: " + "mongodb://" + self.username + ":" + "PASSWORD" + "@" + self.host + ":" + self.port + "/" + self.collectionName);
     }
     else
     {
-        url = "mongodb://" + self.host + ":" + self.port + "/" + sluggedCollectionName;
+        url = "mongodb://" + self.host + ":" + self.port + "/" + self.collectionName;
+        Logger.log("debug", "Connecting to MongoDB using connection string: " + url);
     }
 
     MongoClient.connect(url, function (err, db)
@@ -36,7 +38,7 @@ DendroMongoClient.prototype.connect = function (callback)
         {
             return callback(null, db);
         }
-        const msg = "Error connecting to MongoDB";
+        const msg = "Error connecting to MongoDB " + JSON.stringify(db, null, 4);
         return callback(true, msg);
     });
 };
@@ -50,7 +52,7 @@ DendroMongoClient.prototype.findFileByFilenameOrderedByDate = function (db, file
         {
             return callback(null, files);
         }
-        const msg = "Error findind document with uri: " + fileUri + " in Mongo error: " + JSON.stringify(err);
+        const msg = "Error finding document with uri: " + fileUri + " in Mongo. error: " + JSON.stringify(err);
         return callback(true, msg);
     });
 };
@@ -65,7 +67,7 @@ DendroMongoClient.prototype.getNonAvatarNorThumbnailFiles = function (db, callba
         {
             return callback(null, files);
         }
-        const msg = "Error when looking for non Avatar nor thumbnail files in Mongo, error: " + JSON.stringify(err);
+        const msg = "Error when looking for non Avatar nor thumbnail files in Mongo. error: " + JSON.stringify(err);
         return callback(true, msg);
     });
 };

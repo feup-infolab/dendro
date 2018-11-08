@@ -37,7 +37,7 @@ angular.module("dendroApp.services")
             });
         };
 
-        this.get_all_posts = function (currentPage)
+        this.get_all_posts = function (currentPage, useRank)
         {
             var requestUri = "/posts/all";
 
@@ -46,7 +46,7 @@ angular.module("dendroApp.services")
                 url: requestUri,
                 contentType: "application/json",
                 headers: {Accept: "application/json"},
-                params: {currentPage: currentPage}
+                params: {currentPage: currentPage, useRank: useRank}
             });
         };
 
@@ -211,6 +211,25 @@ angular.module("dendroApp.services")
 
             return $http({
                 method: "GET",
+                url: requestUri,
+                params: params,
+                contentType: "application/json",
+                headers: {Accept: "application/json"}
+            });
+        };
+        this.movePost = function (postURI, useRank, move, position)
+        {
+            var requestUri = "/posts/move";
+
+            var params = {
+                postURI: postURI,
+                useRank: useRank,
+                move: move,
+                position: position
+            };
+
+            return $http({
+                method: "POST",
                 url: requestUri,
                 params: params,
                 contentType: "application/json",

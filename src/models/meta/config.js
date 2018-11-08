@@ -136,6 +136,7 @@ Config.mongoDBHost = getConfigParameter("mongoDBHost");
 Config.mongoDbPort = getConfigParameter("mongoDbPort");
 Config.mongoDbCollectionName = getConfigParameter("mongoDbCollectionName");
 Config.mongoDBSessionStoreCollection = getConfigParameter("mongoDBSessionStoreCollection");
+Config.useMongoDBSessionStore = getConfigParameter("useMongoDBSessionStore");
 Config.mongoDbVersion = getConfigParameter("mongoDbVersion");
 Config.mongoDBAuth = getConfigParameter("mongoDBAuth");
 // storage default config
@@ -205,7 +206,10 @@ Config.baselines = getConfigParameter("baselines");
 Config.logging = getConfigParameter("logging");
 
 // load version description
-Config.version = getConfigParameter("version");
+Config.version = {
+    name: rlequire("dendro", "package.json").name,
+    number: rlequire("dendro", "package.json").version
+};
 
 // secrets
 Config.crypto = getConfigParameter("crypto");

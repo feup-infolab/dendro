@@ -40,7 +40,7 @@ class UserSession
     {
         let self = this;
         self.__sockets.push(newSocket);
-        Logger.log("info", "Num connectedSockets for user " + self.__userUri + " : " + self.__sockets.length);
+        Logger.log("debug", "Num connectedSockets for user " + self.__userUri + " : " + self.__sockets.length);
     }
 
     emitMessage (message)

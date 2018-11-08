@@ -62,8 +62,8 @@ angular.module("dendroApp.controllers")
 
                 $scope.socket.on($scope.userUri + ":identified", function (data)
                 {
-                    console.log("user: " + $scope.userUri + " is now identified");
-                    console.log("Will now handle the rest of the events!");
+                    // console.log("user: " + $scope.userUri + " is now identified");
+                    // console.log("Will now handle the rest of the events!");
                     $scope.socket.on($scope.userUri + ":message", function (data)
                     {
                         Utils.show_popup("info", "Job Information", data.message);

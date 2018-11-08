@@ -10,7 +10,7 @@ const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
 const projectUtils = rlequire("dendro", "test/utils/project/projectUtils.js");
 const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
-const socialDendroUtils = rlequire("dendro", "test//utils/social/socialDendroUtils");
+const socialDendroUtils = rlequire("dendro", "test/utils/social/socialDendroUtils");
 const unitUtils = rlequire("dendro", "test/utils/units/unitUtils.js");
 
 const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1");
@@ -66,6 +66,11 @@ class CreateManuaLPostForAllProjectTypes extends UploadFilesAndAddMetadataUnit
     static shutdown (callback)
     {
         super.shutdown(callback);
+    }
+
+    static setup (callback, forceLoad)
+    {
+        super.setup(callback, forceLoad);
     }
 }
 

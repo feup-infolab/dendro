@@ -69,6 +69,7 @@ describe("Administration panel tests ( /admin )", function (done)
         {
             userUtils.loginUser(admin.username, admin.password, function (err, agent)
             {
+                should.not.exist(err);
                 administerUtils.getAdministerPage(agent, false, function (err, res)
                 {
                     res.should.have.status(200);

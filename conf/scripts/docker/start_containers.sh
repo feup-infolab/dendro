@@ -62,7 +62,7 @@ if container_running "$ELASTICSEARCH_CONTAINER_NAME" == 0
 then
     if ! docker start "$ELASTICSEARCH_CONTAINER_NAME"
     then
-      docker pull docker.elastic.co/elasticsearch/elasticsearch:6.2.2
+      docker pull "$ELASTICSEARCH_VERSION_AND_TAG"
       docker run \
           -p 9200:9200 \
           -p 9300:9300 \
@@ -90,7 +90,7 @@ if container_running "$VIRTUOSO_CONTAINER_NAME" == 0
 then
     if ! docker start "$VIRTUOSO_CONTAINER_NAME"
     then
-      docker pull joaorosilva/virtuoso:7.2.4-for-dendro-0.4
+      docker pull "$VIRTUOSO_VERSION_AND_TAG"
       docker run \
           -p 8890:8890 \
           -p 1111:1111 \
@@ -123,10 +123,10 @@ if container_running "$MYSQL_CONTAINER_NAME" == 0
 then
     if ! docker start "$MYSQL_CONTAINER_NAME"
     then
-      docker pull mysql:8.0.3
+      docker pull "$MYSQL_VERSION_AND_TAG"
       docker run \
         -p 3306:3306 \
-        -e MYSQL_ROOT_PASSWORD=r00t \
+        -e MYSQL_ROOT_PASSWORD="r00t_p4ssw0rd" \
         --name="$MYSQL_CONTAINER_NAME" \
         --hostname="$MYSQL_HOSTNAME" \
         "$MYSQL_VERSION_AND_TAG" > "$DIR/mysql.log" &
@@ -146,18 +146,18 @@ if container_running "$MONGODB_CONTAINER_NAME" == 0
 then
     if ! docker start "$MONGODB_CONTAINER_NAME"
     then
-      docker pull mongo:3.4.10
+      docker pull "$MONGODB_VERSION_AND_TAG"
       docker run \
           -p 27017:27017 \
-          -e AUTH=yes \
-          -e MONGO_INITDB_ROOT_USERNAME="admin" \
-          -e MONGO_INITDB_ROOT_PASSWORD="34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi" \
-          -e MONGO_INITDB_DATABASE="admin" \
           --name="$MONGODB_CONTAINER_NAME" \
           --hostname="$MONGODB_HOSTNAME" \
           "$MONGODB_VERSION_AND_TAG" > "$DIR/mongodb.log" &
 
           # -v "$RUNNING_FOLDER/mongo:/data/db" \
+#          -e AUTH=yes \
+#          -e MONGO_INITDB_ROOT_USERNAME="admin" \
+#          -e MONGO_INITDB_ROOT_PASSWORD="34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi" \
+#          -e MONGO_INITDB_DATABASE="admin" \
 
           # docker start "$MONGODB_CONTAINER_NAME" &&  echo "Container $MONGODB_CONTAINER_NAME started." || echo "Container $MONGODB_CONTAINER_NAME failed to start."
     fi

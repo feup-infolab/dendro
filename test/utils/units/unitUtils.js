@@ -128,6 +128,59 @@ exports.getCallerFunctionFilePath = function ()
     return callerFile;
 };
 
+exports.getTopMinusOneCallerUnit = function ()
+{
+    const bootupUnitClass = rlequire("dendro", "test/units/bootup.Unit.js");
+    let originalFunc = Error.prepareStackTrace;
+    let mostSpecificClassFile;
+    let mostSpecificClass = null;
+
+    let mostSpecificClassFileMinusOne;
+    let mostSpecificClassMinusOne = null;
+
+    let callerFile;
+    let callerClass;
+
+    try
+    {
+        let err = new Error();
+
+        Error.prepareStackTrace = function (err, stack)
+        {
+            return stack;
+        };
+
+        let currentFile = err.stack.shift().getFileName();
+        mostSpecificClass = require(currentFile);
+        mostSpecificClassFile = currentFile;
+
+        while (err.stack.length)
+        {
+            callerFile = err.stack.shift().getFileName();
+            callerClass = require(callerFile);
+
+            if (bootupUnitClass.isPrototypeOf(callerClass))
+            {
+                if (!isNull(mostSpecificClass))
+                {
+                    mostSpecificClassMinusOne = mostSpecificClass;
+                    mostSpecificClassFileMinusOne = mostSpecificClassFile;
+                }
+
+                mostSpecificClass = callerClass;
+                mostSpecificClassFile = callerFile;
+            }
+        }
+    }
+    catch (e)
+    {
+    }
+
+    Error.prepareStackTrace = originalFunc;
+
+    return mostSpecificClassMinusOne;
+};
+
 exports.getTopCallerUnitFile = function ()
 {
     const bootupUnitClass = rlequire("dendro", "test/units/bootup.Unit.js");
@@ -217,7 +270,7 @@ exports.restoreCheckpoint = function (checkpointIdentifier, callback)
             {
                 if (exists)
                 {
-                    if (Config.docker.active)
+                    if (Config.docker.active && Config.docker.reuse_checkpoints)
                     {
                         DockerManager.restoreCheckpoint(checkpointIdentifier, function (err, restoredCheckpoint)
                         {
@@ -626,10 +679,18 @@ exports.setup = function (targetUnit, callback, forceLoad)
             }
 
             Logger.log("Trying to recover checkpoint " + checkpointIdentifier + "...");
-            exports.restoreCheckpoint(checkpointIdentifier, function (err, result)
+
+            if (Config.docker.reuse_checkpoints && !forceLoad)
             {
-                callback(err, !!result);
-            }, !forceLoad);
+                exports.restoreCheckpoint(checkpointIdentifier, function (err, result)
+                {
+                    callback(err, !!result);
+                }, !forceLoad);
+            }
+            else
+            {
+                callback(null, null);
+            }
         }
         else if (Config.virtualbox && Config.virtualbox.active)
         {

@@ -193,23 +193,35 @@ class App
         }
     }
 
+    bootupDependencies (callback)
+    {
+        const self = this;
+
+        async.series([
+
+            function (callback)
+            {
+                // start VirtualBox VM
+                rlequire("dendro", "src/bootup/init/init_virtualbox.js").initVirtualBoxVM(self.app, callback);
+            },
+            function (callback)
+            {
+                // start docker containers
+                rlequire("dendro", "src/bootup/init/init_docker.js").initDockerContainers(self.app, callback);
+            }
+        ], function (err)
+        {
+            callback(err);
+        });
+    }
+
     initConnections (callback, force)
     {
         const self = this;
 
         if (!self._connectionsUp || force)
         {
-            async.series([
-                function (callback)
-                {
-                    // start VirtualBox VM
-                    rlequire("dendro", "src/bootup/init/init_virtualbox.js").initVirtualBoxVM(self.app, callback);
-                },
-                function (callback)
-                {
-                    // start docker containers
-                    rlequire("dendro", "src/bootup/init/init_docker.js").initDockerContainers(self.app, callback);
-                },
+            async.parallel([
                 function (callback)
                 {
                     // setup virtuoso
@@ -311,6 +323,10 @@ class App
                         Logger.add_middlewares(self.app);
                     }
                     callback(null);
+                },
+                function (callback)
+                {
+                    self.bootupDependencies(callback);
                 },
                 function (callback)
                 {
@@ -565,6 +581,11 @@ class App
             {
                 // clear datastore
                 self.runIfMaster(rlequire("dendro", "src/bootup/load/clear_datastore.js").clearDataStore, self.app, callback);
+            },
+            function (callback)
+            {
+                // build mysql database from migrations
+                self.runIfMaster(rlequire("dendro", "src/bootup/load/build_mysql_database.js").buildMySQLDatabase, self.app, callback);
             }
         ], callback);
     }
