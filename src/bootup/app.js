@@ -510,6 +510,11 @@ class App
             {
                 rlequire("dendro", "src/bootup/cron_jobs/delete_old_temp_folders.js").deleteOldTempFolders(self.app, callback);
             },
+            function (callback)
+            {
+                Logger.log("info", "Now initializing Agenda!");
+                rlequire("dendro", "src/bootup/init/init_agenda.js").init(self.app, callback);
+            },
             function (cb)
             {
                 if (!self.seedDatabasesAndExit)

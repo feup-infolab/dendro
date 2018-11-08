@@ -18,9 +18,9 @@ const DbConnection = rlequire("dendro", "src/kb/db.js").DbConnection;
 const Uploader = rlequire("dendro", "src/utils/uploader.js").Uploader;
 const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
-const ImportProjectJob = require(Pathfinder.absPathInSrcFolder("/jobs/models/ImportProjectJob.js")).ImportProjectJob;
-const TestJob = require(Pathfinder.absPathInSrcFolder("/jobs/models/TestJob.js")).TestJob;
-const Notification = require(Pathfinder.absPathInSrcFolder("/models/notifications/notification.js")).Notification;
+const ImportProjectJob = rlequire("dendro", "src/models/jobs/subtypes/ImportProjectJob.js").ImportProjectJob;
+const TestJob = rlequire("dendro", "src/models/jobs/subtypes/TestJob.js").TestJob;
+const Notification = rlequire("dendro", "src/models/notifications/notification.js").Notification;
 
 const nodemailer = require("nodemailer");
 const flash = require("connect-flash");
@@ -1875,7 +1875,6 @@ exports.requestAccess = function (req, res)
     }
 };
 
-
 exports.processImport = function (newProjectUri, uploadedBackupAbsPath, userAndSessionInfo, callback, job)
 {
     const getMetadata = function (absPathOfBagItBackupRootFolder, callback)
@@ -1948,7 +1947,7 @@ exports.processImport = function (newProjectUri, uploadedBackupAbsPath, userAndS
                 {
                     if (valid)
                     {
-                        if(!isNull(job))
+                        if (!isNull(job))
                         {
                             job.attrs.data.absPathOfUnzippedBagIt = absPathOfUnzippedBagIt;
                             job.save();
@@ -1957,10 +1956,11 @@ exports.processImport = function (newProjectUri, uploadedBackupAbsPath, userAndS
                         getMetadata(absPathOfUnzippedBagIt, function (descriptors)
                         {
                             // by default the project is private on import
-                            Project.findByUri(newProjectUri, function (err, createdProject) {
-                                if(isNull(err))
+                            Project.findByUri(newProjectUri, function (err, createdProject)
+                            {
+                                if (isNull(err))
                                 {
-                                    if(!isNull(createdProject))
+                                    if (!isNull(createdProject))
                                     {
                                         createdProject.updateDescriptors(descriptors);
 
@@ -2042,19 +2042,20 @@ exports.processImport = function (newProjectUri, uploadedBackupAbsPath, userAndS
                                     }
                                     else
                                     {
-                                        if(!isNull(job))
+                                        if (!isNull(job))
                                         {
-                                            let errorMsg = "Error at importProjectJob, project with uri: " + newProjectUri +  " does not exist";
+                                            let errorMsg = "Error at importProjectJob, project with uri: " + newProjectUri + " does not exist";
                                             Logger.log("error", errorMsg);
                                             Logger.log("error", "Will remove job");
-                                            job.remove(function(err) {
-                                                if(isNull(err))
+                                            job.remove(function (err)
+                                            {
+                                                if (isNull(err))
                                                 {
-                                                    Logger.log("info", 'Successfully removed job from collection');
+                                                    Logger.log("info", "Successfully removed job from collection");
                                                 }
                                                 else
                                                 {
-                                                    Logger.log("error", 'Could not remove job from collection');
+                                                    Logger.log("error", "Could not remove job from collection");
                                                 }
                                                 callback(500,
                                                     {
@@ -2063,11 +2064,11 @@ exports.processImport = function (newProjectUri, uploadedBackupAbsPath, userAndS
                                                         error: errorMsg
                                                     }
                                                 );
-                                            })
+                                            });
                                         }
                                         else
                                         {
-                                            let errorMsg = "Error at importProject, project with uri: " + newProjectUri +  " does not exist";
+                                            let errorMsg = "Error at importProject, project with uri: " + newProjectUri + " does not exist";
                                             Logger.log("error", errorMsg);
                                             callback(404,
                                                 {
@@ -2081,19 +2082,20 @@ exports.processImport = function (newProjectUri, uploadedBackupAbsPath, userAndS
                                 }
                                 else
                                 {
-                                    if(!isNull(job))
+                                    if (!isNull(job))
                                     {
                                         let errorMsg = "Error at importProjectJob, error: " + JSON.stringify(createdProject);
                                         Logger.log("error", errorMsg);
                                         Logger.log("error", "Will remove job");
-                                        job.remove(function(err) {
-                                            if(isNull(err))
+                                        job.remove(function (err)
+                                        {
+                                            if (isNull(err))
                                             {
-                                                Logger.log("info", 'Successfully removed job from collection');
+                                                Logger.log("info", "Successfully removed job from collection");
                                             }
                                             else
                                             {
-                                                Logger.log("error", 'Could not remove job from collection');
+                                                Logger.log("error", "Could not remove job from collection");
                                             }
                                             callback(500,
                                                 {
@@ -2357,30 +2359,34 @@ exports.import = function (req, res)
                     });
                 };
 
-                const executeImport = function (createdProject, callback) {
+                const executeImport = function (createdProject, callback)
+                {
                     let userAndSessionInfo = {
-                      user: req.user,
-                      session: req.session
+                        user: req.user,
+                        session: req.session
                     };
                     let jobData = {
                         uploadedBackupAbsPath: uploadedBackupAbsPath,
                         userAndSessionInfo: userAndSessionInfo,
                         newProject: createdProject
                     };
-                    if(!isNull(runAsJob) && runAsJob === true)
+                    if (!isNull(runAsJob) && runAsJob === true)
                     {
                         let testJob = new TestJob(null);
                         let importProjectJob = new ImportProjectJob(jobData);
-                        importProjectJob.start(function (err) {
-                            //callback(err);
-                            testJob.start(function (err) {
-                               callback(err);
+                        importProjectJob.start(function (err)
+                        {
+                            // callback(err);
+                            testJob.start(function (err)
+                            {
+                                callback(err);
                             });
                         });
                     }
                     else
                     {
-                        exports.processImport(newProject.uri, uploadedBackupAbsPath, userAndSessionInfo, function (err, info){
+                        exports.processImport(newProject.uri, uploadedBackupAbsPath, userAndSessionInfo, function (err, info)
+                        {
                             if (isNull(err))
                             {
                                 Logger.log("info", "Project with uri: " + newProject.uri + " was successfully restored");
@@ -2389,12 +2395,13 @@ exports.import = function (req, res)
                             else
                             {
                                 Logger.log("error", "Error restoring a project with uri: " + newProject.uri + ", error: " + JSON.stringify(info));
-                                if(!isNull(newProject))
+                                if (!isNull(newProject))
                                 {
-                                    Project.findByUri(newProject.uri, function (err, createdProject) {
-                                        if(isNull(err))
+                                    Project.findByUri(newProject.uri, function (err, createdProject)
+                                    {
+                                        if (isNull(err))
                                         {
-                                            if(!isNull(createdProject))
+                                            if (!isNull(createdProject))
                                             {
                                                 delete createdProject.ddr.is_being_imported;
                                                 createdProject.ddr.hasErrors = "There was an error during a project restore, error message : " + JSON.stringify(info);
@@ -2412,7 +2419,7 @@ exports.import = function (req, res)
                                             }
                                             else
                                             {
-                                                let errorMsg = "Error at importProject, project with uri: " + newProject.uri +  " does not exist";
+                                                let errorMsg = "Error at importProject, project with uri: " + newProject.uri + " does not exist";
                                                 Logger.log("error", errorMsg);
                                                 callback(500, {
                                                     result: "error",

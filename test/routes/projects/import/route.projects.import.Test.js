@@ -2,31 +2,32 @@ const chai = require("chai");
 const async = require("async");
 const chaiHttp = require("chai-http");
 const deepEqual = require("deep-equal");
+const rlequire = require("rlequire");
 const should = chai.should();
 chai.use(chaiHttp);
 
 const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
-const httpUtils = require(Pathfinder.absPathInTestsFolder("utils/http/httpUtils.js"));
-const descriptorUtils = require(Pathfinder.absPathInTestsFolder("utils/descriptor/descriptorUtils.js"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const projectUtils = rlequire("dendro", "test/utils/project/projectUtils.js");
+const userUtils =  rlequire("dendro", "test/utils/user/userUtils.js");
+const folderUtils =  rlequire("dendro", "test/utils/folder/folderUtils.js");
+const httpUtils =  rlequire("dendro", "test/utils/http/httpUtils.js");
+const descriptorUtils = rlequire("dendro", "test/utils/descriptor/descriptorUtils.js");
+const appUtils =  rlequire("dendro", "test/utils/app/appUtils.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
-const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");
+const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2.js");
+const demouser3 = rlequire("dendro", "test/mockdata/users/demouser3.js");
 
-const addMetadataToFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
-const uploadFilesAndAddMetadataUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/uploadFilesAndAddMetadata.Unit.js"));
-const createUsersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
-const createAllFoldersAndAllFilesInsideThemWithMetadataUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createAllFoldersAndAllFilesInsideThemWithMetadata.Unit.js"));
+const addMetadataToFoldersUnit = rlequire("dendro", "test/units/metadata/addMetadataToFolders.Unit.js");
+const uploadFilesAndAddMetadataUnit = rlequire("dendro", "test/units/social/uploadFilesAndAddMetadata.Unit.js");
+const createUsersUnit = rlequire("dendro", "test/units/users/createUsers.Unit.js");
+const createAllFoldersAndAllFilesInsideThemWithMetadataUnit = rlequire("dendro", "test/units/projects/createAllFoldersAndAllFilesInsideThemWithMetadata.Unit.js");
 
-const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
+const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js");
 
-const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
+const createProjectsUnit = rlequire("dendro", "test/units/projects/createProjects.Unit.js");
 const projectsData = createProjectsUnit.projectsData;
 
 describe("Import projects", function (done)

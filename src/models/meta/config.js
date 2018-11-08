@@ -159,8 +159,6 @@ Config.maxUploadSize = getConfigParameter("maxUploadSize");
 Config.maxProjectSize = getConfigParameter("maxProjectSize");
 Config.maxSimultaneousConnectionsToDb = getConfigParameter("maxSimultaneousConnectionsToDb");
 
-Config.jobTypes = getConfigParameter("jobTypes", []);
-
 Config.dbOperationTimeout = getConfigParameter("dbOperationTimeout");
 
 if (path.isAbsolute(getConfigParameter("tempFilesDir")))

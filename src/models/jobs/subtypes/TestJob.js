@@ -1,14 +1,14 @@
+const rlequire = require("rlequire");
 const path = require("path");
-const Pathfinder = global.Pathfinder;
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
-const Job = require(Pathfinder.absPathInSrcFolder("/jobs/models/Job.js")).Job;
+const Job = rlequire("dendro", "src/models/jobs/Job.js").Job;
 const name = path.parse(__filename).name;
 
 class TestJob extends Job
 {
-    //STATIC METHODS
+    // STATIC METHODS
     static defineJob ()
     {
         const jobDefinitionFunction = function (job, done)
@@ -21,10 +21,12 @@ class TestJob extends Job
 
     static registerJobEvents ()
     {
-        const successHandlerFunction = function (job) {
+        const successHandlerFunction = function (job)
+        {
             Logger.log("info", name + " executed Successfully");
-            job.remove(function(err) {
-                if(isNull(err))
+            job.remove(function (err)
+            {
+                if (isNull(err))
                 {
                     Logger.log("info", "Successfully removed " + name + " job from collection");
                 }
@@ -38,8 +40,9 @@ class TestJob extends Job
         const errorHandlerFunction = function (job)
         {
             Logger.log("info", name + " job failed, error: " + JSON.stringify(err));
-            job.remove(function(err) {
-                if(isNull(err))
+            job.remove(function (err)
+            {
+                if (isNull(err))
                 {
                     Logger.log("info", "Successfully removed " + name + " job from collection");
                 }
@@ -57,10 +60,11 @@ class TestJob extends Job
     {
         const restartJobFunction = function (jobs)
         {
-            if(!isNull(jobs) && jobs.length > 0)
+            if (!isNull(jobs) && jobs.length > 0)
             {
                 let errorMessages = [];
-                jobs.forEach(function (job) {
+                jobs.forEach(function (job)
+                {
                     Logger.log("info", "Will attempt to run " + name);
                     job.attrs.lockedAt = null;
                     job.schedule(new Date());
@@ -71,14 +75,14 @@ class TestJob extends Job
             }
             else
             {
-                const msg = "No " + name +  " jobs in mongodb to attempt running again!";
+                const msg = "No " + name + " jobs in mongodb to attempt running again!";
                 Logger.log("info", msg);
             }
         };
         super.fetchJobsStillInMongoAndRestartThem(name, restartJobFunction);
     }
 
-    //INSTANCE METHODS
+    // INSTANCE METHODS
     constructor (jobData)
     {
         super(name, jobData);
@@ -87,7 +91,8 @@ class TestJob extends Job
     start (callback)
     {
         let self = this;
-        super.start(function (err) {
+        super.start(function (err)
+        {
             callback(err);
         });
     }

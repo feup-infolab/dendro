@@ -6,6 +6,7 @@
       "secret": "THF4A9JfsMbTaHYefVtquzFbrdNUMSbTHF4A9JfsMbTaHYefVtquzFbrdNUMSbpHeRjKE24Tyk2LqxVa3ERyGAAaP8j7gXArZsJk4bjKj8F4YZnCqAyaw9auPn6ahDwc4scLCrayLX9BsYwqXaMKrfW82WdqD5pYApFaQ9JNCqQ25qb75GKfAZSgvNuzFXKT6mGGw6qk63HqjgGwty4qx4QkYXxNCsbez4jwzeRc58AfSvzXZfEf8asSNWhhfEBWCvCeAJs3BGZFFFuwZ7EAVhmyu7NqqzHpHeRjKE24Tyk2LqxVa3ERyGAAaP8j7gXArZsJk4bjKj8F4YZnCqAyaw9auPn6ahDwc4scLCrayLX9BsYwqXaMKrfW82WdqD5pYApFaQ9JNCqQ25qb75GKfAZSgvNuzFXKT6mGGw6qk63HqjgGwty4qx4QkYXxNCsbez4jwzeRc58AfSvzXZfEf8asSNWhhfEBWCvCeAJs3BGZFFFuwZ7EAVhmyu7NqqzAIAIMARIA"
     },
     "baseUri": "http://127.0.0.1:3001",
+    "jobTypes": "ImportProjectJob,TestJob",
     "environment": "development",
     "skipDescriptorValuesValidation": false,
     "eudatBaseUrl": "https://trng-b2share.eudat.eu",
@@ -113,6 +114,7 @@
     "mongoDbCollectionName": "127_0_0_1_3001_files",
     "useMongoDBSessionStore": true,
     "mongoDBSessionStoreCollection": "127_0_0_1_3001_sessions",
+    "mongoJobCollectionName": "127_0_0_1_3002_dev_jobs",
     "mongoDbVersion": "",
     "mongoDBAuth": {
       "username": "admin",
@@ -536,6 +538,7 @@
     "mongoDbCollectionName": "127_0_0_1_3001_files",
     "useMongoDBSessionStore": true,
     "mongoDBSessionStoreCollection": "127_0_0_1_3001_sessions",
+    "mongoJobCollectionName": "127_0_0_1_3001_dev_docker_jobs",
     "mongoDbVersion": "",
     "mongoDBAuth": {
       "username": "",
@@ -959,6 +962,7 @@
     "mongoDbCollectionName": "127_0_0_1_3002_files",
     "useMongoDBSessionStore": false,
     "mongoDBSessionStoreCollection": "127_0_0_1_3002_sessions",
+    "mongoJobCollectionName": "127_0_0_1_3002_test_jobs",
     "mongoDbVersion": "",
     "mongoDBAuth": {
       "username": "admin",
@@ -1377,6 +1381,7 @@
     "mongoDbCollectionName": "127_0_0_1_3002_files",
     "useMongoDBSessionStore": false,
     "mongoDBSessionStoreCollection": "127_0_0_1_3002_sessions",
+    "mongoJobCollectionName": "127_0_0_1_3002_jenkins_buildserver_test_jobs",
     "mongoDbVersion": "",
     "mongoDBAuth": {
       "username": "admin",
@@ -1795,6 +1800,7 @@
     "mongoDbCollectionName": "127_0_0_1_3002_files",
     "useMongoDBSessionStore": false,
     "mongoDBSessionStoreCollection": "127_0_0_1_3002_sessions",
+    "mongoJobCollectionName": "127_0_0_1_3002_travis_jobs",
     "mongoDbVersion": "",
     "mongoDBAuth": {
       "username": "",
