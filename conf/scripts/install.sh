@@ -5,6 +5,13 @@ NODE_VERSION=`cat .nvmrc`
 EXPECTED_JAVA_VERSION="18"
 JAVA_VERSION=$(java -version 2>&1 | sed -n ';s/.* version "\(.*\)\.\(.*\)\..*"/\1\2/p;')
 
+if [[ make > /dev/null ]]
+then
+    if [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+        sudo apt-get -qq -y install build-essential
+    fi
+fi
+
 # check to see if text extraction tools need to be installed
 if ! [[ tesseract > /dev/null ]]
 then
