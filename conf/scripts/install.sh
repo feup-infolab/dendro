@@ -13,7 +13,7 @@ then
 fi
 
 # check to see if text extraction tools need to be installed
-if ! [[ tesseract > /dev/null ]]
+if [[ tesseract > /dev/null ]]
 then
     # install text extraction dependencies
     echo "Text extraction libraries not detected on your system, starting installation..."
@@ -36,7 +36,7 @@ echo "Checking for Java 1.8..."
 echo "Current Java Version: $JAVA_VERSION"
 echo "Expected Java Version: $EXPECTED_JAVA_VERSION"
 
-if ! [[ "$JAVA_VERSION" = "$EXPECTED_JAVA_VERSION" ]]
+if [ "$JAVA_VERSION" = "$EXPECTED_JAVA_VERSION" ]
 then
     #For the Mac
     if [ "$(uname)" == "Darwin" ]; then
