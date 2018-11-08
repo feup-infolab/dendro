@@ -1,9 +1,7 @@
 ## Build Statuses
 
-Dendro Builder Build Status [![Build Status](http://buildserver-rdm.up.pt:8111/job/Dendro/job/dendro/job/post-ranking/badge/icon)](http://buildserver-rdm.up.pt:8111/job/Dendro/job/dendro/job/post-ranking/)
-
-Travis Build Status
-[![Build Status](https://travis-ci.org/feup-infolab/dendro.svg?branch=master)](https://travis-ci.org/feup-infolab/dendro)
+UPDigital Server [![Build Status](http://buildserver-rdm.up.pt:8111/job/Dendro/job/dendro/job/post-ranking/badge/icon)](http://buildserver-rdm.up.pt:8111/job/Dendro/job/dendro/job/post-ranking/) 
+Travis [![Build Status](https://travis-ci.org/feup-infolab/dendro.svg?branch=master)](https://travis-ci.org/feup-infolab/dendro)
 
 ## Code Quality
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/28789e8562c4460280710d730bd65ca0)](https://www.codacy.com/app/silvae86/dendro?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=feup-infolab/dendro&amp;utm_campaign=Badge_Grade)
