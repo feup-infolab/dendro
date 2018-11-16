@@ -134,7 +134,7 @@
       "user": "root",
       "password": "r00t_p4ssw0rd"
     },
-    "mySQLDBName": "dendroVagrantDemo",
+    "mySQLDBName": "dendro_data",
     "maxUploadSize": 1073741824,
     "maxProjectSize": 5368709120,
     "maxSimultaneousConnectionsToDb": 1,
@@ -420,7 +420,7 @@
         "elasticsearch",
         "mongodb"
       ],
-      "vmName": "dendroVagrantDemo",
+      "vmName": "dendro_data",
       "vmIP" : "192.168.56.249"
     }
   },
@@ -558,7 +558,7 @@
       "user": "root",
       "password": "r00t_p4ssw0rd"
     },
-    "mySQLDBName": "dendroVagrantDemo",
+    "mySQLDBName": "dendro_data",
     "maxUploadSize": 1073741824,
     "maxProjectSize": 5368709120,
     "maxSimultaneousConnectionsToDb": 1,
@@ -844,7 +844,7 @@
         "elasticsearch",
         "mongodb"
       ],
-      "vmName": "dendroVagrantDemo",
+      "vmName": "dendro_data",
       "vmIP" : "127.0.0.1"
     }
   },
@@ -982,7 +982,7 @@
       "user": "root",
       "password": "r00t_p4ssw0rd"
     },
-    "mySQLDBName": "dendroVagrantDemo_tests",
+    "mySQLDBName": "dendro_data_tests",
     "maxUploadSize": 2147483648,
     "maxProjectSize": 5368709120,
     "maxSimultaneousConnectionsToDb": 1,
@@ -1263,7 +1263,7 @@
         "elasticsearch",
         "mongodb"
       ],
-      "vmName": "dendroVagrantDemo",
+      "vmName": "dendro_data",
       "vmIP" : "192.168.56.249"
     }
   },
@@ -1401,7 +1401,7 @@
       "user": "root",
       "password": "r00t_p4ssw0rd"
     },
-    "mySQLDBName": "JENKINSTESTSdendroVagrantDemo",
+    "mySQLDBName": "JENKINSTESTSdendro_data",
     "maxUploadSize": 2147483648,
     "maxProjectSize": 5368709120,
     "maxSimultaneousConnectionsToDb": 1,
@@ -1682,7 +1682,7 @@
         "elasticsearch",
         "mongodb"
       ],
-      "vmName": "dendroVagrantDemo",
+      "vmName": "dendro_data",
       "vmIP" : "192.168.56.249"
     }
   },
@@ -1820,7 +1820,7 @@
       "user": "root",
       "password": "r00t_p4ssw0rd"
     },
-    "mySQLDBName": "TRAVISTESTSdendroVagrantDemo",
+    "mySQLDBName": "TRAVISTESTSdendro_data",
     "maxUploadSize": 2147483648,
     "maxProjectSize": 5368709120,
     "maxSimultaneousConnectionsToDb": 1,
@@ -2101,7 +2101,7 @@
         "elasticsearch",
         "mongodb"
       ],
-      "vmName": "dendroVagrantDemo",
+      "vmName": "dendro_data",
       "vmIP" : "192.168.56.249"
     }
   }
