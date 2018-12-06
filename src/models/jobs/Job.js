@@ -39,12 +39,14 @@ class Job
 
                 Job._jobTypes = [];
 
-                Job._jobTypes.forEach(function (type)
+                files.forEach(function (type)
                 {
-                    let JobType = rlequire("dendro", "/jobs/models/" + type)[type];
-                    Job._jobTypes.push(type);
-                    JobType.defineJob();
-                    JobType.registerJobEvents();
+                    const path = require("path");
+                    const jobTypeFileName = path.basename(type, ".js");
+                    let jobType = rlequire("dendro", "src/models/jobs/subtypes/" + jobTypeFileName)[jobTypeFileName];
+                    Job._jobTypes.push(jobType);
+                    jobType.defineJob();
+                    jobType.registerJobEvents();
                 });
 
                 callback(null);

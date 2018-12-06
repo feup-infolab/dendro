@@ -2,7 +2,6 @@ const rlequire = require("rlequire");
 const path = require("path");
 const async = require("async");
 const fs = require("fs");
-const slug = rlequire("dendro", "src/utils/slugifier.js");
 
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 let isNull = rlequire("dendro", "src/utils/null.js").isNull;

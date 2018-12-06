@@ -18,9 +18,8 @@ const DbConnection = rlequire("dendro", "src/kb/db.js").DbConnection;
 const Uploader = rlequire("dendro", "src/utils/uploader.js").Uploader;
 const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
-const ImportProjectJob = rlequire("dendro", "src/models/jobs/subtypes/ImportProjectJob.js").ImportProjectJob;
 const TestJob = rlequire("dendro", "src/models/jobs/subtypes/TestJob.js").TestJob;
-const Notification = rlequire("dendro", "src/models/notifications/notification.js").Notification;
+const ImportProjectJob = rlequire("dendro", "src/models/jobs/subtypes/ImportProjectJob.js").ImportProjectJob;
 
 const nodemailer = require("nodemailer");
 const flash = require("connect-flash");

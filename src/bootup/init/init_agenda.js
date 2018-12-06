@@ -20,10 +20,9 @@ const init = function (app, callback)
                 Job._agenda.start();
                 // AGENDA is now properly initiated and all jobs are defined and have its handlers registered
                 // So only now can any job still in mongoDB be fetched and restarted again
-                Job._jobTypes.forEach(function (type)
+                Job._jobTypes.forEach(function (jobType)
                 {
-                    let JobType = rlequire("dendro", "/jobs/models/" + type)[type];
-                    JobType.fetchJobsStillInMongoAndRestartThem();
+                    jobType.fetchJobsStillInMongoAndRestartThem();
                 });
                 callback(err);
             });
