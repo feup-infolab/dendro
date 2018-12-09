@@ -839,7 +839,7 @@ InformationElement.isSafePath = function (absPath, callback)
     {
         function b_in_a (b, a)
         {
-            return (b.indexOf(a) === 0);
+            return (!isNull(b) && !isNull(a) && b.indexOf(a) === 0);
         }
 
         const validDirs = [Config.tempFilesDir, Config.tempUploadsDir];

@@ -1,16 +1,15 @@
-const slug = require("slug");
+const rlequire = require("rlequire");
 const path = require("path");
 const async = require("async");
 const fs = require("fs");
 
-const Pathfinder = global.Pathfinder;
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+let isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
-const Job = require(Pathfinder.absPathInSrcFolder("/jobs/models/Job.js")).Job;
-const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
-const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
-const projects = require(Pathfinder.absPathInSrcFolder("/controllers/projects.js"));
+const Job = rlequire("dendro", "src/models/jobs/Job.js").Job;
+const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
+const Project = rlequire("dendro", "src/models/project.js").Project;
+const projects = rlequire("dendro", "src/controllers/projects.js");
 const name = path.parse(__filename).name;
 
 class ImportProjectJob extends Job
@@ -100,7 +99,7 @@ class ImportProjectJob extends Job
         {
             const msg = "Imported project Successfully";
             Logger.log("info", msg);
-            const Notification = require(Pathfinder.absPathInSrcFolder("/models/notifications/notification.js")).Notification;
+            const Notification = rlequire("dendro", "src/models/notifications/notification.js").Notification;
             Notification.buildAndSaveFromSystemMessage(msg, job.attrs.data.userAndSessionInfo.user.uri, function (err, info)
             {
                 Logger.log("info", "Imported project notification sent");

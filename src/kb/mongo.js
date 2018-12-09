@@ -1,9 +1,8 @@
 const rlequire = require("rlequire");
 const slug = rlequire("dendro", "src/utils/slugifier.js");
-const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 const MongoClient = require("mongodb").MongoClient;
-const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 function DendroMongoClient (mongoDBHost, mongoDbPort, mongoDbCollectionName, mongoDbUsername, mongoDbPassword)
 {

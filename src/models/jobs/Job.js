@@ -1,11 +1,10 @@
-const Pathfinder = global.Pathfinder;
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const MongoClient = require("mongodb").MongoClient;
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const Agenda = require("agenda");
 const fs = require("fs");
-const slug = require("slug");
+const slug = rlequire("dendro", "src/utils/slugifier.js");
 
 class Job
 {
@@ -14,43 +13,44 @@ class Job
     {
         const initAgenda = function (callback)
         {
-            const mongoDBJobCollectionDBName = slug(Config.mongoJobCollectionName, "_");
-            const url = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + mongoDBJobCollectionDBName;
-            try
-            {
-                Logger.log_boot_message("Connecting to MongoDB Jobs storage running on " + Config.mongoDBHost + ":" + Config.mongoDbPort);
-                let agenda = new Agenda({db: {address: url}});
-                Job._agenda = agenda;
-            }
-            catch (error)
-            {
-                const errorMsg = "Error connecting to MongoDB Jobs storage, error: " + JSON.stringify(error);
-                Logger.log("error", errorMsg);
-                return callback(errorMsg);
-            }
-            try
-            {
-                Job._jobTypes = Config.jobTypes ? Config.jobTypes.split(",") : [];
-            }
-            catch (error)
-            {
-                Job._jobTypes = [];
-            }
+            const jobsFolder = rlequire.absPathInApp("dendro", "src/models/jobs/subtypes");
 
-            if (!isNull(Job._jobTypes) && Job._jobTypes.length > 0)
+            fs.readdir(jobsFolder, (err, files) =>
             {
-                Job._jobTypes.forEach(function (type)
+                if (!isNull(err))
                 {
-                    let JobType = require(Pathfinder.absPathInSrcFolder("/jobs/models/" + type))[type];
-                    JobType.defineJob();
-                    JobType.registerJobEvents();
+                    return callback(err, files);
+                }
+
+                const mongoDBJobCollectionDBName = slug(Config.mongoJobCollectionName, "_");
+                const url = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + mongoDBJobCollectionDBName;
+                try
+                {
+                    Logger.log_boot_message("Connecting to MongoDB Jobs storage running on " + Config.mongoDBHost + ":" + Config.mongoDbPort);
+                    let agenda = new Agenda({db: {address: url}});
+                    Job._agenda = agenda;
+                }
+                catch (error)
+                {
+                    const errorMsg = "Error connecting to MongoDB Jobs storage, error: " + JSON.stringify(error);
+                    Logger.log("error", errorMsg);
+                    return callback(errorMsg);
+                }
+
+                Job._jobTypes = [];
+
+                files.forEach(function (type)
+                {
+                    const path = require("path");
+                    const jobTypeFileName = path.basename(type, ".js");
+                    let jobType = rlequire("dendro", "src/models/jobs/subtypes/" + jobTypeFileName)[jobTypeFileName];
+                    Job._jobTypes.push(jobType);
+                    jobType.defineJob();
+                    jobType.registerJobEvents();
                 });
-            }
-            else
-            {
-                Logger.log("info", "There are no Jobs set to run in the deployment_config file!");
-            }
-            callback(null);
+
+                callback(null);
+            });
         };
 
         initAgenda(function (err)

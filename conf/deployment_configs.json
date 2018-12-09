@@ -6,6 +6,7 @@
       "secret": "THF4A9JfsMbTaHYefVtquzFbrdNUMSbTHF4A9JfsMbTaHYefVtquzFbrdNUMSbpHeRjKE24Tyk2LqxVa3ERyGAAaP8j7gXArZsJk4bjKj8F4YZnCqAyaw9auPn6ahDwc4scLCrayLX9BsYwqXaMKrfW82WdqD5pYApFaQ9JNCqQ25qb75GKfAZSgvNuzFXKT6mGGw6qk63HqjgGwty4qx4QkYXxNCsbez4jwzeRc58AfSvzXZfEf8asSNWhhfEBWCvCeAJs3BGZFFFuwZ7EAVhmyu7NqqzHpHeRjKE24Tyk2LqxVa3ERyGAAaP8j7gXArZsJk4bjKj8F4YZnCqAyaw9auPn6ahDwc4scLCrayLX9BsYwqXaMKrfW82WdqD5pYApFaQ9JNCqQ25qb75GKfAZSgvNuzFXKT6mGGw6qk63HqjgGwty4qx4QkYXxNCsbez4jwzeRc58AfSvzXZfEf8asSNWhhfEBWCvCeAJs3BGZFFFuwZ7EAVhmyu7NqqzAIAIMARIA"
     },
     "baseUri": "http://127.0.0.1:3001",
+    "jobTypes": "ImportProjectJob,TestJob",
     "environment": "development",
     "skipDescriptorValuesValidation": false,
     "eudatBaseUrl": "https://trng-b2share.eudat.eu",
@@ -113,6 +114,7 @@
     "mongoDbCollectionName": "127_0_0_1_3001_files",
     "useMongoDBSessionStore": true,
     "mongoDBSessionStoreCollection": "127_0_0_1_3001_sessions",
+    "mongoJobCollectionName": "127_0_0_1_3002_dev_jobs",
     "mongoDbVersion": "",
     "mongoDBAuth": {
       "username": "admin",
@@ -418,7 +420,7 @@
         "elasticsearch",
         "mongodb"
       ],
-      "vmName": "dendroVagrantDemo",
+      "vmName": "dendro_data",
       "vmIP" : "192.168.56.249"
     }
   },
@@ -536,6 +538,7 @@
     "mongoDbCollectionName": "127_0_0_1_3001_files",
     "useMongoDBSessionStore": true,
     "mongoDBSessionStoreCollection": "127_0_0_1_3001_sessions",
+    "mongoJobCollectionName": "127_0_0_1_3001_dev_docker_jobs",
     "mongoDbVersion": "",
     "mongoDBAuth": {
       "username": "",
@@ -841,7 +844,7 @@
         "elasticsearch",
         "mongodb"
       ],
-      "vmName": "dendroVagrantDemo",
+      "vmName": "dendro_data",
       "vmIP" : "127.0.0.1"
     }
   },
@@ -959,6 +962,7 @@
     "mongoDbCollectionName": "127_0_0_1_3002_files",
     "useMongoDBSessionStore": false,
     "mongoDBSessionStoreCollection": "127_0_0_1_3002_sessions",
+    "mongoJobCollectionName": "127_0_0_1_3002_test_jobs",
     "mongoDbVersion": "",
     "mongoDBAuth": {
       "username": "admin",
@@ -978,7 +982,7 @@
       "user": "root",
       "password": "r00t_p4ssw0rd"
     },
-    "mySQLDBName": "dendroVagrantDemo_tests",
+    "mySQLDBName": "dendro_data_tests",
     "maxUploadSize": 2147483648,
     "maxProjectSize": 5368709120,
     "maxSimultaneousConnectionsToDb": 1,
@@ -1259,7 +1263,7 @@
         "elasticsearch",
         "mongodb"
       ],
-      "vmName": "dendroVagrantDemo",
+      "vmName": "dendro_data",
       "vmIP" : "192.168.56.249"
     }
   },
@@ -1377,6 +1381,7 @@
     "mongoDbCollectionName": "127_0_0_1_3002_files",
     "useMongoDBSessionStore": false,
     "mongoDBSessionStoreCollection": "127_0_0_1_3002_sessions",
+    "mongoJobCollectionName": "127_0_0_1_3002_jenkins_buildserver_test_jobs",
     "mongoDbVersion": "",
     "mongoDBAuth": {
       "username": "admin",
@@ -1396,7 +1401,7 @@
       "user": "root",
       "password": "r00t_p4ssw0rd"
     },
-    "mySQLDBName": "JENKINSTESTSdendroVagrantDemo",
+    "mySQLDBName": "JENKINSTESTSdendro_data",
     "maxUploadSize": 2147483648,
     "maxProjectSize": 5368709120,
     "maxSimultaneousConnectionsToDb": 1,
@@ -1677,7 +1682,7 @@
         "elasticsearch",
         "mongodb"
       ],
-      "vmName": "dendroVagrantDemo",
+      "vmName": "dendro_data",
       "vmIP" : "192.168.56.249"
     }
   },
@@ -1795,6 +1800,7 @@
     "mongoDbCollectionName": "127_0_0_1_3002_files",
     "useMongoDBSessionStore": false,
     "mongoDBSessionStoreCollection": "127_0_0_1_3002_sessions",
+    "mongoJobCollectionName": "127_0_0_1_3002_travis_jobs",
     "mongoDbVersion": "",
     "mongoDBAuth": {
       "username": "",
@@ -1814,7 +1820,7 @@
       "user": "root",
       "password": "r00t_p4ssw0rd"
     },
-    "mySQLDBName": "TRAVISTESTSdendroVagrantDemo",
+    "mySQLDBName": "TRAVISTESTSdendro_data",
     "maxUploadSize": 2147483648,
     "maxProjectSize": 5368709120,
     "maxSimultaneousConnectionsToDb": 1,
@@ -2095,7 +2101,7 @@
         "elasticsearch",
         "mongodb"
       ],
-      "vmName": "dendroVagrantDemo",
+      "vmName": "dendro_data",
       "vmIP" : "192.168.56.249"
     }
   }

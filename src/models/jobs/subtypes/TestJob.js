@@ -1,9 +1,9 @@
+const rlequire = require("rlequire");
 const path = require("path");
-const Pathfinder = global.Pathfinder;
-const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
-const Job = require(Pathfinder.absPathInSrcFolder("/jobs/models/Job.js")).Job;
+const Job = rlequire("dendro", "src/models/jobs/Job.js").Job;
 const name = path.parse(__filename).name;
 
 class TestJob extends Job

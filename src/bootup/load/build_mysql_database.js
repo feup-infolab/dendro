@@ -44,8 +44,23 @@ const buildMySQLDatabase = function (app, callback)
 
                 const createDatabase = function ()
                 {
-                    let createQuery = "CREATE DATABASE IF NOT EXISTS " + Config.mySQLDBName + ";";
-                    return sequelize.query(createQuery)
+                    return sequelize.query(`CREATE DATABASE IF NOT EXISTS ${Config.mySQLDBName};`)
+                        .then(result =>
+                            sequelize.query(`GRANT ALL PRIVILEGES ON ${Config.mySQLDBName}.* TO '${Config.mySQLAuth.user}'@'%'; `)
+                                .then(result =>
+                                    sequelize.query(`FLUSH PRIVILEGES;`)
+                                        .catch(err =>
+                                        {
+                                            Logger.log("error", "Error flushing privileges in MySQL");
+                                            Logger.log("error", JSON.stringify(err));
+                                            throw err;
+                                        }))
+                                .catch(err =>
+                                {
+                                    Logger.log("error", `Error granting all privileges on database ${Config.mySQLDBName} in MySQL.`);
+                                    Logger.log("error", JSON.stringify(err));
+                                    throw err;
+                                }))
                         .catch(err =>
                         {
                             Logger.log("error", "Error creating database in MySQL: " + Config.mySQLDBName);
@@ -56,19 +71,18 @@ const buildMySQLDatabase = function (app, callback)
 
                 if (Config.startup.load_databases && Config.startup.destroy_mysql_database)
                 {
-                    destroyDatabase()
+                    return destroyDatabase()
                         .then(data =>
+                        {
                             createDatabase()
                                 .then(data =>
-                                    callback(null, data))
-                        );
+                                    callback(null, data));
+                        });
                 }
-                else
-                {
-                    createDatabase()
-                        .then(data =>
-                            callback(null, data));
-                }
+
+                return createDatabase()
+                    .then(data =>
+                        callback(null, data));
             })
             .catch(err =>
             {

@@ -2,18 +2,19 @@ const chai = require("chai");
 const async = require("async");
 const chaiHttp = require("chai-http");
 const deepEqual = require("deep-equal");
+const rlequire = require("rlequire");
 const should = chai.should();
 chai.use(chaiHttp);
 
-const rlequire = require("rlequire");
+const Pathfinder = global.Pathfinder;
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const projectUtils = rlequire("dendro", "test/utils/project/projectUtils.js");
-const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
-const folderUtils = rlequire("dendro", "test/utils/folder/folderUtils.js");
-const httpUtils = rlequire("dendro", "test/utils/http/httpUtils.js");
+const userUtils =  rlequire("dendro", "test/utils/user/userUtils.js");
+const folderUtils =  rlequire("dendro", "test/utils/folder/folderUtils.js");
+const httpUtils =  rlequire("dendro", "test/utils/http/httpUtils.js");
 const descriptorUtils = rlequire("dendro", "test/utils/descriptor/descriptorUtils.js");
-const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
+const appUtils =  rlequire("dendro", "test/utils/app/appUtils.js");
 
 const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");
 const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2.js");
@@ -24,7 +25,7 @@ const uploadFilesAndAddMetadataUnit = rlequire("dendro", "test/units/social/uplo
 const createUsersUnit = rlequire("dendro", "test/units/users/createUsers.Unit.js");
 const createAllFoldersAndAllFilesInsideThemWithMetadataUnit = rlequire("dendro", "test/units/projects/createAllFoldersAndAllFilesInsideThemWithMetadata.Unit.js");
 
-const privateProject = rlequire("dendro", "test/mockdata/projects/private_project.js");
+const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js");
 
 const createProjectsUnit = rlequire("dendro", "test/units/projects/createProjects.Unit.js");
 const projectsData = createProjectsUnit.projectsData;
@@ -272,6 +273,17 @@ describe("Import projects", function (done)
 
     describe("[POST] [Hard Invalid Cases, requiring a first import] /projects/import", function ()
     {
+        // The controller function for the import of projects has changed
+        // The dendro webapp now responds to the client right after the project zip is uploaded
+        // If there are any errors after the zip upload stage-> they are show on the projects list page
+        // The user then has to delete the project or try again
+        // This was necessary because some projects being imported were so large that timeouts were occurring
+        // So if there are any errors post upload of the zip file -> the project is now not deleted automatically -> the user is shown a status with an error and error message in the projects list page
+        // this "before" call bellow is needed because in the previous "describe"
+        // In the stub "Should give an error with a status code of 500 when the zip file used to import the project is not in a correct BagIt Format, even though the user is logged in"
+        // The import fails but the error given occurs after the project is already created
+        // So the project privateproject is leftover with an errored stated
+        // This is why this "before" call is needed
         before(function (done)
         {
             createUsersUnit.setup(function (err, results)
