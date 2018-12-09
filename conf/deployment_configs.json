@@ -132,7 +132,7 @@
       "user": "root",
       "password": "r00t_p4ssw0rd"
     },
-    "mySQLDBName": "dendroVagrantDemo",
+    "mySQLDBName": "dendro_data",
     "maxUploadSize": 1073741824,
     "maxProjectSize": 5368709120,
     "maxSimultaneousConnectionsToDb": 1,
@@ -555,7 +555,7 @@
       "user": "root",
       "password": "r00t_p4ssw0rd"
     },
-    "mySQLDBName": "dendroVagrantDemo",
+    "mySQLDBName": "dendro_data",
     "maxUploadSize": 1073741824,
     "maxProjectSize": 5368709120,
     "maxSimultaneousConnectionsToDb": 1,
@@ -690,7 +690,7 @@
       "load_databases": true,
       "reload_administrators_on_startup": true,
       "reload_demo_users_on_startup": true,
-      "reload_ontologies_on_startup": false,
+      "reload_ontologies_on_startup": true,
       "clear_session_store": true,
       "log_bootup_actions": true,
       "destroy_all_graphs": false,
