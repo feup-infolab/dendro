@@ -24,8 +24,7 @@ const init = function (app, callback)
                 {
                     Job._jobTypes.forEach(function (type)
                     {
-                        let JobType = require(Pathfinder.absPathInSrcFolder("/jobs/models/" + type))[type];
-                        JobType.fetchJobsStillInMongoAndRestartThem();
+                        type.fetchJobsStillInMongoAndRestartThem();
                     });
                 }
                 else

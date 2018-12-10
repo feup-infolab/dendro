@@ -23,7 +23,7 @@ const Notification = rlequire("dendro", "src/models/notifications/notification.j
 
 const db = Config.getDBByID();
 
-function Folder (object)
+function Folder (object= {})
 {
     const self = this;
     self.addURIAndRDFType(object, "folder", Folder);
@@ -1031,7 +1031,7 @@ Folder.prototype.loadMetadata = function (
             if (isNull(err))
             {
                 Notification.sendProgress(
-                    "Metadata values of file " + folder.uri + " successfully restored. ",
+                    "Metadata values of file " + file.uri + " successfully restored. ",
                     progressReporter,
                     self
                 );

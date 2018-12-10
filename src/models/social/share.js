@@ -15,7 +15,7 @@ const db_social = Config.getDBByID("social");
 
 const async = require("async");
 
-function Share (object)
+function Share (object = {})
 {
     const self = this;
     self.addURIAndRDFType(object, "share", Share);

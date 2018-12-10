@@ -8,7 +8,7 @@ const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const db = Config.getDBByID();
 
-let StorageConfig = function (object)
+let StorageConfig = function (object = {})
 {
     const self = this;
 

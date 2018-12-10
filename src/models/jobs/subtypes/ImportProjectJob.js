@@ -9,7 +9,7 @@ let isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const Job = rlequire("dendro", "src/models/jobs/Job.js").Job;
 const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
 const Project = rlequire("dendro", "src/models/project.js").Project;
-const projects = rlequire("dendro", "src/controllers/projects.js");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const name = path.parse(__filename).name;
 
 class ImportProjectJob extends Job
@@ -21,74 +21,89 @@ class ImportProjectJob extends Job
         {
             let uploadedBackupAbsPath = job.attrs.data.uploadedBackupAbsPath;
             let userAndSessionInfo = job.attrs.data.userAndSessionInfo;
-            let newProject = job.attrs.data.newProject;
-            projects.processImport(newProject.uri, uploadedBackupAbsPath, userAndSessionInfo, function (err, info)
+            let newProject = new Project(job.attrs.data.newProject);
+            const userIsAdmin = (userAndSessionInfo.user.isAdmin || userAndSessionInfo.session.isAdmin);
+
+            Project.unzipAndValidateBagItBackupStructure(uploadedBackupAbsPath, Config.maxProjectSize, userIsAdmin, function (err, result)
             {
-                if (isNull(err))
+                if (!err)
                 {
-                    Logger.log("info", "Project with uri: " + newProject.uri + " was successfully restored");
-                    Logger.log("info", "Will remove " + name + "job");
-                    done();
-                }
-                else
-                {
-                    Logger.log("error", "Error restoring a project with uri: " + newProject.uri + ", error: " + JSON.stringify(info));
-                    if (!isNull(newProject))
+                    newProject.importFromBagItBackupDirectory(uploadedBackupAbsPath, userAndSessionInfo, function (err, info)
                     {
-                        Project.findByUri(newProject.uri, function (err, createdProject)
+                        if (isNull(err))
                         {
-                            if (isNull(err))
+                            Logger.log("info", "Project with uri: " + newProject.uri + " was successfully restored");
+                            Logger.log("info", "Will remove " + name + "job");
+                            done();
+                        }
+                        else
+                        {
+                            Logger.log("error", "Error restoring a project with uri: " + newProject.uri + ", error: " + JSON.stringify(info));
+                            if (!isNull(newProject))
                             {
-                                if (!isNull(createdProject))
-                                {
-                                    delete createdProject.ddr.is_being_imported;
-                                    createdProject.ddr.hasErrors = "There was an error during a project restore, error message : " + JSON.stringify(info);
-                                    createdProject.save(function (err, result)
-                                    {
-                                        if (!isNull(err))
-                                        {
-                                            Logger.log("error", "Error when saving a project error message from a restore operation, error: " + JSON.stringify(result));
-                                        }
-                                        done(JSON.stringify(info));
-                                    });
-                                }
-                                else
-                                {
-                                    Logger.log("error", "Error at " + name + " , project with uri: " + newProject.uri + " does not exist");
-                                    Logger.log("error", "Will remove " + name + " job");
-                                    job.remove(function (err)
-                                    {
-                                        if (isNull(err))
-                                        {
-                                            Logger.log("info", "Successfully removed " + name + " job from collection");
-                                        }
-                                        else
-                                        {
-                                            Logger.log("error", "Could not remove " + name + " job from collection");
-                                        }
-                                    });
-                                }
-                            }
-                            else
-                            {
-                                Logger.log("error", "Error at " + name + " , error: " + JSON.stringify(createdProject));
-                                Logger.log("error", "Will remove " + name + " job");
-                                job.remove(function (err)
+                                Project.findByUri(newProject.uri, function (err, createdProject)
                                 {
                                     if (isNull(err))
                                     {
-                                        Logger.log("info", "Successfully removed " + name + " job from collection");
+                                        if (!isNull(createdProject))
+                                        {
+                                            delete createdProject.ddr.is_being_imported;
+                                            const msg = "Error when saving a project error message from a restore operation, error: " + JSON.stringify(result);
+                                            createdProject.ddr.hasErrors = msg;
+                                            createdProject.save(function (err, result)
+                                            {
+                                                if (!isNull(err))
+                                                {
+                                                    Logger.log("error");
+                                                }
+                                                done(msg);
+                                            });
+                                        }
+                                        else
+                                        {
+                                            Logger.log("error", "Error at " + name + " , project with uri: " + newProject.uri + " does not exist");
+                                            Logger.log("error", "Will remove " + name + " job");
+                                            job.remove(function (err)
+                                            {
+                                                if (isNull(err))
+                                                {
+                                                    Logger.log("info", "Successfully removed " + name + " job from collection");
+                                                }
+                                                else
+                                                {
+                                                    Logger.log("error", "Could not remove " + name + " job from collection");
+                                                }
+                                            });
+                                        }
                                     }
                                     else
                                     {
-                                        Logger.log("error", "Could not remove " + name + " job from collection");
+                                        Logger.log("error", "Error at " + name + " , error: " + JSON.stringify(createdProject));
+                                        Logger.log("error", "Will remove " + name + " job");
+                                        job.remove(function (err)
+                                        {
+                                            if (isNull(err))
+                                            {
+                                                Logger.log("info", "Successfully removed " + name + " job from collection");
+                                            }
+                                            else
+                                            {
+                                                Logger.log("error", "Could not remove " + name + " job from collection");
+                                            }
+                                        });
                                     }
                                 });
                             }
-                        });
-                    }
+                        }
+                    }, job);
                 }
-            }, job);
+                else
+                {
+                    const msg = "Invalid file structure for " + uploadedBackupAbsPath + " when performing a restore operation, error: " + JSON.stringify(result);
+                    Logger.log("error", msg);
+                    done(msg);
+                }
+            });
         };
         super.defineJob(name, jobDefinitionFunction);
     }

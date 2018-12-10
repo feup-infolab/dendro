@@ -15,7 +15,7 @@ const Notification = rlequire("dendro", "src/models/notifications/notification.j
 
 const db = Config.getDBByID();
 
-function InformationElement (object)
+function InformationElement (object = {})
 {
     const self = this;
     self.addURIAndRDFType(object, "information_element", InformationElement);

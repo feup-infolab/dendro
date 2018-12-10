@@ -16,7 +16,7 @@ const db = Config.getDBByID();
 const _ = require("underscore");
 const async = require("async");
 
-function ArchivedResource (object)
+function ArchivedResource (object = {})
 {
     const self = this;
     self.addURIAndRDFType(object, "archived_resource", ArchivedResource);

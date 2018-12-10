@@ -12,7 +12,7 @@ const db = Config.getDBByID();
 
 const async = require("async");
 
-function ExternalRepository (object)
+function ExternalRepository (object = {})
 {
     const self = this;
     self.addURIAndRDFType(object, "external_repository", ExternalRepository);

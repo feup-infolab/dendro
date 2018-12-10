@@ -17,7 +17,7 @@ const gfs = Config.getGFSByID();
 
 const async = require("async");
 
-function File (object)
+function File (object = {})
 {
     const self = this;
     self.addURIAndRDFType(object, "file", File);
