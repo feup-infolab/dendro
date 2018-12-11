@@ -23,10 +23,22 @@ class Job
                 }
 
                 const mongoDBJobCollectionDBName = slug(Config.mongoJobCollectionName, "_");
-                const url = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + mongoDBJobCollectionDBName;
+
+                let url;
+                if (Config.mongoDBAuth.username && Config.mongoDBAuth.password && Config.mongoDBAuth.password !== "" && Config.mongoDBAuth.username !== "")
+                {
+                    // + "?authSource=admin";
+                    url = "mongodb://" + Config.mongoDBAuth.username + ":" + Config.mongoDBAuth.password + "@" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + mongoDBJobCollectionDBName + "?authSource=admin";
+                    Logger.log("debug", "Connecting to MongoDB Jobs Collection using connection string: " + "mongodb://" + Config.mongoDBAuth.username + ":" + "PASSWORD" + "@" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + mongoDBJobCollectionDBName + "?authSource=admin");
+                }
+                else
+                {
+                    url = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + mongoDBJobCollectionDBName;
+                    Logger.log("debug", "Connecting to GridFS Jobs Collection using connection string: " + url);
+                }
+
                 try
                 {
-                    Logger.log_boot_message("Connecting to MongoDB Jobs storage running on " + Config.mongoDBHost + ":" + Config.mongoDbPort);
                     let agenda = new Agenda({db: {address: url}});
                     Job._agenda = agenda;
                 }

@@ -33,8 +33,8 @@ GridFSConnection.prototype.open = function (callback, customBucket)
         if (Config.mongoDBAuth.username && Config.mongoDBAuth.password && Config.mongoDBAuth.password !== "" && Config.mongoDBAuth.username !== "")
         {
             // + "?authSource=admin";
-            url = "mongodb://" + Config.mongoDBAuth.username + ":" + Config.mongoDBAuth.password + "@" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + self.collectionName;
-            Logger.log("debug", "Connecting to GridFS using connection string: " + "mongodb://" + Config.mongoDBAuth.username + ":" + "PASSWORD" + "@" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + self.collectionName);
+            url = "mongodb://" + Config.mongoDBAuth.username + ":" + Config.mongoDBAuth.password + "@" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + self.collectionName+ "?authSource=admin";
+            Logger.log("debug", "Connecting to GridFS using connection string: " + "mongodb://" + Config.mongoDBAuth.username + ":" + "PASSWORD" + "@" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + self.collectionName + "?authSource=admin");
         }
         else
         {

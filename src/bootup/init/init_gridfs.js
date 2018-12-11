@@ -24,6 +24,7 @@ const initGridFS = function (app, callback)
         {
             if (err)
             {
+                Logger.log("error", "Error Connecting to GridFS. Message: " + err.message);
                 return callback(err, gfsConn);
             }
             else
