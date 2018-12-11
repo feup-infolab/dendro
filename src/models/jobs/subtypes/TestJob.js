@@ -71,12 +71,12 @@ class TestJob extends Job
                     job.save();
                 });
                 let msg = "There are " + jobs.length + " of type " + name + " that will attempt running again!";
-                Logger.log("info", msg);
+                Logger.log("debug", msg);
             }
             else
             {
                 const msg = "No " + name + " jobs in mongodb to attempt running again!";
-                Logger.log("info", msg);
+                Logger.log("debug", msg);
             }
         };
         super.fetchJobsStillInMongoAndRestartThem(name, restartJobFunction);

@@ -33,7 +33,7 @@ class ImportProjectJob extends Job
                         if (isNull(err))
                         {
                             Logger.log("info", "Project with uri: " + newProject.uri + " was successfully restored");
-                            Logger.log("info", "Will remove " + name + "job");
+                            Logger.log("debug", "Will remove " + name + " job");
                             done();
                         }
                         else
@@ -62,7 +62,7 @@ class ImportProjectJob extends Job
                                         else
                                         {
                                             Logger.log("error", "Error at " + name + " , project with uri: " + newProject.uri + " does not exist");
-                                            Logger.log("error", "Will remove " + name + " job");
+                                            Logger.log("debug", "Will remove " + name + " job");
                                             job.remove(function (err)
                                             {
                                                 if (isNull(err))
@@ -79,7 +79,7 @@ class ImportProjectJob extends Job
                                     else
                                     {
                                         Logger.log("error", "Error at " + name + " , error: " + JSON.stringify(createdProject));
-                                        Logger.log("error", "Will remove " + name + " job");
+                                        Logger.log("debug", "Will remove " + name + " job");
                                         job.remove(function (err)
                                         {
                                             if (isNull(err))

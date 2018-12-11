@@ -39,7 +39,12 @@ class Job
 
                 try
                 {
-                    let agenda = new Agenda({db: {address: url}});
+                    let agenda = new Agenda({
+                        db: {
+                            address: url
+                        },
+                        maxConcurrency: 1
+                    });
                     Job._agenda = agenda;
                 }
                 catch (error)
@@ -69,7 +74,7 @@ class Job
         {
             if (isNull(err))
             {
-                Logger.log("info", "Job dependencies are now set!");
+                Logger.log("debug", "Job dependencies are now set!");
                 callback(null);
             }
             else

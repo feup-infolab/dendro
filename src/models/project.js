@@ -881,18 +881,30 @@ Project.prototype.getRootFolder = function (callback)
             }
             else
             {
-                const newRootFolder = new Folder();
+                const newRootFolder = new Folder({
+                    nie: {
+                        title: self.ddr.handle,
+                        isLogicalPartOf: self.uri
+                    },
+                    ddr: {
+                        humanReadableURI: self.ddr.humanReadableURI + "/data"
+                    }
+                });
+
                 newRootFolder.nie.isLogicalPartOf = self.uri;
-                newRootFolder.save(function (err, result)
+                newRootFolder.save(function (err)
                 {
                     if (isNull(err))
                     {
                         self.ddr.rootFolder = newRootFolder.uri;
-                        self.save(callback);
+                        self.save(function (err)
+                        {
+                            callback(err, newRootFolder);
+                        });
                     }
                     else
                     {
-                        callback(err, result);
+                        callback(err, newRootFolder);
                     }
                 });
             }
@@ -1753,8 +1765,6 @@ Project.prototype.restoreFromFolder = function (
     {
         entityLoadingTheMetadataUri = User.anonymous.uri;
     }
-
-    const metadataFileAbsPath = path.join(absPathOfRootFolder, Config.packageMetadataFileName);
 
     self.getRootFolder(function (err, rootFolder)
     {
