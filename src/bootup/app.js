@@ -50,6 +50,12 @@ class App
     setupHandlers ()
     {
         const self = this;
+
+        if (App._handlers_are_installed === true)
+        {
+            return;
+        }
+
         // if this fancy cleanup fails, we drop the hammer in 10 secs
         const setupForceKillTimer = function ()
         {
@@ -108,6 +114,8 @@ class App
                 process.exit(code);
             });
         });
+
+        App._handlers_are_installed = true;
     }
 
     initLogger ()
@@ -856,6 +864,9 @@ class App
     }
 }
 
-App._handlers_are_installed = false;
+if (!(App._handlers_are_installed === true) || isNull(App._handlers_are_installed))
+{
+    App._handlers_are_installed = false;
+}
 
 module.exports.App = App;
