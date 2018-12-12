@@ -2074,7 +2074,7 @@
     },
     "numCPUs": 1,
     "testing": {
-      "apply_cooldown_every_x_tests": 10,
+      "apply_cooldown_every_x_tests": -1,
       "cooldown_secs": 20
     },
     "docker": {
