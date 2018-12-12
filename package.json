@@ -1,6 +1,6 @@
 {
   "name": "dendro",
-  "version": "0.4.0",
+  "version": "0.6.0-beta",
   "private": true,
   "description": "The Dendro platform is an open-source data storage and description platform designed to help users describe their data files, fully built on Linked Open Data and ontologies. Whenever users want to publish a dataset, they can export to repositories such as CKAN, Zenodo, DSpace or EUDAT's B2Share. More repositories can be added at will. http://dendro.fe.up.pt.",
   "repository": "https://github.com/feup-infolab/dendro",
@@ -43,6 +43,7 @@
     "@feup-infolab/node-b2drop": "^1.1.0",
     "@feup-infolab/node-b2share-v2": "4.0.1",
     "JSONStream": "^1.3.1",
+    "agenda": "^1.0.3",
     "agentkeepalive": "^3.4.0",
     "archiver": "^2.1.0",
     "async": "*",

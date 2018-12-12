@@ -18,7 +18,7 @@ var gfs = Config.getGFSByID();
 var _ = require("underscore");
 var async = require("async");
 
-function MetadataChangePost (object)
+function MetadataChangePost (object = {})
 {
     const self = this;
     self.addURIAndRDFType(object, "post", MetadataChangePost);

@@ -6,7 +6,6 @@
 const moment = require("moment");
 const rlequire = require("rlequire");
 const request = require("request");
-const Pathfinder = global.Pathfinder;
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;

@@ -14,7 +14,7 @@ const db = Config.getDBByID();
 const _ = require("underscore");
 const async = require("async");
 
-function Ontology (object)
+function Ontology (object = {})
 {
     const self = this;
     self.copyOrInitDescriptors(object);

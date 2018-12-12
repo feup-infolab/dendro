@@ -11,7 +11,7 @@ const IO = rlequire("dendro", "src/bootup/models/io.js").IO;
 const dbNotifications = Config.getDBByID("notifications");
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
-function Notification (object)
+function Notification (object = {})
 {
     const self = this;
     self.addURIAndRDFType(object, "notification", Notification);

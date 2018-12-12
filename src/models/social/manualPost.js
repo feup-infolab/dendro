@@ -16,7 +16,7 @@ var gfs = Config.getGFSByID();
 var _ = require("underscore");
 var async = require("async");
 
-function ManualPost (object)
+function ManualPost (object = {})
 {
     const self = this;
     // self.addURIAndRDFType(object, "post", Post);

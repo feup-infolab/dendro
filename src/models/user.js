@@ -21,7 +21,7 @@ const gfs = Config.getGFSByID();
 
 const dbMySQL = rlequire("dendro", "src/mysql_models");
 
-function User (object)
+function User (object = {})
 {
     const self = this;
     self.addURIAndRDFType(object, "user", User);

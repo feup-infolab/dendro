@@ -7,7 +7,7 @@
 
 <div ng-controller="timelineCtrl" ng-init="initTimeline('<%= posts %>', '<%= useRank %>');get_logged_user();">
     <div ng-cloak>
-        <div class="container">
+        <div class="container" id="social_dendro_timeline">
             <h3 ng-if="useRank==0" class="text-center">Recent posts</h3>
             <h3 ng-if="useRank==1" class="text-center">Important posts</h3>
             <li class="text-center dropdown">

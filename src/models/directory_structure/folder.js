@@ -23,7 +23,7 @@ const Notification = rlequire("dendro", "src/models/notifications/notification.j
 
 const db = Config.getDBByID();
 
-function Folder (object)
+function Folder (object= {})
 {
     const self = this;
     self.addURIAndRDFType(object, "folder", Folder);
@@ -980,7 +980,7 @@ Folder.prototype.loadContentsOfFolderIntoThis = function (absolutePathOfLocalFol
                     if (isNull(err))
                     {
                         Notification.sendProgress(
-                            `Adding children of " + ${path.basename(absolutePathOfLocalFolder)} + " to " + ${self.nie.title}...`,
+                            `Adding children of " + ${path.basename(absolutePathOfLocalFolder)} to ${self.nie.title}...`,
                             progressReporter,
                             self
                         );
@@ -988,7 +988,7 @@ Folder.prototype.loadContentsOfFolderIntoThis = function (absolutePathOfLocalFol
                         addChildrenTriples(results, function (err, result)
                         {
                             Notification.sendProgress(
-                                `All children of " + ${path.basename(absolutePathOfLocalFolder)} + " loaded into " + ${self.nie.title}.`,
+                                `All children of " + ${path.basename(absolutePathOfLocalFolder)} loaded into ${self.nie.title}.`,
                                 progressReporter,
                                 self
                             );
@@ -1018,7 +1018,8 @@ Folder.prototype.loadMetadata = function (
     entityLoadingTheMetadata,
     excludedDescriptorTypes,
     exceptionedDescriptorTypes,
-    restoreIntoTheSameRootFolder
+    restoreIntoTheSameRootFolder,
+    progressReporter
 )
 {
     const self = this;
@@ -1042,6 +1043,12 @@ Folder.prototype.loadMetadata = function (
         {
             if (isNull(err))
             {
+                Notification.sendProgress(
+                    "Metadata values of folder " + folder.uri + " successfully restored. ",
+                    progressReporter,
+                    self
+                );
+
                 return callback(null, "Folder " + folder.uri + " successfully restored. ");
             }
             return callback(err, "Error restoring folder " + folder.uri + " : " + result);
@@ -1051,6 +1058,12 @@ Folder.prototype.loadMetadata = function (
         {
             if (isNull(err))
             {
+                Notification.sendProgress(
+                    "Metadata values of file " + file.uri + " successfully restored. ",
+                    progressReporter,
+                    self
+                );
+
                 return callback(null, "File " + file.uri + " successfully restored .");
             }
             return callback(err, "Error restoring file " + file.uri + " : " + result);
@@ -1435,7 +1448,7 @@ Folder.prototype.restoreFromFolder = function (absPathOfRootFolder,
                                     return callback(null, "Data and metadata restored successfully. Result : " + result);
                                 }
                                 return callback(1, "Error restoring metadata for node " + self.uri + " : " + result);
-                            }, entityLoadingTheMetadataUri, [Elements.access_types.locked], [Elements.access_types.restorable], restoreIntoTheSameRootFolder);
+                            }, entityLoadingTheMetadataUri, [Elements.access_types.locked], [Elements.access_types.restorable], restoreIntoTheSameRootFolder, progressReporter);
                         });
                     }
                     else

@@ -1,4 +1,8 @@
-[![Build Status](https://travis-ci.org/feup-infolab/dendro.svg?branch=master)](https://travis-ci.org/feup-infolab/dendro)
+## Build Statuses
+
+UPDigital Server [![Build Status](http://buildserver-rdm.up.pt:8111/job/Dendro/job/dendro/job/post-ranking/badge/icon)](http://buildserver-rdm.up.pt:8111/job/Dendro/job/dendro/job/post-ranking/) Travis [![Build Status](https://travis-ci.org/feup-infolab/dendro.svg?branch=master)](https://travis-ci.org/feup-infolab/dendro)
+
+## Code Quality
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/28789e8562c4460280710d730bd65ca0)](https://www.codacy.com/app/silvae86/dendro?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=feup-infolab/dendro&amp;utm_campaign=Badge_Grade)
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/28789e8562c4460280710d730bd65ca0)](https://www.codacy.com/app/silvae86/dendro?utm_source=github.com&utm_medium=referral&utm_content=feup-infolab/dendro&utm_campaign=Badge_Coverage)
 [![dependencies](https://david-dm.org/feup-infolab/dendro.svg)](https://david-dm.org/feup-infolab/dendro)
@@ -41,7 +45,46 @@ We provide a [Docker image](https://hub.docker.com/r/joaorosilva/dendro/) for ge
 
 If you just want to download dendro and start developing, Dendro now supports automatic deployment using Docker containers for all dependencies (MySQL, Virtuoso and ElasticSearch). This only works for Mac and Linux machines (for now).
 
-1. Install [Docker](https://docs.docker.com/docker-for-windows/install/)
+1. Install Docker
+
+Here is the "just copy and paste" installations script for Docker in Ubuntu. Enjoy.
+
+```bash
+# Install dependencies
+sudo apt-get update
+sudo apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    software-properties-common
+
+# Add Docker repo
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo apt-key fingerprint 0EBFCD88
+sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+sudo apt-get update
+
+# Install Docker
+sudo apt-get install -y docker-ce
+
+# Start Docker Daemon
+sudo service docker start
+
+# Add yourself to the Docker user group, otherwise docker will complain that
+# it does not know if the Docker Daemon is running
+sudo usermod -aG docker ${USER}
+
+# Install docker-compose
+sudo curl -L "https://github.com/docker/compose/releases/download/1.23.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+source ~/.bashrc
+docker-compose --version
+echo "Done!"
+```
+
 2. Open a Terminal window on Linux/Mac
 3. Clone the Dendro Docker installation repository by pasting this code
 ````bash

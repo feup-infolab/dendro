@@ -76,7 +76,6 @@ DockerManager.stopAllContainers = function (callback)
                 callback(err, result);
             });
         }
-
         logEverythingFromChildProcess(dockerSubProcess);
     }
     else

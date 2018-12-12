@@ -16,9 +16,14 @@ const _ = require("underscore");
 
 const db = Config.getDBByID();
 
-function Resource (object)
+function Resource (object = {})
 {
     let self = this;
+    if (isNull(object))
+    {
+        object = {};
+    }
+
     self.addURIAndRDFType(object, "resource", Resource);
     Resource.baseConstructor.call(this, object);
 
@@ -56,7 +61,7 @@ Resource.prototype.copyOrInitDescriptors = function (object, deleteIfNotInArgume
                 self[prefix] = {};
             }
 
-            if (object.hasOwnProperty(prefix))
+            if (!isNull(object) && object.hasOwnProperty(prefix))
             {
                 for (let shortName in object[prefix])
                 {
@@ -72,7 +77,7 @@ Resource.prototype.copyOrInitDescriptors = function (object, deleteIfNotInArgume
         }
     }
 
-    if ((!isNull(object.ddr) && !isNull(object.ddr.created)))
+    if (!isNull(object) && (!isNull(object.ddr) && !isNull(object.ddr.created)))
     {
         self.ddr.created = object.ddr.created;
     }
@@ -3756,6 +3761,10 @@ Resource.prototype.deleteAllOfMyTypeAndTheirOutgoingTriples = function (callback
 Resource.prototype.addURIAndRDFType = function (object, resourceTypeSection, classPrototype)
 {
     const self = this;
+    if (isNull(object))
+    {
+        object = {};
+    }
 
     if (isNull(self.rdf))
     {
@@ -3767,7 +3776,7 @@ Resource.prototype.addURIAndRDFType = function (object, resourceTypeSection, cla
         self.rdf.type = classPrototype.prefixedRDFType;
     }
 
-    if (isNull(object.uri))
+    if (isNull(object) || isNull(object.uri))
     {
         if (isNull(self.uri))
         {
@@ -4026,110 +4035,109 @@ Resource.prototype.refreshHumanReadableUri = function (callback, customGraphUri)
     );
 };
 
-
 Resource.prototype.getActiveStorageConfig = function (callback, customGraphUri)
 {
-  const self = this;
-  const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
-  const StorageConfig = rlequire("dendro", "src/models/storage/storageConfig.js").StorageConfig;
+    const self = this;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+    const StorageConfig = rlequire("dendro", "src/models/storage/storageConfig.js").StorageConfig;
 
-  StorageConfig.findByUri(self.ddr.hasStorageConfig, function (err, config)
-  {
-    if (!isNull(err))
+    StorageConfig.findByUri(self.ddr.hasStorageConfig, function (err, config)
     {
-      config.deleteAllMyTriples(function (err, result)
-      {
-        callback(err, result);
-      }, graphUri);
-    }
-    else
-    {
-      callback(err, config);
-    }
-  });
+        if (!isNull(err))
+        {
+            config.deleteAllMyTriples(function (err, result)
+            {
+                callback(err, result);
+            }, graphUri);
+        }
+        else
+        {
+            callback(err, config);
+        }
+    });
 };
 
 Resource.prototype.getActiveStorageConnection = function (callback)
 {
-  const self = this;
-  const StorageB2drop = rlequire("dendro", "src/kb/storage/storageB2Drop.js").StorageB2drop;
-  const StorageGridFs = rlequire("dendro", "src/kb/storage/storageGridFs.js").StorageGridFs;
-  self.getActiveStorageConfig(function (err, config)
-  {
-    if (isNull(err))
+    const self = this;
+    const StorageB2drop = rlequire("dendro", "src/kb/storage/storageB2Drop.js").StorageB2drop;
+    const StorageGridFs = rlequire("dendro", "src/kb/storage/storageGridFs.js").StorageGridFs;
+    self.getActiveStorageConfig(function (err, config)
     {
-      if (config.ddr.hasStorageType === "local")
-      {
-        const newStorageLocal = new StorageGridFs(
-          Config.defaultStorageConfig.username,
-          Config.defaultStorageConfig.password,
-          Config.defaultStorageConfig.host,
-          Config.defaultStorageConfig.port,
-          Config.defaultStorageConfig.collectionName
-        );
+        if (isNull(err))
+        {
+            if (config.ddr.hasStorageType === "local")
+            {
+                const newStorageLocal = new StorageGridFs(
+                    Config.defaultStorageConfig.username,
+                    Config.defaultStorageConfig.password,
+                    Config.defaultStorageConfig.host,
+                    Config.defaultStorageConfig.port,
+                    Config.defaultStorageConfig.collectionName
+                );
 
-        return callback(null, newStorageLocal);
-      }
-      else if (config.ddr.hasStorageType === "b2drop")
-      {
-        const newStorageB2drop = new StorageB2drop(config.ddr.username, config.ddr.password);
-        return callback(null, newStorageB2drop);
-      }
+                return callback(null, newStorageLocal);
+            }
+            else if (config.ddr.hasStorageType === "b2drop")
+            {
+                const newStorageB2drop = new StorageB2drop(config.ddr.username, config.ddr.password);
+                return callback(null, newStorageB2drop);
+            }
 
-      return callback(true, "Unknown storage type");
-    }
+            return callback(true, "Unknown storage type");
+        }
 
-    return callback(true, "project " + self.uri + " has no storageConfig");
-  });
+        return callback(true, "project " + self.uri + " has no storageConfig");
+    });
 };
 
 Resource.prototype.deleteActiveStorageConfig = function (callback, customGraphUri)
 {
-  const self = this;
-  const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+    const self = this;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
-  self.getActiveStorageConfig(function (err, config)
-  {
-    if (!isNull(err))
+    self.getActiveStorageConfig(function (err, config)
     {
-      config.deleteAllMyTriples(function (err, result)
-      {
-        callback(err, result);
-      }, graphUri);
-    }
-    else
-    {
-      callback(err, config);
-    }
-  });
+        if (!isNull(err))
+        {
+            config.deleteAllMyTriples(function (err, result)
+            {
+                callback(err, result);
+            }, graphUri);
+        }
+        else
+        {
+            callback(err, config);
+        }
+    });
 };
 
 Resource.prototype.deleteAllStorageConfigs = function (callback, customGraphUri)
 {
-  const self = this;
-  const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
-  const StorageConfig = rlequire("dendro", "src/models/storage/storageConfig.js").StorageConfig;
+    const self = this;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+    const StorageConfig = rlequire("dendro", "src/models/storage/storageConfig.js").StorageConfig;
 
-  StorageConfig.findByProject(self.uri, function (err, configs)
-  {
-    if (isNull(err))
+    StorageConfig.findByProject(self.uri, function (err, configs)
     {
-      async.mapSeries(configs, function (config, callback)
-      {
-        config.deleteAllMyTriples(function (err, result)
+        if (isNull(err))
         {
-          callback(err, result);
-        }, graphUri);
-      }, function (err, result)
-      {
-        callback(err);
-      });
-    }
-    else
-    {
-      callback(err, configs);
-    }
-  });
+            async.mapSeries(configs, function (config, callback)
+            {
+                config.deleteAllMyTriples(function (err, result)
+                {
+                    callback(err, result);
+                }, graphUri);
+            }, function (err, result)
+            {
+                callback(err);
+            });
+        }
+        else
+        {
+            callback(err, configs);
+        }
+    });
 };
 
 Resource = Class.extend(Resource, Class, "ddr:Resource");

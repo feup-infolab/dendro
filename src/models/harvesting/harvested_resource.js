@@ -10,7 +10,7 @@ const Resource = rlequire("dendro", "src/models/resource.js").Resource;
 
 const db = Config.getDBByID();
 
-function HarvestedResource (object)
+function HarvestedResource (object = {})
 {
     HarvestedResource.baseConstructor.call(this, object);
 

@@ -6,7 +6,7 @@ const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const Class = rlequire("dendro", "src/models/meta/class.js").Class;
 
-function Upload (object)
+function Upload (object = {})
 {
     const self = this;
     Upload.baseConstructor.call(this, object);

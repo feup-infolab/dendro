@@ -105,7 +105,8 @@ angular.module("dendroApp.controllers", [])
 
         $scope.hostUrl = window.location.protocol + "//" + window.location.host + "/user/";
 
-        $scope.initSingleDeposit = function (rootDepositUri, isRoot){
+        $scope.initSingleDeposit = function (rootDepositUri, isRoot)
+        {
             $scope.rootDepositUri = rootDepositUri;
             $scope.isDepositRoot = isRoot;
             console.log("hello");
@@ -145,7 +146,7 @@ angular.module("dendroApp.controllers", [])
                         $scope.totalDeposits += parseInt(repo.count);
                     }
                 }
-                else if($scope.search.repositories !== undefined)
+                else if ($scope.search.repositories !== undefined)
                 {
                     for (let repo of $scope.search.repositories.value)
                     {
@@ -155,7 +156,7 @@ angular.module("dendroApp.controllers", [])
                         }
                     }
                 }
-                //$scope.totalDeposits = Math.ceil($scope.totalDeposits / $scope.page);
+                // $scope.totalDeposits = Math.ceil($scope.totalDeposits / $scope.page);
             };
 
             let url = $scope.get_current_url();

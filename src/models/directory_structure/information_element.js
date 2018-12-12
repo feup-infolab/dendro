@@ -15,7 +15,7 @@ const Notification = rlequire("dendro", "src/models/notifications/notification.j
 
 const db = Config.getDBByID();
 
-function InformationElement (object)
+function InformationElement (object = {})
 {
     const self = this;
     self.addURIAndRDFType(object, "information_element", InformationElement);
@@ -318,14 +318,14 @@ InformationElement.prototype.getOwnerProject = function (callback)
 
 InformationElement.prototype.getOwnerDeposit = function (callback)
 {
-  const self = this;
+    const self = this;
 
-  /**
+    /**
    *   Note the sign (*) on the nie:isLogicalPartOf* of the query below.
    *    (Recursive querying through inference).
    *   @type {string}
    */
-  const query =
+    const query =
     "SELECT ?uri \n" +
     "FROM [0] \n" +
     "WHERE \n" +
@@ -336,40 +336,40 @@ InformationElement.prototype.getOwnerDeposit = function (callback)
     "   }\n" +
     "} ";
 
-  db.connection.executeViaJDBC(query,
-    [
-      {
-        type: Elements.types.resourceNoEscape,
-        value: db.graphUri
-      },
-      {
-        type: Elements.types.resource,
-        value: self.uri
-      }
-    ],
-    function (err, result)
-    {
-      if (isNull(err))
-      {
-        if (result instanceof Array && result.length === 1)
+    db.connection.executeViaJDBC(query,
+        [
+            {
+                type: Elements.types.resourceNoEscape,
+                value: db.graphUri
+            },
+            {
+                type: Elements.types.resource,
+                value: self.uri
+            }
+        ],
+        function (err, result)
         {
-          const Deposit = rlequire("dendro", "src/models/deposit.js").Deposit;
-          Deposit.findByUri(result[0].uri, function (err, deposit)
-          {
-            callback(err, deposit);
-          });
+            if (isNull(err))
+            {
+                if (result instanceof Array && result.length === 1)
+                {
+                    const Deposit = rlequire("dendro", "src/models/deposit.js").Deposit;
+                    Deposit.findByUri(result[0].uri, function (err, deposit)
+                    {
+                        callback(err, deposit);
+                    });
+                }
+                else
+                {
+                    return callback(1, "Invalid result set or no parent PROJECT found when querying for the parent project of" + self.uri);
+                }
+            }
+            else
+            {
+                return callback(1, "Error reported when querying for the parent PROJECT of" + self.uri + " . Error was ->" + result);
+            }
         }
-        else
-        {
-          return callback(1, "Invalid result set or no parent PROJECT found when querying for the parent project of" + self.uri);
-        }
-      }
-      else
-      {
-        return callback(1, "Error reported when querying for the parent PROJECT of" + self.uri + " . Error was ->" + result);
-      }
-    }
-  );
+    );
 };
 
 InformationElement.prototype.needsRenaming = function (callback, newTitle, parentUri)
@@ -404,8 +404,8 @@ InformationElement.prototype.needsRenaming = function (callback, newTitle, paren
                             }
                             else
                             {
-                              const Deposit = rlequire("dendro", "src/models/deposit.js").Deposit;
-                              Deposit.findByUri(parentUri, function (err, deposit)
+                                const Deposit = rlequire("dendro", "src/models/deposit.js").Deposit;
+                                Deposit.findByUri(parentUri, function (err, deposit)
                                 {
                                     if (isNull(err))
                                     {
@@ -823,18 +823,20 @@ InformationElement.prototype.reindex = function (callback, customGraphUri)
 
 InformationElement.prototype.canBeIndexed = function (callback)
 {
-    const verifyIndexes = function (privacyStatus) {
-        switch(privacyStatus){
-          case "public":
-              return true;
-          case "private":
-              return false;
-          case "metadata_only":
-              return true;
-          default:
-              return false;
+    const verifyIndexes = function (privacyStatus)
+    {
+        switch (privacyStatus)
+        {
+        case "public":
+            return true;
+        case "private":
+            return false;
+        case "metadata_only":
+            return true;
+        default:
+            return false;
         }
-    }
+    };
 
     const self = this;
 
@@ -843,22 +845,22 @@ InformationElement.prototype.canBeIndexed = function (callback)
         if (isNull(err))
         {
             callback(null, verifyIndexes(project.ddr.privacyStatus));
-
         }
         else
         {
-            self.getOwnerDeposit(function(err, deposit){
-               if(isNull(err))
-               {
-                 callback(null, verifyIndexes(deposit.ddr.privacyStatus));
-               }
-               else{
-                 const msg = "Error while checking privacy of project that owns resource " + self.uri;
-                 Logger.log("error", msg);
-                 callback(1, msg);
-               }
+            self.getOwnerDeposit(function (err, deposit)
+            {
+                if (isNull(err))
+                {
+                    callback(null, verifyIndexes(deposit.ddr.privacyStatus));
+                }
+                else
+                {
+                    const msg = "Error while checking privacy of project that owns resource " + self.uri;
+                    Logger.log("error", msg);
+                    callback(1, msg);
+                }
             });
-
         }
     });
 };
@@ -921,7 +923,7 @@ InformationElement.isSafePath = function (absPath, callback)
     {
         function b_in_a (b, a)
         {
-            return (b.indexOf(a) === 0);
+            return (!isNull(b) && !isNull(a) && b.indexOf(a) === 0);
         }
 
         const validDirs = [Config.tempFilesDir, Config.tempUploadsDir];
@@ -939,14 +941,14 @@ InformationElement.isSafePath = function (absPath, callback)
     });
 };
 
-InformationElement.getOwnerUri = function (resourceUri, callback){
-
-  /**
+InformationElement.getOwnerUri = function (resourceUri, callback)
+{
+    /**
    *   Note the sign (*) on the nie:isLogicalPartOf* of the query below.
    *    (Recursive querying through inference).
    *   @type {string}
    */
-  const query =
+    const query =
     "SELECT ?uri \n" +
     "FROM [0] \n" +
     "WHERE \n" +
@@ -958,37 +960,37 @@ InformationElement.getOwnerUri = function (resourceUri, callback){
     "   }\n" +
     "} ";
 
-  db.connection.executeViaJDBC(query,
-    [
-      {
-        type: Elements.types.resourceNoEscape,
-        value: db.graphUri
-      },
-      {
-        type: Elements.types.resource,
-        value: resourceUri
-      }
-    ],
-    function (err, result)
-    {
-      if (isNull(err))
-      {
-        if (result instanceof Array && result.length === 1)
+    db.connection.executeViaJDBC(query,
+        [
+            {
+                type: Elements.types.resourceNoEscape,
+                value: db.graphUri
+            },
+            {
+                type: Elements.types.resource,
+                value: resourceUri
+            }
+        ],
+        function (err, result)
         {
-            callback(null, result[0].uri)
+            if (isNull(err))
+            {
+                if (result instanceof Array && result.length === 1)
+                {
+                    callback(null, result[0].uri);
+                }
+                else
+                {
+                    return callback(1, "Invalid result set when querying for the parent project of" + resourceUri);
+                }
+            }
+            else
+            {
+                return callback(1, "Error reported when querying for the parent resource of" + resourceUri + " . Error was ->" + result);
+            }
         }
-        else
-        {
-          return callback(1, "Invalid result set when querying for the parent project of" + resourceUri);
-        }
-      }
-      else
-      {
-        return callback(1, "Error reported when querying for the parent resource of" + resourceUri + " . Error was ->" + result);
-      }
-    }
-  );
-}
+    );
+};
 
 InformationElement.prototype.findMetadata = function (callback, typeConfigsToRetain, recursive)
 {
@@ -1125,28 +1127,29 @@ InformationElement.prototype.findMetadata = function (callback, typeConfigsToRet
     }, null, null, null, [Elements.access_types.private], [Elements.access_types.api_readable]);
 };
 
-InformationElement.prototype.saveMetadata = function({absolutePathOfFinishedFolder, metadata}, cb){
-  const fs = require("fs");
-  const path = require("path");
-  const outputFilename = path.join(absolutePathOfFinishedFolder, Config.packageMetadataFileName);
+InformationElement.prototype.saveMetadata = function ({absolutePathOfFinishedFolder, metadata}, cb)
+{
+    const fs = require("fs");
+    const path = require("path");
+    const outputFilename = path.join(absolutePathOfFinishedFolder, Config.packageMetadataFileName);
 
-  Logger.log("FINAL METADATA : " + JSON.stringify(metadata));
+    Logger.log("FINAL METADATA : " + JSON.stringify(metadata));
 
-  fs.writeFile(outputFilename, JSON.stringify(metadata, null, 4), "utf-8", function (err)
-  {
-    if (err)
+    fs.writeFile(outputFilename, JSON.stringify(metadata, null, 4), "utf-8", function (err)
     {
-      Logger.log(err);
-      cb(err);
-    }
-    else
-    {
-      const msg = "JSON saved to " + outputFilename;
-      Logger.log(msg);
-      cb(null);
-    }
-  });
-}
+        if (err)
+        {
+            Logger.log(err);
+            cb(err);
+        }
+        else
+        {
+            const msg = "JSON saved to " + outputFilename;
+            Logger.log(msg);
+            cb(null);
+        }
+    });
+};
 
 InformationElement.prototype.containedIn = function (parentResource, callback, customGraphUri)
 {

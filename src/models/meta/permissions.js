@@ -180,36 +180,37 @@ const getOwnerProject = function (requestedResource, callback)
 
 const getOwnerDeposit = function (requestedResource, callback)
 {
-  InformationElement.findByUri(requestedResource, function (err, resource)
-  {
-    if (isNull(err))
+    InformationElement.findByUri(requestedResource, function (err, resource)
     {
-      if (!isNull(resource))
-      {
-        if (resource instanceof InformationElement)
+        if (isNull(err))
         {
-          resource.getOwnerDeposit(function (err, deposit)
-          {
-            callback(err, deposit);
-          });
+            if (!isNull(resource))
+            {
+                if (resource instanceof InformationElement)
+                {
+                    resource.getOwnerDeposit(function (err, deposit)
+                    {
+                        callback(err, deposit);
+                    });
+                }
+                else
+                {
+                    callback("Resource " + requestedResource + " is of invalid type!", null);
+                }
+            }
+            else
+            {
+                Deposit.findByUri(requestedResource, function (err, deposit)
+                {
+                    callback(err, deposit);
+                });
+            }
         }
         else
         {
-          callback("Resource " + requestedResource + " is of invalid type!", null);
+            callback(err, resource);
         }
-      }
-      else
-      {
-          Deposit.findByUri(requestedResource, function(err, deposit){
-            callback(err, deposit);
-          });
-      }
-    }
-    else
-    {
-      callback(err, resource);
-    }
-  });
+    });
 };
 
 /** Role-based validation **/
@@ -485,57 +486,68 @@ const checkUsersRoleInParentProject = Permissions.checkUsersRoleInParentProject 
 
 const checkUsersRoleInDeposit = function (req, user, role, depositUri, callback)
 {
-  let predicateRoles = null;
-  if (isNull(role) || isNull(role.predicates) || !(role.predicates instanceof Array))
-  {
-    Logger.log("error", "Error at checkUsersRoleInDeposit, 'role' object should exist and 'role.predicates' and arrayOfPostsUris must be an array!");
-    callback(null, false);
-  }
-  else {
-    predicateRoles = role.predicates;
-    if (!isNull(user) && !isNull(depositUri)) {
-      getOwnerDeposit(depositUri, function (err, deposit) {
-        if (isNull(err)) {
-          if (deposit instanceof Deposit) {
-            deposit.getProject(function (err, project) {
-              if (isNull(err) && project instanceof Project) {
-                async.eachSeries(predicateRoles, function (predicate, cb) {
-                  project.checkIfHasPredicateValue(predicate, user.uri, function(err, result){
-                    if (isNull(err))
+    let predicateRoles = null;
+    if (isNull(role) || isNull(role.predicates) || !(role.predicates instanceof Array))
+    {
+        Logger.log("error", "Error at checkUsersRoleInDeposit, 'role' object should exist and 'role.predicates' and arrayOfPostsUris must be an array!");
+        callback(null, false);
+    }
+    else
+    {
+        predicateRoles = role.predicates;
+        if (!isNull(user) && !isNull(depositUri))
+        {
+            getOwnerDeposit(depositUri, function (err, deposit)
+            {
+                if (isNull(err))
+                {
+                    if (deposit instanceof Deposit)
                     {
-                      if (result === true)
-                      {
-                        return callback(err, result);
-                      }
-                      else{
-                        cb(err, result);
-                      }
+                        deposit.getProject(function (err, project)
+                        {
+                            if (isNull(err) && project instanceof Project)
+                            {
+                                async.eachSeries(predicateRoles, function (predicate, cb)
+                                {
+                                    project.checkIfHasPredicateValue(predicate, user.uri, function (err, result)
+                                    {
+                                        if (isNull(err))
+                                        {
+                                            if (result === true)
+                                            {
+                                                return callback(err, result);
+                                            }
 
+                                            cb(err, result);
+                                        }
+                                        else
+                                        {
+                                            return callback(err, false);
+                                        }
+                                    });
+                                }, function (err)
+                                {
+                                    return callback(null, false);
+                                });
+                            }
+                        });
                     }
                     else
                     {
-                      return callback(err, false);
+                        return callback("Invalid project type supplied!", null);
                     }
-                  })
-                }, function (err) {
-                  return callback(null, false);
-                });
-              }
+                }
+                else
+                {
+                    return callback(null, false);
+                }
             });
-          }
-          else {
-            return callback("Invalid project type supplied!", null);
-          }
         }
-        else {
-          return callback(null, false);
+        else
+        {
+            return callback(null, false);
         }
-      });
     }
-    else {
-      return callback(null, false);
-    }
-  }
 };
 
 /** "Privacy status"-based validation **/
@@ -586,24 +598,24 @@ const checkPrivacyOfOwnerProject = function (req, user, role, resource, callback
 
 const checkPrivacyOfOwnerDeposit = function (req, user, role, resource, callback)
 {
-  getOwnerDeposit(resource, function (err, deposit)
-  {
-    if (isNull(err))
+    getOwnerDeposit(resource, function (err, deposit)
     {
-      if (!isNull(deposit) && deposit instanceof Deposit)
-      {
-        const privacy = deposit.ddr.privacyStatus;
-
-        if (!isNull(role.object) && privacy === role.object)
+        if (isNull(err))
         {
-          return callback(null, true);
+            if (!isNull(deposit) && deposit instanceof Deposit)
+            {
+                const privacy = deposit.ddr.privacyStatus;
+
+                if (!isNull(role.object) && privacy === role.object)
+                {
+                    return callback(null, true);
+                }
+                return callback(null, false);
+            }
+            return callback(null, false);
         }
-        return callback(null, false);
-      }
-      return callback(null, false);
-    }
-    return callback(err, null);
-  });
+        return callback(err, null);
+    });
 };
 
 /** Permission types **/
@@ -638,7 +650,7 @@ Permissions.types = {
     },
     privacy_of_deposit: {
         validator: checkPrivacyOfOwnerDeposit
-    },
+    }
 };
 
 /** Permission parametrization **/
@@ -720,15 +732,15 @@ Permissions.settings = {
             error_message_user: "You are not a contributor or creator of all the projects to which these posts belongs to.",
             error_message_api: "Unauthorized access. Must be signed on as a contributor or creator of all the projects these posts belong to."
         },
-          users_role_in_deposit: {
+        users_role_in_deposit: {
             type: Permissions.types.role_in_deposit,
             predicates: [
-              "dcterms:contributor",
-              "dcterms:creator"
+                "dcterms:contributor",
+                "dcterms:creator"
             ],
             error_message_user: "You are not a contributor or creator of project to which this deposit belongs to.",
             error_message_api: "Unauthorized access. Must be signed on as a contributor or creator of the project this deposit belong to."
-          }
+        }
     },
     privacy: {
         of_project: {
@@ -885,15 +897,17 @@ Permissions.check = function (permissionsRequired, req, callback)
             }
             else if (permission.type === Permissions.types.privacy_of_deposit)
             {
-                Permissions.types.privacy_of_deposit.validator(req, user, permission, resource, function(err, result){
+                Permissions.types.privacy_of_deposit.validator(req, user, permission, resource, function (err, result)
+                {
                     cb(err, {authorized: result, role: permission});
                 });
             }
             else if (permission.type === Permissions.types.role_in_deposit)
             {
-              Permissions.types.role_in_deposit.validator(req, user, permission, resource, function(err, result){
+                Permissions.types.role_in_deposit.validator(req, user, permission, resource, function (err, result)
+                {
                     cb(err, {authorized: result, role: permission});
-              });
+                });
             }
             else
             {

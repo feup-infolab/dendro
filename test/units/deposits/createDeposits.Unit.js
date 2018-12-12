@@ -1,36 +1,30 @@
 process.env.NODE_ENV = "test";
 
-const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const chai = require("chai");
 chai.use(require("chai-http"));
 const async = require("async");
 const path = require("path");
+const rlequire = require("rlequire");
 
-const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
-const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
-const depositUtils = require(Pathfinder.absPathInTestsFolder("utils/deposit/depositUtils.js"));
+const projectUtils = rlequire("dendro", "test/utils/project/projectUtils.js");
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const depositUtils = rlequire("dendro", "test/utils/deposit/depositUtils.js");
 
-const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
-const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
-const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1");
+const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2");
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
 
-const createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
-const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
-const createFilesUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/files/createFiles.Unit.js"));
+const createFoldersUnit = rlequire("dendro", "test/units/folders/createFolders.Unit.js");
+const createProjectsUnit = rlequire("dendro", "test/units/projects/createProjectsB2Drop.Unit.js");
+const createFilesUnit = rlequire("dendro", "test/units/files/createFiles.Unit.js");
 
 const projectsData = createProjectsUnit.projectsData;
 const foldersData = createFoldersUnit.foldersData;
 const filesData = createFilesUnit.filesData;
 
-const B2ShareDepositData = require(Pathfinder.absPathInTestsFolder("mockdata/deposits/B2ShareDeposit.js"));
-
-function requireUncached (module)
-{
-    delete require.cache[require.resolve(module)];
-    return require(module);
-}
+const B2ShareDepositData = rlequire("dendro", "test/mockdata/deposits/B2ShareDeposit.js");
 
 const start = function ()
 {

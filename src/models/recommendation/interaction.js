@@ -14,7 +14,7 @@ const db = Config.getDBByID();
 
 const dbMySQL = rlequire("dendro", "src/mysql_models");
 
-let Interaction = function (object)
+let Interaction = function (object = {})
 {
     const self = this;
     self.addURIAndRDFType(object, "interaction", Interaction);

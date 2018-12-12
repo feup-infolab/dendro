@@ -743,35 +743,45 @@ const loadRoutes = function (app, callback)
                 callback);
         };
 
-        const getOwnerType = function(resourceUri, callback){
-          const InformationElement = rlequire("dendro", "src/models/directory_structure/information_element.js").InformationElement;
-          InformationElement.getOwnerUri(resourceUri, function(err, ownerUri){
-             if(isNull(err)){
-               const defaultPermissionsInProjectBranch = [
-                 Permissions.settings.privacy.of_owner_project.public,
-                 Permissions.settings.role.in_owner_project.contributor,
-                 Permissions.settings.role.in_owner_project.creator
-               ];
+        const getOwnerType = function (resourceUri, callback)
+        {
+            const InformationElement = rlequire("dendro", "src/models/directory_structure/information_element.js").InformationElement;
+            InformationElement.getOwnerUri(resourceUri, function (err, ownerUri)
+            {
+                if (isNull(err))
+                {
+                    const defaultPermissionsInProjectBranch = [
+                        Permissions.settings.privacy.of_owner_project.public,
+                        Permissions.settings.role.in_owner_project.contributor,
+                        Permissions.settings.role.in_owner_project.creator
+                    ];
 
-               const defaultPermissionsForDeposits = [
-                 Permissions.settings.privacy.of_deposit.public,
-                 Permissions.settings.role.users_role_in_deposit
-               ];
+                    const defaultPermissionsForDeposits = [
+                        Permissions.settings.privacy.of_deposit.public,
+                        Permissions.settings.role.users_role_in_deposit
+                    ];
 
-                const projectRegex = getNonHumanReadableRouteRegex("project").exec(ownerUri);
-                const depositRegex = getNonHumanReadableRouteRegex("deposit").exec(ownerUri);
-                if(projectRegex){
-                    callback(null, resourceUri, defaultPermissionsInProjectBranch);
-                }else if(depositRegex){
-                    callback(null, resourceUri, defaultPermissionsForDeposits);
-                }else {
-                    callback(1, "Resource does not belong to a project nor deposit.");
+                    const projectRegex = getNonHumanReadableRouteRegex("project").exec(ownerUri);
+                    const depositRegex = getNonHumanReadableRouteRegex("deposit").exec(ownerUri);
+                    if (projectRegex)
+                    {
+                        callback(null, resourceUri, defaultPermissionsInProjectBranch);
+                    }
+                    else if (depositRegex)
+                    {
+                        callback(null, resourceUri, defaultPermissionsForDeposits);
+                    }
+                    else
+                    {
+                        callback(1, "Resource does not belong to a project nor deposit.");
+                    }
                 }
-             } else{
-                 callback(err, resourceUri);
-             }
-          });
-        }
+                else
+                {
+                    callback(err, resourceUri);
+                }
+            });
+        };
 
         const processRequest = function (resourceUri, permissionSettings)
         {
@@ -1478,10 +1488,11 @@ const loadRoutes = function (app, callback)
         getNonHumanReadableRouteRegex("deposit")
     ],
     extractUriFromRequest,
-    async.apply(Permissions.require, [Permissions.settings.privacy.of_deposit.public, Permissions.settings.role.users_role_in_deposit]), function(req, res){
+    async.apply(Permissions.require, [Permissions.settings.privacy.of_deposit.public, Permissions.settings.role.users_role_in_deposit]), function (req, res)
+    {
         req.params.is_deposit_root = true;
         deposits.show(req, res);
-      });
+    });
 
     // serve angular JS ejs-generated html partials
     app.get(/\/images\/icons\/extensions\/file_extension_([a-z0-9]+)\.png$/, files.extension_icon);

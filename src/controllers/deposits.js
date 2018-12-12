@@ -15,7 +15,7 @@ const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const InformationElement = rlequire("dendro", "src/models/directory_structure/information_element.js").InformationElement;
 const Deposit = rlequire("dendro", "src//models/deposit.js").Deposit;
-const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor
+const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
 const Ontology = rlequire("dendro", "src/models/meta/ontology.js").Ontology;
 const Permissions = rlequire("dendro", "src/models/meta/permissions.js").Permissions;
 const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
@@ -179,319 +179,321 @@ exports.getDeposit = function (req, res)
     }
 
     let resourceURI = req.params.requestedResourceUri;
-
 };
 
-exports.show = function (req, res){
-  let resourceURI = req.params.requestedResourceUri;
-  const isDepositRoot = req.params.is_deposit_root;
+exports.show = function (req, res)
+{
+    let resourceURI = req.params.requestedResourceUri;
+    const isDepositRoot = req.params.is_deposit_root;
 
-  function sendResponse (viewVars, requestedResource)
-  {
-    const askedForHtml = function (req, res)
+    function sendResponse (viewVars, requestedResource)
     {
-      const accept = req.header("Accept");
-      let serializer = null;
-      let contentType = null;
-      if (accept in Config.metadataSerializers)
-      {
-        serializer = Config.metadataSerializers[accept];
-        contentType = Config.metadataContentTypes[accept];
-
-        requestedResource.findMetadata(function (err, result)
+        const askedForHtml = function (req, res)
         {
-          if (isNull(err))
-          {
-            result.is_project_root = true;
-            res.set("Content-Type", contentType);
-            res.send(serializer(result));
-          }
-          else
-          {
-            res.status(500).json({
-              error_messages: "Error finding metadata from " + requestedResource.uri + "\n" + result
-            });
-          }
-        }, [Elements.access_types.locked, Elements.access_types.locked_for_projects, Elements.access_types.private]);
+            const accept = req.header("Accept");
+            let serializer = null;
+            let contentType = null;
+            if (accept in Config.metadataSerializers)
+            {
+                serializer = Config.metadataSerializers[accept];
+                contentType = Config.metadataContentTypes[accept];
 
-        return false;
-      }
-      return true;
+                requestedResource.findMetadata(function (err, result)
+                {
+                    if (isNull(err))
+                    {
+                        result.is_project_root = true;
+                        res.set("Content-Type", contentType);
+                        res.send(serializer(result));
+                    }
+                    else
+                    {
+                        res.status(500).json({
+                            error_messages: "Error finding metadata from " + requestedResource.uri + "\n" + result
+                        });
+                    }
+                }, [Elements.access_types.locked, Elements.access_types.locked_for_projects, Elements.access_types.private]);
+
+                return false;
+            }
+            return true;
+        };
+
+        if (askedForHtml(req, res))
+        {
+            res.render("registry/show_readonly",
+                viewVars
+            );
+        }
+        else
+        {
+            req.flash("error", "There was an role calculation error accessing resource at " + requestedResource.uri);
+            res.redirect("/");
+        }
+    }
+
+    let showing_history = Boolean(req.query.show_history);
+
+    const fetchVersionsInformation = function (archivedResource, cb)
+    {
+        archivedResource.getDetailedInformation(function (err, result)
+        {
+            cb(err, result);
+        });
     };
 
-    if (askedForHtml(req, res))
+    const viewVars = {
+        showing_history: showing_history,
+        Descriptor: Descriptor
+    };
+
+    if (isDepositRoot)
     {
-      res.render("registry/show_readonly",
-        viewVars
-      );
+        const appendPlatformUrl = function ({ ddr: {exportedToPlatform: platform, exportedToRepository: url}})
+        {
+            const https = "https://";
+            switch (platform)
+            {
+            case "EUDAT B2Share":
+                return https + url + "/records/";
+                break;
+            case "CKAN":
+                return https + url + "/dataset/";
+                break;
+            case "Figshare":
+                break;
+            case "Zenodo":
+                break;
+            case "EPrints":
+                break;
+            default:
+                return "";
+            }
+        };
+        Deposit.findByUri(resourceURI, function (err, deposit)
+        {
+            if (isNull(err))
+            {
+                viewVars.is_deposit_root = true;
+                viewVars.title = "Deposit information";
+
+                Deposit.validatePlatformUri(deposit, function (deposit)
+                {
+                    viewVars.go_up_options =
+            {
+                uri: "/",
+                title: "Home",
+                icons: [
+                    "/images/icons/folders.png",
+                    "/images/icons/bullet_user.png"
+                ]
+            };
+
+                    deposit.dcterms.date = moment(deposit.dcterms.date).format("LLLL");
+                    deposit.externalUri = appendPlatformUrl(deposit) + deposit.dcterms.identifier;
+                    viewVars.deposit = deposit;
+
+                    const depositDescriptors = deposit.getDescriptors(
+                        [Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_readable], [Elements.access_types.locked_for_projects, Elements.access_types.locked]
+                    );
+
+                    if (!isNull(depositDescriptors) && depositDescriptors instanceof Array)
+                    {
+                        viewVars.descriptors = depositDescriptors;
+                        res.render("registry/show_readonly",
+                            viewVars
+                        );
+                    }
+                });
+            }
+        });
     }
     else
     {
-      req.flash("error", "There was an role calculation error accessing resource at " + requestedResource.uri);
-      res.redirect("/");
-    }
-  }
-
-  let showing_history = Boolean(req.query.show_history);
-
-  const fetchVersionsInformation = function (archivedResource, cb)
-  {
-    archivedResource.getDetailedInformation(function (err, result)
-    {
-      cb(err, result);
-    });
-  };
-
-  const viewVars = {
-    showing_history: showing_history,
-    Descriptor: Descriptor
-  };
-
-  if(isDepositRoot){
-    const appendPlatformUrl = function ({ ddr: {exportedToPlatform: platform, exportedToRepository: url}})
-    {
-      const https = "https://";
-      switch (platform)
-      {
-        case "EUDAT B2Share":
-          return https + url + "/records/";
-          break;
-        case "CKAN":
-          return https + url + "/dataset/";
-          break;
-        case "Figshare":
-          break;
-        case "Zenodo":
-          break;
-        case "EPrints":
-          break;
-        default:
-          return "";
-      }
-    };
-    Deposit.findByUri(resourceURI, function (err, deposit)
-    {
-      if (isNull(err))
-      {
-        viewVars.is_deposit_root = true;
-        viewVars.title = "Deposit information";
-
-        Deposit.validatePlatformUri(deposit, function (deposit)
+        InformationElement.findByUri(resourceURI, function (err, resourceBeingAccessed)
         {
-          viewVars.go_up_options =
+            if (isNull(err) && !isNull(resourceBeingAccessed) && resourceBeingAccessed instanceof InformationElement)
             {
-              uri: "/",
-              title: "Home",
-              icons: [
-                "/images/icons/folders.png",
-                "/images/icons/bullet_user.png"
-              ]
-            };
-
-          deposit.dcterms.date = moment(deposit.dcterms.date).format("LLLL");
-          deposit.externalUri = appendPlatformUrl(deposit) + deposit.dcterms.identifier;
-          viewVars.deposit = deposit;
-
-          const depositDescriptors = deposit.getDescriptors(
-            [Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_readable], [Elements.access_types.locked_for_projects, Elements.access_types.locked]
-          );
-
-          if (!isNull(depositDescriptors) && depositDescriptors instanceof Array)
-          {
-            viewVars.descriptors = depositDescriptors;
-            res.render("registry/show_readonly",
-              viewVars
-            );
-          }
-        });
-      }
-    });
-  }else{
-    InformationElement.findByUri(resourceURI, function (err, resourceBeingAccessed)
-    {
-      if (isNull(err) && !isNull(resourceBeingAccessed) && resourceBeingAccessed instanceof InformationElement)
-      {
-        const getBreadCrumbs = function (callback)
-        {
-          const getParentDeposit = function (callback)
-          {
-            resourceBeingAccessed.getOwnerDeposit(function (err, deposit)
-            {
-              return callback(err, deposit);
-            });
-          };
-          const getParentFolders = function (callback)
-          {
-            resourceBeingAccessed.getAllParentsUntilProject(function (err, parents)
-            {
-              return callback(err, parents);
-            });
-          };
-
-          async.series(
-            [
-              getParentFolders,
-              getParentDeposit
-            ],
-            function (err, results)
-            {
-              if (isNull(err))
-              {
-                const parents = results[0];
-                const ownerDeposit = results[1];
-                const immediateParent = parents[parents.length - 1];
-
-                const breadcrumbs = [];
-
-                if (!isNull(immediateParent))
+                const getBreadCrumbs = function (callback)
                 {
-                  if (immediateParent.uri === ownerDeposit.ddr.rootFolder)
-                  {
-                    go_up_options = {
-                      uri: ownerDeposit.uri,
-                      title: ownerDeposit.dcterms.title,
-                      icons: [
-                        "/images/icons/box_closed.png",
-                        "/images/icons/bullet_up.png"
-                      ]
-                    };
-                  }
-                  else
-                  {
-                    go_up_options = {
-                      uri: immediateParent.uri,
-                      title: immediateParent.nie.title,
-                      icons: [
-                        "/images/icons/folder.png",
-                        "/images/icons/bullet_up.png"
-                      ]
-                    };
-                  }
-                }
-                else
-                {
-                  go_up_options = {
-                    uri: ownerDeposit.uri,
-                    title: ownerDeposit.dcterms.title,
-                    icons: [
-                      "/images/icons/box_closed.png",
-                      "/images/icons/bullet_up.png"
-                    ]
-                  };
-                }
-
-                for (let i = 0; i < parents.length; i++)
-                {
-                  breadcrumbs.push(
+                    const getParentDeposit = function (callback)
                     {
-                      uri: parents[i].uri,
-                      type: parents[i].rdf.type,
-                      title: parents[i].nie.title,
-                      icons: [
-                        "/images/icons/folder.png"
-                      ]
-                    }
-                  );
-                }
-
-                breadcrumbs.push(
-                  {
-                    uri: resourceBeingAccessed.uri,
-                    type: resourceBeingAccessed.rdf.type,
-                    title: resourceBeingAccessed.nie.title,
-                    icons: [
-                      resourceBeingAccessed.uri + "?thumbnail&size=small"
-                    ]
-                  }
-                );
-
-                return callback(null,
-                  {
-                    breadcrumbs: breadcrumbs,
-                    go_up_options: go_up_options
-                  }
-                );
-              }
-              return callback(err, results);
-            });
-        };
-
-        const getResourceMetadata = function (breadcrumbs, callback)
-        {
-          viewVars.is_deposit_root = false;
-          viewVars.breadcrumbs = breadcrumbs.breadcrumbs;
-          viewVars.go_up_options = breadcrumbs.go_up_options;
-
-          resourceBeingAccessed.getOwnerDeposit(function (err, deposit)
-          {
-            if (isNull(err) && !isNull(deposit))
-            {
-              viewVars.title = deposit.dcterms.title;
-              viewVars.subtitle = "(Deposit handle : " + deposit.ddr.handle + ")";
-
-              if (showing_history)
-              {
-                resourceBeingAccessed.getArchivedVersions(null, null, function (err, archivedResources)
-                {
-                  if (isNull(err))
-                  {
-                    async.mapSeries(archivedResources, fetchVersionsInformation, function (err, fullVersions)
+                        resourceBeingAccessed.getOwnerDeposit(function (err, deposit)
+                        {
+                            return callback(err, deposit);
+                        });
+                    };
+                    const getParentFolders = function (callback)
                     {
-                      if (isNull(err))
-                      {
-                        viewVars.versions = fullVersions;
-                        sendResponse(viewVars, resourceBeingAccessed);
-                        return callback(null);
-                      }
-                      return callback(err, "Unable to fetch descriptors. Reported Error: " + fullVersions);
+                        resourceBeingAccessed.getAllParentsUntilProject(function (err, parents)
+                        {
+                            return callback(err, parents);
+                        });
+                    };
+
+                    async.series(
+                        [
+                            getParentFolders,
+                            getParentDeposit
+                        ],
+                        function (err, results)
+                        {
+                            if (isNull(err))
+                            {
+                                const parents = results[0];
+                                const ownerDeposit = results[1];
+                                const immediateParent = parents[parents.length - 1];
+
+                                const breadcrumbs = [];
+
+                                if (!isNull(immediateParent))
+                                {
+                                    if (immediateParent.uri === ownerDeposit.ddr.rootFolder)
+                                    {
+                                        go_up_options = {
+                                            uri: ownerDeposit.uri,
+                                            title: ownerDeposit.dcterms.title,
+                                            icons: [
+                                                "/images/icons/box_closed.png",
+                                                "/images/icons/bullet_up.png"
+                                            ]
+                                        };
+                                    }
+                                    else
+                                    {
+                                        go_up_options = {
+                                            uri: immediateParent.uri,
+                                            title: immediateParent.nie.title,
+                                            icons: [
+                                                "/images/icons/folder.png",
+                                                "/images/icons/bullet_up.png"
+                                            ]
+                                        };
+                                    }
+                                }
+                                else
+                                {
+                                    go_up_options = {
+                                        uri: ownerDeposit.uri,
+                                        title: ownerDeposit.dcterms.title,
+                                        icons: [
+                                            "/images/icons/box_closed.png",
+                                            "/images/icons/bullet_up.png"
+                                        ]
+                                    };
+                                }
+
+                                for (let i = 0; i < parents.length; i++)
+                                {
+                                    breadcrumbs.push(
+                                        {
+                                            uri: parents[i].uri,
+                                            type: parents[i].rdf.type,
+                                            title: parents[i].nie.title,
+                                            icons: [
+                                                "/images/icons/folder.png"
+                                            ]
+                                        }
+                                    );
+                                }
+
+                                breadcrumbs.push(
+                                    {
+                                        uri: resourceBeingAccessed.uri,
+                                        type: resourceBeingAccessed.rdf.type,
+                                        title: resourceBeingAccessed.nie.title,
+                                        icons: [
+                                            resourceBeingAccessed.uri + "?thumbnail&size=small"
+                                        ]
+                                    }
+                                );
+
+                                return callback(null,
+                                    {
+                                        breadcrumbs: breadcrumbs,
+                                        go_up_options: go_up_options
+                                    }
+                                );
+                            }
+                            return callback(err, results);
+                        });
+                };
+
+                const getResourceMetadata = function (breadcrumbs, callback)
+                {
+                    viewVars.is_deposit_root = false;
+                    viewVars.breadcrumbs = breadcrumbs.breadcrumbs;
+                    viewVars.go_up_options = breadcrumbs.go_up_options;
+
+                    resourceBeingAccessed.getOwnerDeposit(function (err, deposit)
+                    {
+                        if (isNull(err) && !isNull(deposit))
+                        {
+                            viewVars.title = deposit.dcterms.title;
+                            viewVars.subtitle = "(Deposit handle : " + deposit.ddr.handle + ")";
+
+                            if (showing_history)
+                            {
+                                resourceBeingAccessed.getArchivedVersions(null, null, function (err, archivedResources)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        async.mapSeries(archivedResources, fetchVersionsInformation, function (err, fullVersions)
+                                        {
+                                            if (isNull(err))
+                                            {
+                                                viewVars.versions = fullVersions;
+                                                sendResponse(viewVars, resourceBeingAccessed);
+                                                return callback(null);
+                                            }
+                                            return callback(err, "Unable to fetch descriptors. Reported Error: " + fullVersions);
+                                        });
+                                    }
+                                    else
+                                    {
+                                        return callback(err, "Unable to fetch project revisions. Reported Error: " + archivedResources);
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                const descriptors = resourceBeingAccessed.getPropertiesFromOntologies(
+                                    Ontology.getPublicOntologiesUris()
+                                );
+
+                                viewVars.descriptors = descriptors;
+                                sendResponse(viewVars, resourceBeingAccessed);
+                            }
+                        }
+                        else
+                        {
+                            return callback(err, "Unable to fetch contents of folder " + JSON.stringify(resourceBeingAccessed));
+                        }
                     });
-                  }
-                  else
-                  {
-                    return callback(err, "Unable to fetch project revisions. Reported Error: " + archivedResources);
-                  }
-                });
-              }
-              else
-              {
-                const descriptors = resourceBeingAccessed.getPropertiesFromOntologies(
-                  Ontology.getPublicOntologiesUris()
-                );
+                };
 
-                viewVars.descriptors = descriptors;
-                sendResponse(viewVars, resourceBeingAccessed);
-              }
+                async.waterfall([
+                    getBreadCrumbs,
+                    getResourceMetadata
+                ], function (err, results)
+                {
+                    if (!isNull(err))
+                    {
+                        const flash = require("connect-flash");
+                        flash("error", results);
+                        res.redirect("back");
+                    }
+                });
             }
             else
             {
-              return callback(err, "Unable to fetch contents of folder " + JSON.stringify(resourceBeingAccessed));
+                const flash = require("connect-flash");
+                flash("error", "Resource with uri " + resourceURI + " does not exist.");
+                if (!res._headerSent)
+                {
+                    res.redirect("back");
+                }
             }
-          });
-        };
-
-        async.waterfall([
-          getBreadCrumbs,
-          getResourceMetadata
-        ], function (err, results)
-        {
-          if (!isNull(err))
-          {
-            const flash = require("connect-flash");
-            flash("error", results);
-            res.redirect("back");
-          }
         });
-      }
-      else
-      {
-        const flash = require("connect-flash");
-        flash("error", "Resource with uri " + resourceURI + " does not exist.");
-        if (!res._headerSent)
-        {
-          res.redirect("back");
-        }
-      }
-    });
-  }
-
-}
+    }
+};

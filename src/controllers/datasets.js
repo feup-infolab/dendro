@@ -1155,66 +1155,74 @@ export_to_dendro = function (req, res)
                             }
 
                         };
-                        Deposit.createDepositRegistry({registryData: registryData, requestedResource: file, user:req.user}, function (err, registry)
+                        Deposit.createDepositRegistry({registryData: registryData, requestedResource: file, user: req.user}, function (err, registry)
                         {
-                          let msg = "<br/><br/>Deposited successfully to Dendro. Check deposit <a href='" + registry.uri + "'>here<\/a>";
-                          /*if (!isNull(body.data) && !isNull(body.data.metadata) && typeof body.data.metadata.ePIC_PID !== "undefined")
+                            let msg = "<br/><br/>Deposited successfully to Dendro. Check deposit <a href='" + registry.uri + "'>here<\/a>";
+                            /* if (!isNull(body.data) && !isNull(body.data.metadata) && typeof body.data.metadata.ePIC_PID !== "undefined")
                           {
                             msg = msg + "<br/><br/><a href='" + body.data.metadata.ePIC_PID + "'>Click to see your published dataset<\/a>";
                           }*/
-                          res.json(
-                            {
-                              result: "OK",
-                              message: msg
-                            }
-                          );
+                            res.json(
+                                {
+                                    result: "OK",
+                                    message: msg
+                                }
+                            );
                         });
                     }
                 });
-            } else{
-                Folder.findByUri(requestedResourceUri, function (err, folder) {
-                  if (isNull(err)) {
-                    if (!isNull(folder)) {
-                      folder.getOwnerProject(function (err, project) {
-                        if (isNull(err)) {
-                          const registryData = {
-                            dcterms: {
-                              title: folder.dcterms.title,
-                              creator: req.user.uri,
-                              identifier: "123456789"
-                            },
-                            ddr: {
-                              exportedFromProject: project.uri,
-                              exportedFromFolder: folder.uri,
-                              privacyStatus: isNull(privacy) || privacy === false ? "private" : "public",
+            }
+            else
+            {
+                Folder.findByUri(requestedResourceUri, function (err, folder)
+                {
+                    if (isNull(err))
+                    {
+                        if (!isNull(folder))
+                        {
+                            folder.getOwnerProject(function (err, project)
+                            {
+                                if (isNull(err))
+                                {
+                                    const registryData = {
+                                        dcterms: {
+                                            title: folder.dcterms.title,
+                                            creator: req.user.uri,
+                                            identifier: "123456789"
+                                        },
+                                        ddr: {
+                                            exportedFromProject: project.uri,
+                                            exportedFromFolder: folder.uri,
+                                            privacyStatus: isNull(privacy) || privacy === false ? "private" : "public",
 
-                              exportedToRepository: "Dendro",
-                              exportedToPlatform: "Dendro"
-                            }
+                                            exportedToRepository: "Dendro",
+                                            exportedToPlatform: "Dendro"
+                                        }
 
-                          };
-                          Deposit.createDepositRegistry({
-                            registryData: registryData,
-                            requestedResource: folder,
-                            user: req.user
-                          }, function (err, registry) {
-                            let msg = "<br/><br/>Deposited successfully to Dendro. Check deposit <a href='" + registry.uri + "'>here<\/a>";
-                            /*if (!isNull(body.data) && !isNull(body.data.metadata) && typeof body.data.metadata.ePIC_PID !== "undefined")
+                                    };
+                                    Deposit.createDepositRegistry({
+                                        registryData: registryData,
+                                        requestedResource: folder,
+                                        user: req.user
+                                    }, function (err, registry)
+                                    {
+                                        let msg = "<br/><br/>Deposited successfully to Dendro. Check deposit <a href='" + registry.uri + "'>here<\/a>";
+                                        /* if (!isNull(body.data) && !isNull(body.data.metadata) && typeof body.data.metadata.ePIC_PID !== "undefined")
                             {
                               msg = msg + "<br/><br/><a href='" + body.data.metadata.ePIC_PID + "'>Click to see your published dataset<\/a>";
                             }*/
-                            res.json(
-                              {
-                                result: "OK",
-                                message: msg
-                              }
-                            );
-                          });
+                                        res.json(
+                                            {
+                                                result: "OK",
+                                                message: msg
+                                            }
+                                        );
+                                    });
+                                }
+                            });
                         }
-                      })
                     }
-                  }
-                })
+                });
             }
         }
     });

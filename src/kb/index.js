@@ -288,7 +288,7 @@ IndexConnection.prototype.ensureIndexIsReady = function (callback)
             else
             {
                 const msg = "Unable to determine ElasticSearch cluster health in time. This is a fatal error.";
-                Logger.log("error", );
+                Logger.log("error", err.message);
                 throw new Error(msg);
             }
         });

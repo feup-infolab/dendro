@@ -254,6 +254,79 @@ let DbConnection = function (handle, host, port, portISQL, username, password, m
     self.created_profiling_logfile = false;
 };
 
+DbConnection.prototype.reserveConnection = function (callback)
+{
+    const self = this;
+    // Logger.log("debug", "Number of current connections to virtuoso: " + Object.keys(self.pool._pool).length);
+
+    self.pool.reserve(function (err, connection)
+    {
+        if (isNull(err))
+        {
+            self.pendingRequests[connection.uuid] = true;
+            callback(null, connection);
+        }
+        else
+        {
+            Logger.log("error", "Error while reserving connection for running query");
+            Logger.log("error", JSON.stringify(err));
+            Logger.log("error", JSON.stringify(connection));
+            callback(err, connection);
+        }
+    });
+};
+
+DbConnection.prototype.releaseConnection = function (connection, callback)
+{
+    const self = this;
+    delete self.pendingRequests[connection.uuid];
+    if (!isNull(self.pool))
+    {
+        let released = false;
+        const timeout = setTimeout(function ()
+        {
+            if (!released)
+            {
+                const msg = "Unable to release connection in time, sending an error!!";
+                Logger.log(msg);
+                callback(1, msg);
+            }
+        }, self.timeout);
+
+        self.pool.release(connection, function (err, result)
+        {
+            clearTimeout(timeout);
+            if (!isNull(connection))
+            {
+                const endIt = function (callback)
+                {
+                    if (isNull(err))
+                    {
+                        callback(null);
+                    }
+                    else
+                    {
+                        Logger.log("error", "Error releasing JDBC connection on pool of database " + self.handle);
+                        Logger.log("error", JSON.stringify(err));
+                        Logger.log("error", JSON.stringify(connection));
+                        callback(err, connection);
+                    }
+                };
+
+                endIt(callback);
+            }
+            else
+            {
+                callback(null, null);
+            }
+        });
+    }
+    else
+    {
+        callback(null);
+    }
+};
+
 DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, runAsUpdate)
 {
     const self = this;
@@ -264,48 +337,12 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
 
     const queryStartTime = new Date();
 
-    const reserveConnection = function (callback)
-    {
-        self.pool.reserve(function (err, connection)
-        {
-            if (isNull(err))
-            {
-                async.series([
-                    function (callback)
-                    {
-                        // connection.conn.setAutoCommit(true, callback);
-                        callback(null);
-                    }
-                ], function (err, results)
-                {
-                    if (isNull(err))
-                    {
-                        self.pendingRequests[queryId] = connection;
-                        callback(null, connection);
-                    }
-                    else
-                    {
-                        Logger.log("error", "Error while setting connection for running queries");
-                        Logger.log("error", JSON.stringify(err));
-                        Logger.log("error", JSON.stringify(results));
-                        callback(null, connection);
-                    }
-                });
-            }
-            else
-            {
-                Logger.log("error", "Error while reserving connection for running query");
-                Logger.log("error", JSON.stringify(err));
-                Logger.log("error", JSON.stringify(connection));
-                callback(err, connection);
-            }
-        });
-    };
-
     const executeQueryOrUpdate = function (connection, callback)
     {
         const retryConnection = function (err, callback)
         {
+            Logger.log("debug", "Retrying connection to virtuoso because of error: ");
+            Logger.log("debug", JSON.stringify(err));
             const disconnectErrors = ["Virtuoso Communications Link Failure (timeout)", "Problem during closing : Broken pipe", "Problem during serialization : Broken pipe"];
 
             if (!isNull(err))
@@ -373,17 +410,24 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
                         {
                             statement.close(function (err)
                             {
-                                retryConnection(err, function (err)
+                                if (!isNull(err))
                                 {
-                                    if (isNull(err))
+                                    retryConnection(err, function (err)
                                     {
-                                        executeUpdateQuery(updateQuery, callback);
-                                    }
-                                    else
-                                    {
-                                        callback(err, "Connection to virtuoso was unable to be recovered after it was broken.");
-                                    }
-                                });
+                                        if (isNull(err))
+                                        {
+                                            executeUpdateQuery(updateQuery, callback);
+                                        }
+                                        else
+                                        {
+                                            callback(err, "Connection to virtuoso was unable to be recovered after it was broken.");
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    callback(err, results);
+                                }
                             });
                         }
                     });
@@ -471,44 +515,7 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
         }
     };
 
-    const releaseConnection = function (connection, callback)
-    {
-        if (!isNull(self.pool))
-        {
-            self.pool.release(connection, function (err, result)
-            {
-                if (!isNull(connection))
-                {
-                    const endIt = function (callback)
-                    {
-                        if (isNull(err))
-                        {
-                            callback(null);
-                        }
-                        else
-                        {
-                            Logger.log("error", "Error releasing JDBC connection on pool of database " + self.handle);
-                            Logger.log("error", JSON.stringify(err));
-                            Logger.log("error", JSON.stringify(connection));
-                            callback(err, connection);
-                        }
-                    };
-
-                    endIt(callback);
-                }
-                else
-                {
-                    callback(null, null);
-                }
-            });
-        }
-        else
-        {
-            callback(null);
-        }
-    };
-
-    reserveConnection(function (err, connection)
+    self.reserveConnection(function (err, connection, queryID)
     {
         if (isNull(err))
         {
@@ -525,23 +532,8 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
                 }
 
                 recordQueryConclusionInLog(query, queryStartTime);
-
-                let released = false;
-                const timeout = setTimeout(function ()
+                self.releaseConnection(connection, function (err, result)
                 {
-                    if (!released)
-                    {
-                        const msg = "Unable to release connection in time, sending an error!!";
-                        Logger.log(msg);
-                        callback(1, msg);
-                    }
-                }, 10000);
-
-                releaseConnection(connection, function (err, result)
-                {
-                    clearTimeout(timeout);
-
-                    delete self.pendingRequests[queryId];
                     callback(err, results);
                 });
             });
@@ -873,7 +865,7 @@ DbConnection.prototype.create = function (callback)
                 }, queryObject.runAsUpdate);
             },
             {
-                concurrent: 1,
+                concurrent: self.maxSimultaneousConnections,
                 maxTimeout: self.dbOperationTimeout,
                 maxRetries: 10,
                 // retryDelay : 100,
@@ -1261,8 +1253,6 @@ DbConnection.prototype.close = function (callback)
                 }
             }, null, null, null, true, true
         );
-
-        callback(null);
     };
 
     const shutdownVirtuoso = function (callback)
@@ -1425,12 +1415,9 @@ DbConnection.prototype.executeViaJDBC = function (queryStringOrArray, argumentsA
                 // );
 
                 // Uncomment to use NodeJS Query queues for concurrency control
-                const uuid = require("uuid");
-                const newQueryId = uuid.v4();
                 self.queue_jdbc.push({
                     queryStartTime: new Date(),
                     query: query,
-                    query_id: newQueryId,
                     runAsUpdate: runAsUpdate,
                     callback: function (err, results)
                     {
