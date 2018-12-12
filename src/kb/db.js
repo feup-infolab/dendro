@@ -341,8 +341,6 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
     {
         const retryConnection = function (err, callback)
         {
-            Logger.log("debug", "Retrying connection to virtuoso because of error: ");
-            Logger.log("debug", JSON.stringify(err));
             const disconnectErrors = ["Virtuoso Communications Link Failure (timeout)", "Problem during closing : Broken pipe", "Problem during serialization : Broken pipe"];
 
             if (!isNull(err))
@@ -354,16 +352,18 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
                     let disconnectError = disconnectErrors[i];
                     if (stackText.indexOf(disconnectError) > -1)
                     {
+                        Logger.log("debug", "Retrying connection to virtuoso because of error: ");
+                        Logger.log("debug", JSON.stringify(err));
                         self.tryToConnect(function (err)
                         {
-                            callback(err);
+                            callback(err, true);
                         });
 
                         return;
                     }
                 }
 
-                callback(err);
+                callback(err, false);
             }
             else
             {
@@ -412,11 +412,18 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
                             {
                                 if (!isNull(err))
                                 {
-                                    retryConnection(err, function (err)
+                                    retryConnection(err, function (err, wasDisconnectError)
                                     {
                                         if (isNull(err))
                                         {
-                                            executeUpdateQuery(updateQuery, callback);
+                                            if (wasDisconnectError)
+                                            {
+                                                executeUpdateQuery(updateQuery, callback);
+                                            }
+                                            else
+                                            {
+                                                callback(err, statement);
+                                            }
                                         }
                                         else
                                         {
@@ -475,13 +482,22 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
                         }
                         else
                         {
+                            Logger.log("error", "Error occurred in query " + selectQuery);
+                            Logger.log("error", err.stack);
                             statement.close(function (err)
                             {
-                                retryConnection(err, function (err)
+                                retryConnection(err, function (err, wasDisconnectError)
                                 {
                                     if (isNull(err))
                                     {
-                                        executeSelectQuery(selectQuery, callback);
+                                        if (wasDisconnectError)
+                                        {
+                                            executeSelectQuery(selectQuery, callback);
+                                        }
+                                        else
+                                        {
+                                            callback(err, statement);
+                                        }
                                     }
                                     else
                                     {
