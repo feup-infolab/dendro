@@ -5,6 +5,8 @@ const npid = require("npid");
 const mkdirp = require("mkdirp");
 const _ = require("underscore");
 const rlequire = require("rlequire");
+const Job = rlequire("dendro", "src/models/jobs/Job.js").Job;
+
 let appDir;
 
 if (process.env.NODE_ENV === "test")
@@ -621,6 +623,11 @@ class App
             });
         }
 
+        const closeAgenda = function (cb)
+        {
+            Job.stopAgenda(cb);
+        };
+
         const waitForPendingConnectionsToFinishup = function (cb)
         {
             let count = 0;
@@ -818,6 +825,7 @@ class App
         };
 
         async.series([
+            closeAgenda,
             waitForPendingConnectionsToFinishup,
             closeVirtuosoConnections,
             closeCacheConnections,

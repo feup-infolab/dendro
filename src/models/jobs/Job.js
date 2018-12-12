@@ -138,6 +138,14 @@ class Job
             callback(null);
         });
     }
+
+    static stopAgenda (callback)
+    {
+        Job._agenda.stop(function (err, result)
+        {
+            callback(err, result);
+        });
+    }
 }
 
 module.exports.Job = Job;

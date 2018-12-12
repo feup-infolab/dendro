@@ -410,7 +410,7 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
                         {
                             statement.close(function (err)
                             {
-                                if(!isNull(err))
+                                if (!isNull(err))
                                 {
                                     retryConnection(err, function (err)
                                     {

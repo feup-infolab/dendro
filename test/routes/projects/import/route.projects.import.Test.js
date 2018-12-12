@@ -10,11 +10,11 @@ const Pathfinder = global.Pathfinder;
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const projectUtils = rlequire("dendro", "test/utils/project/projectUtils.js");
-const userUtils =  rlequire("dendro", "test/utils/user/userUtils.js");
-const folderUtils =  rlequire("dendro", "test/utils/folder/folderUtils.js");
-const httpUtils =  rlequire("dendro", "test/utils/http/httpUtils.js");
+const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
+const folderUtils = rlequire("dendro", "test/utils/folder/folderUtils.js");
+const httpUtils = rlequire("dendro", "test/utils/http/httpUtils.js");
 const descriptorUtils = rlequire("dendro", "test/utils/descriptor/descriptorUtils.js");
-const appUtils =  rlequire("dendro", "test/utils/app/appUtils.js");
+const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
 
 const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");
 const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2.js");
