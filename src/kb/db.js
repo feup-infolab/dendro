@@ -1253,8 +1253,6 @@ DbConnection.prototype.close = function (callback)
                 }
             }, null, null, null, true, true
         );
-
-        callback(null);
     };
 
     const shutdownVirtuoso = function (callback)
