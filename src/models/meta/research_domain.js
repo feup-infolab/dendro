@@ -11,7 +11,7 @@ const Resource = rlequire("dendro", "src/models/resource.js").Resource;
 
 const db = Config.getDBByID();
 
-function ResearchDomain (object)
+function ResearchDomain (object = {})
 {
     const self = this;
     self.addURIAndRDFType(object, "research_domain", ResearchDomain);
@@ -21,7 +21,7 @@ function ResearchDomain (object)
     return self;
 }
 
-ResearchDomain.create = function (object, callback)
+ResearchDomain.create = function (object = {}, callback)
 {
     const self = new ResearchDomain(object);
     self.getHumanReadableUri(function (err, uri)

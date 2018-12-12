@@ -135,7 +135,7 @@
     "mySQLDBName": "dendro_data",
     "maxUploadSize": 1073741824,
     "maxProjectSize": 5368709120,
-    "maxSimultaneousConnectionsToDb": 1,
+    "maxSimultaneousConnectionsToDb": 20,
     "dbOperationTimeout": 16000,
     "tempFilesDir": "temp",
     "tempUploadsDir": "temp_uploads",
@@ -538,8 +538,8 @@
     "mongoDBSessionStoreCollection": "127_0_0_1_3001_sessions",
     "mongoDbVersion": "",
     "mongoDBAuth": {
-      "username": "",
-      "password": ""
+      "username": "admin",
+      "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
     },
     "storageDefaults": {
       "storageType": "mongoDB",
@@ -558,7 +558,7 @@
     "mySQLDBName": "dendro_data",
     "maxUploadSize": 1073741824,
     "maxProjectSize": 5368709120,
-    "maxSimultaneousConnectionsToDb": 1,
+    "maxSimultaneousConnectionsToDb": 20,
     "dbOperationTimeout": 16000,
     "tempFilesDir": "temp",
     "tempUploadsDir": "temp_uploads",
@@ -638,7 +638,7 @@
         "log_all_restore_operations": true,
         "log_delete_operations": true,
         "log_file_fetches": true,
-        "delete_temp_folder_on_startup": true,
+        "delete_temp_folder_on_startup": false,
         "log_file_version_fetches": false,
         "log_temp_file_writes": false,
         "log_temp_file_reads": false
@@ -827,7 +827,7 @@
       "active": true,
       "reuse_checkpoints": false,
       "create_checkpoints": false,
-      "destroy_existing_images_at_start": true,
+      "destroy_existing_images_at_start": false,
       "start_and_stop_containers_automatically" : true
     },
     "virtualbox": {
@@ -981,7 +981,7 @@
     "mySQLDBName": "dendroVagrantDemo_tests",
     "maxUploadSize": 2147483648,
     "maxProjectSize": 5368709120,
-    "maxSimultaneousConnectionsToDb": 1,
+    "maxSimultaneousConnectionsToDb": 20,
     "dbOperationTimeout": 16000,
     "tempFilesDir": "temp",
     "tempUploadsDir": "temp_uploads",
@@ -1333,8 +1333,8 @@
             "host": "127.0.0.1",
             "port": "27017",
             "id": "default",
-              "username": "admin",
-              "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
+            "username": "admin",
+            "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
           },
           "social": {
             "database": "127_0_0_1_3002",
@@ -1399,7 +1399,7 @@
     "mySQLDBName": "JENKINSTESTSdendroVagrantDemo",
     "maxUploadSize": 2147483648,
     "maxProjectSize": 5368709120,
-    "maxSimultaneousConnectionsToDb": 1,
+    "maxSimultaneousConnectionsToDb": 20,
     "dbOperationTimeout": 16000,
     "tempFilesDir": "temp",
     "tempUploadsDir": "temp_uploads",
@@ -1817,7 +1817,7 @@
     "mySQLDBName": "TRAVISTESTSdendroVagrantDemo",
     "maxUploadSize": 2147483648,
     "maxProjectSize": 5368709120,
-    "maxSimultaneousConnectionsToDb": 1,
+    "maxSimultaneousConnectionsToDb": 20,
     "dbOperationTimeout": 16000,
     "tempFilesDir": "temp",
     "tempUploadsDir": "temp_uploads",
@@ -2074,7 +2074,7 @@
     },
     "numCPUs": 1,
     "testing": {
-      "apply_cooldown_every_x_tests": 10,
+      "apply_cooldown_every_x_tests": -1,
       "cooldown_secs": 20
     },
     "docker": {

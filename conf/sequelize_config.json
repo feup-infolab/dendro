@@ -2,21 +2,21 @@
   "development": {
     "username": "root",
     "password": "r00t_p4ssw0rd",
-    "database": "dendroVagrantDemo",
+    "database": "dendro_data",
     "host": "192.168.56.249",
     "dialect": "mysql"
   },
   "test": {
     "username": "root",
     "password": "r00t_p4ssw0rd",
-    "database": "dendroVagrantDemoTests",
+    "database": "dendro_data_test",
     "host": "192.168.56.249",
     "dialect": "mysql"
   },
   "production": {
     "username": "root",
     "password": "r00t_p4ssw0rd",
-    "database": "dendroVagrantDemo",
+    "database": "dendro_data",
     "host": "192.168.56.249",
     "dialect": "mysql"
   }

@@ -15,7 +15,7 @@ const Notification = rlequire("dendro", "src/models/notifications/notification.j
 
 const db = Config.getDBByID();
 
-function InformationElement (object)
+function InformationElement (object = {})
 {
     const self = this;
     self.addURIAndRDFType(object, "information_element", InformationElement);
@@ -839,7 +839,7 @@ InformationElement.isSafePath = function (absPath, callback)
     {
         function b_in_a (b, a)
         {
-            return (b.indexOf(a) === 0);
+            return (!isNull(b) && !isNull(a) && b.indexOf(a) === 0);
         }
 
         const validDirs = [Config.tempFilesDir, Config.tempUploadsDir];

@@ -7,7 +7,7 @@ const Class = rlequire("dendro", "src/models/meta/class.js").Class;
 const Event = rlequire("dendro", "src/models/social/event.js").Event;
 const uuid = require("uuid");
 
-function Comment (object)
+function Comment (object = {})
 {
     const self = this;
     self.addURIAndRDFType(object, "comment", Comment);

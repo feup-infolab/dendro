@@ -5,6 +5,8 @@ const npid = require("npid");
 const mkdirp = require("mkdirp");
 const _ = require("underscore");
 const rlequire = require("rlequire");
+const Job = rlequire("dendro", "src/models/jobs/Job.js").Job;
+
 let appDir;
 
 if (process.env.NODE_ENV === "test")
@@ -48,6 +50,12 @@ class App
     setupHandlers ()
     {
         const self = this;
+
+        if (App._handlers_are_installed === true)
+        {
+            return;
+        }
+
         // if this fancy cleanup fails, we drop the hammer in 10 secs
         const setupForceKillTimer = function ()
         {
@@ -106,6 +114,8 @@ class App
                 process.exit(code);
             });
         });
+
+        App._handlers_are_installed = true;
     }
 
     initLogger ()
@@ -510,6 +520,11 @@ class App
             {
                 rlequire("dendro", "src/bootup/cron_jobs/delete_old_temp_folders.js").deleteOldTempFolders(self.app, callback);
             },
+            function (callback)
+            {
+                Logger.log("info", "Now initializing Agenda!");
+                rlequire("dendro", "src/bootup/init/init_agenda.js").init(self.app, callback);
+            },
             function (cb)
             {
                 if (!self.seedDatabasesAndExit)
@@ -615,6 +630,11 @@ class App
                 }
             });
         }
+
+        const closeAgenda = function (cb)
+        {
+            Job.stopAgenda(cb);
+        };
 
         const waitForPendingConnectionsToFinishup = function (cb)
         {
@@ -813,6 +833,7 @@ class App
         };
 
         async.series([
+            closeAgenda,
             waitForPendingConnectionsToFinishup,
             closeVirtuosoConnections,
             closeCacheConnections,
@@ -843,6 +864,9 @@ class App
     }
 }
 
-App._handlers_are_installed = false;
+if (!(App._handlers_are_installed === true) || isNull(App._handlers_are_installed))
+{
+    App._handlers_are_installed = false;
+}
 
 module.exports.App = App;
