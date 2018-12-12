@@ -25,7 +25,7 @@ const uploadFilesAndAddMetadataUnit = rlequire("dendro", "test/units/social/uplo
 const createUsersUnit = rlequire("dendro", "test/units/users/createUsers.Unit.js");
 const createAllFoldersAndAllFilesInsideThemWithMetadataUnit = rlequire("dendro", "test/units/projects/createAllFoldersAndAllFilesInsideThemWithMetadata.Unit.js");
 
-const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js");
+const privateProject = rlequire("dendro", "test/mockdata/projects/private_project.js");
 
 const createProjectsUnit = rlequire("dendro", "test/units/projects/createProjects.Unit.js");
 const projectsData = createProjectsUnit.projectsData;
