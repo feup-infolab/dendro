@@ -105,12 +105,18 @@ class App
 
         process.on("exit", function (code)
         {
-            Logger.log(`Unknown error occurred! About to exit with code ${code}`);
+            if (code !== 0)
+            {
+                Logger.log(`Unknown error occurred! About to exit with code ${code}`);
+            }
 
             self.freeResources(function ()
             {
                 Logger.log("Freed all resources.");
-                Logger.log("error", `Dendro exited because of an error. Check the logs at the ${path.join(__dirname, "logs")} folder`);
+                if (code !== 0)
+                {
+                    Logger.log("error", `Dendro exited because of an error. Check the logs at the ${path.join(__dirname, "logs")} folder`);
+                }
                 process.exit(code);
             });
         });
