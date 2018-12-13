@@ -36,8 +36,6 @@ const folderDemoUser2 = rlequire("dendro", "test/mockdata/folders/folderDemoUser
 
 const foldersData = [folder];
 
-const searchUtils = require('../../utils/search/searchUtils.js');
-
 describe("/search", function ()
 {
     this.timeout(Config.testsTimeout);
