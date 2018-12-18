@@ -2,7 +2,7 @@ const timeout = require("connect-timeout");
 
 const rlequire = require("rlequire");
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
-const colors = require('colors/safe');
+const colors = require("colors/safe");
 
 const startServer = function (app, server, callback)
 {
