@@ -604,78 +604,89 @@ exports.termExtraction = function (req, res)
     }
     else
     {
-        let nounPhraseFinal = [];
-        let dbpediaTerms = {
-            keywords: []
-        };
-
-        for (let i = 0; i < nounPhrase.length; i++)
-        {
-            for (let j = 0; j < nounPhrase[i].length; j++)
+        res.status(400).json(
             {
-                nounPhraseFinal.push(nounPhrase[i][j]);
-            }
-        }
-
-        let nounPhraseSimple = [...new Set(nounPhraseFinal.map(obj => JSON.stringify(obj)))]
-            .map(str => JSON.parse(str));
-
-        nounPhraseSimple.sort(function (a, b)
-        {
-            return tokenizer.tokenize(b).length - tokenizer.tokenize(a).length;
-        });
-        /*
-         let nGrams = [];
-         for (let i = 0; i < nounPhraseSimple.length; i++)
-            {
-                if (tokenizer.tokenize(nounPhraseSimple[i]).length <= 5 && tokenizer.tokenize(nounPhraseSimple[i]).length >= 2)
-                {
-                    nGrams.push(nounPhraseSimple[i]);
-                }
-                else
-                {
-                    // console.log(nounphrasesimple[i]);
-                }
-            }
-            nGrams.sort(function (a, b)
-            {
-            // ASC  -> a.length - b.length
-            // DESC -> b.length - a.length
-                return tokenizer.tokenize(b).length - tokenizer.tokenize(a).length;
-            });
-*/
-        let cvaluengrams = cvalue(nounPhraseSimple, documents, tokenizer.tokenize(nounPhraseSimple[0]).length);
-        ncvalue(cvaluengrams, cvaluengrams.length);
-
-        let nnnn = removeExtraTerms(cvaluengrams);
-
-        nnnn.sort(function (a, b)
-        {
-            return b.cvalue - a.cvalue;
-        });
-
-        for (let index = 0; index < nnnn.length; index++)
-        {
-            if (tokenizer.tokenize(nnnn[index].word).length <= 3)
-            {
-                dbpediaTerms.keywords.push({
-                    words: nnnn[index].word,
-                    score: nnnn[index].cvalue
-                });
-            }
-        }
-
-        dbpediaTerms.keywords.sort(function (a, b)
-        {
-            return parseFloat(b.score) - parseFloat(a.score);
-        });
-
-        res(
-            {
-                dbpediaTerms: dbpediaTerms
+                result: "error",
+                message: "Invalid Extraction Method : " + method
             }
         );
     }
+
+    /* Turned off CoreNLP because it is too slow for production implementation*/
+    //     else
+//     {
+//         let nounPhraseFinal = [];
+//         let dbpediaTerms = {
+//             keywords: []
+//         };
+//
+//         for (let i = 0; i < nounPhrase.length; i++)
+//         {
+//             for (let j = 0; j < nounPhrase[i].length; j++)
+//             {
+//                 nounPhraseFinal.push(nounPhrase[i][j]);
+//             }
+//         }
+//
+//         let nounPhraseSimple = [...new Set(nounPhraseFinal.map(obj => JSON.stringify(obj)))]
+//             .map(str => JSON.parse(str));
+//
+//         nounPhraseSimple.sort(function (a, b)
+//         {
+//             return tokenizer.tokenize(b).length - tokenizer.tokenize(a).length;
+//         });
+//         /*
+//          let nGrams = [];
+//          for (let i = 0; i < nounPhraseSimple.length; i++)
+//             {
+//                 if (tokenizer.tokenize(nounPhraseSimple[i]).length <= 5 && tokenizer.tokenize(nounPhraseSimple[i]).length >= 2)
+//                 {
+//                     nGrams.push(nounPhraseSimple[i]);
+//                 }
+//                 else
+//                 {
+//                     // console.log(nounphrasesimple[i]);
+//                 }
+//             }
+//             nGrams.sort(function (a, b)
+//             {
+//             // ASC  -> a.length - b.length
+//             // DESC -> b.length - a.length
+//                 return tokenizer.tokenize(b).length - tokenizer.tokenize(a).length;
+//             });
+// */
+//         let cvaluengrams = cvalue(nounPhraseSimple, documents, tokenizer.tokenize(nounPhraseSimple[0]).length);
+//         ncvalue(cvaluengrams, cvaluengrams.length);
+//
+//         let nnnn = removeExtraTerms(cvaluengrams);
+//
+//         nnnn.sort(function (a, b)
+//         {
+//             return b.cvalue - a.cvalue;
+//         });
+//
+//         for (let index = 0; index < nnnn.length; index++)
+//         {
+//             if (tokenizer.tokenize(nnnn[index].word).length <= 3)
+//             {
+//                 dbpediaTerms.keywords.push({
+//                     words: nnnn[index].word,
+//                     score: nnnn[index].cvalue
+//                 });
+//             }
+//         }
+//
+//         dbpediaTerms.keywords.sort(function (a, b)
+//         {
+//             return parseFloat(b.score) - parseFloat(a.score);
+//         });
+//
+//         res(
+//             {
+//                 dbpediaTerms: dbpediaTerms
+//             }
+//         );
+//     }
 };
 
 exports.dbpediaLookup = function (req, res)

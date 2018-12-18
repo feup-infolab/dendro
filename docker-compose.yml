@@ -62,10 +62,9 @@ services:
 
   corenlp:
     container_name: corenlp-dendro-dev
-    image: antoinebriand/corenlp-server
+    image: nlpbox/corenlp
     environment:
-      - CORENLP_MAX_MEMORY=1g
-      - CORENLP_ANNOTATORS="tokenize,ssplit,pos,ner"
+      - JAVA_XMX=1g
     ports:
       - 9000:9000
 
