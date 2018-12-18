@@ -11,7 +11,7 @@ done
 
 ELASTICSEARCH_CONTAINER_NAME="${prefix}elasticsearch-dendro"
 VIRTUOSO_CONTAINER_NAME="${prefix}virtuoso-dendro"
-MYSQL_CONTAINER_NAME="${prefix}mysql-dendro"
+MYSQL_CONTAINER_NAME="${prefix}mariadb-dendro"
 MONGODB_CONTAINER_NAME="${prefix}mongodb-dendro"
 
 ELASTICSEARCH_HOSTNAME="$ELASTICSEARCH_CONTAINER_NAME"

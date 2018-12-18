@@ -31,15 +31,18 @@ services:
     networks:
       - dendro
 
-  mysql:
-    container_name: mysql-dendro-dev
-    image: mysql:5.7.22
+  mariadb:
+    container_name: mariadb-dendro-dev
+    image: mariadb:5.5.62
     ports:
       - "3307:3306"
     environment:
       - "MYSQL_ROOT_PASSWORD=r00t_p4ssw0rd"
+      - "MYSQL_DATABASE=dendro_data"
+      - "MYSQL_USER=dendro"
+      - "MYSQL_PASSWORD=dendr0_p4ssw0rd"
     volumes:
-      - ./volumes/mysql:/var/lib/mysql:consistent
+      - ./volumes/mariadb:/var/lib/mariadb
     networks:
       - dendro
 

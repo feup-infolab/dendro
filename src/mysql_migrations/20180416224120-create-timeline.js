@@ -14,7 +14,7 @@ module.exports = {
             },
             lastAccess: {
                 allowNull: false,
-                defaultValue: queryInterface.sequelize.fn("NOW"),
+                defaultValue: Sequelize.NOW,
                 type: Sequelize.DATE
             },
             nextPosition: {
