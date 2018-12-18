@@ -57,5 +57,18 @@ services:
       - dendro
     command: mongod --smallfiles --bind_ip_all
 
+  corenlp:
+    container_name: corenlp-dendro-dev
+    image: antoinebriand/corenlp-server
+    environment:
+      - CORENLP_MAX_MEMORY=1g
+      - CORENLP_ANNOTATORS="tokenize,ssplit,pos,ner"
+    ports:
+      - 9000:9000
+
+  yake:
+    container_name: yake-dendro-dev
+    image: feupinfolab/yake:latest
+
 networks:
   dendro: {}

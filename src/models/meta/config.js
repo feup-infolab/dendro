@@ -916,6 +916,7 @@ Config.numCPUs = getConfigParameter("numCPUs");
 Config.testing = getConfigParameter("testing");
 Config.docker = getConfigParameter("docker");
 Config.virtualbox = getConfigParameter("virtualbox");
+Config.keywords_extraction = getConfigParameter("keywords_extraction");
 
 if (Config.docker.active && Config.virtualbox.active)
 {

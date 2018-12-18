@@ -1,5 +1,6 @@
 require("babel-polyfill");
 
+let rlequire = require("rlequire");
 let async = require("async");
 let natural = require("natural");
 let tokenizer = new natural.WordTokenizer();
@@ -9,14 +10,10 @@ let stripTags = require("striptags");
 let stopWords = require("stopwords").english;
 const coreNlp = require("corenlp");
 const coreNLP = coreNlp.default;
-const connector = new coreNlp.ConnectorServer({
-    dsn: "http://localhost:9000"
-});
 
 const props = new coreNlp.Properties({
     annotators: "tokenize,ssplit,pos,ner"
 });
-const pipeline = new coreNlp.Pipeline(props, "English", connector);
 
 let doc;
 let method;
@@ -29,6 +26,13 @@ let baseRequest = request.defaults({
 });
 
 let cluster = require("hierarchical-clustering");
+
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const connector = new coreNlp.ConnectorServer({
+    dsn: Config.keywords_extraction.corenlp_server_address
+});
+
+const pipeline = new coreNlp.Pipeline(props, "English", connector);
 
 exports.processExtract = function (req, res)
 {
