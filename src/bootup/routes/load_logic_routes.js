@@ -32,7 +32,6 @@ const timeline = rlequire("dendro", "src/controllers/timeline");
 const notifications = rlequire("dendro", "src/controllers/notifications");
 const keywords = rlequire("dendro", "src/controllers/keywords");
 
-
 let recommendation;
 
 const recommendation_mode = RecommendationUtils.getActiveRecommender();

@@ -12,7 +12,7 @@ const db = Config.getDBByID();
 
 const async = require("async");
 
-function Change (object)
+function Change (object = {})
 {
     const self = this;
     self.addURIAndRDFType(object, "change", Change);

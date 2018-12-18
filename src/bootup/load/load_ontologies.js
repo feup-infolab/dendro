@@ -54,7 +54,7 @@ const loadOntologies = function (app, callback, forceLoadForTests)
         });
     };
 
-    if (Config.startup.load_databases && Config.startup.reload_ontologies_on_startup || forceLoadForTests)
+    if ((Config.startup.load_databases && Config.startup.reload_ontologies_on_startup) || forceLoadForTests)
     {
         Logger.log_boot_message("Loading ontology parametrization from database... ");
 

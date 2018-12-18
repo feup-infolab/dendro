@@ -24,17 +24,17 @@ angular.module("dendroApp.controllers")
     {
         $scope.button = "Cluster";
         // keyword extraction
-        $scope.keywords=null;
-        $scope.concepts=null;
-        $scope.properties=null;
+        $scope.keywords = null;
+        $scope.concepts = null;
+        $scope.properties = null;
         $scope.clusters;
 
-        $scope.filelist=null;
-        $scope.keywordlist=null;
-        $scope.termList=null;
-        $scope.clusterList=false;
-        $scope.conceptlist=null;
-        $scope.descriptorlist=null;
+        $scope.filelist = null;
+        $scope.keywordlist = null;
+        $scope.termList = null;
+        $scope.clusterList = false;
+        $scope.conceptlist = null;
+        $scope.descriptorlist = null;
         $scope.multiple_term_selection = true;
         $scope.multiple_concept_selection = true;
         $scope.extra_terms = null;

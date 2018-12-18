@@ -8,7 +8,7 @@ const Resource = rlequire("dendro", "src/models/resource.js").Resource;
 
 const async = require("async");
 
-function RepositoryPlatform (object)
+function RepositoryPlatform (object = {})
 {
     const self = this;
     self.addURIAndRDFType(object, "repo_platform", RepositoryPlatform);

@@ -7,7 +7,7 @@ const Class = rlequire("dendro", "src/models/meta/class.js").Class;
 
 const db = Config.getDBByID();
 
-function Administrator (object)
+function Administrator (object = {})
 {
     const self = this;
 

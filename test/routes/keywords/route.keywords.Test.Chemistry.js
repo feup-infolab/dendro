@@ -39,7 +39,6 @@ const doc14 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/d
 const doc15 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc15.js"));
 const doc16 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/doc15.js"));
 
-
 // Dendro Keywords
 describe("Searches DBpedia for important terms", function (done)
 {
@@ -79,13 +78,11 @@ describe("Searches DBpedia for important terms", function (done)
             {
                 res.statusCode.should.equal(200);
                 cb(null, [res.text, JSON.parse(res.text).text]);
-
             });
         };
         let articles = [];
         let dbpediaTerms;
         let docList = [doc1, doc2, doc3, doc4, doc5, doc6, doc7, doc8, doc9, doc10, doc11, doc12, doc13, doc14, doc15, doc16];
-
 
         it("Should load every pdf and extract their content", function (done)
         {
@@ -105,17 +102,15 @@ describe("Searches DBpedia for important terms", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                keywordsUtils.processExtract({method:"CValueJJ", text:articles}, agent, function (err, te)
+                keywordsUtils.processExtract({method: "CValueJJ", text: articles}, agent, function (err, te)
                 {
                     te.statusCode.should.equal(200);
                     dbpediaTerms = te.body.output.dbpediaTerms.keywords;
-
 
                     done();
                 });
             });
         });
-
 
         let dbpediaConcepts = [];
         it("Should search terms in dbpedia", function (done)

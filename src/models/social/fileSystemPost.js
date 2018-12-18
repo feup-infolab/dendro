@@ -19,7 +19,7 @@ var gfs = Config.getGFSByID();
 var _ = require("underscore");
 var async = require("async");
 
-function FileSystemPost (object)
+function FileSystemPost (object = {})
 {
     const self = this;
     self.addURIAndRDFType(object, "post", FileSystemPost);

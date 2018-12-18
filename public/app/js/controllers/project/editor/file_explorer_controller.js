@@ -38,30 +38,47 @@ angular.module("dendroApp.controllers")
 
             if (item && item.ddr.fileExtension === "folder")
             {
-                items = [
+                items = [];
+
+                if ($scope.runningOnSmartphoneOrTablet())
+                {
+                    items.push(
+                        {
+                            click: function ($itemScope, $event, modelValue, text, $li)
+                            {
+                                $scope.open_for_mobile_devices();
+                            },
+                            html: function ()
+                            {
+                                return "<a href=\"#\"><img class=\"icon16\" id=\"open_folder_button\" src=\"/images/icons/folder_vertical_open.png\">Open</a></li>";
+                            },
+                            children: null
+                        });
+                }
+
+                items.push({
+                    click: function ($itemScope, $event, modelValue, text, $li)
                     {
-                        click: function ($itemScope, $event, modelValue, text, $li)
-                        {
-                            $scope.download_selected_items();
-                        },
-                        html: function ()
-                        {
-                            return "<a href=\"#\"><img class=\"icon16\" data-loading-text=\"Downloading...\" src=\"/images/icons/arrow_down.png\">&nbsp;Download</a>";
-                        },
-                        children: null
+                        $scope.download_selected_items();
                     },
+                    html: function ()
                     {
-                        click: function ($itemScope, $event, modelValue, text, $li)
-                        {
-                            $scope.backup_folder();
-                        },
-                        html: function ()
-                        {
-                            return "<a href=\"#\"><img class=\"icon16\" data-loading-text=\"Backup...\" src=\"/images/icons/folder_vertical_zipper.png\">&nbsp;Backup</a>";
-                        },
-                        children: null
-                    }
-                ];
+                        return "<a href=\"#\"><img class=\"icon16\" data-loading-text=\"Downloading...\" src=\"/images/icons/arrow_down.png\">&nbsp;Download</a>";
+                    },
+                    children: null
+                });
+
+                items.push({
+                    click: function ($itemScope, $event, modelValue, text, $li)
+                    {
+                        $scope.backup_folder();
+                    },
+                    html: function ()
+                    {
+                        return "<a href=\"#\"><img class=\"icon16\" data-loading-text=\"Backup...\" src=\"/images/icons/folder_vertical_zipper.png\">&nbsp;Backup</a>";
+                    },
+                    children: null
+                });
             }
             else
             {
@@ -401,6 +418,26 @@ angular.module("dendroApp.controllers")
             else
             {
                 windowService.show_popup("warning", "Nothing selected", "Please select the files before copying", 1000);
+            }
+        };
+
+        $scope.open_for_mobile_devices = function ()
+        {
+            var selectedFiles = $scope.get_selected_files();
+            if (selectedFiles != null && selectedFiles instanceof Array && selectedFiles.length > 0)
+            {
+                var selectedFolder = $scope.get_selected_files()[0];
+
+                $scope.shared.initial_metadata = $filter("filter")($scope.shared.initial_metadata, $scope.only_editable_metadata_descriptors);
+                $scope.shared.metadata = $filter("filter")($scope.shared.metadata, $scope.only_editable_metadata_descriptors);
+                $scope.change_location(
+                    selectedFolder.uri,
+                    metadataService.dirty_metadata(
+                        $scope.shared.initial_metadata,
+                        $scope.shared.metadata
+                    )
+                );
+                $scope.lastClickInFileExplorer = null;
             }
         };
 

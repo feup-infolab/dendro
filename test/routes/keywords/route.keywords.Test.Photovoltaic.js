@@ -26,9 +26,6 @@ const optical = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords
 const electrochemical = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/Electrochemicallysynthesized.js"));
 const electrical = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/Electricalandopticalproperties.js"));
 
-
-
-
 // Dendro Keywords
 describe("Searches DBpedia for important terms", function (done)
 {
@@ -67,7 +64,6 @@ describe("Searches DBpedia for important terms", function (done)
             {
                 res.statusCode.should.equal(200);
                 cb(null, [res.text, JSON.parse(res.text).text]);
-
             });
         };
         let articles = [];
@@ -91,11 +87,10 @@ describe("Searches DBpedia for important terms", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                keywordsUtils.processExtract({method:"CValueJJ", text:articles}, agent, function (err, te)
+                keywordsUtils.processExtract({method: "CValueJJ", text: articles}, agent, function (err, te)
                 {
                     te.statusCode.should.equal(200);
                     dbpediaTerms = te.body.output.dbpediaTerms.keywords;
-
 
                     done();
                 });

@@ -11,7 +11,7 @@ const IO = rlequire("dendro", "src/bootup/models/io.js").IO;
 const dbNotifications = Config.getDBByID("notifications");
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
-function Notification (object)
+function Notification (object = {})
 {
     const self = this;
     self.addURIAndRDFType(object, "notification", Notification);
@@ -71,10 +71,10 @@ Notification.sendSocketNotificationToUser = function (userUri, notificationObjec
             userSession.emitNotification(notificationObject);
         }
     }
-    else
-    {
-        Logger.log("error", "Could not emit message to user: " + userUri);
-    }
+    // else
+    // {
+    //     Logger.log("debug", "Could not emit message to user: " + userUri);
+    // }
 };
 
 Notification.startProgress = function (targetUserUri, message)
@@ -126,7 +126,7 @@ Notification.prototype.save = function (callback)
     const notificationObject = JSON.parse(JSON.stringify(self));
     self.baseConstructor.prototype.save.call(self, function (err, result)
     {
-        if(isNull(err))
+        if (isNull(err))
         {
             Notification.sendSocketNotificationToUser(notificationObject.ddr.resourceAuthorUri, notificationObject);
         }

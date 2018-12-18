@@ -81,7 +81,6 @@ describe("Searches DBpedia for important terms", function (done)
         });
     });
 
-
     describe("[GET] Complete path using all 5 files", function ()
     {
         let loadfiles = function (lookup, cb)
@@ -134,7 +133,7 @@ describe("Searches DBpedia for important terms", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                keywordsUtils.processExtract({method:"CValueJJ", text:articles}, agent, function (err, te)
+                keywordsUtils.processExtract({method: "CValueJJ", text: articles}, agent, function (err, te)
                 {
                     te.statusCode.should.equal(200);
                     // console.log(te.text);

@@ -65,3 +65,5 @@ test/mockdata/files/test_uploads/hugeTxtFile.txt
 
 data/
 volumes/
+
+conf/profile_queries/

@@ -2,6 +2,7 @@ const rlequire = require("rlequire");
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const isNull = rlequire("dendro", "src//utils/null.js").isNull;
 const dbMySQL = rlequire("dendro", "src/mysql_models");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 exports.recordInteraction = function (jsonOnly, folderUri, projectHandle, interactionData, agent, cb)
 {
@@ -953,7 +954,7 @@ exports.getLatestInteractionInDB = function (callback)
             return callback(null, result);
         })
         .catch(err =>
-            callback(true, "[ERROR] Unable get the latest interaction info on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err));
+            callback(true, "[ERROR] Unable get the latest interaction info on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + JSON.stringify(err)));
 };
 
 exports.getNumberOfInteractionsInDB = function (callback)

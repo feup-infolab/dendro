@@ -51,7 +51,7 @@ describe("Get all posts URIs with pagination and ranking tests", function ()
                 socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    res.body.length.should.equal(5);
+                    res.body.length.should.equal(30);
                     postURIsToCompare = res.body;
                     done();
                 });
@@ -65,7 +65,7 @@ describe("Get all posts URIs with pagination and ranking tests", function ()
                 socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    res.body.length.should.equal(5);
+                    res.body.length.should.equal(30);
                     expect(postURIsToCompare).to.eql(res.body);
                     done();
                 });

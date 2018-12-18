@@ -16,7 +16,7 @@ let config = {
     port: Config.mySQLPort,
     dialect: "mysql",
     operatorsAliases: false,
-    logging: true
+    logging: false
 };
 
 let sequelize = new Sequelize(config.database, config.username, config.password, config);

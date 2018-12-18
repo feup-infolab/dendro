@@ -9,7 +9,7 @@ angular.module("dendroApp.controllers")
         $scope.useRank = false;
         $scope.countCenas = 1;
         $scope.totalPosts = 0;
-        $scope.postsPerPage = 5; // this should match however many results your API puts on one page
+        $scope.postsPerPage = 30; // this should match however many results your API puts on one page
         $scope.postsContents = [];
         $scope.loggedUser = "";
         $scope.fullProjectsInfo = [];

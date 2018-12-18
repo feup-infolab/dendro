@@ -27,7 +27,7 @@ let postURIsToCompare;
 
 function stripArrayToPostURISOnly (uris)
 {
-    uris.forEach(function(element)
+    uris.forEach(function (element)
     {
         delete element.position;
         delete element.fixedPosition;
@@ -69,7 +69,7 @@ describe("Get all posts URIs with pagination tests", function ()
                 socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    res.body.length.should.equal(5);
+                    res.body.length.should.equal(30);
                     postURIsToCompare = stripArrayToPostURISOnly(res.body);
                     done();
                 });
@@ -83,7 +83,7 @@ describe("Get all posts URIs with pagination tests", function ()
                 socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    res.body.length.should.equal(5);
+                    res.body.length.should.equal(30);
                     console.log(res.body);
                     expect(postURIsToCompare).to.eql(stripArrayToPostURISOnly(res.body));
                     done();

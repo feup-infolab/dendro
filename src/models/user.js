@@ -21,7 +21,7 @@ const gfs = Config.getGFSByID();
 
 const dbMySQL = rlequire("dendro", "src/mysql_models");
 
-function User (object)
+function User (object = {})
 {
     const self = this;
     self.addURIAndRDFType(object, "user", User);
@@ -1222,7 +1222,7 @@ User.prototype.saveAvatarInGridFS = function (avatar, extension, callback)
     let avatarUri = "/avatar/" + self.ddr.username + "/avatar." + extension;
     let base64Data = avatar.replace(/^data:image\/png;base64,/, "");
 
-    let mongoClient = new DendroMongoClient(Config.mongoDBHost, Config.mongoDbPort, Config.mongoDbCollectionName);
+    let mongoClient = new DendroMongoClient(Config.mongoDBHost, Config.mongoDbPort, Config.mongoDbCollectionName, Config.mongoDBAuth.username, Config.mongoDBAuth.password);
 
     mongoClient.connect(function (err, mongoDb)
     {

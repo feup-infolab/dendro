@@ -1,3 +1,4 @@
+const async = require("async");
 const rlequire = require("rlequire");
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
@@ -23,7 +24,7 @@ function MongoDBCache (options)
 
 MongoDBCache.prototype.getHitRatio = function ()
 {
-    var self = this;
+    const self = this;
     if ((self.hits + self.misses) !== 0)
     {
         return self.hits / (self.hits + self.misses);
@@ -57,20 +58,37 @@ MongoDBCache.prototype.open = function (callback)
         if (isNull(err))
         {
             self.client = db;
-            self.client.collection(self.collection).ensureIndex(
-                "uri",
-                function (err, result)
+
+            const createIndexOnUri = function (callback)
+            {
+                self.client.collection(self.collection).ensureIndex(
+                    "uri",
+                    callback
+                );
+            };
+
+            const createIndexOnRDFType = function (callback)
+            {
+                self.client.collection(self.collection).ensureIndex(
+                    "rdf.type",
+                    callback
+                );
+            };
+
+            async.parallel([
+                createIndexOnUri,
+                createIndexOnRDFType
+            ], function (err, results)
+            {
+                if (isNull(err))
                 {
-                    if (isNull(err))
-                    {
-                        callback(null, self);
-                    }
-                    else
-                    {
-                        callback(err, self);
-                    }
+                    callback(null, self);
                 }
-            );
+                else
+                {
+                    callback(err, self);
+                }
+            });
         }
         else
         {

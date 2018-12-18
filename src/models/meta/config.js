@@ -136,8 +136,10 @@ Config.mongoDBHost = getConfigParameter("mongoDBHost");
 Config.mongoDbPort = getConfigParameter("mongoDbPort");
 Config.mongoDbCollectionName = getConfigParameter("mongoDbCollectionName");
 Config.mongoDBSessionStoreCollection = getConfigParameter("mongoDBSessionStoreCollection");
+Config.useMongoDBSessionStore = getConfigParameter("useMongoDBSessionStore");
 Config.mongoDbVersion = getConfigParameter("mongoDbVersion");
 Config.mongoDBAuth = getConfigParameter("mongoDBAuth");
+Config.mongoJobCollectionName = getConfigParameter("mongoJobCollectionName", "defaultJobCollectionName");
 // storage default config
 Config.defaultStorageConfig = getConfigParameter("storageDefaults");
 Config.defaultStorageConfig.port = parseInt(Config.defaultStorageConfig.port);

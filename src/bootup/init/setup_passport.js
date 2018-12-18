@@ -19,8 +19,6 @@ const setupPassport = function (app, callback)
 
     const setupMongoStore = function (callback)
     {
-        const MongoStore = require("connect-mongo")(expressSession);
-
         const expressSessionParameters = {
             secret: Config.crypto.secret,
             genid: function ()
@@ -34,51 +32,119 @@ const setupPassport = function (app, callback)
             saveUninitialized: false
         };
 
-        const mongoDBSessionsDBName = slug(Config.mongoDBSessionStoreCollection);
+        const connectToMongoStore = function (callback)
+        {
+            const MongoStore = require("connect-mongo")(expressSession);
+            const mongoDBSessionsDBName = slug(Config.mongoDBSessionStoreCollection);
 
-        let url;
-        if (Config.mongoDBAuth.username && Config.mongoDBAuth.password && Config.mongoDBAuth.username !== "" && Config.mongoDBAuth.password !== "")
-        {
-            url = "mongodb://" + Config.mongoDBAuth.username + ":" + Config.mongoDBAuth.password + "@" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + mongoDBSessionsDBName + "?authSource=admin";
-        }
-        else
-        {
-            url = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + mongoDBSessionsDBName;
-        }
-
-        MongoClient.connect(url, function (err, db)
-        {
-            if (isNull(err))
+            let url;
+            if (Config.mongoDBAuth.username && Config.mongoDBAuth.password && Config.mongoDBAuth.username !== "" && Config.mongoDBAuth.password !== "")
             {
-                const sessionMongoStore = new MongoStore({db: db});
-                expressSessionParameters.store = sessionMongoStore;
-                app.use(expressSession(expressSessionParameters));
+                url = "mongodb://" + Config.mongoDBAuth.username + ":" + Config.mongoDBAuth.password + "@" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + mongoDBSessionsDBName + "?authSource=admin";
+            }
+            else
+            {
+                url = "mongodb://" + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + mongoDBSessionsDBName;
+            }
 
-                if (Config.startup.load_databases && Config.startup.clear_session_store && !isNull(db))
+            MongoClient.connect(url, function (err, db)
+            {
+                if (isNull(err))
                 {
-                    Logger.log_boot_message("Clearing session store!");
-                    db.collection(mongoDBSessionsDBName).drop(function (err, result)
+                    const dropCollectionIfNeeded = function (callback)
                     {
-                        if (isNull(err) || err.errmsg === "ns not found")
+                        if (Config.startup.load_databases && Config.startup.clear_session_store && !isNull(db))
                         {
-                            callback(null);
+                            Logger.log_boot_message("Clearing session store!");
+                            db.collection(mongoDBSessionsDBName).drop(function (err, result)
+                            {
+                                if (isNull(err) || err.errmsg === "ns not found")
+                                {
+                                    callback(null);
+                                }
+                                else
+                                {
+                                    callback(err, result);
+                                }
+                            });
                         }
                         else
                         {
-                            callback(err, result);
+                            callback(null);
+                        }
+                    };
+
+                    const createIndexOnUsername = function (callback)
+                    {
+                        db.collection(mongoDBSessionsDBName).ensureIndex(
+                            "ddr.username",
+                            function (err, result)
+                            {
+                                if (isNull(err))
+                                {
+                                    callback(null);
+                                }
+                                else
+                                {
+                                    callback(err);
+                                }
+                            }
+                        );
+                    };
+
+                    const createIndexOnUri = function (callback)
+                    {
+                        db.collection(mongoDBSessionsDBName).ensureIndex(
+                            "uri",
+                            function (err, result)
+                            {
+                                if (isNull(err))
+                                {
+                                    callback(null);
+                                }
+                                else
+                                {
+                                    callback(err);
+                                }
+                            }
+                        );
+                    };
+
+                    async.series([
+                        dropCollectionIfNeeded,
+                        createIndexOnUsername,
+                        createIndexOnUri
+                    ], function (err, results)
+                    {
+                        if (isNull(err))
+                        {
+                            expressSessionParameters.store = new MongoStore({db: db});
+                            app.use(expressSession(expressSessionParameters));
+                            callback(err);
+                        }
+                        else
+                        {
+                            Logger.log("error", "Unable to set up indexes on sessions collection " + mongoDBSessionsDBName + " on MongoDB during startup.");
+                            callback(err, results);
                         }
                     });
                 }
                 else
                 {
-                    callback(null);
+                    callback(err, db);
                 }
-            }
-            else
-            {
-                callback(err, db);
-            }
-        });
+            });
+        };
+
+        if (Config.useMongoDBSessionStore)
+        {
+            connectToMongoStore(callback);
+        }
+        else
+        {
+            app.use(expressSession(expressSessionParameters));
+            callback(null);
+        }
     };
 
     const setupPassport = function (callback)

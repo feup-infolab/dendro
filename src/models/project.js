@@ -3,6 +3,7 @@
 // creator is an URI to the author : http://dendro.fe.up.pt/user/<username>
 
 const rlequire = require("rlequire");
+const path = require("path");
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
@@ -27,7 +28,7 @@ const dbMySQL = rlequire("dendro", "src/mysql_models");
 const async = require("async");
 const _ = require("underscore");
 
-function Project (object)
+function Project (object = {})
 {
     const self = this;
     self.addURIAndRDFType(object, "project", Project);
@@ -605,6 +606,210 @@ Project.createAndInsertFromObject = function (object, callback)
     });
 };
 
+Project.prototype.importFromBagItBackupDirectory = function (uploadedBackupAbsPath, userAndSessionInfo, callback)
+{
+    const self = this;
+    const getMetadata = function (absPathOfBagItBackupRootFolder, callback)
+    {
+        const bagItMetadataFileAbsPath = path.join(absPathOfBagItBackupRootFolder, "bag-info.txt");
+        const projectDescriptors = [];
+
+        const lineReader = require("readline").createInterface({
+            input: require("fs").createReadStream(bagItMetadataFileAbsPath)
+        });
+
+        const getDescriptor = function (line)
+        {
+            const fieldMatcher = {
+                "Source-Organization": "dcterms:publisher",
+                "Organization-Address": "schema:address",
+                "Contact-Name": "schema:provider",
+                "Contact-Phone": "schema:telephone",
+                "External-Description": "dcterms:description",
+                "Contact-Email": "schema:email"
+            };
+
+            const separator = line.indexOf(":");
+
+            if (separator)
+            {
+                const bagitField = line.substring(0, separator);
+
+                // 2 extra char after index of : must be rejected, which is the space.
+                const bagitValue = line.substring(separator + 2);
+                const descriptor = fieldMatcher[bagitField];
+
+                if (descriptor)
+                {
+                    return new Descriptor({
+                        prefixedForm: descriptor,
+                        value: bagitValue
+                    });
+                }
+                return null;
+            }
+            return null;
+        };
+
+        lineReader.on("line", function (line)
+        {
+            if (!isNull(line))
+            {
+                const descriptor = getDescriptor(line);
+                if (descriptor)
+                {
+                    projectDescriptors.push(descriptor);
+                }
+            }
+        });
+
+        lineReader.on("close", function (line)
+        {
+            callback(projectDescriptors);
+        });
+    };
+
+    if (path.extname(uploadedBackupAbsPath) === ".zip")
+    {
+        const userIsAdmin = (userAndSessionInfo.user.isAdmin || userAndSessionInfo.session.isAdmin);
+        Project.unzipAndValidateBagItBackupStructure(
+            uploadedBackupAbsPath,
+            Config.maxProjectSize,
+            userIsAdmin,
+            function (err, valid, absPathOfDataRootFolder, absPathOfUnzippedBagIt)
+            {
+                if (isNull(err))
+                {
+                    if (valid)
+                    {
+                        getMetadata(absPathOfUnzippedBagIt, function (descriptors)
+                        {
+                            self.updateDescriptors(descriptors);
+
+                            // all imported projects will use default storage by default.
+                            // later we will add parameters for storage in the import screen
+                            // and projects can be imported directly to any kind of storage
+                            self.save(function (err, result)
+                            {
+                                if (isNull(err))
+                                {
+                                    self.restoreFromFolder(absPathOfDataRootFolder, userAndSessionInfo.user, true, true, function (err, result)
+                                    {
+                                        File.deleteOnLocalFileSystem(absPathOfUnzippedBagIt, function (err, result)
+                                        {
+                                            if (!isNull(err))
+                                            {
+                                                Logger.log("error", "Error occurred while deleting absPathOfUnzippedBagIt at " + absPathOfUnzippedBagIt + " : " + JSON.stringify(result));
+                                            }
+                                        });
+
+                                        if (isNull(err))
+                                        {
+                                            delete self.ddr.is_being_imported;
+                                            self.save(function (err, result)
+                                            {
+                                                if (isNull(err))
+                                                {
+                                                    callback(null,
+                                                        {
+                                                            result: "ok",
+                                                            message: "Project imported successfully.",
+                                                            new_project: self.uri
+                                                        }
+                                                    );
+                                                }
+                                                else
+                                                {
+                                                    callback(500,
+                                                        {
+                                                            result: "error",
+                                                            message: "Error marking project restore as complete.",
+                                                            error: result
+                                                        }
+                                                    );
+                                                }
+                                            });
+                                        }
+                                        else
+                                        {
+                                            callback(500,
+                                                {
+                                                    result: "error",
+                                                    message: "Error restoring project contents from unzipped backup folder",
+                                                    error: result
+                                                }
+                                            );
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    File.deleteOnLocalFileSystem(absPathOfUnzippedBagIt, function (err, result)
+                                    {
+                                        if (!isNull(err))
+                                        {
+                                            Logger.log("error", "Error occurred while deleting absPathOfUnzippedBagIt at " + absPathOfUnzippedBagIt + " : " + JSON.stringify(result));
+                                        }
+                                    });
+
+                                    callback(500,
+                                        {
+                                            result: "error",
+                                            message: "Error creating new project record before import operation could start",
+                                            error: result
+                                        }
+                                    );
+                                }
+                            });
+                        });
+                    }
+                    else
+                    {
+                        File.deleteOnLocalFileSystem(absPathOfUnzippedBagIt, function (err, result)
+                        {
+                            if (!isNull(err))
+                            {
+                                Logger.log("error", "Error occurred while deleting absPathOfUnzippedBagIt at " + absPathOfUnzippedBagIt + " : " + JSON.stringify(result));
+                            }
+                        });
+                        callback(400,
+                            {
+                                result: "error",
+                                message: "Invalid project structure. Is this a BagIt-format Zip file?",
+                                error: valid
+                            }
+                        );
+                    }
+                }
+                else
+                {
+                    File.deleteOnLocalFileSystem(absPathOfUnzippedBagIt, function (err, result)
+                    {
+                        if (!isNull(err))
+                        {
+                            Logger.log("error", "Error occurred while deleting absPathOfUnzippedBagIt at " + absPathOfUnzippedBagIt + " : " + JSON.stringify(result));
+                        }
+                    });
+
+                    const msg = "Error restoring zip file to folder : " + valid;
+                    Logger.log("error", msg);
+
+                    callback(500, {
+                        result: "error",
+                        message: msg
+                    });
+                }
+            });
+    }
+    else
+    {
+        callback(400, {
+            result: "error",
+            message: "Backup file is not a .zip file"
+        });
+    }
+};
+
 Project.prototype.isUserACreatorOrContributor = function (userUri, callback)
 {
     const self = this;
@@ -666,7 +871,49 @@ Project.prototype.getRootFolder = function (callback)
     const self = this;
     const folderUri = self.ddr.rootFolder;
 
-    Folder.findByUri(folderUri, callback);
+    Folder.findByUri(folderUri, function (err, rootFolder)
+    {
+        if (isNull(err))
+        {
+            if (!isNull(rootFolder) && rootFolder instanceof Folder)
+            {
+                callback(err, rootFolder);
+            }
+            else
+            {
+                const newRootFolder = new Folder({
+                    nie: {
+                        title: self.ddr.handle,
+                        isLogicalPartOf: self.uri
+                    },
+                    ddr: {
+                        humanReadableURI: self.ddr.humanReadableURI + "/data"
+                    }
+                });
+
+                newRootFolder.nie.isLogicalPartOf = self.uri;
+                newRootFolder.save(function (err)
+                {
+                    if (isNull(err))
+                    {
+                        self.ddr.rootFolder = newRootFolder.uri;
+                        self.save(function (err)
+                        {
+                            callback(err, newRootFolder);
+                        });
+                    }
+                    else
+                    {
+                        callback(err, newRootFolder);
+                    }
+                });
+            }
+        }
+        else
+        {
+            callback(err, rootFolder);
+        }
+    });
 };
 
 Project.prototype.getFirstLevelDirectoryContents = function (callback)
@@ -1437,7 +1684,7 @@ Project.validateBagItFolderStructure = function (absPathOfBagItFolder, callback)
     });
 };
 
-Project.unzipAndValidateBagItBackupStructure = function (absPathToZipFile, maxStorageSize, req, callback)
+Project.unzipAndValidateBagItBackupStructure = function (absPathToZipFile, maxStorageSize, userIsAdmin, callback)
 {
     File.estimateUnzippedSize(absPathToZipFile, function (err, size)
     {
@@ -1446,7 +1693,7 @@ Project.unzipAndValidateBagItBackupStructure = function (absPathToZipFile, maxSt
             if (!isNaN(size))
             {
                 // admin is god, can import as much data as (s)he wants
-                if (size < maxStorageSize || req.user.isAdmin || req.session.isAdmin)
+                if (size < maxStorageSize || userIsAdmin)
                 {
                     File.unzip(absPathToZipFile, function (err, absPathOfRootFolder)
                     {
@@ -1518,9 +1765,6 @@ Project.prototype.restoreFromFolder = function (
     {
         entityLoadingTheMetadataUri = User.anonymous.uri;
     }
-
-    const metadataFileAbsPath = path.join(absPathOfRootFolder, Config.packageMetadataFileName);
-    const metadata = require(metadataFileAbsPath);
 
     self.getRootFolder(function (err, rootFolder)
     {

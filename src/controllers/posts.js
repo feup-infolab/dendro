@@ -24,8 +24,6 @@ const db_notifications = Config.getDBByID("notifications");
 
 const dbMySQL = rlequire("dendro", "src/mysql_models");
 
-const app = require("../app");
-
 const addPostsToTimeline = function (posts, nextPosition, timelineId, callback)
 {
     let insertArray = [];
@@ -318,7 +316,7 @@ const getRankedPosts = function (projectUrisArray, callback, userUri, nextPositi
 
 exports.getUserPostsUris = function (userUri, currentPage, useRank, nextPosition, lastAccess, timelineId, callback)
 {
-    const maxResults = 5;
+    const maxResults = 30;
     const index = currentPage === 1 ? 0 : (currentPage * maxResults) - maxResults;
     const cb = function (err, results)
     {
@@ -398,55 +396,41 @@ const getNumLikesForAPost = function (postID, cb)
 
 const numPostsDatabaseAux = function (projectUrisArray, callback)
 {
-    /* WITH <http://127.0.0.1:3001/social_dendro>
-     SELECT (COUNT(DISTINCT ?postURI) AS ?count)
-     WHERE {
-     ?postURI rdf:type ddr:Post.
-     } */
     if (projectUrisArray && projectUrisArray.length > 0)
     {
         async.mapSeries(projectUrisArray, function (uri, cb1)
         {
-            cb1(null, "<" + uri + ">");
-        }, function (err, fullProjectsUris)
+            // cb1(null, "<" + uri + ">");
+            cb1(null, "'" + uri + "'");
+        }, function (err, fullProjects)
         {
-            const projectsUris = fullProjectsUris.join(" ");
-            const query =
-                "WITH [0] \n" +
-                "SELECT (COUNT(DISTINCT ?uri) AS ?count) \n" +
-                "WHERE { \n" +
-                "VALUES ?project { \n" +
-                projectsUris +
-                "} \n" +
-                /* "VALUES ?postTypes { \n" +
-                "ddr:Post" + " ddr:Share" + " ddr:MetadataChangePost" + " ddr:FileSystemPost" + " ddr:ManualPost" +
-                "} \n" + */
-                // "?uri rdf:type ?postTypes. \n" +
-                "?uri rdf:type ddr:Post. \n" +
-                "?uri ddr:projectUri ?project. \n" +
-                "} \n ";
-
-            db.connection.executeViaJDBC(query,
-                DbConnection.pushLimitsArguments([
-                    {
-                        type: Elements.types.resourceNoEscape,
-                        value: db_social.graphUri
-                    }
-                ]),
-                function (err, results)
+            let projectsUris = fullProjects.join(",");
+            let queryCount = "SELECT COUNT (*) AS num_posts FROM " + Config.mySQLDBName + ".posts WHERE projectURI IN (" + projectsUris + ")";
+            dbMySQL.sequelize
+                .query(queryCount)
+                .then(result =>
                 {
-                    if (isNull(err))
+                    Logger.log("debug", result);
+                    try
                     {
-                        return callback(err, results[0].count);
+                        callback(null, result[0][0].num_posts);
                     }
-                    return callback(true, "Error fetching numPosts in numPostsDatabaseAux");
+                    catch (e)
+                    {
+                        callback(true, "Invalid response from server while querying for the posts count.");
+                    }
+                })
+                .catch(err =>
+                {
+                    console.log(err);
+                    return callback(true, "Error fetching posts in getAllPosts");
                 });
         });
     }
     else
     {
-    // User has no projects
-        const results = 0;
+        // User has no projects
+        const results = [];
         return callback(null, results);
     }
 };
@@ -1106,7 +1090,7 @@ exports.all = function (req, res)
         });
     }
 
-    const maxResults = 5;
+    const maxResults = 30;
     const index = currentPage === 1 ? 0 : (currentPage * maxResults) - maxResults;
 
     const cb = function (err, results)

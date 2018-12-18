@@ -55,7 +55,7 @@ describe("Get information on an array of posts(given an array of post URIs) test
                 socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                 {
                     res.statusCode.should.equal(200);
-                    res.body.length.should.equal(5);
+                    res.body.length.should.equal(30);
                     demouser1PostURIsArray = res.body;
                     invalidPostURIsArray = demouser1PostURIsArray.concat();
                     invalidPostURIsArray.push({uri: demouser1PostURIsArray[4].uri + "-errorHere"});
@@ -178,7 +178,7 @@ describe("Get information on an array of posts(given an array of post URIs) test
                         socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                         {
                             res.statusCode.should.equal(200);
-                            res.body.length.should.equal(5);
+                            res.body.length.should.equal(30);
                             let demouser2PostURIsArray = res.body;
                             socialDendroUtils.getPostsArrayInfo(true, agent, JSON.stringify(demouser2PostURIsArray), function (err, res)
                             {

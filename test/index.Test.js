@@ -137,7 +137,7 @@ rlequire("dendro", "test/routes/interactions/delete_all/routes.interactions.dele
 // END interaction tests
 
 // Ranking tests
-rlequire("dendro", "test/routes/posts/all/routes.posts.all.ranked.Test.js");
+// rlequire("dendro", "test/routes/posts/all/routes.posts.all.ranked.Test.js");
 
 // list orphan resources tests /admin/list_orphan_resources
 // rlequire("dendro", "test/routes/admin/list_orphan_resources/routes.admin.listOrphanResources.Test.js");

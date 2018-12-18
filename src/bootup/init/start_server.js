@@ -2,6 +2,7 @@ const timeout = require("connect-timeout");
 
 const rlequire = require("rlequire");
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const colors = require("colors/safe");
 
 const startServer = function (app, server, callback)
 {
@@ -24,8 +25,8 @@ const startServer = function (app, server, callback)
 
     server.listen(app.get("port"), function ()
     {
-        var ip = require("ip");
-        Logger.log_boot_message("Dendro server listening on " + ip.address() + ":" + app.get("port"));
+        const ip = require("ip");
+        Logger.log("info", colors.green.underline("Boot-up successful. Dendro server listening on http://" + ip.address() + ":" + app.get("port")));
         callback(null);
     });
 };

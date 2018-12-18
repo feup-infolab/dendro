@@ -5,7 +5,7 @@ const async = require("async");
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const Permissions = rlequire("dendro", "src/models/meta/permissions.js").Permissions;
 
-function Plugin (object)
+function Plugin (object = {})
 {
     const self = this;
     Plugin.baseConstructor.call(this, object);

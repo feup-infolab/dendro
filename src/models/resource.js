@@ -16,9 +16,14 @@ const _ = require("underscore");
 
 const db = Config.getDBByID();
 
-function Resource (object)
+function Resource (object = {})
 {
     let self = this;
+    if (isNull(object))
+    {
+        object = {};
+    }
+
     self.addURIAndRDFType(object, "resource", Resource);
     Resource.baseConstructor.call(this, object);
 
@@ -56,7 +61,7 @@ Resource.prototype.copyOrInitDescriptors = function (object, deleteIfNotInArgume
                 self[prefix] = {};
             }
 
-            if (object.hasOwnProperty(prefix))
+            if (!isNull(object) && object.hasOwnProperty(prefix))
             {
                 for (let shortName in object[prefix])
                 {
@@ -72,7 +77,7 @@ Resource.prototype.copyOrInitDescriptors = function (object, deleteIfNotInArgume
         }
     }
 
-    if ((!isNull(object.ddr) && !isNull(object.ddr.created)))
+    if (!isNull(object) && (!isNull(object.ddr) && !isNull(object.ddr.created)))
     {
         self.ddr.created = object.ddr.created;
     }
@@ -3756,6 +3761,10 @@ Resource.prototype.deleteAllOfMyTypeAndTheirOutgoingTriples = function (callback
 Resource.prototype.addURIAndRDFType = function (object, resourceTypeSection, classPrototype)
 {
     const self = this;
+    if (isNull(object))
+    {
+        object = {};
+    }
 
     if (isNull(self.rdf))
     {
@@ -3767,7 +3776,7 @@ Resource.prototype.addURIAndRDFType = function (object, resourceTypeSection, cla
         self.rdf.type = classPrototype.prefixedRDFType;
     }
 
-    if (isNull(object.uri))
+    if (isNull(object) || isNull(object.uri))
     {
         if (isNull(self.uri))
         {
