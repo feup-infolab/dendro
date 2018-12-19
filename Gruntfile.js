@@ -19,7 +19,7 @@ module.exports = function (grunt)
                 stderr: true,
                 failOnError: true,
                 recursive: true,
-                exclude: [".git", "node_modules", "components", "grunt-tasks", "bower_components", ".sass-cache"]
+                exclude: [".git", "node_modules", "components", "grunt-tasks", "bower_components", ".sass-cache", "volumes"]
             }
         }
     });
