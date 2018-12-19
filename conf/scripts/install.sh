@@ -13,16 +13,14 @@ then
 fi
 
 # check to see if text extraction tools need to be installed
-if ! [[ tesseract > /dev/null ]]
+if [[ tesseract > /dev/null ]] || [[ pdftotext > /dev/null ]] || [[ `gs -v` > /dev/null  ]] || [[ `magick -v` > /dev/null ]]
 then
     # install text extraction dependencies
     echo "Text extraction libraries not detected on your system, starting installation..."
     #For the Mac
     if [ "$(uname)" == "Darwin" ]; then
-        brew cask install xquartz && brew install ghostscript xpdf tesseract imagemagick@6 && brew cask install pdftotext
+        brew cask install xquartz && brew install ghostscript tesseract imagemagick@6 poppler
         brew tap caskroom/versions
-        brew cask install java8
-
     # In Ubuntu
     elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
         if [[ $(dpkg -l "poppler-utils" "antiword" "unrtf" "tesseract-ocr") ]]; then

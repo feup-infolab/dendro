@@ -422,7 +422,14 @@
       "vmIP" : "127.0.0.1"
     },
     "keywords_extraction" : {
-      "corenlp_server_address": "http://localhost:9000"
+      "corenlp" : {
+        "active": true,
+        "server_address": "http://localhost:9000"
+      },
+      "yake" : {
+        "active": true,
+        "commmand": "docker run yake-dendro-dev -it '${texttoprocess}'"
+      }
     }
   },
   "dev-vm": {
@@ -848,7 +855,14 @@
       "vmIP" : "192.168.56.249"
     },
     "keywords_extraction" : {
-      "corenlp_server_address": "http://localhost:9000"
+      "corenlp" : {
+        "active": true,
+        "server_address": "http://localhost:9000"
+      },
+      "yake" : {
+        "active": true,
+        "commmand": "docker run yake-dendro-dev -it '${texttoprocess}'"
+      }
     }
   },
   "test": {
@@ -1269,7 +1283,14 @@
       "vmIP" : "192.168.56.249"
     },
     "keywords_extraction" : {
-      "corenlp_server_address": "http://localhost:9000"
+      "corenlp" : {
+        "active": true,
+        "server_address": "http://localhost:9000"
+      },
+      "yake" : {
+        "active": true,
+        "commmand": "docker run yake-dendro-dev -it '${texttoprocess}'"
+      }
     }
   },
   "jenkins_buildserver_test": {
@@ -1690,7 +1711,14 @@
       "vmIP" : "192.168.56.249"
     },
     "keywords_extraction" : {
-      "corenlp_server_address": "http://localhost:9000"
+      "corenlp" : {
+        "active": true,
+        "server_address": "http://localhost:9000"
+      },
+      "yake" : {
+        "active": true,
+        "commmand": "docker run yake-dendro-dev -it '${texttoprocess}'"
+      }
     }
   },
   "travis": {
@@ -2111,7 +2139,14 @@
       "vmIP" : "192.168.56.249"
     },
     "keywords_extraction" : {
-      "corenlp_server_address": "http://localhost:9000"
+      "corenlp" : {
+        "active": true,
+        "server_address": "http://localhost:9000"
+      },
+      "yake" : {
+        "active": true,
+        "commmand": "docker run yake-dendro-dev -it '${texttoprocess}'"
+      }
     }
   }
 }
