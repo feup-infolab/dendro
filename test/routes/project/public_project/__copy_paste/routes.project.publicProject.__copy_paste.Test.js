@@ -66,7 +66,7 @@ describe("Backup Public project", function ()
                                     {
                                         file.copyPaste({user: user, destinationFolder: destFolder}, function (err, writtenPath)
                                         {
-
+                                            const a = 1;
                                         });
                                     });
                                 });

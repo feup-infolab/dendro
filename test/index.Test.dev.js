@@ -17,7 +17,7 @@ global.Config = Config;
 global.tests = {};
 
 // SOCIAL DENDRO TESTS
-
+/*
 rlequire("dendro", "test/routes/social/my/routes.social.my.Test.js");
 
 rlequire("dendro", "test/routes/posts/all/routes.posts.all.Test.js");
@@ -54,5 +54,10 @@ rlequire("dendro", "test/routes/notifications/all/routes.notifications.all.Test.
 rlequire("dendro", "test/routes/notifications/notification/routes.notifications.notification.Test.js");
 
 rlequire("dendro", "test/routes/notifications/notification/routes.notifications.notification[DELETE].Test.js");
-
+*/
 // END OF SOCIAL DENDRO TESTS
+
+// DENDRO COPY PASTE FUNCTION
+
+rlequire("dendro", "test/routes/project/public_project/__copy_paste/routes.project.publicProject.__copy_paste.Test.js");
+

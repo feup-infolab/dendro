@@ -359,9 +359,7 @@ Deposit.getAllRepositories = function(params, callback){
       "{ \n" +
       "   ?uri rdf:type ddr:Registry . \n" +
       "   ?uri ddr:exportedToRepository ?repository . \n" +
-      "   ?uri ddr:exportedFromProject ?projused . \n" +
-      "  ";
-
+      "   ?uri ddr:exportedFromProject ?projused . \n";
     const ending = "} \n" +
       "GROUP BY ?repository";
 
@@ -401,7 +399,7 @@ Deposit.getAllRepositories = function(params, callback){
           value : params.self
         }]);
     } else{
-      query += "    ?uri ddr:privacyStatus [" + i++ + "]";
+      query += "   ?uri ddr:privacyStatus [" + i++ + "] . \n";
       variables.push({
         type : Elements.ontologies.ddr.privacyStatus.type,
         value : "public"
@@ -410,14 +408,14 @@ Deposit.getAllRepositories = function(params, callback){
 
 
     if(params.project){
-      query += "  ?projused dcterms:title [" + i++ + "] \n";
+      query += "   ?projused dcterms:title [" + i++ + "] \n";
       variables.push({
         type: Elements.ontologies.dcterms.title.type,
         value: params.project
       });
     }
     if(params.creator){
-      query += "  ?uri dcterms:creator [" + i++ + "] \n";
+      query += "   ?uri dcterms:creator [" + i++ + "] \n";
       variables.push({
         type: Elements.ontologies.dcterms.creator.type,
         value: params.creator
@@ -425,7 +423,7 @@ Deposit.getAllRepositories = function(params, callback){
     }
     if(params.platforms){
       query +=
-        "    VALUES ?platformsUsed {";
+        "   VALUES ?platformsUsed {";
 
       for(let j = 0; j < params.platforms.length; j++) {
         query += "[" + i++ + "] ";
@@ -436,7 +434,7 @@ Deposit.getAllRepositories = function(params, callback){
       }
       query +=
         "} . \n" +
-        "    ?uri ddr:exportedToPlatform ?platformsUsed . \n";
+        "   ?uri ddr:exportedToPlatform ?platformsUsed . \n";
 
 
     }
