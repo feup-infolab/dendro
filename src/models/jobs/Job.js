@@ -141,10 +141,17 @@ class Job
 
     static stopAgenda (callback)
     {
-        Job._agenda.stop(function (err, result)
+        if (!isNull(Job._agenda))
         {
-            callback(err, result);
-        });
+            Job._agenda.stop(function (err, result)
+            {
+                callback(err, result);
+            });
+        }
+        else
+        {
+            callback(null);
+        }
     }
 }
 
