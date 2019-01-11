@@ -348,6 +348,7 @@ DockerManager.startOrchestra = function (orchestraName, callback)
                             callback(err, result);
                         }
                     });
+                    logEverythingFromChildProcess(dockerSubProcess);
                 }
                 else
                 {
@@ -355,8 +356,6 @@ DockerManager.startOrchestra = function (orchestraName, callback)
                     callback(null, null);
                 }
             }
-
-            logEverythingFromChildProcess(dockerSubProcess);
         }
     }
     else
