@@ -96,7 +96,7 @@ exports.preProcessing = function (req, res)
                 comparison = text[j];
                 if (comparison.pos.charAt(0) === "N" && /^[a-zA-Z\\-]+$/.test(comparison.lemma))
                 {
-                    if ( !(stopWords.indexOf(comparison.lemma.toLowerCase()) > -1 || comparison.lemma.toString().length < 3) )
+                    if (!(stopWords.indexOf(comparison.lemma.toLowerCase()) > -1 || comparison.lemma.toString().length < 3))
                     {
                         currentWord = comparison.lemma;
                         for (let index2 = j + 1; index2 < text.length; index2++)

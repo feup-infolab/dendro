@@ -250,55 +250,114 @@ DockerManager.restartContainers = function (onlyOnce)
     }
 };
 
+DockerManager.requireOrchestras = function (orchestraName, req, res, next)
+{
+    DockerManager.startOrchestra(orchestraName, function (err, result)
+    {
+        next();
+    });
+};
+
 DockerManager.startOrchestra = function (orchestraName, callback)
 {
     if (Config.docker && Config.docker.active)
     {
-        Logger.log("Starting all Docker containers in orchestra " + orchestraName);
-        Logger.log("warn", "PLEASE WAIT! If after 10 minutes without heavy CPU activity please press Ctrl+C and try again.");
-
-        let dockerSubProcess;
-        if (process.env.NODE_ENV === "test" && orchestraName === DockerManager.defaultOrchestra)
+        if (orchestraName instanceof Array)
         {
-            dockerSubProcess = childProcess.exec(`/bin/bash -c "${startContainersScript}"`, {
-                cwd: rlequire.getRootFolder("dendro"),
-                stdio: [0, 1, 2]
-            }, function (err, result)
-            {
-                Logger.log("Started all containers");
-                callback(err, result);
-            });
+            async.mapSeries(
+                orchestraName,
+                function (singleOrchestraName, cb2)
+                {
+                    DockerManager.startOrchestra(singleOrchestraName, function (err, result)
+                    {
+                        if (!isNull(err))
+                        {
+                            Logger.log("error", "Error occurred while starting orchestra " + singleOrchestraName);
+                            Logger.log("error", err.message);
+                        }
+
+                        cb2(err, result);
+                    });
+                },
+                function (err, results)
+                {
+                    callback(err, results);
+                });
         }
         else
         {
-            if (isNull(DockerManager.runningOrchestras[orchestraName]))
+            Logger.log("Starting all Docker containers in orchestra " + orchestraName);
+            Logger.log("warn", "PLEASE WAIT! If after 10 minutes without heavy CPU activity please press Ctrl+C and try again.");
+
+            let dockerSubProcess;
+            if (process.env.NODE_ENV === "test" && orchestraName === DockerManager.defaultOrchestra)
             {
-                const dockerComposeFolder = path.resolve(rlequire.getRootFolder("dendro"), "./orchestras/" + orchestraName);
-                dockerSubProcess = childProcess.exec("docker-compose up -d", {
-                    cwd: dockerComposeFolder
+                dockerSubProcess = childProcess.exec(`/bin/bash -c "${startContainersScript}"`, {
+                    cwd: rlequire.getRootFolder("dendro"),
+                    stdio: [0, 1, 2]
                 }, function (err, result)
                 {
-                    Logger.log("Started all containers in orchestra " + orchestraName);
-
-                    if (isNull(err))
-                    {
-                        DockerManager.runningOrchestras[orchestraName] = {
-                            id: orchestraName,
-                            dockerComposeFolder: dockerComposeFolder
-                        };
-                    }
-
+                    Logger.log("Started all containers");
                     callback(err, result);
                 });
             }
             else
             {
-                Logger.log("debug", "Containers in orchestra " + orchestraName + " are already running.");
-                callback(null, null);
-            }
-        }
+                if (isNull(DockerManager.runningOrchestras[orchestraName]))
+                {
+                    const dockerComposeFolder = path.resolve(rlequire.getRootFolder("dendro"), "./orchestras/" + orchestraName);
+                    dockerSubProcess = childProcess.exec("docker-compose up -d --no-recreate", {
+                        cwd: dockerComposeFolder
+                    }, function (err, result)
+                    {
+                        Logger.log("Started all containers in orchestra " + orchestraName);
 
-        logEverythingFromChildProcess(dockerSubProcess);
+                        if (!isNull(err))
+                        {
+                            if (err.message)
+                            {
+                                const matchName = err.message.match(/ERROR: for .* Cannot create container for service .* Conflict. The container name .* is already in use by container .* You have to remove \(or rename\) that container to be able to reuse that name./);
+
+                                if (matchName.length > 0)
+                                {
+                                    DockerManager.runningOrchestras[orchestraName] = {
+                                        id: orchestraName,
+                                        dockerComposeFolder: dockerComposeFolder
+                                    };
+
+                                    // TODO we ignore errors because in many cases a container with that name is already running.
+                                    // TODO Need a way to detect and manage containers witht the same names...
+                                    callback(null, result);
+                                }
+                                else
+                                {
+                                    callback(err, result);
+                                }
+                            }
+                            else
+                            {
+                                callback(err, result);
+                            }
+                        }
+                        else
+                        {
+                            DockerManager.runningOrchestras[orchestraName] = {
+                                id: orchestraName,
+                                dockerComposeFolder: dockerComposeFolder
+                            };
+                            callback(err, result);
+                        }
+                    });
+                }
+                else
+                {
+                    Logger.log("debug", "Containers in orchestra " + orchestraName + " are already running.");
+                    callback(null, null);
+                }
+            }
+
+            logEverythingFromChildProcess(dockerSubProcess);
+        }
     }
     else
     {
@@ -310,48 +369,73 @@ DockerManager.stopOrchestra = function (orchestraName, callback)
 {
     if (Config.docker && Config.docker.active)
     {
-        Logger.log("Stopping all Docker containers in orchestra " + orchestraName);
-        Logger.log("warn", "If it takes long in the first boot PLEASE WAIT! If after 10 minutes without heavy CPU activity please press Ctrl+C and try again.");
-
-        let dockerSubProcess;
-
-        if (process.env.NODE_ENV === "test" && orchestraName === DockerManager.defaultOrchestra)
+        if (orchestraName instanceof Array)
         {
-            dockerSubProcess = childProcess.exec(`/bin/bash -c "${stopContainersScript}"`, {
-                cwd: rlequire.getRootFolder("dendro"),
-                stdio: [0, 1, 2]
-            }, function (err, result)
-            {
-                Logger.log("Stopped all containers");
-                callback(err, result);
-            });
+            async.mapSeries(
+                orchestraName,
+                function (singleOrchestraName, callback)
+                {
+                    DockerManager.startOrchestra(singleOrchestraName, function (err, result)
+                    {
+                        if (!isNull(err))
+                        {
+                            Logger.log("error", "Error occurred while stopping orchestra " + singleOrchestraName);
+                            Logger.log("error", err.message);
+                        }
+
+                        callback(err, result);
+                    });
+                },
+                function (err, results)
+                {
+                    callback(err, results);
+                });
         }
         else
         {
-            if (!isNull(DockerManager.runningOrchestras[orchestraName]))
+            Logger.log("Stopping all Docker containers in orchestra " + orchestraName);
+            Logger.log("warn", "If it takes long in the first boot PLEASE WAIT! If after 10 minutes without heavy CPU activity please press Ctrl+C and try again.");
+
+            let dockerSubProcess;
+
+            if (process.env.NODE_ENV === "test" && orchestraName === DockerManager.defaultOrchestra)
             {
-                dockerSubProcess = childProcess.exec("docker-compose down", {
-                    cwd: path.resolve(rlequire.getRootFolder("dendro"), "./orchestras/" + orchestraName),
+                dockerSubProcess = childProcess.exec(`/bin/bash -c "${stopContainersScript}"`, {
+                    cwd: rlequire.getRootFolder("dendro"),
                     stdio: [0, 1, 2]
                 }, function (err, result)
                 {
-                    if (isNull(err))
-                    {
-                        DockerManager.runningOrchestras[orchestraName] = null;
-                    }
-
-                    Logger.log("Started all containers in orchestra " + orchestraName);
+                    Logger.log("Stopped all containers");
                     callback(err, result);
                 });
             }
             else
             {
-                Logger.log("debug", "Containers in orchestra " + orchestraName + " are not running, no need to stop them.");
-                callback(null, null);
-            }
-        }
+                if (!isNull(DockerManager.runningOrchestras[orchestraName]))
+                {
+                    dockerSubProcess = childProcess.exec("docker-compose down", {
+                        cwd: path.resolve(rlequire.getRootFolder("dendro"), "./orchestras/" + orchestraName),
+                        stdio: [0, 1, 2]
+                    }, function (err, result)
+                    {
+                        if (isNull(err))
+                        {
+                            DockerManager.runningOrchestras[orchestraName] = null;
+                        }
 
-        logEverythingFromChildProcess(dockerSubProcess);
+                        Logger.log("Started all containers in orchestra " + orchestraName);
+                        callback(err, result);
+                    });
+                }
+                else
+                {
+                    Logger.log("debug", "Containers in orchestra " + orchestraName + " are not running, no need to stop them.");
+                    callback(null, null);
+                }
+            }
+
+            logEverythingFromChildProcess(dockerSubProcess);
+        }
     }
     else
     {

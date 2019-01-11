@@ -3,9 +3,9 @@ version: '3'
 services:
   corenlp:
     container_name: corenlp-dendro-dev
-    image: nlpbox/corenlp
+    image: graham3333/corenlp-complete
     environment:
-      - JAVA_XMX=1g
+      - JAVA_XMX=3g
     ports:
       - 9000:9000
 
