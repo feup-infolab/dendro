@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const async = require("async");
 const _ = require("underscore");
 
 const rlequire = require("rlequire");
@@ -19,6 +20,9 @@ const checkIfCheckpointExistsScript = rlequire.absPathInApp("dendro", "conf/scri
 const DockerManager = function ()
 {
 };
+
+DockerManager.defaultOrchestra = "dendro";
+DockerManager.runningOrchestras = {};
 
 const logEverythingFromChildProcess = function (childProcess)
 {
@@ -47,79 +51,12 @@ const logEverythingFromChildProcess = function (childProcess)
 
 DockerManager.stopAllContainers = function (callback)
 {
-    if (Config.docker && Config.docker.active)
-    {
-        Logger.log("Stopping all Docker containers.");
-        Logger.log("warn", "If it takes long in the first boot PLEASE WAIT! If after 10 minutes without heavy CPU activity please press Ctrl+C and try again.");
-
-        let dockerSubProcess;
-
-        if (process.env.NODE_ENV === "test")
-        {
-            dockerSubProcess = childProcess.exec(`/bin/bash -c "${stopContainersScript}"`, {
-                cwd: rlequire.getRootFolder("dendro"),
-                stdio: [0, 1, 2]
-            }, function (err, result)
-            {
-                Logger.log("Stopped all containers");
-                callback(err, result);
-            });
-        }
-        else
-        {
-            dockerSubProcess = childProcess.exec("docker-compose down", {
-                cwd: rlequire.getRootFolder("dendro"),
-                stdio: [0, 1, 2]
-            }, function (err, result)
-            {
-                Logger.log("Started all containers");
-                callback(err, result);
-            });
-        }
-        logEverythingFromChildProcess(dockerSubProcess);
-    }
-    else
-    {
-        callback(null);
-    }
+    DockerManager.stopOrchestra(DockerManager.defaultOrchestra, callback);
 };
 
 DockerManager.startAllContainers = function (callback)
 {
-    if (Config.docker && Config.docker.active)
-    {
-        Logger.log("Starting all Docker containers.");
-        Logger.log("warn", "If it takes long in the first boot PLEASE WAIT! If after 10 minutes without heavy CPU activity please press Ctrl+C and try again.");
-
-        let dockerSubProcess;
-        if (process.env.NODE_ENV === "test")
-        {
-            dockerSubProcess = childProcess.exec(`/bin/bash -c "${startContainersScript}"`, {
-                cwd: rlequire.getRootFolder("dendro"),
-                stdio: [0, 1, 2]
-            }, function (err, result)
-            {
-                Logger.log("Started all containers");
-                callback(err, result);
-            });
-        }
-        else
-        {
-            dockerSubProcess = childProcess.exec("docker-compose up -d", {
-                cwd: rlequire.getRootFolder("dendro")
-            }, function (err, result)
-            {
-                Logger.log("Started all containers");
-                callback(err, result);
-            });
-        }
-
-        logEverythingFromChildProcess(dockerSubProcess);
-    }
-    else
-    {
-        callback(null);
-    }
+    DockerManager.startOrchestra(DockerManager.defaultOrchestra, callback);
 };
 
 DockerManager.checkpointExists = function (checkpointName, callback)
@@ -295,6 +232,7 @@ DockerManager.restartContainers = function (onlyOnce)
             });
 
             Logger.log("Restarted all containers");
+            DockerManager._restartedOnce = true;
         };
 
         if (onlyOnce)
@@ -302,7 +240,6 @@ DockerManager.restartContainers = function (onlyOnce)
             if (!DockerManager._restartedOnce)
             {
                 performOperation();
-                DockerManager._restartedOnce = true;
             }
         }
         else
@@ -311,6 +248,127 @@ DockerManager.restartContainers = function (onlyOnce)
         }
         Logger.log("Restarted all containers.");
     }
+};
+
+DockerManager.startOrchestra = function (orchestraName, callback)
+{
+    if (Config.docker && Config.docker.active)
+    {
+        Logger.log("Starting all Docker containers in orchestra " + orchestraName);
+        Logger.log("warn", "PLEASE WAIT! If after 10 minutes without heavy CPU activity please press Ctrl+C and try again.");
+
+        let dockerSubProcess;
+        if (process.env.NODE_ENV === "test" && orchestraName === DockerManager.defaultOrchestra)
+        {
+            dockerSubProcess = childProcess.exec(`/bin/bash -c "${startContainersScript}"`, {
+                cwd: rlequire.getRootFolder("dendro"),
+                stdio: [0, 1, 2]
+            }, function (err, result)
+            {
+                Logger.log("Started all containers");
+                callback(err, result);
+            });
+        }
+        else
+        {
+            if (isNull(DockerManager.runningOrchestras[orchestraName]))
+            {
+                const dockerComposeFolder = path.resolve(rlequire.getRootFolder("dendro"), "./orchestras/" + orchestraName);
+                dockerSubProcess = childProcess.exec("docker-compose up -d", {
+                    cwd: dockerComposeFolder
+                }, function (err, result)
+                {
+                    Logger.log("Started all containers in orchestra " + orchestraName);
+
+                    if (isNull(err))
+                    {
+                        DockerManager.runningOrchestras[orchestraName] = {
+                            id: orchestraName,
+                            dockerComposeFolder: dockerComposeFolder
+                        };
+                    }
+
+                    callback(err, result);
+                });
+            }
+            else
+            {
+                Logger.log("debug", "Containers in orchestra " + orchestraName + " are already running.");
+                callback(null, null);
+            }
+        }
+
+        logEverythingFromChildProcess(dockerSubProcess);
+    }
+    else
+    {
+        callback(null);
+    }
+};
+
+DockerManager.stopOrchestra = function (orchestraName, callback)
+{
+    if (Config.docker && Config.docker.active)
+    {
+        Logger.log("Stopping all Docker containers in orchestra " + orchestraName);
+        Logger.log("warn", "If it takes long in the first boot PLEASE WAIT! If after 10 minutes without heavy CPU activity please press Ctrl+C and try again.");
+
+        let dockerSubProcess;
+
+        if (process.env.NODE_ENV === "test" && orchestraName === DockerManager.defaultOrchestra)
+        {
+            dockerSubProcess = childProcess.exec(`/bin/bash -c "${stopContainersScript}"`, {
+                cwd: rlequire.getRootFolder("dendro"),
+                stdio: [0, 1, 2]
+            }, function (err, result)
+            {
+                Logger.log("Stopped all containers");
+                callback(err, result);
+            });
+        }
+        else
+        {
+            if (!isNull(DockerManager.runningOrchestras[orchestraName]))
+            {
+                dockerSubProcess = childProcess.exec("docker-compose down", {
+                    cwd: path.resolve(rlequire.getRootFolder("dendro"), "./orchestras/" + orchestraName),
+                    stdio: [0, 1, 2]
+                }, function (err, result)
+                {
+                    if (isNull(err))
+                    {
+                        DockerManager.runningOrchestras[orchestraName] = null;
+                    }
+
+                    Logger.log("Started all containers in orchestra " + orchestraName);
+                    callback(err, result);
+                });
+            }
+            else
+            {
+                Logger.log("debug", "Containers in orchestra " + orchestraName + " are not running, no need to stop them.");
+                callback(null, null);
+            }
+        }
+
+        logEverythingFromChildProcess(dockerSubProcess);
+    }
+    else
+    {
+        callback(null);
+    }
+};
+
+DockerManager.stopAllOrchestras = function (callback)
+{
+    async.mapSeries(Object.keys(DockerManager.runningOrchestras), function (orchestra, callback)
+    {
+        DockerManager.stopOrchestra(orchestra, callback);
+    },
+    function (err, results)
+    {
+        callback(err, results);
+    });
 };
 
 module.exports.DockerManager = DockerManager;

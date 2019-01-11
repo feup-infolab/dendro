@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  corenlp:
+    container_name: corenlp-dendro-dev
+    image: nlpbox/corenlp
+    environment:
+      - JAVA_XMX=1g
+    ports:
+      - 9000:9000
+
+  yake:
+    container_name: yake-dendro-dev
+    image: feupinfolab/yake:latest

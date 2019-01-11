@@ -820,7 +820,7 @@ class App
             {
                 Logger.log("Halting docker containers...");
 
-                DockerManager.stopAllContainers(function (err, result)
+                DockerManager.stopAllOrchestras(function (err, result)
                 {
                     cb(err, result);
                 });
