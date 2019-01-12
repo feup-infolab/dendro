@@ -300,6 +300,7 @@ DockerManager.startOrchestra = function (orchestraName, callback)
                     Logger.log("Started all containers");
                     callback(err, result);
                 });
+                logEverythingFromChildProcess(dockerSubProcess);
             }
             else
             {
