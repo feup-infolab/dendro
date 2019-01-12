@@ -20,6 +20,7 @@ then
     #For the Mac
     if [ "$(uname)" == "Darwin" ]; then
         brew cask install xquartz && brew install ghostscript tesseract imagemagick@6 poppler
+        brew install antiword
         brew tap caskroom/versions
     # In Ubuntu
     elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then

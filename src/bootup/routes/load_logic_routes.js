@@ -1454,15 +1454,15 @@ const loadRoutes = function (app, callback)
         async.apply(DockerManager.requireOrchestras, ["dendro_keywords"]),
         keywords.termExtraction);
 
-    app.post("/keywords/dbpediaLookup",
+    app.post("/keywords/dbpediaResourceLookup",
         async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
         async.apply(DockerManager.requireOrchestras, ["dendro_keywords"]),
-        keywords.dbpediaLookup);
+        keywords.dbpediaResourceLookup);
 
-    app.post("/keywords/dbpediaProperties",
+    app.post("/keywords/lovProperties",
         async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
         async.apply(DockerManager.requireOrchestras, ["dendro_keywords"]),
-        keywords.dbpediaProperties);
+        keywords.lovProperties);
 
     app.post("/keywords/clustering",
         async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),

@@ -447,19 +447,19 @@ angular.module("dendroApp.controllers")
                 headers: {"Content-Type": "application/json; charset=UTF-8"}
             }).then(function (response)
             {
-                $scope.keywords = response.data.output.dbpediaTerms.keywords;
+                $scope.keywords = response.data.dbpediaTerms.keywords;
                 $scope.filelist = false;
                 $scope.keywordlist = true;
                 $scope.termList = true;
             }).catch(function (error)
             {
-                if (error.data !== null && error.data.message !== null && error.data.title !== null)
+                if (Boolean(error.data) && error.data.message !== null && error.data.title !== null)
                 {
-                    // Utils.show_popup("error", error.data.title, error.data.message);
+                    Utils.show_popup("error", error.data.title, error.data.message);
                 }
                 else
                 {
-                    // Utils.show_popup("error", "Error occurred while updating the storage options of the project: ", JSON.stringify(error));
+                    Utils.show_popup("error", "Error occurred while fetching keywords: " + error.stack);
                 }
             });
         };
@@ -556,13 +556,13 @@ angular.module("dendroApp.controllers")
             }
             $http({
                 method: "POST",
-                url: "/keywords/dbpediaLookup",
+                url: "/keywords/dbpediaResourceLookup",
                 data: JSON.stringify(data),
                 headers: {"Content-Type": "application/json; charset=UTF-8"}
             }).then(function (response)
             {
                 // $scope.keywords = response.data.output.dbpediaTerms.keywords;
-                $scope.concepts = response.data.dbpediaUri.result;
+                $scope.concepts = response.data.dbpediaResources.result;
                 $scope.keywordlist = false;
                 $scope.conceptlist = true;
             }).catch(function (error)
@@ -590,12 +590,12 @@ angular.module("dendroApp.controllers")
             }
             $http({
                 method: "POST",
-                url: "/keywords/dbpediaProperties",
+                url: "/keywords/lovProperties",
                 data: JSON.stringify(data),
                 headers: {"Content-Type": "application/json; charset=UTF-8"}
             }).then(function (response)
             {
-                $scope.properties = response.data.dbpediaUri.result;
+                $scope.properties = response.data.lovProperties;
                 $scope.conceptlist = false;
                 $scope.descriptorlist = true;
             }).catch(function (error)

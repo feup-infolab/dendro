@@ -224,7 +224,7 @@ describe("Searches DBpedia for important terms", function (done)
         it("Get properties from LOV", function (done)
         {
             this.timeout(1500000);
-            keywordsUtils.dbpediaProperties(dbpediaConcepts, agent, function (err, db)
+            keywordsUtils.dbpediaResourceLookup(dbpediaConcepts, agent, function (err, db)
             {
                 // console.log(err);
                 db.statusCode.should.equal(200);

@@ -97,9 +97,9 @@ module.exports.termExtraction = function (text, documents, agent, cb)
 //         });
 // };
 
-module.exports.dbpediaLookup = function (text, agent, cb)
+module.exports.dbpediaResourceLookup = function (text, agent, cb)
 {
-    const path = "/keywords/dbpediaLookup";
+    const path = "/keywords/dbpediaResourceLookup";
     agent
         .post(path)
         .send({keywords: text})
@@ -121,9 +121,9 @@ module.exports.dbpediaLookup = function (text, agent, cb)
         });
 };
 
-module.exports.dbpediaProperties = function (text, agent, cb)
+module.exports.lovPropertiesProperties = function (text, agent, cb)
 {
-    const path = "/keywords/dbpediaProperties";
+    const path = "/keywords/lovProperties";
     agent
         .post(path)
         .send({concepts: text})

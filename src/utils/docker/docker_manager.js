@@ -287,7 +287,7 @@ DockerManager.startOrchestra = function (orchestraName, callback)
         else
         {
             Logger.log("Starting all Docker containers in orchestra " + orchestraName);
-            Logger.log("warn", "PLEASE WAIT! If after 10 minutes without heavy CPU activity please press Ctrl+C and try again.");
+            Logger.log("info", "PLEASE WAIT! If after 10 minutes without heavy CPU activity please press Ctrl+C and try again.");
 
             let dockerSubProcess;
             if (process.env.NODE_ENV === "test" && orchestraName === DockerManager.defaultOrchestra)

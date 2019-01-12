@@ -1,15 +1,17 @@
 require("babel-polyfill");
 
-let rlequire = require("rlequire");
-let async = require("async");
-let natural = require("natural");
-let tokenizer = new natural.WordTokenizer();
-let stringSimilarity = require("string-similarity");
-let stripTags = require("striptags");
+const rlequire = require("rlequire");
+const async = require("async");
+const _ = require("underscore");
+const natural = require("natural");
+const tokenizer = new natural.WordTokenizer();
+const stringSimilarity = require("string-similarity");
+const stripTags = require("striptags");
 
-let stopWords = require("stopwords").english;
+const stopWords = require("stopwords").english;
 const coreNlp = require("corenlp");
 const coreNLP = coreNlp.default;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
 const props = new coreNlp.Properties({
     // annotators: "tokenize,ssplit,pos,ner"
@@ -35,12 +37,194 @@ const connector = new coreNlp.ConnectorServer({
 
 const pipeline = new coreNlp.Pipeline(props, "English", connector);
 
-exports.processExtract = function (req, res)
+module.exports.preProcessing = function (text, method, callback)
 {
-    req.setTimeout(2500000);
-    let process = function (text, cb)
+    if (isNull(text) || isNull(text.text) || typeof text.text !== "string" || text.text === "")
     {
-        module.exports.preProcessing(text, function (response)
+        callback({
+            statusCode: 200,
+            method: method,
+            text: null
+        });
+    }
+    else
+    {
+        let nounPhrase = function (type, text)
+        {
+            /*
+              1. Noun+ Noun,
+              2. (Adj | Noun)+ Noun,
+              3. ((Adj | Noun)+ | ((Adj | Noun)* (NounPrep)?)(Adj| Noun)* ) Noun
+            */
+            let multiTerm = [];
+            let currentWord = "";
+            let comparison;
+
+            if (type === "nn")
+            {
+                for (let j = 0; j < text.length; j++)
+                {
+                    comparison = text[j];
+                    if (comparison.pos().charAt(0) === "N" && /^[a-zA-Z\\-]+$/.test(comparison.lemma().toString()))
+                    {
+                        if (!(stopWords.indexOf(comparison.lemma().toLowerCase()) > -1 || comparison.lemma().length < 3))
+                        {
+                            currentWord = comparison.lemma();
+                            for (let index2 = j + 1; index2 < text.length; index2++)
+                            {
+                                comparison = text[index2];
+                                if (comparison.pos().charAt(0) === "N" && /^[a-zA-Z\\-]+$/.test(comparison.lemma().toString()))
+                                {
+                                    if (stopWords.indexOf(comparison.lemma().toLowerCase()) > -1 || comparison.lemma().length < 3)
+                                    {
+                                        // console.log(comparison.lemma().toString());
+                                        break;
+                                    }
+                                    currentWord += (" " + comparison.lemma());
+                                    multiTerm.push(currentWord.toLowerCase());
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else if (type === "jj")
+            {
+                for (let j = 0; j < text.length; j++)
+                {
+                    comparison = text[j];
+                    if ((comparison.pos().charAt(0) === "N" || comparison.pos().charAt(0) === "J") && /^[a-zA-Z\\-]+$/.test(comparison.lemma().toString()))
+                    {
+                        if (!(stopWords.indexOf(comparison.lemma().toLowerCase()) > -1 || comparison.lemma().toString().length < 3))
+                        {
+                            currentWord = comparison.lemma();
+                            for (let index2 = j + 1; index2 < text.length; index2++)
+                            {
+                                comparison = text[index2];
+                                if (comparison.pos().charAt(0) === "N" && /^[a-zA-Z\\-]+$/.test(comparison.lemma().toString()))
+                                {
+                                    if (comparison.lemma().toString().length < 3 || stopWords.indexOf(comparison.lemma().toLowerCase()) > -1)
+                                    {
+                                        break;
+                                    }
+                                    currentWord += (" " + comparison.lemma());
+                                    multiTerm.push(currentWord.toLowerCase());
+                                }
+                                else if (comparison.pos().charAt(0) === "J" && /^[a-zA-Z\\-]+$/.test(comparison.lemma().toString()))
+                                {
+                                    if (comparison.lemma().toString().length < 3 || stopWords.indexOf(comparison.lemma().toLowerCase()) > -1)
+                                    {
+                                        break;
+                                    }
+                                    if ((text[(index2 + 1)].pos().charAt(0) === "N" || text[(index2 + 1)].pos().charAt(0) === "J") && /^[a-zA-Z\\-]+$/.test(text[(index2 + 1)].lemma()))
+                                    {
+                                        currentWord += (" " + comparison.lemma());
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return multiTerm;
+        };
+
+        doc = new coreNLP.simple.Document(text.text);
+        pipeline.annotate(doc)
+            .then(doc =>
+            {
+                const sent = doc.toJSON();
+                let output = [];
+                let nounPhraseList = [];
+                let sentences = [];
+                for (let i = 0; i < sent.sentences.length; i++)
+                {
+                    for (let j = 0; j < sent.sentences[i].tokens().length; j++)
+                    {
+                        let comparison = sent.sentences[i].token(j);
+
+                        if (!/^[a-zA-Z\\-]+$/.test(comparison.word().toString()) || comparison.word().indexOf("www") + 1 || comparison.word().indexOf("http") + 1 || comparison.word().indexOf("@") + 1)
+                        {
+                            sentences.push(comparison.word());
+                        }
+                        else
+                        {
+                            if (comparison.word() !== comparison.lemma())
+                            {
+                                sentences.push(comparison.lemma());
+                            }
+                            else
+                            {
+                                sentences.push(comparison.word());
+                            }
+                            if (comparison.lemma().length > 2)
+                            {
+                                output.push({
+                                    word: comparison.word(),
+                                    pos: comparison.pos(),
+                                    lemma: comparison.lemma()
+                                });
+                            }
+                        }
+                    }
+                    if (method === "CValueJJ")
+                    {
+                        let newNounPhrase = nounPhrase("jj", sent.sentences[i].tokens());
+                        nounPhraseList = nounPhraseList.concat(newNounPhrase);
+                    }
+                    else if (method === "CValueNN")
+                    {
+                        let newNounPhrase = nounPhrase("jj", sent.sentences[i].tokens());
+                        nounPhraseList = nounPhraseList.concat(newNounPhrase);
+                    }
+                }
+
+                callback({
+                    statusCode: 200,
+                    method: method,
+                    text: sentences.join(" "),
+                    output: output,
+                    nounPhraseList: nounPhraseList
+                });
+            })
+            .catch(err =>
+            {
+                callback({
+                    statusCode: 500,
+                    method: method,
+                    error: err
+                });
+            });
+    }
+};
+
+module.exports.processExtract = function (req, res)
+{
+    if (isNull(req.body.text) || !(req.body.text instanceof Array))
+    {
+        return res.status(400).json({
+            result: "error",
+            message: "No text supplied for preprocessing, or the \"text\" field in the request body is not an Array. Does this file have any text content?"
+        });
+    }
+
+    req.setTimeout(2500000);
+    let process = function (method, text, cb)
+    {
+        module.exports.preProcessing(text, method, function (response)
         {
             if (response.statusCode === 200)
             {
@@ -52,8 +236,8 @@ exports.processExtract = function (req, res)
             }
         });
     };
-    method = req.body.method;
-    async.mapSeries(req.body.text, process, function (err, results)
+
+    async.mapSeries(req.body.text, async.apply(process, req.body.method), function (err, results)
     {
         if (err)
         {
@@ -66,179 +250,27 @@ exports.processExtract = function (req, res)
         }
         else
         {
-            module.exports.termExtraction(results, function (output)
-            {
-                res.status(200).json(
-                    {
-                        output
-                    });
-            });
+            req.body.preprocessingResults = _.filter(
+                results,
+                function(result){
+                    return !isNull(result.text);
+                });
+
+            module.exports.termExtraction(req, res);
         }
     });
 };
 
-exports.preProcessing = function (req, res)
+module.exports.termExtraction = function (req, res)
 {
-    let nounPhrase = function (type, text)
+    if (isNull(req.body.text) || !(req.body.text instanceof Array))
     {
-        /*
-          1. Noun+ Noun,
-          2. (Adj | Noun)+ Noun,
-          3. ((Adj | Noun)+ | ((Adj | Noun)* (NounPrep)?)(Adj| Noun)* ) Noun
-        */
-        let multiTerm = [];
-        let currentWord = "";
-        let comparison;
-        if (type === "nn")
-        {
-            for (let j = 0; j < text.length; j++)
-            {
-                comparison = text[j];
-                if (comparison.pos.charAt(0) === "N" && /^[a-zA-Z\\-]+$/.test(comparison.lemma))
-                {
-                    if (!(stopWords.indexOf(comparison.lemma.toLowerCase()) > -1 || comparison.lemma.toString().length < 3))
-                    {
-                        currentWord = comparison.lemma;
-                        for (let index2 = j + 1; index2 < text.length; index2++)
-                        {
-                            comparison = text[index2];
-                            if (comparison.pos.charAt(0) === "N" && /^[a-zA-Z\\-]+$/.test(comparison.lemma))
-                            {
-                                if (stopWords.indexOf(comparison.lemma.toLowerCase()) > -1 || comparison.lemma.toString().length < 3)
-                                {
-                                    // console.log(comparison.lemma.toString());
-                                    break;
-                                }
-                                currentWord += (" " + comparison.lemma);
-                                multiTerm.push(currentWord.toLowerCase());
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        else if (type === "jj")
-        {
-            for (let j = 0; j < text.length; j++)
-            {
-                comparison = text[j];
-                if ((comparison.pos.charAt(0) === "N" || comparison.pos.charAt(0) === "J") && /^[a-zA-Z\\-]+$/.test(comparison.lemma))
-                {
-                    if (!(stopWords.indexOf(comparison.lemma.toLowerCase()) > -1 || comparison.lemma.toString().length < 3))
-                    {
-                        currentWord = comparison.lemma;
-                        for (let index2 = j + 1; index2 < text.length; index2++)
-                        {
-                            comparison = text[index2];
-                            if (comparison.pos.charAt(0) === "N" && /^[a-zA-Z\\-]+$/.test(comparison.lemma))
-                            {
-                                if (stopWords.indexOf(comparison.lemma.toLowerCase()) > -1 || comparison.lemma.toString().length < 3)
-                                {
-                                    break;
-                                }
-                                currentWord += (" " + comparison.lemma);
-                                multiTerm.push(currentWord.toLowerCase());
-                            }
-                            else if (comparison.pos.charAt(0) === "J" && /^[a-zA-Z\\-]+$/.test(comparison.lemma))
-                            {
-                                if (stopWords.indexOf(comparison.lemma.toLowerCase()) > -1 || comparison.lemma.toString().length < 3)
-                                {
-                                    break;
-                                }
-                                if ((text[(index2 + 1)].pos.charAt(0) === "N" || text[(index2 + 1)].pos.charAt(0) === "J") && /^[a-zA-Z\\-]+$/.test(text[(index2 + 1)].lemma))
-                                {
-                                    currentWord += (" " + comparison.lemma);
-                                }
-                                else
-                                {
-                                    break;
-                                }
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        return res.status(400).json({
+            result: "error",
+            message: "No text supplied for preprocessing, or the \"text\" field in the request body is not an Array. Does this file have any text content?"
+        });
+    }
 
-        return [...new Set(multiTerm.map(obj => JSON.stringify(obj)))]
-            .map(str => JSON.parse(str));
-    };
-
-    doc = new coreNLP.simple.Document(req.text);
-    pipeline.annotate(doc)
-        .then(doc =>
-        {
-            const sent = doc.toJSON();
-            let output = [];
-            let nounPhraseList = [];
-            let sentences = [];
-            for (let i = 0; i < sent.sentences.length; i++)
-            {
-                for (let j = 0; j < JSON.parse(JSON.stringify(sent.sentences[i])).tokens.length; j++)
-                {
-                    let comparison = JSON.parse(JSON.stringify(sent.sentences[i])).tokens[j];
-                    // console.log(comparison.word + " " + comparison.lemma);
-
-                    if (!/^[a-zA-Z\\-]+$/.test(comparison.word) || comparison.word.indexOf("www") + 1 || comparison.word.indexOf("http") + 1 || comparison.word.indexOf("@") + 1)
-                    {
-                        sentences.push(comparison.word);
-                    }
-                    else
-                    {
-                        if (comparison.word.toString() !== comparison.lemma.toString())
-                        {
-                            sentences.push(comparison.lemma);
-                        }
-                        else
-                        {
-                            sentences.push(comparison.word);
-                        }
-                        if (comparison.lemma.toString().length > 2)
-                        {
-                            output.push({
-                                word: comparison.word,
-                                pos: comparison.pos,
-                                lemma: comparison.lemma.toString()
-                            });
-                        }
-                    }
-                }
-                if (method === "CValueJJ")
-                {
-                    nounPhraseList = nounPhraseList.concat(nounPhrase("jj", JSON.parse(JSON.stringify(sent.sentences[i])).tokens, null));
-                }
-                else if (method === "CValueNN")
-                {
-                    nounPhraseList = nounPhraseList.concat(nounPhrase("nn", JSON.parse(JSON.stringify(sent.sentences[i])).tokens, null));
-                }
-            }
-            nounPhraseList = [...new Set(nounPhraseList.map(obj => JSON.stringify(obj)))]
-                .map(str => JSON.parse(str));
-            output = [...new Set(output.map(obj => JSON.stringify(obj)))]
-                .map(str => JSON.parse(str));
-
-            res({
-                statusCode: 200,
-                method: req.method,
-                text: sentences.join(" "),
-                output,
-                nounPhraseList: nounPhraseList
-            });
-        })
-        .catch(err =>
-            err);
-};
-
-exports.termExtraction = function (req, res)
-{
     let removeExtraTerms = function (nounPhrases)
     {
         let nnf = {frequency: []};
@@ -294,9 +326,16 @@ exports.termExtraction = function (req, res)
         });
     };
 
-    function WordCount (str)
+    function wordCount (str)
     {
-        return str.split(" ").length;
+        if (!isNull(str) && typeof str === "string" && str.split(" ") instanceof Array)
+        {
+            return str.split(" ").length;
+        }
+        else
+        {
+            return 0;
+        }
     }
 
     function countOccurrences (str, value)
@@ -375,44 +414,6 @@ exports.termExtraction = function (req, res)
         }
         return nestedList;
     };
-
-    // function countNestedTerms (x, list)
-    // {
-    //     let nested = 0;
-    //     let nestedList = [];
-    //     for (let i = 0; i < list.length; i++)
-    //     {
-    //         if (tokenizer.tokenize(list[i]).length > tokenizer.tokenize(x).length)
-    //         {
-    //             if (list[i].indexOf(x) > -1)
-    //             {
-    //                 nested++;
-    //                 if (nestedList.indexOf(list[i]) > -1)
-    //                 {
-    //
-    //                 }
-    //                 else
-    //                 {
-    //                     nestedList.push(list[i]);
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     return {nested: nested, nestedList: nestedList};
-    //
-    // }
-    // function getCombination (word)
-    // {
-    //     let combinationWords = [];
-    //     for (let i = 0; i < tokenizer.tokenize(word).length; i++)
-    //     {
-    //         if ((i + 1) < tokenizer.tokenize(word).length)
-    //         {
-    //             combinationWords.push(tokenizer.tokenize(word)[i] + " " + tokenizer.tokenize(word)[i + 1]);
-    //         }
-    //     }
-    //     return combinationWords;
-    // }
 
     let cvalue = function (input, corpus, nGrams)
     {
@@ -526,24 +527,25 @@ exports.termExtraction = function (req, res)
         return ncvalueList.frequency;
     };
 
-    let processedTest = req;
+    let processedTest = req.body.preprocessingResults;
     let results = [];
     let documents = [];
     let documentLength = [];
     let nounPhrase = [];
     for (let i = 0; i < processedTest.length; i++)
     {
-        results.push(processedTest[i].result);
-        nounPhrase.push(processedTest[i].nounPhraseList);
-        documents.push(processedTest[i].text.toString());
-        documentLength.push(WordCount(processedTest[i].text.toString()));
+        let preProcessedItem = processedTest[i];
+        results.push(preProcessedItem.result);
+        nounPhrase.push(preProcessedItem.nounPhraseList);
+        documents.push(preProcessedItem.text);
+        documentLength.push(wordCount(preProcessedItem.text));
     }
 
     if (method === "Yake!")
     {
         async.mapSeries(documents, yake, function (err, results)
         {
-            if (err)
+            if (!isNull(err))
             {
                 // console.log(err);
                 res.status(500).json(
@@ -582,7 +584,7 @@ exports.termExtraction = function (req, res)
                     return parseFloat(a.score) - parseFloat(b.score);
                 });
 
-                res(
+                res.status(200).json(
                     {
                         dbpediaTerms: dbpediaTerms
                     }
@@ -607,10 +609,7 @@ exports.termExtraction = function (req, res)
                 }
             }
 
-            let nounPhraseSimple = [...new Set(nounPhraseFinal.map(obj => JSON.stringify(obj)))]
-                .map(str => JSON.parse(str));
-
-            nounPhraseSimple.sort(function (a, b)
+            nounPhraseFinal.sort(function (a, b)
             {
                 return tokenizer.tokenize(b).length - tokenizer.tokenize(a).length;
             });
@@ -634,37 +633,49 @@ exports.termExtraction = function (req, res)
                     return tokenizer.tokenize(b).length - tokenizer.tokenize(a).length;
                 });
     */
-            let cvaluengrams = cvalue(nounPhraseSimple, documents, tokenizer.tokenize(nounPhraseSimple[0]).length);
-            ncvalue(cvaluengrams, cvaluengrams.length);
-
-            let nnnn = removeExtraTerms(cvaluengrams);
-
-            nnnn.sort(function (a, b)
+            if (!isNull(nounPhraseFinal) && nounPhraseFinal instanceof Array && nounPhraseFinal.length > 0)
             {
-                return b.cvalue - a.cvalue;
-            });
+                let tokenized = tokenizer.tokenize(nounPhraseFinal[0]);
+                let cvaluengrams = cvalue(nounPhraseFinal, documents, tokenized.length);
+                ncvalue(cvaluengrams, cvaluengrams.length);
 
-            for (let index = 0; index < nnnn.length; index++)
-            {
-                if (tokenizer.tokenize(nnnn[index].word).length <= 3)
+                let nnnn = removeExtraTerms(cvaluengrams);
+
+                nnnn.sort(function (a, b)
                 {
-                    dbpediaTerms.keywords.push({
-                        words: nnnn[index].word,
-                        score: nnnn[index].cvalue
-                    });
+                    return b.cvalue - a.cvalue;
+                });
+
+                for (let index = 0; index < nnnn.length; index++)
+                {
+                    if (tokenizer.tokenize(nnnn[index].word).length <= 3)
+                    {
+                        dbpediaTerms.keywords.push({
+                            words: nnnn[index].word,
+                            score: nnnn[index].cvalue
+                        });
+                    }
                 }
+
+                dbpediaTerms.keywords.sort(function (a, b)
+                {
+                    return parseFloat(b.score) - parseFloat(a.score);
+                });
+
+                res.status(200).json(
+                    {
+                        dbpediaTerms: dbpediaTerms
+                    }
+                );
             }
-
-            dbpediaTerms.keywords.sort(function (a, b)
+            else
             {
-                return parseFloat(b.score) - parseFloat(a.score);
-            });
-
-            res(
-                {
-                    dbpediaTerms: dbpediaTerms
-                }
-            );
+                res.status(200).json(
+                    {
+                        dbpediaTerms: []
+                    }
+                );
+            }
         }
         else
         {
@@ -678,7 +689,7 @@ exports.termExtraction = function (req, res)
     }
 };
 
-exports.dbpediaLookup = function (req, res)
+module.exports.dbpediaResourceLookup = function (req, res)
 {
     req.setTimeout(2500000);
 
@@ -699,17 +710,17 @@ exports.dbpediaLookup = function (req, res)
             }
         });
     };
-    let dbpediaResults = req.body.keywords;
+    let dbpediaQueries = req.body.keywords;
 
-    let dbpediaUri = {result: []};
+    let dbpediaResources = {result: []};
     let position;
-    async.mapSeries(dbpediaResults, searchDb, function (err, results2)
+    async.mapSeries(dbpediaQueries, searchDb, function (err, results2)
     {
         if (err)
         {
             res.status(500).json(
                 {
-                    dbpediaUri: dbpediaUri
+                    dbpediaResources: dbpediaResources
                 }
             );
         }
@@ -717,47 +728,46 @@ exports.dbpediaLookup = function (req, res)
         {
             for (let i = 0; i < results2.length; i++)
             {
-                if (results2[i] !== undefined && results2[i].results[0] != null)
+                if (!isNull(results2[i]) && !isNull(results2[i].results) && results2[i].results.length > 0)
                 {
                     position = 0;
                     let similar = 0;
                     for (let x = 0; x < results2[i].results.length; x++)
                     {
-                        let current = stringSimilarity.compareTwoStrings(dbpediaResults[i].words, results2[i].results[x].label);
+                        let current = stringSimilarity.compareTwoStrings(dbpediaQueries[i].words, results2[i].results[x].label);
                         if (current > similar)
                         {
                             similar = Number(current);
                             position = x;
                         }
                     }
-                    dbpediaUri.result.push({
-                        searchTerm: dbpediaResults[i].words,
-                        score: dbpediaResults[i].score,
+                    dbpediaResources.result.push({
+                        searchTerm: dbpediaQueries[i].words,
+                        score: dbpediaQueries[i].score,
                         dbpediaLabel: results2[i].results[position].label,
                         dbpediaUri: results2[i].results[position].uri,
                         dbpediaDescription: results2[i].results[position].description
                     });
                 }
-
-                else
-                {
-                    dbpediaUri.result.push({
-                        searchTerm: dbpediaResults[i].words,
-                        score: dbpediaResults[i].score,
-                        error: "undefined term in dbpedia"
-                    });
-                }
+                // else
+                // {
+                //     dbpediaResources.result.push({
+                //         searchTerm: dbpediaQueries[i].words,
+                //         score: dbpediaQueries[i].score,
+                //         error: "undefined term in dbpedia"
+                //     });
+                // }
             }
             res.status(200).json(
                 {
-                    dbpediaUri: dbpediaUri
+                    dbpediaResources: dbpediaResources
                 }
             );
         }
     });
 };
 
-exports.dbpediaProperties = function (req, res)
+module.exports.lovProperties = function (req, res)
 {
     req.setTimeout(2500000);
     let searchLov = function (dbpedia, cb)
@@ -778,101 +788,78 @@ exports.dbpediaProperties = function (req, res)
     let dbpediaResults = req.body.concepts;
     async.mapSeries(dbpediaResults, searchLov, function (err, results)
     {
-        let dbpediaUri = {
-            result: []
-        };
+        let lovProperties = [];
         if (err)
         {
             // console.log(err);
-            res.status(500).json(
-                {
-                    dbpediaUri: dbpediaUri
-                }
-            );
+            res.status(500).json(lovProperties);
         }
         else
         {
             for (let i = 0; i < results.length; i++)
             {
-                if (results[i] !== undefined && results[i].results[0] != null)
+                let result = results[i];
+                if (!isNull(result))
                 {
-                    /* position = 0;
-                        let similar = 0;
-                        for (let x = 0; x < results[i].results.length; x++)
+                    _.map(result.results, function(result)
+                    {
+                        let lovLabel;
+                        let lovHighlight;
+                        if (!isNull(Object.values(result.highlight)[0]))
                         {
-                            let current = stringSimilarity.compareTwoStrings(dbpediaResults[i].words, results[i].results[x].uri[0]);
-                            if (current > similar)
-                            {
-                                similar = Number(current);
-                                position = x;
-                            }
-                        }*/
-                    // var ret = results[i].results[position].prefixedName[0].toString().replace(results[i].results[position]["vocabulary.prefix"][0].toString(), "");
-                    // console.log("highlight: " + ret);
-                    let lovLabel;
-                    let lov_highlight;
-                    if (Object.values(results[i].results[0].highlight)[0] !== undefined)
-                    {
-                        lovLabel = stripTags(Object.values(results[i].results[0].highlight)[0].toString());
-                    }
-                    else
-                    {
-                        lovLabel = "";
-                    }
-                    if (Object.values(results[i].results[0].highlight)[1] !== undefined)
-                    {
-                        lov_highlight = stripTags(Object.values(results[i].results[0].highlight)[1].toString());
-                    }
-                    else
-                    {
-                        lov_highlight = "";
-                    }
-                    if (!dbpediaUri.result.some(item => item.lovLabel === lovLabel))
-                    {
-                        dbpediaUri.result.push({
-                            searchTerm: dbpediaResults[i].searchTerm,
-                            score: dbpediaResults[i].score,
-                            lovScore: results[i].results[0].score,
-                            lovVocabulary: results[i].results[0]["vocabulary.prefix"][0],
-                            lovUri: results[i].results[0].uri[0],
-                            lovLabel: lovLabel,
-                            lov_highlight: lov_highlight,
-                            lov_label_and_highlight: Object.values(results[i].results[0].highlight)[0]
-                        });
-                    }
-                    else
-                    {
-                        dbpediaUri.result.push({
-                            searchTerm: dbpediaResults[i].searchTerm,
-                            score: dbpediaResults[i].score,
-                            lovScore: results[i].results[0].score,
-                            lovVocabulary: results[i].results[0]["vocabulary.prefix"][0],
-                            lovUri: results[i].results[0].uri[0],
-                            lovLabel: "",
-                            lov_highlight: lov_highlight,
-                            lov_label_and_highlight: Object.values(results[i].results[0].highlight)[0]
-                        });
-                    }
-                }
-                else
-                {
-                    dbpediaUri.result.push({
-                        searchTerm: dbpediaResults[i].searchTerm,
-                        score: dbpediaResults[i].score,
-                        error: "undefined term in lov"
+                            lovLabel = stripTags(Object.values(result.highlight)[0]);
+                        }
+                        else
+                        {
+                            lovLabel = "";
+                        }
+                        if (!isNull(Object.values(result.highlight)[1]))
+                        {
+                            lovHighlight = stripTags(Object.values(result.highlight)[1]);
+                        }
+                        else
+                        {
+                            lovHighlight = "";
+                        }
+                        if (!lovProperties.some(item => item.lovLabel === lovLabel))
+                        {
+                            lovProperties.push({
+                                searchTerm: dbpediaResults[i].searchTerm,
+                                score: dbpediaResults[i].score,
+                                lovScore: result.score,
+                                lovVocabulary: result["vocabulary.prefix"][0],
+                                lovUri: result.uri[0],
+                                lovLabel: lovLabel,
+                                lov_highlight: lovHighlight,
+                                lov_label_and_highlight: Object.values(result.highlight)[0]
+                            });
+                        }
+                        else
+                        {
+                            lovProperties.push({
+                                searchTerm: dbpediaResults[i].searchTerm,
+                                score: dbpediaResults[i].score,
+                                lovScore: result.score,
+                                lovVocabulary: result["vocabulary.prefix"][0],
+                                lovUri: result.uri[0],
+                                lovLabel: "",
+                                lov_highlight: lovHighlight,
+                                lov_label_and_highlight: Object.values(result.highlight)[0]
+                            });
+                        }
                     });
                 }
             }
             res.status(200).json(
                 {
-                    dbpediaUri: dbpediaUri
+                    lovProperties: lovProperties
                 }
             );
         }
     });
 };
 
-exports.clustering = function (req, res)
+module.exports.clustering = function (req, res)
 {
     function splitTerm (term)
     {
@@ -970,7 +957,8 @@ exports.clustering = function (req, res)
     );
 };
 
-exports.text2owl = function (rec, res)
+module.exports.text2owl = function (rec, res)
 {
 
 };
+

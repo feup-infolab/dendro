@@ -10,8 +10,8 @@
                         <tr>
                             <td class="term-tablecell">
                                 <medium>{{"Search Term: " + property.searchTerm}}</medium><br>
-                                <medium>{{"Label: " + property.lovLabel}}</medium><br>
-                                <medium>{{"Uri: " + property.lovUri}}</medium><br>
+                                <medium>Label: <p ng-bind-html="property.lovLabel"></p></medium><br>
+                                <a href="{{property.lovUri}}"><medium>{{"Uri: " + property.lovUri}}</medium></a><br>
                                 <medium>{{"Vocabulary: " + property.lovVocabulary}}</medium>
                                 <div class="help-block">
                                 </div>
