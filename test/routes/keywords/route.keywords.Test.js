@@ -137,7 +137,7 @@ describe("Searches DBpedia for important terms", function (done)
                 {
                     te.statusCode.should.equal(200);
                     // console.log(te.text);
-                    dbpediaTerms = te.body.output.dbpediaTerms.keywords;
+                    dbpediaTerms = te.body.dbpediaTerms.keywords.should.be.instanceof(Array);
                     // keyword = JSON.parse(te.text).dbpediaTerms.keywords;
 
                     // console.log(keyword);
@@ -196,11 +196,12 @@ describe("Searches DBpedia for important terms", function (done)
         {
             this.timeout(1500000);
             // console.log(agent);
-            keywordsUtils.dbpediaLookup(dbpediaTerms, agent, function (err, db)
+            keywordsUtils.dbpediaResourceLookup(dbpediaTerms, agent, function (err, db)
             {
                 // console.log(err);
                 db.statusCode.should.equal(200);
-                dbpediaConcepts = db.body.dbpediaUri.result;
+                dbpediaConcepts = db.body.dbpediaResources;
+                dbpediaConcepts.should.be.instanceof(Array);
                 /*
                 let writer = csvWriter();
                 if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/vehicle/vehicle-cvalue-jj.csv")))
@@ -224,10 +225,12 @@ describe("Searches DBpedia for important terms", function (done)
         it("Get properties from LOV", function (done)
         {
             this.timeout(1500000);
-            keywordsUtils.dbpediaResourceLookup(dbpediaConcepts, agent, function (err, db)
+            keywordsUtils.lovPropertiesProperties(dbpediaConcepts, agent, function (err, db)
             {
                 // console.log(err);
                 db.statusCode.should.equal(200);
+                lovProperties = db.body.lovProperties;
+                lovProperties.should.be.instanceof(Array);
                 /*
                 let writer = csvWriter();
                 if (!fs.existsSync(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/vehicle/dbpediapropertiescvalue-jj.csv")))

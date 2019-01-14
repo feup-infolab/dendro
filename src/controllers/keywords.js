@@ -712,17 +712,13 @@ module.exports.dbpediaResourceLookup = function (req, res)
     };
     let dbpediaQueries = req.body.keywords;
 
-    let dbpediaResources = {result: []};
+    let dbpediaResources = [];
     let position;
     async.mapSeries(dbpediaQueries, searchDb, function (err, results2)
     {
         if (err)
         {
-            res.status(500).json(
-                {
-                    dbpediaResources: dbpediaResources
-                }
-            );
+            res.status(500).json({dbpediaResources: dbpediaResources});
         }
         else
         {
@@ -741,7 +737,7 @@ module.exports.dbpediaResourceLookup = function (req, res)
                             position = x;
                         }
                     }
-                    dbpediaResources.result.push({
+                    dbpediaResources.push({
                         searchTerm: dbpediaQueries[i].words,
                         score: dbpediaQueries[i].score,
                         dbpediaLabel: results2[i].results[position].label,

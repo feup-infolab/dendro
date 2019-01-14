@@ -884,7 +884,7 @@
     "datastore": {
       "database": "127_0_0_1_3002_datastore",
       "host": "127.0.0.1",
-      "port": "27017",
+      "port": "27018",
       "id": "default",
       "log": {
         "log_datastore_ops": true
@@ -895,7 +895,7 @@
     "ontologies_cache": {
       "database": "127_0_0_1_3002_ontologies",
       "host": "127.0.0.1",
-      "port": "27017",
+      "port": "27018",
       "id": "default",
       "username": "admin",
       "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
@@ -933,7 +933,7 @@
             "collection": "default_cache",
             "clear_on_startup": true,
             "host": "127.0.0.1",
-            "port": "27017",
+            "port": "27018",
             "id": "default",
             "username": "admin",
             "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
@@ -943,7 +943,7 @@
             "collection": "social_cache",
             "clear_on_startup": true,
             "host": "127.0.0.1",
-            "port": "27017",
+            "port": "27018",
             "id": "social",
             "username": "admin",
             "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
@@ -953,7 +953,7 @@
             "collection": "notifications_cache",
             "clear_on_startup": true,
             "host": "127.0.0.1",
-            "port": "27017",
+            "port": "27018",
             "id": "notifications",
             "username": "admin",
             "password": "34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
@@ -975,10 +975,10 @@
     },
     "virtuosoSQLLogLevel": 3,
     "mongoDBHost": "127.0.0.1",
-    "mongoDbPort": "27017",
-    "mongoDbCollectionName": "127_0_0_1_3002_files",
-    "useMongoDBSessionStore": false,
-    "mongoDBSessionStoreCollection": "127_0_0_1_3002_sessions",
+    "mongoDbPort": "27018",
+    "mongoDbCollectionName": "127_0_0_1_3001_files",
+    "useMongoDBSessionStore": true,
+    "mongoDBSessionStoreCollection": "127_0_0_1_3001_sessions",
     "mongoDbVersion": "",
     "mongoDBAuth": {
       "username": "admin",
@@ -987,7 +987,7 @@
     "storageDefaults": {
       "storageType": "mongoDB",
       "host": "127.0.0.1",
-      "port": "27017",
+      "port": "27018",
       "collectionName": "127_0_0_1_3002_files",
       "username": "",
       "password": ""
@@ -1262,11 +1262,11 @@
       "cooldown_secs": 20
     },
     "docker": {
-      "active": false,
+      "active": true,
       "reuse_checkpoints": true,
       "create_checkpoints": true,
-      "destroy_existing_images_at_start": false,
-      "start_and_stop_containers_automatically" : true
+      "destroy_existing_images_at_start": true,
+      "start_and_stop_containers_automatically": true
     },
     "virtualbox": {
       "active": false,

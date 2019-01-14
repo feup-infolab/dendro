@@ -562,7 +562,7 @@ angular.module("dendroApp.controllers")
             }).then(function (response)
             {
                 // $scope.keywords = response.data.output.dbpediaTerms.keywords;
-                $scope.concepts = response.data.dbpediaResources.result;
+                $scope.concepts = response.data.dbpediaResources;
                 $scope.keywordlist = false;
                 $scope.conceptlist = true;
             }).catch(function (error)
