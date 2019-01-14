@@ -468,7 +468,7 @@ module.exports.logs = function (req, res)
 
 module.exports.configuration = function (req, res)
 {
-    const configFilePath = rlequire.absPathInApp("dendro", "conf/deployment_configs.json");
+    const configFilePath = rlequire.absPathInApp("dendro", "conf/deployment_configs/.json");
     const Config = rlequire("dendro", "src/models/meta/config.js").Config;
     if (req.originalMethod === "GET")
     {

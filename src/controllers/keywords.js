@@ -252,7 +252,8 @@ module.exports.processExtract = function (req, res)
         {
             req.body.preprocessingResults = _.filter(
                 results,
-                function(result){
+                function (result)
+                {
                     return !isNull(result.text);
                 });
 
@@ -332,10 +333,8 @@ module.exports.termExtraction = function (req, res)
         {
             return str.split(" ").length;
         }
-        else
-        {
-            return 0;
-        }
+
+        return 0;
     }
 
     function countOccurrences (str, value)
@@ -797,7 +796,7 @@ module.exports.lovProperties = function (req, res)
                 let result = results[i];
                 if (!isNull(result))
                 {
-                    _.map(result.results, function(result)
+                    _.map(result.results, function (result)
                     {
                         let lovLabel;
                         let lovHighlight;

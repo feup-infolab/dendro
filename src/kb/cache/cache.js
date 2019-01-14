@@ -150,7 +150,7 @@ Cache.initConnections = function (callback)
                         }
                         default:
                         {
-                            throw new Error("Unrecognized cache type " + cacheType + ". Please review your deployment_configs.json file.");
+                            throw new Error("Unrecognized cache type " + cacheType + ". Please review your " + Config.activeConfig + " file.");
                         }
                         }
                     }

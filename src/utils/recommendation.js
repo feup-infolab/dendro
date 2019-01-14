@@ -1,7 +1,5 @@
-const path = require("path");
 const rlequire = require("rlequire");
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
-
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
 const RecommendationUtils = {};
@@ -22,7 +20,7 @@ RecommendationUtils.getActiveRecommender = function ()
             }
             else
             {
-                throw new Error("[FATAL ERROR] Two recommendation modes are active. Something is wrong with your conf/deployment_configs.json file.");
+                throw new Error("[FATAL ERROR] Two recommendation modes are active. Something is wrong with your " + Config.activeConfigFilePath + " file.");
             }
         }
     }

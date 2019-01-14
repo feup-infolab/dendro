@@ -10,14 +10,13 @@ function Config ()
 const fs = require("fs");
 const path = require("path");
 const _ = require("underscore");
+const req = require("require-yml");
 const isNull = require("../../utils/null.js").isNull;
 
 const Elements = require("./elements.js").Elements;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
-const activeConfigFilePath = rlequire.absPathInApp("dendro", "conf/active_deployment_config.json");
-const configs = rlequire("dendro", "conf/deployment_configs.json");
-
+const configSelectorFilePath = rlequire.absPathInApp("dendro", "conf/active_deployment_config.yml");
 let activeConfigKey;
 
 const argv = require("yargs").argv;
@@ -40,23 +39,25 @@ else
     }
     else
     {
-        activeConfigKey = JSON.parse(fs.readFileSync(activeConfigFilePath, "utf8")).key;
+        activeConfigKey = req(configSelectorFilePath).key;
         Logger.log("Running with deployment config " + activeConfigKey);
     }
 }
 
-const activeConfig = configs[activeConfigKey];
+Config.activeConfigKey = activeConfigKey;
+Config.activeConfigFilePath = rlequire.absPathInApp("dendro", `conf/deployment_configs/${activeConfigKey}.yml`);
+Config.activeConfig = req(Config.activeConfigFilePath)[activeConfigKey];
 
-if (isNull(activeConfig))
+if (isNull(Config.activeConfig))
 {
-    const noConfigPresentError = "There is no configuration with key " + activeConfigKey + " in " + activeConfigFilePath + " ! The key is invalid or the file needs to be reconfigured.";
+    const noConfigPresentError = "There is no configuration with key " + Config.activeConfigKey + " in " + Config.activeConfigFilePath + " ! The key is invalid or the file needs to be reconfigured.";
     Logger.log("error", noConfigPresentError);
     throw new Error(noConfigPresentError);
 }
 
 const getConfigParameter = function (parameter, defaultValue)
 {
-    if (isNull(activeConfig[parameter]))
+    if (isNull(Config.activeConfig[parameter]))
     {
         if (!isNull(defaultValue))
         {
@@ -65,15 +66,13 @@ const getConfigParameter = function (parameter, defaultValue)
             return Config[parameter];
         }
 
-        throw new Error("[FATAL ERROR] Unable to retrieve parameter " + parameter + " from '" + activeConfigKey + "' configuration. Please review the deployment_configs.json file.");
+        throw new Error("[FATAL ERROR] Unable to retrieve parameter " + parameter + " from '" + Config.activeConfigKey + "' configuration. Please review the " + Config.activeConfigFilePath + " file.");
     }
     else
     {
-        return activeConfig[parameter];
+        return Config.activeConfig[parameter];
     }
 };
-
-Config.activeConfiguration = activeConfigKey;
 
 // hostname for the machine in which this is running, configure when running on a production machine
 Config.port = getConfigParameter("port");
@@ -238,7 +237,7 @@ Config.recommendation.getTargetTable = function ()
 
     if (isNull(tableName))
     {
-        throw new Error("Unspecified interactions table name. Check your deployment_configs.json for recommendation/interactions_recording_table field.");
+        throw new Error("Unspecified interactions table name. Check your " + Config.activeConfigFilePath + " file for recommendation/interactions_recording_table field.");
     }
     else
     {
@@ -661,9 +660,9 @@ Config.streaming =
   }
 };
 
-Config.useElasticSearchAuth = activeConfig.useElasticSearchAuth;
+Config.useElasticSearchAuth = Config.activeConfig.useElasticSearchAuth;
 
-Config.elasticSearchAuthCredentials = activeConfig.elasticSearchAuthCredentials;
+Config.elasticSearchAuthCredentials = Config.activeConfig.elasticSearchAuthCredentials;
 
 /**
  * Plugins

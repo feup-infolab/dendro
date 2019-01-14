@@ -304,7 +304,7 @@ class App
         Logger.log_boot_message("Welcome! Booting up a Dendro Node on this machine. Using NodeJS " + process.version);
         Logger.log_boot_message("Possible arguments : ");
         Logger.log_boot_message("--seed_databases : Will destroy the contents of the current databases and reload demo users and ontologies. A clean Dendro installation. Can be useful for development. ");
-        Logger.log_boot_message("--config=\"<config-key\" : Used to force Dendro to boot up using a specific configuration from the conf/deployment_configs.json file");
+        Logger.log_boot_message("--config=\"<config-key\" : Used to force Dendro to boot up using a specific configuration from the conf/<config-key>.yml file");
 
         if (process.env.NODE_ENV === "test")
         {
