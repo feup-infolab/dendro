@@ -1,5 +1,5 @@
 ---
-test:
+test-no-setup-caching:
   port: 3002
   host: 127.0.0.1:3002
   crypto:
@@ -209,7 +209,7 @@ test:
     memory:
       dump_snapshots: false
   startup:
-    load_databases: false
+    load_databases: true
     reload_administrators_on_startup: false
     reload_demo_users_on_startup: false
     reload_ontologies_on_startup: false
@@ -318,10 +318,10 @@ test:
     cooldown_secs: 20
   docker:
     active: true
-    reuse_checkpoints: true
-    create_checkpoints: true
+    reuse_checkpoints: false
+    create_checkpoints: false
     destroy_existing_images_at_start: true
-    start_and_stop_containers_automatically: true
+    start_and_stop_containers_automatically: false
   virtualbox:
     active: false
     reuse_shapshots: false
