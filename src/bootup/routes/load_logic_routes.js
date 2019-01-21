@@ -1439,35 +1439,39 @@ const loadRoutes = function (app, callback)
     app.delete("/interactions/delete_all", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), interactions.delete_all_interactions);
 
     // keywords
-    app.post("/keywords/processExtract",
-        async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
-        async.apply(DockerManager.requireOrchestras, ["dendro_keywords"]),
-        keywords.processExtract);
 
-    app.post("/keywords/preProcessing",
-        async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
-        async.apply(DockerManager.requireOrchestras, ["dendro_keywords"]),
-        keywords.preProcessing);
+    if(Config.keywords_extraction.active)
+    {
+        app.post("/keywords/processExtract",
+            async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
+            async.apply(DockerManager.requireOrchestras, ["dendro_keywords"]),
+            keywords.processExtract);
 
-    app.post("/keywords/termExtraction",
-        async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
-        async.apply(DockerManager.requireOrchestras, ["dendro_keywords"]),
-        keywords.termExtraction);
+        app.post("/keywords/preProcessing",
+            async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
+            async.apply(DockerManager.requireOrchestras, ["dendro_keywords"]),
+            keywords.preProcessing);
 
-    app.post("/keywords/dbpediaResourceLookup",
-        async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
-        async.apply(DockerManager.requireOrchestras, ["dendro_keywords"]),
-        keywords.dbpediaResourceLookup);
+        app.post("/keywords/termExtraction",
+            async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
+            async.apply(DockerManager.requireOrchestras, ["dendro_keywords"]),
+            keywords.termExtraction);
 
-    app.post("/keywords/lovProperties",
-        async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
-        async.apply(DockerManager.requireOrchestras, ["dendro_keywords"]),
-        keywords.lovProperties);
+        app.post("/keywords/dbpediaResourceLookup",
+            async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
+            async.apply(DockerManager.requireOrchestras, ["dendro_keywords"]),
+            keywords.dbpediaResourceLookup);
 
-    app.post("/keywords/clustering",
-        async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
-        async.apply(DockerManager.requireOrchestras, ["dendro_keywords"]),
-        keywords.clustering);
+        app.post("/keywords/lovProperties",
+            async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
+            async.apply(DockerManager.requireOrchestras, ["dendro_keywords"]),
+            keywords.lovProperties);
+
+        app.post("/keywords/clustering",
+            async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
+            async.apply(DockerManager.requireOrchestras, ["dendro_keywords"]),
+            keywords.clustering);
+    }
 
     // app.get("/keywords/loadfiles", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.loadfiles);
 

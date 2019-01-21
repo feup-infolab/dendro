@@ -335,6 +335,7 @@ test-no-setup-caching:
     vmName: dendroVagrantDemo
     vmIP: 127.0.0.1
   keywords_extraction:
+    active: true
     corenlp:
       active: true
       server_address: http://localhost:9000

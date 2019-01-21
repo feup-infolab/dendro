@@ -335,6 +335,7 @@ travis:
     vmName: dendroVagrantDemo
     vmIP: 192.168.56.249
   keywords_extraction:
+    active: true
     corenlp:
       active: true
       server_address: http://localhost:9000

@@ -23,9 +23,12 @@
         <li ng-class="{active : active_tab == 'storage'}">
             <a href="#storage" role="tab" data-toggle="tab" ng-click="clicked_storage_tab()">Storage</a>
         </li>
-        <li ng-class="{active : active_tab == 'concept'}">
-            <a href="#concept" role="tab" data-toggle="tab" ng-click="clicked_concept_tab()">Ontology Learning</a>
-        </li>
+
+        <%if(locals.Config.keywords_extraction && locals.Config.keywords_extraction.active) {%>
+            <li ng-class="{active : active_tab == 'concept'}">
+                <a href="#concept" role="tab" data-toggle="tab" ng-click="clicked_concept_tab()">Ontology Learning</a>
+            </li>
+        <%}%>
 
         <!--<li>
             <a href="#actions" role="tab" data-toggle="tab">Actions</a>
@@ -351,7 +354,8 @@
 
         </div>
 
-        <div class="tab-pane" id="concepts" ng-class="{active: active_tab == 'concept'}">
+        <%if(locals.Config.keywords_extraction && locals.Config.keywords_extraction.active) {%>
+            <div class="tab-pane" id="concepts" ng-class="{active: active_tab == 'concept'}">
             <div ng-show="filelist">
                 <h4>Select files for concept extraction</h4>
                 <div class="container-fluid" ng-controller="projectEditorCtrl" ng-init="init()">
@@ -489,6 +493,7 @@
                 </div>
             </div>
         </div>
+        <%}%>
 
         <!--
         <div class="tab-pane" id="metadata_quality" ng-class="{active : active_tab == 'metadataquality'}">
