@@ -12,7 +12,7 @@ docker:
   eudatCommunityId: e9b9792e-79fb-4b07-b6b4-b9c2bd06d095
   sendGridUser: __FIXME
   sendGridPassword: __FIXME
-  elasticSearchHost: 127.0.0.1
+  elasticSearchHost: elasticsearch-dendro-dev
   elasticSearchPort: '9200'
   datastore:
     database: 127_0_0_1_3001_datastore_dev
@@ -57,7 +57,7 @@ docker:
           database: '127_0_0_1_3001'
           collection: default_cache
           clear_on_startup: true
-          host: 127.0.0.1
+          host: mongodb-dendro-dev
           port: '27017'
           id: default
           username: admin
@@ -66,7 +66,7 @@ docker:
           database: '127_0_0_1_3001'
           collection: social_cache
           clear_on_startup: true
-          host: 127.0.0.1
+          host: mongodb-dendro-dev
           port: '27017'
           id: social
           username: admin
@@ -75,7 +75,7 @@ docker:
           database: '127_0_0_1_3001'
           collection: notifications_cache
           clear_on_startup: true
-          host: 127.0.0.1
+          host: mongodb-dendro-dev
           port: '27017'
           id: notifications
           username: admin
@@ -83,7 +83,7 @@ docker:
     static:
       last_modified_caching: true
       cache_period_in_seconds: 3600
-  virtuosoHost: 127.0.0.1
+  virtuosoHost: virtuoso-dendro-dev
   virtuosoPort: '8890'
   virtuosoISQLPort: '1112'
   virtuosoConnector: jdbc
@@ -91,7 +91,7 @@ docker:
     user: dba
     password: dba
   virtuosoSQLLogLevel: 3
-  mongoDBHost: 127.0.0.1
+  mongoDBHost: mongodb-dendro-dev
   mongoDbPort: '27017'
   mongoDbCollectionName: 127_0_0_1_3001_files
   useMongoDBSessionStore: true
@@ -107,7 +107,7 @@ docker:
     collectionName: 127_0_0_1_3001_files
     username: ''
     password: ''
-  mySQLHost: 127.0.0.1
+  mySQLHost: mariadb-dendro-dev
   mySQLPort: '3306'
   mySQLAuth:
     user: root

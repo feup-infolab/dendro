@@ -78,5 +78,7 @@ USER "$DENDRO_USER"
 WORKDIR $DENDRO_INSTALL_DIR
 # RUN $DENDRO_INSTALL_DIR/dendro.sh
 
+VOLUME [ "$DENDRO_INSTALL_DIR/conf" ]
+
 # Start Dendro
 CMD [ "/bin/bash", "/dendro/dendro/dendro.sh" ]
