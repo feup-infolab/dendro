@@ -319,7 +319,7 @@ DockerManager.startOrchestra = function (orchestraName, callback)
                             {
                                 const matchName = err.message.match(/ERROR: for .* Cannot create container for service .* Conflict. The container name .* is already in use by container .* You have to remove \(or rename\) that container to be able to reuse that name./);
 
-                                if (matchName.length > 0)
+                                if (!isNull(matchName) && matchName.length > 0)
                                 {
                                     DockerManager.runningOrchestras[orchestraName] = {
                                         id: orchestraName,

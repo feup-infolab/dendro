@@ -1,4 +1,4 @@
-FROM "ubuntu:16.04"
+FROM "ubuntu:18.04"
 
 ######    CONSTANTS    ######
 ENV DENDRO_USER dendro
@@ -23,6 +23,10 @@ RUN apt-get -y -f install unzip devscripts autoconf automake libtool flex bison 
 
 # Install text extraction tools
 RUN apt-get -y -f install poppler-utils antiword unrtf tesseract-ocr
+
+# Install python 2.7
+RUN apt-get -y -f install python2.7
+RUN ln -s /usr/bin/python2.7 /usr/bin/python
 
 # Install Java Oracle SDK 8
 RUN apt-get install -y software-properties-common
@@ -60,9 +64,8 @@ RUN "$DENDRO_INSTALL_DIR/conf/scripts/install.sh"
 # Set permissions on installation folder (again)
 USER root
 
-# Copy configuration files
-COPY ./conf/active_deployment_config.yml "$DENDRO_INSTALL_DIR/conf"
-COPY ./conf/deployment_configs/docker.yml "$DENDRO_INSTALL_DIR/conf/deployment_configs"
+# Make 'docker' the active deployment config
+COPY conf/scripts/docker_deployment_config.yml "$DENDRO_INSTALL_DIR/conf/active_deployment_config.yml"
 
 RUN chown -R "$DENDRO_USER":"$DENDRO_USER_GROUP" "$DENDRO_INSTALL_DIR"
 RUN chmod 0777 "$DENDRO_INSTALL_DIR/dendro.sh"
