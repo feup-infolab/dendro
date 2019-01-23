@@ -6,7 +6,8 @@ ENV HOME /home/${DENDRO_USER}
 ENV NVM_DIR ${HOME}/.nvm
 # ENV COMMIT_HASH 9496630f9cd0fd434655ddf2b527cad3020d9df3
 ENV DENDRO_GITHUB_URL https://github.com/feup-infolab/dendro.git
-ENV DENDRO_INSTALL_DIR /dendro/dendro
+ENV DENDRO_INSTALL_DIR /dendro/dendro_install
+ENV DENDRO_RUNNING_DIR /dendro/dendro
 ENV DENDRO_USER_GROUP dendro
 ######    END CONSTANTS    ######
 
@@ -41,44 +42,32 @@ RUN \
 # Set Java Oracle SDK 8 as default Java
 RUN apt-get install oracle-java8-set-default
 
+VOLUME [ "$DENDRO_RUNNING_DIR"]
+
 # create installation dir and make dendro user its owner
 RUN mkdir -p "$DENDRO_INSTALL_DIR"
 
 # Clone dendro into install dir
-COPY . "$DENDRO_INSTALL_DIR"
-RUN ls "$DENDRO_INSTALL_DIR"
+COPY --chown="dendro:dendro" . "$DENDRO_INSTALL_DIR"
+RUN ls -la "$DENDRO_INSTALL_DIR"
 
-# Copy dendro startup script
-COPY ./conf/scripts/docker/start_dendro_inside_docker.sh "$DENDRO_INSTALL_DIR/dendro.sh"
+# Copy dendro startup script and make 'docker' the active deployment config
+COPY --chown="dendro:dendro" ./conf/scripts/docker/start_dendro_inside_docker.sh "$DENDRO_INSTALL_DIR/dendro.sh"
+RUN rm "$DENDRO_INSTALL_DIR/conf/docker_deployment_config.yml" "$DENDRO_INSTALL_DIR/conf/active_deployment_config.yml"
+RUN mv "$DENDRO_INSTALL_DIR/conf/docker_deployment_config.yml" "$DENDRO_INSTALL_DIR/conf/active_deployment_config.yml"
 
-# Set permissions on installation folder
-USER root
-RUN chown -R "$DENDRO_USER":"$DENDRO_USER_GROUP" "$DENDRO_INSTALL_DIR"
-RUN chmod 0777 "$DENDRO_INSTALL_DIR/dendro.sh"
+# What is the active deployment config?
+RUN cat "$DENDRO_INSTALL_DIR/conf/active_deployment_config.yml"
+
+# Set dendro execution script as executable
+RUN chmod ugo+rx "$DENDRO_INSTALL_DIR/dendro.sh"
+
+# Switch to Dendro user
+USER "$DENDRO_USER"
 
 # Run Dendro Installation
-USER "$DENDRO_USER"
 WORKDIR $DENDRO_INSTALL_DIR
 RUN "$DENDRO_INSTALL_DIR/conf/scripts/install.sh"
-
-# Set permissions on installation folder (again)
-USER root
-
-# Make 'docker' the active deployment config
-COPY conf/scripts/docker_deployment_config.yml "$DENDRO_INSTALL_DIR/conf/active_deployment_config.yml"
-
-RUN chown -R "$DENDRO_USER":"$DENDRO_USER_GROUP" "$DENDRO_INSTALL_DIR"
-RUN chmod 0777 "$DENDRO_INSTALL_DIR/dendro.sh"
-
-# Get contents of finalized dendro install directory (debug)
-# RUN ls -la "$DENDRO_INSTALL_DIR"
-
-# Run Dendro
-USER "$DENDRO_USER"
-WORKDIR $DENDRO_INSTALL_DIR
-# RUN $DENDRO_INSTALL_DIR/dendro.sh
-
-VOLUME [ "$DENDRO_INSTALL_DIR/conf" ]
 
 # Start Dendro
 CMD [ "/bin/bash", "/dendro/dendro/dendro.sh" ]

@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 
 HOME=/home/$(whoami)
-INSTALL_DIR="/dendro/dendro"
+INSTALL_DIR="/dendro/dendro_install"
+RUNNING_DIR="/dendro/dendro"
 NODE_VERSION="$(cat $INSTALL_DIR/.nvmrc)"
 
-ELASTICSEARCH_HOST="127.0.0.1"
-MONGO_HOST="127.0.0.1"
-MARIADB_HOST="127.0.0.1"
-VIRTUOSO_HOST="127.0.0.1"
+ELASTICSEARCH_HOST="elasticsearch-dendro-dev"
+MONGO_HOST="mongodb-dendro-dev"
+MARIADB_HOST="mariadb-dendro-dev"
+VIRTUOSO_HOST="virtuoso-dendro-dev"
 
 # starts containers with the volumes mounted
 function wait_for_server_to_boot_on_port()
@@ -49,7 +50,12 @@ wait_for_server_to_boot_on_port $MARIADB_HOST 3306
 wait_for_server_to_boot_on_port $VIRTUOSO_HOST 1111
 wait_for_server_to_boot_on_port $VIRTUOSO_HOST 8890
 
-cd "$INSTALL_DIR" && echo "Switched to folder $(pwd)" || exit "Unable to find directory $INSTALL_DIR"
+if [[ -f $RUNNING_DIR ]]; then
+  echo "Dendro is not installed at $RUNNING_DIR, installing from $INSTALL_DIR!"
+  cp -R $INSTALL_DIR $RUNNING_DIR
+fi
+
+cd "$INSTALL_DIR" && echo "Switched to folder $(pwd) to start Dendro..." || exit "Unable to find directory $INSTALL_DIR"
 . $HOME/.nvm/nvm.sh
 nvm use --delete-prefix "$NODE_VERSION"
 nvm alias default "$(cat $INSTALL_DIR/.nvmrc)"

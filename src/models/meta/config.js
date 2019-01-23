@@ -28,19 +28,24 @@ if (argv.config)
 }
 else
 {
-    if (argv.config)
-    {
-        activeConfigKey = argv.config;
-    }
-    else if (process.env.NODE_ENV === "test")
+    if (process.env.NODE_ENV === "test")
     {
         activeConfigKey = "test";
         Logger.log("Running in test environment detected");
     }
     else
     {
+      if (!fs.existsSync(configSelectorFilePath))
+      {
+          const msg = "Configuration file " + configSelectorFilePath + " does not exist!";
+          Logger.log("error", msg);
+          throw new Error(msg);
+      }
+      else
+      {
         activeConfigKey = req(configSelectorFilePath).key;
-        Logger.log("Running with deployment config " + activeConfigKey);
+        Logger.log("debug", "Configuration file exists at " + configSelectorFilePath + " and the configuration key inside is " + activeConfigKey);
+      }
     }
 }
 

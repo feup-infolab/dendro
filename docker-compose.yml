@@ -71,10 +71,7 @@ services:
       - mongodb
       - virtuoso
     volumes:
-      - type: volume
-        source: ./volumes/dendro/conf
-        target: /dendro/dendro/conf
-        read_only: true
+        - ./volumes/dendro:/dendro/dendro
     networks:
       - dendro
 
