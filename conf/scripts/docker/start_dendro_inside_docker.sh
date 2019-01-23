@@ -50,14 +50,23 @@ wait_for_server_to_boot_on_port $MARIADB_HOST 3306
 wait_for_server_to_boot_on_port $VIRTUOSO_HOST 1111
 wait_for_server_to_boot_on_port $VIRTUOSO_HOST 8890
 
-if [[ -f $RUNNING_DIR ]]; then
-  echo "Dendro is not installed at $RUNNING_DIR, installing from $INSTALL_DIR!"
-  cp -R $INSTALL_DIR $RUNNING_DIR
+if [[ ! -f $RUNNING_DIR ]]; then
+	  echo "Dendro running dir does not exist at $RUNNING_DIR, creating directory..."
+	  mkdir -p $RUNNING_DIR
 fi
 
-cd "$INSTALL_DIR" && echo "Switched to folder $(pwd) to start Dendro..." || exit "Unable to find directory $INSTALL_DIR"
+if [ -z "$(ls -A $RUNNING_DIR)" ]; then
+  echo "Dendro running dir is empty, so we assume this is the first bootup of the container."
+  echo "Copying all data from $INSTALL_DIR into $RUNNING_DIR..."
+  cp -R $INSTALL_DIR/* $RUNNING_DIR
+else
+   echo "Dendro running directory ($RUNNING_DIR) is not empty, assuming it is already installed."
+   echo "Continuing startup..."
+fi
+
+cd "$RUNNING_DIR" && echo "Switched to folder $(pwd) to start Dendro..." || exit "Unable to find directory $RUNNING_DIR"
 . $HOME/.nvm/nvm.sh
-nvm use --delete-prefix "$NODE_VERSION"
-nvm alias default "$(cat $INSTALL_DIR/.nvmrc)"
+nvm use --delete-prefix "$RUNNING_DIR"
+nvm alias default "$(cat $RUNNING_DIR/.nvmrc)"
 npm start
-cd $INSTALL_DIR
+cd $RUNNING_DIR
