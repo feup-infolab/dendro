@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-HOME=/home/$(whoami)
+DENDRO_USER="dendro"
+DENDRO_USER_GROUP="dendro"
 INSTALL_DIR="/dendro/dendro_install"
 RUNNING_DIR="/dendro/dendro"
 NODE_VERSION="$(cat $INSTALL_DIR/.nvmrc)"
@@ -43,14 +44,24 @@ function wait_for_server_to_boot_on_port()
     fi
 }
 
-#wait for all servers to boot up before starting dendro
-wait_for_server_to_boot_on_port $ELASTICSEARCH_HOST 9200
-wait_for_server_to_boot_on_port $MONGO_HOST 27017
-wait_for_server_to_boot_on_port $MARIADB_HOST 3306
-wait_for_server_to_boot_on_port $VIRTUOSO_HOST 1111
-wait_for_server_to_boot_on_port $VIRTUOSO_HOST 8890
+echo "Dendro starting up at $RUNNING_DIR, installation dir $INSTALL_DIR and user $DENDRO_USER"
 
-if [[ ! -f $RUNNING_DIR ]]; then
+# #wait for all servers to boot up before starting dendro
+# wait_for_server_to_boot_on_port $ELASTICSEARCH_HOST 9200
+# wait_for_server_to_boot_on_port $MONGO_HOST 27017
+# wait_for_server_to_boot_on_port $MARIADB_HOST 3306
+# wait_for_server_to_boot_on_port $VIRTUOSO_HOST 1111
+# wait_for_server_to_boot_on_port $VIRTUOSO_HOST 8890
+
+chown -R "$DENDRO_USER" $INSTALL_DIR
+chown -R "$DENDRO_USER" $RUNNING_DIR
+
+echo "Contents of install dir.................."
+ls -la $INSTALL_DIR
+echo "Contents of running dir.................."
+ls -la $RUNNING_DIR
+
+if [[ -f $RUNNING_DIR ]]; then
 	  echo "Dendro running dir does not exist at $RUNNING_DIR, creating directory..."
 	  mkdir -p $RUNNING_DIR
 fi
@@ -63,6 +74,10 @@ else
    echo "Dendro running directory ($RUNNING_DIR) is not empty, assuming it is already installed."
    echo "Continuing startup..."
 fi
+
+# Switch to dendro user to start the app instead of using root
+su - "$DENDRO_USER"
+HOME=/home/$(whoami)
 
 cd "$RUNNING_DIR" && echo "Switched to folder $(pwd) to start Dendro..." || exit "Unable to find directory $RUNNING_DIR"
 . $HOME/.nvm/nvm.sh

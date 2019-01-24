@@ -4,7 +4,7 @@ FROM "ubuntu:18.04" as base
 
 ######    CONSTANTS    ######
 ENV DENDRO_GITHUB_URL https://github.com/feup-infolab/dendro.git
-ENV DENDRO_INSTALL_DIR /dendro/dendro_install
+ENV DENDRO_INSTALL_DIR /tmp/dendro
 ENV DENDRO_RUNNING_DIR /dendro/dendro
 ENV DENDRO_PORT 3001
 
@@ -154,5 +154,7 @@ RUN echo "Contents of Dendro active configuration file: $(cat $DENDRO_INSTALL_DI
 EXPOSE "$DENDRO_PORT"
 
 # Start Dendro
+
+USER "$DENDRO_USER"
 CMD [ "/bin/bash", "/dendro/dendro_install/dendro.sh" ]
 
