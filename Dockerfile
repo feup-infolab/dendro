@@ -1,26 +1,39 @@
-FROM "ubuntu:18.04"
+############################################
+FROM "ubuntu:18.04" as base
+############################################
 
 ######    CONSTANTS    ######
-ENV DENDRO_USER dendro
-ENV HOME /home/${DENDRO_USER}
-ENV NVM_DIR ${HOME}/.nvm
-# ENV COMMIT_HASH 9496630f9cd0fd434655ddf2b527cad3020d9df3
 ENV DENDRO_GITHUB_URL https://github.com/feup-infolab/dendro.git
 ENV DENDRO_INSTALL_DIR /dendro/dendro_install
 ENV DENDRO_RUNNING_DIR /dendro/dendro
-ENV DENDRO_USER_GROUP dendro
-######    END CONSTANTS    ######
+ENV DENDRO_PORT 3001
 
-# Prepare working directory
+ENV DENDRO_USER dendro
+ENV DENDRO_USER_GROUP dendro
+ENV HOME /home/dendro
+ENV NVM_DIR /home/dendro/.nvm
+
+ENV NODE_VERSION v8.10.0
+#####    END CONSTANTS    ######
+
+# Change shell to bash
+SHELL ["/bin/bash", "-c"]
+
+# Create dendro user
 RUN useradd -m "$DENDRO_USER"
 RUN usermod "$DENDRO_USER" -g "$DENDRO_USER_GROUP"
+USER "$DENDRO_USER"
+RUN mkdir -p "$NVM_DIR"
+USER root
 
-WORKDIR $HOME
-
-RUN apt-get update
+############################################
+FROM base AS dependencies
+############################################
 
 # Install preliminary dependencies
-RUN apt-get -y -f install unzip devscripts autoconf automake libtool flex bison gperf gawk m4 make libssl-dev imagemagick subversion zip wget curl --fix-missing
+RUN apt-get update
+RUN apt-get -y -f install unzip devscripts autoconf automake libtool flex bison gperf gawk m4 make libssl-dev imagemagick subversion zip wget curl git --fix-missing
+RUN apt-get install -y apt-utils --no-install-recommends
 
 # Install text extraction tools
 RUN apt-get -y -f install poppler-utils antiword unrtf tesseract-ocr
@@ -42,40 +55,59 @@ RUN \
 # Set Java Oracle SDK 8 as default Java
 RUN apt-get install oracle-java8-set-default
 
-# Create install dir
-RUN mkdir -p "$DENDRO_INSTALL_DIR" && chown "$DENDRO_USER:$DENDRO_USER_GROUP" "$DENDRO_INSTALL_DIR"
+# compatibility fix for node on ubuntu
+RUN ln -s /usr/bin/nodejs /usr/bin/node
 
-# Switch to dendro install dir
-WORKDIR "$DENDRO_INSTALL_DIR"
+# Switch to dendro user
+USER $DENDRO_USER
 
-# Switch to Dendro user
-USER "$DENDRO_USER"
+############################################
+FROM dependencies as nvm_installed
+############################################
 
-# install nvm
-RUN curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash
-RUN ls -la $HOME/.nvm
-RUN echo "Installing node..."
-RUN export NVM_DIR="$HOME/.nvm"
-RUN echo $NVM_DIR
+# Install NVM
+RUN curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash
+RUN . "$NVM_DIR/nvm.sh" \
+	&& nvm install $NODE_VERSION \
+	&& nvm use --delete-prefix $NODE_VERSION \
+	&& nvm alias default $NODE_VERSION
 
-# Install proper node version
-COPY ./.nvmrc "$DENDRO_INSTALL_DIR"
-RUN NODE_VERSION="$(cat $DENDRO_INSTALL_DIR/.nvmrc)" \
-	&& echo "Installing node version: $NODE_VERSION... " \
-	&& . $NVM_DIR/install.sh \
-	&& nvm \
-    && nvm install "$NODE_VERSION" \
-    && nvm alias default $NODE_VERSION \
-    && nvm use default
-RUN echo "loaded NVM and Node version $NODE_VERSION."
+ENV NODE_PATH $NVM_DIR/versions/node/$NODE_VERSION/lib/node_modules
+ENV PATH      $NVM_DIR/versions/node/$NODE_VERSION/bin:$PATH
 
-# update npm (force 5.6.0 because of write after end issue: https://github.com/npm/npm/issues/19989)
-RUN npm i -g npm@5.6.0
-RUN chown -R "$(whoami)" "$HOME/.nvm"
+############################################
+FROM nvm_installed as global_npms
+############################################
 
+# update npm (force 5.6.0 because of "write after end" issue: https://github.com/npm/npm/issues/19989)
 # Install bower, gulp, grunt
-RUN npm i -g grunt && npm install gulp-cli -g && npm install bower -g
+RUN npm i -g npm@5.6.0 \
+	&& npm i -g grunt@1.0.3 \
+	&& npm i -g gulp-cli@2.0.1 \
+	&& npm i -g bower@1.8.8
 
+############################################
+FROM global_npms as app_libs_installed
+############################################
+
+# Switch to root user
+USER root
+	
+# Create install dir
+RUN mkdir -p "$DENDRO_INSTALL_DIR"
+RUN chown -R "$DENDRO_USER:$DENDRO_USER_GROUP" "$DENDRO_INSTALL_DIR"
+
+# Create running dir
+RUN mkdir -p "$DENDRO_RUNNING_DIR"
+RUN chown -R "$DENDRO_USER:$DENDRO_USER_GROUP" "$DENDRO_RUNNING_DIR"
+
+#create temporary librarry directories as root
+RUN mkdir -p /tmp/public
+RUN chown -R "$DENDRO_USER:$DENDRO_USER_GROUP" /tmp/public
+
+# Switch to dendro install dir and dendro user
+USER $DENDRO_USER
+WORKDIR "$DENDRO_INSTALL_DIR"
 # Install node dependencies in /tmp to use the Docker cache
 # use changes to package.json to force Docker not to use the cache
 # when we change our application's nodejs dependencies:
@@ -86,24 +118,28 @@ RUN cd /tmp && npm install
 COPY public/bower.json /tmp/public/bower.json
 RUN cd /tmp/public && bower install
 
+############################################
+FROM app_libs_installed AS dendro_installed
+############################################
+
 # Clone dendro into install dir
 COPY --chown="dendro:dendro" . "$DENDRO_INSTALL_DIR"
 
 # Copy dendro startup script and make 'docker' the active deployment config
-COPY --chown="dendro:dendro" ./conf/scripts/docker/start_dendro_inside_docker.sh "$DENDRO_INSTALL_DIR/dendro.sh"
+COPY ./conf/scripts/docker/start_dendro_inside_docker.sh "$DENDRO_INSTALL_DIR/dendro.sh"
 RUN cp "$DENDRO_INSTALL_DIR/conf/docker_deployment_config.yml" "$DENDRO_INSTALL_DIR/conf/active_deployment_config.yml"
 
 # Set dendro execution script as executable
+USER root
 RUN chmod ugo+rx "$DENDRO_INSTALL_DIR/dendro.sh"
+USER "$DENDRO_USER"
 
 # Put compiled libraries in place
-RUN mv -a /tmp/node_modules $DENDRO_INSTALL_DIR
-RUN cp -a /tmp/public/bower_components $DENDRO_INSTALL_DIR
-
+RUN cp -R /tmp/node_modules $DENDRO_INSTALL_DIR
+RUN cp -R /tmp/public/bower_components $DENDRO_INSTALL_DIR
 
 # Run grunt
 RUN grunt
-
 
 # Expose dendro running directory as a volume
 VOLUME [ "$DENDRO_RUNNING_DIR"]
@@ -115,5 +151,8 @@ RUN echo "Contents of Dendro running dir: $(ls -la $DENDRO_RUNNING_DIR)"
 # What is the active deployment config?
 RUN echo "Contents of Dendro active configuration file: $(cat $DENDRO_INSTALL_DIR/conf/active_deployment_config.yml)"
 
+EXPOSE "$DENDRO_PORT"
+
 # Start Dendro
-CMD [ "/bin/bash", "$DENDRO_INSTALL_DIR/dendro.sh" ]
+CMD [ "/bin/bash", "/dendro/dendro_install/dendro.sh" ]
+
