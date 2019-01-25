@@ -2,7 +2,7 @@
 
 DENDRO_USER="dendro"
 DENDRO_USER_GROUP="dendro"
-INSTALL_DIR="/dendro/dendro_install"
+INSTALL_DIR="/tmp/dendro"
 RUNNING_DIR="/dendro/dendro"
 NODE_VERSION="$(cat $INSTALL_DIR/.nvmrc)"
 
@@ -53,13 +53,8 @@ echo "Dendro starting up at $RUNNING_DIR, installation dir $INSTALL_DIR and user
 # wait_for_server_to_boot_on_port $VIRTUOSO_HOST 1111
 # wait_for_server_to_boot_on_port $VIRTUOSO_HOST 8890
 
-chown -R "$DENDRO_USER" $INSTALL_DIR
-chown -R "$DENDRO_USER" $RUNNING_DIR
-
 echo "Contents of install dir.................."
 ls -la $INSTALL_DIR
-echo "Contents of running dir.................."
-ls -la $RUNNING_DIR
 
 if [[ -f $RUNNING_DIR ]]; then
 	  echo "Dendro running dir does not exist at $RUNNING_DIR, creating directory..."
@@ -74,6 +69,12 @@ else
    echo "Dendro running directory ($RUNNING_DIR) is not empty, assuming it is already installed."
    echo "Continuing startup..."
 fi
+
+echo "Contents of running dir.................."
+ls -la $RUNNING_DIR
+
+# chown entire directory to Dendro User
+chown -R "$DENDRO_USER:$DENDRO_USER_GROUP" "$RUNNING_DIR"
 
 # Switch to dendro user to start the app instead of using root
 su - "$DENDRO_USER"

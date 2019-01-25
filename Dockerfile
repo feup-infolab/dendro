@@ -1,10 +1,11 @@
-############################################
+###########################################
 FROM "ubuntu:18.04" as base
 ############################################
 
 ######    CONSTANTS    ######
 ENV DENDRO_GITHUB_URL https://github.com/feup-infolab/dendro.git
 ENV DENDRO_INSTALL_DIR /tmp/dendro
+ENV DENDRO_VOLUME /dendro
 ENV DENDRO_RUNNING_DIR /dendro/dendro
 ENV DENDRO_PORT 3001
 
@@ -92,14 +93,10 @@ FROM global_npms as app_libs_installed
 
 # Switch to root user
 USER root
-	
+
 # Create install dir
 RUN mkdir -p "$DENDRO_INSTALL_DIR"
 RUN chown -R "$DENDRO_USER:$DENDRO_USER_GROUP" "$DENDRO_INSTALL_DIR"
-
-# Create running dir
-RUN mkdir -p "$DENDRO_RUNNING_DIR"
-RUN chown -R "$DENDRO_USER:$DENDRO_USER_GROUP" "$DENDRO_RUNNING_DIR"
 
 #create temporary librarry directories as root
 RUN mkdir -p /tmp/public
@@ -107,7 +104,7 @@ RUN chown -R "$DENDRO_USER:$DENDRO_USER_GROUP" /tmp/public
 
 # Switch to dendro install dir and dendro user
 USER $DENDRO_USER
-WORKDIR "$DENDRO_INSTALL_DIR"
+WORKDIR $DENDRO_INSTALL_DIR
 # Install node dependencies in /tmp to use the Docker cache
 # use changes to package.json to force Docker not to use the cache
 # when we change our application's nodejs dependencies:
@@ -126,7 +123,7 @@ FROM app_libs_installed AS dendro_installed
 COPY --chown="dendro:dendro" . "$DENDRO_INSTALL_DIR"
 
 # Copy dendro startup script and make 'docker' the active deployment config
-COPY ./conf/scripts/docker/start_dendro_inside_docker.sh "$DENDRO_INSTALL_DIR/dendro.sh"
+COPY --chown="dendro:dendro" ./conf/scripts/docker/start_dendro_inside_docker.sh "$DENDRO_INSTALL_DIR/dendro.sh"
 RUN cp "$DENDRO_INSTALL_DIR/conf/docker_deployment_config.yml" "$DENDRO_INSTALL_DIR/conf/active_deployment_config.yml"
 
 # Set dendro execution script as executable
@@ -138,11 +135,8 @@ USER "$DENDRO_USER"
 RUN cp -R /tmp/node_modules $DENDRO_INSTALL_DIR
 RUN cp -R /tmp/public/bower_components $DENDRO_INSTALL_DIR
 
-# Run grunt
-RUN grunt
-
 # Expose dendro running directory as a volume
-VOLUME [ "$DENDRO_RUNNING_DIR"]
+VOLUME [ "$DENDRO_VOLUME"]
 
 # Show contents of folders
 RUN echo "Contents of Dendro install dir: $(ls -la $DENDRO_INSTALL_DIR)"
@@ -156,5 +150,4 @@ EXPOSE "$DENDRO_PORT"
 # Start Dendro
 
 USER "$DENDRO_USER"
-CMD [ "/bin/bash", "/dendro/dendro_install/dendro.sh" ]
-
+CMD [ "/bin/bash", "/tmp/dendro/dendro.sh" ]
