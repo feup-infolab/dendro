@@ -1440,7 +1440,7 @@ const loadRoutes = function (app, callback)
 
     // keywords
 
-    if(Config.keywords_extraction.active)
+    if (Config.keywords_extraction.active)
     {
         app.post("/keywords/processExtract",
             async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),

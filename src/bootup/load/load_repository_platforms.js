@@ -10,7 +10,6 @@ const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const repository_platform_configs_file_path = rlequire.absPathInApp("dendro", "conf/repository_platform_configs.json");
 const active_config_file_path = rlequire.absPathInApp("dendro", "conf/active_deployment_config.yml");
 
-
 const loadRepositoryPlatforms = function (app, callback)
 {
     const RepositoryPlatform = rlequire("dendro", "src/models/harvesting/repo_platform").RepositoryPlatform;

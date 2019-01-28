@@ -2,7 +2,7 @@ version: '3'
 
 services:
   elasticsearch:
-    container_name: elasticsearch-dendro-dev
+    container_name: elasticsearch-dendro
     image: docker.elastic.co/elasticsearch/elasticsearch:6.2.2
     ports:
       - "9200:9200"
@@ -18,7 +18,7 @@ services:
       - dendro
 
   virtuoso:
-    container_name: virtuoso-dendro-dev
+    container_name: virtuoso-dendro
     image: joaorosilva/virtuoso:7.2.4-for-dendro-0.4
     ports:
       - "8890:8890"
@@ -32,7 +32,7 @@ services:
       - dendro
 
   mariadb:
-    container_name: mariadb-dendro-dev
+    container_name: mariadb-dendro
     image: mariadb:5.5.62
     ports:
       - "3306:3306"
@@ -47,7 +47,7 @@ services:
       - dendro
 
   mongodb:
-    container_name: mongodb-dendro-dev
+    container_name: mongodb-dendro
     image: mongo:3.6.0
     ports:
       - 27017:27017
@@ -62,7 +62,7 @@ services:
 
   dendro:
     container_name: dendro
-    image: feupinfolab/dendro:latest
+    image: feupinfolab/dendro:dendrokeywords
     ports:
       - "3001:3001"
     depends_on:

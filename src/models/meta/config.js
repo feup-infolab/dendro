@@ -35,17 +35,17 @@ else
     }
     else
     {
-      if (!fs.existsSync(configSelectorFilePath))
-      {
-          const msg = "Configuration file " + configSelectorFilePath + " does not exist!";
-          Logger.log("error", msg);
-          throw new Error(msg);
-      }
-      else
-      {
-        activeConfigKey = req(configSelectorFilePath).key;
-        Logger.log("debug", "Configuration file exists at " + configSelectorFilePath + " and the configuration key inside is " + activeConfigKey);
-      }
+        if (!fs.existsSync(configSelectorFilePath))
+        {
+            const msg = "Configuration file " + configSelectorFilePath + " does not exist!";
+            Logger.log("error", msg);
+            throw new Error(msg);
+        }
+        else
+        {
+            activeConfigKey = req(configSelectorFilePath).key;
+            Logger.log("debug", "Configuration file exists at " + configSelectorFilePath + " and the configuration key inside is " + activeConfigKey);
+        }
     }
 }
 

@@ -2,7 +2,7 @@ version: '3'
 
 services:
   corenlp:
-    container_name: corenlp-dendro-dev
+    container_name: corenlp-dendro
     image: graham3333/corenlp-complete
     environment:
       - JAVA_XMX=3g
@@ -10,5 +10,5 @@ services:
       - 9000:9000
 
   yake:
-    container_name: yake-dendro-dev
+    container_name: yake-dendro
     image: feupinfolab/yake:latest
