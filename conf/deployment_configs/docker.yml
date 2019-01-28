@@ -85,7 +85,7 @@ docker:
       cache_period_in_seconds: 3600
   virtuosoHost: virtuoso-dendro
   virtuosoPort: '8890'
-  virtuosoISQLPort: '1112'
+  virtuosoISQLPort: '1111'
   virtuosoConnector: jdbc
   virtuosoAuth:
     user: dba
