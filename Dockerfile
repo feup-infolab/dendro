@@ -110,9 +110,8 @@ FROM app_libs_installed AS dendro_installed
 # Clone dendro into install dir
 COPY . "$DENDRO_INSTALL_DIR"
 
-# Copy dendro startup script and make 'docker' the active deployment config
+# Copy dendro startup script
 COPY ./conf/scripts/docker/start_dendro_inside_docker.sh "$DENDRO_INSTALL_DIR/dendro.sh"
-RUN cp "$DENDRO_INSTALL_DIR/conf/docker_deployment_config.yml" "$DENDRO_INSTALL_DIR/conf/active_deployment_config.yml"
 
 # Set dendro execution script as executable
 RUN chmod ugo+rx "$DENDRO_INSTALL_DIR/dendro.sh"
