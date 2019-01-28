@@ -44,12 +44,12 @@ function wait_for_server_to_boot_on_port()
     fi
 }
 
-#wait for all servers to boot up before starting dendro
-wait_for_server_to_boot_on_port "$ELASTICSEARCH_HOST" 9200
-wait_for_server_to_boot_on_port "$MONGO_HOST" 27017
-wait_for_server_to_boot_on_port "$MARIADB_HOST" 3306
-wait_for_server_to_boot_on_port "$VIRTUOSO_HOST" 1111
-wait_for_server_to_boot_on_port "$VIRTUOSO_HOST" 8890
+# #wait for all servers to boot up before starting dendro
+# wait_for_server_to_boot_on_port "$ELASTICSEARCH_HOST" 9200
+# wait_for_server_to_boot_on_port "$MONGO_HOST" 27017
+# wait_for_server_to_boot_on_port "$MARIADB_HOST" 3306
+# wait_for_server_to_boot_on_port "$VIRTUOSO_HOST" 1111
+# wait_for_server_to_boot_on_port "$VIRTUOSO_HOST" 8890
 
 
 # Switch to dendro user to start the app instead of using root
@@ -77,7 +77,7 @@ else
    	echo "Continuing startup..."
 fi
 
-# Change ownership 
+# Change ownership
 echo "Contents of running dir $RUNNING_DIR"
 ls -la $VOLUME_DIR
 

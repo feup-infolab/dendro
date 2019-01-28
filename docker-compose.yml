@@ -62,7 +62,7 @@ services:
 
   dendro:
     container_name: dendro
-    image: feupinfolab/dendro:dendrokeywords
+    image: feupinfolab/dendro:latest
     ports:
       - 3001:3001
     depends_on:
