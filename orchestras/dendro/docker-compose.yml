@@ -5,8 +5,8 @@ services:
     container_name: elasticsearch-dendro-dev
     image: docker.elastic.co/elasticsearch/elasticsearch:6.2.2
     ports:
-      - "9201:9200"
-      - "9301:9300"
+      - 9201:9200
+      - 9301:9300
     environment:
       - "discovery.type=single-node"
       - "http.host=0.0.0.0"
@@ -21,8 +21,8 @@ services:
     container_name: virtuoso-dendro-dev
     image: joaorosilva/virtuoso:7.2.4-for-dendro-0.4
     ports:
-      - "8891:8890"
-      - "1112:1111"
+      - 8891:8890
+      - 1112:1111
     environment:
       - "SPARQL_UPDATE=true"
       - "VIRT_Parameters_CheckpointSyncMode=2"
@@ -35,7 +35,7 @@ services:
     container_name: mariadb-dendro-dev
     image: mariadb:5.5.62
     ports:
-      - "3307:3306"
+      - 3307:3306
     environment:
       - "MYSQL_ROOT_PASSWORD=r00t_p4ssw0rd"
       - "MYSQL_DATABASE=dendro_data"
