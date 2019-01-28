@@ -824,9 +824,11 @@ DbConnection.prototype.create = function (callback)
         };*/
 
         const timeoutSecs = 10;
+        const connectionString = `jdbc:virtuoso://${self.host}:${self.port_isql}/UID=${self.username}/PWD=${self.password}/PWDTYPE=cleartext/CHARSET=UTF-8/TIMEOUT=${timeoutSecs}`;
+
         const config = {
             // Required
-            url: `jdbc:virtuoso://${self.host}:${self.port_isql}/UID=${self.username}/PWD=${self.password}/PWDTYPE=cleartext/CHARSET=UTF-8/TIMEOUT=${timeoutSecs}`,
+            url: connectionString,
             drivername: "virtuoso.jdbc4.Driver",
             maxpoolsize: self.maxSimultaneousConnections,
             minpoolsize: Math.ceil(self.maxSimultaneousConnections / 2),
@@ -842,7 +844,7 @@ DbConnection.prototype.create = function (callback)
             if (err)
             {
                 // Logger.log("error", "Error initializing Virtuoso connection pool: " + JSON.stringify(err));
-                Logger.log("error", "Error initializing Virtuoso connection pool: " + err.message);
+                Logger.log("error", `Error initializing Virtuoso connection pool using connection string ${connectionString} :  ${err.message}`);
                 Logger.log("error", "Stack of error initializing Virtuoso connection pool: " + err.stack);
                 callback(err, result);
             }
