@@ -8,11 +8,6 @@ NODE_VERSION="$(cat $INSTALL_DIR/.nvmrc)"
 # Switch to dendro user to start the app instead of using root
 HOME="/root"
 
-ELASTICSEARCH_HOST="elasticsearch-dendro-dev"
-MONGO_HOST="mongodb-dendro-dev"
-MARIADB_HOST="mariadb-dendro-dev"
-VIRTUOSO_HOST="virtuoso-dendro-dev"
-
 echo "Dendro starting up at $RUNNING_DIR, installation dir $INSTALL_DIR and user $(whoami)"
 
 echo "Contents of install dir.................."
