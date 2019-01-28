@@ -842,7 +842,8 @@ DbConnection.prototype.create = function (callback)
             if (err)
             {
                 // Logger.log("error", "Error initializing Virtuoso connection pool: " + JSON.stringify(err));
-                Logger.log("error", "Error initializing Virtuoso connection pool: " + JSON.stringify(err) + " RESULT: " + JSON.stringify(result));
+                Logger.log("error", "Error initializing Virtuoso connection pool: " + err.message);
+                Logger.log("error", "Stack of error initializing Virtuoso connection pool: " + err.stack);
                 callback(err, result);
             }
             else
@@ -1016,8 +1017,8 @@ DbConnection.prototype.create = function (callback)
     };
 
     async.series([
-        checkDatabaseConnectionViaHttp,
         checkDatabaseConnectionViaJDBC,
+        checkDatabaseConnectionViaHttp,
         setupQueryQueues
     ], function (err)
     {
