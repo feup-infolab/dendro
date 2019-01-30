@@ -97,10 +97,17 @@ class App
 
             Logger.log("error", msg);
 
-            process.nextTick(function ()
+            if(process.env !== "test")
             {
-                process.exit(1);
-            });
+                process.nextTick(function ()
+                {
+                    process.exit(1);
+                });
+            }
+            else
+            {
+                throw exception;
+            }
         });
 
         process.on("exit", function (code)
