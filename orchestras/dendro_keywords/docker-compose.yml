@@ -11,4 +11,6 @@ services:
 
   yake:
     container_name: yake-dendro
-    image: feupinfolab/yake:latest
+    image: feupinfolab/yake-server:latest
+    ports:
+      - 5000:5000

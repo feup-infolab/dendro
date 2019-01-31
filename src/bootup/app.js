@@ -97,7 +97,7 @@ class App
 
             Logger.log("error", msg);
 
-            if(process.env !== "test")
+            if (process.env !== "test")
             {
                 process.nextTick(function ()
                 {

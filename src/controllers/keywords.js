@@ -304,10 +304,10 @@ module.exports.termExtraction = function (req, res)
             "Content-Type": "application/x-www-form-urlencoded",
             Accept: "application/json"
         };
-        let dataString = "content=" + lookup;
+        let dataString = "text=" + lookup;
 
         let options = {
-            url: "https://boiling-castle-88317.herokuapp.com/yake/v2/extract_keywords?max_ngram_size=3&number_of_keywords=30",
+            url: "https://127.0.0.1:5000/yake/extract_keywords?max_ngram_size=3&number_of_keywords=30",
             method: "POST",
             headers: headers,
             body: dataString

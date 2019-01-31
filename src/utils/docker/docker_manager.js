@@ -178,7 +178,7 @@ DockerManager.restoreCheckpoint = function (checkpointName, callback)
     }
 };
 
-DockerManager.nukeAndRebuild = function (onlyOnce)
+DockerManager.nukeAndRebuild = function (onlyOnce, callback)
 {
     if (Config.docker && Config.docker.active)
     {
@@ -186,35 +186,43 @@ DockerManager.nukeAndRebuild = function (onlyOnce)
         {
             Logger.log("Rebuilding all Docker containers.");
 
-            if (process.env.NODE_ENV === "test")
+            DockerManager.destroyAllOrchestras(function (err, result)
             {
-                childProcess.execSync(`/bin/bash -c "${nukeAndRebuildScript}"`, {
-                    cwd: rlequire.getRootFolder("dendro"),
-                    stdio: [0, 1, 2]
-                });
-            }
-            else
-            {
-                childProcess.execSync(`docker-compose rm -s"`, {
-                    cwd: rlequire.getRootFolder("dendro"),
-                    stdio: [0, 1, 2]
-                });
-            }
+                if (process.env.NODE_ENV === "test")
+                {
+                    childProcess.execSync(`/bin/bash -c "${nukeAndRebuildScript}"`, {
+                        cwd: rlequire.getRootFolder("dendro"),
+                        stdio: [0, 1, 2]
+                    });
+                }
+                else
+                {
+                    childProcess.execSync(`docker-compose rm -s"`, {
+                        cwd: rlequire.getRootFolder("dendro"),
+                        stdio: [0, 1, 2]
+                    });
+                }
 
-            Logger.log("Nuked and rebuilt all containers.");
+                Logger.log("Nuked and rebuilt all containers.");
+                callback(null);
+            });
         };
 
         if (onlyOnce)
         {
             if (!DockerManager._nukedOnce)
             {
-                performOperation();
+                performOperation(callback);
                 DockerManager._nukedOnce = true;
+            }
+            else
+            {
+                callback(null);
             }
         }
         else
         {
-            performOperation();
+            performOperation(callback);
         }
     }
 };
@@ -247,6 +255,63 @@ DockerManager.restartContainers = function (onlyOnce)
             performOperation();
         }
         Logger.log("Restarted all containers.");
+    }
+};
+
+DockerManager.forAllOrchestrasDo = function (lambda, callback)
+{
+    const dir = require("node-dir");
+    const orchestrasDir = path.resolve(rlequire.getRootFolder("dendro"), "orchestras");
+    dir.files(
+        orchestrasDir,
+        "dir",
+        function (err, subdirs)
+        {
+            async.map(subdirs, function (subdir, callback)
+            {
+                lambda(subdir, callback);
+            }, callback);
+        },
+        {
+            recursive: false
+        });
+};
+
+DockerManager.destroyAllOrchestras = function (callback)
+{
+    DockerManager.forAllOrchestrasDo(function (subdir)
+    {
+        const dockerSubProcess = childProcess.exec("docker-compose down", {
+            cwd: subdir
+        }, function (err, result)
+        {
+            callback(err, result);
+        });
+
+        logEverythingFromChildProcess(dockerSubProcess);
+    });
+};
+
+DockerManager.fetchAllOrchestras = function (callback, onlyOnce)
+{
+    if (!onlyOnce || onlyOnce && isNull(DockerManager.__fetchedAllImages))
+    {
+        DockerManager.forAllOrchestrasDo(function (subdir)
+        {
+            const dockerSubProcess = childProcess.exec("docker-compose pull", {
+                cwd: subdir
+            }, function (err, result)
+            {
+                DockerManager.__fetchedAllImages = true;
+                callback(err, result);
+            });
+
+            logEverythingFromChildProcess(dockerSubProcess);
+        });
+    }
+    else
+    {
+        callback();
     }
 };
 
