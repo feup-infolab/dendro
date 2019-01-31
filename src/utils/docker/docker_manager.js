@@ -186,39 +186,31 @@ DockerManager.nukeAndRebuild = function (onlyOnce, callback)
         {
             Logger.log("Rebuilding all Docker containers.");
 
-            DockerManager.destroyAllOrchestras(function (err, result)
+            if (process.env.NODE_ENV === "test")
             {
-                if (process.env.NODE_ENV === "test")
-                {
-                    childProcess.execSync(`/bin/bash -c "${nukeAndRebuildScript}"`, {
-                        cwd: rlequire.getRootFolder("dendro"),
-                        stdio: [0, 1, 2]
-                    });
-                }
-                else
-                {
-                    childProcess.execSync(`docker-compose rm -s"`, {
-                        cwd: rlequire.getRootFolder("dendro"),
-                        stdio: [0, 1, 2]
-                    });
-                }
-
-                Logger.log("Nuked and rebuilt all containers.");
-                callback(null);
-            });
+                childProcess.execSync(`/bin/bash -c "${nukeAndRebuildScript}"`, {
+                    cwd: rlequire.getRootFolder("dendro"),
+                    stdio: [0, 1, 2]
+                });
+            }
+            else
+            {
+                childProcess.execSync(`docker-compose rm -s"`, {
+                    cwd: rlequire.getRootFolder("dendro"),
+                    stdio: [0, 1, 2]
+                });
+            }
         };
 
         if (onlyOnce)
         {
             if (!DockerManager._nukedOnce)
             {
-                performOperation(callback);
+                performOperation();
                 DockerManager._nukedOnce = true;
             }
-            else
-            {
-                callback(null);
-            }
+
+            callback(null);
         }
         else
         {

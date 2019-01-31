@@ -11,6 +11,9 @@ class Job
     // STATIC METHODS
     static initDependencies (callback)
     {
+        Job._jobTypes = [];
+        Job._agenda = null;
+        Job._jobsStorageClient = null;
         const initAgenda = function (callback)
         {
             const jobsFolder = rlequire.absPathInApp("dendro", "src/models/jobs/subtypes");
