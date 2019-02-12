@@ -709,7 +709,8 @@ exports.setup = function (targetUnit, callback, forceLoad)
             }
             else
             {
-                fetchAllImages(function () {
+                fetchAllImages(function ()
+                {
                     callback(null, null);
                 });
             }

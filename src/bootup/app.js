@@ -84,6 +84,11 @@ class App
             });
         });
 
+        process.on("unhandledRejection", up =>
+        {
+            throw up;
+        });
+
         process.on("uncaughtException", function (exception)
         {
             let msg = "Critical error occurred!";
