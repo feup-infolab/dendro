@@ -88,18 +88,79 @@ angular.module("dendroApp.controllers", [])
                 list: true,
                 label: "Order By",
                 key: "order",
-                selected: "Date",
+                selected: "Date ascending",
                 value: [
                     {
-                        name: "Date"
+                        name: "Date ascending"
                     },
                     {
-                        name: "Username"
+                        name: "Date descending"
                     },
                     {
-                        name: "Project"
+                        name: "Username ascending"
+                    },
+                    {
+                        name: "Username descending"
+                    },
+                    {
+                        name: "Project ascending"
+                    },
+                    {
+                        name: "Project descending"
                     }
                 ]
+            },
+            keywords: {
+                type: "dropdown",
+                list: true,
+                label: "Keywords",
+                key: "keywords",
+                selected: "Any of",
+                value: [
+                    {
+                        name: "Any off"
+                    },
+                    {
+                        name: "All off"
+                    }
+                ]
+            },
+            keyword: {
+                type: "text",
+                key: "keyWord",
+                value: ""
+            },
+            popularTag: {
+                type: "dropdown",
+                list: true,
+                label: "Popular tags",
+                key: "popularTags",
+                selected: "Any of",
+                value: [
+                    {
+                        name: "Any off"
+                    },
+                    {
+                        name: "All off"
+                    }
+                ]
+            },
+            tag: {
+                type: "text",
+                key: "tag",
+                value: ""
+            },
+            persistentPid: {
+                type: "text",
+                label: "Persistent PID",
+                key: "persistentPid",
+                value: ""
+            },
+            descriptionText: {
+                type: "text",
+                label: "Description text",
+                key: "descriptionText",
+                value: ""
             }
         };
 
