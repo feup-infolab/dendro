@@ -86,21 +86,25 @@ class App
 
         process.on("unhandledRejection", up =>
         {
+            Logger.log("error", "Unhandled rejection detected.");
+            Logger.log("error", up.message);
+            Logger.log("error", up.stack);
             throw up;
         });
 
         process.on("uncaughtException", function (exception)
         {
-            let msg = "Critical error occurred!";
+            Logger.log("error", "Critical error occurred. Dendro will have to shut down!");
 
-            msg += "\n" + JSON.stringify(exception);
+            if (!isNull(exception.message))
+            {
+                Logger.log("error", exception.message);
+            }
 
             if (!isNull(exception.stack))
             {
-                msg += "\n" + exception.stack;
+                Logger.log("error", exception.stack);
             }
-
-            Logger.log("error", msg);
 
             if (process.env !== "test")
             {
@@ -108,10 +112,6 @@ class App
                 {
                     process.exit(1);
                 });
-            }
-            else
-            {
-                throw exception;
             }
         });
 
@@ -129,6 +129,7 @@ class App
                 {
                     Logger.log("error", `Dendro exited because of an error. Check the logs at the ${path.join(__dirname, "logs")} folder`);
                 }
+
                 process.exit(code);
             });
         });

@@ -122,13 +122,11 @@ const buildMySQLDatabase = function (app, callback)
                 return callback(err);
             });
         }
-        else
-        {
-            Logger.log("error", "Error occurred when running MySQL migrations on startup.");
-            Logger.log("error", err);
-            Logger.log("error", result);
-            callback(err);
-        }
+
+        Logger.log("error", "Error occurred when running MySQL migrations on startup.");
+        Logger.log("error", err);
+        Logger.log("error", result);
+        callback(err);
     });
 };
 

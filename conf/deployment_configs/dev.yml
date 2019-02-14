@@ -115,7 +115,7 @@ dev:
   mySQLDBName: dendro_data
   maxUploadSize: 1073741824
   maxProjectSize: 5368709120
-  maxSimultaneousConnectionsToDb: 20
+  maxSimultaneousConnectionsToDb: 1
   dbOperationTimeout: 16000
   tempFilesDir: temp
   tempUploadsDir: temp_uploads

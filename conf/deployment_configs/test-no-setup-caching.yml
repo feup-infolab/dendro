@@ -115,7 +115,7 @@ test-no-setup-caching:
   mySQLDBName: dendroVagrantDemo_tests
   maxUploadSize: 2147483648
   maxProjectSize: 5368709120
-  maxSimultaneousConnectionsToDb: 20
+  maxSimultaneousConnectionsToDb: 1
   dbOperationTimeout: 16000
   tempFilesDir: temp
   tempUploadsDir: temp_uploads

@@ -831,7 +831,7 @@ DbConnection.prototype.create = function (callback)
             url: connectionString,
             drivername: "virtuoso.jdbc4.Driver",
             maxpoolsize: self.maxSimultaneousConnections,
-            minpoolsize: Math.ceil(self.maxSimultaneousConnections / 2),
+            minpoolsize: 1,
             // 600 seconds idle time (should be handled by the TIMEOUT setting, but we specify this to kill any dangling connections...
             maxidle: 1000 * timeoutSecs * 10,
             properties: {}

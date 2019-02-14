@@ -94,7 +94,7 @@ test:
   mongoDBHost: 127.0.0.1
   mongoDbPort: '27017'
   mongoDbCollectionName: 127_0_0_1_3001_files
-  useMongoDBSessionStore: true
+  useMongoDBSessionStore: false
   mongoDBSessionStoreCollection: 127_0_0_1_3001_sessions
   mongoDbVersion: ''
   mongoDBAuth:
@@ -115,7 +115,7 @@ test:
   mySQLDBName: dendroVagrantDemo_tests
   maxUploadSize: 2147483648
   maxProjectSize: 5368709120
-  maxSimultaneousConnectionsToDb: 20
+  maxSimultaneousConnectionsToDb: 2
   dbOperationTimeout: 16000
   tempFilesDir: temp
   tempUploadsDir: temp_uploads
@@ -182,9 +182,9 @@ test:
       log_missing_resources: false
     permissions:
       enable_permissions_system: true
-      log_authorizations: false
-      log_denials: false
-      log_requests_and_permissions: false
+      log_authorizations: true
+      log_denials: true
+      log_requests_and_permissions: true
     users:
       log_fetch_by_username: false
     descriptors:
@@ -320,7 +320,7 @@ test:
     active: true
     reuse_checkpoints: true
     create_checkpoints: true
-    destroy_existing_images_at_start: true
+    destroy_existing_images_at_start: false
     start_and_stop_containers_automatically: false
   virtualbox:
     active: false
