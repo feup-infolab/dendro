@@ -47,6 +47,7 @@ describe("/search", function ()
             done(err);
         });
     });
+
     describe("Generic search inside public projects", function ()
     {
         /**
@@ -394,6 +395,17 @@ describe("/search", function ()
                     });
                 });
             });
+        });
+    });
+
+    after(function (done)
+    {
+        // destroy graphs
+
+        appUtils.clearAppState(function (err, data)
+        {
+            should.equal(err, null);
+            done(err);
         });
     });
 });
