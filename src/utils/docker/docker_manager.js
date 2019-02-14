@@ -259,9 +259,9 @@ DockerManager.forAllOrchestrasDo = function (lambda, callback)
         "dir",
         function (err, subdirs)
         {
-            async.map(subdirs, function (subdir, callback)
+            async.map(subdirs, function (subdir, singleLambdaCallback)
             {
-                lambda(subdir, callback);
+                lambda(subdir, singleLambdaCallback);
             }, callback);
         },
         {
@@ -271,7 +271,7 @@ DockerManager.forAllOrchestrasDo = function (lambda, callback)
 
 DockerManager.destroyAllOrchestras = function (callback)
 {
-    DockerManager.forAllOrchestrasDo(function (subdir)
+    DockerManager.forAllOrchestrasDo(function (subdir, callback)
     {
         const dockerSubProcess = childProcess.exec("docker-compose down", {
             cwd: subdir
@@ -281,25 +281,21 @@ DockerManager.destroyAllOrchestras = function (callback)
         });
 
         logEverythingFromChildProcess(dockerSubProcess);
-    });
+    }, callback);
 };
 
 DockerManager.fetchAllOrchestras = function (callback, onlyOnce)
 {
     if (!onlyOnce || onlyOnce && isNull(DockerManager.__fetchedAllImages))
     {
-        DockerManager.forAllOrchestrasDo(function (subdir)
+        DockerManager.forAllOrchestrasDo(function (subdir, callback)
         {
             const dockerSubProcess = childProcess.exec("docker-compose pull", {
                 cwd: subdir
-            }, function (err, result)
-            {
-                DockerManager.__fetchedAllImages = true;
-                callback(err, result);
-            });
+            }, callback);
 
             logEverythingFromChildProcess(dockerSubProcess);
-        });
+        }, callback);
     }
     else
     {

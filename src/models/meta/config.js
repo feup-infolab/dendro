@@ -31,7 +31,8 @@ else
     if (process.env.NODE_ENV === "test")
     {
         activeConfigKey = "test";
-        Logger.log("Running in test environment detected");
+        Logger.log("Running in test environment detected.");
+        Logger.log("debug", "Deployment configuration overriden by test environment. Configuration is " + activeConfigKey + ".");
     }
     else
     {

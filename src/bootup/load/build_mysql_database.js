@@ -104,7 +104,7 @@ const buildMySQLDatabase = function (app, callback)
                 operatorsAliases: false
             });
 
-            var umzug = new Umzug({
+            const umzug = new Umzug({
                 storage: "sequelize",
                 storageOptions: { sequelize: sequelize },
                 migrations: {
@@ -122,11 +122,13 @@ const buildMySQLDatabase = function (app, callback)
                 return callback(err);
             });
         }
-
-        Logger.log("error", "Error occurred when running MySQL migrations on startup.");
-        Logger.log("error", err);
-        Logger.log("error", result);
-        callback(err);
+        else
+        {
+            Logger.log("error", "Error occurred when running MySQL migrations on startup.");
+            Logger.log("error", err);
+            Logger.log("error", result);
+            callback(err);
+        }
     });
 };
 

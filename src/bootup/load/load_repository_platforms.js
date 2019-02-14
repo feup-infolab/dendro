@@ -90,9 +90,12 @@ const loadRepositoryPlatforms = function (app, callback)
                 if (isNull(err))
                 {
                     Logger.log_boot_message("Repository platforms information successfully loaded from database.");
-                    return callback(null);
+                    callback(null);
                 }
-                return callback(true, "[ERROR] Unable to load repository platforms: " + JSON.stringify(results));
+                else
+                {
+                    callback(true, "[ERROR] Unable to load repository platforms: " + JSON.stringify(results));
+                }
             });
         }
         else
