@@ -56,20 +56,17 @@ const getParentConstructor = function (parentClass)
 
 Class.extend = function (childClass, parentClass, rdfTypeForSavingInDatabase)
 {
+    let prefixedRDFTypes = Class.getAllPrefixedRDFTypes(parentClass);
+
     if (rdfTypeForSavingInDatabase)
     {
-        if (isNull(parentClass.prefixedRDFType))
+        if(prefixedRDFTypes.length === 0)
         {
             childClass.prefixedRDFType = rdfTypeForSavingInDatabase;
         }
-        else if (parentClass.prefixedRDFType instanceof Array)
+        else
         {
-            childClass.prefixedRDFType = [rdfTypeForSavingInDatabase];
-            childClass.prefixedRDFType = parentClass.prefixedRDFType.concat(childClass.prefixedRDFType);
-        }
-        else if (typeof parentClass.prefixedRDFType === "string")
-        {
-            childClass.prefixedRDFType = [parentClass.prefixedRDFType, rdfTypeForSavingInDatabase];
+            childClass.prefixedRDFType = prefixedRDFTypes.concat([rdfTypeForSavingInDatabase]);
         }
     }
 
@@ -81,5 +78,23 @@ Class.extend = function (childClass, parentClass, rdfTypeForSavingInDatabase)
 
     return childClassWithFamilyTreePrototypes;
 };
+
+Class.getAllPrefixedRDFTypes = function(prototype)
+{
+    let parent = prototype;
+    let prefixedRDFTypes = [];
+
+    while (parent !== null && typeof parent !== "undefined" && parent !== Class)
+    {
+        if(parent.leafClass)
+        {
+            prefixedRDFTypes.push(parent.leafClass);
+        }
+
+        parent = parent.baseConstructor;
+    }
+
+    return prefixedRDFTypes.sort();
+}
 
 module.exports.Class = Class;

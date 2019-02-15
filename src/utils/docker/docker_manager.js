@@ -295,8 +295,8 @@ DockerManager.fetchAllOrchestras = function (callback, onlyOnce)
             }, callback);
 
             logEverythingFromChildProcess(dockerSubProcess);
-
-        }, function(){
+        }, function ()
+        {
             DockerManager.__fetchedAllImages = true;
             callback();
         });

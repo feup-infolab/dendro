@@ -32,6 +32,15 @@ dev:
     password: 34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi
   cache:
     active: true
+    nedb:
+      active: true
+      instances:
+        default:
+          id: default
+        social:
+          id: social
+        notifications:
+          id: notifications
     redis:
       active: false
       instances:
@@ -51,7 +60,7 @@ dev:
           id: notifications
           database_number: 1
     mongodb:
-      active: true
+      active: false
       instances:
         default:
           database: '127_0_0_1_3001'
@@ -215,7 +224,7 @@ dev:
     load_databases: true
     reload_administrators_on_startup: true
     reload_demo_users_on_startup: true
-    reload_ontologies_on_startup: false
+    reload_ontologies_on_startup: true
     clear_session_store: true
     log_bootup_actions: true
     destroy_all_graphs: false

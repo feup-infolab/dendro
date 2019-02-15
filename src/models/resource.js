@@ -2067,29 +2067,30 @@ Resource.findByUri = function (uri, callback, allowedGraphsArray, customGraphUri
 
     const getFromCache = function (uri, callback)
     {
-        let typesArray;
-        if (self.prefixedRDFType instanceof Array)
+        const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+        let typesArray = Descriptor.convertToFullUris(Class.getAllPrefixedRDFTypes(self));
+        if (!typesArray instanceof Array)
         {
-            typesArray = self.prefixedRDFType;
+            typesArray = [typesArray];
         }
-        else
+
+        let queryObject = {
+            $and: [
+                { uri: uri }
+            ]
+        };
+
+        if (typesArray.length > 0)
         {
-            typesArray = [self.prefixedRDFType];
+            queryObject.$and.push(
+                {
+                    "rdf.type": typesArray
+                }
+            );
         }
 
         Cache.getByGraphUri(customGraphUri).getByQuery(
-            {
-                $and: [
-                    { uri: uri },
-                    {
-                        rdf: {
-                            type: {
-                                $all: typesArray
-                            }
-                        }
-                    }
-                ]
-            },
+            queryObject,
             function (err, result)
             {
                 if (isNull(err))
@@ -2278,33 +2279,30 @@ Resource.findByPropertyValue = function (
 
     const getFromCache = function (callback)
     {
-        let typesArray;
-        if (self.prefixedRDFType instanceof Array)
+        const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+        let typesArray = Descriptor.convertToFullUris(Class.getAllPrefixedRDFTypes(self));
+        if (!typesArray instanceof Array)
         {
-            typesArray = self.prefixedRDFType;
-        }
-        else
-        {
-            typesArray = [self.prefixedRDFType];
+            typesArray = [typesArray];
         }
 
         let queryObject = {
-            $and: [
-                {
-                    rdf: {
-                        type: {
-                            $all: typesArray
-                        }
-                    }
-                }
-            ]
+            $and: []
         };
+
+        if (typesArray.length > 0)
+        {
+            queryObject.$and.push(
+                {
+                    "rdf.type": typesArray
+                }
+            );
+        }
 
         const getValueRestriction = function (descriptor)
         {
             let valueRestriction = {};
-            valueRestriction[descriptor.prefix] = {};
-            valueRestriction[descriptor.prefix][descriptor.shortName] = descriptor.value;
+            valueRestriction[`${descriptor.prefix}.${descriptor.shortName}`] = descriptor.value;
             return valueRestriction;
         };
 
@@ -3569,7 +3567,7 @@ Resource.deleteAll = function (callback, customGraphUri)
 
     query = query + "} \n";
 
-    Cache.getByGraphUri(graphUri).deleteAlByType(self.prefixedRDFType, function (err, result)
+    Cache.getByGraphUri(graphUri).deleteAllByType(self.prefixedRDFType, function (err, result)
     {
         if (isNull(err))
         {
@@ -3742,12 +3740,12 @@ Resource.prototype.deleteAllOfMyTypeAndTheirOutgoingTriples = function (callback
     const self = this;
     const type = self.rdf.type;
 
-    self.uri = object.uri;
     self.prefix = self.getNamespacePrefix();
     self.ontology = self.getOwnerOntologyUri();
     self.shortName = self.getShortName();
     self.prefixedForm = self.getPrefixedForm();
 
+    const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
     const typeDescriptor = new Descriptor(
         {
             prefixedForm: "rdf:type",
@@ -3758,22 +3756,12 @@ Resource.prototype.deleteAllOfMyTypeAndTheirOutgoingTriples = function (callback
     Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples(typeDescriptor, callback, customGraphUri);
 };
 
-Resource.prototype.addURIAndRDFType = function (object, resourceTypeSection, classPrototype)
+Resource.prototype.addURI = function (object, resourceTypeSection)
 {
     const self = this;
     if (isNull(object))
     {
         object = {};
-    }
-
-    if (isNull(self.rdf))
-    {
-        self.rdf = {};
-    }
-
-    if (isNull(self.rdf.type))
-    {
-        self.rdf.type = classPrototype.prefixedRDFType;
     }
 
     if (isNull(object) || isNull(object.uri))
@@ -3791,7 +3779,48 @@ Resource.prototype.addURIAndRDFType = function (object, resourceTypeSection, cla
             self.uri = object.uri;
         }
     }
+};
 
+Resource.getRDFTypesURIs = function (classPrototype)
+{
+    const self = this;
+
+    if (isNull(classPrototype))
+    {
+        classPrototype = self;
+    }
+
+    const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+    return Descriptor.convertToFullUris(classPrototype.prefixedRDFType);
+};
+
+Resource.prototype.addRDFType = function (classPrototype)
+{
+    const self = this;
+
+    if (isNull(classPrototype))
+    {
+        classPrototype = self.prototype;
+    }
+
+    if (isNull(self.rdf))
+    {
+        self.rdf = {};
+    }
+
+    if (isNull(self.rdf.type))
+    {
+        self.rdf.type = classPrototype.getRDFTypesURIs(classPrototype);
+    }
+
+    return self;
+};
+
+Resource.prototype.addURIAndRDFType = function (object, resourceTypeSection, classPrototype)
+{
+    const self = this;
+    self.addURI(object, resourceTypeSection);
+    self.addRDFType(classPrototype);
     return self;
 };
 
@@ -4029,7 +4058,7 @@ Resource.prototype.refreshHumanReadableUri = function (callback, customGraphUri)
             }
             else
             {
-                callback(1, "Unable to determine new human readable uri for resource " + newResource.uri);
+                callback(1, "Unable to determine new human readable uri for resource " + self.uri);
             }
         }
     );

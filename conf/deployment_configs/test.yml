@@ -32,6 +32,15 @@ test:
     password: ''
   cache:
     active: true
+    nedb:
+      active: true
+      instances:
+        default:
+          id: default
+        social:
+          id: social
+        notifications:
+          id: notifications
     redis:
       active: false
       instances:
@@ -51,7 +60,7 @@ test:
           id: notifications
           database_number: 1
     mongodb:
-      active: true
+      active: false
       instances:
         default:
           database: '127_0_0_1_3002'

@@ -16,6 +16,10 @@ const isNull = require("../../utils/null.js").isNull;
 const Elements = require("./elements.js").Elements;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
+const RedisCache = rlequire("dendro", "src/kb/cache/caches/redis.js").RedisCache;
+const MongoDBCache = rlequire("dendro", "src/kb/cache/caches/mongodb.js").MongoDBCache;
+const NeDBCache = rlequire("dendro", "src/kb/cache/caches/nedb.js").NeDBCache;
+
 const configSelectorFilePath = rlequire.absPathInApp("dendro", "conf/active_deployment_config.yml");
 let activeConfigKey;
 
@@ -371,7 +375,7 @@ Config.db = {
         graphUri: "http://" + Config.host + "/dendro_graph",
         cache: {
             id: "default",
-            type: "mongodb"
+            type: NeDBCache.type
         }
     },
     social: {
@@ -380,7 +384,7 @@ Config.db = {
         graphUri: "http://" + Config.host + "/social_dendro",
         cache: {
             id: "social",
-            type: "mongodb"
+            type: NeDBCache.type
         }
     },
     notifications: {
@@ -389,7 +393,7 @@ Config.db = {
         graphUri: "http://" + Config.host + "/notifications_dendro",
         cache: {
             id: "notifications",
-            type: "mongodb"
+            type: NeDBCache.type
         }
     }
 };

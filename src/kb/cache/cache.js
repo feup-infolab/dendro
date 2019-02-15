@@ -4,6 +4,7 @@ const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const RedisCache = rlequire("dendro", "src/kb/cache/caches/redis.js").RedisCache;
 const MongoDBCache = rlequire("dendro", "src/kb/cache/caches/mongodb.js").MongoDBCache;
+const NeDBCache = rlequire("dendro", "src/kb/cache/caches/nedb.js").NeDBCache;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const async = require("async");
 
@@ -144,6 +145,43 @@ Cache.initConnections = function (callback)
                             else
                             {
                                 return callback(null, "Redis cache is not active or there is no redis cache config active with ID " + cacheId);
+                            }
+
+                            break;
+                        }
+                        case NeDBCache.type : {
+                            let nedbCacheConfig = Config.cache.nedb.instances[cacheId];
+                            if (Config.cache.nedb.active && !isNull(nedbCacheConfig))
+                            {
+                                const newNeDBCacheConnection = new NeDBCache(nedbCacheConfig);
+
+                                newNeDBCacheConnection.open(function (err)
+                                {
+                                    if (!isNull(err))
+                                    {
+                                        throw new Error("[ERROR] Unable to connect to NeDB instance with ID: " + nedbCacheConfig.id + " : " + err.message);
+                                    }
+                                    else
+                                    {
+                                        Logger.log("Connected to NeDB cache service with ID : " + newNeDBCacheConnection.id + " !");
+
+                                        newNeDBCacheConnection.deleteAll(function (err, result)
+                                        {
+                                            if (isNull(err))
+                                            {
+                                                Logger.log("Deleted all cache records on NeDB instance " + newNeDBCacheConnection.id);
+                                                Cache.caches[cacheId] = newNeDBCacheConnection;
+                                                Cache.cachesByGraphUri[graphUri] = newNeDBCacheConnection;
+                                                return callback(null, newNeDBCacheConnection);
+                                            }
+                                            throw new Error("[ERROR] Unable to delete all cache records on NeDB instance \"" + cacheId + "\" during bootup");
+                                        });
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                return callback(null, "NeDB cache is not active or there is no NeDB cache config active with ID " + cacheId);
                             }
 
                             break;
