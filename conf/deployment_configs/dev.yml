@@ -12,8 +12,17 @@ dev:
   eudatCommunityId: e9b9792e-79fb-4b07-b6b4-b9c2bd06d095
   sendGridUser: __FIXME
   sendGridPassword: __FIXME
-  elasticSearchHost: 127.0.0.1
-  elasticSearchPort: '9201'
+  index:
+    type: solr
+    solr:
+    elasticsearch:
+      connection_log_type: ''
+      use_auth: false
+      host: 127.0.0.1
+      port: '9201'
+      credentials:
+        username: user
+        password: pass
   datastore:
     database: 127_0_0_1_3001_datastore_dev
     host: 127.0.0.1
@@ -163,10 +172,6 @@ dev:
       firstname: Dendro 5
       surname: Demo User 5
       mbox: demouser5@dendro.fe.up.pt
-  useElasticSearchAuth: false
-  elasticSearchAuthCredentials:
-    username: user
-    password: pass
   systemOrHiddenFilesRegexes:
   - __MACOSX
   - "^[.]"
@@ -214,8 +219,6 @@ dev:
       log_cache_deletes: false
     diagnostics:
       ram_usage_report: true
-    index:
-      elasticsearch_connection_log_type: ''
     tests:
       log_unit_completion_and_startup: true
     memory:

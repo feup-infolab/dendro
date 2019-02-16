@@ -108,8 +108,7 @@ Config.eudatCommunityId = getConfigParameter("eudatCommunityId");
 Config.sendGridUser = getConfigParameter("sendGridUser");
 Config.sendGridPassword = getConfigParameter("sendGridPassword");
 
-Config.elasticSearchHost = getConfigParameter("elasticSearchHost");
-Config.elasticSearchPort = getConfigParameter("elasticSearchPort");
+Config.index = getConfigParameter("index");
 
 Config.cache = getConfigParameter("cache");
 Config.datastore = getConfigParameter("datastore");
@@ -670,9 +669,6 @@ Config.streaming =
   }
 };
 
-Config.useElasticSearchAuth = Config.activeConfig.useElasticSearchAuth;
-
-Config.elasticSearchAuthCredentials = Config.activeConfig.elasticSearchAuthCredentials;
 
 /**
  * Plugins
