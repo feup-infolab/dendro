@@ -48,6 +48,19 @@ class Job
                         },
                         maxConcurrency: 1
                     });
+
+                    agenda.on("error", function (error)
+                    {
+                        if (error.message === "Lost MongoDB connection")
+                        {
+                            Logger.log("debug", "Mongodb Connnection of Agenda was lost, will attempt a reconnect...");
+                        }
+                        else
+                        {
+                            throw error;
+                        }
+                    });
+
                     Job._agenda = agenda;
                 }
                 catch (error)
@@ -148,7 +161,13 @@ class Job
         {
             Job._agenda.stop(function (err, result)
             {
-                callback(err, result);
+                // TODO
+                // Force connection to DIE DIE DIE otherwise it is dropped!
+                Job._agenda._mdb.close(true, function (err, result)
+                {
+                    delete Job._agenda;
+                    callback(err, result);
+                });
             });
         }
         else

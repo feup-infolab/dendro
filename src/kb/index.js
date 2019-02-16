@@ -342,12 +342,12 @@ IndexConnection.prototype.ensureIndexIsReady = function (callback)
             else
             {
                 const msg = "Unable to establish a connection to ElasticSearch while checking if index "+ self.short_name+ " is ready. This is a fatal error.";
-                Logger.log("error", );
+                Logger.log("error", msg);
                 throw new Error(msg);
             }
         });
     }
-}
+};
 
 IndexConnection.prototype.ensureElasticSearchIsReady = function (callback)
 {
@@ -426,58 +426,6 @@ IndexConnection.prototype.ensureElasticSearchIsReady = function (callback)
             }
         });
     }
-};
-
-IndexConnection.prototype.deleteDocumentsWithUri = function (uri, callback)
-{
-    const self = this;
-    // fetch document from the index that matches the current resource
-    const queryObject = {
-        query: {
-            constant_score: {
-                filter: {
-                    term: {
-                        uri: self.uri
-                    }
-                }
-            }
-        },
-        from: 0,
-        size: 10000
-    };
-
-    // search in all graphs for resources (generic type)
-    const indexType = IndexConnection.indexTypes.resource;
-
-    self.ensureIndexIsReady(function(err, result){
-        if(isNull(err))
-        {
-            self.search(
-                indexType,
-                queryObject,
-                function (err, hits)
-                {
-                    if (isNull(err))
-                    {
-                        async.map(hits, function (hit, cb)
-                        {
-                            self.deleteDocument(hit._id, indexType, cb);
-                        }, callback);
-                    }
-                    else
-                    {
-                        return callback(err, [hits]);
-                    }
-                }
-            );
-        }
-        else
-        {
-            Logger.log("error", "Unable to check if elasticsearch index was ready while trying to delete documents with uri " + uri);
-            Logger.log("error", error);
-            callback(err, result);
-        }
-    });
 };
 
 IndexConnection.prototype.indexDocument = function (type, document, callback)

@@ -60,7 +60,7 @@ Class.extend = function (childClass, parentClass, rdfTypeForSavingInDatabase)
 
     if (rdfTypeForSavingInDatabase)
     {
-        if(prefixedRDFTypes.length === 0)
+        if (prefixedRDFTypes.length === 0)
         {
             childClass.prefixedRDFType = rdfTypeForSavingInDatabase;
         }
@@ -79,14 +79,14 @@ Class.extend = function (childClass, parentClass, rdfTypeForSavingInDatabase)
     return childClassWithFamilyTreePrototypes;
 };
 
-Class.getAllPrefixedRDFTypes = function(prototype)
+Class.getAllPrefixedRDFTypes = function (prototype)
 {
     let parent = prototype;
     let prefixedRDFTypes = [];
 
     while (parent !== null && typeof parent !== "undefined" && parent !== Class)
     {
-        if(parent.leafClass)
+        if (parent.leafClass)
         {
             prefixedRDFTypes.push(parent.leafClass);
         }
@@ -95,6 +95,6 @@ Class.getAllPrefixedRDFTypes = function(prototype)
     }
 
     return prefixedRDFTypes.sort();
-}
+};
 
 module.exports.Class = Class;
