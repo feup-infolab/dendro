@@ -11,11 +11,16 @@
 
 <div class="row">
     <div class="col-lg-9">
-        <button type="button" ng-click="delete_bookmark(recalled_repository, true)" class="btn btn-danger btn-large"><span class="glyphicon glyphicon-remove"></span>Delete this bookmark</button>
+        <button type="button" ng-click="delete_bookmark(recalled_repository, true)" class="btn btn-danger btn-large "><span class="glyphicon glyphicon-remove"></span>Delete this bookmark</button>
 
         <div class="col-lg-3">
             <div class="checkbox">
-                <label><input type="checkbox" id="privacyStatus" ng-model="publicDeposit"><span class="label label-info"><span class="glyphicon glyphicon-warning-sign"></span> Make this registry public</span></label>
+                <label>
+                    <input type="checkbox" id="privacyStatus" ng-model="publicDeposit">
+                    <span class="label label-info">
+                    <span class="glyphicon glyphicon-warning-sign">
+                    </span> Make this registry public</span>
+                </label>
             </div>
         </div>
     </div>

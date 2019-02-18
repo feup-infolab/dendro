@@ -56,7 +56,7 @@
         ng-click="create_new_repository_bookmark(new_repository)"
         ng-disabled="!(new_repository.ddr.hasExternalUri && valid_url(new_repository.ddr.hasExternalUri) && new_repository.ddr.username && valid_organization(new_repository.ddr.hasOrganization))"
         class="btn btn-primary pull-right">
-    <i class="fa fa-bookmark fa-lg"></i>Save new bookmark
+    <i class="fa fa-bookmark fa-lg"></i> Save new bookmark
 </button>
 
 <div ng-show="valid_base_address(new_repository.ddr.hasExternalUri)">
