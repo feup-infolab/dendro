@@ -10,8 +10,8 @@
 
 
 <div class="row">
-    <div class="col-lg-9">
-        <button type="button" ng-click="delete_bookmark(recalled_repository, true)" class="btn btn-danger btn-large "><span class="glyphicon glyphicon-remove"></span>Delete this bookmark</button>
+    <div class="col-lg-6">
+        <button type="button" ng-click="delete_bookmark(recalled_repository, true)" class="btn btn-danger btn-large pull-right"><span class="glyphicon glyphicon-remove "></span>Delete this bookmark</button>
 
         <div class="col-lg-3">
             <div class="checkbox">
@@ -24,7 +24,7 @@
             </div>
         </div>
     </div>
-    <div ng-if="!is_sending_data" class="col-lg-3">
+    <div ng-if="!is_sending_data" class="col-lg-6">
         <button type="cancel" ng-click="upload_to_repository(recalled_repository, publicDeposit)" class="btn btn-success pull-right"><span class="glyphicon glyphicon-upload"></span>Send</button>
     </div>
     <div ng-if="is_sending_data" class="col-lg-3">

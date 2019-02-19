@@ -171,6 +171,18 @@
         "nick" : "dendro",
         "homepage" : "https://github.com/feup-infolab/dendro"
       }
+    },
+    {
+      "uri" : "/repository_platform/dendro",
+      "dcterms" :
+      {
+        "title" : "Local deposits"
+      },
+      "foaf":
+      {
+        "nick" : "local",
+        "homepage" : "https://github.com/feup-infolab/dendro"
+      }
     }
   ],
   "test": [
@@ -251,7 +263,7 @@
       "uri" : "/repository_platform/dendro",
       "dcterms" :
       {
-        "title" : "Dendro"
+        "title" : " this Dendro"
       },
       "foaf":
       {
