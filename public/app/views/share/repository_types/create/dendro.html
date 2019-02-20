@@ -1,4 +1,4 @@
-<h1 class="page-header">Activate </h1>
+<h1 class="page-header">Stay private, stay safe </h1>
 <div class="control-group has-feedback" ng-class="{'has-success' : new_repository.dcterms.title}">
     <label for="new_dendro_repository_title">Label</label>
     <input type="text" ng-model="new_repository.dcterms.title" class="form-control" id="new_dendro_repository_title" placeholder="Title" required>
@@ -18,5 +18,8 @@
     <span ng-show="new_repository.ddr.hasExternalUri == 'trng-b2share.eudat.eu'" class="glyphicon glyphicon-ok form-control-feedback"></span>
 </div>
 
-<button type="cancel" ng-click="clear_repository_type()" class="btn">Cancel</button>
-<button type="submit" ng-click="create_new_repository_bookmark(new_repository)" class="btn btn-primary pull-right"><i class="fa fa-bookmark fa-lg pad-right-4"></i>Save new bookmark</button>
+<button type="cancel"  ng-click="clear_repository_type()" class="btn margin-top-4">Cancel</button>
+<button type="submit"
+        ng-disabled="disable_save_bookmark_dendro(new_repository)"
+        ng-click="create_new_repository_bookmark(new_repository)"
+        class="btn btn-primary pull-right btn margin-top-4"><i class="fa fa-bookmark fa-lg pad-right-4"></i>Save new bookmark</button>

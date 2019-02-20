@@ -26,7 +26,7 @@ const validateNewBookmarkRequest = function (req, res)
         });
         return false;
     }
-    else if (isNull(req.body.ddr.username) && req.body.ddr.hasPlatform.foaf.nick !== "figshare" && req.body.ddr.hasPlatform.foaf.nick !== "zenodo" && req.body.ddr.hasPlatform.foaf.nick !== "b2share" && req.body.ddr.hasPlatform.foaf.nick !== "dendro")
+    else if (isNull(req.body.ddr.username) && req.body.ddr.hasPlatform.foaf.nick !== "figshare" && req.body.ddr.hasPlatform.foaf.nick !== "zenodo" && req.body.ddr.hasPlatform.foaf.nick !== "b2share" && req.body.ddr.hasPlatform.foaf.nick !== "dendro" && req.body.ddr.hasPlatform.foaf.nick !== "local")
     {
         res.status(400).json({
             result: "error",

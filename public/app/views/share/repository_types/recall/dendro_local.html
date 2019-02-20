@@ -1,0 +1,34 @@
+<h1 class="page-header">Share current folder to Dendro</h1>
+<div class="form-group">
+    <label for="recalled_b2share_repository_label">Label</label>
+    <input type="text" ng-model="recalled_repository.dcterms.title" class="form-control" id="recalled_b2share_repository_label" placeholder="Label" disabled>
+</div>
+<div class="form-group">
+    <label for="recalled_b2share_repository_url">Repository URL</label>
+    <a ng-href="{{recalled_repository.ddr.hasExternalUri}}" class="form-control" id="recalled_b2share_repository_url" placeholder="Figshare repository URL">{{recalled_repository.ddr.hasExternalUri}}</a>
+</div>
+
+
+<div class="row">
+    <div class="col-lg-6">
+        <button type="button" ng-click="delete_bookmark(recalled_repository, true)" class="btn btn-danger btn-large pull-right"><span class="glyphicon glyphicon-remove "></span>Delete this bookmark</button>
+
+        <div class="col-lg-3">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" id="privacyStatus" ng-model="publicDeposit">
+                    <span class="label label-info">
+                    <span class="glyphicon glyphicon-warning-sign">
+                    </span> Make this registry public</span>
+                </label>
+            </div>
+        </div>
+    </div>
+    <div ng-if="!is_sending_data" class="col-lg-6">
+        <button type="cancel" ng-click="upload_to_repository(recalled_repository, publicDeposit)" class="btn btn-success pull-right"><span class="glyphicon glyphicon-upload"></span>Send</button>
+    </div>
+    <div ng-if="is_sending_data" class="col-lg-3">
+        <button type="cancel" class="btn btn-success pull-right" disabled="disabled"> <img src="/images/loading.gif">Sending</button>
+    </div>
+</div>
+

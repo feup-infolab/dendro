@@ -210,12 +210,167 @@ angular.module("dendroApp.controllers")
                     statusCode: $scope.statusCodeDefaults
                 });
             };
+            $scope.create_new_repository_bookmark_dendro_local = function (new_repository)
+            {
+                if (new_repository.ddr == null)
+                {
+                    new_repository.ddr = {};
+                }
+                new_repository.ddr.hasPlatform = $scope.new_repository_type;
+
+                var url = window.location.pathname;
+                var calling = $scope.get_currently_selected_resource();
+                var thumb = $scope.get_calling_uri_thumbnail();
+
+                let shared = $scope.shared;
+
+                let selectedUri = [];
+
+                selectedUri.push('www.url.pt');
+
+                new_repository.ddr.exportedResource = selectedUri;
+                new_repository.ddr.exportedFromFolder = "asasasas";
+                new_repository.ddr.hasExternalUri = 'dendro-prd.fe.up.pt';
+
+                var requestPayload = JSON.stringify(new_repository);
+
+                $.ajax({
+                    type: "POST",
+                    url: "/external_repositories/new",
+                    data: requestPayload,
+                    contentType: "application/json",
+                    beforeSend: function (xhr)
+                    {
+                        xhr.setRequestHeader("Accept", "application/json");
+                    },
+                    success: function (e, data)
+                    {
+                        $scope.clear_repository_type();
+                        // $scope.get_my_repositories();
+                        $scope.show_popup("success", "Success", e.message);
+                    },
+                    statusCode: $scope.statusCodeDefaults
+                });
+            };
 
             $scope.clear_repository_type = function ()
             {
                 delete $scope.new_repository_type;
                 $scope.clear_sword_data();
             };
+
+            $scope.disable_save_bookmark_dendro = function (new_repository)
+            {
+                if(new_repository === undefined || new_repository.dcterms === undefined || new_repository.dcterms.title === undefined)
+                {
+                    return true;
+                }
+                return false;
+            };
+
+            $scope.disable_save_bookmark_b2share = function (new_repository)
+            {
+                if(new_repository === undefined || new_repository.dcterms === undefined || new_repository.dcterms.title === undefined)
+                {
+                    return true;
+                }
+                if(new_repository.ddr.hasAccessToken === "" || new_repository.ddr.hasAccessToken === undefined)
+                {
+                    return true;
+                }
+                return false;
+            };
+
+            $scope.disable_save_bookmark_zenodo = function (new_repository)
+            {
+
+                if(new_repository === undefined || new_repository.dcterms === undefined || new_repository.dcterms.title === undefined)
+                {
+                    return true;
+                }
+                if(new_repository.ddr.hasAccessToken === "" || new_repository.ddr.hasAccessToken === undefined)
+                {
+                    return true;
+                }
+                return false;
+            };
+
+            $scope.disable_save_bookmark_figshare = function (new_repository)
+            {
+
+                if(new_repository === undefined || new_repository.dcterms === undefined || new_repository.dcterms.title === undefined)
+                {
+                    return true;
+                }
+                if(new_repository.ddr.hasConsumerKey === undefined)
+                {
+                    return true;
+                }
+                if(new_repository.ddr.hasAccessToken === "" || new_repository.ddr.hasAccessToken === undefined)
+                {
+                    return true;
+                }
+                if(new_repository.ddr.hasAccessTokenSecret === "" || new_repository.ddr.hasAccessTokenSecret === undefined)
+                {
+                    return true;
+                }
+                return false;
+            };
+
+            $scope.disable_save_bookmark_eprints = function (new_repository)
+            {
+                if(new_repository === undefined || new_repository.dcterms === undefined || new_repository.dcterms.title === undefined)
+                {
+                    return true;
+                }
+                if(new_repository.ddr === undefined || !$scope.valid_url(new_repository.ddr.hasExternalUri))
+                {
+                    return true;
+                }
+                return false;
+            };
+
+            $scope.disable_save_bookmark_dspace = function (new_repository)
+            {
+                if(new_repository === undefined || new_repository.dcterms === undefined || new_repository.dcterms.title === undefined)
+                {
+                    return true;
+                }
+                if(new_repository.ddr === undefined || !$scope.valid_url(new_repository.ddr.hasExternalUri))
+                {
+                    return true;
+                }
+                if(new_repository.ddr.username === undefined)
+                {
+                    return true;
+                }
+                if(new_repository.ddr.password === undefined || new_repository.ddr.password === "")
+                {
+                    return true;
+                }
+                return false;
+            };
+
+            $scope.disable_save_bookmark_ckan = function (new_repository)
+            {
+                if(new_repository === undefined || new_repository.dcterms === undefined || new_repository.dcterms.title === undefined)
+                {
+                    return true;
+                }
+                return false;
+            /*
+
+
+            falta este
+
+
+
+             */
+            };
+
+
+
+
 
             $scope.clear_recalled_repository = function ()
             {
