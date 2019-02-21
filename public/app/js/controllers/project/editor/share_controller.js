@@ -353,19 +353,28 @@ angular.module("dendroApp.controllers")
 
             $scope.disable_save_bookmark_ckan = function (new_repository)
             {
+                console.log(new_repository);
                 if(new_repository === undefined || new_repository.dcterms === undefined || new_repository.dcterms.title === undefined)
                 {
                     return true;
                 }
+                if(new_repository.ddr === undefined || !$scope.valid_url(new_repository.ddr.hasExternalUri))
+                {
+                    return true;
+                }
+                if(new_repository.ddr.username === undefined)
+                {
+                    return true;
+                }
+                if(new_repository.ddr.hasOrganization === undefined)
+                {
+                    return true;
+                }
+                if(new_repository.ddr.hasAPIKey === undefined)
+                {
+                    return true;
+                }
                 return false;
-            /*
-
-
-            falta este
-
-
-
-             */
             };
 
 

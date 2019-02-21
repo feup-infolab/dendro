@@ -54,7 +54,7 @@
 </button>
 <button type="submit"
         ng-click="create_new_repository_bookmark(new_repository)"
-        ng-disabled="!(new_repository.ddr.hasExternalUri && valid_url(new_repository.ddr.hasExternalUri) && new_repository.ddr.username && valid_organization(new_repository.ddr.hasOrganization))"
+        ng-disabled="disable_save_bookmark_ckan(new_repository)"
         class="btn btn-primary pull-right">
     <i class="fa fa-bookmark fa-lg pad-right-4"></i>Save new bookmark
 </button>
