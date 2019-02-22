@@ -62,7 +62,7 @@ const validateNewBookmarkRequest = function (req, res)
 
         return false;
     }
-    else if (isNull(req.body.ddr.hasExternalUri))
+    else if (isNull(req.body.ddr.hasExternalUri) && req.body.ddr.hasPlatform.foaf.nick !== "local")
     {
         res.status(400).json({
             result: "error",
@@ -71,7 +71,7 @@ const validateNewBookmarkRequest = function (req, res)
 
         return false;
     }
-    else if (!validator.isURL(req.body.ddr.hasExternalUri))
+    else if (!validator.isURL(req.body.ddr.hasExternalUri) && req.body.ddr.hasPlatform.foaf.nick !== "local")
     {
         res.status(400).json({
             result: "error",
@@ -206,7 +206,6 @@ exports.new = function (req, res)
 
             if (validateNewBookmarkRequest(req, res))
             {
-                let hasPlatformUri;
                 RepositoryPlatform.findByPropertyValue(new Descriptor(
                     {
                         value: req.body.ddr.hasPlatform.ddr.handle,

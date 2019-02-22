@@ -27,6 +27,7 @@ angular.module("dendroApp.controllers")
 
                 var url = $scope.get_calling_uri() + "?calculate_ckan_repository_diffs";
 
+
                 $scope.show_popup("info", "Notice", "Calculating diffs with target repository");
                 $scope.is_sending_data = true;
                 $scope.firstExportToCkan = false;
@@ -227,10 +228,9 @@ angular.module("dendroApp.controllers")
                 let selectedUri = [];
 
                 selectedUri.push('www.url.pt');
-
                 new_repository.ddr.exportedResource = selectedUri;
-                new_repository.ddr.exportedFromFolder = "asasasas";
-                new_repository.ddr.hasExternalUri = 'dendro-prd.fe.up.pt';
+                new_repository.ddr.exportedFromFolder = url;
+                new_repository.ddr.hasExternalUri = "www.url.pt";
 
                 var requestPayload = JSON.stringify(new_repository);
 
@@ -411,6 +411,7 @@ angular.module("dendroApp.controllers")
                 {
                     if (confirmed)
                     {
+                        console.log($scope.my_repositories.length);
                         for (var i = 0; i < $scope.my_repositories.length; i++)
                         {
                             $scope.delete_bookmark($scope.my_repositories[i], false);
@@ -428,6 +429,7 @@ angular.module("dendroApp.controllers")
             {
                 var doDeletion = function (bookmark)
                 {
+                    console.log(bookmark);
                     $.ajax({
                         type: "DELETE",
                         url: bookmark.uri,
@@ -549,6 +551,7 @@ angular.module("dendroApp.controllers")
                         $scope.show_popup("error", "Connection lost", "Connection lost during dataset deposit. Please try again.");
                     }
                     $scope.is_sending_data = false;
+
                     $scope.clear_recalled_repository();
                 }).catch(function (error)
                 {
@@ -630,7 +633,7 @@ angular.module("dendroApp.controllers")
                 }).then(function (response)
                 {
                     var data = response.data;
-                    if (data.result == "error" && data.message != null)
+                    if (data.result === "error" && data.message != null)
                     {
                         $scope.show_popup("error", "Error", data.message);
                     }

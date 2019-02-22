@@ -27,14 +27,13 @@
 <div class="form-group">
     <label for="dspace_repository_password">Password</label>
     <input type="password" ng-model="new_repository.ddr.password" class="form-control" id="dspace_repository_password" placeholder="DSpace Password">
-    <p class="help-block">Your password for the DSpace r
-<div class="form-group">epository (we will not store this password, we will just pass it on to DSpace for request collections).</p>
+    <p class="help-block">Your password for the DSpace repository (we will not store this password, we will just pass it on to DSpace for request collections.</p>
+<div class="form-group">
 </div>
     <div><label>Collection</label></div>
     <div class="row">
         <div class="col-lg-8">
             <button type="button" class="btn btn-primary"
-                    ng-disabled = "disable_save_bookmark_dspace(new_repository)"
                     ng-click="get_sword_workspaces(new_repository)" >
                 <span class="glyphicon glyphicon-refresh"></span>
             </button>
