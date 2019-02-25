@@ -12,7 +12,7 @@ angular.module("dendroApp.services")
                         delay = 2000;
                     }
 
-                    if (type == "success")
+                    if (type === "success")
                     {
                         new PNotify({
                             title: title,
@@ -25,7 +25,7 @@ angular.module("dendroApp.services")
                             stack: stack_topright
                         });
                     }
-                    if (type == "warning")
+                    if (type === "warning")
                     {
                         new PNotify({
                             title: title,
@@ -38,7 +38,7 @@ angular.module("dendroApp.services")
                             stack: stack_topright
                         });
                     }
-                    else if (type == "error")
+                    else if (type === "error")
                     {
                         new PNotify({
                             title: title,
@@ -51,7 +51,7 @@ angular.module("dendroApp.services")
                             stack: stack_topright
                         });
                     }
-                    else if (type == "info")
+                    else if (type === "info")
                     {
                         new PNotify({
                             title: title,
@@ -83,7 +83,7 @@ angular.module("dendroApp.services")
 
                 this.download_url = function (url, parametersString)
                 {
-                    if (url != null && parametersString != null)
+                    if (url !== null && parametersString !== null)
                     {
                         url = url + parametersString;
                     }
@@ -121,7 +121,7 @@ angular.module("dendroApp.services")
                         throw "No event name provided.";
                     }
 
-                    if (url == null)
+                    if (url === null)
                     {
                         url = "";
                     }

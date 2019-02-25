@@ -12,7 +12,7 @@ angular.module("dendroApp.services")
                         url: "/shared/data/languages.json"
                     }).then(function (response)
                     {
-                        if (response.data != null && response.data instanceof Object)
+                        if (response.data !== null && response.data instanceof Object)
                         {
                             return response.data;
                         }
