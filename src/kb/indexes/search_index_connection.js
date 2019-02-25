@@ -27,8 +27,10 @@ class SearchIndexConnection extends IndexConnection
         super(options);
         const self = this;
         self.queried_fields = options.queried_fields;
-        if(!isNull(Config.index.si))
+        if (!isNull(Config.index.si))
+        {
             self.indexLocation = path.join(rlequire.absPathInApp("dendro", Config.index.si.index_file_locations), self.id);
+        }
         return self;
     }
 
