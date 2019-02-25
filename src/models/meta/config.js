@@ -10,14 +10,17 @@ function Config ()
 const fs = require("fs");
 const path = require("path");
 const _ = require("underscore");
+const req = require("require-yml");
 const isNull = require("../../utils/null.js").isNull;
 
 const Elements = require("./elements.js").Elements;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
-const activeConfigFilePath = rlequire.absPathInApp("dendro", "conf/active_deployment_config.json");
-const configs = rlequire("dendro", "conf/deployment_configs.json");
+const RedisCache = rlequire("dendro", "src/kb/cache/caches/redis.js").RedisCache;
+const MongoDBCache = rlequire("dendro", "src/kb/cache/caches/mongodb.js").MongoDBCache;
+const NeDBCache = rlequire("dendro", "src/kb/cache/caches/nedb.js").NeDBCache;
 
+const configSelectorFilePath = rlequire.absPathInApp("dendro", "conf/active_deployment_config.yml");
 let activeConfigKey;
 
 const argv = require("yargs").argv;
@@ -29,34 +32,42 @@ if (argv.config)
 }
 else
 {
-    if (argv.config)
-    {
-        activeConfigKey = argv.config;
-    }
-    else if (process.env.NODE_ENV === "test")
+    if (process.env.NODE_ENV === "test")
     {
         activeConfigKey = "test";
-        Logger.log("Running in test environment detected");
+        Logger.log("Running in test environment detected.");
+        Logger.log("debug", "Deployment configuration overriden by test environment. Configuration is " + activeConfigKey + ".");
     }
     else
     {
-        activeConfigKey = JSON.parse(fs.readFileSync(activeConfigFilePath, "utf8")).key;
-        Logger.log("Running with deployment config " + activeConfigKey);
+        if (!fs.existsSync(configSelectorFilePath))
+        {
+            const msg = "Configuration file " + configSelectorFilePath + " does not exist!";
+            Logger.log("error", msg);
+            throw new Error(msg);
+        }
+        else
+        {
+            activeConfigKey = req(configSelectorFilePath).key;
+            Logger.log("debug", "Configuration file exists at " + configSelectorFilePath + " and the configuration key inside is " + activeConfigKey);
+        }
     }
 }
 
-const activeConfig = configs[activeConfigKey];
+Config.activeConfigKey = activeConfigKey;
+Config.activeConfigFilePath = rlequire.absPathInApp("dendro", `conf/deployment_configs/${activeConfigKey}.yml`);
+Config.activeConfig = req(Config.activeConfigFilePath)[activeConfigKey];
 
-if (isNull(activeConfig))
+if (isNull(Config.activeConfig))
 {
-    const noConfigPresentError = "There is no configuration with key " + activeConfigKey + " in " + activeConfigFilePath + " ! The key is invalid or the file needs to be reconfigured.";
+    const noConfigPresentError = "There is no configuration with key " + Config.activeConfigKey + " in " + Config.activeConfigFilePath + " ! The key is invalid or the file needs to be reconfigured.";
     Logger.log("error", noConfigPresentError);
     throw new Error(noConfigPresentError);
 }
 
 const getConfigParameter = function (parameter, defaultValue)
 {
-    if (isNull(activeConfig[parameter]))
+    if (isNull(Config.activeConfig[parameter]))
     {
         if (!isNull(defaultValue))
         {
@@ -65,15 +76,13 @@ const getConfigParameter = function (parameter, defaultValue)
             return Config[parameter];
         }
 
-        throw new Error("[FATAL ERROR] Unable to retrieve parameter " + parameter + " from '" + activeConfigKey + "' configuration. Please review the deployment_configs.json file.");
+        throw new Error("[FATAL ERROR] Unable to retrieve parameter " + parameter + " from '" + Config.activeConfigKey + "' configuration. Please review the " + Config.activeConfigFilePath + " file.");
     }
     else
     {
-        return activeConfig[parameter];
+        return Config.activeConfig[parameter];
     }
 };
-
-Config.activeConfiguration = activeConfigKey;
 
 // hostname for the machine in which this is running, configure when running on a production machine
 Config.port = getConfigParameter("port");
@@ -99,8 +108,7 @@ Config.eudatCommunityId = getConfigParameter("eudatCommunityId");
 Config.sendGridUser = getConfigParameter("sendGridUser");
 Config.sendGridPassword = getConfigParameter("sendGridPassword");
 
-Config.elasticSearchHost = getConfigParameter("elasticSearchHost");
-Config.elasticSearchPort = getConfigParameter("elasticSearchPort");
+Config.index = getConfigParameter("index");
 
 Config.cache = getConfigParameter("cache");
 Config.datastore = getConfigParameter("datastore");
@@ -238,7 +246,7 @@ Config.recommendation.getTargetTable = function ()
 
     if (isNull(tableName))
     {
-        throw new Error("Unspecified interactions table name. Check your deployment_configs.json for recommendation/interactions_recording_table field.");
+        throw new Error("Unspecified interactions table name. Check your " + Config.activeConfigFilePath + " file for recommendation/interactions_recording_table field.");
     }
     else
     {
@@ -366,7 +374,7 @@ Config.db = {
         graphUri: "http://" + Config.host + "/dendro_graph",
         cache: {
             id: "default",
-            type: "mongodb"
+            type: NeDBCache.type
         }
     },
     social: {
@@ -375,7 +383,7 @@ Config.db = {
         graphUri: "http://" + Config.host + "/social_dendro",
         cache: {
             id: "social",
-            type: "mongodb"
+            type: NeDBCache.type
         }
     },
     notifications: {
@@ -384,7 +392,7 @@ Config.db = {
         graphUri: "http://" + Config.host + "/notifications_dendro",
         cache: {
             id: "notifications",
-            type: "mongodb"
+            type: NeDBCache.type
         }
     }
 };
@@ -661,10 +669,6 @@ Config.streaming =
   }
 };
 
-Config.useElasticSearchAuth = activeConfig.useElasticSearchAuth;
-
-Config.elasticSearchAuthCredentials = activeConfig.elasticSearchAuthCredentials;
-
 /**
  * Plugins
  */
@@ -916,6 +920,7 @@ Config.numCPUs = getConfigParameter("numCPUs");
 Config.testing = getConfigParameter("testing");
 Config.docker = getConfigParameter("docker");
 Config.virtualbox = getConfigParameter("virtualbox");
+Config.keywords_extraction = getConfigParameter("keywords_extraction");
 
 if (Config.docker.active && Config.virtualbox.active)
 {

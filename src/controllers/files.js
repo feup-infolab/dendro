@@ -1074,12 +1074,13 @@ exports.upload = function (req, res)
                                                                             uri: newFile.uri
                                                                         });
                                                                     }
-                                                                    const msg = "Error [" + err + "] reindexing file [" + newFile.uri + "]in GridFS :" + newFile;
-                                                                    return callback(500, {
+                                                                    const msg = "Error [" + err + "] reindexing file [" + newFile.uri + "]in GridFS :" + JSON.stringify(err);
+                                                                    return callback({
                                                                         result: "error",
-                                                                        message: "Unable to save files after buffering: " + JSON.stringify(newFile),
+                                                                        message: msg,
                                                                         files: files,
-                                                                        errors: newFile
+                                                                        errors: newFile,
+                                                                        statusCode: 500
                                                                     });
                                                                 }, null, res.progressReporter);
                                                             }
@@ -1210,7 +1211,7 @@ exports.upload = function (req, res)
                     }
                     else
                     {
-                        sendResponse(err, result);
+                        sendResponse(err.statusCode, err);
                     }
                 });
             }

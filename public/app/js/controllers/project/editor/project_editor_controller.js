@@ -447,6 +447,15 @@ angular.module("dendroApp.controllers")
 
             return selected_files;
         };
+        $scope.$on("someEvent", function (e)
+        {
+            $scope.$emit("getFiles", $scope.get());
+        });
+
+        $scope.get = function ()
+        {
+            return $scope.get_selected_files();
+        };
 
         $scope.set_selected_file = function (index)
         {
@@ -674,7 +683,6 @@ angular.module("dendroApp.controllers")
         {
             // init interface parameters
             $scope.set_from_local_storage_and_then_from_value("edit_mode", false);
-
             // put some services in scope i.e. to access constants
 
             $scope.recommendationService = recommendationService;

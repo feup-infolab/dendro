@@ -243,6 +243,11 @@ Uploader.prototype.handleUpload = function (req, res, callback)
                 {
                     if (isNull(err))
                     {
+                        if (isNull(tempFolderPath) || isNull(filename))
+                        {
+                            return callback(1, "Error receiving file! There is no filename in the POSTed form.");
+                        }
+
                         let newFileLocalPath = path.join(tempFolderPath, filename);
                         fstream = fs.createWriteStream(newFileLocalPath);
 

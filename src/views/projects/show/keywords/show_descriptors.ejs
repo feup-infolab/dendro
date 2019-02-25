@@ -1,0 +1,25 @@
+<ul class="list-group" id="concept_explorer_area">
+    <a ng-repeat="property in properties"
+       ng-show="properties != null"
+       href="#"
+       class="list-group-item ng-hide">
+        <div class="row">
+            <div class="col-lg-12">
+                <h7 class="list-group-item-heading">
+                    <table class="explorer-table">
+                        <tr>
+                            <td class="term-tablecell">
+                                <medium>{{"Search Term: " + property.searchTerm}}</medium><br>
+                                <medium>Label: <p ng-bind-html="property.lovLabel"></p></medium><br>
+                                <a href="{{property.lovUri}}"><medium>{{"Uri: " + property.lovUri}}</medium></a><br>
+                                <medium>{{"Vocabulary: " + property.lovVocabulary}}</medium>
+                                <div class="help-block">
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </h7>
+            </div>
+        </div>
+    </a>
+</ul>

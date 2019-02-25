@@ -5,6 +5,7 @@ const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const Permissions = Object.create(rlequire("dendro", "src/models/meta/permissions.js").Permissions);
+const DockerManager = Object.create(rlequire("dendro", "src/utils/docker/docker_manager.js").DockerManager);
 const Resource = Object.create(rlequire("dendro", "src/models/resource.js").Resource);
 const QueryBasedRouter = Object.create(rlequire("dendro", "src/utils/query_based_router.js").QueryBasedRouter);
 let RecommendationUtils = rlequire("dendro", "src/utils/recommendation.js").RecommendationUtils;
@@ -30,8 +31,10 @@ const datasets = rlequire("dendro", "src/controllers/datasets");
 const posts = rlequire("dendro", "src/controllers/posts");
 const timeline = rlequire("dendro", "src/controllers/timeline");
 const notifications = rlequire("dendro", "src/controllers/notifications");
+const keywords = rlequire("dendro", "src/controllers/keywords");
 const deposits = rlequire("dendro", "src/controllers/deposits");
 const resources = rlequire("dendro", "src/controllers/resources.js");
+
 let recommendation;
 
 const recommendation_mode = RecommendationUtils.getActiveRecommender();
@@ -1479,7 +1482,40 @@ const loadRoutes = function (app, callback)
 
     app.delete("/interactions/delete_all", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), interactions.delete_all_interactions);
 
-    app.delete("/interactions/delete_all", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), interactions.delete_all_interactions);
+    // keywords
+
+    if (Config.keywords_extraction.active)
+    {
+        app.post("/keywords/processExtract",
+            async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
+            async.apply(DockerManager.requireOrchestras, ["dendro_keywords"]),
+            keywords.processExtract);
+
+        app.post("/keywords/preProcessing",
+            async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
+            async.apply(DockerManager.requireOrchestras, ["dendro_keywords"]),
+            keywords.preProcessing);
+
+        app.post("/keywords/termExtraction",
+            async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
+            async.apply(DockerManager.requireOrchestras, ["dendro_keywords"]),
+            keywords.termExtraction);
+
+        app.post("/keywords/dbpediaResourceLookup",
+            async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
+            async.apply(DockerManager.requireOrchestras, ["dendro_keywords"]),
+            keywords.dbpediaResourceLookup);
+
+        app.post("/keywords/lovProperties",
+            async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
+            async.apply(DockerManager.requireOrchestras, ["dendro_keywords"]),
+            keywords.lovProperties);
+
+        app.post("/keywords/clustering",
+            async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
+            async.apply(DockerManager.requireOrchestras, ["dendro_keywords"]),
+            keywords.clustering);
+    }
 
     // TODO William
     app.get("/deposits/get_deposits", deposits.getDeposits);

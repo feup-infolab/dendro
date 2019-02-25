@@ -1,0 +1,363 @@
+---
+test_no_setup_caching:
+  port: 3002
+  host: 127.0.0.1:3002
+  crypto:
+    secret: THF4A9JfsMbTaHYefVtquzFbrdNUMSbTHF4A9JfsMbTaHYefVtquzFbrdNUMSbpHeRjKE24Tyk2LqxVa3ERyGAAaP8j7gXArZsJk4bjKj8F4YZnCqAyaw9auPn6ahDwc4scLCrayLX9BsYwqXaMKrfW82WdqD5pYApFaQ9JNCqQ25qb75GKfAZSgvNuzFXKT6mGGw6qk63HqjgGwty4qx4QkYXxNCsbez4jwzeRc58AfSvzXZfEf8asSNWhhfEBWCvCeAJs3BGZFFFuwZ7EAVhmyu7NqqzHpHeRjKE24Tyk2LqxVa3ERyGAAaP8j7gXArZsJk4bjKj8F4YZnCqAyaw9auPn6ahDwc4scLCrayLX9BsYwqXaMKrfW82WdqD5pYApFaQ9JNCqQ25qb75GKfAZSgvNuzFXKT6mGGw6qk63HqjgGwty4qx4QkYXxNCsbez4jwzeRc58AfSvzXZfEf8asSNWhhfEBWCvCeAJs3BGZFFFuwZ7EAVhmyu7NqqzH
+  baseUri: http://127.0.0.1:3002
+  environment: test
+  skipDescriptorValuesValidation: false
+  eudatBaseUrl: https://trng-b2share.eudat.eu
+  eudatCommunityId: e9b9792e-79fb-4b07-b6b4-b9c2bd06d095
+  eudatToken: __FIXME
+  sendGridUser: __FIXME
+  sendGridPassword: __FIXME
+  index:
+    type: elasticsearch
+    solr:
+      connection_log_type: DEBUG #Set logger level (can be set to DEBUG, INFO, WARN, ERROR, FATAL or OFF)
+      use_auth: false
+      host: 127.0.0.1
+      port: '5000'
+      credentials:
+        username: user
+        password: pass
+    elasticsearch:
+      connection_log_type: ''
+      use_auth: false
+      host: 127.0.0.1
+      port: '9200'
+      credentials:
+        username: user
+        password: pass
+  datastore:
+    database: 127_0_0_1_3002_datastore
+    host: 127.0.0.1
+    port: '27017'
+    id: default
+    log:
+      log_datastore_ops: true
+    username: admin
+    password: ''
+  ontologies_cache:
+    database: 127_0_0_1_3002_ontologies
+    host: 127.0.0.1
+    port: '27017'
+    id: default
+    username: admin
+    password: ''
+  cache:
+    active: true
+    nedb:
+      active: true
+      instances:
+        default:
+          id: default
+        social:
+          id: social
+        notifications:
+          id: notifications
+    redis:
+      active: false
+      instances:
+        default:
+          host: 127.0.0.1
+          port: '6780'
+          id: default
+          database_number: 1
+        social:
+          host: 127.0.0.1
+          port: '6781'
+          id: social
+          database_number: 1
+        notifications:
+          host: 127.0.0.1
+          port: '6782'
+          id: notifications
+          database_number: 1
+    mongodb:
+      active: false
+      instances:
+        default:
+          database: '127_0_0_1_3002'
+          collection: default_cache
+          clear_on_startup: true
+          host: 127.0.0.1
+          port: '27017'
+          id: default
+          username: ''
+          password: ''
+        social:
+          database: '127_0_0_1_3002'
+          collection: social_cache
+          clear_on_startup: true
+          host: 127.0.0.1
+          port: '27017'
+          id: social
+          username: ''
+          password: ''
+        notifications:
+          database: '127_0_0_1_3002'
+          collection: notifications_cache
+          clear_on_startup: true
+          host: 127.0.0.1
+          port: '27017'
+          id: notifications
+          username: ''
+          password: ''
+    static:
+      last_modified_caching: true
+      cache_period_in_seconds: 3600
+  virtuosoHost: 127.0.0.1
+  virtuosoPort: '8890'
+  virtuosoISQLPort: '1111'
+  virtuosoConnector: jdbc
+  virtuosoAuth:
+    user: dba
+    password: dba
+  virtuosoSQLLogLevel: 3
+  mongoDBHost: 127.0.0.1
+  mongoDbPort: '27017'
+  mongoDbCollectionName: 127_0_0_1_3001_files
+  useMongoDBSessionStore: false
+  mongoDBSessionStoreCollection: 127_0_0_1_3001_sessions
+  mongoDbVersion: ''
+  mongoDBAuth:
+    username: ''
+    password: ''
+  storageDefaults:
+    storageType: mongoDB
+    host: 127.0.0.1
+    port: '27017'
+    collectionName: 127_0_0_1_3002_files
+    username: ''
+    password: ''
+  mySQLHost: 127.0.0.1
+  mySQLPort: '3306'
+  mySQLAuth:
+    user: root
+    password: r00t_p4ssw0rd
+  mySQLDBName: dendroVagrantDemo_tests
+  maxUploadSize: 2147483648
+  maxProjectSize: 5368709120
+  maxSimultaneousConnectionsToDb: 2
+  dbOperationTimeout: 16000
+  tempFilesDir: temp
+  tempUploadsDir: temp_uploads
+  tempFilesCreationMode: '0777'
+  administrators:
+    - username: admin
+      password: adminteste123
+      firstname: Dendro
+      surname: Administrator
+      mbox: admin@dendro.fe.up.pt
+  demo_mode:
+    active: true
+    users:
+      - username: demouser1
+        password: demouserpassword2015
+        firstname: Dendro 1
+        surname: Demo User 1
+        mbox: demouser1@dendro.fe.up.pt
+      - username: demouser2
+        password: demouserpassword2015
+        firstname: Dendro 2
+        surname: Demo User 2
+        mbox: demouser2@dendro.fe.up.pt
+      - username: demouser3
+        password: demouserpassword2015
+        firstname: Dendro 3
+        surname: Demo User 3
+        mbox: demouser3@dendro.fe.up.pt
+      - username: demouser4
+        password: demouserpassword2015
+        firstname: Dendro 4
+        surname: Demo User 4
+        mbox: demouser4@dendro.fe.up.pt
+      - username: demouser5
+        password: demouserpassword2015
+        firstname: Dendro 5
+        surname: Demo User 5
+        mbox: demouser5@dendro.fe.up.pt
+  systemOrHiddenFilesRegexes:
+    - __MACOSX
+    - "^[.]"
+  theme: lumen
+  debug:
+    active: true
+    database:
+      log_all_queries: false
+      log_all_cache_queries: false
+      log_query_times: false
+    session:
+      auto_login: false
+      login_user: demouser
+    files:
+      log_all_restore_operations: false
+      log_delete_operations: false
+      log_file_fetches: false
+      delete_temp_folder_on_startup: true
+      log_file_version_fetches: false
+    resources:
+      log_all_type_checks: false
+      log_missing_resources: false
+    permissions:
+      enable_permissions_system: true
+      log_authorizations: false
+      log_denials: false
+      log_requests_and_permissions: false
+    users:
+      log_fetch_by_username: false
+    descriptors:
+      log_missing_unknown_descriptors: false
+      log_unknown_types: false
+      log_descriptor_filtering_operations: false
+    ontologies:
+      log_autocomplete_requests: false
+    views:
+      show_all_buttons_in_recommendations: false
+      prefill_text_boxes: false
+    cache:
+      log_cache_hits: false
+      log_cache_writes: false
+      log_cache_deletes: false
+    diagnostics:
+      ram_usage_report: true
+    tests:
+      log_unit_completion_and_startup: true
+    memory:
+      dump_snapshots: false
+  startup:
+    load_databases: true
+    reload_administrators_on_startup: false
+    reload_demo_users_on_startup: false
+    reload_ontologies_on_startup: false
+    clear_session_store: false
+    log_bootup_actions: false
+    destroy_all_graphs: false
+    destroy_all_indexes: true
+    destroy_datastore: false
+    destroy_files_store: false
+    destroy_mysql_database: false
+  baselines: {}
+  logging:
+    level: debug
+    format: combined
+    app_logs_folder: logs/app
+    log_all_requests: true
+    do_not_log_requests_to_public_assets: true
+    log_emailing: false
+  recommendation:
+    modes:
+      dendro_recommender:
+        active: false
+        host: 127.0.0.1
+        port: '9000'
+        log_modes:
+          phase_1:
+            table_to_write_interactions: interactions
+            active: false
+          phase_2:
+            table_to_write_interactions: interactions
+            active: true
+      standalone:
+        active: false
+      project_descriptors:
+        active: true
+      none:
+        active: false
+    max_autocomplete_results: 4
+    max_suggestions_of_each_type: 80
+    recommendation_page_size: 30
+    random_interactions_generation_page_size: 5
+    max_interaction_pushing_threads: 1
+    interactions_recording_table: interactions
+  email:
+    gmail:
+      address: noreply@email.com
+      username: __FIXME
+      password: __FIXME
+  maps:
+    gmaps_api_key: __FIXME
+    map_height: 500
+  change_log:
+    default_page_length: 20
+  exporting:
+    generated_files_metadata:
+      bagit:
+        dcterms:
+          title: Full contents of the dataset in ZIP format (Bagit Specification)
+          description: This file contains all the files and corresponding metadata
+            in a ZIP arghive that follows the BagIt (https://tools.ietf.org/html/draft-kunze-bagit-08)
+            specification. Exported by the Dendro platform.
+      zip:
+        dcterms:
+          title: Full contents of the dataset in ZIP format
+          description: This file contains all the files and corresponding metadata
+            in a ZIP archive. Exported by the Dendro platform.
+      json:
+        dcterms:
+          title: Dataset metadata in JSON format
+          description: This file contains all the metadata in JSON format. Exported
+            by the Dendro platform.
+      rdf:
+        dcterms:
+          title: Dataset metadata in RDF format
+          description: This file contains all the metadata in RDF (Resource Description
+            Framework) format. Exported by the Dendro platform.
+      txt:
+        dcterms:
+          title: Dataset metadata in human-readable TXT format
+          description: This file contains all the metadata in Plain text for human
+            reading. Exported by the Dendro platform.
+    ckan: {}
+  analytics_tracking_code: GOOGLE_ANALYTICS_DEVELOPMENT_ANALYTICS_TRACKING_CODE
+  public_ontologies:
+    - foaf
+    - dcterms
+    - bdv
+    - research
+  authentication:
+    default:
+      enabled: true
+    orcid:
+      enabled: true
+      client_id: CLIENT_ID
+      client_secret: CLIENT_SECRET
+      callback_url: "/auth/orcid/callback"
+    saml:
+      enabled: true
+      callback_path: "/auth/saml/callback"
+      entry_point: https://openidp.feide.no/simplesaml/saml2/idp/SSOService.php
+      issuer: passport-saml
+      button_text: Sign-in with SIGARRA
+  numCPUs: 1
+  testing:
+    apply_cooldown_every_x_tests: -1
+    cooldown_secs: 20
+  docker:
+    active: true
+    reuse_checkpoints: false
+    create_checkpoints: false
+    destroy_existing_images_at_start: true
+    start_and_stop_containers_automatically: false
+  virtualbox:
+    active: false
+    reuse_shapshots: false
+    create_snapshots: false
+    restart_vm_every_x_tests: 15
+    restart_services_every_x_tests: 1
+    services_to_be_restarted:
+      - virtuoso
+      - elasticsearch
+      - mongodb
+    vmName: dendroVagrantDemo
+    vmIP: 127.0.0.1
+  keywords_extraction:
+    active: true
+    corenlp:
+      active: true
+      server_address: http://localhost:9000
+    yake:
+      active: true
+      commmand: docker run yake-dendro-dev -it '${texttoprocess}'

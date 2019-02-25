@@ -1571,9 +1571,6 @@ Resource.prototype.reindex = function (callback, customGraphUri)
         last_indexing_date: now.toISOString()
     };
 
-    // Logger.log("Reindexing resource " + self.uri);
-    // Logger.log("Document: \n" + JSON.stringify(document, null, 4));
-
     self.getIndexDocumentId(function (err, id)
     {
         if (isNull(err))
@@ -1584,7 +1581,6 @@ Resource.prototype.reindex = function (callback, customGraphUri)
             }
 
             indexConnection.indexDocument(
-                IndexConnection.indexTypes.resource,
                 document,
                 function (err, result)
                 {
@@ -1639,7 +1635,6 @@ Resource.prototype.unindex = function (callback, customGraphUri)
 
                 indexConnection.deleteDocument(
                     id,
-                    IndexConnection.indexTypes.resource,
                     function (err, result)
                     {
                         if (isNull(err))
@@ -1674,53 +1669,7 @@ Resource.prototype.getIndexDocumentId = function (callback, customGraphUri)
     let self = this;
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
     const indexConnection = IndexConnection.getByGraphUri(graphUri);
-
-    // fetch document from the index that matches the current resource
-    const queryObject = {
-        query: {
-            constant_score: {
-                filter: {
-                    term: {
-                        uri: self.uri
-                    }
-                }
-            }
-        },
-        from: 0,
-        size: 200
-    };
-
-    indexConnection.search(
-        // search in all graphs for resources (generic type)
-        IndexConnection.indexTypes.resource,
-        queryObject,
-        function (err, hits)
-        {
-            if (isNull(err))
-            {
-                if (!isNull(hits) && hits instanceof Array && hits.length > 0)
-                {
-                    if (hits.length > 1)
-                    {
-                        Logger.log("error", "Duplicate document in index detected for resource !!! Fix it " + self.uri);
-                    }
-                    let hit = hits[0];
-                    if (isNull(hit._id))
-                    {
-                        let message = "_id value is missing when looking for the index document id for " + self.uri;
-                        Logger.log("error", message);
-                        return callback(1, message);
-                    }
-
-                    return callback(null, hit._id);
-                }
-
-                // Resource was not previously indexed
-                return callback(null, null);
-            }
-            return callback(1, [hits]);
-        }
-    );
+    indexConnection.getDocumentIDForResource(self.uri, callback);
 };
 
 Resource.prototype.getTextuallySimilarResources = function (callback, maxResultSize, customGraphUri)
@@ -1736,7 +1685,6 @@ Resource.prototype.getTextuallySimilarResources = function (callback, maxResultS
             {
                 // search in all graphs for resources (generic type)
                 indexConnection.moreLikeThis(
-                    IndexConnection.indexTypes.resource,
                     id,
                     function (err, results)
                     {
@@ -1782,25 +1730,15 @@ Resource.findResourcesByTextQuery = function (
     callback)
 {
     const queryObject = {
-        query: {
-            match: {
-                "descriptors.object": {
-                    query: queryString
-                }
-            }
-        },
+        query: queryString,
         from: resultSkip,
-        size: maxResultSize,
-        sort: [
-            "_score"
-        ]
+        size: maxResultSize
     };
 
     Logger.log("debug", "Index Query in JSON : " + JSON.stringify(queryObject, null, 4));
 
     indexConnection.search(
         // search in all graphs for resources (generic type)
-        IndexConnection.indexTypes.resource,
         queryObject,
         function (err, results)
         {
@@ -1846,25 +1784,9 @@ Resource.prototype.restoreFromIndexDocument = function (callback, customGraphUri
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
     const indexConnection = IndexConnection.getByGraphUri(graphUri);
 
-    // fetch document from the index that matches the current resource
-    const queryObject = {
-        query: {
-            constant_score: {
-                filter: {
-                    term: {
-                        uri: self.uri
-                    }
-                }
-            }
-        },
-        from: 0,
-        size: 200
-    };
-
-    indexConnection.search(
+    indexConnection.getDocumentByResourceURI(
         // search in all graphs for resources (generic type)
-        IndexConnection.indexTypes.resource,
-        queryObject,
+        self.uri,
         function (err, hits)
         {
             if (isNull(err))
@@ -2067,29 +1989,30 @@ Resource.findByUri = function (uri, callback, allowedGraphsArray, customGraphUri
 
     const getFromCache = function (uri, callback)
     {
-        let typesArray;
-        if (self.prefixedRDFType instanceof Array)
+        const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+        let typesArray = Descriptor.convertToFullUris(Class.getAllPrefixedRDFTypes(self));
+        if (!typesArray instanceof Array)
         {
-            typesArray = self.prefixedRDFType;
+            typesArray = [typesArray];
         }
-        else
+
+        let queryObject = {
+            $and: [
+                { uri: uri }
+            ]
+        };
+
+        if (typesArray.length > 0)
         {
-            typesArray = [self.prefixedRDFType];
+            queryObject.$and.push(
+                {
+                    "rdf.type": typesArray
+                }
+            );
         }
 
         Cache.getByGraphUri(customGraphUri).getByQuery(
-            {
-                $and: [
-                    { uri: uri },
-                    {
-                        rdf: {
-                            type: {
-                                $all: typesArray
-                            }
-                        }
-                    }
-                ]
-            },
+            queryObject,
             function (err, result)
             {
                 if (isNull(err))
@@ -2278,33 +2201,30 @@ Resource.findByPropertyValue = function (
 
     const getFromCache = function (callback)
     {
-        let typesArray;
-        if (self.prefixedRDFType instanceof Array)
+        const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+        let typesArray = Descriptor.convertToFullUris(Class.getAllPrefixedRDFTypes(self));
+        if (!typesArray instanceof Array)
         {
-            typesArray = self.prefixedRDFType;
-        }
-        else
-        {
-            typesArray = [self.prefixedRDFType];
+            typesArray = [typesArray];
         }
 
         let queryObject = {
-            $and: [
-                {
-                    rdf: {
-                        type: {
-                            $all: typesArray
-                        }
-                    }
-                }
-            ]
+            $and: []
         };
+
+        if (typesArray.length > 0)
+        {
+            queryObject.$and.push(
+                {
+                    "rdf.type": typesArray
+                }
+            );
+        }
 
         const getValueRestriction = function (descriptor)
         {
             let valueRestriction = {};
-            valueRestriction[descriptor.prefix] = {};
-            valueRestriction[descriptor.prefix][descriptor.shortName] = descriptor.value;
+            valueRestriction[`${descriptor.prefix}.${descriptor.shortName}`] = descriptor.value;
             return valueRestriction;
         };
 
@@ -3569,7 +3489,7 @@ Resource.deleteAll = function (callback, customGraphUri)
 
     query = query + "} \n";
 
-    Cache.getByGraphUri(graphUri).deleteAlByType(self.prefixedRDFType, function (err, result)
+    Cache.getByGraphUri(graphUri).deleteAllByType(self.prefixedRDFType, function (err, result)
     {
         if (isNull(err))
         {
@@ -3742,12 +3662,12 @@ Resource.prototype.deleteAllOfMyTypeAndTheirOutgoingTriples = function (callback
     const self = this;
     const type = self.rdf.type;
 
-    self.uri = object.uri;
     self.prefix = self.getNamespacePrefix();
     self.ontology = self.getOwnerOntologyUri();
     self.shortName = self.getShortName();
     self.prefixedForm = self.getPrefixedForm();
 
+    const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
     const typeDescriptor = new Descriptor(
         {
             prefixedForm: "rdf:type",
@@ -3758,22 +3678,12 @@ Resource.prototype.deleteAllOfMyTypeAndTheirOutgoingTriples = function (callback
     Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples(typeDescriptor, callback, customGraphUri);
 };
 
-Resource.prototype.addURIAndRDFType = function (object, resourceTypeSection, classPrototype)
+Resource.prototype.addURI = function (object, resourceTypeSection)
 {
     const self = this;
     if (isNull(object))
     {
         object = {};
-    }
-
-    if (isNull(self.rdf))
-    {
-        self.rdf = {};
-    }
-
-    if (isNull(self.rdf.type))
-    {
-        self.rdf.type = classPrototype.prefixedRDFType;
     }
 
     if (isNull(object) || isNull(object.uri))
@@ -3791,7 +3701,48 @@ Resource.prototype.addURIAndRDFType = function (object, resourceTypeSection, cla
             self.uri = object.uri;
         }
     }
+};
 
+Resource.getRDFTypesURIs = function (classPrototype)
+{
+    const self = this;
+
+    if (isNull(classPrototype))
+    {
+        classPrototype = self;
+    }
+
+    const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+    return Descriptor.convertToFullUris(classPrototype.prefixedRDFType);
+};
+
+Resource.prototype.addRDFType = function (classPrototype)
+{
+    const self = this;
+
+    if (isNull(classPrototype))
+    {
+        classPrototype = self.prototype;
+    }
+
+    if (isNull(self.rdf))
+    {
+        self.rdf = {};
+    }
+
+    if (isNull(self.rdf.type))
+    {
+        self.rdf.type = classPrototype.getRDFTypesURIs(classPrototype);
+    }
+
+    return self;
+};
+
+Resource.prototype.addURIAndRDFType = function (object, resourceTypeSection, classPrototype)
+{
+    const self = this;
+    self.addURI(object, resourceTypeSection);
+    self.addRDFType(classPrototype);
     return self;
 };
 
@@ -4029,7 +3980,7 @@ Resource.prototype.refreshHumanReadableUri = function (callback, customGraphUri)
             }
             else
             {
-                callback(1, "Unable to determine new human readable uri for resource " + newResource.uri);
+                callback(1, "Unable to determine new human readable uri for resource " + self.uri);
             }
         }
     );

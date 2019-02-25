@@ -84,23 +84,35 @@ class App
             });
         });
 
+        process.on("unhandledRejection", up =>
+        {
+            Logger.log("error", "Unhandled rejection detected.");
+            Logger.log("error", up.message);
+            Logger.log("error", up.stack);
+            throw up;
+        });
+
         process.on("uncaughtException", function (exception)
         {
-            let msg = "Critical error occurred!";
+            Logger.log("error", "Critical error occurred. Dendro will have to shut down!");
 
-            msg += "\n" + JSON.stringify(exception);
+            if (!isNull(exception.message))
+            {
+                Logger.log("error", exception.message);
+            }
 
             if (!isNull(exception.stack))
             {
-                msg += "\n" + exception.stack;
+                Logger.log("error", exception.stack);
             }
 
-            Logger.log("error", msg);
-
-            process.nextTick(function ()
+            if (process.env !== "test")
             {
-                process.exit(1);
-            });
+                process.nextTick(function ()
+                {
+                    process.exit(1);
+                });
+            }
         });
 
         process.on("exit", function (code)
@@ -117,6 +129,7 @@ class App
                 {
                     Logger.log("error", `Dendro exited because of an error. Check the logs at the ${path.join(__dirname, "logs")} folder`);
                 }
+
                 process.exit(code);
             });
         });
@@ -250,7 +263,7 @@ class App
                 },
                 function (callback)
                 {
-                    // create search indexes on elasticsearch if needed
+                    // create search indexes if needed
                     rlequire("dendro", "src/bootup/init/connect_to_indexes.js").connectToIndexes(self.app, callback);
                 },
                 function (callback)
@@ -303,8 +316,8 @@ class App
 
         Logger.log_boot_message("Welcome! Booting up a Dendro Node on this machine. Using NodeJS " + process.version);
         Logger.log_boot_message("Possible arguments : ");
-        Logger.log_boot_message("--seed_databases : Will destroy the contents loadof the current databases and reload demo users and ontologies. A clean Dendro installation. Can be useful for development. ");
-        Logger.log_boot_message("--config=\"<config-key\" : Used to force Dendro to boot up using a specific configuration from the conf/deployment_configs.json file");
+        Logger.log_boot_message("--seed_databases : Will destroy the contents of the current databases and reload demo users and ontologies. A clean Dendro installation. Can be useful for development. ");
+        Logger.log_boot_message("--config=\"<config-key\" : Used to force Dendro to boot up using a specific configuration from the conf/<config-key>.yml file");
 
         if (process.env.NODE_ENV === "test")
         {
@@ -570,6 +583,11 @@ class App
         async.series([
             function (callback)
             {
+                // build mysql database from migrations
+                self.runIfMaster(rlequire("dendro", "src/bootup/load/build_mysql_database.js").buildMySQLDatabase, self.app, callback);
+            },
+            function (callback)
+            {
                 // destroy graphs if needed
                 self.runIfMaster(rlequire("dendro", "src/bootup/load/destroy_all_graphs.js").destroyAllGraphs, self.app, callback);
             },
@@ -602,11 +620,6 @@ class App
             {
                 // clear datastore
                 self.runIfMaster(rlequire("dendro", "src/bootup/load/clear_datastore.js").clearDataStore, self.app, callback);
-            },
-            function (callback)
-            {
-                // build mysql database from migrations
-                self.runIfMaster(rlequire("dendro", "src/bootup/load/build_mysql_database.js").buildMySQLDatabase, self.app, callback);
             }
         ], callback);
     }
@@ -820,7 +833,7 @@ class App
             {
                 Logger.log("Halting docker containers...");
 
-                DockerManager.stopAllContainers(function (err, result)
+                DockerManager.stopAllOrchestras(function (err, result)
                 {
                     cb(err, result);
                 });

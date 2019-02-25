@@ -626,35 +626,23 @@ exports.init = function (callback)
     const App = rlequire("dendro", "src/bootup/app.js").App;
     const dendroInstance = new App();
 
-    dendroInstance.initConnections(function (err, appInfo)
+    dendroInstance.startApp(function (err, appInfo)
     {
         if (isNull(err))
         {
-            dendroInstance.startApp(function (err, appInfo)
-            {
-                if (isNull(err))
+            chai.request(appInfo.app)
+                .get("/")
+                .end((err, res) =>
                 {
-                    chai.request(appInfo.app)
-                        .get("/")
-                        .end((err, res) =>
-                        {
-                            global.tests.app = appInfo.app;
-                            global.tests.dendroInstance = dendroInstance;
-                            global.tests.server = appInfo.server;
-                            callback(err, res);
-                        });
-                }
-                else
-                {
-                    Logger.log("error", "Error starting Dendro App!");
-                    Logger.log("error", JSON.stringify(err));
-                    callback(err);
-                }
-            });
+                    global.tests.app = appInfo.app;
+                    global.tests.dendroInstance = dendroInstance;
+                    global.tests.server = appInfo.server;
+                    callback(err, res);
+                });
         }
         else
         {
-            Logger.log("error", "Error initializing connections between dendro and database servers!");
+            Logger.log("error", "Error starting Dendro App!");
             Logger.log("error", JSON.stringify(err));
             callback(err);
         }
@@ -668,28 +656,51 @@ exports.setup = function (targetUnit, callback, forceLoad)
     {
         if (Config.docker.active)
         {
-            // if(!Config.docker.reuse_checkpoints)
-            // {
-            //     DockerManager.nukeAndRebuild(true);
-            // }
+            const fetchAllImages = function (callback)
+            {
+                DockerManager.fetchAllOrchestras(callback, true);
+            };
+
+            const restoreState = function (callback)
+            {
+                Logger.log("Trying to recover checkpoint " + checkpointIdentifier + "...");
+
+                if (Config.docker.reuse_checkpoints && !forceLoad)
+                {
+                    exports.restoreCheckpoint(checkpointIdentifier, function (err, result)
+                    {
+                        callback(err, !!result);
+                    }, !forceLoad);
+                }
+                else
+                {
+                    callback(null, null);
+                }
+            };
 
             if (Config.docker.destroy_existing_images_at_start)
             {
-                DockerManager.nukeAndRebuild(true);
-            }
-
-            Logger.log("Trying to recover checkpoint " + checkpointIdentifier + "...");
-
-            if (Config.docker.reuse_checkpoints && !forceLoad)
-            {
-                exports.restoreCheckpoint(checkpointIdentifier, function (err, result)
+                DockerManager.nukeAndRebuild(true, function (err)
                 {
-                    callback(err, !!result);
-                }, !forceLoad);
+                    if (isNull(err))
+                    {
+                        fetchAllImages(function ()
+                        {
+                            restoreState(callback);
+                        });
+                    }
+                    else
+                    {
+                        callback(1, "Error nuking docker before restoring state " + checkpointIdentifier);
+                    }
+                });
             }
             else
             {
-                callback(null, null);
+                fetchAllImages(function ()
+                {
+                    callback(null, null);
+                });
             }
         }
         else if (Config.virtualbox && Config.virtualbox.active)

@@ -11,7 +11,13 @@ let folderData = {
     files: [
         rlequire("dendro", "test/mockdata/files/pdfMockFile.js"),
         rlequire("dendro", "test/mockdata/files/pngMockFile.js"),
-        rlequire("dendro", "test/mockdata/files/xlsxMockFile.js")
+        rlequire("dendro", "test/mockdata/files/xlsxMockFile.js"),
+        rlequire("dendro", "test/mockdata/files/keywords/BusPerformance.js"),
+        rlequire("dendro", "test/mockdata/files/keywords/SimulatingVehicle.js"),
+        rlequire("dendro", "test/mockdata/files/keywords/driverattitude.js"),
+        rlequire("dendro", "test/mockdata/files/keywords/RegenerativeBraking.js"),
+        rlequire("dendro", "test/mockdata/files/keywords/RoutePlanning.js")
+
     ],
     metadata: [
         {
