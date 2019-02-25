@@ -626,35 +626,23 @@ exports.init = function (callback)
     const App = rlequire("dendro", "src/bootup/app.js").App;
     const dendroInstance = new App();
 
-    dendroInstance.initConnections(function (err, appInfo)
+    dendroInstance.startApp(function (err, appInfo)
     {
         if (isNull(err))
         {
-            dendroInstance.startApp(function (err, appInfo)
-            {
-                if (isNull(err))
+            chai.request(appInfo.app)
+                .get("/")
+                .end((err, res) =>
                 {
-                    chai.request(appInfo.app)
-                        .get("/")
-                        .end((err, res) =>
-                        {
-                            global.tests.app = appInfo.app;
-                            global.tests.dendroInstance = dendroInstance;
-                            global.tests.server = appInfo.server;
-                            callback(err, res);
-                        });
-                }
-                else
-                {
-                    Logger.log("error", "Error starting Dendro App!");
-                    Logger.log("error", JSON.stringify(err));
-                    callback(err);
-                }
-            });
+                    global.tests.app = appInfo.app;
+                    global.tests.dendroInstance = dendroInstance;
+                    global.tests.server = appInfo.server;
+                    callback(err, res);
+                });
         }
         else
         {
-            Logger.log("error", "Error initializing connections between dendro and database servers!");
+            Logger.log("error", "Error starting Dendro App!");
             Logger.log("error", JSON.stringify(err));
             callback(err);
         }

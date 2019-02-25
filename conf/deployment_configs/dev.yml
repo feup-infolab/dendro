@@ -13,8 +13,15 @@ dev:
   sendGridUser: __FIXME
   sendGridPassword: __FIXME
   index:
-    type: solr
+    type: elasticsearch
     solr:
+      connection_log_type: DEBUG #Set logger level (can be set to DEBUG, INFO, WARN, ERROR, FATAL or OFF)
+      use_auth: false
+      host: 127.0.0.1
+      port: '5000'
+      credentials:
+        username: user
+        password: pass
     elasticsearch:
       connection_log_type: ''
       use_auth: false
@@ -29,7 +36,7 @@ dev:
     port: '27018'
     id: default
     log:
-      log_datastore_ops: true
+      log_datastore_ops: false
     username: admin
     password: 34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi
   ontologies_cache:

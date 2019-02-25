@@ -1571,9 +1571,6 @@ Resource.prototype.reindex = function (callback, customGraphUri)
         last_indexing_date: now.toISOString()
     };
 
-    // Logger.log("Reindexing resource " + self.uri);
-    // Logger.log("Document: \n" + JSON.stringify(document, null, 4));
-
     self.getIndexDocumentId(function (err, id)
     {
         if (isNull(err))
@@ -1584,7 +1581,6 @@ Resource.prototype.reindex = function (callback, customGraphUri)
             }
 
             indexConnection.indexDocument(
-                IndexConnection.indexTypes.resource,
                 document,
                 function (err, result)
                 {
@@ -1639,7 +1635,6 @@ Resource.prototype.unindex = function (callback, customGraphUri)
 
                 indexConnection.deleteDocument(
                     id,
-                    IndexConnection.indexTypes.resource,
                     function (err, result)
                     {
                         if (isNull(err))
@@ -1674,53 +1669,7 @@ Resource.prototype.getIndexDocumentId = function (callback, customGraphUri)
     let self = this;
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
     const indexConnection = IndexConnection.getByGraphUri(graphUri);
-
-    // fetch document from the index that matches the current resource
-    const queryObject = {
-        query: {
-            constant_score: {
-                filter: {
-                    term: {
-                        uri: self.uri
-                    }
-                }
-            }
-        },
-        from: 0,
-        size: 200
-    };
-
-    indexConnection.search(
-        // search in all graphs for resources (generic type)
-        IndexConnection.indexTypes.resource,
-        queryObject,
-        function (err, hits)
-        {
-            if (isNull(err))
-            {
-                if (!isNull(hits) && hits instanceof Array && hits.length > 0)
-                {
-                    if (hits.length > 1)
-                    {
-                        Logger.log("error", "Duplicate document in index detected for resource !!! Fix it " + self.uri);
-                    }
-                    let hit = hits[0];
-                    if (isNull(hit._id))
-                    {
-                        let message = "_id value is missing when looking for the index document id for " + self.uri;
-                        Logger.log("error", message);
-                        return callback(1, message);
-                    }
-
-                    return callback(null, hit._id);
-                }
-
-                // Resource was not previously indexed
-                return callback(null, null);
-            }
-            return callback(1, [hits]);
-        }
-    );
+    indexConnection.getDocumentIDForResource(self.uri, callback);
 };
 
 Resource.prototype.getTextuallySimilarResources = function (callback, maxResultSize, customGraphUri)
@@ -1736,7 +1685,6 @@ Resource.prototype.getTextuallySimilarResources = function (callback, maxResultS
             {
                 // search in all graphs for resources (generic type)
                 indexConnection.moreLikeThis(
-                    IndexConnection.indexTypes.resource,
                     id,
                     function (err, results)
                     {
@@ -1782,25 +1730,15 @@ Resource.findResourcesByTextQuery = function (
     callback)
 {
     const queryObject = {
-        query: {
-            match: {
-                "descriptors.object": {
-                    query: queryString
-                }
-            }
-        },
+        query: queryString,
         from: resultSkip,
-        size: maxResultSize,
-        sort: [
-            "_score"
-        ]
+        size: maxResultSize
     };
 
     Logger.log("debug", "Index Query in JSON : " + JSON.stringify(queryObject, null, 4));
 
     indexConnection.search(
         // search in all graphs for resources (generic type)
-        IndexConnection.indexTypes.resource,
         queryObject,
         function (err, results)
         {
@@ -1846,25 +1784,9 @@ Resource.prototype.restoreFromIndexDocument = function (callback, customGraphUri
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
     const indexConnection = IndexConnection.getByGraphUri(graphUri);
 
-    // fetch document from the index that matches the current resource
-    const queryObject = {
-        query: {
-            constant_score: {
-                filter: {
-                    term: {
-                        uri: self.uri
-                    }
-                }
-            }
-        },
-        from: 0,
-        size: 200
-    };
-
-    indexConnection.search(
+    indexConnection.getDocumentByResourceURI(
         // search in all graphs for resources (generic type)
-        IndexConnection.indexTypes.resource,
-        queryObject,
+        self.uri,
         function (err, hits)
         {
             if (isNull(err))

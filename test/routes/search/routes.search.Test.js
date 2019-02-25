@@ -7,15 +7,11 @@ const _ = require("underscore");
 chai.use(chaiHttp);
 
 const rlequire = require("rlequire");
-const Project = rlequire("dendro", "src/models/project.js").Project;
-const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder;
-const Resource = rlequire("dendro", "src/models/resource.js").Resource;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
 const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");
-const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2.js");
-const demouser3 = rlequire("dendro", "test/mockdata/users/demouser3.js");
 
 const metadataOnlyProject = require("../../mockdata/projects/metadata_only_project.js");
 const publicProject = require("../../mockdata/projects/public_project.js");
@@ -36,6 +32,9 @@ const folderDemoUser2 = rlequire("dendro", "test/mockdata/folders/folderDemoUser
 
 const foldersData = [folder];
 
+const admin = rlequire("dendro", "test/mockdata/users/admin");
+const administerUtils = rlequire("dendro", "test/utils/administer/administerUtils.js");
+
 describe("/search", function ()
 {
     this.timeout(Config.testsTimeout);
@@ -44,7 +43,22 @@ describe("/search", function ()
         AddMetadataToFoldersUnit.setup(function (err, results)
         {
             should.not.exist(err);
-            done(err);
+
+            userUtils.loginUser(admin.username, admin.password, function (err, agent)
+            {
+                administerUtils.reindexGraphs(
+                    agent,
+                    {
+                        graphs_to_reindex: ["dendro_graph", "social_dendro", "notifications_dendro"],
+                        graphs_to_delete: ["dendro_graph", "social_dendro", "notifications_dendro"]
+                    },
+                    function (err, res)
+                    {
+                        res.should.have.status(200);
+                        res.text.should.contain("System administration page");
+                        done(err);
+                    });
+            });
         });
     });
 

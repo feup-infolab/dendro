@@ -146,9 +146,9 @@ module.exports.reindex = function (req, res)
                 // delete current index if requested
                 function (callback)
                 {
-                    indexConnection.create_new_index(deleteBeforeReindexing, function (err, result)
+                    indexConnection.createNewIndex(function (err, result)
                     {
-                        if (isNull(err) && isNull(result))
+                        if (isNull(err))
                         {
                             Logger.log("Index " + indexConnection.short_name + " recreated .");
                             return callback(null);
@@ -157,7 +157,7 @@ module.exports.reindex = function (req, res)
                         Logger.log("Error recreating index " + indexConnection.short_name + " . " + result);
                         // delete success, move on
                         return callback(1);
-                    });
+                    }, deleteBeforeReindexing);
                 },
                 // select all elements in the knowledge base
                 function (callback)

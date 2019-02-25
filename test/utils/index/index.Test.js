@@ -14,7 +14,7 @@ module.exports.deleteIndexes = function (finish)
     let indexConnection = new IndexConnection();
     indexConnection.open(IndexConnection._all.dendro_graph, function (index)
     {
-        index.delete_index(function (err, res)
+        index.deleteIndex(function (err, res)
         {
             should.equal(err, null);
             finish(err, res);

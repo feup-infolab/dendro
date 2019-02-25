@@ -263,7 +263,7 @@ class App
                 },
                 function (callback)
                 {
-                    // create search indexes on elasticsearch if needed
+                    // create search indexes if needed
                     rlequire("dendro", "src/bootup/init/connect_to_indexes.js").connectToIndexes(self.app, callback);
                 },
                 function (callback)

@@ -2,7 +2,6 @@ const async = require("async");
 const rlequire = require("rlequire");
 const slug = rlequire("dendro", "src/utils/slugifier.js");
 const _ = require("underscore");
-const CKAN = require("ckan");
 
 const Utils = rlequire("dendro", "public/js/utils.js").Utils;
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
@@ -316,6 +315,7 @@ const checkIfResourceHasTheRequiredMetadataForExport = function (requestedResour
  */
 const getBothDendroDiffsAndCkanDiffs = function (requestedResourceUri, targetRepository, callback)
 {
+    const CKAN = require("ckan");
     const client = new CKAN.Client(targetRepository.ddr.hasExternalUri, targetRepository.ddr.hasAPIKey);
     let exportedAtDate = null;
     let changedResourcesInCkan = [];

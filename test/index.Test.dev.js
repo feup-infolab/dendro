@@ -16,9 +16,6 @@ global.Config = Config;
 
 global.tests = {};
 
-// Indexing
-rlequire("dendro", "test/routes/admin/reindex/routes.admin.reindex.Test.js");
-
 // Search
 rlequire("dendro", "test/routes/search/routes.search.Test.js");
 
