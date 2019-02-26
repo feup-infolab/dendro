@@ -17,6 +17,18 @@ services:
     networks:
       - dendro
 
+  solr:
+    container_name: solr-dendro-dev
+    image: solr:7.7.0-slim
+    ports:
+      - "8983:8983"
+    volumes:
+      - ./volumes/solr:/opt/solr/server/solr/mycores
+    entrypoint:
+      - docker-entrypoint.sh
+      - solr-precreate
+      - mycore
+
   virtuoso:
     container_name: virtuoso-dendro-dev
     image: joaorosilva/virtuoso:7.2.4-for-dendro-0.4

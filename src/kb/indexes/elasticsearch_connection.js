@@ -14,11 +14,6 @@ const dbNotifications = Config.getDBByID("notifications");
 
 const elasticsearch = require("elasticsearch");
 
-const getAddress = function (host, port)
-{
-    return (port) ? host + ":" + port : host;
-};
-
 class ElasticSearchConnection extends IndexConnection
 {
     constructor (options)
@@ -30,7 +25,7 @@ class ElasticSearchConnection extends IndexConnection
         self.elasticsearchMappings = options.elasticsearchMappings;
 
         self.clientOptions = {
-            host: getAddress(self.host, self.port),
+            host: self.prototype.getAddress(self.host, self.port),
             keepAlive: true
         };
 

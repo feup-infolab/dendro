@@ -15,7 +15,7 @@ test:
   index:
     type: elasticsearch
     solr:
-      connection_log_type: DEBUG #Set logger level (can be set to DEBUG, INFO, WARN, ERROR, FATAL or OFF)
+      connection_log_type: debug #Set logger level (can be set to DEBUG, INFO, WARN, ERROR, FATAL or OFF)
       use_auth: false
       host: 127.0.0.1
       port: '5000'

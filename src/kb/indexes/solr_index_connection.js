@@ -6,7 +6,6 @@ const rlequire = require("rlequire");
 const slug = rlequire("dendro", "src/utils/slugifier.js");
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
-const fs = require("fs");
 
 const IndexConnection = rlequire("dendro", "src/kb/indexes/index_connection.js").IndexConnection;
 
@@ -22,7 +21,16 @@ class SolrIndexConnection extends IndexConnection
     {
         super(options);
         const self = this;
+
+        _.extend(options, Config.index.solr);
         self.queried_fields = options.queried_fields;
+
+        self.host = options.host;
+        self.port = options.port;
+        self.connection_log_type = options.connection_log_type;
+
+        self._indexIsOpen = false;
+
         return self;
     }
 
@@ -120,9 +128,7 @@ class SolrIndexConnection extends IndexConnection
                     core: self.id,
                     protocol: "http"
                 });
-
-                // Set logger level (can be set to DEBUG, INFO, WARN, ERROR, FATAL or OFF)
-                require("log4js").getLogger("solr-node").level = self.connection_log_type;
+                callback(null);
             }
         ], function (err, results)
         {
@@ -186,9 +192,17 @@ class SolrIndexConnection extends IndexConnection
             .addParams({
                 wt: "json",
                 indent: true
-            })
-            .start(options.skip)
-            .rows(options.size);
+            });
+
+        if (options.skip)
+        {
+            queryObject.start(options.skip);
+        }
+
+        if (options.size)
+        {
+            queryObject.rows(options.size);
+        }
 
         self.client.search(queryObject, function (err, result)
         {
@@ -207,7 +221,6 @@ class SolrIndexConnection extends IndexConnection
 
     getDocumentIDForResource (resourceURI, callback)
     {
-        const self = this;
         callback(null, resourceURI);
     }
 
