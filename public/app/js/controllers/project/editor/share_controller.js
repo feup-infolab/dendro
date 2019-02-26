@@ -174,8 +174,6 @@ angular.module("dendroApp.controllers")
                 new_repository.ddr.hasPlatform = $scope.new_repository_type;
 
                 var url = window.location.pathname;
-                var calling = $scope.get_currently_selected_resource();
-                var thumb = $scope.get_calling_uri_thumbnail();
 
                 let shared = $scope.shared;
 
@@ -211,6 +209,7 @@ angular.module("dendroApp.controllers")
                     statusCode: $scope.statusCodeDefaults
                 });
             };
+
             $scope.create_new_repository_bookmark_dendro_local = function (new_repository)
             {
                 if (new_repository.ddr == null)
@@ -220,17 +219,14 @@ angular.module("dendroApp.controllers")
                 new_repository.ddr.hasPlatform = $scope.new_repository_type;
 
                 var url = window.location.pathname;
-                var calling = $scope.get_currently_selected_resource();
-                var thumb = $scope.get_calling_uri_thumbnail();
 
-                let shared = $scope.shared;
 
                 let selectedUri = [];
 
                 selectedUri.push('www.url.pt');
                 new_repository.ddr.exportedResource = selectedUri;
                 new_repository.ddr.exportedFromFolder = url;
-                new_repository.ddr.hasExternalUri = "www.url.pt";
+                new_repository.ddr.hasExternalUri = "";
 
                 var requestPayload = JSON.stringify(new_repository);
 
@@ -376,10 +372,6 @@ angular.module("dendroApp.controllers")
                 }
                 return false;
             };
-
-
-
-
 
             $scope.clear_recalled_repository = function ()
             {

@@ -443,13 +443,12 @@ angular.module("dendroApp.controllers")
 
         $scope.get_clipboard_file_count = function ()
         {
-            if ($scope.copied_files.length > 0)
-            {
-                return $scope.copied_files.length;
-            }
-            else if ($scope.cut_files.length > 0)
-            {
-                return $scope.cut_files.length;
+            if($scope.copied_files != null && $scope.copied_files instanceof Array) {
+                if ($scope.copied_files.length > 0 ) {
+                    return $scope.copied_files.length;
+                } else if ($scope.cut_files.length > 0 ) {
+                    return $scope.cut_files.length;
+                }
             }
             return 0;
         };

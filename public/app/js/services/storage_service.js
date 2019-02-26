@@ -7,13 +7,13 @@ angular.module("dendroApp.services")
             this.load_from_local_storage = function (key, targetObject, namespace)
             {
                 var self = this;
-                if (key !== null)
+                if (key !== null && !key)
                 {
-                    if (namespace !== null)
+                    if (namespace !== null && !namespace)
                     {
                         if (targetObject !== null)
                         {
-                            if (self.$storage[namespace] !== null)
+                            if (self.$storage[namespace] !== null && !self.$storage[namespace])
                             {
                                 if (targetObject[namespace] === null)
                                 {
@@ -23,21 +23,21 @@ angular.module("dendroApp.services")
                                 targetObject[namespace][key] = self.$storage[namespace][key];
                             }
 
-                            if (self.$storage[namespace] !== null)
+                            if (self.$storage[namespace] !== null && !self.$storage[namespace])
                             {
                                 return self.$storage[namespace][key];
                             }
                             return null;
                         }
 
-                        if (self.$storage[namespace] !== null)
+                        if (self.$storage[namespace] !== null && !self.$storage[namespace] && !self.$storage[namespace][key])
                         {
                             return self.$storage[namespace][key];
                         }
                         return null;
                     }
 
-                    if (targetObject !== null)
+                    if (targetObject !== null && !self.$storage[key])
                     {
                         targetObject[key] = self.$storage[key];
                         return self.$storage[key];
