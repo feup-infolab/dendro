@@ -62,26 +62,22 @@ const validateNewBookmarkRequest = function (req, res)
 
         return false;
     }
-    else if (isNull(req.body.ddr.hasExternalUri) && req.body.ddr.hasPlatform.foaf.nick !== "local")
+    else if (req.body.ddr.hasPlatform.foaf.nick === "local")
     {
-        res.status(400).json({
-            result: "error",
-            message: "You must specify the url of the bookmarked repository"
-        });
-
-        return false;
-    }
-    else if (!validator.isURL(req.body.ddr.hasExternalUri) && req.body.ddr.hasPlatform.foaf.nick !== "local")
-    {
-        res.status(400).json({
-            result: "error",
-            message: "Invalid url for the repository bookmark"
-        });
-
-        return false;
+        return true;
     }
     else if (req.body.ddr.hasPlatform.foaf.nick === "dspace" || req.body.ddr.hasPlatform.foaf.nick === "eprints")
     {
+        if (isNull(req.body.ddr.hasExternalUri))
+        {
+            res.status(400).json({
+                result: "error",
+                message: "You must specify the url of the bookmarked repository"
+            });
+
+            return false;
+        }
+
         if (isNull(req.body.ddr.hasSwordCollectionUri) || isNull(req.body.ddr.hasSwordCollectionLabel))
         {
             res.status(400).json({
@@ -94,6 +90,15 @@ const validateNewBookmarkRequest = function (req, res)
     }
     else if (req.body.ddr.hasPlatform.foaf.nick === "ckan")
     {
+        if (isNull(req.body.ddr.hasExternalUri))
+        {
+            res.status(400).json({
+                result: "error",
+                message: "You must specify the url of the bookmarked repository"
+            });
+
+            return false;
+        }
         if (isNull(req.body.ddr.hasAPIKey))
         {
             res.status(400).json({
@@ -106,6 +111,16 @@ const validateNewBookmarkRequest = function (req, res)
     }
     else if (req.body.ddr.hasPlatform.foaf.nick === "figshare")
     {
+        if (isNull(req.body.ddr.hasExternalUri))
+        {
+            res.status(400).json({
+                result: "error",
+                message: "You must specify the url of the bookmarked repository"
+            });
+
+            return false;
+        }
+
         if (isNull(req.body.ddr.hasConsumerKey))
         {
             res.status(400).json({
@@ -191,21 +206,21 @@ exports.new = function (req, res)
     {
         try
         {
-            if (req.body.ddr.hasPlatform.foaf.nick === "eprints")
-            {
-                req.body.ddr.hasSwordCollectionUri = req.body.ddr.hasExternalUri + Config.swordConnection.EprintsCollectionRef;
-                req.body.ddr.hasSwordCollectionLabel = "EPrints";
-            }
-            else if (req.body.ddr.hasPlatform.foaf.nick === "b2share")
-            {
-                if (isNull(req.body.ddr.hasAccessToken))
-                {
-                    req.body.ddr.hasAccessToken = Config.eudatToken;
-                }
-            }
-
             if (validateNewBookmarkRequest(req, res))
             {
+                if (req.body.ddr.hasPlatform.foaf.nick === "eprints")
+                {
+                    req.body.ddr.hasSwordCollectionUri = req.body.ddr.hasExternalUri + Config.swordConnection.EprintsCollectionRef;
+                    req.body.ddr.hasSwordCollectionLabel = "EPrints";
+                }
+                else if (req.body.ddr.hasPlatform.foaf.nick === "b2share")
+                {
+                    if (isNull(req.body.ddr.hasAccessToken))
+                    {
+                        req.body.ddr.hasAccessToken = Config.eudatToken;
+                    }
+                }
+
                 RepositoryPlatform.findByPropertyValue(new Descriptor(
                     {
                         value: req.body.ddr.hasPlatform.ddr.handle,

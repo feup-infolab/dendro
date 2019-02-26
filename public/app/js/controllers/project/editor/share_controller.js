@@ -220,17 +220,8 @@ angular.module("dendroApp.controllers")
                 new_repository.ddr.hasPlatform = $scope.new_repository_type;
 
                 var url = window.location.pathname;
-                var calling = $scope.get_currently_selected_resource();
-                var thumb = $scope.get_calling_uri_thumbnail();
 
-                let shared = $scope.shared;
-
-                let selectedUri = [];
-
-                selectedUri.push('www.url.pt');
-                new_repository.ddr.exportedResource = selectedUri;
                 new_repository.ddr.exportedFromFolder = url;
-                new_repository.ddr.hasExternalUri = "www.url.pt";
 
                 var requestPayload = JSON.stringify(new_repository);
 
