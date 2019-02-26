@@ -216,11 +216,8 @@ angular.module("dendroApp.controllers")
                     new_repository.ddr = {};
                 }
                 new_repository.ddr.hasPlatform = $scope.new_repository_type;
-
                 var url = window.location.pathname;
-
                 new_repository.ddr.exportedFromFolder = url;
-
                 var requestPayload = JSON.stringify(new_repository);
 
                 $.ajax({
