@@ -25,7 +25,7 @@ class ElasticSearchConnection extends IndexConnection
         self.elasticsearchMappings = options.elasticsearchMappings;
 
         self.clientOptions = {
-            host: self.prototype.getAddress(self.host, self.port),
+            host: IndexConnection.getAddress(self.host, self.port),
             keepAlive: true
         };
 
