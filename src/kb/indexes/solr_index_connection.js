@@ -128,7 +128,7 @@ class SolrIndexConnection extends IndexConnection
                     core: self.id,
                     protocol: "http"
                 });
-                callback(null);
+                callback(null, self.client);
             }
         ], function (err, results)
         {
