@@ -23,7 +23,6 @@ class SolrIndexConnection extends IndexConnection
         const self = this;
 
         _.extend(options, Config.index.solr);
-        self.queried_fields = options.queried_fields;
 
         self.host = options.host;
         self.port = options.port;
@@ -38,7 +37,28 @@ class SolrIndexConnection extends IndexConnection
     {
         const self = this;
 
-        self.client.update(document, function (err, result)
+        const emptyDoc = {
+            id: document.uri,
+            uri : document.uri,
+            last_indexing_date: (new Date()).toISOString(),
+            graph: self.uri
+        };
+
+        for(let i = 0; i < document.descriptors.length; i++)
+        {
+            let predicate = document.descriptors[i].predicate;
+            let object = document.descriptors[i].object;
+            if(isNull(emptyDoc[predicate]))
+            {
+                emptyDoc[predicate] = [object];
+            }
+            else
+            {
+                emptyDoc[predicate].push(object);
+            }
+        }
+
+        self.client.update(emptyDoc, function (err, result)
         {
             if (isNull(err))
             {
@@ -62,7 +82,7 @@ class SolrIndexConnection extends IndexConnection
         }
 
         self.client.delete(
-            { uri: documentID},
+            { id: documentID},
             function (err, result)
             {
                 if (isNull(err))
@@ -126,7 +146,8 @@ class SolrIndexConnection extends IndexConnection
                     host: self.host,
                     port: self.port,
                     core: self.id,
-                    protocol: "http"
+                    protocol: "http",
+
                 });
                 callback(null, self.client);
             }
@@ -151,7 +172,7 @@ class SolrIndexConnection extends IndexConnection
             });
         }
 
-        const queryObject = {};
+        const queryObject = "*:*";
         self.client.delete(queryObject, function (err, result)
         {
             if (isNull(err))
@@ -178,17 +199,9 @@ class SolrIndexConnection extends IndexConnection
     {
         let self = this;
 
-        const fields = Object.keys(self.queried_fields);
-        const queryFields = {};
-
-        for (let i = 0; i < fields.length; i++)
-        {
-            let key = fields[i];
-            queryFields[key] = options.query;
-        }
-
         const queryObject = self.client.query()
-            .q(queryFields)
+            .q("*:*")
+            .q(options.query)
             .addParams({
                 wt: "json",
                 indent: true
@@ -208,7 +221,7 @@ class SolrIndexConnection extends IndexConnection
         {
             if (isNull(err))
             {
-                callback(null, result.rows);
+                callback(null, result.response.docs);
             }
             else
             {
@@ -228,7 +241,7 @@ class SolrIndexConnection extends IndexConnection
     {
         const self = this;
 
-        const queryObject = self.client.query().q({uri: resourceURI}).rows(1);
+        const queryObject = self.client.query().q({id: resourceURI}).rows(1);
         self.client.search(queryObject, function (err, result)
         {
             if (isNull(err))
@@ -254,38 +267,32 @@ SolrIndexConnection._all = {
     dendro_graph: new SolrIndexConnection({
         id: "dendro_graph",
         short_name: slug(db.graphUri),
-        uri: db.graphUri,
-        queried_fields: ["descriptors.object"]
+        uri: db.graphUri
     }),
     social_dendro: new SolrIndexConnection({
         id: "social_dendro",
         short_name: slug(dbSocial.graphUri),
-        uri: dbSocial.graphUri,
-        queried_fields: ["descriptors.object"]
+        uri: dbSocial.graphUri
     }),
     notifications_dendro: new SolrIndexConnection({
         id: "notifications_dendro",
         short_name: slug(dbNotifications.graphUri),
-        uri: dbNotifications.graphUri,
-        queried_fields: ["descriptors.object"]
+        uri: dbNotifications.graphUri
     }),
     dbpedia: new SolrIndexConnection({
         id: "dbpedia",
         short_name: slug("http://dbpedia.org"),
-        uri: "http://dbpedia.org",
-        queried_fields: ["descriptors.object"]
+        uri: "http://dbpedia.org"
     }),
     dryad: new SolrIndexConnection({
         id: "dryad",
         short_name: slug("http://dryad.org"),
-        uri: "http://dryad.org",
-        queried_fields: ["descriptors.object"]
+        uri: "http://dryad.org"
     }),
     freebase: new SolrIndexConnection({
         id: "freebase",
         short_name: slug("http://freebase.org"),
-        uri: "http://freebase.org",
-        queried_fields: ["descriptors.object"]
+        uri: "http://freebase.org"
     })
 };
 

@@ -27,7 +27,7 @@ services:
     entrypoint:
       - bash
       - "-c"
-      - "precreate-core dendro_graph; precreate-core social_dendro; precreate-core notifications; precreate-core dryad; precreate-core freebase; precreate-core dbpedia;  exec solr -f"
+      - "precreate-core dendro_graph; precreate-core social_dendro; precreate-core notifications_dendro; precreate-core dryad; precreate-core freebase; precreate-core dbpedia;  exec solr -f"
 
   virtuoso:
     container_name: virtuoso-dendro-dev

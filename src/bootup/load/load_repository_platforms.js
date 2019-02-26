@@ -1,7 +1,7 @@
 const fs = require("fs");
 const _ = require("underscore");
 const async = require("async");
-const req = require("require-yml");
+const yaml = require('js-yaml');
 
 const rlequire = require("rlequire");
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
@@ -24,7 +24,7 @@ const loadRepositoryPlatforms = function (app, callback)
     }
     else
     {
-        activeConfigKey = req(active_config_file_path).key;
+        activeConfigKey = yaml.safeLoad(fs.readFileSync(active_config_file_path)).key;
     }
 
     let active_config_for_repositoryPlatforms = repositoryPlatformConfigs[activeConfigKey];

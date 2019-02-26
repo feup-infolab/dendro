@@ -664,6 +664,13 @@ class ElasticSearchConnection extends IndexConnection
                     })
                     .then(function (response)
                     {
+                        _.map(response.hits.hits, function(hit){
+                            hit.descriptors = hit._source.descriptors;
+                            hit.graph = hit._source.graph;
+                            hit.last_indexing_date = hit._source.last_indexing_date;
+                            hit.uri = hit._source.uri;
+                        });
+
                         callback(null, response.hits.hits);
                     })
                     .catch(function (error)

@@ -10,7 +10,7 @@ function Config ()
 const fs = require("fs");
 const path = require("path");
 const _ = require("underscore");
-const req = require("require-yml");
+const yaml = require('js-yaml');
 const isNull = require("../../utils/null.js").isNull;
 
 const Elements = require("./elements.js").Elements;
@@ -48,7 +48,7 @@ else
         }
         else
         {
-            activeConfigKey = req(configSelectorFilePath).key;
+            activeConfigKey = yaml.safeLoad(fs.readFileSync(configSelectorFilePath)).key;
             Logger.log("debug", "Configuration file exists at " + configSelectorFilePath + " and the configuration key inside is " + activeConfigKey);
         }
     }
@@ -56,7 +56,7 @@ else
 
 Config.activeConfigKey = activeConfigKey;
 Config.activeConfigFilePath = rlequire.absPathInApp("dendro", `conf/deployment_configs/${activeConfigKey}.yml`);
-Config.activeConfig = req(Config.activeConfigFilePath)[activeConfigKey];
+Config.activeConfig = yaml.safeLoad(fs.readFileSync(Config.activeConfigFilePath))[activeConfigKey];
 
 if (isNull(Config.activeConfig))
 {
