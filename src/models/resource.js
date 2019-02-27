@@ -1681,7 +1681,7 @@ Resource.prototype.getTextuallySimilarResources = function (callback, maxResultS
     {
         if (isNull(err))
         {
-            if (!isNull(id))
+            if (!isNull(id) && typeof indexConnection.moreLikeThis === "function")
             {
                 // search in all graphs for resources (generic type)
                 indexConnection.moreLikeThis(
@@ -1706,6 +1706,7 @@ Resource.prototype.getTextuallySimilarResources = function (callback, maxResultS
             else
             {
                 // document is not indexed, therefore has no ID. return empty array as list of similar resources.
+                // alternatively, the index connection does not implement More Like This, so we return
                 return callback(null, []);
             }
         }

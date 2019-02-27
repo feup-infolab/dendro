@@ -10,7 +10,7 @@ function Config ()
 const fs = require("fs");
 const path = require("path");
 const _ = require("underscore");
-const yaml = require('js-yaml');
+const yaml = require("js-yaml");
 const isNull = require("../../utils/null.js").isNull;
 
 const Elements = require("./elements.js").Elements;

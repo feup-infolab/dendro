@@ -35,28 +35,22 @@ class SolrIndexConnection extends IndexConnection
 
     indexDocument (document, callback)
     {
+        const uuid = require("uuid");
         const self = this;
 
         const emptyDoc = {
             id: document.uri,
-            uri : document.uri,
+            uri: document.uri,
             last_indexing_date: (new Date()).toISOString(),
             graph: self.uri
         };
 
-        for(let i = 0; i < document.descriptors.length; i++)
+        emptyDoc._childDocuments_ = document.descriptors;
+
+        _.map(emptyDoc._childDocuments_, function (descriptorDoc)
         {
-            let predicate = document.descriptors[i].predicate;
-            let object = document.descriptors[i].object;
-            if(isNull(emptyDoc[predicate]))
-            {
-                emptyDoc[predicate] = [object];
-            }
-            else
-            {
-                emptyDoc[predicate].push(object);
-            }
-        }
+            descriptorDoc.id = uuid.v4();
+        });
 
         self.client.update(emptyDoc, function (err, result)
         {
@@ -146,7 +140,7 @@ class SolrIndexConnection extends IndexConnection
                     host: self.host,
                     port: self.port,
                     core: self.id,
-                    protocol: "http",
+                    protocol: "http"
 
                 });
                 callback(null, self.client);
@@ -199,33 +193,42 @@ class SolrIndexConnection extends IndexConnection
     {
         let self = this;
 
-        const queryObject = self.client.query()
-            .q("*:*")
-            .q(options.query)
-            .addParams({
-                wt: "json",
-                indent: true
-            });
+        let strQuery = `q={!parent which='uri:*'}object:${options.query}'` +
+                          `&fl=*, [parentFilter=uri:* child limit=10000]` +
+                          `&wt=json` +
+                          `&indent: true`;
 
         if (options.skip)
         {
-            queryObject.start(options.skip);
+            strQuery += `&skip=${encodeURIComponent(options.skip)}`;
         }
 
         if (options.size)
         {
-            queryObject.rows(options.size);
+            strQuery += `&size=${encodeURIComponent(options.size)}`;
         }
 
-        self.client.search(queryObject, function (err, result)
+        self.client.search(strQuery, function (err, result)
         {
             if (isNull(err))
             {
+                _.map(result.response.docs, function (doc)
+                {
+                    doc.descriptors = doc._childDocuments_;
+                    _.map(doc.descriptors, function (descriptor)
+                    {
+                        delete descriptor.id;
+                        delete descriptor._version;
+                    });
+
+                    delete doc._childDocuments_;
+                });
+
                 callback(null, result.response.docs);
             }
             else
             {
-                const error = "Error fetching documents from solr for query : " + JSON.stringify(queryObject) + ". Reported error : " + JSON.stringify(err);
+                const error = "Error fetching documents from solr for query : " + strQuery + ". Reported error : " + JSON.stringify(err);
                 Logger.log("error", error);
                 callback(1, error);
             }
@@ -255,6 +258,12 @@ class SolrIndexConnection extends IndexConnection
                 callback(1, error);
             }
         });
+    }
+
+    // TODO implement more like this
+    moreLikeThis (id, callback)
+    {
+        callback(null, []);
     }
 
     static closeConnections (cb)

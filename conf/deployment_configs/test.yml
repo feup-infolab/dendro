@@ -13,12 +13,12 @@ test:
   sendGridUser: __FIXME
   sendGridPassword: __FIXME
   index:
-    type: elasticsearch
+    type: solr
     solr:
       connection_log_type: debug #Set logger level (can be set to DEBUG, INFO, WARN, ERROR, FATAL or OFF)
       use_auth: false
       host: 127.0.0.1
-      port: '5000'
+      port: '8983'
       credentials:
         username: user
         password: pass

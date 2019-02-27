@@ -7,7 +7,7 @@ const _ = require("underscore");
 const async = require("async");
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const fs = require("fs");
-const yaml = require('js-yaml');
+const yaml = require("js-yaml");
 
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const IndexConnection = rlequire("dendro", "src/kb/index.js").IndexConnection;

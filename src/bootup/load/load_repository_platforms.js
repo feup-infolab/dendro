@@ -1,7 +1,7 @@
 const fs = require("fs");
 const _ = require("underscore");
 const async = require("async");
-const yaml = require('js-yaml');
+const yaml = require("js-yaml");
 
 const rlequire = require("rlequire");
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
