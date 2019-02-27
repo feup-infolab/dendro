@@ -44,7 +44,7 @@ exports.sendDeposits = function (jsonOnly, params, agent, callback)
 
 exports.createDeposit = function (deposit, callback)
 {
-    Deposit.createDepositRegistry(deposit, function (err, deposit)
+    Deposit.createDeposit(deposit, function (err, deposit)
     {
         callback(err, deposit);
     });

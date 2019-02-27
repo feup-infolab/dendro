@@ -437,7 +437,7 @@ Folder.prototype.copyPaste = function ({includeMetadata, user, destinationFolder
         {
           if (includeMetadata)
           {
-            self.saveMetadata({absolutePathOfFinishedFolder, metadata}, function(err){
+             self.saveMetadata({absolutePathOfFinishedFolder, metadata}, function(err){
               cb(err);
             });
           }
@@ -467,7 +467,7 @@ Folder.prototype.copyPaste = function ({includeMetadata, user, destinationFolder
       });
 
     }else{
-        //callback()
+        callback(err, "error");
     }
   });
 };

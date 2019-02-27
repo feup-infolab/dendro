@@ -1381,7 +1381,7 @@ exports.copy_paste = function (req, res)
     function downloadFile (srcFileLocation, destFolder)
     {
     // File.download
-        File.copyPaste({destinationFolder: destFolder });
+        File.copyPaste({ destinationFolder: destFolder });
     }
 
     function downloadFolder (srcFolder, destFolder)

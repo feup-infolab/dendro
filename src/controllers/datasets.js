@@ -327,7 +327,7 @@ export_to_repository_ckan = function (req, res)
                             folder.getOwnerProject(function (err, project)
                             {
                                 registryData.ddr.exportedFromProject = project.uri;
-                                Deposit.createDepositRegistry(registryData, function (err, deposit)
+                                Deposit.createDeposit(registryData, function (err, deposit)
                                 {
                                     res.json({
                                         result: resultInfo.result,
@@ -1142,7 +1142,7 @@ export_to_dendro = function (req, res)
                     {
                         const registryData = {
                             dcterms: {
-                                title: file.dcterms.title,
+                                title: project.dcterms.title,
                                 creator: req.user.uri,
                                 identifier: "123456789"
                             },
@@ -1150,19 +1150,19 @@ export_to_dendro = function (req, res)
                                 exportedFromProject: project.uri,
                                 exportedFromFolder: file.uri,
                                 privacyStatus: isNull(privacy) || privacy === false ? "private" : "public",
-
                                 exportedToRepository: "Dendro",
                                 exportedToPlatform: "Dendro"
                             }
 
                         };
-                        Deposit.createDepositRegistry({registryData: registryData, requestedResource: file, user: req.user}, function (err, registry)
+                        file.copyPaste({destinationFolder: "/Home"}, function (err, writtenPath)
                         {
-                            let msg = "<br/><br/>Deposited successfully to Dendro. Check deposit <a href='" + registry.uri + "'>here<\/a>";
-                            /* if (!isNull(body.data) && !isNull(body.data.metadata) && typeof body.data.metadata.ePIC_PID !== "undefined")
-                          {
-                            msg = msg + "<br/><br/><a href='" + body.data.metadata.ePIC_PID + "'>Click to see your published dataset<\/a>";
-                          }*/
+                            const a = 1;
+                        });
+
+                        Deposit.createDeposit({registryData: registryData, requestedResource: file, user: req.user}, function(err, registry)
+                        {
+                            let msg = "<br/><br/>Deposited successfully to Dendro. Check deposit <a href='" + registry.uri + "'>here</a>";
                             res.json(
                                 {
                                     result: "OK",
@@ -1195,23 +1195,22 @@ export_to_dendro = function (req, res)
                                             exportedFromProject: project.uri,
                                             exportedFromFolder: folder.uri,
                                             privacyStatus: isNull(privacy) || privacy === false ? "private" : "public",
-
                                             exportedToRepository: "Dendro",
                                             exportedToPlatform: "Dendro"
                                         }
 
                                     };
-                                    Deposit.createDepositRegistry({
+                                    Folder.copyPaste({user: registryData.dcterms.creator, includeMetadata: true, destinationFolder: "/Home"}, function (err, writtenPath)
+                                    {
+                                        const a = writtenPath;
+                                    });
+                                    Deposit.createDeposit({
                                         registryData: registryData,
                                         requestedResource: folder,
                                         user: req.user
                                     }, function (err, registry)
                                     {
-                                        let msg = "<br/><br/>Deposited successfully to Dendro. Check deposit <a href='" + registry.uri + "'>here<\/a>";
-                                        /* if (!isNull(body.data) && !isNull(body.data.metadata) && typeof body.data.metadata.ePIC_PID !== "undefined")
-                            {
-                              msg = msg + "<br/><br/><a href='" + body.data.metadata.ePIC_PID + "'>Click to see your published dataset<\/a>";
-                            }*/
+                                        let msg = "<br/><br/>Deposited successfully to Dendro. Check deposit <a href='" + registry.uri + "'>here</a>";
                                         res.json(
                                             {
                                                 result: "OK",
@@ -1285,6 +1284,10 @@ exports.export_to_repository = function (req, res)
                 export_to_repository_b2share(req, res);
             }
             else if (nick === "dendro")
+            {
+                export_to_dendro(req, res);
+            }
+            else if (nick === "local")
             {
                 export_to_dendro(req, res);
             }

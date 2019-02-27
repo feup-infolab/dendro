@@ -252,7 +252,6 @@ File.prototype.copyPaste = function ({destinationFolder}, callback)
                 return callback(500, {
                     result: "error",
                     message: "Unable to save files after buffering: " + JSON.stringify(newFile),
-                    files: files,
                     errors: newFile
                 });
             });

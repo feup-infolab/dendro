@@ -14,7 +14,7 @@ const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const InformationElement = rlequire("dendro", "src/models/directory_structure/information_element.js").InformationElement;
-const Deposit = rlequire("dendro", "src//models/deposit.js").Deposit;
+const Deposit = rlequire("dendro", "src/models/deposit.js").Deposit;
 const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
 const Ontology = rlequire("dendro", "src/models/meta/ontology.js").Ontology;
 const Permissions = rlequire("dendro", "src/models/meta/permissions.js").Permissions;

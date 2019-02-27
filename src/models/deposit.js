@@ -45,11 +45,11 @@ function Deposit (object)
  * @param data
  * @param callback
  */
-Deposit.createDepositRegistry = function (data, callback)
+Deposit.createDeposit = function (data, callback)
 {
     let object = data.registryData;
     let content = data.requestedResource;
-    const newRegistry = new Deposit(object);
+    const newDeposit = new Deposit(object);
 
     const requestedResourceURI = object.ddr.exportedFromFolder;
 
@@ -79,15 +79,15 @@ Deposit.createDepositRegistry = function (data, callback)
         {
             if (isNull(err))
             {
-                newRegistry.ddr.hasStorageConfig = savedConfiguration.uri;
+                newDeposit.ddr.hasStorageConfig = savedConfiguration.uri;
                 // save deposited contents to dendro
-                Deposit.saveContents({newDeposit: newRegistry, content: content, user: data.user}, function (err, msg)
+                Deposit.saveContents({newDeposit: newDeposit, content: content, user: data.user}, function (err, msg)
                 {
-                    newRegistry.save(function (err, newRegistry)
+                    newDeposit.save(function (err, newDeposit)
                     {
                         if (!err)
                         {
-                            callback(err, newRegistry);
+                            callback(err, newDeposit);
                         }
                         else
                         {

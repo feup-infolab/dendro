@@ -62,6 +62,10 @@ angular.module("dendroApp.controllers", [])
                         value: true
                     },
                     {
+                        name: "Dendro",
+                        value: true
+                    },
+                    {
                         name: "DSpace",
                         value: true
                     },
@@ -184,7 +188,7 @@ angular.module("dendroApp.controllers", [])
             {
                 $scope.offset = 1;
                 $scope.updateDeposits(data);
-                $scope.totalDeposits = 1;
+                $scope.totalDeposits = 0;
 
                 if (change && data.repositories instanceof Array && data.repositories.length > 0)
                 {
@@ -207,7 +211,7 @@ angular.module("dendroApp.controllers", [])
                         $scope.totalDeposits += parseInt(repo.count);
                     }
                 }
-                else if ($scope.search.repositories !== undefined)
+                else if ($scope.search.repositories)
                 {
                     for (let repo of $scope.search.repositories.value)
                     {
@@ -281,7 +285,7 @@ angular.module("dendroApp.controllers", [])
                 };
                 scope.update = function (change)
                 {
-                    if (change == false)
+                    if (change === false)
                     {
                         return attr.searchfunction + "(false)";
                     }
