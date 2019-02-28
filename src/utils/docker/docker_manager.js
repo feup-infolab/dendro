@@ -90,12 +90,12 @@ DockerManager.checkpointExists = function (checkpointName, callback)
                     });
                 }, function (err, results)
                 {
-                    const notAllImagesExist = _.find(results, function (result)
+                    const allImagesExist = !_.find(results, function (result)
                     {
-                        return result !== true;
+                        return result === false;
                     });
 
-                    callback(err, notAllImagesExist);
+                    callback(err, allImagesExist);
                 });
             });
         }
@@ -157,7 +157,9 @@ DockerManager.restoreCheckpoint = function (checkpointName, callback)
                 {
                     DockerManager.stopAllOrchestras(function (err, result)
                     {
-                        DockerManager.startAllContainers(callback, checkpointName);
+                        DockerManager.startAllContainers(function(err, result){
+                            callback(err, result);
+                        }, checkpointName);
                     });
                 }
                 else
@@ -356,7 +358,8 @@ DockerManager.startOrchestra = function (orchestraName, callback, imagesSuffix)
 
                 if (!isNull(imagesSuffix))
                 {
-                    copyOfEnv = _.extend(copyOfEnv, {DENDRO_DOCKER_CONTAINERS_SUFFIX: imagesSuffix});
+                    Logger.log("Docker containers in orchestra " + orchestraName + " starting with state "+ imagesSuffix);
+                    _.extend(copyOfEnv, {"DENDRO_DOCKER_CONTAINERS_SUFFIX" : imagesSuffix});
                 }
 
                 dockerSubProcess = childProcess.exec("docker-compose up -d --no-recreate", {
@@ -381,16 +384,24 @@ DockerManager.startOrchestra = function (orchestraName, callback, imagesSuffix)
 
                                 // TODO we ignore errors because in many cases a container with that name is already running.
                                 // TODO Need a way to detect and manage containers witht the same names...
-                                callback(null, result);
+
+                                if (!isNull(imagesSuffix))
+                                {
+                                    callback(null, imagesSuffix);
+                                }
+                                else
+                                {
+                                    callback(null);
+                                }
                             }
                             else
                             {
-                                callback(err, result);
+                                callback(err, null);
                             }
                         }
                         else
                         {
-                            callback(err, result);
+                            callback(err, null);
                         }
                     }
                     else
@@ -399,7 +410,14 @@ DockerManager.startOrchestra = function (orchestraName, callback, imagesSuffix)
                             id: orchestraName,
                             dockerComposeFolder: dockerComposeFolder
                         };
-                        callback(err, result);
+                        if (!isNull(imagesSuffix))
+                        {
+                            callback(null, imagesSuffix);
+                        }
+                        else
+                        {
+                            callback(null);
+                        }
                     }
                 });
                 logEverythingFromChildProcess(dockerSubProcess);

@@ -339,7 +339,7 @@ test:
     active: true
     reuse_checkpoints: true
     create_checkpoints: true
-    destroy_existing_images_at_start: true
+    destroy_existing_images_at_start: false
     stop_containers_automatically: false
     start_containers_automatically: true
   virtualbox:

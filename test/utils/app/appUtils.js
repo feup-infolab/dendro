@@ -28,38 +28,6 @@ const applyCooldownToTests = function (callback)
                 sleep.sleep(Config.testing.cooldown_secs);
             }
             cb(null);
-        },
-        function (cb)
-        {
-            if (Config.virtualbox.active && Config.virtualbox.restart_vm_every_x_tests > 0 && numberofTestsRun % Config.virtualbox.restart_vm_every_x_tests === 0)
-            {
-                Logger.log("Restarting Virtual Machine " + Config.virtualbox.vmName);
-                const VirtualBoxManager = rlequire("dendro", "src/utils/virtualbox/vm_manager.js").VirtualBoxManager;
-                VirtualBoxManager.restartVM(false, function (err, result)
-                {
-                    cb(err, result);
-                });
-            }
-            else
-            {
-                cb(null);
-            }
-        },
-        function (cb)
-        {
-            if (Config.virtualbox.active && Config.virtualbox.restart_services_every_x_tests > 0 && numberofTestsRun % Config.virtualbox.restart_services_every_x_tests === 0)
-            {
-                Logger.log("Restarting Services on Virtual Machine " + Config.virtualbox.vmName);
-                const VirtualBoxManager = rlequire("dendro", "src/utils/virtualbox/vm_manager.js").VirtualBoxManager;
-                VirtualBoxManager.restartServices(Config.virtualbox.services_to_be_restarted, function (err, result)
-                {
-                    cb(err, result);
-                });
-            }
-            else
-            {
-                cb(null);
-            }
         }
     ], function (err, results)
     {
