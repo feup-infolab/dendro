@@ -1155,13 +1155,12 @@ export_to_dendro = function (req, res)
                             }
 
                         };
-                        file.copyPaste({destinationFolder: "/Home"}, function (err, writtenPath)
+                        Deposit.createDeposit({registryData: registryData, requestedResource: file, user: req.user}, function (err2, registry)
                         {
-                            const a = 1;
-                        });
-
-                        Deposit.createDeposit({registryData: registryData, requestedResource: file, user: req.user}, function(err, registry)
-                        {
+                            /* file.copyPaste({destinationFolder: "Home"}, function (err3, writtenPath)
+                            {
+                                const a = 1;
+                            }); */
                             let msg = "<br/><br/>Deposited successfully to Dendro. Check deposit <a href='" + registry.uri + "'>here</a>";
                             res.json(
                                 {
