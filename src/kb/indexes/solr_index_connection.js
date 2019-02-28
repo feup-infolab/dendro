@@ -96,6 +96,9 @@ class SolrIndexConnection extends IndexConnection
 
     close (callback)
     {
+        const self = this;
+        delete self._indexIsOpen;
+        delete self.client;
         callback(null);
     }
 
@@ -151,7 +154,7 @@ class SolrIndexConnection extends IndexConnection
         });
     }
 
-    deleteIndex (callback)
+    ensureIndexIsReady (callback)
     {
         const self = this;
 
@@ -166,25 +169,90 @@ class SolrIndexConnection extends IndexConnection
             });
         }
 
-        const queryObject = "*:*";
-        self.client.delete(queryObject, function (err, result)
+        if (!self._indexIsOpen)
         {
-            if (isNull(err))
+            const tryToConnect = function (callback)
             {
-                callback(null, result);
-            }
-            else
+                const tcpp = require("tcp-ping");
+
+                tcpp.probe(self.host, self.port, function (err, available)
+                {
+                    if(available === true)
+                    {
+                        self.client.search("*:*", function (err, result)
+                        {
+                            callback(null, isNull(err));
+                        });
+                    }
+                    else
+                    {
+                        callback(err, available);
+                    }
+                });
+            };
+
+            // try calling apiMethod 10 times with linear backoff
+            // (i.e. intervals of 100, 200, 400, 800, 1600, ... milliseconds)
+            async.retry({
+                times: 240,
+                interval: function (retryCount)
+                {
+                    const msecs = 500;
+                    Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to determine Solr status on "+ self.host + " : "+ self.port + "...");
+                    return msecs;
+                }
+            }, tryToConnect, function (err)
             {
-                const error = "Error deleting SOLR core (index)  " + self.id + ". Reported error : " + JSON.stringify(err);
-                Logger.log("error", error);
-                callback(1, error);
-            }
+                if (isNull(err))
+                {
+                    self._indexIsOpen = true;
+                    const msg = "Solr index "+self.id+  " opened!";
+                    Logger.log("info", msg);
+                    callback(null);
+                }
+                else
+                {
+                    const msg = "Unable to determine Solr Status in time. This is a fatal error.";
+                    Logger.log("error", err.message);
+                    throw new Error(msg);
+                }
+            });
+        }
+        else
+        {
+            callback(null);
+        }
+    }
+
+    deleteIndex (callback)
+    {
+        const self = this;
+        self.ensureIndexIsReady(function (err, result)
+        {
+            const queryObject = "*:*";
+            self.client.delete(queryObject, function (err, result)
+            {
+                if (isNull(err))
+                {
+                    callback(null, result);
+                }
+                else
+                {
+                    const error = "Error deleting SOLR core (index)  " + self.id + ". Reported error : " + JSON.stringify(err);
+                    Logger.log("error", error);
+                    callback(1, error);
+                }
+            });
         });
     }
 
     checkIfIndexExists (callback)
     {
-        callback(null, true);
+        const self = this;
+        self.ensureIndexIsReady(function (err, available)
+        {
+            callback(null, available);
+        });
     }
 
     search (

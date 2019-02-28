@@ -10,6 +10,7 @@
     "indent": [2, 4],
     "strict": "warn",
     "quotes": ["error", "double", { "allowTemplateLiterals": true }],
-    "no-mixed-spaces-and-tabs": 2
+    "no-mixed-spaces-and-tabs": 2,
+    "no-useless-escape": "off"
   }
 }

@@ -18,7 +18,7 @@ dev:
       connection_log_type: debug
       use_auth: false
       host: 127.0.0.1
-      port: '8983'
+      port: '8984'
       credentials:
         username: user
         password: pass
@@ -38,16 +38,14 @@ dev:
     log:
       log_datastore_ops: false
     username: admin
-    password: >-
-      34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi
+    password: 34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi
   ontologies_cache:
     database: 127_0_0_1_3001_ontologies
     host: 127.0.0.1
     port: '27018'
     id: default
     username: admin
-    password: >-
-      34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi
+    password: 34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi
   cache:
     active: true
     nedb:
@@ -88,8 +86,7 @@ dev:
           port: '27018'
           id: default
           username: admin
-          password: >-
-            34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi
+          password: 34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi
         social:
           database: '127_0_0_1_3001'
           collection: social_cache
@@ -98,8 +95,7 @@ dev:
           port: '27018'
           id: social
           username: admin
-          password: >-
-            34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi
+          password: 34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi
         notifications:
           database: '127_0_0_1_3001'
           collection: notifications_cache
@@ -108,8 +104,7 @@ dev:
           port: '27018'
           id: notifications
           username: admin
-          password: >-
-            34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi
+          password: 34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi
     static:
       last_modified_caching: true
       cache_period_in_seconds: 3600
@@ -129,8 +124,7 @@ dev:
   mongoDbVersion: ''
   mongoDBAuth:
     username: admin
-    password: >-
-      34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi
+    password: 34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi
   storageDefaults:
     storageType: mongoDB
     host: 127.0.0.1

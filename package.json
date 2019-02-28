@@ -178,6 +178,7 @@
     "stylus": "^0.54.5",
     "swagger-express-middleware": "^1.0.0-alpha.12",
     "swagger-ui-express": "^2.0.15",
+    "tcp-ping": "^0.1.1",
     "textract": "^2.2.0",
     "tmp": "^0.0.33",
     "ui-router": "^1.0.0-alpha0",
