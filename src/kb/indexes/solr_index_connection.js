@@ -177,7 +177,7 @@ class SolrIndexConnection extends IndexConnection
 
                 tcpp.probe(self.host, self.port, function (err, available)
                 {
-                    if(available === true)
+                    if (available === true)
                     {
                         self.client.search("*:*", function (err, result)
                         {
@@ -198,7 +198,7 @@ class SolrIndexConnection extends IndexConnection
                 interval: function (retryCount)
                 {
                     const msecs = 500;
-                    Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to determine Solr status on "+ self.host + " : "+ self.port + "...");
+                    Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to determine Solr status on " + self.host + " : " + self.port + "...");
                     return msecs;
                 }
             }, tryToConnect, function (err)
@@ -206,7 +206,7 @@ class SolrIndexConnection extends IndexConnection
                 if (isNull(err))
                 {
                     self._indexIsOpen = true;
-                    const msg = "Solr index "+self.id+  " opened!";
+                    const msg = "Solr index " + self.id + " opened!";
                     Logger.log("info", msg);
                     callback(null);
                 }

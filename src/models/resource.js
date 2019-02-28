@@ -2577,6 +2577,11 @@ Resource.prototype.loadFromIndexHit = function (hit)
         let descriptorUri = descriptorObject.predicate;
         let descriptorValue = descriptorObject.object;
 
+        if (descriptorValue instanceof Array && descriptorValue.length === 1)
+        {
+            descriptorValue = descriptorValue[0];
+        }
+
         if (isNull(descriptorsAndValues[descriptorUri]))
         {
             descriptorsAndValues[descriptorUri] = descriptorValue;

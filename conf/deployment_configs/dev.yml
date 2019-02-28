@@ -351,7 +351,8 @@ dev:
     reuse_checkpoints: false
     create_checkpoints: false
     destroy_existing_images_at_start: false
-    start_and_stop_containers_automatically: true
+    stop_containers_automatically: true
+    start_containers_automatically: true
   virtualbox:
     active: false
     create_snapshots: true

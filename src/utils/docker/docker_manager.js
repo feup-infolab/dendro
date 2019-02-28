@@ -9,7 +9,6 @@ const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 const childProcess = require("child_process");
-const checkIfCheckpointExistsScript = rlequire.absPathInApp("dendro", "conf/scripts/docker/check_if_checkpoint_exists.sh");
 
 const DockerManager = function ()
 {
@@ -71,19 +70,33 @@ DockerManager.checkpointExists = function (checkpointName, callback)
     {
         if (Config.docker && Config.docker.active)
         {
-            childProcess.exec(`/bin/bash -c "${checkIfCheckpointExistsScript} ${checkpointName}"`, {
-                cwd: rlequire.getRootFolder("dendro"),
-                stdio: [0, 1, 2]
-            }, function (err, result)
+            DockerManager.getInfoOfAllServicesInOrchestra(DockerManager.defaultOrchestra, function (err, images)
             {
-                if (isNull(err))
+                async.map(images, function (image, callback)
                 {
-                    callback(null, true);
-                }
-                else
+                    childProcess.exec(`docker image inspect "${image.image}${checkpointName}"`, {
+                        cwd: rlequire.getRootFolder("dendro"),
+                        stdio: [0, 1, 2]
+                    }, function (err, result)
+                    {
+                        if (isNull(err))
+                        {
+                            callback(null, true);
+                        }
+                        else
+                        {
+                            callback(null, false);
+                        }
+                    });
+                }, function (err, results)
                 {
-                    callback(null, false);
-                }
+                    const notAllImagesExist = _.find(results, function (result)
+                    {
+                        return result !== true;
+                    });
+
+                    callback(err, notAllImagesExist);
+                });
             });
         }
         else
@@ -111,7 +124,7 @@ DockerManager.createCheckpoint = function (checkpointName, callback)
                             Logger.log("Saved checkpoint with name " + checkpointName);
                         }
                         callback(err, result);
-                    });
+                    }, DockerManager.defaultOrchestra, checkpointName);
                 }
                 else
                 {
@@ -166,39 +179,29 @@ DockerManager.restoreCheckpoint = function (checkpointName, callback)
     }
 };
 
-DockerManager.nukeAndRebuild = function (onlyOnce, callback)
-{
-    if (Config.docker && Config.docker.active)
-    {
-        const performOperation = function ()
-        {
-            Logger.log("Rebuilding all Docker containers.");
-
-            DockerManager.stopAllOrchestras(function (err, result)
-            {
-                childProcess.execSync(`docker-compose rm -s`, {
-                    cwd: rlequire.getRootFolder("dendro"),
-                    stdio: [0, 1, 2]
-                });
-            });
-        };
-
-        if (onlyOnce)
-        {
-            if (!DockerManager._nukedOnce)
-            {
-                performOperation();
-                DockerManager._nukedOnce = true;
-            }
-
-            callback(null);
-        }
-        else
-        {
-            performOperation(callback);
-        }
-    }
-};
+// DockerManager.nukeAndRebuild = function (onlyOnce, callback)
+// {
+//     if (Config.docker && Config.docker.active)
+//     {
+//         const performOperation = function ()
+//         {
+//             Logger.log("Rebuilding all Docker containers.");
+//
+//             DockerManager.stopAllOrchestras(function (err, result)
+//             {
+//                 DockerManager.destroyAllOrchestras(callback);
+//                 childProcess.execSync(`docker-compose rm -s`, {
+//                     cwd: rlequire.getRootFolder("dendro"),
+//                     stdio: [0, 1, 2]
+//                 });
+//             });
+//         };
+//
+//
+//
+//         callback(null);
+//     }
+// };
 
 DockerManager.restartContainers = function (onlyOnce)
 {
@@ -242,7 +245,7 @@ DockerManager.forAllOrchestrasDo = function (lambda, callback)
         {
             async.map(subdirs, function (subdir, singleLambdaCallback)
             {
-                const orchestraName = path.extname(subdir);
+                const orchestraName = path.basename(subdir);
                 lambda(subdir, singleLambdaCallback, orchestraName);
             }, callback);
         },
@@ -251,19 +254,35 @@ DockerManager.forAllOrchestrasDo = function (lambda, callback)
         });
 };
 
-DockerManager.destroyAllOrchestras = function (callback)
+DockerManager.destroyAllOrchestras = function (callback, onlyOnce)
 {
-    DockerManager.forAllOrchestrasDo(function (subdir, callback)
+    const performOperation = function (callback)
     {
-        const dockerSubProcess = childProcess.exec("docker-compose down", {
-            cwd: subdir
-        }, function (err, result)
+        DockerManager.forAllOrchestrasDo(function (subdir, callback)
         {
-            callback(err, result);
-        });
+            const dockerSubProcess = childProcess.exec("docker-compose down --rmi local", {
+                cwd: subdir
+            }, function (err, result)
+            {
+                DockerManager._nukedOnce = true;
+                callback(err, result);
+            });
 
-        logEverythingFromChildProcess(dockerSubProcess);
-    }, callback);
+            logEverythingFromChildProcess(dockerSubProcess);
+        }, callback);
+    };
+
+    if (onlyOnce)
+    {
+        if (!DockerManager._nukedOnce)
+        {
+            performOperation(callback);
+        }
+    }
+    else
+    {
+        performOperation(callback);
+    }
 };
 
 DockerManager.fetchAllOrchestras = function (callback, onlyOnce)
@@ -474,16 +493,16 @@ DockerManager.stopAllOrchestras = function (callback)
     });
 };
 
-DockerManager.getNamesOfAllContainersInOrchestra = function (orchestra, callback)
+DockerManager.getInfoOfAllServicesInOrchestra = function (orchestra, callback)
 {
     if (isNull(orchestra))
     {
         orchestra = DockerManager.defaultOrchestra;
     }
 
-    if (isNull(DockerManager._namesOfContainersInOrchestra))
+    if (isNull(DockerManager._containersInOrchestra))
     {
-        DockerManager._namesOfContainersInOrchestra = {};
+        DockerManager._containersInOrchestra = {};
         DockerManager.forAllOrchestrasDo(function (subdir, callback, orchestraName)
         {
             const yaml = require("js-yaml");
@@ -491,63 +510,81 @@ DockerManager.getNamesOfAllContainersInOrchestra = function (orchestra, callback
 
             const containerKeys = Object.keys(dockerComposeFileContents.services);
 
-            DockerManager._namesOfContainersInOrchestra[orchestraName] = [];
+            DockerManager._containersInOrchestra[orchestraName] = [];
 
-            for(let i = 0; i < containerKeys.length; i++)
+            for (let i = 0; i < containerKeys.length; i++)
             {
                 let containerKey = containerKeys[i];
                 let container = dockerComposeFileContents.services[containerKey];
 
-                DockerManager._namesOfContainersInOrchestra[orchestraName].push({
+                DockerManager._containersInOrchestra[orchestraName].push({
                     name: container.container_name,
-                    image: container.image
+                    image: container.image.replace(/\${.*}/g, "")
                 });
             }
 
             callback(null);
         }, function (err, result)
         {
-            callback(err, DockerManager._namesOfContainersInOrchestra[orchestra]);
+            callback(err, DockerManager._containersInOrchestra[orchestra]);
         });
     }
     else
     {
-        callback(null, DockerManager._namesOfContainersInOrchestra[orchestra]);
+        callback(null, DockerManager._containersInOrchestra[orchestra]);
     }
 };
 
 DockerManager.commitAllContainersInOrchestra = function (callback, orchestra, committedImagesSuffix)
 {
-    DockerManager.getNamesOfAllContainersInOrchestra(orchestra, function (err, names)
+    DockerManager.getInfoOfAllServicesInOrchestra(orchestra, function (err, names)
     {
         if (isNull(err))
         {
-            async.mapSeries(names, function (containerName, callback)
+            async.map(names, function (containerInformation, callback)
             {
-                const containerNameNoVars = containerName;
+                const containerName = containerInformation.name;
+                let imageNameNoVars = containerInformation.image;
 
-                containerNameNoVars.replace(new RegExp("\\${.*}", "g"), "");
-
-                childProcess.exec(`docker commit -p ${containerName} "${containerName}${committedImagesSuffix}`, {
-                    cwd: rlequire.getRootFolder("dendro"),
-                    stdio: [0, 1, 2]
-                }, function (err, result)
-                {
-                    if (isNull(err))
-                    {
-                        callback(null, true);
-                    }
-                    else
-                    {
-                        callback(null, false);
-                    }
-                });
-            });
+                DockerManager.commitContainer(containerName, `${imageNameNoVars}${committedImagesSuffix}`, callback);
+            }, callback);
         }
         else
         {
             callback(err, names);
         }
+    });
+};
+
+DockerManager.getContainerIDFromName = function (containerName, callback)
+{
+    childProcess.exec(`docker inspect --format="{{.Id}}" "${containerName}"`, {
+        cwd: rlequire.getRootFolder("dendro"),
+        stdio: [0, 1, 2]
+    }, function (err, containerID)
+    {
+        callback(err, containerID.trim());
+    });
+};
+
+DockerManager.commitContainer = function (containerName, committedImageName, callback)
+{
+    DockerManager.getContainerIDFromName(containerName, function (err, containerID)
+    {
+        childProcess.exec(`docker commit -p "${containerID}" "${committedImageName}"`, {
+            cwd: rlequire.getRootFolder("dendro"),
+            stdio: [0, 1, 2]
+        }, function (err, result)
+        {
+            if (isNull(err))
+            {
+                callback(null, true);
+            }
+            else
+            {
+                callback(null, false);
+            }
+        });
     });
 };
 

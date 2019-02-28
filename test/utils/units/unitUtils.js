@@ -680,7 +680,7 @@ exports.setup = function (targetUnit, callback, forceLoad)
 
             if (Config.docker.destroy_existing_images_at_start)
             {
-                DockerManager.nukeAndRebuild(true, function (err)
+                DockerManager.destroyAllOrchestras(function (err)
                 {
                     if (isNull(err))
                     {
@@ -693,7 +693,7 @@ exports.setup = function (targetUnit, callback, forceLoad)
                     {
                         callback(1, "Error nuking docker before restoring state " + checkpointIdentifier);
                     }
-                });
+                }, true);
             }
             else
             {
