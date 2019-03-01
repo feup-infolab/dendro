@@ -11,8 +11,6 @@ const getDirName = require("path").dirname;
 // to try to cool down tests so that virtuoso does not clog up...
 let numberofTestsRun = 0;
 
-const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
-
 const applyCooldownToTests = function (callback)
 {
     numberofTestsRun++;
