@@ -85,7 +85,14 @@ DockerManager.checkpointExists = function (checkpointName, callback)
                         }
                         else
                         {
-                            callback(null, false);
+                            if(!isNull(err.message) && err.message.indexOf("No such image") > -1)
+                            {
+                                callback(null, false);
+                            }
+                            else
+                            {
+                                callback(err, false);
+                            }
                         }
                     });
                 }, function (err, results)
@@ -157,7 +164,8 @@ DockerManager.restoreCheckpoint = function (checkpointName, callback)
                 {
                     DockerManager.stopAllOrchestras(function (err, result)
                     {
-                        DockerManager.startAllContainers(function(err, result){
+                        DockerManager.startAllContainers(function (err, result)
+                        {
                             callback(err, result);
                         }, checkpointName);
                     });
@@ -256,17 +264,84 @@ DockerManager.forAllOrchestrasDo = function (lambda, callback)
         });
 };
 
+DockerManager.destroyAllSavedImages = function (callback, onlyOnce)
+{
+    const performOperation = function ()
+    {
+        DockerManager.getInfoOfAllServicesInOrchestra(DockerManager.defaultOrchestra, function (err, servicesInfo)
+        {
+            if (isNull(err))
+            {
+                async.map(servicesInfo, function (serviceInfo, callback)
+                {
+                    // remove all images starting with the name of the image and a suffix with at least one character
+                    const dockerSubProcess = childProcess.exec(`docker rmi $(docker images --filter=reference=${serviceInfo.image}[A-Za-z0-9][A-Za-z0-9]* -q)`, {
+                        cwd: rlequire.getRootFolder("dendro")
+                    }, function (err, result)
+                    {
+                        if (isNull(err))
+                        {
+                            callback(err, result);
+                        }
+                        else
+                        {
+                            if (!isNull(err.message) && err.message.indexOf("\"docker rmi\" requires at least 1 argument.") > -1)
+                            {
+                                callback(null);
+                            }
+                            else
+                            {
+                                callback(err, result);
+                            }
+                        }
+                    });
+
+                    logEverythingFromChildProcess(dockerSubProcess);
+                }, function (err, results)
+                {
+                    if (isNull(err))
+                    {
+                        callback(err, results);
+                        DockerManager.__destroyedAllSavedImagesOnce = true;
+                    }
+                    else
+                    {
+                        const msg = "Error destroying all saved state images " + JSON.stringify(results);
+                        Logger.log(msg);
+                    }
+                });
+            }
+            else
+            {
+                callback(err, servicesInfo);
+            }
+        });
+    };
+
+    if (onlyOnce)
+    {
+        if (!DockerManager.__destroyedAllSavedImagesOnce)
+        {
+            performOperation(callback);
+        }
+    }
+    else
+    {
+        performOperation(callback);
+    }
+};
+
 DockerManager.destroyAllOrchestras = function (callback, onlyOnce)
 {
     const performOperation = function (callback)
     {
         DockerManager.forAllOrchestrasDo(function (subdir, callback)
         {
-            const dockerSubProcess = childProcess.exec("docker-compose down --rmi local", {
+            const dockerSubProcess = childProcess.exec("docker-compose down --remove-orphans --rmi local ", {
                 cwd: subdir
             }, function (err, result)
             {
-                DockerManager._nukedOnce = true;
+                DockerManager.__destroyedAllOrchestrasOnce = true;
                 callback(err, result);
             });
 
@@ -276,7 +351,7 @@ DockerManager.destroyAllOrchestras = function (callback, onlyOnce)
 
     if (onlyOnce)
     {
-        if (!DockerManager._nukedOnce)
+        if (!DockerManager.__destroyedAllOrchestrasOnce)
         {
             performOperation(callback);
         }
@@ -358,8 +433,8 @@ DockerManager.startOrchestra = function (orchestraName, callback, imagesSuffix)
 
                 if (!isNull(imagesSuffix))
                 {
-                    Logger.log("Docker containers in orchestra " + orchestraName + " starting with state "+ imagesSuffix);
-                    _.extend(copyOfEnv, {"DENDRO_DOCKER_CONTAINERS_SUFFIX" : imagesSuffix});
+                    Logger.log("Docker containers in orchestra " + orchestraName + " starting with state " + imagesSuffix);
+                    _.extend(copyOfEnv, {DENDRO_DOCKER_CONTAINERS_SUFFIX: imagesSuffix});
                 }
 
                 dockerSubProcess = childProcess.exec("docker-compose up -d --no-recreate", {

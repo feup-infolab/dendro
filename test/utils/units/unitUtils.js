@@ -3,7 +3,6 @@ const isNull = rlequire("dendro", "src/utils/null").isNull;
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const DockerManager = rlequire("dendro", "src/utils/docker/docker_manager.js").DockerManager;
-const VirtualBoxManager = rlequire("dendro", "src/utils/virtualbox/vm_manager.js").VirtualBoxManager;
 const _ = require("underscore");
 const async = require("async");
 const chai = require("chai");
@@ -609,20 +608,36 @@ exports.setup = function (targetUnit, callback, forceLoad)
 
             if (Config.docker.destroy_existing_images_at_start)
             {
-                DockerManager.destroyAllOrchestras(function (err)
-                {
-                    if (isNull(err))
+                async.series([
+                    function (callback)
                     {
-                        fetchAllImages(function ()
-                        {
-                            restoreState(callback);
-                        });
+                        DockerManager.destroyAllOrchestras(callback);
+                    },
+                    function (callback)
+                    {
+                        DockerManager.destroyAllSavedImages(callback);
+                    },
+                    function (callback)
+                    {
+                        fetchAllImages(callback);
+                    },
+                    function (callback)
+                    {
+                        restoreState(callback);
+                    }
+                ], function (err, result)
+                {
+                    if (!isNull(err))
+                    {
+                        const msg = "Error destroying docker images and containers while trying to restore state " + checkpointIdentifier;
+                        Logger.log("error", msg);
+                        callback(1, msg);
                     }
                     else
                     {
-                        callback(1, "Error nuking docker before restoring state " + checkpointIdentifier);
+                        callback(err, result);
                     }
-                }, true);
+                });
             }
             else
             {
