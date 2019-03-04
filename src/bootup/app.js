@@ -225,23 +225,7 @@ class App
     bootupDependencies (callback)
     {
         const self = this;
-
-        async.series([
-
-            function (callback)
-            {
-                // start VirtualBox VM
-                rlequire("dendro", "src/bootup/init/init_virtualbox.js").initVirtualBoxVM(self.app, callback);
-            },
-            function (callback)
-            {
-                // start docker containers
-                rlequire("dendro", "src/bootup/init/init_docker.js").initDockerContainers(self.app, callback);
-            }
-        ], function (err)
-        {
-            callback(err);
-        });
+        rlequire("dendro", "src/bootup/init/init_docker.js").initDockerContainers(self.app, callback);
     }
 
     initConnections (callback, force)
