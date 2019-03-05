@@ -19,6 +19,11 @@ class IndexConnection
         return self;
     }
 
+    static getAddress (host, port)
+    {
+        return (port) ? host + ":" + port : host;
+    }
+
     static get (indexKey)
     {
         const self = this;

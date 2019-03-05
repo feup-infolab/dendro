@@ -340,7 +340,8 @@ test_no_setup_caching:
     reuse_checkpoints: false
     create_checkpoints: false
     destroy_existing_images_at_start: true
-    start_and_stop_containers_automatically: false
+    stop_containers_automatically: false
+    start_containers_automatically: false
   virtualbox:
     active: false
     reuse_shapshots: false

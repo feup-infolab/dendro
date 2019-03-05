@@ -19,6 +19,9 @@ global.tests = {};
 // Search
 rlequire("dendro", "test/routes/search/routes.search.Test.js");
 
+// Reindex
+rlequire("dendro", "test/routes/admin/reindex/routes.admin.reindex.Test.js");
+
 // Restore a folder Tests
 rlequire("dendro", "test/routes/project/public_project/data/testFolder1/__restore/routes.project.publicProject.data.testFolder1.__restore.Test.js");
 
