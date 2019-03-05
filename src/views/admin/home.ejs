@@ -281,7 +281,7 @@
                                  ng-model="orphanResources" ng-readonly="true" ui-ace="{
                                   useWrapMode : true,
                                   theme:'twilight',
-                                  mode: 'json',
+                                  mode: 'yaml',
                                 }">
                             </div>
                         </div>
@@ -295,7 +295,7 @@
                                  ng-model="nukedResources" ng-readonly="true" ui-ace="{
                                   useWrapMode : true,
                                   theme:'twilight',
-                                  mode: 'json',
+                                  mode: 'yaml',
                                 }">
                             </div>
                         </div>
@@ -318,7 +318,7 @@
                          ng-model="runningConfiguration" ui-ace="{
                           useWrapMode : true,
                           theme:'twilight',
-                          mode: 'json',
+                          mode: 'yaml',
                           onLoad: setReadOnly,
                           showGutter: true,
                         }"></div>
@@ -331,7 +331,7 @@
                          ng-model="pm2Description" ui-ace="{
                           useWrapMode : true,
                           theme:'twilight',
-                          mode: 'json',
+                          mode: 'yaml',
                           onLoad: setReadOnly,
                           showGutter: true,
                         }"></div>
@@ -363,14 +363,14 @@
                          ng-model="serverConfiguration" ui-ace="{
                           useWrapMode : true,
                           theme:'twilight',
-                          mode: 'json',
+                          mode: 'yaml',
                         }"></div>
 
                     <!--<div ng-model="serverConfiguration" ui-ace="{
                           useWrapMode : true,
                           showGutter: false,
                           theme:'twilight',
-                          mode: 'json',
+                          mode: 'yaml',
                           onLoad: aceLoaded,
                           onChange: aceChanged
                         }"></div>

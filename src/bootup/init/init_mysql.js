@@ -39,7 +39,7 @@ const initMySQL = function (app, callback)
         interval: function (retryCount)
         {
             const msecs = 500;
-            Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to determine ElasticSearch cluster health");
+            Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to determine if MySQL is running...");
             return msecs;
         }
     }, tryToCreateDatabaseIfNeeded, function (err)

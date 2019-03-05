@@ -225,23 +225,7 @@ class App
     bootupDependencies (callback)
     {
         const self = this;
-
-        async.series([
-
-            function (callback)
-            {
-                // start VirtualBox VM
-                rlequire("dendro", "src/bootup/init/init_virtualbox.js").initVirtualBoxVM(self.app, callback);
-            },
-            function (callback)
-            {
-                // start docker containers
-                rlequire("dendro", "src/bootup/init/init_docker.js").initDockerContainers(self.app, callback);
-            }
-        ], function (err)
-        {
-            callback(err);
-        });
+        rlequire("dendro", "src/bootup/init/init_docker.js").initDockerContainers(self.app, callback);
     }
 
     initConnections (callback, force)
@@ -829,7 +813,7 @@ class App
 
         const haltDockerContainers = function (cb)
         {
-            if (Config.docker && Config.docker.active && Config.docker.start_and_stop_containers_automatically)
+            if (Config.docker && Config.docker.active && Config.docker.stop_all_containers_automatically)
             {
                 Logger.log("Halting docker containers...");
 

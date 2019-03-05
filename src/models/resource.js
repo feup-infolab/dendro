@@ -1681,7 +1681,7 @@ Resource.prototype.getTextuallySimilarResources = function (callback, maxResultS
     {
         if (isNull(err))
         {
-            if (!isNull(id))
+            if (!isNull(id) && typeof indexConnection.moreLikeThis === "function")
             {
                 // search in all graphs for resources (generic type)
                 indexConnection.moreLikeThis(
@@ -1706,6 +1706,7 @@ Resource.prototype.getTextuallySimilarResources = function (callback, maxResultS
             else
             {
                 // document is not indexed, therefore has no ID. return empty array as list of similar resources.
+                // alternatively, the index connection does not implement More Like This, so we return
                 return callback(null, []);
             }
         }
@@ -2564,17 +2565,22 @@ Resource.prototype.loadFromIndexHit = function (hit)
     self.indexData.id = hit._id;
     self.indexData.indexId = hit._id;
     self.indexData.score = hit._score;
-    self.uri = hit._source.uri;
-    self.indexData.graph = hit._source.graph;
-    self.indexData.last_indexing_date = hit._source.last_indexing_date;
+    self.uri = hit.uri;
+    self.indexData.graph = hit.graph;
+    self.indexData.last_indexing_date = hit.last_indexing_date;
 
     let descriptorsAndValues = {};
 
-    for (let i = 0; i < hit._source.descriptors.length; i++)
+    for (let i = 0; i < hit.descriptors.length; i++)
     {
-        let descriptorObject = hit._source.descriptors[i];
+        let descriptorObject = hit.descriptors[i];
         let descriptorUri = descriptorObject.predicate;
         let descriptorValue = descriptorObject.object;
+
+        if (descriptorValue instanceof Array && descriptorValue.length === 1)
+        {
+            descriptorValue = descriptorValue[0];
+        }
 
         if (isNull(descriptorsAndValues[descriptorUri]))
         {

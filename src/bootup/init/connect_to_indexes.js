@@ -16,7 +16,7 @@ const connectToIndexes = function (app, callback)
         }
         else
         {
-            Logger.log_boot_message("Indexes are up and running on " + Config.elasticSearchHost + ":" + Config.elasticSearchPort);
+            Logger.log_boot_message("Indexes are up and running on " + Config.index.type + " !");
             callback(null);
         }
     }, (Config.startup.load_databases && Config.startup.destroy_all_indexes));

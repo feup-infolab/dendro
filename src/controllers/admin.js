@@ -7,6 +7,7 @@ const _ = require("underscore");
 const async = require("async");
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const fs = require("fs");
+const yaml = require("js-yaml");
 
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const IndexConnection = rlequire("dendro", "src/kb/index.js").IndexConnection;
@@ -468,8 +469,8 @@ module.exports.logs = function (req, res)
 
 module.exports.configuration = function (req, res)
 {
-    const configFilePath = rlequire.absPathInApp("dendro", "conf/deployment_configs/.json");
     const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+    const configFilePath = Config.activeConfigFilePath;
     if (req.originalMethod === "GET")
     {
         async.parallel([
@@ -513,7 +514,7 @@ module.exports.configuration = function (req, res)
                 {
                     if (isNull(err))
                     {
-                        cb(err, JSON.parse(config));
+                        cb(err, yaml.safeLoad(config));
                     }
                     else
                     {
@@ -552,7 +553,7 @@ module.exports.configuration = function (req, res)
             {
                 if (isNull(err))
                 {
-                    fs.writeFile(configFilePath, JSON.stringify(config, null, 4), function (err, result)
+                    fs.writeFile(configFilePath, yaml.safeDump(config), function (err, result)
                     {
                         if (!err)
                         {
