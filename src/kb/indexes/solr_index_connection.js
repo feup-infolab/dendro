@@ -39,7 +39,7 @@ class SolrIndexConnection extends IndexConnection
         const self = this;
 
         const emptyDoc = {
-            id: document.uri,
+            id: uuid.v4(),
             uri: document.uri,
             last_indexing_date: (new Date()).toISOString(),
             graph: self.uri
@@ -50,6 +50,7 @@ class SolrIndexConnection extends IndexConnection
         _.map(emptyDoc._childDocuments_, function (descriptorDoc)
         {
             descriptorDoc.id = uuid.v4();
+            descriptorDoc.root = document.uri;
         });
 
         self.client.update(emptyDoc, function (err, result)
@@ -75,8 +76,7 @@ class SolrIndexConnection extends IndexConnection
             return callback(null, "No document to delete");
         }
 
-        self.client.delete(
-            { id: documentID},
+        self.client.delete(`q=(root:${documentID} OR uri:${documentID})`,
             function (err, result)
             {
                 if (isNull(err))
@@ -261,7 +261,7 @@ class SolrIndexConnection extends IndexConnection
     {
         let self = this;
 
-        let strQuery = `q={!parent which='uri:*'}object:${options.query}'` +
+        let strQuery = `q={!parent which='uri:*'}object:${encodeURIComponent(options.query)}'` +
                           `&fl=*, [parentFilter=uri:* child limit=10000]` +
                           `&wt=json` +
                           `&indent: true`;
