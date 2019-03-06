@@ -122,19 +122,32 @@ exports.allowed = function (req, callback)
         params.repositories = null;
     }
 
-    switch (params.order)
+    let labels = params.ordering.split(" ");
+
+    switch (labels[0])
     {
-    case "Username":
-        params.order = "user";
+        case "date":
+            params.labelToSort = "date";
+            break;
+        case "username":
+            params.labelToSort = "user";
+            break;
+        default:
+            params.labelToSort = "projectTitle";
+            break;
+    }
+
+    switch (labels[1])
+    {
+    case "ascending":
+        params.order = "ASC";
         break;
-    case "Project":
-        params.order = "projectTitle";
-        break;
-    case "Date":
     default:
-        params.order = "date";
+        params.order = "DESC";
         break;
     }
+
+
 
     async.series([
         function (callback)

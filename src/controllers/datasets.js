@@ -1128,7 +1128,7 @@ export_to_dendro = function (req, res)
 {
     const requestedResourceUri = req.params.requestedResourceUri;
     const targetRepository = req.body.repository;
-    const privacy = req.body.publicDeposit;
+    const publicDeposit = req.body.publicDeposit;
 
     File.findByUri(requestedResourceUri, function (err, file)
     {
@@ -1149,7 +1149,7 @@ export_to_dendro = function (req, res)
                             ddr: {
                                 exportedFromProject: project.uri,
                                 exportedFromFolder: file.uri,
-                                privacyStatus: isNull(privacy) || privacy === false ? "private" : "public",
+                                privacyStatus: publicDeposit || publicDeposit === true ? "public" : "private",
                                 exportedToRepository: "Dendro",
                                 exportedToPlatform: "Dendro"
                             }
@@ -1189,7 +1189,7 @@ export_to_dendro = function (req, res)
                                         ddr: {
                                             exportedFromProject: project.uri,
                                             exportedFromFolder: folder.uri,
-                                            privacyStatus: isNull(privacy) || privacy === false ? "private" : "public",
+                                            privacyStatus: isNull(publicDeposit) || publicDeposit === false ? "private" : "public",
                                             exportedToRepository: "Dendro",
                                             exportedToPlatform: "Dendro"
                                         }

@@ -457,7 +457,7 @@ angular.module("dendroApp.controllers")
                     new_dataset: $scope.new_dataset
                 };
 
-                if (publicDeposit === null || publicDeposit === false)
+                if (!publicDeposit || publicDeposit === false)
                 {
                     payload.publicDeposit = false;
                 }

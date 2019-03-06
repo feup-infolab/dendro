@@ -29,10 +29,11 @@
                                             <span class="media-meta pull-right">{{deposit.date}}</span>
                                             <h4 class="title">
                                                 <a href="{{deposit.creator}}"> {{deposit.user}}</a> deposited from the folder <a
-                                                        href="{{deposit.folder}}" class="foldersLabel">{{deposit.folderName}}</a> from {{deposit.privacy}} project <a href="{{deposit.projused}}" class="foldersLabel">{{deposit.projectTitle}}</a> in {{deposit.platformsUsed}}
+                                                        href="{{deposit.folder}}" class="foldersLabel">{{deposit.folderName}} </a> from {{deposit.privacy}} project <a href="{{deposit.projused}}" class="foldersLabel">{{deposit.projectTitle}}</a> in {{deposit.platformsUsed}}
                                             </h4>
                                             <p class="summary">{{deposit.label}}
                                             </p>
+
                                             <p>
                                                 <img ng-if="deposit.platformsUsed === 'CKAN'" src="http://www.edawax.de/wp-content/uploads/2013/09/250_logo-ckan.jpg" class="pull-right" height="20px" width="20px" alt="ckan">
                                                 <img ng-if="deposit.platformsUsed === 'Dendro'" src="http://www.edawax.de/wp-content/uploads/2013/09/250_logo-ckan.jpg" class="pull-right" height="20px" width="20px" alt="dendro">

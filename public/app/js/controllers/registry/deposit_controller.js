@@ -91,26 +91,26 @@ angular.module("dendroApp.controllers", [])
                 type: "dropdown",
                 list: true,
                 label: "Order By",
-                key: "order",
-                selected: "Date ascending",
+                key: "ordering",
+                selected: "date ascending",
                 value: [
                     {
-                        name: "Date ascending"
+                        label: "date ascending"
                     },
                     {
-                        name: "Date descending"
+                        name: "date descending"
                     },
                     {
-                        name: "Username ascending"
+                        name: "username ascending"
                     },
                     {
-                        name: "Username descending"
+                        name: "username descending"
                     },
                     {
-                        name: "Project ascending"
+                        name: "project ascending"
                     },
                     {
-                        name: "Project descending"
+                        name: "project descending"
                     }
                 ]
             },
@@ -268,9 +268,7 @@ angular.module("dendroApp.controllers", [])
 
         $scope.deposits = [];
     })
-    .directive("searchBar", function (
-
-    )
+    .directive("searchBar", function ()
     {
         return {
             restrict: "ACE",
