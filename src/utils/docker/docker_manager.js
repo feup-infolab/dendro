@@ -57,13 +57,13 @@ DockerManager.stopAllContainers = function (callback)
 
 DockerManager.startAllContainers = function (callback, imagesSuffix)
 {
-    DockerManager.startOrchestra(DockerManager.defaultOrchestra, function (err, result)
+    DockerManager.startOrchestra(DockerManager.defaultOrchestra, function (err, restoredCheckpoint)
     {
         if (isNull(err) && !isNull(imagesSuffix))
         {
             Logger.log("info", "Restored " + imagesSuffix + " successfully...");
         }
-        callback(err);
+        callback(err, restoredCheckpoint);
     }, imagesSuffix);
 };
 

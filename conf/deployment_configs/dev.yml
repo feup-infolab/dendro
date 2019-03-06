@@ -353,18 +353,6 @@ dev:
     destroy_existing_images_at_start: false
     stop_containers_automatically: true
     start_containers_automatically: true
-  virtualbox:
-    active: false
-    create_snapshots: true
-    reuse_shapshots: true
-    restart_vm_every_x_tests: 1
-    restart_services_every_x_tests: 1
-    services_to_be_restarted:
-      - virtuoso
-      - elasticsearch
-      - mongodb
-    vmName: dendroVagrantDemo
-    vmIP: 127.0.0.1
   keywords_extraction:
     active: true
     corenlp:
