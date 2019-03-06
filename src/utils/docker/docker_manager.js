@@ -57,7 +57,14 @@ DockerManager.stopAllContainers = function (callback)
 
 DockerManager.startAllContainers = function (callback, imagesSuffix)
 {
-    DockerManager.startOrchestra(DockerManager.defaultOrchestra, callback, imagesSuffix);
+    DockerManager.startOrchestra(DockerManager.defaultOrchestra, function (err, result)
+    {
+        if (isNull(err) && !isNull(imagesSuffix))
+        {
+            Logger.log("info", "Restored " + imagesSuffix + " successfully...");
+        }
+        callback(err);
+    }, imagesSuffix);
 };
 
 DockerManager.checkpointExists = function (checkpointName, callback)
@@ -72,20 +79,16 @@ DockerManager.checkpointExists = function (checkpointName, callback)
         {
             DockerManager.getInfoOfAllServicesInOrchestra(DockerManager.defaultOrchestra, function (err, images)
             {
-                async.map(images, function (image, callback)
+                async.mapSeries(images, function (image, callback)
                 {
                     childProcess.exec(`docker image inspect "${image.image}${checkpointName}"`, {
                         cwd: rlequire.getRootFolder("dendro"),
                         stdio: [0, 1, 2]
                     }, function (err, result)
                     {
-                        if (isNull(err))
+                        if (!isNull(err))
                         {
-                            callback(null, true);
-                        }
-                        else
-                        {
-                            if(!isNull(err.message) && err.message.indexOf("No such image") > -1)
+                            if (!isNull(err.message) && err.message.indexOf("No such image") > -1)
                             {
                                 callback(null, false);
                             }
@@ -94,13 +97,17 @@ DockerManager.checkpointExists = function (checkpointName, callback)
                                 callback(err, false);
                             }
                         }
+                        else
+                        {
+                            callback(null, true);
+                        }
                     });
                 }, function (err, results)
                 {
-                    const allImagesExist = !_.find(results, function (result)
+                    const allImagesExist = Boolean(_.find(results, function (result)
                     {
                         return result === false;
-                    });
+                    }));
 
                     callback(err, allImagesExist);
                 });

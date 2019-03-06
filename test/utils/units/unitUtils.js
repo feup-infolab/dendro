@@ -620,10 +620,6 @@ exports.setup = function (targetUnit, callback, forceLoad)
                     function (callback)
                     {
                         fetchAllImages(callback);
-                    },
-                    function (callback)
-                    {
-                        restoreState(callback);
                     }
                 ], function (err, result)
                 {
@@ -635,7 +631,10 @@ exports.setup = function (targetUnit, callback, forceLoad)
                     }
                     else
                     {
-                        callback(err, result);
+                        restoreState(function (err, restoredState)
+                        {
+                            callback(err, restoredState);
+                        });
                     }
                 });
             }

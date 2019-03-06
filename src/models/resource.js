@@ -1639,7 +1639,7 @@ Resource.prototype.unindex = function (callback, customGraphUri)
                     {
                         if (isNull(err))
                         {
-                            const msg = "Resource " + self.uri + "  successfully unindexed in index " + indexConnection.short_name;
+                            const msg = "Resource " + self.uri + " successfully unindexed in index " + indexConnection.short_name;
                             Logger.log("debug", msg);
                             return callback(null, self);
                         }
