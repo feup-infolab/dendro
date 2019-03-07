@@ -433,8 +433,7 @@ Deposit.getAllRepositories = function (params, callback)
               {
                   type: Elements.ontologies.ddr.privacyStatus.type,
                   value: "public"
-              }
-            );
+              });
         }
         else
         {
@@ -495,7 +494,7 @@ Deposit.getAllRepositories = function (params, callback)
         "} . \n" +
         "   ?uri ddr:exportedToPlatform ?platformsUsed . \n";
     }
-    if (params.repositories)
+    /*if (params.repositories)
     {
         query +=
         "    VALUES ?repository { ";
@@ -511,7 +510,7 @@ Deposit.getAllRepositories = function (params, callback)
         query +=
         "} . \n" +
         "    ?uri ddr:hasExternalUri ?repository . \n";
-    }
+    }*/
     if (params.dateFrom)
     {
         query += "  FILTER (?date > [" + i++ + "]^^xsd:dateTime )\n";

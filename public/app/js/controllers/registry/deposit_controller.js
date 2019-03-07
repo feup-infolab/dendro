@@ -92,7 +92,7 @@ angular.module("dendroApp.controllers", [])
                 list: true,
                 label: "Order By",
                 key: "ordering",
-                selected: "date ascending",
+                selected: "date descending",
                 value: [
                     {
                         label: "date ascending"

@@ -3,7 +3,8 @@
 <% if (is_deposit_root) {%>
     <%- include deposit.ejs %>
 <% } %>
-    <div class="container-fluid" ng-controller="folderEditorCtrl" ng-init="init()">
+<!--&nbsp;-->
+<div class="container-fluid" ng-controller="folderEditorCtrl" ng-init="init()">
         <div ng-controller="depositCtrl" ng-init="initSingleDeposit('<%= locals.deposit.nie.hasLogicalPart%>', <%= is_deposit_root%>)">
             <div class="row">
                 <div class="col-xs-12">

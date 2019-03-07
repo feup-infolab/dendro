@@ -141,7 +141,7 @@ angular.module("dendroApp.controllers")
 
             $scope.valid_api_key = function (key)
             {
-                if (key === null)
+                if (key === null || !key)
                 {
                     return false;
                 }
@@ -156,7 +156,7 @@ angular.module("dendroApp.controllers")
 
             $scope.valid_organization = function (organization)
             {
-                if (organization === null || organization.length === 0)
+                if (!organization  || organization === null || organization.length === 0)
                 {
                     return false;
                 }
@@ -337,12 +337,14 @@ angular.module("dendroApp.controllers")
 
             $scope.disable_save_bookmark_ckan = function (newRepository)
             {
+                console.log(newRepository);
                 if (!newRepository || !newRepository.dcterms || !newRepository.dcterms.title)
                 {
                     return true;
                 }
                 if (!newRepository.ddr || !$scope.valid_url(newRepository.ddr.hasExternalUri))
                 {
+
                     return true;
                 }
                 if (!newRepository.ddr.username)
@@ -353,7 +355,7 @@ angular.module("dendroApp.controllers")
                 {
                     return true;
                 }
-                if (!newRepository.ddr.hasAPIKe)
+               if (!newRepository.ddr.hasAPIKey)
                 {
                     return true;
                 }
