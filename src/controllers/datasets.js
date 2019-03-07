@@ -1195,10 +1195,6 @@ export_to_dendro = function (req, res)
                                         }
 
                                     };
-                                    Folder.copyPaste({user: registryData.dcterms.creator, includeMetadata: true, destinationFolder: "/Home"}, function (err, writtenPath)
-                                    {
-                                        const a = writtenPath;
-                                    });
                                     Deposit.createDeposit({
                                         registryData: registryData,
                                         requestedResource: folder,

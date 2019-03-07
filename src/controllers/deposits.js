@@ -199,6 +199,7 @@ exports.show = function (req, res)
     let resourceURI = req.params.requestedResourceUri;
     const isDepositRoot = req.params.is_deposit_root;
 
+
     function sendResponse (viewVars, requestedResource)
     {
         const askedForHtml = function (req, res)
@@ -294,8 +295,8 @@ exports.show = function (req, res)
                 {
                     viewVars.go_up_options =
             {
-                uri: "/",
-                title: "Home",
+                uri: resourceURI,
+                title: deposit.dcterms.title,
                 icons: [
                     "/images/icons/folders.png",
                     "/images/icons/bullet_user.png"
