@@ -54,14 +54,10 @@ class SolrIndexConnection extends IndexConnection
 
                 newDoc._childDocuments_ = document.descriptors;
 
-                if (!isNull(documentID))
-                {
-                    newDoc.id = documentID;
-                }
-
                 _.map(newDoc._childDocuments_, function (descriptorDoc)
                 {
                     descriptorDoc.root = newDoc.uri;
+                    descriptorDoc._root_ = newDoc.uri;
                     descriptorDoc.id = uuid.v4();
                 });
 
@@ -89,59 +85,34 @@ class SolrIndexConnection extends IndexConnection
         const self = this;
         if (isNull(resourceUri))
         {
-            return callback(null, "No document to delete");
+            callback(null, "No document to delete");
         }
+        else
+        {
+            let strQuery = `q=(uri:"${resourceUri}" OR root:"${resourceUri}")`;
 
-        async.series([
-            function (callback)
-            {
-                self.client.delete(
-                    `uri:${resourceUri}`,
-                    function (err, result)
+            self.client.delete(
+                strQuery,
+                function (err, result)
+                {
+                    if (isNull(err))
                     {
-                        if (isNull(err))
-                        {
-                            callback(null, "Document with uri " + resourceUri + " successfully deleted from SOLR." + ".  result : " + JSON.stringify(err));
-                        }
-                        else if (err.status === 404)
-                        {
-                            callback(null, "Document with uri " + resourceUri + " does not exist already in SOLR.");
-                        }
-                        else if (err === "Solr server error: 400")
-                        {
-                            callback(null, "Index is empty... Solr does not find the root field!");
-                        }
-                        else
-                        {
-                            callback(err.status, "Unable to delete document " + resourceUri + ".  error reported : " + JSON.stringify(err));
-                        }
-                    });
-            },
-            function (callback)
-            {
-                self.client.delete(
-                    `root:${resourceUri}`,
-                    function (err, result)
+                        callback(null, "Document with uri " + resourceUri + " successfully deleted from SOLR." + ".  result : " + JSON.stringify(err));
+                    }
+                    else if (err.status === 404)
                     {
-                        if (isNull(err))
-                        {
-                            callback(null, "Document with uri " + resourceUri + " successfully deleted from SOLR." + ".  result : " + JSON.stringify(err));
-                        }
-                        else if (err.status === 404)
-                        {
-                            callback(null, "Document with uri " + resourceUri + " does not exist already in SOLR.");
-                        }
-                        else if (err === "Solr server error: 400")
-                        {
-                            callback(null, "Index is empty... Solr does not find the root field!");
-                        }
-                        else
-                        {
-                            callback(err.status, "Unable to delete document " + resourceUri + ".  error reported : " + JSON.stringify(err));
-                        }
-                    });
-            }
-        ]);
+                        callback(null, "Document with uri " + resourceUri + " does not exist already in SOLR.");
+                    }
+                    else if (err === "Solr server error: 400")
+                    {
+                        callback(null, "Index is empty... Solr does not find the root field!");
+                    }
+                    else
+                    {
+                        callback(err.status, "Unable to delete document " + resourceUri + ".  error reported : " + JSON.stringify(err));
+                    }
+                });
+        }
     }
 
     close (callback)
@@ -375,7 +346,11 @@ class SolrIndexConnection extends IndexConnection
         {
             if (isNull(err))
             {
-                const queryString = `q=uri:${resourceURI}`;
+                const queryString = `q="*:*"` +
+                  `&fq="uri:${resourceURI}"` +
+                  `&wt=json` +
+                  `&indent: true`;
+
                 self.client.search(queryString, function (err, result)
                 {
                     if (isNull(err) || err === "Solr server error: 400")
