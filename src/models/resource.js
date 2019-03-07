@@ -1584,23 +1584,23 @@ Resource.prototype.reindex = function (callback, customGraphUri)
                 document,
                 function (err, result)
                 {
+                    let msg;
                     if (isNull(err))
                     {
-                        let msg;
                         if (isNull(id))
                         {
-                            msg = self.uri + " resource successfully indexed in index " + indexConnection.short_name;
+                            msg = "Resource " + self.uri + " successfully indexed in index " + indexConnection.getDescription();
                         }
                         else
                         {
-                            msg = self.uri + " resource successfully REindexed in index " + indexConnection.short_name;
+                            msg = "Resource " + self.uri + " successfully REindexed in index " + indexConnection.getDescription();
                         }
 
-                        Logger.log("debug", msg);
+                        Logger.log("error", msg);
                         return callback(null, self);
                     }
 
-                    const msg = "Error indexing document for resource " + self.uri + " error returned " + JSON.stringify(result, null, 4);
+                    msg = "Error indexing document for resource " + self.uri + " error returned " + JSON.stringify(result, null, 4);
                     errorMessages.push(msg);
                     Logger.log("error", msg);
                     return callback(1, errorMessages);
@@ -1618,50 +1618,24 @@ Resource.prototype.unindex = function (callback, customGraphUri)
 {
     const self = this;
 
-    const document = {
-        uri: self.uri
-    };
-
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
     const indexConnection = IndexConnection.getByGraphUri(graphUri);
 
-    self.getIndexDocumentId(function (err, id)
-    {
-        if (isNull(err))
+    indexConnection.deleteDocument(
+        self.uri,
+        function (err, result)
         {
-            if (!isNull(id))
+            if (isNull(err))
             {
-                document._id = id;
-
-                indexConnection.deleteDocument(
-                    id,
-                    function (err, result)
-                    {
-                        if (isNull(err))
-                        {
-                            const msg = "Resource " + self.uri + " successfully unindexed in index " + indexConnection.short_name;
-                            Logger.log("debug", msg);
-                            return callback(null, self);
-                        }
-
-                        const msg = "Error deleting old document for resource " + self.uri + " error returned " + JSON.stringify(result, null, 4) + " while unindexing it .";
-                        Logger.log("error", msg);
-                        return callback(1, self);
-                    });
-            }
-            else
-            {
-                // resource does not not exist in the index, just return without error, no need to remove it.
+                const msg = "Resource " + self.uri + " successfully unindexed in index " + indexConnection.getDescription();
+                Logger.log("debug", msg);
                 return callback(null, self);
             }
-        }
-        else
-        {
-            const msg = "Error getting document id for resource " + self.uri + " error returned " + id + " while unindexing it .";
+
+            const msg = "Error deleting old document for resource " + self.uri + " error returned " + JSON.stringify(result, null, 4) + " while unindexing it .";
             Logger.log("error", msg);
-            return callback(1, msg);
-        }
-    });
+            return callback(1, self);
+        });
 };
 
 Resource.prototype.getIndexDocumentId = function (callback, customGraphUri)

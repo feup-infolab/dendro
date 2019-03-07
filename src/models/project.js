@@ -892,18 +892,26 @@ Project.prototype.getRootFolder = function (callback)
                 });
 
                 newRootFolder.nie.isLogicalPartOf = self.uri;
-                newRootFolder.save(function (err)
+                newRootFolder.save(function (err, result)
                 {
                     if (isNull(err))
                     {
                         self.ddr.rootFolder = newRootFolder.uri;
-                        self.save(function (err)
+                        self.save(function (err, result)
                         {
+                            if (!isNull(err))
+                            {
+                                Logger.log("error", "Error saving project " + self.uri + ": " + result);
+                            }
                             callback(err, newRootFolder);
                         });
                     }
                     else
                     {
+                        if (!isNull(err))
+                        {
+                            Logger.log("error", "Error saving project " + self.uri + ": " + result);
+                        }
                         callback(err, newRootFolder);
                     }
                 });

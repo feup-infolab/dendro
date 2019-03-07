@@ -333,41 +333,48 @@ class ElasticSearchConnection extends IndexConnection
         }
     }
 
-    deleteDocument (documentID, callback)
+    deleteDocument (resourceUri, callback)
     {
         const self = this;
-        if (isNull(documentID))
+        if (isNull(resourceUri))
         {
-            return callback(null, "No document to delete");
+            return callback(null, "No resource URI to delete from " + self.getDescription());
         }
 
-        self.ensureIndexIsReady(function (err)
+        self.getDocumentIDForResource(function (err, documentID)
         {
             if (isNull(err))
             {
-                self.client.delete(
-                    {
-                        index: self.short_name,
-                        type: ElasticSearchConnection.indexTypes.resource,
-                        id: documentID,
-                        refresh: "true",
-                        timeout: "40s"
-                    },
-                    function (err, result)
-                    {
-                        if (isNull(err))
+                if (isNull(documentID))
+                {
+                    callback(null);
+                }
+                else
+                {
+                    self.client.delete(
                         {
-                            callback(null, "Document with id " + documentID + " successfully deleted." + ".  result : " + JSON.stringify(err));
-                        }
-                        else if (err.status === 404)
+                            index: self.short_name,
+                            type: ElasticSearchConnection.indexTypes.resource,
+                            id: documentID,
+                            refresh: "true",
+                            timeout: "40s"
+                        },
+                        function (err, result)
                         {
-                            callback(null, "Document with id " + documentID + " does not exist already.");
-                        }
-                        else
-                        {
-                            callback(err.status, "Unable to delete document " + documentID + ".  error reported : " + JSON.stringify(err));
-                        }
-                    });
+                            if (isNull(err))
+                            {
+                                callback(null, "Document with id " + documentID + " successfully deleted." + ".  result : " + JSON.stringify(err));
+                            }
+                            else if (err.status === 404)
+                            {
+                                callback(null, "Document with id " + documentID + " does not exist already.");
+                            }
+                            else
+                            {
+                                callback(err.status, "Unable to delete document " + documentID + ".  error reported : " + JSON.stringify(err));
+                            }
+                        });
+                }
             }
             else
             {
@@ -518,6 +525,15 @@ class ElasticSearchConnection extends IndexConnection
             }
         ], function (err, results)
         {
+            if (isNull(err))
+            {
+                Logger.log_boot_message("Index " + self.id + " is up and running on elasticsearch at " + self.host + ":" + self.port);
+            }
+            else
+            {
+                Logger.log_boot_message("error", "Error creating elasticsearch index " + self.id + " at " + self.host + ":" + self.port);
+            }
+
             callback(err, results);
         });
     }
@@ -823,6 +839,12 @@ class ElasticSearchConnection extends IndexConnection
                 return callback(1, [hits]);
             }
         );
+    }
+
+    getDescription ()
+    {
+        const self = this;
+        return "ElasticSearch Index " + self.id + " running on http://" + self.host + ":" + self.port;
     }
 }
 

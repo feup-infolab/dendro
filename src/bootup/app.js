@@ -339,7 +339,8 @@ class App
                 },
                 function (callback)
                 {
-                    self.bootupDependencies(function(err, restoredCheckpoint){
+                    self.bootupDependencies(function (err, restoredCheckpoint)
+                    {
                         callback(err);
                     });
                 },

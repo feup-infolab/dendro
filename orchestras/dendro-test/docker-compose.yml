@@ -12,8 +12,6 @@ services:
       - "http.host=0.0.0.0"
       - "transport.host=127.0.0.1"
       - "TAKE_FILE_OWNERSHIP=1"
-    volumes:
-      - ./volumes/elasticsearch:/usr/share/elasticsearch/data:consistent
     networks:
       - dendro
 
@@ -22,8 +20,6 @@ services:
     image: solr:7.7.0-slim${DENDRO_DOCKER_CONTAINERS_SUFFIX}
     ports:
       - 8983:8983
-    volumes:
-      - ./volumes/solr:/opt/solr/server/solr/mycores
     entrypoint:
       - bash
       - "-c"

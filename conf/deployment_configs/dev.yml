@@ -15,7 +15,7 @@ dev:
   index:
     type: solr
     solr:
-      connection_log_type: debug
+      connection_log_type: 'DEBUG'
       use_auth: false
       host: 127.0.0.1
       port: '8984'
@@ -238,7 +238,7 @@ dev:
     clear_session_store: true
     log_bootup_actions: true
     destroy_all_graphs: false
-    destroy_all_indexes: false
+    destroy_all_indexes: true
     destroy_files_store: false
     destroy_datastore: false
     destroy_mysql_database: false

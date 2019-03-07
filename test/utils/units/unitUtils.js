@@ -253,41 +253,17 @@ exports.checkpointExists = function (checkpointIdentifier, callback)
 
 exports.restoreCheckpoint = function (checkpointIdentifier, callback)
 {
-    if (Config.docker.active)
+    if (Config.docker.active && Config.docker.reuse_checkpoints)
     {
-        exports.checkpointExists(checkpointIdentifier, function (err, exists)
+        DockerManager.restoreCheckpoint(checkpointIdentifier, function (err, restoredCheckpoint)
         {
-            if (err)
-            {
-                throw new Error("Error checking if checkpoint " + checkpointIdentifier + " exists");
-            }
-            else
-            {
-                if (exists)
-                {
-                    if (Config.docker.active && Config.docker.reuse_checkpoints)
-                    {
-                        DockerManager.restoreCheckpoint(checkpointIdentifier, function (err, restoredCheckpoint)
-                        {
-                            callback(err, restoredCheckpoint);
-                        });
-                    }
-                    else
-                    {
-                        callback(err, false);
-                    }
-                }
-                else
-                {
-                    callback(err, null);
-                }
-            }
+            callback(err, restoredCheckpoint);
         });
     }
     else
     {
-        Logger.log("Docker not active when trying to restore checkpoint " + checkpointIdentifier + ". Proceeeding...");
-        callback(null);
+        Logger.log("Docker not active or checkpoint reuse not active when trying to restore checkpoint " + checkpointIdentifier + ". Proceeeding...");
+        callback(null, false);
     }
 };
 

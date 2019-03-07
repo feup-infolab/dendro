@@ -193,6 +193,15 @@ class SearchIndexConnection extends IndexConnection
             }
         ], function (err, results)
         {
+            if (isNull(err))
+            {
+                Logger.log_boot_message("Index " + self.id + " is up and running on local search index at " + self.host + ":" + self.port);
+            }
+            else
+            {
+                Logger.log_boot_message("error", "Error creating local search index " + self.id + " at " + self.host + ":" + self.port);
+            }
+
             callback(err, results);
         });
     }
@@ -325,6 +334,12 @@ class SearchIndexConnection extends IndexConnection
     static closeConnections (cb)
     {
         cb(null);
+    }
+
+    getDescription ()
+    {
+        const self = this;
+        return "Local Index Connection " + self.id;
     }
 }
 
