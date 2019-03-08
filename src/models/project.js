@@ -2097,7 +2097,26 @@ Project.prototype.reindex = function (callback, customGraphUri)
     {
         if (isNull(err))
         {
-            async.series([
+            async.parallel([
+                function (callback)
+                {
+                    if (self.ddr.privacyStatus === "public" || self.ddr.privacyStatus === "metadata_only")
+                    {
+                        // reindex the Project object itself.
+                        Project.baseConstructor.prototype.reindex.call(self, function (err, result)
+                        {
+                            callback(err, result);
+                        });
+                    }
+                    else
+                    {
+                        // unindex the Project object itself.
+                        Project.baseConstructor.prototype.unindex.call(self, function (err, result)
+                        {
+                            callback(err, result);
+                        });
+                    }
+                },
                 function (callback)
                 {
                     // reindex the entire directory structure
@@ -2178,25 +2197,6 @@ Project.prototype.reindex = function (callback, customGraphUri)
                         true,
                         customGraphUri
                     );
-                },
-                function (callback)
-                {
-                    if (self.ddr.privacyStatus === "public" || self.ddr.privacyStatus === "metadata_only")
-                    {
-                        // reindex the Project object itself.
-                        Project.baseConstructor.prototype.reindex.call(self, function (err, result)
-                        {
-                            callback(err, result);
-                        });
-                    }
-                    else
-                    {
-                        // unindex the Project object itself.
-                        Project.baseConstructor.prototype.unindex.call(self, function (err, result)
-                        {
-                            callback(err, result);
-                        });
-                    }
                 }
             ], function (err, result)
             {

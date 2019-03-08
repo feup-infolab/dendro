@@ -306,9 +306,17 @@ class SolrIndexConnection extends IndexConnection
             strQuery += `&skip=${encodeURIComponent(options.skip)}`;
         }
 
+        // Max
+        options.size = options.size % 50;
+
         if (options.size)
         {
-            strQuery += `&size=${encodeURIComponent(options.size)}`;
+            strQuery += `&rows=${encodeURIComponent(options.size)}`;
+        }
+        else
+        {
+            // default is 50 resources per page
+            strQuery += `&rows=50`;
         }
 
         self.client.search(strQuery, function (err, result)

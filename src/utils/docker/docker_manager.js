@@ -50,11 +50,6 @@ const logEverythingFromChildProcess = function (childProcess)
     });
 };
 
-DockerManager.stopAllContainers = function (callback)
-{
-    DockerManager.stopOrchestra(DockerManager.defaultOrchestra, callback);
-};
-
 DockerManager.startAllContainers = function (callback, imagesSuffix)
 {
     DockerManager.startOrchestra(DockerManager.defaultOrchestra, function (err, restoredCheckpoint)
@@ -133,14 +128,31 @@ DockerManager.createCheckpoint = function (checkpointName, callback)
             {
                 if (!exists)
                 {
-                    DockerManager.commitAllContainersInOrchestra(function (err, result)
-                    {
-                        if (isNull(err))
-                        {
-                            Logger.log("Saved checkpoint with name " + checkpointName);
-                        }
-                        callback(err, result);
-                    }, DockerManager.defaultOrchestra, checkpointName);
+                    async.series(
+                        [
+                            function (callback)
+                            {
+                                Logger.log("Stopping containers to create checkpoint with name " + checkpointName);
+                                DockerManager.stopOrchestra(DockerManager.defaultOrchestra, callback);
+                            },
+                            function (callback)
+                            {
+                                Logger.log("Starting commit of containers to create checkpoint with name " + checkpointName);
+                                DockerManager.commitAllContainersInOrchestra(function (err, result)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        Logger.log("Saved checkpoint with name " + checkpointName);
+                                    }
+                                    callback(err, result);
+                                }, DockerManager.defaultOrchestra, checkpointName);
+                            },
+                            function (callback)
+                            {
+                                Logger.log("Starting containers after creating checkpoint with name " + checkpointName);
+                                DockerManager.stopOrchestra(DockerManager.defaultOrchestra, callback);
+                            },
+                        ], callback);
                 }
                 else
                 {
@@ -537,7 +549,7 @@ DockerManager.stopOrchestra = function (orchestraName, callback)
                 orchestraName,
                 function (singleOrchestraName, callback)
                 {
-                    DockerManager.startOrchestra(singleOrchestraName, function (err, result)
+                    DockerManager.stopOrchestra(singleOrchestraName, function (err, result)
                     {
                         if (!isNull(err))
                         {
@@ -669,7 +681,7 @@ DockerManager.commitContainer = function (containerName, committedImageName, cal
 {
     DockerManager.getContainerIDFromName(containerName, function (err, containerID)
     {
-        childProcess.exec(`docker commit -p "${containerID}" "${committedImageName}"`, {
+        childProcess.exec(`docker commit "${containerID}" "${committedImageName}"`, {
             cwd: rlequire.getRootFolder("dendro"),
             stdio: [0, 1, 2]
         }, function (err, result)

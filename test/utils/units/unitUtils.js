@@ -555,6 +555,11 @@ exports.init = function (callback)
 
 exports.setup = function (targetUnit, callback, forceLoad)
 {
+    if(!Config.docker.reuse_checkpoints)
+    {
+        forceLoad = true;
+    }
+
     const checkpointIdentifier = targetUnit.name;
     const tryToRestoreUnitState = function (callback)
     {

@@ -816,7 +816,7 @@ class App
 
         const haltDockerContainers = function (cb)
         {
-            if (Config.docker && Config.docker.active && Config.docker.stop_all_containers_automatically)
+            if (Config.docker && Config.docker.active && Config.docker.stop_containers_automatically)
             {
                 Logger.log("Halting docker containers...");
 
