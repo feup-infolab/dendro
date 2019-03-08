@@ -106,7 +106,7 @@ class App
                 Logger.log("error", exception.stack);
             }
 
-            if (process.env !== "test")
+            if (process.env.NODE_ENV !== "test")
             {
                 process.nextTick(function ()
                 {
