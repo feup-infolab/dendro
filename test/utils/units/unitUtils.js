@@ -555,7 +555,7 @@ exports.init = function (callback)
 
 exports.setup = function (targetUnit, callback, forceLoad)
 {
-    if(!Config.docker.reuse_checkpoints)
+    if (!Config.docker.reuse_checkpoints)
     {
         forceLoad = true;
     }
@@ -592,11 +592,11 @@ exports.setup = function (targetUnit, callback, forceLoad)
                 async.series([
                     function (callback)
                     {
-                        DockerManager.destroyAllOrchestras(callback);
+                        DockerManager.destroyAllOrchestras(callback, true);
                     },
                     function (callback)
                     {
-                        DockerManager.destroyAllSavedImages(callback);
+                        DockerManager.destroyAllSavedImages(callback, true);
                     },
                     function (callback)
                     {

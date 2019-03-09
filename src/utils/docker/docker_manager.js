@@ -132,11 +132,6 @@ DockerManager.createCheckpoint = function (checkpointName, callback)
                         [
                             function (callback)
                             {
-                                Logger.log("Stopping containers to create checkpoint with name " + checkpointName);
-                                DockerManager.stopOrchestra(DockerManager.defaultOrchestra, callback);
-                            },
-                            function (callback)
-                            {
                                 Logger.log("Starting commit of containers to create checkpoint with name " + checkpointName);
                                 DockerManager.commitAllContainersInOrchestra(function (err, result)
                                 {
@@ -149,9 +144,28 @@ DockerManager.createCheckpoint = function (checkpointName, callback)
                             },
                             function (callback)
                             {
-                                Logger.log("Starting containers after creating checkpoint with name " + checkpointName);
-                                DockerManager.stopOrchestra(DockerManager.defaultOrchestra, callback);
+                                Logger.log("Stopping containers after commit of containers to create checkpoint with name " + checkpointName);
+                                DockerManager.stopOrchestra(DockerManager.defaultOrchestra, function (err, result)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        Logger.log("Saved checkpoint with name " + checkpointName);
+                                    }
+                                    callback(err, result);
+                                });
                             },
+                            function (callback)
+                            {
+                                Logger.log("Starting containers after commit of containers to create checkpoint with name " + checkpointName);
+                                DockerManager.startOrchestra(DockerManager.defaultOrchestra, function (err, result)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        Logger.log("Saved checkpoint with name " + checkpointName);
+                                    }
+                                    callback(err, result);
+                                }, checkpointName);
+                            }
                         ], callback);
                 }
                 else
@@ -463,10 +477,12 @@ DockerManager.startOrchestra = function (orchestraName, callback, imagesSuffix)
                 if (!isNull(imagesSuffix))
                 {
                     Logger.log("Docker containers in orchestra " + orchestraName + " starting with state " + imagesSuffix);
-                    _.extend(copyOfEnv, {DENDRO_DOCKER_CONTAINERS_SUFFIX: imagesSuffix});
+                    _.extend(copyOfEnv, {
+                        DENDRO_DOCKER_CONTAINERS_SUFFIX: imagesSuffix
+                    });
                 }
 
-                dockerSubProcess = childProcess.exec("docker-compose up -d --no-recreate", {
+                dockerSubProcess = childProcess.exec("docker-compose up -d", {
                     cwd: dockerComposeFolder,
                     env: copyOfEnv
                 }, function (err, result)
@@ -572,7 +588,7 @@ DockerManager.stopOrchestra = function (orchestraName, callback)
 
             let dockerSubProcess;
 
-            dockerSubProcess = childProcess.exec("docker-compose down", {
+            dockerSubProcess = childProcess.exec("docker-compose stop", {
                 cwd: path.resolve(rlequire.getRootFolder("dendro"), "./orchestras/" + orchestraName),
                 stdio: [0, 1, 2]
             }, function (err, result)
@@ -582,7 +598,7 @@ DockerManager.stopOrchestra = function (orchestraName, callback)
                     DockerManager.runningOrchestras[orchestraName] = null;
                 }
 
-                Logger.log("Started all containers in orchestra " + orchestraName);
+                Logger.log("Stopped all containers in orchestra " + orchestraName);
                 callback(err, result);
             });
 

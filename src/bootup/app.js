@@ -684,7 +684,7 @@ class App
             const DbConnection = rlequire("dendro", "src/kb/db.js").DbConnection;
             DbConnection.finishUpAllConnectionsAndClose(function ()
             {
-                const timeout = 2000;
+                const timeout = 5000;
                 Logger.log("Waiting " + timeout + "ms for virtuoso to flush the buffers...");
                 setTimeout(cb, timeout);
             });
@@ -838,19 +838,27 @@ class App
             cb(null);
         };
 
-        async.series([
-            closeAgenda,
-            waitForPendingConnectionsToFinishup,
+        async.parallel([
             closeVirtuosoConnections,
-            closeCacheConnections,
-            closeIndexConnections,
-            closeGridFSConnections,
-            closeMySQLConnectionPool,
-            haltHTTPServer,
-            callGarbageCollector,
-            removePIDFile,
-            haltDockerContainers,
-            destroyLogger
+            function (callback)
+            {
+                async.series([
+                    closeAgenda,
+                    waitForPendingConnectionsToFinishup,
+                    closeCacheConnections,
+                    closeIndexConnections,
+                    closeGridFSConnections,
+                    closeMySQLConnectionPool,
+                    haltHTTPServer,
+                    callGarbageCollector,
+                    removePIDFile,
+                    haltDockerContainers,
+                    destroyLogger
+                ], function (err, results)
+                {
+                    callback(err, results);
+                });
+            }
         ], function (err, results)
         {
             if (!err)
