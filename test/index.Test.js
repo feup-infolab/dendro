@@ -2,7 +2,6 @@ process.env.NODE_ENV = "test";
 
 global.app_startup_time = new Date();
 
-const path = require("path");
 const rlequire = require("rlequire");
 
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;

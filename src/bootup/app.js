@@ -839,12 +839,12 @@ class App
         };
 
         async.parallel([
-            closeVirtuosoConnections,
             function (callback)
             {
                 async.series([
                     closeAgenda,
                     waitForPendingConnectionsToFinishup,
+                    closeVirtuosoConnections,
                     closeCacheConnections,
                     closeIndexConnections,
                     closeGridFSConnections,
