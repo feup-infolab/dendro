@@ -18,7 +18,7 @@ const Deposit = rlequire("dendro", "src/models/deposit.js").Deposit;
 
 exports.sendDeposits = function (jsonOnly, params, agent, callback)
 {
-    const path = "deposits/get_deposits";
+    const path = "deposits/search";
     if (jsonOnly)
     {
         agent

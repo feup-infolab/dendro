@@ -839,7 +839,7 @@ DbConnection.prototype.create = function (callback)
             properties: {}
         };*/
 
-        const timeoutSecs = 10;
+        const timeoutSecs = 60;
         const connectionString = `jdbc:virtuoso://${self.host}:${self.port_isql}/UID=${self.username}/PWD=${self.password}/PWDTYPE=cleartext/CHARSET=UTF-8/TIMEOUT=${timeoutSecs}`;
 
         const config = {
@@ -849,7 +849,7 @@ DbConnection.prototype.create = function (callback)
             maxpoolsize: self.maxSimultaneousConnections,
             minpoolsize: 1,
             // 600 seconds idle time (should be handled by the TIMEOUT setting, but we specify this to kill any dangling connections...
-            maxidle: 1000 * timeoutSecs * 10,
+            maxidle: 1000 * timeoutSecs,
             properties: {}
         };
 

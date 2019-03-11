@@ -187,7 +187,6 @@ Deposit.createQuery = function (params, callback)
         });
     }
 
-
     let ending =
         "} \n" +
         "ORDER BY " + params.order + "(?" + params.labelToSort + ") \n" +
@@ -430,10 +429,10 @@ Deposit.getAllRepositories = function (params, callback)
               "   } \n";
 
             variables.push(
-              {
-                  type: Elements.ontologies.ddr.privacyStatus.type,
-                  value: "public"
-              });
+                {
+                    type: Elements.ontologies.ddr.privacyStatus.type,
+                    value: "public"
+                });
         }
         else
         {
@@ -494,7 +493,7 @@ Deposit.getAllRepositories = function (params, callback)
         "} . \n" +
         "   ?uri ddr:exportedToPlatform ?platformsUsed . \n";
     }
-    /*if (params.repositories)
+    /* if (params.repositories)
     {
         query +=
         "    VALUES ?repository { ";

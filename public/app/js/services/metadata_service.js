@@ -111,7 +111,7 @@ angular.module("dendroApp.factories")
                             }
                             else
                             {
-                                deserialize.reject([]);
+                                deserialize.reject(response);
                             }
                         });
 

@@ -224,7 +224,7 @@ angular.module("dendroApp.controllers", [])
             };
 
             let url = $scope.get_current_url();
-            url += "deposits/get_deposits";
+            url += "deposits/search";
             listings.getListing($scope, url, $scope.page, $scope.offset - 1, $scope.search, change, handle);
         };
 
@@ -241,7 +241,7 @@ angular.module("dendroApp.controllers", [])
         $scope.changePage = function (pageNumber)
         {
             let url = $scope.get_current_url();
-            url += "deposits/get_deposits";
+            url += "deposits/search";
             listings.getListing($scope, url, $scope.page, pageNumber - 1, $scope.search, false, $scope.updateDeposits);
             $scope.offset = pageNumber;
         };
@@ -249,13 +249,13 @@ angular.module("dendroApp.controllers", [])
         $scope.nextPage = function ()
         {
             let url = $scope.get_current_url();
-            url += "deposits/get_deposits";
+            url += "deposits/search";
             listings.getListing($scope, url, $scope.page, ++$scope.offset - 1, $scope.search, false, $scope.updateDeposits);
         };
         $scope.previousPage = function ()
         {
             let url = $scope.get_current_url();
-            url += "deposits/get_deposits";
+            url += "deposits/search";
             listings.getListing($scope, url, $scope.page, --$scope.offset - 1, $scope.search, false, $scope.updateDeposits);
         };
 

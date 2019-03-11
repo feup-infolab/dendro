@@ -156,7 +156,7 @@ angular.module("dendroApp.controllers")
 
             $scope.valid_organization = function (organization)
             {
-                if (!organization  || organization === null || organization.length === 0)
+                if (!organization || organization === null || organization.length === 0)
                 {
                     return false;
                 }
@@ -344,7 +344,6 @@ angular.module("dendroApp.controllers")
                 }
                 if (!newRepository.ddr || !$scope.valid_url(newRepository.ddr.hasExternalUri))
                 {
-
                     return true;
                 }
                 if (!newRepository.ddr.username)
@@ -355,7 +354,7 @@ angular.module("dendroApp.controllers")
                 {
                     return true;
                 }
-               if (!newRepository.ddr.hasAPIKey)
+                if (!newRepository.ddr.hasAPIKey)
                 {
                     return true;
                 }

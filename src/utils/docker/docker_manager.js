@@ -84,7 +84,7 @@ DockerManager.checkpointExists = function (checkpointName, callback)
                         }
                         else
                         {
-                            if(!isNull(err.message) && err.message.indexOf("No such image") > -1)
+                            if (!isNull(err.message) && err.message.indexOf("No such image") > -1)
                             {
                                 callback(null, false);
                             }

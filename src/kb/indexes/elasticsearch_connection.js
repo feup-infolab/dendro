@@ -116,7 +116,8 @@ class ElasticSearchConnection extends IndexConnection
         }
         else
         {
-            const tryToConnect = function (callback){
+            const tryToConnect = function (callback)
+            {
                 self.client.indices.open(
                     {
                         index: [self.short_name]

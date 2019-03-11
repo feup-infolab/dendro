@@ -761,19 +761,26 @@ angular.module("dendroApp.controllers")
                 }
             });
 
-            $scope.load_metadata().then(
-                function (metadata)
+            $scope.load_metadata()
+                .then(
+                    function (metadata)
+                    {
+                        if (!$scope.shared.is_a_file)
+                        {
+                            $scope.get_folder_contents(true);
+                        }
+                        else if (!$scope.edit_mode)
+                        {
+                            $scope.load_preview();
+                        }
+                    }
+
+                )
+                .catch(function (error)
                 {
-                    if (!$scope.shared.is_a_file)
-                    {
-                        $scope.get_folder_contents(true);
-                    }
-                    else if (!$scope.edit_mode)
-                    {
-                        $scope.load_preview();
-                    }
-                }
-            );
+                    console.log("Error fetching metadata for project " + $scope.get_calling_uri());
+                    console.log(error);
+                });
 
             // monitor a change in the selected file on the file explorer
             // and propagate to child controllers

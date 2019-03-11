@@ -20,7 +20,7 @@ const Ontology = rlequire("dendro", "src/models/meta/ontology.js").Ontology;
 const Permissions = rlequire("dendro", "src/models/meta/permissions.js").Permissions;
 const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
 
-exports.getDeposits = function (req, res)
+exports.search = function (req, res)
 {
     const user = req.user;
     const acceptsHTML = req.accepts("html");
@@ -126,15 +126,15 @@ exports.allowed = function (req, callback)
 
     switch (labels[0])
     {
-        case "date":
-            params.labelToSort = "date";
-            break;
-        case "username":
-            params.labelToSort = "user";
-            break;
-        default:
-            params.labelToSort = "projectTitle";
-            break;
+    case "date":
+        params.labelToSort = "date";
+        break;
+    case "username":
+        params.labelToSort = "user";
+        break;
+    default:
+        params.labelToSort = "projectTitle";
+        break;
     }
 
     switch (labels[1])
@@ -146,8 +146,6 @@ exports.allowed = function (req, callback)
         params.order = "DESC";
         break;
     }
-
-
 
     async.series([
         function (callback)
@@ -199,10 +197,9 @@ exports.show = function (req, res)
     let resourceURI = req.params.requestedResourceUri;
     const isDepositRoot = req.params.is_deposit_root;
 
-
     function sendResponse (viewVars, requestedResource)
     {
-        const askedForHtml = function (req, res)
+        const sendResponseInRequestedFormat = function (callback)
         {
             const accept = req.header("Accept");
             let serializer = null;
@@ -219,34 +216,48 @@ exports.show = function (req, res)
                         result.is_project_root = true;
                         res.set("Content-Type", contentType);
                         res.send(serializer(result));
+                        callback(null, true);
                     }
                     else
                     {
                         res.status(500).json({
                             error_messages: "Error finding metadata from " + requestedResource.uri + "\n" + result
                         });
+                        callback(1, false);
                     }
                 }, [Elements.access_types.locked, Elements.access_types.locked_for_projects, Elements.access_types.private]);
-
-                return false;
             }
-            return true;
+            else
+            {
+                callback(null, false);
+            }
         };
 
-        if (askedForHtml(req, res))
+        // client requested JSON, RDF, TXT, etc...
+        sendResponseInRequestedFormat(function(error, alreadySent)
         {
-            res.render("registry/show_readonly",
-                viewVars
-            );
-        }
-        else
-        {
-            req.flash("error", "There was an role calculation error accessing resource at " + requestedResource.uri);
-            res.redirect("/");
-        }
+            if(!isNull(error))
+            {
+                req.flash("error", "There is no valid serializer available for the requested format " + req.header("Accept") + " " + requestedResource.uri);
+                res.redirect("/");
+            }
+            else
+            {
+                if(!alreadySent)
+                {
+                    res.render("registry/show_readonly",
+                        viewVars
+                    );
+                }
+            }
+        });
     }
 
-    let showing_history = Boolean(req.query.show_history);
+    let showing_history;
+    if (!isNull(req.query))
+    {
+        showing_history = Boolean(req.query.show_history);
+    }
 
     const fetchVersionsInformation = function (archivedResource, cb)
     {
@@ -314,9 +325,8 @@ exports.show = function (req, res)
                     if (!isNull(depositDescriptors) && depositDescriptors instanceof Array)
                     {
                         viewVars.descriptors = depositDescriptors;
-                        res.render("registry/show_readonly",
-                            viewVars
-                        );
+
+                        sendResponse(viewVars, deposit);
                     }
                 });
             }

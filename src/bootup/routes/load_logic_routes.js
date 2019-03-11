@@ -1518,7 +1518,7 @@ const loadRoutes = function (app, callback)
     }
 
     // TODO William
-    app.get("/deposits/get_deposits", deposits.getDeposits);
+    app.get("/deposits/search", deposits.search);
 
     app.get([
         getNonHumanReadableRouteRegex("deposit")
