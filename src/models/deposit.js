@@ -569,6 +569,7 @@ Deposit.saveContents = function (params, callback)
                         // TODO check if file or folder
                         content.copyPaste({includeMetadata: true, destinationFolder: rootFolder, user: params.user}, function (err, msg)
                         {
+                            console.log(newDeposit);
                             callback(err, newDeposit);
                         });
                         // pass contents here
@@ -611,6 +612,7 @@ Deposit.prototype.findMetadata = function (callback, typeConfigsToRetain)
 Deposit.prototype.getProject = function (callback)
 {
     let self = this;
+
     let projectUri = self.ddr.exportedFromProject;
 
     Project.findByUri(projectUri, function (err, project)

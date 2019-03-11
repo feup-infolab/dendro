@@ -174,7 +174,6 @@ angular.module("dendroApp.controllers", [])
         {
             $scope.rootDepositUri = rootDepositUri;
             $scope.isDepositRoot = isRoot;
-            console.log("hello");
         };
 
         $scope.init = function ()
@@ -292,9 +291,7 @@ angular.module("dendroApp.controllers", [])
             }
         };
     })
-    .directive("pageNavigation", function (
-
-    )
+    .directive("pageNavigation", function ()
     {
         return {
             restrict: "ACE",

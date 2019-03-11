@@ -11,25 +11,7 @@
                     <div class="control-group" ng-repeat="descriptor in shared.metadata | filter:only_editable_metadata_descriptors track by $index">
                         <div ng-switch="descriptor.control">
                             <div ng-switch-when="input_box">
-                                <ng-include src="'/app/views/projects/show/partials/controls_read_only/input_box.html'"></ng-include>
-                            </div>
-                            <div ng-switch-when="date_picker">
-                                <ng-include src="'/app/views/projects/show/partials/controls_read_only/date_picker.html'"></ng-include>
-                            </div>
-                            <div ng-switch-when="map">
-                                <ng-include src="'/app/views/projects/show/partials/controls_read_only/map.html'"></ng-include>
-                            </div>
-                            <div ng-switch-when="markdown_box">
-                                <ng-include src="'/app/views/projects/show/partials/controls_read_only/markdown_box.html'"></ng-include>
-                            </div>
-                            <div ng-switch-when="url_box">
-                                <ng-include src="'/app/views/projects/show/partials/controls_read_only/url_box.html'"></ng-include>
-                            </div>
-                            <div ng-switch-when="combo_box">
-                                <ng-include src="'/app/views/projects/show/partials/controls_read_only/combo_box.html'"></ng-include>
-                            </div>
-                            <div ng-switch-when="regex_checking_input_box">
-                                <ng-include src="'/app/views/projects/show/partials/controls_read_only/regex_checking_input_box.html'"></ng-include>
+                                <ng-include src="'/app/views/registry/show/controls_read_only/input_box.html'"></ng-include>
                             </div>
                         </div>
                     </div>

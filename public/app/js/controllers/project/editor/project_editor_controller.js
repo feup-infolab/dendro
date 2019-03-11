@@ -681,6 +681,8 @@ angular.module("dendroApp.controllers")
         // initialization
         $scope.init = function ()
         {
+            console.log($scope);
+
             // init interface parameters
             $scope.set_from_local_storage_and_then_from_value("edit_mode", false);
             // put some services in scope i.e. to access constants
