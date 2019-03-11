@@ -556,8 +556,11 @@ angular.module("dendroApp.controllers")
             filesService.get_folder_contents(windowService.get_current_url(), includingDeletedFiles)
                 .then(function (folder_contents)
                 {
+console.log($scope.shared);
                     $scope.shared.folder_contents = folder_contents;
                     loadFolderContentsPromise.resolve(folder_contents);
+                  console.log($scope.shared);
+
                 })
                 .catch(function (error)
                 {
@@ -570,11 +573,15 @@ angular.module("dendroApp.controllers")
         $scope.get_folder_contents = function (forceReloadFromServer)
         {
             var getFolderContentsPromise = $q.defer();
+
             if ($scope.shared.folder_contents == null || forceReloadFromServer)
             {
+                console.log($scope.shared.showing_deleted_files);
                 $scope.load_folder_contents($scope.shared.showing_deleted_files)
                     .then(function (folder_contents)
                     {
+                        console.log("aqui", folder_contents);
+
                         $scope.shared.folder_contents = folder_contents;
                         getFolderContentsPromise.resolve(folder_contents);
                     })
@@ -681,7 +688,6 @@ angular.module("dendroApp.controllers")
         // initialization
         $scope.init = function ()
         {
-            console.log($scope);
 
             // init interface parameters
             $scope.set_from_local_storage_and_then_from_value("edit_mode", false);

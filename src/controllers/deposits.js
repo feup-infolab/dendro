@@ -234,16 +234,16 @@ exports.show = function (req, res)
         };
 
         // client requested JSON, RDF, TXT, etc...
-        sendResponseInRequestedFormat(function(error, alreadySent)
+        sendResponseInRequestedFormat(function (error, alreadySent)
         {
-            if(!isNull(error))
+            if (!isNull(error))
             {
                 req.flash("error", "There is no valid serializer available for the requested format " + req.header("Accept") + " " + requestedResource.uri);
                 res.redirect("/");
             }
             else
             {
-                if(!alreadySent)
+                if (!alreadySent)
                 {
                     res.render("registry/show_readonly",
                         viewVars
