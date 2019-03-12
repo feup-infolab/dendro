@@ -8,6 +8,7 @@ const rlequire = require("rlequire");
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const DockerManager = rlequire("dendro", "src/utils/docker/docker_manager.js").DockerManager;
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 const Queue = require("better-queue");
@@ -1260,23 +1261,18 @@ DbConnection.prototype.close = function (callback)
 
     const shutdownVirtuoso = function (callback)
     {
-        if (Config.docker.active && Config.docker.stop_containers_automatically)
+        if (Config.docker.active && Config.docker.stop_containers_automatically && Config.docker.virtuoso_container_name)
         {
             Logger.log("Shutting down virtuoso....!");
 
             async.series([
-                function(callback)
+                function (callback)
                 {
-                    self.executeViaJDBC(
-                        "s",
-                        [],
-                        function (err, result)
-                        {}
-                        , null, null, null, true, true
-                    );
-                    callback(null);
+                    DockerManager.runCommandOnContainer(Config.docker.virtuoso_container_name, `isql 1111 ${self.username} ${self.password} 'EXEC=checkpoint; shutdown;'`, function(err, result){
+                        callback(err, result);
+                    });
                 },
-                function(callback)
+                function (callback)
                 {
                     const tryToConnect = function (callback)
                     {
@@ -1284,7 +1280,7 @@ DbConnection.prototype.close = function (callback)
 
                         tcpp.probe(self.host, self.port, function (err, available)
                         {
-                            if(isNull(err))
+                            if (isNull(err))
                             {
                                 callback(available);
                             }
@@ -1319,7 +1315,7 @@ DbConnection.prototype.close = function (callback)
                         }
                     });
                 }
-            ])
+            ]);
         }
         else
         {

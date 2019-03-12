@@ -714,4 +714,31 @@ DockerManager.commitContainer = function (containerName, committedImageName, cal
     });
 };
 
+DockerManager.runCommandOnContainer = function(containerName, command, callback)
+{
+    DockerManager.getContainerIDFromName(containerName, function(err, containerID){
+        if(isNull(err))
+        {
+            childProcess.exec(`docker exec "${containerID}" "${command}"`, {
+                cwd: rlequire.getRootFolder("dendro"),
+                stdio: [0, 1, 2]
+            }, function (err, result)
+            {
+                if (isNull(err))
+                {
+                    callback(null, result);
+                }
+                else
+                {
+                    callback(null, result);
+                }
+            });
+        }
+        else
+        {
+            callback(err, containerID);
+        }
+    });
+}
+
 module.exports.DockerManager = DockerManager;
