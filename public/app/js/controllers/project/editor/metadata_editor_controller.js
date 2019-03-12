@@ -43,7 +43,6 @@ angular.module("dendroApp.controllers")
 
         $scope.has_editable_metadata = function ()
         {
-console.log($scope.shared.metadata)
             if ($scope.shared.metadata == null || ($scope.shared.metadata instanceof Array && $scope.shared.metadata.length === 0))
             {
                 return false;

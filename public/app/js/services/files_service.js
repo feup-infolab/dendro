@@ -31,7 +31,6 @@ angular.module("dendroApp.services")
                     {
                         if (response.data != null && response.data instanceof Object)
                         {
-                            console.log(response.data)
                             return response.data;
                         }
                         return [];

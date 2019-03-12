@@ -604,6 +604,37 @@ Deposit.prototype.findMetadata = function (callback, typeConfigsToRetain)
     );
 };
 
+Deposit.prototype.getFirstLevelDirectoryContents = function (callback)
+{
+    const self = this;
+
+    self.getRootFolder(function (err, folder)
+    {
+        if (isNull(err))
+        {
+            if (!isNull(folder) && folder instanceof Folder)
+            {
+                folder.getLogicalParts(function (err, children)
+                {
+                    if (isNull(err))
+                    {
+                        return callback(null, children);
+                    }
+                    return callback(1, "Error fetching children of deposit root folder");
+                });
+            }
+            else
+            {
+                return callback(1, "unable to retrieve deposit " + self.ddr.handle + " 's root folder. Error :" + err);
+            }
+        }
+        else
+        {
+            return callback(1, "unable to retrieve project " + self.ddr.handle + " 's root folder's contents. Error :" + err);
+        }
+    });
+};
+
 /**
  * Returns the project associated with the
  * @param callback

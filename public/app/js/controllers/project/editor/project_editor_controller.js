@@ -558,8 +558,7 @@ angular.module("dendroApp.controllers")
                 {
                     $scope.shared.folder_contents = folder_contents;
                     loadFolderContentsPromise.resolve(folder_contents);
-                  console.log($scope.shared);
-
+                    console.log($scope.shared);
                 })
                 .catch(function (error)
                 {
@@ -686,7 +685,6 @@ angular.module("dendroApp.controllers")
         // initialization
         $scope.init = function ()
         {
-
             // init interface parameters
             $scope.set_from_local_storage_and_then_from_value("edit_mode", false);
             // put some services in scope i.e. to access constants

@@ -6,6 +6,7 @@ const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const Project = rlequire("dendro", "src/models/project.js").Project;
+const Deposit = rlequire("dendro", "src/models/deposit.js").Deposit;
 const InformationElement = rlequire("dendro", "src/models/directory_structure/information_element.js").InformationElement;
 const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder;
 const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
@@ -2481,6 +2482,72 @@ exports.ls = function (req, res)
                 });
             }
         });
+    }
+    else
+    {
+        Folder.findByUri(resourceURI, function (err, containingFolder)
+        {
+            if (isNull(err) && !isNull(containingFolder))
+            {
+                containingFolder.getLogicalParts(function (err, children)
+                {
+                    if (isNull(err))
+                    {
+                        if (!showDeleted)
+                        {
+                            const _ = require("underscore");
+                            children = _.reject(children, function (child)
+                            {
+                                return child.ddr.deleted;
+                            });
+                        }
+
+                        res.json(children);
+                    }
+                });
+            }
+            else
+            {
+                res.status(404).json({
+                    result: "Error",
+                    error: "Non-existent folder. Is this a file instead of a folder? : " + resourceURI
+                });
+            }
+        });
+    }
+};
+
+exports.ls_deposits = function (req, res)
+{
+    const resourceURI = req.params.requestedResourceUri;
+    let showDeleted = req.query.show_deleted;
+
+    if (req.params.is_project_root)
+    {
+        deposit.getFirstLevelDirectoryContents(function (err, files)
+        {
+            if (isNull(err))
+            {
+                if (!showDeleted)
+                {
+                    const _ = require("underscore");
+                    files = _.reject(files, function (file)
+                    {
+                        return file.ddr.deleted;
+                    });
+                }
+
+                res.json(files);
+            }
+            else
+            {
+                res.status(500).json({
+                    result: "error",
+                    message: "Unable to fetch project root folder contents."
+                });
+            }
+        });
+
     }
     else
     {
