@@ -1,9 +1,8 @@
 <div class="row">
     <div class="controls col-xs-12">
         <div class="input-group">
-            <p class="lead spacer input-group"
-               ng-class="{just_added: descriptor.just_added, just_deleted: descriptor.just_deleted, just_inherited : descriptor.just_inherited, just_recommended : descriptor.just_recommended }">
-                {{descriptor.label}}
+            <p class="lead spacer input-group"ng-class="{just_added: descriptor.just_added, just_deleted: descriptor.just_deleted, just_inherited : descriptor.just_inherited, just_recommended : descriptor.just_recommended }">
+                {{descriptor.shortName}}
                 <span ng-show="descriptor.just_added"
                       class="label label-success">
                     Add

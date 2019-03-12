@@ -20,7 +20,6 @@ angular.module("dendroApp.services")
                     {
                         uri = uri + "&show_deleted=1";
                     }
-                    console.log(uri)
 
                     return $http({
                         method: "GET",

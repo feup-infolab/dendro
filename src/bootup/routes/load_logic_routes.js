@@ -709,6 +709,7 @@ const loadRoutes = function (app, callback)
         async.waterfall([
             function (callback)
             {
+                console.log(req.params);
                 if (!isNull(req.params.requestedResourceUri))
                 {
                     callback(null, req.params.requestedResourceUri);
@@ -1092,6 +1093,7 @@ const loadRoutes = function (app, callback)
         async.waterfall([
             function (callback)
             {
+                console.log(req.params);
                 if (!isNull(req.params.requestedResourceUri))
                 {
                     callback(null, req.params.requestedResourceUri);
@@ -1107,6 +1109,88 @@ const loadRoutes = function (app, callback)
         ]);
     }
     );
+
+    // view a deposit's root
+   /* app.all([
+          getNonHumanReadableRouteRegex("deposit"),
+          /\/deposit\/([^\/]+)(\/data)?\/?$/
+      ],
+      extractUriFromRequest,
+      function (req, res, next)
+      {
+          const getResourceUri = function (requestedResource, callback)
+          {
+              getRequestedResourceUriFromHumanReadableUri(
+                requestedResource,
+                "Cannot fetch deposit " + requestedResource,
+                "index",
+                req,
+                res,
+                next,
+                callback);
+          };
+
+          const processRequest = function (resourceUri)
+          {
+              req.params.requestedResourceUri = resourceUri;
+
+              const defaultPermissionsInProjectRoot = [
+                  Permissions.settings.privacy.of_project.public,
+                  Permissions.settings.privacy.of_project.metadata_only,
+                  Permissions.settings.role.in_project.contributor,
+                  Permissions.settings.role.in_project.creator
+              ];
+
+              const modificationPermissions = [
+                  Permissions.settings.role.in_project.contributor,
+                  Permissions.settings.role.in_project.creator
+              ];
+
+              const administrationPermissions = [
+                  Permissions.settings.role.in_project.creator
+              ];
+
+              req.params.is_project_root = true;
+
+              const queryBasedRoutes = {
+                  get: [
+                      // list contents
+                      {
+                          queryKeys: ["ls"],
+                          handler: files.ls,
+                          permissions: defaultPermissionsInProjectRoot,
+                          authentication_error: "Permission denied : cannot list the contents of this deposit."
+                      },
+                      {
+                          queryKeys: [],
+                          handler: deposits.show,
+                          permissions: defaultPermissionsInProjectRoot,
+                          authentication_error: "Permission denied : cannot show the deposit because you do not have permissions to access it."
+                      }
+                  ],
+              };
+
+              QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next, true);
+          };
+
+          async.waterfall([
+              function (callback)
+              {
+                  console.log(req.params);
+                  if (!isNull(req.params.requestedResourceUri))
+                  {
+                      callback(null, req.params.requestedResourceUri);
+                  }
+                  else
+                  {
+                      const requestedProjectUrl = "/deposit/" + req.params[0];
+                      getResourceUri(requestedProjectUrl, callback);
+                  }
+              },
+              processRequest
+          ]);
+      }
+    );*/
 
     //      social
     const defaultSocialDendroPostPermissions = [

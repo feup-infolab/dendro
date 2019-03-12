@@ -5,7 +5,6 @@
 <% } %>
 <!--&nbsp;-->
 <div class="container-fluid" ng-controller="projectEditorCtrl" ng-init="init()">
-    <div ng-controller="folderEditorCtrl" ng-init="init()">
         <div ng-controller="depositCtrl"
              ng-init="initSingleDeposit('<%= locals.deposit.nie.hasLogicalPart %>', <%= is_deposit_root %>)">
             <div class="row">
@@ -71,7 +70,6 @@
                 </div>
             </div>
         </div>
-    </div>
 </div>
 
 <%- include ../layout/footer.ejs %>

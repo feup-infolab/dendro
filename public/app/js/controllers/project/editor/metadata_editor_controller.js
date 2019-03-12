@@ -43,6 +43,7 @@ angular.module("dendroApp.controllers")
 
         $scope.has_editable_metadata = function ()
         {
+console.log($scope.shared.metadata)
             if ($scope.shared.metadata == null || ($scope.shared.metadata instanceof Array && $scope.shared.metadata.length === 0))
             {
                 return false;
@@ -53,7 +54,6 @@ angular.module("dendroApp.controllers")
                     !descriptor.locked &&
                     !(descriptor.locked_for_project && $scope.shared.showing_project_root);
             };
-
             for (var i = 0; i < $scope.shared.metadata.length; i++)
             {
                 var descriptor = $scope.shared.metadata[i];
