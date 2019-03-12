@@ -352,7 +352,8 @@ dev:
     create_checkpoints: false
     destroy_existing_images_at_start: false
     stop_containers_automatically: true
-    start_containers_automatically: true
+    start_containers_automatically: true,
+    virtuoso_container_name: virtuoso-dendro-test
   keywords_extraction:
     active: true
     corenlp:

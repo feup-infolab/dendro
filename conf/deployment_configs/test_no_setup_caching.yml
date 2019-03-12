@@ -342,6 +342,7 @@ test_no_setup_caching:
     destroy_existing_images_at_start: true
     stop_containers_automatically: false
     start_containers_automatically: true
+    virtuoso_container_name: virtuoso-dendro-test
   keywords_extraction:
     active: true
     corenlp:

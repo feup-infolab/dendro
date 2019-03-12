@@ -714,29 +714,41 @@ DockerManager.commitContainer = function (containerName, committedImageName, cal
     });
 };
 
+DockerManager.containerIsRunning = function(containerName, callback)
+{
+    DockerManager.getContainerIDFromName(containerName, function (err, containerID)
+    {
+        childProcess.exec(`docker inspect -f {{.State.Running}} ${containerID}`, {
+            cwd: rlequire.getRootFolder("dendro"),
+            stdio: [0, 1, 2]
+        }, function (err, result)
+        {
+            if (isNull(err))
+            {
+                callback(Boolean(result.trim()));
+            }
+            else
+            {
+                callback(Boolean(result.trim()));
+            }
+        });
+    });
+}
+
 DockerManager.runCommandOnContainer = function(containerName, command, callback)
 {
-    DockerManager.getContainerIDFromName(containerName, function(err, containerID){
-        if(isNull(err))
+    childProcess.exec(`docker exec ${containerName} ${command}`, {
+        cwd: rlequire.getRootFolder("dendro"),
+        stdio: [0, 1, 2]
+    }, function (err, result)
+    {
+        if (isNull(err))
         {
-            childProcess.exec(`docker exec "${containerID}" "${command}"`, {
-                cwd: rlequire.getRootFolder("dendro"),
-                stdio: [0, 1, 2]
-            }, function (err, result)
-            {
-                if (isNull(err))
-                {
-                    callback(null, result);
-                }
-                else
-                {
-                    callback(null, result);
-                }
-            });
+            callback(null, result);
         }
         else
         {
-            callback(err, containerID);
+            callback(null, result);
         }
     });
 }

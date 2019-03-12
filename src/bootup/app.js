@@ -684,7 +684,7 @@ class App
             const DbConnection = rlequire("dendro", "src/kb/db.js").DbConnection;
             DbConnection.finishUpAllConnectionsAndClose(function ()
             {
-                const timeout = 5000;
+                const timeout = 1;
                 Logger.log("Waiting " + timeout + "ms for virtuoso to flush the buffers...");
                 setTimeout(cb, timeout);
             });

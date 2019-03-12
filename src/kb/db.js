@@ -1265,57 +1265,67 @@ DbConnection.prototype.close = function (callback)
         {
             Logger.log("Shutting down virtuoso....!");
 
-            async.series([
-                function (callback)
+            DockerManager.containerIsRunning(Config.docker.virtuoso_container_name, function(isRunning){
+                if(!isRunning)
                 {
-                    DockerManager.runCommandOnContainer(Config.docker.virtuoso_container_name, `isql 1111 ${self.username} ${self.password} 'EXEC=checkpoint; shutdown;'`, function(err, result){
+                    callback(null);
+                }
+                else
+                {
+                    async.series([
+                        function (callback)
+                        {
+                            DockerManager.runCommandOnContainer(Config.docker.virtuoso_container_name, `isql-v 1111 ${self.username} ${self.password} 'EXEC=checkpoint; shutdown;'`, function(err, result){
+                                if(!isNull(err))
+                                {
+                                    Logger.log("debug", "Unable to run shutdown command on virtuoso container.");
+                                    Logger.log("debug", JSON.stringify(err));
+                                    Logger.log("debug", JSON.stringify(result));
+                                }
+                                callback(null, result);
+                            });
+                        },
+                        function (callback)
+                        {
+                            const tryToConnect = function (callback)
+                            {
+                                const tcpp = require("tcp-ping");
+
+                                tcpp.probe(self.host, self.port, function (err, available)
+                                {
+                                    callback(null, available);
+                                });
+                            };
+
+                            // try calling apiMethod 10 times with linear backoff
+                            // (i.e. intervals of 100, 200, 400, 800, 1600, ... milliseconds)
+                            async.retry({
+                                times: 240,
+                                interval: function (retryCount)
+                                {
+                                    const msecs = 500;
+                                    Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to determine Virtuoso status after closing on " + self.host + " : " + self.port + "...");
+                                    return msecs;
+                                }
+                            }, tryToConnect, function (err)
+                            {
+                                if (isNull(err))
+                                {
+                                    callback(null);
+                                }
+                                else
+                                {
+                                    const msg = "Unable to determine Solr Status in time. This is a fatal error.";
+                                    Logger.log("error", err.message);
+                                    throw new Error(msg);
+                                }
+                            });
+                        }
+                    ], function(err, result){
                         callback(err, result);
                     });
-                },
-                function (callback)
-                {
-                    const tryToConnect = function (callback)
-                    {
-                        const tcpp = require("tcp-ping");
-
-                        tcpp.probe(self.host, self.port, function (err, available)
-                        {
-                            if (isNull(err))
-                            {
-                                callback(available);
-                            }
-                            else
-                            {
-                                callback(err);
-                            }
-                        });
-                    };
-
-                    // try calling apiMethod 10 times with linear backoff
-                    // (i.e. intervals of 100, 200, 400, 800, 1600, ... milliseconds)
-                    async.retry({
-                        times: 240,
-                        interval: function (retryCount)
-                        {
-                            const msecs = 500;
-                            Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to determine Virtuoso status after closing on " + self.host + " : " + self.port + "...");
-                            return msecs;
-                        }
-                    }, tryToConnect, function (err)
-                    {
-                        if (isNull(err))
-                        {
-                            callback(null);
-                        }
-                        else
-                        {
-                            const msg = "Unable to determine Solr Status in time. This is a fatal error.";
-                            Logger.log("error", err.message);
-                            throw new Error(msg);
-                        }
-                    });
                 }
-            ]);
+            });
         }
         else
         {
