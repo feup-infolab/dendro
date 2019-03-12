@@ -714,7 +714,7 @@ DockerManager.commitContainer = function (containerName, committedImageName, cal
     });
 };
 
-DockerManager.containerIsRunning = function(containerName, callback)
+DockerManager.containerIsRunning = function (containerName, callback)
 {
     DockerManager.getContainerIDFromName(containerName, function (err, containerID)
     {
@@ -733,9 +733,9 @@ DockerManager.containerIsRunning = function(containerName, callback)
             }
         });
     });
-}
+};
 
-DockerManager.runCommandOnContainer = function(containerName, command, callback)
+DockerManager.runCommandOnContainer = function (containerName, command, callback)
 {
     childProcess.exec(`docker exec ${containerName} ${command}`, {
         cwd: rlequire.getRootFolder("dendro"),
@@ -751,6 +751,6 @@ DockerManager.runCommandOnContainer = function(containerName, command, callback)
             callback(null, result);
         }
     });
-}
+};
 
 module.exports.DockerManager = DockerManager;

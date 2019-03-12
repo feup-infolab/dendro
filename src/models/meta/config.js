@@ -114,15 +114,13 @@ Config.cache = getConfigParameter("cache");
 Config.datastore = getConfigParameter("datastore");
 Config.ontologies_cache = getConfigParameter("ontologies_cache");
 
-Config.virtuosoHost = getConfigParameter("virtuosoHost");
-Config.virtuosoPort = getConfigParameter("virtuosoPort");
-Config.virtuosoISQLPort = getConfigParameter("virtuosoISQLPort");
-Config.virtuosoSQLLogLevel = getConfigParameter("virtuosoSQLLogLevel");
+Config.virtuoso = getConfigParameter("virtuoso");
+
 Config.skipDescriptorValuesValidation = getConfigParameter("skipDescriptorValuesValidation", false);
 
-Config.virtuosoConnector = (function ()
+Config.virtuoso.connector = (function ()
 {
-    const connectorType = getConfigParameter("virtuosoConnector");
+    const connectorType = Config.virtuoso.connector;
 
     if (connectorType === "jdbc" || connectorType === "http")
     {
@@ -130,8 +128,6 @@ Config.virtuosoConnector = (function ()
     }
     throw new Error("Invalid Virtuoso Server connector type " + connectorType);
 }());
-
-Config.virtuosoAuth = getConfigParameter("virtuosoAuth");
 
 // maps
 Config.maps = getConfigParameter("maps");
@@ -165,9 +161,6 @@ Config.mySQLDBName = getConfigParameter("mySQLDBName");
 Config.maxUploadSize = getConfigParameter("maxUploadSize");
 // 10000MB®
 Config.maxProjectSize = getConfigParameter("maxProjectSize");
-Config.maxSimultaneousConnectionsToDb = getConfigParameter("maxSimultaneousConnectionsToDb");
-
-Config.dbOperationTimeout = getConfigParameter("dbOperationTimeout");
 
 if (path.isAbsolute(getConfigParameter("tempFilesDir")))
 {

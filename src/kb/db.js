@@ -15,6 +15,7 @@ const Queue = require("better-queue");
 const rp = require("request-promise-native");
 const jinst = require("jdbc/lib/jinst");
 const Pool = require("jdbc/lib/pool");
+const uuid = require("uuid");
 
 let bootStartTimestamp = new Date().toISOString();
 const profilingLogFileSeparator = "@";
@@ -226,7 +227,7 @@ const recordQueryConclusionInLog = function (query, queryStartTime)
     }
 };
 
-let DbConnection = function (handle, host, port, portISQL, username, password, maxSimultaneousConnections, dbOperationsTimeout)
+let DbConnection = function (handle, host, port, portISQL, username, password, maxSimultaneousConnections, dbOperationsTimeout, forceClientDisconnectOnConnectionClose)
 {
     let self = this;
 
@@ -253,6 +254,7 @@ let DbConnection = function (handle, host, port, portISQL, username, password, m
     self.pendingRequests = {};
     self.databaseName = "graph";
     self.created_profiling_logfile = false;
+    self.forceClientDisconnectOnConnectionClose = forceClientDisconnectOnConnectionClose;
 };
 
 DbConnection.prototype.reserveConnection = function (callback)
@@ -552,18 +554,6 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
 
 DbConnection.finishUpAllConnectionsAndClose = function (callback)
 {
-    let exited = false;
-    // we also register another handler if virtuoso connections take too long to close
-    setTimeout(function ()
-    {
-        if (!exited)
-        {
-            const msg = "Virtuoso did not close all connections in time!";
-            Logger.log("error", msg);
-            callback(1, msg);
-        }
-    }, Config.dbOperationTimeout * 10);
-
     async.mapSeries(Object.keys(Config.db), function (dbConfigKey, cb)
     {
         const dbConfig = Config.db[dbConfigKey];
@@ -833,7 +823,7 @@ DbConnection.prototype.create = function (callback)
             drivername: "virtuoso.jdbc4.Driver",
             maxpoolsize: self.maxSimultaneousConnections,
             minpoolsize: 0,
-            // 600 seconds idle time (should be handled by the TIMEOUT setting, but we specify this to kill any dangling connections...
+            // 1 seconds idle time (should be handled by the TIMEOUT setting, but we specify this to kill any dangling connections...
             maxidle: 1000 * timeoutSecs,
             properties: {}
         };
@@ -896,7 +886,7 @@ DbConnection.prototype.create = function (callback)
                     json: true,
                     forever: true,
                     encoding: "utf8"
-                    // timeout : Config.dbOperationTimeout
+                    // timeout : self.dbOperationTimeout
 
                 })
                     .then(function (parsedBody)
@@ -1061,12 +1051,12 @@ DbConnection.prototype.tryToConnect = function (callback)
                     {
                         if (isNull(db))
                         {
-                            const msg = "[ERROR] Unable to connect to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort;
+                            const msg = "[ERROR] Unable to connect to graph database running on " + self.host + ":" + self.port;
                             Logger.log_boot_message(msg);
                             return callback(msg);
                         }
 
-                        Logger.log_boot_message("Connected to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort);
+                        Logger.log_boot_message("Connected to graph database running on " + self.host + ":" + self.port);
                         // set default connection. If you want to add other connections, add them in succession.
                         return callback(null);
                     }
@@ -1083,21 +1073,21 @@ DbConnection.prototype.tryToConnect = function (callback)
             interval: function (retryCount)
             {
                 const msecs = 500;
-                Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to Virtuoso at " + Config.virtuosoHost + ":" + Config.virtuosoPort + "...");
+                Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to Virtuoso at " + self.host + ":" + self.port + "...");
                 return msecs;
             }
         }, tryToConnect, function (err, result)
         {
             if (!isNull(err))
             {
-                const msg = "[ERROR] Error connecting to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort;
+                const msg = "[ERROR] Error connecting to graph database running on " + self.host + ":" + self.port;
                 Logger.log("error", msg);
                 Logger.log("error", err);
                 Logger.log("error", result);
             }
             else
             {
-                const msg = "Connection to Virtuoso at " + Config.virtuosoHost + ":" + Config.virtuosoPort + " was established!";
+                const msg = "Connection to Virtuoso at " + self.host + ":" + self.port + " was established!";
                 Logger.log("info", msg);
             }
 
@@ -1116,6 +1106,7 @@ DbConnection.prototype.tryToConnect = function (callback)
 DbConnection.prototype.closeConnectionPool = function (callback)
 {
     const self = this;
+
     if (self.pool)
     {
         async.map(self.pool._pool, function (connection, callback)
@@ -1141,6 +1132,18 @@ DbConnection.prototype.close = function (callback)
     // THIS FUNCTION IS A CONSEQUENCE OF VIRTUOSO's QUALITY AND MY STUPIDITY
     // CONNECTIONS ARE NEVER CLOSED EVEN WITH PURGE METHOD!!!!
     const self = this;
+
+    let exited = false;
+    // we also register another handler if virtuoso connections take too long to close
+    setTimeout(function ()
+    {
+        if (!exited)
+        {
+            const msg = "Virtuoso did not close all connections in time! Continuing by force!";
+            Logger.log("error", msg);
+            callback(1, msg);
+        }
+    }, self.dbOperationTimeout * 10);
 
     const closeConnectionPool = function (cb)
     {
@@ -1239,10 +1242,10 @@ DbConnection.prototype.close = function (callback)
     const sendCheckpointCommand = function (callback)
     {
         Logger.log("Committing pending transactions via checkpoint; command before shutting down virtuoso....");
-        self.executeViaJDBC(
-            "EXEC=checkpoint;",
-            [],
-            function (err, result)
+        if (Config.docker.active && Config.docker.virtuoso_container_name)
+        {
+            const checkpointCommand = `isql-v 1111 ${self.username} ${self.password} "EXEC=checkpoint;"`;
+            DockerManager.runCommandOnContainer(Config.docker.virtuoso_container_name, checkpointCommand, function (err, result)
             {
                 if (!isNull(err))
                 {
@@ -1255,8 +1258,36 @@ DbConnection.prototype.close = function (callback)
                 {
                     callback(null, result);
                 }
-            }, null, null, null, true, true
-        );
+            });
+        }
+    };
+
+    const forceCloseClientConnections = function (callback)
+    {
+        if (Config.docker.active && Config.docker.virtuoso_container_name && self.forceClientDisconnectOnConnectionClose)
+        {
+            const disconnectCommand = `isql-v 1111 ${self.username} ${self.password} "EXEC=disconnect_user ('${self.username}');"`;
+            DockerManager.runCommandOnContainer(Config.docker.virtuoso_container_name, disconnectCommand, function (err, result)
+            {
+                if (!isNull(err))
+                {
+                    Logger.log("error", "Error disconnecting user " + self.username + " before shutting down virtuoso.");
+                    Logger.log("error", err);
+                    Logger.log("error", result);
+                    callback(err, result);
+                }
+                else
+                {
+                    Logger.log("debug", "Disconnected user " + self.username + " by force before shutting down virtuoso.");
+                    Logger.log("debug", result);
+                    callback(null, result);
+                }
+            });
+        }
+        else
+        {
+            callback(null);
+        }
     };
 
     const shutdownVirtuoso = function (callback)
@@ -1265,8 +1296,9 @@ DbConnection.prototype.close = function (callback)
         {
             Logger.log("Shutting down virtuoso....!");
 
-            DockerManager.containerIsRunning(Config.docker.virtuoso_container_name, function(isRunning){
-                if(!isRunning)
+            DockerManager.containerIsRunning(Config.docker.virtuoso_container_name, function (isRunning)
+            {
+                if (!isRunning)
                 {
                     callback(null);
                 }
@@ -1275,8 +1307,9 @@ DbConnection.prototype.close = function (callback)
                     async.series([
                         function (callback)
                         {
-                            DockerManager.runCommandOnContainer(Config.docker.virtuoso_container_name, `isql-v 1111 ${self.username} ${self.password} 'EXEC=checkpoint; shutdown;'`, function(err, result){
-                                if(!isNull(err))
+                            DockerManager.runCommandOnContainer(Config.docker.virtuoso_container_name, `isql-v 1111 ${self.username} ${self.password} 'EXEC=checkpoint; shutdown;'`, function (err, result)
+                            {
+                                if (!isNull(err))
                                 {
                                     Logger.log("debug", "Unable to run shutdown command on virtuoso container.");
                                     Logger.log("debug", JSON.stringify(err));
@@ -1293,7 +1326,7 @@ DbConnection.prototype.close = function (callback)
 
                                 tcpp.probe(self.host, self.port, function (err, available)
                                 {
-                                    callback(null, available);
+                                    callback(err, available);
                                 });
                             };
 
@@ -1321,7 +1354,8 @@ DbConnection.prototype.close = function (callback)
                                 }
                             });
                         }
-                    ], function(err, result){
+                    ], function (err, result)
+                    {
                         callback(err, result);
                     });
                 }
@@ -1338,31 +1372,16 @@ DbConnection.prototype.close = function (callback)
         closePendingConnections,
         closeConnectionPool,
         destroyQueues,
+        forceCloseClientConnections,
         shutdownVirtuoso
     ], function (err, result)
     {
-        callback(err, result);
+        if (!exited)
+        {
+            callback(err, result);
+            exited = true;
+        }
     });
-
-    const closeClientConnection = function (callback)
-    {
-        // self.sendQueryViaJDBC(
-        //     "disconnect_user ('" + Config.virtuosoAuth.username + "')",
-        //     [],
-        //     function (err, result)
-        //     {
-        //         if (!isNull(err))
-        //         {
-        //             Logger.log("error", "Error disconnecting user " + Config.virtuosoAuth.username + " before shutting down virtuoso.");
-        //             Logger.log("error", err);
-        //             Logger.log("error", result);
-        //         }
-        //         callback(err, result);
-        //     }, null, null, null, true, true
-        // );
-
-        callback(null);
-    };
 };
 
 DbConnection.prototype.executeViaHTTP = function (queryStringWithArguments, argumentsArray, callback, resultsFormat, maxRows, loglevel)
@@ -1406,7 +1425,6 @@ DbConnection.prototype.executeViaHTTP = function (queryStringWithArguments, argu
                     query = "DEFINE sql:log-enable " + Config.virtuosoSQLLogLevel + "\n" + query;
                 }
 
-                const uuid = require("uuid");
                 const newQueryId = uuid.v4();
                 self.queue_http.push({
                     queryStartTime: new Date(),
@@ -1449,7 +1467,7 @@ DbConnection.prototype.executeViaJDBC = function (queryStringOrArray, argumentsA
                     query = "SPARQL\n" + query;
                 }
 
-                // Uncomment to use JDBC-controlled query queuing
+                // // Uncomment to use JDBC-controlled query queuing
                 // self.sendQueryViaJDBC(
                 //     query,
                 //     uuid.v4(),

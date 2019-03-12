@@ -108,14 +108,18 @@ test:
     static:
       last_modified_caching: true
       cache_period_in_seconds: 3600
-  virtuosoHost: 127.0.0.1
-  virtuosoPort: '8890'
-  virtuosoISQLPort: '1111'
-  virtuosoConnector: jdbc
-  virtuosoAuth:
-    user: dba
-    password: dba
-  virtuosoSQLLogLevel: 3
+  virtuoso:
+    host: 127.0.0.1
+    port: '8890'
+    iSQLPort: '1111'
+    connector: http
+    auth:
+      user: dba
+      password: dba
+    SQLLogLevel: 3
+    forceClientDisconnectOnConnectionClose: true
+    maxSimultaneousConnectionsToDb: 1
+    dbOperationTimeout: 16000
   mongoDBHost: 127.0.0.1
   mongoDbPort: '27017'
   mongoDbCollectionName: 127_0_0_1_3001_files
@@ -140,8 +144,6 @@ test:
   mySQLDBName: dendroVagrantDemo_tests
   maxUploadSize: 2147483648
   maxProjectSize: 5368709120
-  maxSimultaneousConnectionsToDb: 1
-  dbOperationTimeout: 16000
   tempFilesDir: temp
   tempUploadsDir: temp_uploads
   tempFilesCreationMode: '0777'

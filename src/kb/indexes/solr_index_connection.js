@@ -211,12 +211,19 @@ class SolrIndexConnection extends IndexConnection
                     {
                         self.client.search("*:*", function (err, result)
                         {
-                            callback(null, isNull(err));
+                            if (!isNull(err) && err.status !== 200)
+                            {
+                                callback(null, false);
+                            }
+                            else
+                            {
+                                callback(null, isNull(err));
+                            }
                         });
                     }
                     else
                     {
-                        callback(err, available);
+                        callback(null, false);
                     }
                 });
             };
