@@ -30,6 +30,7 @@ const db_social = (function ()
 exports.download = function (req, res)
 {
     const self = this;
+    let resource = req.params.resource;
 
     let requestedResourceURI = req.params.requestedResourceUri;
 
@@ -240,46 +241,66 @@ exports.download = function (req, res)
     // we are fetching the root folder of a project
     if (req.params.is_project_root)
     {
-        Project.findByUri(requestedResourceURI, function (err, project)
-        {
-            if (isNull(err))
-            {
-                if (!isNull(project))
-                {
-                    project.getRootFolder(function (err, rootFolder)
-                    {
-                        if (isNull(err))
-                        {
-                            if (!(isNull(rootFolder)) && rootFolder instanceof Folder)
-                            {
-                                downloadFolder(rootFolder.uri, res);
+        if(resource === "project") {
+            Project.findByUri(requestedResourceURI, function (err, project) {
+                if (isNull(err)) {
+                    if (!isNull(project)) {
+                        project.getRootFolder(function (err, rootFolder) {
+                            if (isNull(err)) {
+                                if (!(isNull(rootFolder)) && rootFolder instanceof Folder) {
+                                    downloadFolder(rootFolder.uri, res);
+                                } else {
+                                    const error = "Unable to determine the root folder of project : " + requestedResourceURI;
+                                    Logger.log("error", error);
+                                    res.status(500).write("Error : " + error + "\n");
+                                    res.end();
+                                }
                             }
-                            else
-                            {
-                                const error = "Unable to determine the root folder of project : " + requestedResourceURI;
-                                Logger.log("error", error);
-                                res.status(500).write("Error : " + error + "\n");
-                                res.end();
-                            }
-                        }
-                    });
-                }
-                else
-                {
-                    const error = "Non-existent project : " + requestedResourceURI;
+                        });
+                    } else {
+                        const error = "Non-existent project : " + requestedResourceURI;
+                        Logger.log("error", error);
+                        res.status(404).write("Error : " + error + "\n");
+                        res.end();
+                    }
+                } else {
+                    const error = "Error occurred while retrieving project : " + requestedResourceURI;
                     Logger.log("error", error);
-                    res.status(404).write("Error : " + error + "\n");
+                    res.status(500).write("Error : " + error + "\n");
                     res.end();
                 }
-            }
-            else
-            {
-                const error = "Error occurred while retrieving project : " + requestedResourceURI;
-                Logger.log("error", error);
-                res.status(500).write("Error : " + error + "\n");
-                res.end();
-            }
-        });
+            });
+        }
+        if(resource === "deposit"){
+            Deposit.findByUri(requestedResourceURI, function (err, deposit) {
+                if (isNull(err)) {
+                    if (!isNull(deposit)) {
+                        deposit.getRootFolder(function (err, rootFolder) {
+                            if (isNull(err)) {
+                                if (!(isNull(rootFolder)) && rootFolder instanceof Folder) {
+                                    downloadFolder(rootFolder.uri, res);
+                                } else {
+                                    const error = "Unable to determine the root folder of deposit : " + requestedResourceURI;
+                                    Logger.log("error", error);
+                                    res.status(500).write("Error : " + error + "\n");
+                                    res.end();
+                                }
+                            }
+                        });
+                    } else {
+                        const error = "Non-existent deposit : " + requestedResourceURI;
+                        Logger.log("error", error);
+                        res.status(404).write("Error : " + error + "\n");
+                        res.end();
+                    }
+                } else {
+                    const error = "Error occurred while retrieving deposit : " + requestedResourceURI;
+                    Logger.log("error", error);
+                    res.status(500).write("Error : " + error + "\n");
+                    res.end();
+                }
+            });
+        }
     }
     else
     {

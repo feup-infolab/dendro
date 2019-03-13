@@ -1182,9 +1182,15 @@ export_to_dendro = function (req, res)
                             {
                                 if (isNull(err))
                                 {
+                                    let title;
+                                    if(folder.dcterms.title) {
+                                        title = folder.dcterms.title;
+                                    } else {
+                                        title = project.dcterms.title;
+                                    }
                                     const registryData = {
                                         dcterms: {
-                                            title: folder.dcterms.title,
+                                            title: title,
                                             creator: req.user.uri,
                                             identifier: "123456789",
                                             description: folder.dcterms.description,
