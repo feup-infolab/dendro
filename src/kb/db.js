@@ -1245,7 +1245,7 @@ DbConnection.prototype.close = function (callback)
         Logger.log("Committing pending transactions via checkpoint; command before shutting down virtuoso....");
         if (Config.docker.active && Config.docker.virtuoso_container_name)
         {
-            const checkpointCommand = `isql-v 1111 ${self.username} ${self.password} "EXEC=checkpoint;"`;
+            const checkpointCommand = `isql-v 1111 ${self.username} ${self.password} "checkpoint;"`;
             DockerManager.runCommandOnContainer(Config.docker.virtuoso_container_name, checkpointCommand, function (err, result)
             {
                 if (!isNull(err))
@@ -1267,7 +1267,7 @@ DbConnection.prototype.close = function (callback)
     {
         if (Config.docker.active && Config.docker.virtuoso_container_name && self.forceClientDisconnectOnConnectionClose)
         {
-            const disconnectCommand = `isql-v 1111 ${self.username} ${self.password} "EXEC=disconnect_user ('${self.username}');"`;
+            const disconnectCommand = `isql-v 1111 ${self.username} ${self.password} 'disconnect_user ('${self.username}');'`;
             DockerManager.runCommandOnContainer(Config.docker.virtuoso_container_name, disconnectCommand, function (err, result)
             {
                 if (!isNull(err))
@@ -1279,9 +1279,9 @@ DbConnection.prototype.close = function (callback)
                 }
                 else
                 {
+                    callback(null, result);
                     Logger.log("debug", "Disconnected user " + self.username + " by force before shutting down virtuoso.");
                     Logger.log("debug", result);
-                    callback(null, result);
                 }
             });
         }
@@ -1312,13 +1312,19 @@ DbConnection.prototype.close = function (callback)
                             {
                                 DockerManager.runCommandOnContainer(Config.docker.virtuoso_container_name, `isql-v 1111 ${self.username} ${self.password} 'EXEC=checkpoint; shutdown;'`, function (err, result)
                                 {
+                                    callback(err, result);
+
                                     if (!isNull(err))
                                     {
                                         Logger.log("debug", "Unable to run shutdown command on virtuoso container.");
-                                        Logger.log("debug", JSON.stringify(err));
-                                        Logger.log("debug", JSON.stringify(result));
                                     }
-                                    callback(null, result);
+                                    else
+                                    {
+                                        Logger.log("debug", "Successfully ran shutdown command on virtuoso container.");
+                                    }
+
+                                    Logger.log("debug", JSON.stringify(err));
+                                    Logger.log("debug", JSON.stringify(result));
                                 });
                             },
                             function (callback)
@@ -1351,7 +1357,7 @@ DbConnection.prototype.close = function (callback)
                                     }
                                     else
                                     {
-                                        const msg = "Unable to determine Solr Status in time. This is a fatal error.";
+                                        const msg = "Unable to determine Virtuoso Status in time. This is a fatal error.";
                                         Logger.log("error", err.message);
                                         throw new Error(msg);
                                     }

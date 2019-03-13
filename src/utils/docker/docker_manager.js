@@ -637,13 +637,14 @@ DockerManager.commitAllContainersInOrchestra = function (callback, orchestra, co
     {
         if (isNull(err))
         {
-            async.parallel(names, function (containerInformation, callback)
+            async.map(names, function (containerInformation, callback)
             {
                 const containerName = containerInformation.name;
                 let imageNameNoVars = containerInformation.image;
 
                 DockerManager.commitContainer(containerName, `${imageNameNoVars}${committedImagesSuffix}`, callback);
-            }, function(err, results){
+            }, function (err, results)
+            {
                 callback(err, results);
             });
         }
