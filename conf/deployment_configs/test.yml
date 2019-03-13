@@ -340,11 +340,11 @@ test:
     cooldown_secs: 20
   docker:
     active: true
-    reuse_checkpoints: true
+    reuse_checkpoints: true # this will start containers as needed, no need to use stop_containers_automatically or start_containers_automatically when you want setup state caching
     create_checkpoints: true
-    destroy_existing_images_at_start: true
-    stop_containers_automatically: true
-    start_containers_automatically: true
+    destroy_existing_images_at_start: false
+    stop_containers_automatically: false
+    start_containers_automatically: false
     virtuoso_container_name: virtuoso-dendro-test
   keywords_extraction:
     active: true

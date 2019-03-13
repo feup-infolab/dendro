@@ -20,6 +20,11 @@ global.tests = {};
 rlequire("dendro", "test/routes/users/loggedUser/route.users.loggedUser.Test.js");
 rlequire("dendro", "test/routes/users/route.users.Test.js");
 
+// USER
+rlequire("dendro", "test/routes/user/demouser1/route.user.demouser1.Test.js");
+rlequire("dendro", "test/routes/user/demouser2/route.user.demouser2.Test.js");
+rlequire("dendro", "test/routes/user/demouser3/route.user.demouser3.Test.js");
+
 // Search
 rlequire("dendro", "test/routes/search/routes.search.Test.js");
 

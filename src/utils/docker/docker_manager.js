@@ -128,46 +128,15 @@ DockerManager.createCheckpoint = function (checkpointName, callback)
             {
                 if (!exists)
                 {
-                    async.series(
-                        [
-                            function (callback)
-                            {
-                                Logger.log("Starting commit of containers to create checkpoint with name " + checkpointName);
-                                DockerManager.commitAllContainersInOrchestra(function (err, result)
-                                {
-                                    if (isNull(err))
-                                    {
-                                        Logger.log("Saved checkpoint with name " + checkpointName);
-                                    }
-                                    callback(err, result);
-                                }, DockerManager.defaultOrchestra, checkpointName);
-                            }
-                            // ,
-                            // function (callback)
-                            // {
-                            //     Logger.log("Stopping containers after commit of containers to create checkpoint with name " + checkpointName);
-                            //     DockerManager.stopOrchestra(DockerManager.defaultOrchestra, function (err, result)
-                            //     {
-                            //         if (isNull(err))
-                            //         {
-                            //             Logger.log("Saved checkpoint with name " + checkpointName);
-                            //         }
-                            //         callback(err, result);
-                            //     });
-                            // },
-                            // function (callback)
-                            // {
-                            //     Logger.log("Starting containers after commit of containers to create checkpoint with name " + checkpointName);
-                            //     DockerManager.startOrchestra(DockerManager.defaultOrchestra, function (err, result)
-                            //     {
-                            //         if (isNull(err))
-                            //         {
-                            //             Logger.log("Saved checkpoint with name " + checkpointName);
-                            //         }
-                            //         callback(err, result);
-                            //     }, checkpointName);
-                            // }
-                        ], callback);
+                    Logger.log("Starting commit of containers to create checkpoint with name " + checkpointName);
+                    DockerManager.commitAllContainersInOrchestra(function (err, result)
+                    {
+                        if (isNull(err))
+                        {
+                            Logger.log("Saved checkpoint with name " + checkpointName);
+                        }
+                        callback(err, result);
+                    }, DockerManager.defaultOrchestra, checkpointName);
                 }
                 else
                 {
@@ -674,7 +643,9 @@ DockerManager.commitAllContainersInOrchestra = function (callback, orchestra, co
                 let imageNameNoVars = containerInformation.image;
 
                 DockerManager.commitContainer(containerName, `${imageNameNoVars}${committedImagesSuffix}`, callback);
-            }, callback);
+            }, function(err, results){
+                callback(err, results);
+            });
         }
         else
         {
