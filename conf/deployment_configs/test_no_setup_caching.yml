@@ -117,6 +117,7 @@ test_no_setup_caching:
       user: dba
       password: dba
     SQLLogLevel: 3
+    forceShutdownOnConnectionClose: false
     forceClientDisconnectOnConnectionClose: true
     maxSimultaneousConnectionsToDb: 1
     dbOperationTimeout: 16000

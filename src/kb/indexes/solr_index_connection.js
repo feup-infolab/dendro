@@ -199,64 +199,56 @@ class SolrIndexConnection extends IndexConnection
             });
         }
 
-        if (!self._indexIsOpen)
+        const tryToConnect = function (callback)
         {
-            const tryToConnect = function (callback)
-            {
-                const tcpp = require("tcp-ping");
+            const tcpp = require("tcp-ping");
 
-                tcpp.probe(self.host, self.port, function (err, available)
+            tcpp.probe(self.host, self.port, function (err, available)
+            {
+                if (available === true)
                 {
-                    if (available === true)
+                    self.client.search(`q=*:*&rows=1`, function (err, result)
                     {
-                        self.client.search("*:*", function (err, result)
+                        if (!isNull(err) && err.status !== 200)
                         {
-                            if (!isNull(err) && err.status !== 200)
-                            {
-                                callback(null, false);
-                            }
-                            else
-                            {
-                                callback(null, isNull(err));
-                            }
-                        });
-                    }
-                    else
-                    {
-                        callback(null, false);
-                    }
-                });
-            };
-
-            // try calling apiMethod 10 times with linear backoff
-            // (i.e. intervals of 100, 200, 400, 800, 1600, ... milliseconds)
-            async.retry({
-                times: 240,
-                interval: function (retryCount)
-                {
-                    const msecs = 500;
-                    Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to determine Solr status on " + self.host + " : " + self.port + "...");
-                    return msecs;
-                }
-            }, tryToConnect, function (err)
-            {
-                if (isNull(err))
-                {
-                    self._indexIsOpen = true;
-                    callback(null);
+                            callback(null, false);
+                        }
+                        else
+                        {
+                            callback(null, isNull(err));
+                        }
+                    });
                 }
                 else
                 {
-                    const msg = "Unable to determine Solr Status in time. This is a fatal error.";
-                    Logger.log("error", err.message);
-                    throw new Error(msg);
+                    callback(null, false);
                 }
             });
-        }
-        else
+        };
+
+        // try calling apiMethod 10 times with linear backoff
+        // (i.e. intervals of 100, 200, 400, 800, 1600, ... milliseconds)
+        async.retry({
+            times: 240,
+            interval: function (retryCount)
+            {
+                const msecs = 500;
+                Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to determine Solr status on " + self.host + " : " + self.port + "...");
+                return msecs;
+            }
+        }, tryToConnect, function (err)
         {
-            callback(null);
-        }
+            if (isNull(err))
+            {
+                callback(null);
+            }
+            else
+            {
+                const msg = "Unable to determine Solr Status in time. This is a fatal error.";
+                Logger.log("error", err.message);
+                throw new Error(msg);
+            }
+        });
     }
 
     deleteIndex (callback)
@@ -368,22 +360,36 @@ class SolrIndexConnection extends IndexConnection
 
                 self.client.search(queryString, function (err, result)
                 {
-                    if (isNull(err) || err === "Solr server error: 400")
+                    if (isNull(err))
                     {
-                        if (!isNull(result) && !isNull(result.response) && !isNull(result.response.docs) && result.response.docs instanceof Array && result.response.docs.length === 1)
-                        {
-                            callback(null, result.response.docs[0].id);
-                        }
-                        else
-                        {
-                            callback(null, null);
-                        }
+                        callback(null, null);
                     }
                     else
                     {
-                        const error = "Error fetching documents from solr for query : " + JSON.stringify(queryString) + ". Reported error : " + JSON.stringify(err);
-                        Logger.log("error", error);
-                        callback(1, error);
+                        if (err === "Solr server error: 400")
+                        {
+                            if (!isNull(result) && !isNull(result.response) && !isNull(result.response.docs) && result.response.docs instanceof Array && result.response.docs.length === 1)
+                            {
+                                callback(null, result.response.docs[0].id);
+                            }
+                            else
+                            {
+                                callback(null, null);
+                            }
+                        }
+                        else if (err === "Solr server error: 503")
+                        {
+                            setTimeout(function ()
+                            {
+                                self.getDocumentIDForResource(resourceURI, callback);
+                            }, 500);
+                        }
+                        else
+                        {
+                            const error = "Error fetching documents from solr for query : " + JSON.stringify(queryString) + ". Reported error : " + JSON.stringify(err);
+                            Logger.log("error", error);
+                            callback(1, error);
+                        }
                     }
                 });
             }

@@ -1,19 +1,19 @@
 version: '3'
 
 services:
-  elasticsearch:
-    container_name: elasticsearch-dendro-test
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.2${DENDRO_DOCKER_CONTAINERS_SUFFIX}
-    ports:
-      - 9200:9200
-      - 9300:9300
-    environment:
-      - "discovery.type=single-node"
-      - "http.host=0.0.0.0"
-      - "transport.host=127.0.0.1"
-      - "TAKE_FILE_OWNERSHIP=1"
-    networks:
-      - dendro
+#  elasticsearch:
+#    container_name: elasticsearch-dendro-test
+#    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.2${DENDRO_DOCKER_CONTAINERS_SUFFIX}
+#    ports:
+#      - 9200:9200
+#      - 9300:9300
+#    environment:
+#      - "discovery.type=single-node"
+#      - "http.host=0.0.0.0"
+#      - "transport.host=127.0.0.1"
+#      - "TAKE_FILE_OWNERSHIP=1"
+#    networks:
+#      - dendro
 
   solr:
     container_name: solr-dendro-test

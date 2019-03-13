@@ -227,7 +227,7 @@ const recordQueryConclusionInLog = function (query, queryStartTime)
     }
 };
 
-let DbConnection = function (handle, host, port, portISQL, username, password, maxSimultaneousConnections, dbOperationsTimeout, forceClientDisconnectOnConnectionClose)
+let DbConnection = function (handle, host, port, portISQL, username, password, maxSimultaneousConnections, dbOperationsTimeout, forceClientDisconnectOnConnectionClose, forceShutdownOnConnectionClose)
 {
     let self = this;
 
@@ -255,6 +255,7 @@ let DbConnection = function (handle, host, port, portISQL, username, password, m
     self.databaseName = "graph";
     self.created_profiling_logfile = false;
     self.forceClientDisconnectOnConnectionClose = forceClientDisconnectOnConnectionClose;
+    self.forceShutdownOnConnectionClose = forceShutdownOnConnectionClose;
 };
 
 DbConnection.prototype.reserveConnection = function (callback)
@@ -835,8 +836,8 @@ DbConnection.prototype.create = function (callback)
             if (err)
             {
                 // Logger.log("error", "Error initializing Virtuoso connection pool: " + JSON.stringify(err));
-                Logger.log("debug", `Error initializing Virtuoso connection pool using connection string ${connectionString} :  ${err.message}`);
-                Logger.log("debug", "Stack of error initializing Virtuoso connection pool: " + err.stack);
+                Logger.log("debug", `Unable to initialize Virtuoso connection pool using connection string \n ${connectionString}. Is the server starting up?`);
+                // Logger.log("debug", "Stack of error initializing Virtuoso connection pool: " + err.stack);
                 callback(err, result);
             }
             else
@@ -1292,74 +1293,81 @@ DbConnection.prototype.close = function (callback)
 
     const shutdownVirtuoso = function (callback)
     {
-        if (Config.docker.active && Config.docker.stop_containers_automatically && Config.docker.virtuoso_container_name)
+        if (self.forceShutdownOnConnectionClose)
         {
-            Logger.log("Shutting down virtuoso....!");
-
-            DockerManager.containerIsRunning(Config.docker.virtuoso_container_name, function (isRunning)
+            if (Config.docker.active && Config.docker.virtuoso_container_name)
             {
-                if (!isRunning)
-                {
-                    callback(null);
-                }
-                else
-                {
-                    async.series([
-                        function (callback)
-                        {
-                            DockerManager.runCommandOnContainer(Config.docker.virtuoso_container_name, `isql-v 1111 ${self.username} ${self.password} 'EXEC=checkpoint; shutdown;'`, function (err, result)
-                            {
-                                if (!isNull(err))
-                                {
-                                    Logger.log("debug", "Unable to run shutdown command on virtuoso container.");
-                                    Logger.log("debug", JSON.stringify(err));
-                                    Logger.log("debug", JSON.stringify(result));
-                                }
-                                callback(null, result);
-                            });
-                        },
-                        function (callback)
-                        {
-                            const tryToConnect = function (callback)
-                            {
-                                const tcpp = require("tcp-ping");
+                Logger.log("Shutting down virtuoso in Docker container " + Config.docker.virtuoso_container_name + "....!");
 
-                                tcpp.probe(self.host, self.port, function (err, available)
-                                {
-                                    callback(err, available);
-                                });
-                            };
-
-                            // try calling apiMethod 10 times with linear backoff
-                            // (i.e. intervals of 100, 200, 400, 800, 1600, ... milliseconds)
-                            async.retry({
-                                times: 240,
-                                interval: function (retryCount)
-                                {
-                                    const msecs = 500;
-                                    Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to determine Virtuoso status after closing on " + self.host + " : " + self.port + "...");
-                                    return msecs;
-                                }
-                            }, tryToConnect, function (err)
-                            {
-                                if (isNull(err))
-                                {
-                                    callback(null);
-                                }
-                                else
-                                {
-                                    const msg = "Unable to determine Solr Status in time. This is a fatal error.";
-                                    Logger.log("error", err.message);
-                                    throw new Error(msg);
-                                }
-                            });
-                        }
-                    ], function (err, result)
+                DockerManager.containerIsRunning(Config.docker.virtuoso_container_name, function (isRunning)
+                {
+                    if (!isRunning)
                     {
-                        callback(err, result);
-                    });
-                }
-            });
+                        callback(null);
+                    }
+                    else
+                    {
+                        async.series([
+                            function (callback)
+                            {
+                                DockerManager.runCommandOnContainer(Config.docker.virtuoso_container_name, `isql-v 1111 ${self.username} ${self.password} 'EXEC=checkpoint; shutdown;'`, function (err, result)
+                                {
+                                    if (!isNull(err))
+                                    {
+                                        Logger.log("debug", "Unable to run shutdown command on virtuoso container.");
+                                        Logger.log("debug", JSON.stringify(err));
+                                        Logger.log("debug", JSON.stringify(result));
+                                    }
+                                    callback(null, result);
+                                });
+                            },
+                            function (callback)
+                            {
+                                const tryToConnect = function (callback)
+                                {
+                                    const tcpp = require("tcp-ping");
+
+                                    tcpp.probe(self.host, self.port, function (err, available)
+                                    {
+                                        callback(err, available);
+                                    });
+                                };
+
+                                // try calling apiMethod 10 times with linear backoff
+                                // (i.e. intervals of 100, 200, 400, 800, 1600, ... milliseconds)
+                                async.retry({
+                                    times: 240,
+                                    interval: function (retryCount)
+                                    {
+                                        const msecs = 500;
+                                        Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to determine Virtuoso status after closing on " + self.host + " : " + self.port + "...");
+                                        return msecs;
+                                    }
+                                }, tryToConnect, function (err)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        callback(null);
+                                    }
+                                    else
+                                    {
+                                        const msg = "Unable to determine Solr Status in time. This is a fatal error.";
+                                        Logger.log("error", err.message);
+                                        throw new Error(msg);
+                                    }
+                                });
+                            }
+                        ], function (err, result)
+                        {
+                            callback(err, result);
+                        });
+                    }
+                });
+            }
+            else
+            {
+                callback(1, "No way to force shutdown of Virtuoso!");
+            }
         }
         else
         {
