@@ -342,7 +342,7 @@ test:
     active: true
     reuse_checkpoints: true # this will stop containers as needed, do NOT stop_containers_automatically!!
     create_checkpoints: true
-    destroy_existing_images_at_start: false
+    destroy_existing_images_at_start: true
     stop_containers_automatically: false
     start_containers_automatically: true
     virtuoso_container_name: virtuoso-dendro-test

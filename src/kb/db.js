@@ -582,7 +582,6 @@ DbConnection.finishUpAllConnectionsAndClose = function (callback)
         }
     }, function (err, result)
     {
-        exited = true;
         callback(err, result);
     });
 };
@@ -1381,21 +1380,21 @@ DbConnection.prototype.close = function (callback)
         }
     };
 
-    async.series([
-        sendCheckpointCommand,
-        closePendingConnections,
-        closeConnectionPool,
-        destroyQueues,
-        forceCloseClientConnections,
-        shutdownVirtuoso
-    ], function (err, result)
+    if (!exited)
     {
-        if (!exited)
+        async.series([
+            sendCheckpointCommand,
+            closePendingConnections,
+            closeConnectionPool,
+            destroyQueues,
+            forceCloseClientConnections,
+            shutdownVirtuoso
+        ], function (err, result)
         {
             callback(err, result);
             exited = true;
-        }
-    });
+        });
+    }
 };
 
 DbConnection.prototype.executeViaHTTP = function (queryStringWithArguments, argumentsArray, callback, resultsFormat, maxRows, loglevel)

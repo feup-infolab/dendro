@@ -861,7 +861,7 @@ class App
             }
         ], function (err, results)
         {
-            if (!err)
+            if (isNull(err))
             {
                 Logger.log("Freed all resources. Halting Dendro Server now.");
             }
@@ -869,11 +869,13 @@ class App
             {
                 Logger.log("error", "Unable to free all resources, but we are halting Dendro Server anyway.");
             }
-            // don't call cleanup handler again
-            if (!isNull(callback) && typeof callback === "function")
-            {
-                callback(err, results);
-            }
+            // // don't call cleanup handler again
+            // if (!isNull(callback) && typeof callback === "function")
+            // {
+            //     callback(err, results);
+            // }
+
+            callback(err, results);
         });
     }
 }

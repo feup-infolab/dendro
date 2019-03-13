@@ -1596,7 +1596,7 @@ Resource.prototype.reindex = function (callback, customGraphUri)
                             msg = "Resource " + self.uri + " successfully REindexed in index " + indexConnection.getDescription();
                         }
 
-                        Logger.log("error", msg);
+                        Logger.log("debug", msg);
                         return callback(null, self);
                     }
 
