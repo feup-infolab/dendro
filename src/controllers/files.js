@@ -2433,121 +2433,80 @@ exports.ls = function (req, res)
 {
     const resourceURI = req.params.requestedResourceUri;
     let showDeleted = req.query.show_deleted;
+    let resource = req.params.resource;
 
     if (req.params.is_project_root)
     {
-        Project.findByUri(resourceURI, function (err, project)
-        {
-            if (isNull(err))
-            {
-                if (!isNull(project))
-                {
-                    project.getFirstLevelDirectoryContents(function (err, files)
-                    {
-                        if (isNull(err))
-                        {
-                            if (!showDeleted)
-                            {
-                                const _ = require("underscore");
-                                files = _.reject(files, function (file)
-                                {
-                                    return file.ddr.deleted;
+        if(resource === "project") {
+            Project.findByUri(resourceURI, function (err, project) {
+                if (isNull(err)) {
+                    if (!isNull(project)) {
+                        project.getFirstLevelDirectoryContents(function (err, files) {
+                            if (isNull(err)) {
+                                if (!showDeleted) {
+                                    const _ = require("underscore");
+                                    files = _.reject(files, function (file) {
+                                        return file.ddr.deleted;
+                                    });
+                                }
+
+                                res.json(files);
+                            } else {
+                                res.status(500).json({
+                                    result: "error",
+                                    message: "Unable to fetch project root folder contents."
                                 });
                             }
-
-                            res.json(files);
-                        }
-                        else
-                        {
-                            res.status(500).json({
-                                result: "error",
-                                message: "Unable to fetch project root folder contents."
-                            });
-                        }
-                    });
-                }
-                else
-                {
-                    res.status(404).json({
-                        result: "error",
-                        message: "Unable to fetch project with uri : " + req.params.requestedResourceUri + ". Project not found! "
-                    });
-                }
-            }
-            else
-            {
-                res.status(500).json({
-                    result: "error",
-                    message: "Unable to fetch project with uri : " + req.params.requestedResourceUri
-                });
-            }
-        });
-    }
-    else
-    {
-        Folder.findByUri(resourceURI, function (err, containingFolder)
-        {
-            if (isNull(err) && !isNull(containingFolder))
-            {
-                containingFolder.getLogicalParts(function (err, children)
-                {
-                    if (isNull(err))
-                    {
-                        if (!showDeleted)
-                        {
-                            const _ = require("underscore");
-                            children = _.reject(children, function (child)
-                            {
-                                return child.ddr.deleted;
-                            });
-                        }
-
-                        res.json(children);
+                        });
+                    } else {
+                        res.status(404).json({
+                            result: "error",
+                            message: "Unable to fetch project with uri : " + req.params.requestedResourceUri + ". Project not found! "
+                        });
                     }
-                });
-            }
-            else
-            {
-                res.status(404).json({
-                    result: "Error",
-                    error: "Non-existent folder. Is this a file instead of a folder? : " + resourceURI
-                });
-            }
-        });
-    }
-};
-
-exports.ls_deposits = function (req, res)
-{
-    const resourceURI = req.params.requestedResourceUri;
-    let showDeleted = req.query.show_deleted;
-
-    if (req.params.is_project_root)
-    {
-        deposit.getFirstLevelDirectoryContents(function (err, files)
-        {
-            if (isNull(err))
-            {
-                if (!showDeleted)
-                {
-                    const _ = require("underscore");
-                    files = _.reject(files, function (file)
-                    {
-                        return file.ddr.deleted;
+                } else {
+                    res.status(500).json({
+                        result: "error",
+                        message: "Unable to fetch project with uri : " + req.params.requestedResourceUri
                     });
                 }
+            });
+        }
+        if(resource === "deposit") {
+            Deposit.findByUri(resourceURI, function (err, deposit) {
+                if (isNull(err)) {
+                    if (!isNull(deposit)) {
+                        deposit.getFirstLevelDirectoryContents(function (err, files) {
+                            if (isNull(err)) {
+                                if (!showDeleted) {
+                                    const _ = require("underscore");
+                                    files = _.reject(files, function (file) {
+                                        return file.ddr.deleted;
+                                    });
+                                }
 
-                res.json(files);
-            }
-            else
-            {
-                res.status(500).json({
-                    result: "error",
-                    message: "Unable to fetch project root folder contents."
-                });
-            }
-        });
-
+                                res.json(files);
+                            } else {
+                                res.status(500).json({
+                                    result: "error",
+                                    message: "Unable to fetch deposit root folder contents."
+                                });
+                            }
+                        });
+                    } else {
+                        res.status(404).json({
+                            result: "error",
+                            message: "Unable to fetch deposit with uri : " + req.params.requestedResourceUri + ". Deposit not found! "
+                        });
+                    }
+                } else {
+                    res.status(500).json({
+                        result: "error",
+                        message: "Unable to fetch deposit with uri : " + req.params.requestedResourceUri
+                    });
+                }
+            });
+        }
     }
     else
     {

@@ -462,6 +462,7 @@ const loadRoutes = function (app, callback)
         ];
 
         req.params.is_project_root = true;
+        req.params.resource = "project";
 
         const queryBasedRoutes = {
           get: [
@@ -754,13 +755,21 @@ const loadRoutes = function (app, callback)
         ];
 
         req.params.is_project_root = true;
+        req.params.resource = "deposit";
 
         const queryBasedRoutes = {
           get: [
+            // downloads
+            {
+              queryKeys: ["download"],
+              handler: files.download,
+              permissions: defaultPermissionsForDeposits,
+              authentication_error: "Permission denied : cannot download this deposit."
+            },
             // list contents
             {
               queryKeys: ["ls"],
-              handler: files.ls_deposits,
+              handler: files.ls,
               permissions: defaultPermissionsForDeposits,
               authentication_error: "Permission denied : cannot list the contents of this deposit."
             },

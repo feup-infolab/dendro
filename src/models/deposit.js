@@ -604,6 +604,56 @@ Deposit.prototype.findMetadata = function (callback, typeConfigsToRetain)
     );
 };
 
+Deposit.prototype.getRootFolder = function (callback)
+{
+    const self = this;
+    const folderUri = self.ddr.rootFolder;
+
+    Folder.findByUri(folderUri, function (err, rootFolder)
+    {
+        if (isNull(err))
+        {
+            if (!isNull(rootFolder) && rootFolder instanceof Folder)
+            {
+                callback(err, rootFolder);
+            }
+            else
+            {
+                const newRootFolder = new Folder({
+                    nie: {
+                        title: self.ddr.handle,
+                        isLogicalPartOf: self.uri
+                    },
+                    ddr: {
+                        humanReadableURI: self.ddr.humanReadableURI + "/data"
+                    }
+                });
+
+                newRootFolder.nie.isLogicalPartOf = self.uri;
+                newRootFolder.save(function (err)
+                {
+                    if (isNull(err))
+                    {
+                        self.ddr.rootFolder = newRootFolder.uri;
+                        self.save(function (err)
+                        {
+                            callback(err, newRootFolder);
+                        });
+                    }
+                    else
+                    {
+                        callback(err, newRootFolder);
+                    }
+                });
+            }
+        }
+        else
+        {
+            callback(err, rootFolder);
+        }
+    });
+};
+
 Deposit.prototype.getFirstLevelDirectoryContents = function (callback)
 {
     const self = this;

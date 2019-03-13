@@ -577,8 +577,6 @@ angular.module("dendroApp.controllers")
                 $scope.load_folder_contents($scope.shared.showing_deleted_files)
                     .then(function (folder_contents)
                     {
-                        console.log(folder_contents);
-
                         $scope.shared.folder_contents = folder_contents;
                         getFolderContentsPromise.resolve(folder_contents);
                     })

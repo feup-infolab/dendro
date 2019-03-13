@@ -1144,7 +1144,9 @@ export_to_dendro = function (req, res)
                             dcterms: {
                                 title: project.dcterms.title,
                                 creator: req.user.uri,
-                                identifier: "123456789"
+                                identifier: "123456789",
+                                description: project.dcterms.description,
+                                language: project.dcterms.language
                             },
                             ddr: {
                                 exportedFromProject: project.uri,
@@ -1184,7 +1186,9 @@ export_to_dendro = function (req, res)
                                         dcterms: {
                                             title: folder.dcterms.title,
                                             creator: req.user.uri,
-                                            identifier: "123456789"
+                                            identifier: "123456789",
+                                            description: folder.dcterms.description,
+                                            language: project.dcterms.language
                                         },
                                         ddr: {
                                             exportedFromProject: project.uri,
