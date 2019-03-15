@@ -30,7 +30,7 @@ if (argv.config)
     Logger.log("info", "Deployment configuration overriden by --conf argument. Configuration is " + argv.config);
     activeConfigKey = argv.config;
 }
-else if (!isNull(process.env.DENDRO_ACTIVE_DEPLOYMENT_CONFIG) &&  process.env.DENDRO_ACTIVE_DEPLOYMENT_CONFIG !== "")
+else if (!isNull(process.env.DENDRO_ACTIVE_DEPLOYMENT_CONFIG) && process.env.DENDRO_ACTIVE_DEPLOYMENT_CONFIG !== "")
 {
     Logger.log("info", "Deployment configuration overriden by DENDRO_ACTIVE_DEPLOYMENT_CONFIG environment variable. Configuration is " + process.env.DENDRO_ACTIVE_DEPLOYMENT_CONFIG);
     activeConfigKey = process.env.DENDRO_ACTIVE_DEPLOYMENT_CONFIG;
