@@ -451,11 +451,12 @@ angular.module("dendroApp.controllers")
          * @param uri
          */
             // TODO William add boolean of public deposit in 2nd
-            $scope.upload_to_repository = function (targetRepository, publicDeposit, overwrite, deleteChangesOriginatedFromCkan, propagateDendroChangesIntoCkan)
+            $scope.upload_to_repository = function (targetRepository, publicDeposit, titleOfDeposit, overwrite, deleteChangesOriginatedFromCkan, propagateDendroChangesIntoCkan)
             {
                 var payload = {
                     repository: targetRepository,
-                    new_dataset: $scope.new_dataset
+                    new_dataset: $scope.new_dataset,
+                    titleOfDeposit: titleOfDeposit
                 };
 
                 if (!publicDeposit || publicDeposit === false)
@@ -657,6 +658,21 @@ angular.module("dendroApp.controllers")
                 delete $scope.sword_workspaces;
             };
 
+            $scope.get_title_of_file_selected = function ()
+            {
+                let title =  $scope.shared.selected_file.dcterms.title;
+
+                if (title)
+                {
+                    $scope.title_of_file_selected_disabled = true;
+
+                    $scope.title_of_file_selected = title;
+                }
+                else {
+                    $scope.title_of_file_selected_disabled = false;
+                    $scope.title_of_file_selected = null;
+                }
+            };
             $scope.get_my_repositories();
             $scope.get_repository_types();
             $scope.new_dataset = {};

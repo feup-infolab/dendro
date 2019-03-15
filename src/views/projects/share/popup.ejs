@@ -21,7 +21,7 @@
                                 </button>
                                 <ul class="dropdown-menu" role="menu">
                                     <li ng-repeat="my_repository in my_repositories" >
-                                        <a href="#" ng-click="recall_repository(my_repository)">{{my_repository.dcterms.title}}</a>
+                                        <a href="#" ng-click="recall_repository(my_repository); get_title_of_file_selected() ">{{my_repository.dcterms.title}}</a>
                                     </li>
                                 </ul>
                             </div>

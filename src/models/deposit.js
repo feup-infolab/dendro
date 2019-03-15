@@ -701,6 +701,44 @@ Deposit.prototype.getProject = function (callback)
     });
 };
 
+
+Deposit.prototype.delete = function (callback, customGraphUri)
+{
+    const self = this;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+    const deleteProjectTriples = function (callback)
+    {
+        const deleteQuery =
+          "DELETE FROM [0]\n" +
+          "{\n" +
+          "    ?resource ?p ?o \n" +
+          "} \n" +
+          "WHERE \n" +
+          "{ \n" +
+          "    ?resource ?p ?o .\n" +
+          "    [1] nie:hasLogicalPart* ?resource\n" +
+          "} \n";
+
+        db.connection.executeViaJDBC(deleteQuery,
+          [
+              {
+                  type: Elements.types.resourceNoEscape,
+                  value: graphUri
+              },
+              {
+                  type: Elements.types.resourceNoEscape,
+                  value: self.uri
+              }
+          ],
+          function (err, result)
+          {
+              callback(err, result);
+          }
+        );
+    };
+};
+
 Deposit = Class.extend(Deposit, Resource, "ddr:Registry");
 
 module.exports.Deposit = Deposit;

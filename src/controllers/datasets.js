@@ -1127,8 +1127,8 @@ export_to_repository_b2share = function (req, res)
 export_to_dendro = function (req, res)
 {
     const requestedResourceUri = req.params.requestedResourceUri;
-    const targetRepository = req.body.repository;
     const publicDeposit = req.body.publicDeposit;
+    const titleOfDeposit = req.body.titleOfDeposit;
 
     File.findByUri(requestedResourceUri, function (err, file)
     {
@@ -1142,7 +1142,7 @@ export_to_dendro = function (req, res)
                     {
                         const registryData = {
                             dcterms: {
-                                title: project.dcterms.title,
+                                title: titleOfDeposit,
                                 creator: req.user.uri,
                                 identifier: "123456789",
                                 description: project.dcterms.description,
@@ -1182,15 +1182,9 @@ export_to_dendro = function (req, res)
                             {
                                 if (isNull(err))
                                 {
-                                    let title;
-                                    if(folder.dcterms.title) {
-                                        title = folder.dcterms.title;
-                                    } else {
-                                        title = project.dcterms.title;
-                                    }
                                     const registryData = {
                                         dcterms: {
-                                            title: title,
+                                            title: titleOfDeposit,
                                             creator: req.user.uri,
                                             identifier: "123456789",
                                             description: folder.dcterms.description,

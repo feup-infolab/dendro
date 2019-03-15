@@ -781,6 +781,13 @@ const loadRoutes = function (app, callback)
               authentication_error: "Permission denied : cannot show the project because you do not have permissions to access it."
             }
           ],
+          delete: [
+            {
+              queryKeys: [],
+              handler: deposits.delete,
+              authentication_error: "Permission denied : cannot delete resource because you do not have permissions to edit resources inside this deposit."
+            }
+          ],
         };
 
         QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next, true);
