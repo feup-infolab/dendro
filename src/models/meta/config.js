@@ -30,27 +30,29 @@ if (argv.config)
     Logger.log("info", "Deployment configuration overriden by --conf argument. Configuration is " + argv.config);
     activeConfigKey = argv.config;
 }
+else if (!isNull(process.env.DENDRO_ACTIVE_DEPLOYMENT_CONFIG) &&  process.env.DENDRO_ACTIVE_DEPLOYMENT_CONFIG !== "")
+{
+    Logger.log("info", "Deployment configuration overriden by DENDRO_ACTIVE_DEPLOYMENT_CONFIG environment variable. Configuration is " + process.env.DENDRO_ACTIVE_DEPLOYMENT_CONFIG);
+    activeConfigKey = process.env.DENDRO_ACTIVE_DEPLOYMENT_CONFIG;
+}
+else if (process.env.NODE_ENV === "test")
+{
+    activeConfigKey = "test";
+    Logger.log("Running in test environment detected.");
+    Logger.log("debug", "Deployment configuration overriden by test environment. Configuration is " + activeConfigKey + ".");
+}
 else
 {
-    if (process.env.NODE_ENV === "test")
+    if (!fs.existsSync(configSelectorFilePath))
     {
-        activeConfigKey = "test";
-        Logger.log("Running in test environment detected.");
-        Logger.log("debug", "Deployment configuration overriden by test environment. Configuration is " + activeConfigKey + ".");
+        const msg = "Configuration file " + configSelectorFilePath + " does not exist!";
+        Logger.log("error", msg);
+        throw new Error(msg);
     }
     else
     {
-        if (!fs.existsSync(configSelectorFilePath))
-        {
-            const msg = "Configuration file " + configSelectorFilePath + " does not exist!";
-            Logger.log("error", msg);
-            throw new Error(msg);
-        }
-        else
-        {
-            activeConfigKey = yaml.safeLoad(fs.readFileSync(configSelectorFilePath)).key;
-            Logger.log("debug", "Configuration file exists at " + configSelectorFilePath + " and the configuration key inside is " + activeConfigKey);
-        }
+        activeConfigKey = yaml.safeLoad(fs.readFileSync(configSelectorFilePath)).key;
+        Logger.log("debug", "Configuration file exists at " + configSelectorFilePath + " and the configuration key inside is " + activeConfigKey);
     }
 }
 

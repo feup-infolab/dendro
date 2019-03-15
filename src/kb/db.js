@@ -1262,6 +1262,33 @@ DbConnection.prototype.close = function (callback)
         }
     };
 
+    const flushVirtuosoBuffers = function(callback)
+    {
+        if (Config.docker.active && Config.docker.virtuoso_container_name
+        {
+            DockerManager.flushBuffersToDiskOnContainer(Config.docker.virtuoso_container_name, function (err, result)
+            {
+                if (!isNull(err))
+                {
+                    Logger.log("error", "Error flushing buffers on virtuoso container before shutting down virtuoso.");
+                    Logger.log("error", err);
+                    Logger.log("error", result);
+                    callback(err, result);
+                }
+                else
+                {
+                    callback(null, result);
+                    Logger.log("debug", "Flushed buffers on virtuoso container before shutting down virtuoso.");
+                    Logger.log("debug", result);
+                }
+            });
+        }
+        else
+        {
+            callback(null);
+        }
+    }
+
     const forceCloseClientConnections = function (callback)
     {
         if (Config.docker.active && Config.docker.virtuoso_container_name && self.forceClientDisconnectOnConnectionClose)
@@ -1384,6 +1411,7 @@ DbConnection.prototype.close = function (callback)
     {
         async.series([
             sendCheckpointCommand,
+            flushVirtuosoBuffers,
             closePendingConnections,
             closeConnectionPool,
             destroyQueues,

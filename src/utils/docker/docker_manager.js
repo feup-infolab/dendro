@@ -726,4 +726,9 @@ DockerManager.runCommandOnContainer = function (containerName, command, callback
     });
 };
 
+DockerManager.flushBuffersToDiskOnContainer = function (containerName, callback)
+{
+    DockerManager.runCommandOnContainer(containerName, "sync", callback);
+};
+
 module.exports.DockerManager = DockerManager;

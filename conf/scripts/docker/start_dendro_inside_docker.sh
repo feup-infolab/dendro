@@ -86,4 +86,9 @@ cd "$RUNNING_DIR" && echo "Switched to folder $(pwd) to start Dendro..." || exit
 . $HOME/.nvm/nvm.sh
 nvm use --delete-prefix "$RUNNING_DIR"
 nvm alias default "$(cat $RUNNING_DIR/.nvmrc)"
-node src/app.js --config="docker"
+
+if [[ "$DENDRO_ACTIVE_DEPLOYMENT_CONFIG" == "" ]]; then
+    DENDRO_ACTIVE_DEPLOYMENT_CONFIG="docker"
+fi
+
+node src/app.js --config="$DENDRO_ACTIVE_DEPLOYMENT_CONFIG"
