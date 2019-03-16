@@ -16,6 +16,7 @@ services:
       - ./volumes/elasticsearch:/usr/share/elasticsearch/data:consistent
     networks:
       - dendro
+    restart: on-failure
 
   virtuoso:
     container_name: virtuoso-dendro
@@ -30,6 +31,7 @@ services:
       - "VIRT_Parameters_CheckpointInterval=0"
     networks:
       - dendro
+    restart: on-failure
 
   mariadb:
     container_name: mariadb-dendro
@@ -45,6 +47,7 @@ services:
       - ./volumes/mariadb:/var/lib/mariadb
     networks:
       - dendro
+    restart: on-failure
 
   mongodb:
     container_name: mongodb-dendro
@@ -59,6 +62,7 @@ services:
     networks:
       - dendro
     command: mongod --smallfiles --bind_ip_all
+    restart: on-failure
 
   dendro:
     container_name: dendro
@@ -79,6 +83,7 @@ services:
       DENDRO_ACTIVE_DEPLOYMENT_CONFIG: docker
     networks:
       - dendro
+    restart: on-failure
 
 networks:
   dendro: {}

@@ -1262,9 +1262,9 @@ DbConnection.prototype.close = function (callback)
         }
     };
 
-    const flushVirtuosoBuffers = function(callback)
+    const flushVirtuosoBuffers = function (callback)
     {
-        if (Config.docker.active && Config.docker.virtuoso_container_name
+        if (Config.docker.active && Config.docker.virtuoso_container_name)
         {
             DockerManager.flushBuffersToDiskOnContainer(Config.docker.virtuoso_container_name, function (err, result)
             {
@@ -1287,7 +1287,7 @@ DbConnection.prototype.close = function (callback)
         {
             callback(null);
         }
-    }
+    };
 
     const forceCloseClientConnections = function (callback)
     {
