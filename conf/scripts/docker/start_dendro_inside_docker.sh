@@ -74,7 +74,8 @@ if [ -z "$(ls -A $RUNNING_DIR)" ]; then
 	cp -R $INSTALL_DIR/* $RUNNING_DIR
 else
 	echo "Dendro running directory ($RUNNING_DIR) is not empty, assuming it is already installed."
-   	echo "Continuing startup..."
+   	echo "Refreshing code on startup..."
+   	rsync $INSTALL_DIR $RUNNING_DIR
 fi
 
 # Change ownership

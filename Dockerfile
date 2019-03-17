@@ -29,7 +29,7 @@ FROM base AS dependencies
 
 # Install preliminary dependencies
 RUN apt-get update
-RUN apt-get -y -f install sudo unzip devscripts autoconf automake libtool flex bison gperf gawk m4 make libssl-dev imagemagick subversion zip wget curl git --fix-missing
+RUN apt-get -y -f install sudo unzip devscripts autoconf automake libtool flex bison gperf gawk m4 make libssl-dev imagemagick subversion zip wget curl git rsync --fix-missing
 RUN apt-get install -y apt-utils --no-install-recommends
 
 # Install text extraction tools

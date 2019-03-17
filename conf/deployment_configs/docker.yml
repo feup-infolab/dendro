@@ -5,7 +5,7 @@ docker:
     secret: >-
       THF4A9JfsMbTaHYefVtquzFbrdNUMSbTHF4A9JfsMbTaHYefVtquzFbrdNUMSbpHeRjKE24Tyk2LqxVa3ERyGAAaP8j7gXArZsJk4bjKj8F4YZnCqAyaw9auPn6ahDwc4scLCrayLX9BsYwqXaMKrfW82WdqD5pYApFaQ9JNCqQ25qb75GKfAZSgvNuzFXKT6mGGw6qk63HqjgGwty4qx4QkYXxNCsbez4jwzeRc58AfSvzXZfEf8asSNWhhfEBWCvCeAJs3BGZFFFuwZ7EAVhmyu7NqqzHpHeRjKE24Tyk2LqxVa3ERyGAAaP8j7gXArZsJk4bjKj8F4YZnCqAyaw9auPn6ahDwc4scLCrayLX9BsYwqXaMKrfW82WdqD5pYApFaQ9JNCqQ25qb75GKfAZSgvNuzFXKT6mGGw6qk63HqjgGwty4qx4QkYXxNCsbez4jwzeRc58AfSvzXZfEf8asSNWhhfEBWCvCeAJs3BGZFFFuwZ7EAVhmyu7NqqzAIAIMARIA
   baseUri: 'http://127.0.0.1:3001'
-  environment: production
+  environment: development
   skipDescriptorValuesValidation: false
   eudatBaseUrl: 'https://trng-b2share.eudat.eu'
   eudatToken: '901'
@@ -17,32 +17,32 @@ docker:
     solr:
       connection_log_type: 'DEBUG'
       use_auth: false
-      host: 127.0.0.1
-      port: 8985
+      host: solr-dendro
+      port: 8983
       credentials:
         username: user
         password: pass
     elasticsearch:
       connection_log_type: ''
       use_auth: false
-      host: 127.0.0.1
-      port: 9202
+      host: elasticsearch-dendro
+      port: 9200
       credentials:
         username: user
         password: pass
   datastore:
-    database: 127_0_0_1_3001_datastore_dev
-    host: 127.0.0.1
-    port: 27019
+    database: mongo_3001_datastore_dev
+    host: mongodb-dendro
+    port: 27017
     id: default
     log:
       log_datastore_ops: false
     username: admin
     password: 34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi
   ontologies_cache:
-    database: 127_0_0_1_3001_ontologies
-    host: 127.0.0.1
-    port: 27019
+    database: mongo_3001_ontologies
+    host: mongodb-dendro
+    port: 27017
     id: default
     username: admin
     password: 34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi
@@ -61,10 +61,10 @@ docker:
       last_modified_caching: true
       cache_period_in_seconds: 3600
   virtuoso:
-    host: 127.0.0.1
-    port: 8892
-    iSQLPort: 1113
-    connector: http
+    host: virtuoso-dendro
+    port: 8890
+    iSQLPort: 1111
+    connector: jdbc
     auth:
       user: dba
       password: dba
@@ -73,24 +73,24 @@ docker:
     forceClientDisconnectOnConnectionClose: true
     maxSimultaneousConnectionsToDb: 1
     dbOperationTimeout: 16000
-  mongoDBHost: 127.0.0.1
-  mongoDbPort: 27019
-  mongoDbCollectionName: 127_0_0_1_3001_files
+  mongoDBHost: mongodb-dendro
+  mongoDbPort: 27017
+  mongoDbCollectionName: mongo_3001_files
   useMongoDBSessionStore: true
-  mongoDBSessionStoreCollection: 127_0_0_1_3001_sessions
+  mongoDBSessionStoreCollection: mongo_3001_sessions
   mongoDbVersion: ''
   mongoDBAuth:
     username: admin
     password: 34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi
   storageDefaults:
     storageType: mongoDB
-    host: 127.0.0.1
-    port: 27019
-    collectionName: 127_0_0_1_3001_files
+    host: mongo-dendro
+    port: 27017
+    collectionName: mongo_3001_files
     username: ''
     password: ''
-  mySQLHost: 127.0.0.1
-  mySQLPort: 3308
+  mySQLHost: mariadb-dendro
+  mySQLPort: 3306
   mySQLAuth:
     user: root
     password: r00t_p4ssw0rd
@@ -208,8 +208,8 @@ docker:
     modes:
       dendro_recommender:
         active: false
-        host: 127.0.0.1
-        port: '9000'
+        host: dendro-recommender
+        port: 9000
         log_modes:
           phase_1:
             table_to_write_interactions: interactions
@@ -308,12 +308,12 @@ docker:
     destroy_existing_images_at_start: false
     stop_containers_automatically: false
     start_containers_automatically: true
-    virtuoso_container_name: virtuoso-dendro-test
+    virtuoso_container_name: virtuoso-dendro
   keywords_extraction:
     active: false
     corenlp:
       active: false
-      server_address: 'http://localhost:9000'
+      server_address: 'http://corenlp-dendro:9000'
     yake:
       active: false
       commmand: 'docker run yake-dendro-dev -it ''${texttoprocess}'''
