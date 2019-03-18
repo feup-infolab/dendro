@@ -604,61 +604,10 @@ Deposit.prototype.findMetadata = function (callback, typeConfigsToRetain)
     );
 };
 
-Deposit.prototype.getRootFolder = function (callback)
-{
-    const self = this;
-    const folderUri = self.ddr.rootFolder;
-
-    Folder.findByUri(folderUri, function (err, rootFolder)
-    {
-        if (isNull(err))
-        {
-            if (!isNull(rootFolder) && rootFolder instanceof Folder)
-            {
-                callback(err, rootFolder);
-            }
-            else
-            {
-                const newRootFolder = new Folder({
-                    nie: {
-                        title: self.ddr.handle,
-                        isLogicalPartOf: self.uri
-                    },
-                    ddr: {
-                        humanReadableURI: self.ddr.humanReadableURI + "/data"
-                    }
-                });
-
-                newRootFolder.nie.isLogicalPartOf = self.uri;
-                newRootFolder.save(function (err)
-                {
-                    if (isNull(err))
-                    {
-                        self.ddr.rootFolder = newRootFolder.uri;
-                        self.save(function (err)
-                        {
-                            callback(err, newRootFolder);
-                        });
-                    }
-                    else
-                    {
-                        callback(err, newRootFolder);
-                    }
-                });
-            }
-        }
-        else
-        {
-            callback(err, rootFolder);
-        }
-    });
-};
-
 Deposit.prototype.getFirstLevelDirectoryContents = function (callback)
 {
     const self = this;
-
-    self.getRootFolder(function (err, folder)
+    Project.prototype.getRootFolder.bind(self)(function (err, folder)
     {
         if (isNull(err))
         {
@@ -701,7 +650,6 @@ Deposit.prototype.getProject = function (callback)
     });
 };
 
-
 Deposit.prototype.delete = function (callback, customGraphUri)
 {
     const self = this;
@@ -710,33 +658,81 @@ Deposit.prototype.delete = function (callback, customGraphUri)
     const deleteProjectTriples = function (callback)
     {
         const deleteQuery =
-          "DELETE FROM [0]\n" +
-          "{\n" +
-          "    ?resource ?p ?o \n" +
-          "} \n" +
-          "WHERE \n" +
-          "{ \n" +
-          "    ?resource ?p ?o .\n" +
-          "    [1] nie:hasLogicalPart* ?resource\n" +
-          "} \n";
+      "DELETE FROM [0]\n" +
+      "{\n" +
+      "    ?resource ?p ?o \n" +
+      "} \n" +
+      "WHERE \n" +
+      "{ \n" +
+      "    ?resource ?p ?o .\n" +
+      "    [1] nie:hasLogicalPart* ?resource\n" +
+      "} \n";
 
         db.connection.executeViaJDBC(deleteQuery,
-          [
-              {
-                  type: Elements.types.resourceNoEscape,
-                  value: graphUri
-              },
-              {
-                  type: Elements.types.resourceNoEscape,
-                  value: self.uri
-              }
-          ],
-          function (err, result)
-          {
-              callback(err, result);
-          }
+            [
+                {
+                    type: Elements.types.resourceNoEscape,
+                    value: graphUri
+                },
+                {
+                    type: Elements.types.resourceNoEscape,
+                    value: self.uri
+                }
+            ],
+            function (err, result)
+            {
+                callback(err, result);
+            }
         );
     };
+
+    const deleteAllStorageConfigs = function (callback)
+    {
+        self.deleteAllStorageConfigs(callback);
+    };
+
+    const deleteProjectFiles = function (callback)
+    {
+        self.getActiveStorageConnection(function (err, storageConnection)
+        {
+            if (isNull(err))
+            {
+                if (!isNull(storageConnection) && storageConnection instanceof Storage)
+                {
+                    storageConnection.deleteAllInProject(self, function (err, result)
+                    {
+                        callback(err, result);
+                    });
+                }
+                else
+                {
+                    callback(1, "Unable to delete files in project " + self.ddr.handle + " because it has an invalid or non-existant connection to the data access adapter.");
+                }
+            }
+            else
+            {
+                callback(err, storageConnection);
+            }
+        });
+    };
+
+    const clearCacheRecords = function (callback)
+    {
+        self.clearCacheRecords(function (err, result)
+        {
+            callback(err, result);
+        });
+    };
+
+    async.series([
+        clearCacheRecords,
+        deleteProjectFiles,
+        deleteAllStorageConfigs,
+        deleteProjectTriples
+    ], function (err, results)
+    {
+        callback(err, results);
+    });
 };
 
 Deposit = Class.extend(Deposit, Resource, "ddr:Registry");

@@ -521,3 +521,100 @@ exports.show = function (req, res)
         });
     }
 };
+
+exports.delete = function (req, res)
+{
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
+
+    const getProject = function (callback)
+    {
+        Deposit.findByUri(req.params.requestedResourceUri, function (err, deposit)
+        {
+            if (isNull(err))
+            {
+                if (!isNull(deposit) && deposit instanceof Deposit)
+                {
+                    callback(null, deposit);
+                }
+                else
+                {
+                    res.render("registry/delete",
+                        {
+                            title: "Delete a deposit",
+                            success_messages: [ "Deposit with URI " + req.params.requestedResourceUri + " does not exist" ]
+                        }
+                    );
+                }
+            }
+            else
+            {
+                res.status(500).render("registry/delete",
+                    {
+                        title: "Delete a deposit",
+                        error_messages: [ "Error fetching deposit with uri " + deposit.uri ]
+                    }
+                );
+            }
+        });
+    };
+
+    if (acceptsJSON && !acceptsHTML)
+    {
+        res.status(400).json({
+            result: "error",
+            message: "API Request not valid for this route."
+        });
+    }
+    else
+    {
+        if (req.originalMethod === "GET")
+        {
+            getProject(function (err, project)
+            {
+                res.render("registry/delete",
+                    {
+                        title: "Delete a deposit",
+                        project: project
+                    }
+                );
+            });
+        }
+        else if (req.originalMethod === "POST" || req.originalMethod === "DELETE")
+        {
+            getProject(function (err, deposit)
+            {
+                if (!err)
+                {
+                    if (!isNull(deposit) && deposit instanceof Deposit)
+                    {
+                        deposit.delete(function (err, result)
+                        {
+                            if (isNull(err))
+                            {
+                                req.flash("success", [ "Deposit " + deposit.uri + " deleted successfully" ]);
+                                res.redirect("/");
+                            }
+                            else
+                            {
+                                req.flash("error", [ "Error deleting deposit " + deposit.uri + " : " + JSON.stringify(result) ]);
+                                res.status(500).redirect(req.url);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        req.flash("error", "Project " + req.params.requestedResourceUri + " does not exist");
+                        res.status(404).redirect("/");
+                    }
+                }
+                else
+                {
+                    req.flash("error", "Error retrieving deposit " + req.params.requestedResourceUri);
+                    req.flash("error", "Error details" + deposit);
+                    res.status(500).redirect("/");
+                }
+            });
+        }
+    }
+};
