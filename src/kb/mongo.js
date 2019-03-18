@@ -26,8 +26,10 @@ DendroMongoClient.prototype.connect = function (callback)
     {
         url = "mongodb://" + self.username + ":" + self.password + "@" + self.host + ":" + self.port + "/" + self.collectionName;
 
-        if(self.authDatabase)
+        if (self.authDatabase)
+        {
             url = url + "?authSource=" + self.authDatabase;
+        }
 
         Logger.log("debug", "Connecting to MongoDB using connection string: " + "mongodb://" + self.username + ":" + "PASSWORD" + "@" + self.host + ":" + self.port + "/" + self.collectionName);
     }
