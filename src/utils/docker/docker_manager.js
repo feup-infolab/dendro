@@ -329,6 +329,10 @@ DockerManager.destroyAllSavedImages = function (callback, onlyOnce)
         {
             performOperation(callback);
         }
+        else
+        {
+            callback(null);
+        }
     }
     else
     {
@@ -359,6 +363,10 @@ DockerManager.destroyAllOrchestras = function (callback, onlyOnce)
         if (!DockerManager.__destroyedAllOrchestrasOnce)
         {
             performOperation(callback);
+        }
+        else
+        {
+            callback(null);
         }
     }
     else
