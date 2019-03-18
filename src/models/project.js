@@ -1865,7 +1865,18 @@ Project.prototype.clearCacheRecords = function (callback, customGraphUri)
             ],
             function (err, results)
             {
-                callback(err, results);
+                if(isNull(err))
+                {
+                    const uris = _.map(results, function(result){
+                        return result.part;
+                    })
+
+                    callback(err, uris);
+                }
+                else
+                {
+                    callback(err, results);
+                }
             }
         );
     };
@@ -1882,10 +1893,17 @@ Project.prototype.clearCacheRecords = function (callback, customGraphUri)
                 else
                 {
                     currentResults = members;
-                    Cache.getByGraphUri(graphUri).delete(members, function (err, result)
+                    if (!isNull(members))
+                    {
+                        Cache.getByGraphUri(graphUri).delete(members, function (err, result)
+                        {
+                            callback(err, result);
+                        });
+                    }
+                    else
                     {
                         callback(err, result);
-                    });
+                    }
                 }
             });
         },

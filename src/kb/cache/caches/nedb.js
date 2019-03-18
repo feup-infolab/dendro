@@ -4,6 +4,7 @@ const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const Datastore = require("nedb");
+const _ = require("underscore");
 
 function NeDBCache (options)
 {
@@ -192,8 +193,13 @@ NeDBCache.prototype.delete = function (resourceUriOrArrayOfResourceUris, callbac
             if (!isNull(resourceUriOrArrayOfResourceUris))
             {
                 let filterObject;
-                if (resourceUriOrArrayOfResourceUris instanceof Array && resourceUriOrArrayOfResourceUris.length > 0)
+                if (resourceUriOrArrayOfResourceUris instanceof Array)
                 {
+                    _.filter(resourceUriOrArrayOfResourceUris, function (element)
+                    {
+                        return !isNull(element);
+                    });
+
                     filterObject = {
                         $or: []
                     };

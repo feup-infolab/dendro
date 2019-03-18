@@ -13,7 +13,7 @@ docker:
   sendGridUser: __FIXME
   sendGridPassword: __FIXME
   index:
-    type: elasticsearch
+    type: solr
     solr:
       connection_log_type: 'DEBUG'
       use_auth: false

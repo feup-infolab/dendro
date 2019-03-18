@@ -106,7 +106,17 @@ class App
                 Logger.log("error", exception.stack);
             }
 
-            if (process.env.NODE_ENV !== "test")
+            if (!isNull(process.env.NODE_ENV))
+            {
+                if (process.env.NODE_ENV !== "test")
+                {
+                    process.nextTick(function ()
+                    {
+                        process.exit(1);
+                    });
+                }
+            }
+            else
             {
                 process.nextTick(function ()
                 {
@@ -117,7 +127,7 @@ class App
 
         process.on("exit", function (code)
         {
-            if (code !== 0)
+            if (!isNull(code) && code !== 0)
             {
                 Logger.log(`Unknown error occurred! About to exit with code ${code}`);
             }
@@ -125,7 +135,7 @@ class App
             self.freeResources(function ()
             {
                 Logger.log("Freed all resources.");
-                if (code !== 0)
+                if (!isNull(code) && code !== 0)
                 {
                     Logger.log("error", `Dendro exited because of an error. Check the logs at the ${path.join(__dirname, "logs")} folder`);
                 }

@@ -51,9 +51,10 @@ class Job
 
                     agenda.on("error", function (error)
                     {
-                        if (error.message === "Lost MongoDB connection")
+                        if (error.message === "Lost MongoDB connection" && Job.disconnectErrors < 5)
                         {
                             Logger.log("debug", "Mongodb Connnection of Agenda was lost, will attempt a reconnect...");
+                            Job.disconnectErrors++;
                         }
                         else
                         {

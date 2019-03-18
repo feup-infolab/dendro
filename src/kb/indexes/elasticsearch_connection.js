@@ -341,7 +341,7 @@ class ElasticSearchConnection extends IndexConnection
             return callback(null, "No resource URI to delete from " + self.getDescription());
         }
 
-        self.getDocumentIDForResource(function (err, documentID)
+        self.getDocumentIDForResource(resourceUri, function (err, documentID)
         {
             if (isNull(err))
             {
