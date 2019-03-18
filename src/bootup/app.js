@@ -89,7 +89,9 @@ class App
             Logger.log("error", "Unhandled rejection detected.");
             Logger.log("error", up.message);
             Logger.log("error", up.stack);
-            throw up;
+
+            if(process.env.NODE_ENV !== "test")
+                throw up;
         });
 
         process.on("uncaughtException", function (exception)
