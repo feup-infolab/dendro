@@ -51,7 +51,7 @@ class Job
 
                     agenda.on("error", function (error)
                     {
-                        if (error.message === "Lost MongoDB connection" && Job.disconnectErrors < 5)
+                        if (error.message === "Lost MongoDB connection" && Job.disconnectErrors < 15)
                         {
                             Logger.log("debug", "Mongodb Connnection of Agenda was lost, will attempt a reconnect...");
                             Job.disconnectErrors++;
@@ -106,6 +106,7 @@ class Job
     {
         Job._agenda.on("success:" + jobName, function (job)
         {
+            Job.disconnectErrors = 0;
             successHandlerFunction(job);
         });
 

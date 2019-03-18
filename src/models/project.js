@@ -1865,11 +1865,12 @@ Project.prototype.clearCacheRecords = function (callback, customGraphUri)
             ],
             function (err, results)
             {
-                if(isNull(err))
+                if (isNull(err))
                 {
-                    const uris = _.map(results, function(result){
+                    const uris = _.map(results, function (result)
+                    {
                         return result.part;
-                    })
+                    });
 
                     callback(err, uris);
                 }

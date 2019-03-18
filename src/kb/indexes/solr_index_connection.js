@@ -211,11 +211,11 @@ class SolrIndexConnection extends IndexConnection
                     {
                         if (!isNull(err) && err.status !== 200)
                         {
-                            callback(null, false);
+                            callback(null, false, result);
                         }
                         else
                         {
-                            callback(null, isNull(err));
+                            callback(null, isNull(err), result);
                         }
                     });
                 }
@@ -318,11 +318,11 @@ class SolrIndexConnection extends IndexConnection
             strQuery += `&rows=50`;
         }
 
-        self.client.search(strQuery, function (err, result)
+        self.client.search(strQuery, function (errOriginal, resultOriginal)
         {
-            if (isNull(err))
+            if (isNull(errOriginal))
             {
-                _.map(result.response.docs, function (doc)
+                _.map(resultOriginal.response.docs, function (doc)
                 {
                     doc.descriptors = doc._childDocuments_;
                     _.map(doc.descriptors, function (descriptor)
@@ -334,13 +334,36 @@ class SolrIndexConnection extends IndexConnection
                     delete doc._childDocuments_;
                 });
 
-                callback(null, result.response.docs);
+                callback(null, resultOriginal.response.docs);
             }
             else
             {
-                const error = "Error fetching documents from solr for query : " + strQuery + ". Reported error : " + JSON.stringify(err);
-                Logger.log("error", error);
-                callback(1, error);
+                const reallySendError = function (err, result)
+                {
+                    const error = "Error fetching documents from solr for query : " + strQuery + ". Reported error : " + JSON.stringify(err);
+                    Logger.log("error", error);
+                    callback(1, error);
+                };
+
+                self.ensureIndexIsReady(function (err, result, rawResponse)
+                {
+                    if (!isNull(err))
+                    {
+                        reallySendError(errOriginal, resultOriginal);
+                    }
+                    else
+                    {
+                        // hack to cope with empty solr core
+                        if (!isNull(rawResponse) && rawResponse.response.docs instanceof Array && rawResponse.response.docs.length === 0 && err.code === 400 && err.message === "undefined field uri")
+                        {
+                            callback(null, resultOriginal.response.docs);
+                        }
+                        else
+                        {
+                            reallySendError(errOriginal, resultOriginal);
+                        }
+                    }
+                });
             }
         });
     }

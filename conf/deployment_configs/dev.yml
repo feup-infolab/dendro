@@ -130,6 +130,7 @@ dev:
   mongoDBAuth:
     username: admin
     password: 34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi
+    authDatabase: admin
   storageDefaults:
     storageType: mongoDB
     host: 127.0.0.1

@@ -1,10 +1,11 @@
 const rlequire = require("rlequire");
 const slug = rlequire("dendro", "src/utils/slugifier.js");
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
 const MongoClient = require("mongodb").MongoClient;
 
-function DendroMongoClient (mongoDBHost, mongoDbPort, mongoDbCollectionName, mongoDbUsername, mongoDbPassword)
+function DendroMongoClient (mongoDBHost, mongoDbPort, mongoDbCollectionName, mongoDbUsername, mongoDbPassword, authDatabase)
 {
     let self = this;
 
@@ -13,6 +14,7 @@ function DendroMongoClient (mongoDBHost, mongoDbPort, mongoDbCollectionName, mon
     self.collectionName = mongoDbCollectionName;
     self.username = mongoDbUsername;
     self.password = mongoDbPassword;
+    self.authDatabase = authDatabase;
 }
 
 DendroMongoClient.prototype.connect = function (callback)
@@ -23,6 +25,10 @@ DendroMongoClient.prototype.connect = function (callback)
     if (self.username && self.password && self.username !== "" && self.password !== "" && self.username !== "")
     {
         url = "mongodb://" + self.username + ":" + self.password + "@" + self.host + ":" + self.port + "/" + self.collectionName;
+
+        if(self.authDatabase)
+            url = url + "?authSource=" + self.authDatabase;
+
         Logger.log("debug", "Connecting to MongoDB using connection string: " + "mongodb://" + self.username + ":" + "PASSWORD" + "@" + self.host + ":" + self.port + "/" + self.collectionName);
     }
     else
