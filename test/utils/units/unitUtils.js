@@ -253,41 +253,17 @@ exports.checkpointExists = function (checkpointIdentifier, callback)
 
 exports.restoreCheckpoint = function (checkpointIdentifier, callback)
 {
-    if (Config.docker.active)
+    if (Config.docker.active && Config.docker.reuse_checkpoints)
     {
-        exports.checkpointExists(checkpointIdentifier, function (err, exists)
+        DockerManager.restoreCheckpoint(checkpointIdentifier, function (err, restoredCheckpoint)
         {
-            if (err)
-            {
-                throw new Error("Error checking if checkpoint " + checkpointIdentifier + " exists");
-            }
-            else
-            {
-                if (exists)
-                {
-                    if (Config.docker.active && Config.docker.reuse_checkpoints)
-                    {
-                        DockerManager.restoreCheckpoint(checkpointIdentifier, function (err, restoredCheckpoint)
-                        {
-                            callback(err, restoredCheckpoint);
-                        });
-                    }
-                    else
-                    {
-                        callback(err, false);
-                    }
-                }
-                else
-                {
-                    callback(err, null);
-                }
-            }
+            callback(err, restoredCheckpoint);
         });
     }
     else
     {
-        Logger.log("Docker not active when trying to restore checkpoint " + checkpointIdentifier + ". Proceeeding...");
-        callback(null);
+        Logger.log("Docker not active or checkpoint reuse not active when trying to restore checkpoint " + checkpointIdentifier + ". Proceeeding...");
+        callback(null, false);
     }
 };
 
@@ -579,6 +555,11 @@ exports.init = function (callback)
 
 exports.setup = function (targetUnit, callback, forceLoad)
 {
+    if (!Config.docker.reuse_checkpoints)
+    {
+        forceLoad = true;
+    }
+
     const checkpointIdentifier = targetUnit.name;
     const tryToRestoreUnitState = function (callback)
     {
@@ -611,19 +592,15 @@ exports.setup = function (targetUnit, callback, forceLoad)
                 async.series([
                     function (callback)
                     {
-                        DockerManager.destroyAllOrchestras(callback);
+                        DockerManager.destroyAllOrchestras(callback, true);
                     },
                     function (callback)
                     {
-                        DockerManager.destroyAllSavedImages(callback);
+                        DockerManager.destroyAllSavedImages(callback, true);
                     },
                     function (callback)
                     {
                         fetchAllImages(callback);
-                    },
-                    function (callback)
-                    {
-                        restoreState(callback);
                     }
                 ], function (err, result)
                 {
@@ -635,7 +612,10 @@ exports.setup = function (targetUnit, callback, forceLoad)
                     }
                     else
                     {
-                        callback(err, result);
+                        restoreState(function (err, restoredState)
+                        {
+                            callback(err, restoredState);
+                        });
                     }
                 });
             }

@@ -49,14 +49,16 @@ const logEverythingFromChildProcess = function (childProcess)
     });
 };
 
-DockerManager.stopAllContainers = function (callback)
-{
-    DockerManager.stopOrchestra(DockerManager.defaultOrchestra, callback);
-};
-
 DockerManager.startAllContainers = function (callback, imagesSuffix)
 {
-    DockerManager.startOrchestra(DockerManager.defaultOrchestra, callback, imagesSuffix);
+    DockerManager.startOrchestra(DockerManager.defaultOrchestra, function (err, restoredCheckpoint)
+    {
+        if (isNull(err) && !isNull(imagesSuffix))
+        {
+            Logger.log("info", "Restored " + imagesSuffix + " successfully...");
+        }
+        callback(err, restoredCheckpoint);
+    }, imagesSuffix);
 };
 
 DockerManager.checkpointExists = function (checkpointName, callback)
@@ -71,18 +73,14 @@ DockerManager.checkpointExists = function (checkpointName, callback)
         {
             DockerManager.getInfoOfAllServicesInOrchestra(DockerManager.defaultOrchestra, function (err, images)
             {
-                async.map(images, function (image, callback)
+                async.mapSeries(images, function (image, callback)
                 {
                     childProcess.exec(`docker image inspect "${image.image}${checkpointName}"`, {
                         cwd: rlequire.getRootFolder("dendro"),
                         stdio: [0, 1, 2]
                     }, function (err, result)
                     {
-                        if (isNull(err))
-                        {
-                            callback(null, true);
-                        }
-                        else
+                        if (!isNull(err))
                         {
                             if (!isNull(err.message) && err.message.indexOf("No such image") > -1)
                             {
@@ -93,13 +91,19 @@ DockerManager.checkpointExists = function (checkpointName, callback)
                                 callback(err, false);
                             }
                         }
+                        else
+                        {
+                            callback(null, true);
+                        }
                     });
                 }, function (err, results)
                 {
-                    const allImagesExist = !_.find(results, function (result)
+                    const imagesThatDoNotExist = _.filter(results, function (result)
                     {
                         return result === false;
                     });
+
+                    const allImagesExist = (imagesThatDoNotExist.length === 0);
 
                     callback(err, allImagesExist);
                 });
@@ -123,6 +127,7 @@ DockerManager.createCheckpoint = function (checkpointName, callback)
             {
                 if (!exists)
                 {
+                    Logger.log("Starting commit of containers to create checkpoint with name " + checkpointName);
                     DockerManager.commitAllContainersInOrchestra(function (err, result)
                     {
                         if (isNull(err))
@@ -300,7 +305,6 @@ DockerManager.destroyAllSavedImages = function (callback, onlyOnce)
                 {
                     if (isNull(err))
                     {
-                        callback(err, results);
                         DockerManager.__destroyedAllSavedImagesOnce = true;
                     }
                     else
@@ -308,6 +312,7 @@ DockerManager.destroyAllSavedImages = function (callback, onlyOnce)
                         const msg = "Error destroying all saved state images " + JSON.stringify(results);
                         Logger.log(msg);
                     }
+                    callback(err, results);
                 });
             }
             else
@@ -322,6 +327,10 @@ DockerManager.destroyAllSavedImages = function (callback, onlyOnce)
         if (!DockerManager.__destroyedAllSavedImagesOnce)
         {
             performOperation(callback);
+        }
+        else
+        {
+            callback(null);
         }
     }
     else
@@ -353,6 +362,10 @@ DockerManager.destroyAllOrchestras = function (callback, onlyOnce)
         if (!DockerManager.__destroyedAllOrchestrasOnce)
         {
             performOperation(callback);
+        }
+        else
+        {
+            callback(null);
         }
     }
     else
@@ -420,7 +433,15 @@ DockerManager.startOrchestra = function (orchestraName, callback, imagesSuffix)
         }
         else
         {
-            Logger.log("Starting all Docker containers in orchestra " + orchestraName);
+            if (imagesSuffix)
+            {
+                Logger.log("Starting all Docker containers in orchestra " + orchestraName);
+            }
+            else
+            {
+                Logger.log("Starting all Docker containers in orchestra " + orchestraName + " in state " + imagesSuffix);
+            }
+
             Logger.log("info", "PLEASE WAIT! If after 10 minutes without heavy CPU activity please press Ctrl+C and try again.");
 
             let dockerSubProcess;
@@ -433,10 +454,12 @@ DockerManager.startOrchestra = function (orchestraName, callback, imagesSuffix)
                 if (!isNull(imagesSuffix))
                 {
                     Logger.log("Docker containers in orchestra " + orchestraName + " starting with state " + imagesSuffix);
-                    _.extend(copyOfEnv, {DENDRO_DOCKER_CONTAINERS_SUFFIX: imagesSuffix});
+                    _.extend(copyOfEnv, {
+                        DENDRO_DOCKER_CONTAINERS_SUFFIX: imagesSuffix
+                    });
                 }
 
-                dockerSubProcess = childProcess.exec("docker-compose up -d --no-recreate", {
+                dockerSubProcess = childProcess.exec("docker-compose up -d", {
                     cwd: dockerComposeFolder,
                     env: copyOfEnv
                 }, function (err, result)
@@ -519,7 +542,7 @@ DockerManager.stopOrchestra = function (orchestraName, callback)
                 orchestraName,
                 function (singleOrchestraName, callback)
                 {
-                    DockerManager.startOrchestra(singleOrchestraName, function (err, result)
+                    DockerManager.stopOrchestra(singleOrchestraName, function (err, result)
                     {
                         if (!isNull(err))
                         {
@@ -542,27 +565,19 @@ DockerManager.stopOrchestra = function (orchestraName, callback)
 
             let dockerSubProcess;
 
-            if (!isNull(DockerManager.runningOrchestras[orchestraName]))
+            dockerSubProcess = childProcess.exec("docker-compose stop", {
+                cwd: path.resolve(rlequire.getRootFolder("dendro"), "./orchestras/" + orchestraName),
+                stdio: [0, 1, 2]
+            }, function (err, result)
             {
-                dockerSubProcess = childProcess.exec("docker-compose down", {
-                    cwd: path.resolve(rlequire.getRootFolder("dendro"), "./orchestras/" + orchestraName),
-                    stdio: [0, 1, 2]
-                }, function (err, result)
+                if (isNull(err))
                 {
-                    if (isNull(err))
-                    {
-                        DockerManager.runningOrchestras[orchestraName] = null;
-                    }
+                    DockerManager.runningOrchestras[orchestraName] = null;
+                }
 
-                    Logger.log("Started all containers in orchestra " + orchestraName);
-                    callback(err, result);
-                });
-            }
-            else
-            {
-                Logger.log("debug", "Containers in orchestra " + orchestraName + " are not running, no need to stop them.");
-                callback(null, null);
-            }
+                Logger.log("Stopped all containers in orchestra " + orchestraName);
+                callback(err, result);
+            });
 
             logEverythingFromChildProcess(dockerSubProcess);
         }
@@ -575,14 +590,10 @@ DockerManager.stopOrchestra = function (orchestraName, callback)
 
 DockerManager.stopAllOrchestras = function (callback)
 {
-    async.mapSeries(Object.keys(DockerManager.runningOrchestras), function (orchestra, callback)
+    DockerManager.forAllOrchestrasDo(function (subdir, callback, orchestraName)
     {
-        DockerManager.stopOrchestra(orchestra, callback);
-    },
-    function (err, results)
-    {
-        callback(err, results);
-    });
+        DockerManager.stopOrchestra(orchestraName, callback);
+    }, callback);
 };
 
 DockerManager.getInfoOfAllServicesInOrchestra = function (orchestra, callback)
@@ -639,7 +650,10 @@ DockerManager.commitAllContainersInOrchestra = function (callback, orchestra, co
                 let imageNameNoVars = containerInformation.image;
 
                 DockerManager.commitContainer(containerName, `${imageNameNoVars}${committedImagesSuffix}`, callback);
-            }, callback);
+            }, function (err, results)
+            {
+                callback(err, results);
+            });
         }
         else
         {
@@ -678,6 +692,50 @@ DockerManager.commitContainer = function (containerName, committedImageName, cal
             }
         });
     });
+};
+
+DockerManager.containerIsRunning = function (containerName, callback)
+{
+    DockerManager.getContainerIDFromName(containerName, function (err, containerID)
+    {
+        childProcess.exec(`docker inspect -f {{.State.Running}} ${containerID}`, {
+            cwd: rlequire.getRootFolder("dendro"),
+            stdio: [0, 1, 2]
+        }, function (err, result)
+        {
+            if (isNull(err))
+            {
+                callback(Boolean(result.trim()));
+            }
+            else
+            {
+                callback(Boolean(result.trim()));
+            }
+        });
+    });
+};
+
+DockerManager.runCommandOnContainer = function (containerName, command, callback)
+{
+    childProcess.exec(`docker exec ${containerName} ${command}`, {
+        cwd: rlequire.getRootFolder("dendro"),
+        stdio: [0, 1, 2]
+    }, function (err, result)
+    {
+        if (isNull(err))
+        {
+            callback(null, result);
+        }
+        else
+        {
+            callback(null, result);
+        }
+    });
+};
+
+DockerManager.flushBuffersToDiskOnContainer = function (containerName, callback)
+{
+    DockerManager.runCommandOnContainer(containerName, "sync", callback);
 };
 
 module.exports.DockerManager = DockerManager;

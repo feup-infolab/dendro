@@ -33,7 +33,7 @@ MetadataChangePost.buildFromArchivedVersion = function (archivedVersion, project
     var changeAuthor = archivedVersion.ddr.versionCreator;
     User.findByUri(changeAuthor, function (err, fullVersionCreator)
     {
-        if (isNull(err))
+        if (isNull(err) && !isNull(fullVersionCreator))
         {
             var title = fullVersionCreator.ddr.username + " worked on " + archivedVersion.changes.length + " metadata changes";
             var versionUri = archivedVersion.uri;

@@ -108,14 +108,19 @@ dev:
     static:
       last_modified_caching: true
       cache_period_in_seconds: 3600
-  virtuosoHost: 127.0.0.1
-  virtuosoPort: '8891'
-  virtuosoISQLPort: '1112'
-  virtuosoConnector: jdbc
-  virtuosoAuth:
-    user: dba
-    password: dba
-  virtuosoSQLLogLevel: 3
+  virtuoso:
+    host: 127.0.0.1
+    port: '8891'
+    iSQLPort: '1112'
+    connector: http
+    auth:
+      user: dba
+      password: dba
+    SQLLogLevel: 3
+    forceShutdownOnConnectionClose: false
+    forceClientDisconnectOnConnectionClose: true
+    maxSimultaneousConnectionsToDb: 1
+    dbOperationTimeout: 16000
   mongoDBHost: 127.0.0.1
   mongoDbPort: '27018'
   mongoDbCollectionName: 127_0_0_1_3001_files
@@ -125,6 +130,7 @@ dev:
   mongoDBAuth:
     username: admin
     password: 34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi
+    authDatabase: admin
   storageDefaults:
     storageType: mongoDB
     host: 127.0.0.1
@@ -140,8 +146,6 @@ dev:
   mySQLDBName: dendro_data
   maxUploadSize: 1073741824
   maxProjectSize: 5368709120
-  maxSimultaneousConnectionsToDb: 12
-  dbOperationTimeout: 16000
   tempFilesDir: temp
   tempUploadsDir: temp_uploads
   tempFilesCreationMode: '0777'
@@ -351,20 +355,9 @@ dev:
     reuse_checkpoints: false
     create_checkpoints: false
     destroy_existing_images_at_start: false
-    stop_containers_automatically: true
+    stop_containers_automatically: false
     start_containers_automatically: true
-  virtualbox:
-    active: false
-    create_snapshots: true
-    reuse_shapshots: true
-    restart_vm_every_x_tests: 1
-    restart_services_every_x_tests: 1
-    services_to_be_restarted:
-      - virtuoso
-      - elasticsearch
-      - mongodb
-    vmName: dendroVagrantDemo
-    vmIP: 127.0.0.1
+    virtuoso_container_name: virtuoso-dendro-test
   keywords_extraction:
     active: true
     corenlp:

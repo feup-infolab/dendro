@@ -2,10 +2,13 @@ const async = require("async");
 const _ = require("underscore");
 const SolrNode = require("solr-node");
 
+// Set logger level (can be set to DEBUG, INFO, WARN, ERROR, FATAL or OFF)
+
 const rlequire = require("rlequire");
 const slug = rlequire("dendro", "src/utils/slugifier.js");
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+require("log4js").getLogger("solr-node").level = Config.index.solr.connection_log_type;
 
 const IndexConnection = rlequire("dendro", "src/kb/indexes/index_connection.js").IndexConnection;
 
@@ -38,60 +41,78 @@ class SolrIndexConnection extends IndexConnection
         const uuid = require("uuid");
         const self = this;
 
-        const emptyDoc = {
-            id: document.uri,
-            uri: document.uri,
-            last_indexing_date: (new Date()).toISOString(),
-            graph: self.uri
-        };
-
-        emptyDoc._childDocuments_ = document.descriptors;
-
-        _.map(emptyDoc._childDocuments_, function (descriptorDoc)
-        {
-            descriptorDoc.id = uuid.v4();
-        });
-
-        self.client.update(emptyDoc, function (err, result)
+        self.getDocumentIDForResource(document.uri, function (err, documentID)
         {
             if (isNull(err))
             {
-                callback(err, result);
-            }
-            else
-            {
-                Logger.log("error", err.stack);
-                callback(1, "Unable to Insert New document during indexing in SOLR" + JSON.stringify(err, null, 4));
-                callback(err);
+                const newDoc = {
+                    id: (!isNull(documentID) ? documentID : uuid.v4()),
+                    uri: document.uri,
+                    last_indexing_date: (new Date()).toISOString(),
+                    graph: self.uri
+                };
+
+                newDoc._childDocuments_ = document.descriptors;
+
+                _.map(newDoc._childDocuments_, function (descriptorDoc)
+                {
+                    descriptorDoc.root = newDoc.uri;
+                    descriptorDoc._root_ = newDoc.uri;
+                    descriptorDoc.id = uuid.v4();
+                });
+
+                self.client.update(newDoc,
+                    function (err, result)
+                    {
+                        if (isNull(err))
+                        {
+                            callback(err, result);
+                        }
+                        else
+                        {
+                            Logger.log("error", err.stack);
+                            callback(1, "Unable to Insert New document during indexing in SOLR" + JSON.stringify(err, null, 4));
+                            callback(err);
+                        }
+                    }
+                );
             }
         });
     }
 
-    deleteDocument (documentID, callback)
+    deleteDocument (resourceUri, callback)
     {
         const self = this;
-        if (isNull(documentID))
+        if (isNull(resourceUri))
         {
-            return callback(null, "No document to delete");
+            callback(null, "No document to delete");
         }
+        else
+        {
+            let strQuery = `q=(uri:"${resourceUri}" OR root:"${resourceUri}")`;
 
-        self.client.delete(
-            { id: documentID},
-            function (err, result)
-            {
-                if (isNull(err))
+            self.client.delete(
+                strQuery,
+                function (err, result)
                 {
-                    callback(null, "Document with id " + documentID + " successfully deleted from SOLR." + ".  result : " + JSON.stringify(err));
-                }
-                else if (err.status === 404)
-                {
-                    callback(null, "Document with id " + documentID + " does not exist already in SOLR.");
-                }
-                else
-                {
-                    callback(err.status, "Unable to delete document " + documentID + ".  error reported : " + JSON.stringify(err));
-                }
-            });
+                    if (isNull(err))
+                    {
+                        callback(null, "Document with uri " + resourceUri + " successfully deleted from SOLR." + ".  result : " + JSON.stringify(err));
+                    }
+                    else if (err.status === 404)
+                    {
+                        callback(null, "Document with uri " + resourceUri + " does not exist already in SOLR.");
+                    }
+                    else if (err === "Solr server error: 400")
+                    {
+                        callback(null, "Index is empty... Solr does not find the root field!");
+                    }
+                    else
+                    {
+                        callback(err.status, "Unable to delete document " + resourceUri + ".  error reported : " + JSON.stringify(err));
+                    }
+                });
+        }
     }
 
     close (callback)
@@ -150,6 +171,15 @@ class SolrIndexConnection extends IndexConnection
             }
         ], function (err, results)
         {
+            if (isNull(err))
+            {
+                Logger.log_boot_message("Index " + self.id + " is up and running on solr at " + self.host + ":" + self.port);
+            }
+            else
+            {
+                Logger.log_boot_message("error", "Error creating solr index " + self.id + " at " + self.host + ":" + self.port);
+            }
+
             callback(err, results);
         });
     }
@@ -169,59 +199,56 @@ class SolrIndexConnection extends IndexConnection
             });
         }
 
-        if (!self._indexIsOpen)
+        const tryToConnect = function (callback)
         {
-            const tryToConnect = function (callback)
-            {
-                const tcpp = require("tcp-ping");
+            const tcpp = require("tcp-ping");
 
-                tcpp.probe(self.host, self.port, function (err, available)
+            tcpp.probe(self.host, self.port, function (err, available)
+            {
+                if (available === true)
                 {
-                    if (available === true)
+                    self.client.search(`q=*:*&rows=1`, function (err, result)
                     {
-                        self.client.search("*:*", function (err, result)
+                        if (!isNull(err) && err.status !== 200)
                         {
-                            callback(null, isNull(err));
-                        });
-                    }
-                    else
-                    {
-                        callback(err, available);
-                    }
-                });
-            };
-
-            // try calling apiMethod 10 times with linear backoff
-            // (i.e. intervals of 100, 200, 400, 800, 1600, ... milliseconds)
-            async.retry({
-                times: 240,
-                interval: function (retryCount)
-                {
-                    const msecs = 500;
-                    Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to determine Solr status on " + self.host + " : " + self.port + "...");
-                    return msecs;
-                }
-            }, tryToConnect, function (err)
-            {
-                if (isNull(err))
-                {
-                    self._indexIsOpen = true;
-                    const msg = "Solr index " + self.id + " opened!";
-                    Logger.log("info", msg);
-                    callback(null);
+                            callback(null, false, result);
+                        }
+                        else
+                        {
+                            callback(null, isNull(err), result);
+                        }
+                    });
                 }
                 else
                 {
-                    const msg = "Unable to determine Solr Status in time. This is a fatal error.";
-                    Logger.log("error", err.message);
-                    throw new Error(msg);
+                    callback(null, false);
                 }
             });
-        }
-        else
+        };
+
+        // try calling apiMethod 10 times with linear backoff
+        // (i.e. intervals of 100, 200, 400, 800, 1600, ... milliseconds)
+        async.retry({
+            times: 240,
+            interval: function (retryCount)
+            {
+                const msecs = 500;
+                Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to determine Solr status on " + self.host + " : " + self.port + "...");
+                return msecs;
+            }
+        }, tryToConnect, function (err)
         {
-            callback(null);
-        }
+            if (isNull(err))
+            {
+                callback(null);
+            }
+            else
+            {
+                const msg = "Unable to determine Solr Status in time. This is a fatal error.";
+                Logger.log("error", err.message);
+                throw new Error(msg);
+            }
+        });
     }
 
     deleteIndex (callback)
@@ -261,7 +288,14 @@ class SolrIndexConnection extends IndexConnection
     {
         let self = this;
 
-        let strQuery = `q={!parent which='uri:*'}object:${options.query}'` +
+        // escape Lucene-reserved characters to prevent injections and then remove accented characters
+        // https://stackoverflow.com/questions/990904/remove-accents-diacritics-in-a-string-in-javascript
+        const pattern = /([\!\*\+\-\=\<\>\&\|\(\)\[\]\{\}\^\~\?\:\\/"])/g;
+
+        let escapedQuery = options.query.replace(pattern, "\\$1");
+        escapedQuery = escapedQuery.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+        let strQuery = `q={!parent which='uri:*'}object:${escapedQuery}'` +
                           `&fl=*, [parentFilter=uri:* child limit=10000]` +
                           `&wt=json` +
                           `&indent: true`;
@@ -271,16 +305,24 @@ class SolrIndexConnection extends IndexConnection
             strQuery += `&skip=${encodeURIComponent(options.skip)}`;
         }
 
+        // Max
+        options.size = options.size % 50;
+
         if (options.size)
         {
-            strQuery += `&size=${encodeURIComponent(options.size)}`;
+            strQuery += `&rows=${encodeURIComponent(options.size)}`;
+        }
+        else
+        {
+            // default is 50 resources per page
+            strQuery += `&rows=50`;
         }
 
-        self.client.search(strQuery, function (err, result)
+        self.client.search(strQuery, function (errOriginal, resultOriginal)
         {
-            if (isNull(err))
+            if (isNull(errOriginal))
             {
-                _.map(result.response.docs, function (doc)
+                _.map(resultOriginal.response.docs, function (doc)
                 {
                     doc.descriptors = doc._childDocuments_;
                     _.map(doc.descriptors, function (descriptor)
@@ -292,27 +334,102 @@ class SolrIndexConnection extends IndexConnection
                     delete doc._childDocuments_;
                 });
 
-                callback(null, result.response.docs);
+                callback(null, resultOriginal.response.docs);
             }
             else
             {
-                const error = "Error fetching documents from solr for query : " + strQuery + ". Reported error : " + JSON.stringify(err);
-                Logger.log("error", error);
-                callback(1, error);
+                const reallySendError = function (err, result)
+                {
+                    const error = "Error fetching documents from solr for query : " + strQuery + ". Reported error : " + JSON.stringify(err);
+                    Logger.log("error", error);
+                    callback(1, error);
+                };
+
+                self.ensureIndexIsReady(function (err, result, rawResponse)
+                {
+                    if (!isNull(err))
+                    {
+                        reallySendError(errOriginal, resultOriginal);
+                    }
+                    else
+                    {
+                        // hack to cope with empty solr core
+                        if (!isNull(rawResponse) && rawResponse.response.docs instanceof Array && rawResponse.response.docs.length === 0 && err.code === 400 && err.message === "undefined field uri")
+                        {
+                            callback(null, resultOriginal.response.docs);
+                        }
+                        else
+                        {
+                            reallySendError(errOriginal, resultOriginal);
+                        }
+                    }
+                });
             }
         });
     }
 
     getDocumentIDForResource (resourceURI, callback)
     {
-        callback(null, resourceURI);
+        const self = this;
+
+        self.ensureIndexIsReady(function (err, result)
+        {
+            if (isNull(err))
+            {
+                const queryString = `q="*:*"` +
+                  `&fq="uri:${resourceURI}"` +
+                  `&wt=json` +
+                  `&indent: true`;
+
+                self.client.search(queryString, function (err, result)
+                {
+                    if (isNull(err))
+                    {
+                        callback(null, null);
+                    }
+                    else
+                    {
+                        if (err === "Solr server error: 400")
+                        {
+                            if (!isNull(result) && !isNull(result.response) && !isNull(result.response.docs) && result.response.docs instanceof Array && result.response.docs.length === 1)
+                            {
+                                callback(null, result.response.docs[0].id);
+                            }
+                            else
+                            {
+                                callback(null, null);
+                            }
+                        }
+                        else if (err === "Solr server error: 503")
+                        {
+                            setTimeout(function ()
+                            {
+                                self.getDocumentIDForResource(resourceURI, callback);
+                            }, 500);
+                        }
+                        else
+                        {
+                            const error = "Error fetching documents from solr for query : " + JSON.stringify(queryString) + ". Reported error : " + JSON.stringify(err);
+                            Logger.log("error", error);
+                            callback(1, error);
+                        }
+                    }
+                });
+            }
+            else
+            {
+                const error = "Error ensuring index at getDocumentIDForResource : " + JSON.stringify(err) + ". Reported error : " + JSON.stringify(result);
+                Logger.log("error", error);
+                callback(1, error);
+            }
+        });
     }
 
     getDocumentByResourceURI (resourceURI, callback)
     {
         const self = this;
 
-        const queryObject = self.client.query().q({id: resourceURI}).rows(1);
+        const queryObject = self.client.query().q({uri: resourceURI}).rows(1);
         self.client.search(queryObject, function (err, result)
         {
             if (isNull(err))
@@ -337,6 +454,12 @@ class SolrIndexConnection extends IndexConnection
     static closeConnections (cb)
     {
         cb(null);
+    }
+
+    getDescription ()
+    {
+        const self = this;
+        return "SOLR Index " + self.id + " running on http://" + self.host + ":" + self.port;
     }
 }
 

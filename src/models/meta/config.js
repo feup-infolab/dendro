@@ -30,27 +30,29 @@ if (argv.config)
     Logger.log("info", "Deployment configuration overriden by --conf argument. Configuration is " + argv.config);
     activeConfigKey = argv.config;
 }
+else if (!isNull(process.env.DENDRO_ACTIVE_DEPLOYMENT_CONFIG) && process.env.DENDRO_ACTIVE_DEPLOYMENT_CONFIG !== "")
+{
+    Logger.log("info", "Deployment configuration overriden by DENDRO_ACTIVE_DEPLOYMENT_CONFIG environment variable. Configuration is " + process.env.DENDRO_ACTIVE_DEPLOYMENT_CONFIG);
+    activeConfigKey = process.env.DENDRO_ACTIVE_DEPLOYMENT_CONFIG;
+}
+else if (process.env.NODE_ENV === "test")
+{
+    activeConfigKey = "test";
+    Logger.log("Running in test environment detected.");
+    Logger.log("debug", "Deployment configuration overriden by test environment. Configuration is " + activeConfigKey + ".");
+}
 else
 {
-    if (process.env.NODE_ENV === "test")
+    if (!fs.existsSync(configSelectorFilePath))
     {
-        activeConfigKey = "test";
-        Logger.log("Running in test environment detected.");
-        Logger.log("debug", "Deployment configuration overriden by test environment. Configuration is " + activeConfigKey + ".");
+        const msg = "Configuration file " + configSelectorFilePath + " does not exist!";
+        Logger.log("error", msg);
+        throw new Error(msg);
     }
     else
     {
-        if (!fs.existsSync(configSelectorFilePath))
-        {
-            const msg = "Configuration file " + configSelectorFilePath + " does not exist!";
-            Logger.log("error", msg);
-            throw new Error(msg);
-        }
-        else
-        {
-            activeConfigKey = yaml.safeLoad(fs.readFileSync(configSelectorFilePath)).key;
-            Logger.log("debug", "Configuration file exists at " + configSelectorFilePath + " and the configuration key inside is " + activeConfigKey);
-        }
+        activeConfigKey = yaml.safeLoad(fs.readFileSync(configSelectorFilePath)).key;
+        Logger.log("debug", "Configuration file exists at " + configSelectorFilePath + " and the configuration key inside is " + activeConfigKey);
     }
 }
 
@@ -114,15 +116,13 @@ Config.cache = getConfigParameter("cache");
 Config.datastore = getConfigParameter("datastore");
 Config.ontologies_cache = getConfigParameter("ontologies_cache");
 
-Config.virtuosoHost = getConfigParameter("virtuosoHost");
-Config.virtuosoPort = getConfigParameter("virtuosoPort");
-Config.virtuosoISQLPort = getConfigParameter("virtuosoISQLPort");
-Config.virtuosoSQLLogLevel = getConfigParameter("virtuosoSQLLogLevel");
+Config.virtuoso = getConfigParameter("virtuoso");
+
 Config.skipDescriptorValuesValidation = getConfigParameter("skipDescriptorValuesValidation", false);
 
-Config.virtuosoConnector = (function ()
+Config.virtuoso.connector = (function ()
 {
-    const connectorType = getConfigParameter("virtuosoConnector");
+    const connectorType = Config.virtuoso.connector;
 
     if (connectorType === "jdbc" || connectorType === "http")
     {
@@ -130,8 +130,6 @@ Config.virtuosoConnector = (function ()
     }
     throw new Error("Invalid Virtuoso Server connector type " + connectorType);
 }());
-
-Config.virtuosoAuth = getConfigParameter("virtuosoAuth");
 
 // maps
 Config.maps = getConfigParameter("maps");
@@ -165,9 +163,6 @@ Config.mySQLDBName = getConfigParameter("mySQLDBName");
 Config.maxUploadSize = getConfigParameter("maxUploadSize");
 // 10000MB®
 Config.maxProjectSize = getConfigParameter("maxProjectSize");
-Config.maxSimultaneousConnectionsToDb = getConfigParameter("maxSimultaneousConnectionsToDb");
-
-Config.dbOperationTimeout = getConfigParameter("dbOperationTimeout");
 
 if (path.isAbsolute(getConfigParameter("tempFilesDir")))
 {

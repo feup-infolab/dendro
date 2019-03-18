@@ -31,7 +31,7 @@ install:
 
 script:
   - nvm use 8.10.0
-  - npm run calculate-coverage-travis
+  - npm run calculate-coverage
 
 after_success:
   - nvm use 8.10.0

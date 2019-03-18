@@ -17,6 +17,15 @@
                 <th>Title</th>
                 <th>Description</th>
                 <th>Creator</th>
+                <% if(locals.session != null && locals.session.isAdmin)
+                {
+                %>
+                    <th>
+                        Administer
+                    </th>
+                <%
+                }
+                %>
             </tr>
             <%  var total = locals.projects.length;
                 var count = locals.count;
@@ -66,6 +75,16 @@
                     <td>
                         <a href="<%= locals.projects[i].dcterms.creator %>"><%=locals.projects[i].dcterms.creator%></a>
                     </td>
+                    <% if(locals.session != null && locals.session.isAdmin)
+                    {
+                    %>
+                        <td>
+                            <a href="<%= locals.projects[i].uri %>?administer">Administer <%= locals.projects[i].ddr.handle %></a>
+                        </td>
+                    <%
+                    }
+                    %>
+
                     <!--
                         <td>
                             <b>

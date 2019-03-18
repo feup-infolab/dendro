@@ -10,14 +10,16 @@ const initVirtuoso = function (app, callback)
 
     let db = new DbConnection(
         Config.db.default.graphHandle,
-        Config.virtuosoHost,
-        Config.virtuosoPort,
-        Config.virtuosoISQLPort,
-        Config.virtuosoAuth.user,
-        Config.virtuosoAuth.password,
-        Config.maxSimultaneousConnectionsToDb,
+        Config.virtuoso.host,
+        Config.virtuoso.port,
+        Config.virtuoso.iSQLPort,
+        Config.virtuoso.auth.user,
+        Config.virtuoso.auth.password,
+        Config.virtuoso.maxSimultaneousConnectionsToDb,
         // 1, // it is one because Virtuoso cant handle more than one connection properly. Only ONE connection and not more!!
-        Config.dbOperationTimeout
+        Config.virtuoso.dbOperationTimeout,
+        Config.virtuoso.forceClientDisconnectOnConnectionClose,
+        Config.virtuoso.forceShutdownOnConnectionClose
     );
 
     db.tryToConnect(function (err)

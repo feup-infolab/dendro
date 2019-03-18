@@ -167,7 +167,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
             {
                 User.findByUri(userUri, function (err, user)
                 {
-                    if (isNull(err))
+                    if (isNull(err) && !isNull(user))
                     {
                         user.favoriteDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites)
                         {

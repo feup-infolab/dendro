@@ -1051,6 +1051,7 @@ exports.administer = function (req, res)
             if (!isNull(project))
             {
                 viewVars.project = project;
+                viewVars.title = "Administration of project " + project.dcterms.title;
 
                 if (isNull(project.ddr.privacyStatus))
                 {

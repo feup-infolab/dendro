@@ -19,6 +19,8 @@ class CreateAvatarsForUsers extends createUsersUnit
 {
     static load (callback)
     {
+        const self = this;
+        unitUtils.startLoad(self);
         const usersData = [demouser1, demouser2, demouser3];
         async.mapSeries(usersData, function (userData, cb)
         {
