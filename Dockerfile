@@ -100,8 +100,8 @@ COPY package.json /tmp/package.json
 RUN cd /tmp && npm install
 
 # same for bower
-COPY public/bower.json "$BOWER_TMP_DIR"
-RUN cd /tmp/public && bower install --allow-root
+COPY ./public/bower.json "$BOWER_TMP_DIR"
+RUN cd "$BOWER_TMP_DIR" && bower install --allow-root
 
 ############################################
 FROM app_libs_installed AS dendro_installed
@@ -118,7 +118,7 @@ RUN chmod ugo+rx "$DENDRO_INSTALL_DIR/dendro.sh"
 
 # Put compiled libraries in place
 RUN cp -R /tmp/node_modules $DENDRO_INSTALL_DIR
-RUN cp -R /tmp/public/bower_components $DENDRO_INSTALL_DIR
+RUN cp -R "$BOWER_TMP_DIR/bower_components" "$DENDRO_INSTALL_DIR/public"
 
 # Expose dendro running directory as a volume
 VOLUME [ "$DENDRO_VOLUME_DIR"]
