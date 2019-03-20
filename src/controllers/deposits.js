@@ -225,7 +225,8 @@ exports.show = function (req, res)
                         });
                         callback(1, false);
                     }
-                }, [Elements.access_types.locked, Elements.access_types.locked_for_projects, Elements.access_types.private]);
+                }, [Elements.access_types.locked, Elements.access_types.locked_for_projects, Elements.access_types.private],
+                  [Elements.access_types.api_readable]);
             }
             else
             {
@@ -245,7 +246,7 @@ exports.show = function (req, res)
             {
                 if (!alreadySent)
                 {
-                    res.render("registry/show_readonly",
+                    res.render("registry/show",
                         viewVars
                     );
                 }
@@ -570,12 +571,12 @@ exports.delete = function (req, res)
     {
         if (req.originalMethod === "GET")
         {
-            getProject(function (err, project)
+            getProject(function (err, deposit)
             {
                 res.render("registry/delete",
                     {
                         title: "Delete a deposit",
-                        project: project
+                        deposit: deposit
                     }
                 );
             });
@@ -604,7 +605,7 @@ exports.delete = function (req, res)
                     }
                     else
                     {
-                        req.flash("error", "Project " + req.params.requestedResourceUri + " does not exist");
+                        req.flash("error", "Deposit " + req.params.requestedResourceUri + " does not exist");
                         res.status(404).redirect("/");
                     }
                 }

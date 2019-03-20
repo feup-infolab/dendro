@@ -258,10 +258,9 @@ File.prototype.copyPaste = function ({destinationFolder}, callback)
         }
         else
         {
-            const msg = "Error [" + err + "] reindexing file [" + newFile.uri + "]in GridFS :" + newFile;
             return callback(500, {
                 result: "error",
-                message: "Unable to save files after buffering: " + JSON.stringify(newFile),
+                message: "Unable to save files after buffering: ",
                 errors: err
             });
         }

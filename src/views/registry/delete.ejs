@@ -10,36 +10,32 @@
             <div class="panel-heading"><strong>Really delete deposit?</strong></div>
             <div class="panel-body text-center" >
                 <h4 class="page-header">
-                    Are you REALLY SURE you want to completely delete deposit "<%=project.ddr.handle%>"? There is no way to recover any data or metadata after this operation!
+                    Are you REALLY SURE you want to completely delete deposit? There is no way to recover any data or metadata after this operation!
                 </h4>
                 <h5>
-                    Identifier: <a href="<%=project.uri%>"><%=project.uri%></a>
+                    Identifier: <a href="<%=deposit.uri%>"><%=deposit.uri%></a>
                 </h5>
                 <h5>
-                    Handle: <%=project.ddr.handle%>
+                    Title: <%=(deposit.dcterms.title)? deposit.dcterms.title: "No description available"%>
                 </h5>
                 <h5>
-                    Description: <%=(project.dcterms.description)? project.dcterms.description: "No description available"%>
+                    Description: <%=(deposit.dcterms.description)? deposit.dcterms.description: "No description available"%>
                 </h5>
-                <h5>
-                    Title: <%=(project.dcterms.title)? project.dcterms.title: "No description available"%>
-                </h5>
-
                 <div class="control-group has-feedback">
-                    <label for="handle" class="control-label"></label>
-                    <input type="hidden" value="<%=project.ddr.handle%>" name="delete">
+                    <label for="really_delete" class="control-label"></label>
+                    <input type="hidden" value="<%=deposit.ddr.handle%>" name="delete">
                     <input type="text"
                            class="form-control"
-                           id="handle"
-                           placeholder="Handle"
+                           id="really_delete"
+                           placeholder="Write 'REALLY DELETE' to delete"
                            required>
 
-                    <p class="help-block danger">To confirm the delete operation, type the handle of the project in this box</p>
+                    <p class="help-block danger">To confirm the delete operation, type "REALLY DELETE" in this box</p>
                 </div>
 
                 <button type="submit"
                         class="btn btn-danger btn-large"
-                        id="delete_project_button"
+                        id="delete_deposit_button"
                         disabled
                         >
                     <i class="fa fa-bomb"></i>
@@ -50,20 +46,20 @@
     </form>
 
     <script type="text/javascript">
-        $('#handle').on('input propertychange paste', function() {
-            unlock_delete_button('<%=project.ddr.handle%>');
+        $('#really_delete').on('input propertychange paste', function() {
+            unlock_delete_button('REALLY DELETE');
         });
 
-        function unlock_delete_button (project_handle)
+        function unlock_delete_button (deposit_really_delete)
         {
-            var text = $("#handle").val();
-            if(text === project_handle)
+            var text = $("#really_delete").val();
+            if(text === deposit_really_delete)
             {
-                $("#delete_project_button").prop('disabled', false);
+                $("#delete_deposit_button").prop('disabled', false);
             }
             else
             {
-                $("#delete_project_button").prop('disabled', true);
+                $("#delete_deposit_button").prop('disabled', true);
             }
         }
 

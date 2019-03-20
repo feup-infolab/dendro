@@ -17,6 +17,8 @@ const Elements = rlequire("dendro", "src//models/meta/elements.js").Elements;
 const db = Config.getDBByID();
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const StorageConfig = rlequire("dendro", "src/models/storage/storageConfig.js").StorageConfig;
+const Storage = rlequire("dendro", "src/kb/storage/storage.js").Storage;
+
 
 const B2ShareClient = require("@feup-infolab/node-b2share-v2");
 
@@ -718,7 +720,7 @@ Deposit.prototype.delete = function (callback, customGraphUri)
 
     const clearCacheRecords = function (callback)
     {
-        self.clearCacheRecords(function (err, result)
+        Project.prototype.clearCacheRecords.bind(this)(function (err, result)
         {
             callback(err, result);
         });

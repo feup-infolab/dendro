@@ -1193,7 +1193,7 @@ export_to_dendro = function (req, res)
                                         ddr: {
                                             exportedFromProject: project.uri,
                                             exportedFromFolder: folder.uri,
-                                            privacyStatus: isNull(publicDeposit) || publicDeposit === false ? "private" : "public",
+                                            privacyStatus: publicDeposit || publicDeposit === true ? "public" : "private",
                                             exportedToRepository: "Dendro",
                                             exportedToPlatform: "Dendro"
                                         }

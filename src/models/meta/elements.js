@@ -798,6 +798,16 @@ Elements.ontologies.foaf =
  */
 
 Elements.ontologies.ddr = {
+    proposedCitation:
+        {
+          type: Elements.types.string,
+          control: Controls.input_box
+        },
+    DOI:
+        {
+          type: Elements.types.string,
+          control: Controls.input_box
+        },
     taskID:
         {
             type: Elements.types.string,

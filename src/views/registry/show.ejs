@@ -31,10 +31,21 @@
                                     class="btn btn-sm fa fa-check-square-o" ng-click="toggle_multiple_selection()"
                                     onmouseover="$(this).addClass('btn-primary');"
                                     onmouseout="$(this).removeClass('btn-primary');"></button>
+                            <button type="submit"
+                                    class="btn btn-sm fa fa-bomb"
+                                    id="delete_project_button"
+                                    data-loading-text="Preparing Package..." ng-click="delete_deposit()"
+                                    onmouseover="$(this).toggleClass('btn-primary');"
+                                    onmouseout="$(this).toggleClass('btn-primary');"></button>
                         </div>
                     </div>
 
                     <script type="text/javascript">
+
+                      $('#delete_project_button').tooltip({
+                        title: '<h4>Delete</h4>Delete the current deposit',
+                        html: true
+                      })
                       $('#download_folder_button').tooltip({
                         title: '<h4>Download</h4>Download the current folder',
                         html: true

@@ -809,6 +809,11 @@ angular.module("dendroApp.controllers")
             windowService.download_url($scope.get_current_url(), "?download");
         };
 
+        $scope.delete_deposit = function ()
+        {
+            windowService.download_url($scope.get_current_url(), "?delete");
+        };
+
         $scope.backup_folder = function ()
         {
             var selectedFiles = $scope.get_selected_files();
