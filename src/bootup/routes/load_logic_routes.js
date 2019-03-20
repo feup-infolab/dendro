@@ -787,6 +787,7 @@ const loadRoutes = function (app, callback)
                       {
                           queryKeys: ["delete"],
                           handler: deposits.delete,
+                          permissions: defaultPermissionsForDeposits,
                           authentication_error: "Permission denied : cannot delete deposit because you do not have permissions to administer this deposit."
                       }
                   ]

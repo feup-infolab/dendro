@@ -33,9 +33,14 @@
                             {{descriptorValue}}
                         </div>
                     </div>
-
                     <div ng-switch-default>
-                        <a href="{{descriptor.value}}">{{descriptor.value}}</a>
+                        <div ng-switch="validateResource(descriptor.value)">
+                            <div ng-switch-when='true'>
+                                <a href="{{descriptor.value}}">{{descriptor.value}}</a>
+                            </div>
+                            <div ng-switch-when='false'>
+                                {{descriptor.value}}
+                            </div>
                     </div>
                 </div>
             </div>

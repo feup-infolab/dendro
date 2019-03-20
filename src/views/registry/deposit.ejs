@@ -5,40 +5,12 @@
     <table class="table table-responsive table-striped table-bordered">
         <tbody>
         <tr>
-            <td>Deposit label: </td>
-            <td><%= locals.deposit.dcterms.title%></td>
-        </tr>
-        <tr>
             <td>Date created: </td>
             <td><%= locals.deposit.dcterms.date%></td>
         </tr>
         <tr>
-            <td>Deposit privacy: </td>
-            <td><%= locals.deposit.ddr.privacyStatus%></td>
-        </tr>
-        <tr>
-            <td>Exported From Project: </td>
-            <td><a href="<%= locals.deposit.ddr.exportedFromProject%>"><%=locals.deposit.ddr.exportedFromProject%></a></td>
-        </tr>
-        <tr>
-            <td>Deposit creator: </td>
-            <td><a href="<%= locals.deposit.dcterms.creator%>">Creator</a></td>
-        </tr>
-        <tr>
-            <td>Deposited in platform: </td>
-            <td><%= locals.deposit.ddr.exportedToPlatform%></td>
-        </tr>
-        <tr>
-            <td>Deposited in repository: </td>
-            <td><%= locals.deposit.ddr.exportedToRepository%></td>
-        </tr>
-        <tr>
             <td>External deposit: </td>
             <td><a href="<%= locals.deposit.externalUri%>">Identifier</a>&nbsp &nbsp<span ng-if="<%=locals.deposit.ddr.isAvailable%>" class="glyphicon glyphicon-thumbs-up"></span><span ng-if="!<%=locals.deposit.ddr.isAvailable%>" class="glyphicon glyphicon-thumbs-down"></span></td>
-        </tr>
-        <tr>
-            <td>Exported from parent folder: </td>
-            <td><a href="<%= locals.deposit.ddr.exportedFromFolder%>">Folder</a></td>
         </tr>
         </tbody>
 

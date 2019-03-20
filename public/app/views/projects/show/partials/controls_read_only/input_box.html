@@ -1,8 +1,8 @@
 <div class="row">
     <div class="controls col-xs-12">
-        <div class="input-group">
+        <div class="input-group" ng-switch="is_descriptor_privateStatus(descriptor)">
             <p class="lead spacer input-group"
-               ng-class="{just_added: descriptor.just_added, just_deleted: descriptor.just_deleted, just_inherited : descriptor.just_inherited, just_recommended : descriptor.just_recommended }">
+               ng-class="{just_added: descriptor.just_added, just_deleted: descriptor.just_deleted, just_inherited : descriptor.just_inherited, just_recommended : descriptor.just_recommended }"ng-switch-when="false">
                 {{descriptor.label}}
                 <span ng-show="descriptor.just_added"
                       class="label label-success">
@@ -21,6 +21,10 @@
                     Recommended
                 </span>
             </p>
+            <p class="lead spacer input-group" ng-switch-when="true">
+                Privacy
+                </span>
+            </p>
         </div>
     </div>
 </div>
@@ -36,7 +40,7 @@
                     </div>
 
                     <div ng-switch-default>
-                        {{descriptor.value}}
+                            {{descriptor.value}}
                     </div>
                 </div>
             </div>

@@ -107,6 +107,11 @@ angular.module("dendroApp.controllers")
 
             return uri;
         };
+        $scope.validateResource = function(url){
+            const regex = "^/r/(project|user|file)/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
+            let result = new RegExp(regex);
+            return result.test(url);
+        };
 
         $scope.get_calling_uri_thumbnail = function ()
         {
@@ -558,7 +563,6 @@ angular.module("dendroApp.controllers")
                 {
                     $scope.shared.folder_contents = folder_contents;
                     loadFolderContentsPromise.resolve(folder_contents);
-                    console.log($scope.shared);
                 })
                 .catch(function (error)
                 {
@@ -666,10 +670,18 @@ angular.module("dendroApp.controllers")
 
         $scope.only_editable_metadata_descriptors = function (descriptor)
         {
-            if (!descriptor.locked)
+
+            if (!descriptor.locked || descriptor.shortName === "privacyStatus")
             {
                 return true;
             }
+        };
+        $scope.is_descriptor_privateStatus = function (descriptor) {
+            if ( descriptor.shortName === "privacyStatus")
+            {
+                return true;
+            }
+            return false;
         };
 
         $scope.dirty_metadata = function ()
@@ -688,6 +700,7 @@ angular.module("dendroApp.controllers")
             // put some services in scope i.e. to access constants
 
             $scope.recommendationService = recommendationService;
+
 
             // monitor url change events (ask to save if metadata changed)
 

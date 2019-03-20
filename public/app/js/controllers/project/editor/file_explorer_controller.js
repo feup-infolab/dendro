@@ -811,7 +811,7 @@ angular.module("dendroApp.controllers")
 
         $scope.delete_deposit = function ()
         {
-            windowService.download_url($scope.get_current_url(), "?delete");
+            window.location.href = $scope.get_current_url() + "?delete";
         };
 
         $scope.backup_folder = function ()

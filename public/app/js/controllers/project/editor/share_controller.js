@@ -254,6 +254,14 @@ angular.module("dendroApp.controllers")
                 return false;
             };
 
+            $scope.disable_send_bookmark_dendro = function (title)
+            {
+                if(!title )
+                    return true;
+                else
+                    return false;
+            };
+
             $scope.disable_save_bookmark_b2share = function (newRepository)
             {
                 if (!newRepository || !newRepository.dcterms || !newRepository.dcterms.title)
