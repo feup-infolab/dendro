@@ -35,6 +35,8 @@ services:
       - "VIRT_Parameters_CheckpointInterval=0"
     networks:
       - dendro-docker
+    volumes:
+      - ./volumes/virtuoso:/data
     restart: on-failure
 
   mariadb:
