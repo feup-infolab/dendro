@@ -556,6 +556,7 @@ angular.module("dendroApp.controllers")
 
         $scope.load_folder_contents = function (includingDeletedFiles)
         {
+            console.log($scope.shared)
             var loadFolderContentsPromise = $q.defer();
 
             filesService.get_folder_contents(windowService.get_current_url(), includingDeletedFiles)
@@ -636,6 +637,7 @@ angular.module("dendroApp.controllers")
         $scope.reset_metadata = function (metadata)
         {
             $scope.shared.metadata = metadataService.deserialize_metadata(metadata.descriptors);
+            $scope.shared.proposedCitation = $filter("filter")($scope.shared.metadata, $scope.only_proposed_citation)[0];
             $scope.shared.metadata = $filter("filter")($scope.shared.metadata, $scope.only_editable_metadata_descriptors);
             $scope.shared.initial_metadata = metadataService.deserialize_metadata(metadata.descriptors);
             $scope.shared.initial_metadata = $filter("filter")($scope.shared.initial_metadata, $scope.only_editable_metadata_descriptors);
@@ -672,6 +674,15 @@ angular.module("dendroApp.controllers")
         {
 
             if (!descriptor.locked || descriptor.shortName === "privacyStatus")
+            {
+                return true;
+            }
+        };
+
+        $scope.only_proposed_citation = function (descriptor)
+        {
+
+            if (descriptor.locked && descriptor.shortName === "proposedCitation")
             {
                 return true;
             }

@@ -801,7 +801,9 @@ Elements.ontologies.ddr = {
     proposedCitation:
         {
           type: Elements.types.string,
-          control: Controls.input_box
+          control: Controls.markdown_box,
+          locked: true
+
         },
     DOI:
         {

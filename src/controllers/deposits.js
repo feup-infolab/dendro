@@ -196,6 +196,7 @@ exports.show = function (req, res)
 {
     let resourceURI = req.params.requestedResourceUri;
     const isDepositRoot = req.params.is_deposit_root;
+    const is_admin = req.session.isAdmin;
 
     function sendResponse (viewVars, requestedResource)
     {
@@ -214,6 +215,7 @@ exports.show = function (req, res)
                     if (isNull(err))
                     {
                         result.is_project_root = true;
+                        result.is_admin = is_admin;
                         res.set("Content-Type", contentType);
                         res.send(serializer(result));
                         callback(null, true);
@@ -301,6 +303,7 @@ exports.show = function (req, res)
             if (isNull(err))
             {
                 viewVars.is_deposit_root = true;
+                viewVars.is_admin = is_admin;
                 viewVars.title = "Deposit information";
 
                 Deposit.validatePlatformUri(deposit, function (deposit)
@@ -447,6 +450,7 @@ exports.show = function (req, res)
                 const getResourceMetadata = function (breadcrumbs, callback)
                 {
                     viewVars.is_deposit_root = false;
+                    viewVars.is_admin = is_admin;
                     viewVars.breadcrumbs = breadcrumbs.breadcrumbs;
                     viewVars.go_up_options = breadcrumbs.go_up_options;
 

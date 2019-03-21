@@ -1153,7 +1153,10 @@ export_to_dendro = function (req, res)
                                 exportedFromFolder: file.uri,
                                 privacyStatus: publicDeposit || publicDeposit === true ? "public" : "private",
                                 exportedToRepository: "Dendro",
-                                exportedToPlatform: "Dendro"
+                                exportedToPlatform: "Dendro",
+                                proposedCitation: "citation",
+                                DOI: "doi"
+
                             }
 
                         };
@@ -1195,7 +1198,10 @@ export_to_dendro = function (req, res)
                                             exportedFromFolder: folder.uri,
                                             privacyStatus: publicDeposit || publicDeposit === true ? "public" : "private",
                                             exportedToRepository: "Dendro",
-                                            exportedToPlatform: "Dendro"
+                                            exportedToPlatform: "Dendro",
+                                            proposedCitation: "citation",
+                                            DOI: "doi"
+
                                         }
 
                                     };
