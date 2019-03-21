@@ -18,7 +18,7 @@ docker:
       connection_log_type: 'DEBUG'
       use_auth: false
       host: solr-dendro
-      port: 8983
+      port: 8985
       credentials:
         username: user
         password: pass
@@ -26,14 +26,14 @@ docker:
       connection_log_type: ''
       use_auth: false
       host: elasticsearch-dendro
-      port: 9200
+      port: 9202
       credentials:
         username: user
         password: pass
   datastore:
     database: mongo_3001_datastore_dev
     host: mongodb-dendro
-    port: 27017
+    port: 27019
     id: default
     log:
       log_datastore_ops: false
@@ -42,7 +42,7 @@ docker:
   ontologies_cache:
     database: mongo_3001_ontologies
     host: mongodb-dendro
-    port: 27017
+    port: 27019
     id: default
     username: admin
     password: 34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi
@@ -62,8 +62,8 @@ docker:
       cache_period_in_seconds: 3600
   virtuoso:
     host: virtuoso-dendro
-    port: 8890
-    iSQLPort: 1111
+    port: 8892
+    iSQLPort: 1113
     connector: jdbc
     auth:
       user: dba
@@ -74,7 +74,7 @@ docker:
     maxSimultaneousConnectionsToDb: 1
     dbOperationTimeout: 16000
   mongoDBHost: mongodb-dendro
-  mongoDbPort: 27017
+  mongoDbPort: 27019
   mongoDbCollectionName: mongo_3001_files
   useMongoDBSessionStore: true
   mongoDBSessionStoreCollection: mongo_3001_sessions
@@ -86,12 +86,12 @@ docker:
   storageDefaults:
     storageType: mongoDB
     host: mongo-dendro
-    port: 27017
+    port: 27019
     collectionName: mongo_3001_files
     username: ''
     password: ''
   mySQLHost: mariadb-dendro
-  mySQLPort: 3306
+  mySQLPort: 3308
   mySQLAuth:
     user: root
     password: r00t_p4ssw0rd
@@ -210,7 +210,7 @@ docker:
       dendro_recommender:
         active: false
         host: dendro-recommender
-        port: 9000
+        port: 9002
         log_modes:
           phase_1:
             table_to_write_interactions: interactions

@@ -31,7 +31,9 @@ services:
 
   virtuoso:
     container_name: virtuoso-dendro-dev
-    image: joaorosilva/virtuoso:7.2.4-for-dendro-0.4
+    image: feupinfolab/virtuoso-with-dendro-ontologies:latest
+    volumes:
+      - ./volumes/virtuoso:/data
     ports:
       - 8891:8890
       - 1112:1111

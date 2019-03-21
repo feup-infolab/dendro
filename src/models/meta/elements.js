@@ -3413,6 +3413,392 @@ Elements.ontologies.ssn = {
         }
 };
 
+/**
+ * Elements of the chemistry ontology
+ */
+Elements.chm = {
+    absorbanceMeasurementInstrument:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    absorbanceMeasurementTechnique:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    acidSolution:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    adsorbentArea:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    adsorbentAshTenor:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    adsorbentMolecularFormula:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    analysisMethod:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    atmosphereConditions:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    catalystAnalysisInstrument:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    catalystArea:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    chemicalElement:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    cleaningsolution:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    controlSolution:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    degradatedCompoundAmount:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    electromagneticRadiationMeasurementTechnique:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    gasPhaseFlow:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    interfacialDistance:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    lightIntensityMeasurementInstrument:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    lightIntensityMeasurementTime:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    lightRadiationInstrument:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    oxidantAgent:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    oxidationPotential:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    ozonationTime:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    ozonisationReactorTechnique:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    particleRemovalTechnique:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    particleSize:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    phMeasurementInstrument:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    photocatalyticActivity:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    photocatalyticReactionVessel:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    polyphenolFormula:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    polyphenolMolecularMass:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    purityDegree:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    sampleCentrifugedAmount:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    sampleCrystalliteSize:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    samplePoreVolume:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    sampleReference:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    solarLightIntensity:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    solutionPh:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    studiedGas:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    surfaceAreaMeasurementInstrument:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    surfaceAreaMeasurementTechnique:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    suspensionStirringTime:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    totalCarbon:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+    totalOrganicCarbon:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        }
+};
+
+/**
+ * Elements of the Physics
+ */
+Elements.phys =
+    {
+        pulseDuration:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        pulseFrequency:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        pulseWaveLenght:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        synteshisMethod:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        synthesisTemperature:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+
+        pulseDurationTime:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        radiationEmissionInstrument:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        sampleSynthesisInstrument:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        pulseEnergy:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        sampleMass:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+
+        annealingTemperature:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        annealingTime:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        substrateTemperature:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        substrateCleaningMethod:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        substrateDimension:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+
+        substrateType:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        sampleDryingTime:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        sampleDryingTemperature:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        sampleDrying:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        extinctionCoefficient:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        depositionTime:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        characterizatioTechnique:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        bathConfiguration:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        semiconductorType:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        depositionPotential:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        bandGap:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        absorbentLayerManufacturingTechnique:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        dielectricConstantImaginaryPart:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        dielectricConstantRealPart:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        transmittance:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            }
+    };
+
 Elements.setAllElements = function (loadedElements)
 {
     for (let i = 0; i < loadedElements.length; i++)

@@ -8,7 +8,7 @@ const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 const init = function (app, callback)
 {
-    if(!isNull(process.env.NODE_ENV) && process.env.NODE_ENV !== "test")
+    if (!isNull(process.env.NODE_ENV) && process.env.NODE_ENV !== "test")
     {
         Job._jobTypes = [];
         Job._agenda = null;

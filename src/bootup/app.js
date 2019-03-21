@@ -90,8 +90,10 @@ class App
             Logger.log("error", up.message);
             Logger.log("error", up.stack);
 
-            if(process.env.NODE_ENV !== "test")
+            if (process.env.NODE_ENV !== "test")
+            {
                 throw up;
+            }
         });
 
         process.on("uncaughtException", function (exception)
