@@ -1156,7 +1156,7 @@ export_to_dendro = function (req, res)
                             ddr: {
                                 exportedFromProject: project.uri,
                                 exportedFromFolder: file.uri,
-                                privacyStatus: publicDeposit || publicDeposit === true ? "public" : "private",
+                                privacyStatus: publicDeposit ,
                                 exportedToRepository: "Dendro",
                                 exportedToPlatform: "Dendro",
                                 proposedCitation: "citation",
@@ -1203,7 +1203,7 @@ export_to_dendro = function (req, res)
                                         ddr: {
                                             exportedFromProject: project.uri,
                                             exportedFromFolder: folder.uri,
-                                            privacyStatus: publicDeposit || publicDeposit === true ? "public" : "private",
+                                            privacyStatus: publicDeposit ,
                                             exportedToRepository: "Dendro",
                                             exportedToPlatform: "Dendro",
                                             proposedCitation: "citation",

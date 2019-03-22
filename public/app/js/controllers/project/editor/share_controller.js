@@ -499,11 +499,11 @@ angular.module("dendroApp.controllers")
                 for(let key in publicDeposit){
                     if(publicDeposit[key] === true){
                         switch (key) {
-                            case "0": payload.publicDeposit = true;
+                            case "0": payload.publicDeposit = "public";
                                 break;
-                            case "1": payload.publicDeposit = false;
+                            case "1": payload.publicDeposit = "embargoed";
                                 break;
-                            default: payload.publicDeposit = false;
+                            default: payload.publicDeposit = "private";
                         }
                         if(key==="1"){
                             payload.embargoed_date = embargoed_date;
