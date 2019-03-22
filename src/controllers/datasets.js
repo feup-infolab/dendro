@@ -1129,6 +1129,11 @@ export_to_dendro = function (req, res)
     const requestedResourceUri = req.params.requestedResourceUri;
     const publicDeposit = req.body.publicDeposit;
     const titleOfDeposit = req.body.titleOfDeposit;
+    let embargoedDate;
+
+    if(req.body.embargoed_date){
+        embargoedDate = req.body.embargoed_date;
+    }
 
     File.findByUri(requestedResourceUri, function (err, file)
     {
@@ -1155,7 +1160,9 @@ export_to_dendro = function (req, res)
                                 exportedToRepository: "Dendro",
                                 exportedToPlatform: "Dendro",
                                 proposedCitation: "citation",
-                                DOI: "doi"
+                                DOI: "doi",
+                                embargoedDate: embargoedDate ? embargoedDate: null
+
 
                             }
 
@@ -1200,7 +1207,8 @@ export_to_dendro = function (req, res)
                                             exportedToRepository: "Dendro",
                                             exportedToPlatform: "Dendro",
                                             proposedCitation: "citation",
-                                            DOI: "doi"
+                                            DOI: "doi",
+                                            embargoedDate: embargoedDate ? embargoedDate: null
 
                                         }
 

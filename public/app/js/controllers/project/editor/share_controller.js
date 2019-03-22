@@ -254,12 +254,33 @@ angular.module("dendroApp.controllers")
                 return false;
             };
 
-            $scope.disable_send_bookmark_dendro = function (title)
+            $scope.disable_send_bookmark_dendro = function (title, obj, date)
             {
-                if(!title )
+                let one = false;
+                let index;
+
+                if(!title)
                     return true;
-                else
+
+                for(let key in obj){
+                  if(obj[key] === true){
+                      one = true;
+                      index = key;
+                  }
+                }
+
+                if(index === "1" && one && date){
+                    const date_now = new Date();
+                    if(date_now > date)
+                        return true;
+                    else
+                        return false;
+                }
+
+                if(index !== "1"  && one){
                     return false;
+                }
+                return true;
             };
 
             $scope.disable_save_bookmark_b2share = function (newRepository)
@@ -453,13 +474,21 @@ angular.module("dendroApp.controllers")
                     doDeletion(bookmark);
                 }
             };
+            $scope.change_privacy_checkbox = function( array, index){
+                for (i=0; i<3; i++){
+                    if(i!=index)
+                        array[i]=false;
+                    else
+                        array[i]=true;
+                }
+            };
 
             /**
          * Project stats
          * @param uri
          */
             // TODO William add boolean of public deposit in 2nd
-            $scope.upload_to_repository = function (targetRepository, publicDeposit, titleOfDeposit, overwrite, deleteChangesOriginatedFromCkan, propagateDendroChangesIntoCkan)
+            $scope.upload_to_repository = function (targetRepository, publicDeposit, titleOfDeposit, embargoed_date, overwrite, deleteChangesOriginatedFromCkan, propagateDendroChangesIntoCkan)
             {
                 var payload = {
                     repository: targetRepository,
@@ -467,26 +496,32 @@ angular.module("dendroApp.controllers")
                     titleOfDeposit: titleOfDeposit
                 };
 
-                if (!publicDeposit || publicDeposit === false)
-                {
-                    payload.publicDeposit = false;
-                }
-                else
-                {
-                    payload.publicDeposit = true;
+                for(let key in publicDeposit){
+                    if(publicDeposit[key] === true){
+                        switch (key) {
+                            case "0": payload.publicDeposit = true;
+                                break;
+                            case "1": payload.publicDeposit = false;
+                                break;
+                            default: payload.publicDeposit = false;
+                        }
+                        if(key==="1"){
+                            payload.embargoed_date = embargoed_date;
+                        }
+                    }
                 }
 
-                if (overwrite !== null)
+                if (overwrite)
                 {
                     payload.overwrite = overwrite;
                 }
 
-                if (deleteChangesOriginatedFromCkan !== null)
+                if (deleteChangesOriginatedFromCkan)
                 {
                     payload.deleteChangesOriginatedFromCkan = deleteChangesOriginatedFromCkan;
                 }
 
-                if (propagateDendroChangesIntoCkan !== null)
+                if (propagateDendroChangesIntoCkan)
                 {
                     payload.propagateDendroChangesIntoCkan = propagateDendroChangesIntoCkan;
                 }

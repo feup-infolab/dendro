@@ -798,6 +798,13 @@ Elements.ontologies.foaf =
  */
 
 Elements.ontologies.ddr = {
+    embargoedDate:
+        {
+          type: Elements.types.date,
+          control: Controls.date_picker,
+          private: true,
+          locked: true
+        },
     proposedCitation:
         {
           type: Elements.types.string,

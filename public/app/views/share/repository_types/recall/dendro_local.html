@@ -6,26 +6,34 @@
     <label for="titleOfDeposit">Title of deposit:</label>
     <input  ng-show="title_of_file_selected_disabled == true" type="text" ng-model="title_of_file_selected" class="form-control" id="titleOfDeposit" placeholder="Title of deposit" disabled>
     <input  ng-show="title_of_file_selected_disabled == false" type="text" ng-model="title_of_file_selected" class="form-control" id="titleOfDeposit1" placeholder="Title of deposit">
-</div>
-<div class="row">
-    <div class="col-lg-6">
-        <button type="button" ng-click="delete_bookmark(recalled_repository, true)" class="btn btn-danger btn-large pull-right"><span class="glyphicon glyphicon-remove "></span>Delete this bookmark</button>
 
-        <div class="col-lg-3">
+    <br>
+    <div class="form-group col-lg-6">
+        <label>Privacy:</label>
+        <div class=" pull-right col-lg-6">
             <div class="checkbox">
-                <label>
-                    <input type="checkbox" id="privacyStatus" ng-model="publicDeposit">
-                    <span class="label label-info">
-                    <span class="glyphicon glyphicon-warning-sign">
-                    </span> Make this registry public</span>
-                </label>
+                <input class="checkbox" for ="publicDeposit0" id="publicDeposit0" type="checkbox"  ng-change="change_privacy_checkbox(publicDeposit, 0)" ng-model="publicDeposit[0]">
+                <label name=publicDeposit0">Make this deposit public</label>
+            </div>
+            <div class="checkbox">
+                <input type="checkbox" for ="publicDeposit1" id="publicDeposit1" type="checkbox"  ng-change="change_privacy_checkbox(publicDeposit, 1)" ng-model="publicDeposit[1]">
+                <label>Make this registry embargoed until</label>
+                <input ng-disabled="!publicDeposit[1]" type="date"  ng-model="embargoed"  name="embargoed" >
+            </div>
+            <div class="checkbox">
+                <input type="checkbox" for ="publicDeposit2" id="publicDeposit2" type="checkbox" ng-change="change_privacy_checkbox(publicDeposit, 2)" ng-model="publicDeposit[2]">
+                <label name=publicDeposit2">Make this deposit private</label>
             </div>
         </div>
     </div>
-    <div ng-if="!is_sending_data" class="col-lg-6">
+</div>
+<div class="row">
+    <div ng-if="!is_sending_data" class="col-lg-12">
+        <button type="button" ng-click="delete_bookmark(recalled_repository, true)" class="btn btn-danger btn-large"><span class="glyphicon glyphicon-remove "></span>Delete this bookmark</button>
+
         <button type="cancel"
-                ng-click="upload_to_repository(recalled_repository, publicDeposit, title_of_file_selected)"
-                ng-disabled="disable_send_bookmark_dendro(title_of_file_selected)"
+                ng-click="upload_to_repository(recalled_repository, publicDeposit, title_of_file_selected, embargoed)"
+                ng-disabled="disable_send_bookmark_dendro(title_of_file_selected, publicDeposit, embargoed)"
                 class="btn btn-success pull-right"><span class="glyphicon glyphicon-upload"></span>Send</button>
     </div>
     <div ng-if="is_sending_data" class="col-lg-6">
