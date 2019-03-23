@@ -85,6 +85,8 @@ services:
     image: feupinfolab/dendro:dendrokeywords
     build:
       dockerfile: Dockerfile
+      args:
+        - "SOURCE_BRANCH=dendrokeywords"
       context: .
     ports:
       - published: 3001
@@ -94,8 +96,8 @@ services:
       - mariadb
       - mongodb
       - virtuoso
-    volumes:
-        - ./volumes/dendro:/dendro/dendro
+    # volumes:
+    #     - ./volumes/dendro:/dendro/dendro
     environment:
       DENDRO_ACTIVE_DEPLOYMENT_CONFIG: docker
     networks:

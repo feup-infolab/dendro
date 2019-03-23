@@ -4,10 +4,11 @@ FROM "ubuntu:19.04" as base
 
 ######    BUILD ARGUMENTS    ######
 
-ARG DENDRO_GIT_BRANCH=master
+ARG SOURCE_BRANCH=master
 
 ######    CONSTANTS    ######
 ENV DENDRO_GITHUB_URL https://github.com/feup-infolab/dendro.git
+ENV DENDRO_GIT_BRANCH $SOURCE_BRANCH
 ENV DENDRO_INSTALL_DIR /tmp/dendro
 ENV DENDRO_VOLUME_DIR /dendro
 ENV DENDRO_RUNNING_DIR /dendro/dendro
@@ -58,7 +59,6 @@ RUN apt-get install oracle-java8-set-default
 
 # compatibility fix for node on ubuntu
 RUN ln -s /usr/bin/nodejs /usr/bin/node
-
 
 ############################################
 FROM dependencies as nvm_installed
@@ -114,6 +114,11 @@ FROM app_libs_installed AS dendro_installed
 
 # Clone dendro into install dir
 COPY . "$DENDRO_INSTALL_DIR"
+
+# Checkout specified DENDRO_GIT_BRANCH
+
+RUN git checkout "$DENDRO_GIT_BRANCH"
+RUN git pull
 
 # Copy dendro startup script
 COPY ./conf/scripts/docker/start_dendro_inside_docker.sh "$DENDRO_INSTALL_DIR/dendro.sh"

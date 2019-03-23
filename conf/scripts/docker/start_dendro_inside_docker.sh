@@ -71,18 +71,19 @@ fi
 if [ -z "$(ls -A $RUNNING_DIR)" ]; then
 	echo "Dendro running dir is empty, so we assume this is the first bootup of the container."
 	echo "Copying all data from $INSTALL_DIR into $RUNNING_DIR..."
-	cp -R $INSTALL_DIR/* $RUNNING_DIR
 else
 	echo "Dendro running directory ($RUNNING_DIR) is not empty, assuming it is already installed."
-   	echo "Refreshing code on startup..."
-   	rsync $INSTALL_DIR $RUNNING_DIR
+  echo "Refreshing code on startup..."
 fi
+
+rsync -ah --progress "$INSTALL_DIR" "$RUNNING_DIR"
 
 # Change ownership
 echo "Contents of running dir $RUNNING_DIR"
-ls -la $VOLUME_DIR
+ls -la $RUNNING_DIR
 
-cd "$RUNNING_DIR" && echo "Switched to folder $(pwd) to start Dendro..." || exit "Unable to find directory $RUNNING_DIR"
+cd "$RUNNING_DIR" && echo "Switched to folder $(pwd) to start Dendro..." \
+  || ( echo "Unable to find directory $RUNNING_DIR" && exit 1 )
 
 . $HOME/.nvm/nvm.sh
 nvm use --delete-prefix "$RUNNING_DIR"
@@ -93,3 +94,16 @@ if [[ "$DENDRO_ACTIVE_DEPLOYMENT_CONFIG" == "" ]]; then
 fi
 
 node src/app.js --config="$DENDRO_ACTIVE_DEPLOYMENT_CONFIG"
+
+if [[ "$?" != "0" ]];
+then
+  echo "There was an error starting dendro. Showing the contents of $INSTALL_DIR and $(pwd)..."
+  echo "$INSTALL_DIR"
+  ls "$INSTALL_DIR"
+
+  echo "$(pwd)"
+  ls "$(pwd)"
+
+  echo "Trying to copy again all contents of install dir $DENDRO_INSTALL_DIR to running idr $RUNNING_DIR"
+  rsync -a --progress "$INSTALL_DIR" "$RUNNING_DIR"
+fi
