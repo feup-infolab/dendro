@@ -93,6 +93,7 @@ RUN mkdir -p "$BOWER_TMP_DIR"
 
 # Switch to dendro install dir
 WORKDIR $DENDRO_INSTALL_DIR
+
 # Install node dependencies in /tmp to use the Docker cache
 # use changes to package.json to force Docker not to use the cache
 # when we change our application's nodejs dependencies:
@@ -108,7 +109,7 @@ FROM app_libs_installed AS dendro_installed
 ############################################
 
 # Clone dendro into install dir
-COPY . "$DENDRO_INSTALL_DIR"
+RUN git clone "$DENDRO_GITHUB_URL" "$DENDRO_INSTALL_DIR"
 
 # Copy dendro startup script
 COPY ./conf/scripts/docker/start_dendro_inside_docker.sh "$DENDRO_INSTALL_DIR/dendro.sh"
