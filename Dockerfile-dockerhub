@@ -1,5 +1,5 @@
 ############################################
-FROM "ubuntu:18.04" as base
+FROM "ubuntu:19.04" as base
 ############################################
 
 ######    CONSTANTS    ######
@@ -112,7 +112,7 @@ FROM app_libs_installed AS dendro_installed
 RUN git clone "$DENDRO_GITHUB_URL" "$DENDRO_INSTALL_DIR"
 WORKDIR $DENDRO_INSTALL_DIR
 
-# Variable injected by docke hub
+# Variable injected by docker hub
 RUN echo "Checking out $SOURCE_BRANCH git branch!"
 RUN git checkout "$SOURCE_BRANCH"
 
