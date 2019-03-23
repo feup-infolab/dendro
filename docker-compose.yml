@@ -79,8 +79,6 @@ services:
     build:
       dockerfile: Dockerfile
       context: .
-      args:
-        DENDRO_GIT_BRANCH: dendrokeywords
     ports:
       - target: 3001
         published: 3001
