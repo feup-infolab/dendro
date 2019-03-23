@@ -2,10 +2,6 @@
 FROM "ubuntu:18.04" as base
 ############################################
 
-######    BUILD ARGUMENTS    ######
-
-ARG DENDRO_GIT_BRANCH=master
-
 ######    CONSTANTS    ######
 ENV DENDRO_GITHUB_URL https://github.com/feup-infolab/dendro.git
 ENV DENDRO_INSTALL_DIR /tmp/dendro
@@ -113,7 +109,12 @@ FROM app_libs_installed AS dendro_installed
 ############################################
 
 # Clone dendro into install dir
-COPY . "$DENDRO_INSTALL_DIR"
+RUN git clone "$DENDRO_GITHUB_URL" "$DENDRO_INSTALL_DIR"
+WORKDIR $DENDRO_INSTALL_DIR
+
+# Variable injected by docke hub
+RUN echo "Checking out $SOURCE_BRANCH git branch!"
+RUN git checkout "$SOURCE_BRANCH"
 
 # Copy dendro startup script
 COPY ./conf/scripts/docker/start_dendro_inside_docker.sh "$DENDRO_INSTALL_DIR/dendro.sh"
