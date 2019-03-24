@@ -10,8 +10,7 @@ ARG SOURCE_BRANCH=master
 ENV DENDRO_GITHUB_URL https://github.com/feup-infolab/dendro.git
 ENV DENDRO_GIT_BRANCH $SOURCE_BRANCH
 ENV DENDRO_INSTALL_DIR /tmp/dendro
-ENV DENDRO_VOLUME_DIR /dendro
-ENV DENDRO_RUNNING_DIR /dendro/dendro
+ENV DENDRO_RUNNING_DIR /dendro
 ENV DENDRO_PORT 3001
 
 ENV HOME /root
@@ -89,9 +88,6 @@ RUN npm i -g npm@5.6.0 \
 FROM global_npms as app_libs_installed
 ############################################
 
-# Create install dir
-RUN mkdir -p "$DENDRO_INSTALL_DIR"
-
 #create temporary librarry directories as root
 RUN mkdir -p "$BOWER_TMP_DIR"
 
@@ -112,11 +108,11 @@ RUN cd "$BOWER_TMP_DIR" && bower install --allow-root
 FROM app_libs_installed AS dendro_installed
 ############################################
 
-# Clone dendro into install dir
+# COPY dendro into install dir
 COPY . "$DENDRO_INSTALL_DIR"
+RUN ls -la "$DENDRO_INSTALL_DIR"
 
 # Checkout specified DENDRO_GIT_BRANCH
-
 RUN git checkout "$DENDRO_GIT_BRANCH"
 RUN git pull
 
@@ -127,14 +123,17 @@ COPY ./conf/scripts/docker/start_dendro_inside_docker.sh "$DENDRO_INSTALL_DIR/de
 RUN chmod ugo+rx "$DENDRO_INSTALL_DIR/dendro.sh"
 
 # Put compiled libraries in place
-RUN cp -R /tmp/node_modules $DENDRO_INSTALL_DIR
+RUN cp -R /tmp/node_modules "$DENDRO_INSTALL_DIR"
 RUN cp -R "$BOWER_TMP_DIR/bower_components" "$DENDRO_INSTALL_DIR/public"
 
 # Expose dendro running directory as a volume
-VOLUME [ "$DENDRO_VOLUME_DIR"]
+VOLUME [ "$DENDRO_RUNNING_DIR"]
 
 # Show contents of folders
-RUN echo "Contents of Dendro install dir: $(ls -la $DENDRO_INSTALL_DIR)"
+RUN echo "Contents of Dendro install dir are:"
+RUN ls -la "$DENDRO_INSTALL_DIR"
+RUN echo "Contents of Dendro running dir are:"
+RUN ls -la "$DENDRO_RUNNING_DIR"
 
 # What is the active deployment config?
 RUN echo "Contents of Dendro active configuration file: $(cat $DENDRO_INSTALL_DIR/conf/active_deployment_config.yml)"

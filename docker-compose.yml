@@ -96,8 +96,8 @@ services:
       - mariadb
       - mongodb
       - virtuoso
-    # volumes:
-    #     - ./volumes/dendro:/dendro/dendro
+    volumes:
+      - ./volumes/dendro:/dendro/dendro
     environment:
       DENDRO_ACTIVE_DEPLOYMENT_CONFIG: docker
     networks:
