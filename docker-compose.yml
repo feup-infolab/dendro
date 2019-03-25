@@ -18,18 +18,18 @@ services:
       - dendro-docker-deployment
     restart: on-failure
 
-  solr:
-    container_name: solr-dendro
-    image: solr:7.7.0-slim
-    expose:
-      - "8983"
-    volumes:
-      - ./volumes/solr:/opt/solr/server/solr/mycores
-    entrypoint:
-      - bash
-      - "-c"
-      - "precreate-core dendro_graph; precreate-core social_dendro; precreate-core notifications_dendro; precreate-core dryad; precreate-core freebase; precreate-core dbpedia;  exec solr -f"
-    restart: on-failure
+  # solr:
+  #   container_name: solr-dendro
+  #   image: solr:7.7.0-slim
+  #   expose:
+  #     - "8983"
+  #   volumes:
+  #     - ./volumes/solr:/opt/solr/server/solr/mycores
+  #   entrypoint:
+  #     - bash
+  #     - "-c"
+  #     - "precreate-core dendro_graph; precreate-core social_dendro; precreate-core notifications_dendro; precreate-core dryad; precreate-core freebase; precreate-core dbpedia;  exec solr -f"
+  #   restart: on-failure
 
   virtuoso:
     container_name: virtuoso-dendro
@@ -97,7 +97,7 @@ services:
       - mongodb
       - virtuoso
     volumes:
-      - ./volumes/dendro:/dendro/dendro
+      - ./volumes/dendro:/dendro
     environment:
       DENDRO_ACTIVE_DEPLOYMENT_CONFIG: docker
     networks:
