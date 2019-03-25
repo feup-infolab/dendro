@@ -259,25 +259,32 @@ angular.module("dendroApp.controllers")
                 let one = false;
                 let index;
 
-                if(!title)
+                if (!title)
+                {
                     return true;
-
-                for(let key in obj){
-                  if(obj[key] === true){
-                      one = true;
-                      index = key;
-                  }
                 }
 
-                if(index === "1" && one && date){
+                for (let key in obj)
+                {
+                    if (obj[key] === true)
+                    {
+                        one = true;
+                        index = key;
+                    }
+                }
+
+                if (index === "1" && one && date)
+                {
                     const date_now = new Date();
-                    if(date_now > date)
+                    if (date_now > date)
+                    {
                         return true;
-                    else
-                        return false;
+                    }
+                    return false;
                 }
 
-                if(index !== "1"  && one){
+                if (index !== "1" && one)
+                {
                     return false;
                 }
                 return true;
@@ -474,12 +481,18 @@ angular.module("dendroApp.controllers")
                     doDeletion(bookmark);
                 }
             };
-            $scope.change_privacy_checkbox = function( array, index){
-                for (i=0; i<3; i++){
-                    if(i!=index)
-                        array[i]=false;
+            $scope.change_privacy_checkbox = function (array, index)
+            {
+                for (i = 0; i < 3; i++)
+                {
+                    if (i != index)
+                    {
+                        array[i] = false;
+                    }
                     else
-                        array[i]=true;
+                    {
+                        array[i] = true;
+                    }
                 }
             };
 
@@ -488,7 +501,7 @@ angular.module("dendroApp.controllers")
          * @param uri
          */
             // TODO William add boolean of public deposit in 2nd
-            $scope.upload_to_repository = function (targetRepository, publicDeposit, titleOfDeposit, embargoed_date, overwrite, deleteChangesOriginatedFromCkan, propagateDendroChangesIntoCkan)
+            $scope.upload_to_repository = function (targetRepository, publicDeposit, titleOfDeposit, embargoedDate, overwrite, deleteChangesOriginatedFromCkan, propagateDendroChangesIntoCkan)
             {
                 var payload = {
                     repository: targetRepository,
@@ -496,18 +509,39 @@ angular.module("dendroApp.controllers")
                     titleOfDeposit: titleOfDeposit
                 };
 
-                for(let key in publicDeposit){
-                    if(publicDeposit[key] === true){
-                        switch (key) {
-                            case "0": payload.publicDeposit = "public";
+                if (typeof publicDeposit === "object")
+                {
+                    for (let key in publicDeposit)
+                    {
+                        if (publicDeposit[key] === true)
+                        {
+                            switch (key)
+                            {
+                            case "0":
+                                payload.publicDeposit = "public";
                                 break;
-                            case "1": payload.publicDeposit = "embargoed";
+                            case "1":
+                                payload.publicDeposit = "embargoed";
                                 break;
-                            default: payload.publicDeposit = "private";
+                            default:
+                                payload.publicDeposit = "private";
+                            }
+                            if (key === "1")
+                            {
+                                payload.embargoed_date = embargoedDate;
+                            }
                         }
-                        if(key==="1"){
-                            payload.embargoed_date = embargoed_date;
-                        }
+                    }
+                }
+                else
+                {
+                    if (!publicDeposit || publicDeposit === false)
+                    {
+                        payload.publicDeposit = "private";
+                    }
+                    else
+                    {
+                        payload.publicDeposit = "public";
                     }
                 }
 
@@ -703,7 +737,7 @@ angular.module("dendroApp.controllers")
 
             $scope.get_title_of_file_selected = function ()
             {
-                let title =  $scope.shared.selected_file.dcterms.title;
+                let title = $scope.shared.selected_file.dcterms.title;
 
                 if (title)
                 {
@@ -711,7 +745,8 @@ angular.module("dendroApp.controllers")
 
                     $scope.title_of_file_selected = title;
                 }
-                else {
+                else
+                {
                     $scope.title_of_file_selected_disabled = false;
                     $scope.title_of_file_selected = null;
                 }
