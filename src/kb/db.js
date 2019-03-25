@@ -1044,70 +1044,65 @@ DbConnection.prototype.tryToConnect = function (callback)
 
     DbConnection.connectionAttempts.push(callback);
 
-    if (!DbConnection.connecting)
+    const tryToConnect = function (callback)
     {
-        DbConnection.connecting = true;
-
-        const tryToConnect = function (callback)
+        self.closeConnectionPool(function (err, result)
         {
-            self.closeConnectionPool(function (err, result)
+            self.create(function (err, db)
             {
-                self.create(function (err, db)
+                if (isNull(err))
                 {
-                    if (isNull(err))
+                    if (isNull(db))
                     {
-                        if (isNull(db))
-                        {
-                            const msg = "[ERROR] Unable to connect to graph database running on " + self.host + ":" + self.port;
-                            Logger.log_boot_message(msg);
-                            return callback(msg);
-                        }
-
-                        Logger.log_boot_message("Connected to graph database running on " + self.host + ":" + self.port);
-                        // set default connection. If you want to add other connections, add them in succession.
-                        return callback(null);
+                        const msg = "[ERROR] Unable to connect to graph database running on " + self.host + ":" + self.port;
+                        Logger.log_boot_message(msg);
+                        return callback(msg);
                     }
 
-                    callback(1);
-                });
+                    Logger.log_boot_message("Connected to graph database running on " + self.host + ":" + self.port);
+                    // set default connection. If you want to add other connections, add them in succession.
+                    return callback(null);
+                }
+
+                callback(1);
             });
-        };
-
-        // try calling apiMethod 10 times with linear backoff
-        // (i.e. intervals of 100, 200, 400, 800, 1600, ... milliseconds)
-        async.retry({
-            times: 240,
-            interval: function (retryCount)
-            {
-                const msecs = 500;
-                Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to Virtuoso at " + self.host + ":" + self.port + "...");
-                return msecs;
-            }
-        }, tryToConnect, function (err, result)
-        {
-            if (!isNull(err))
-            {
-                const msg = "[ERROR] Error connecting to graph database running on " + self.host + ":" + self.port;
-                Logger.log("error", msg);
-                Logger.log("error", err);
-                Logger.log("error", result);
-            }
-            else
-            {
-                const msg = "Connection to Virtuoso at " + self.host + ":" + self.port + " was established!";
-                Logger.log("info", msg);
-            }
-
-            for (let i = 0; i < DbConnection.connectionAttempts.length; i++)
-            {
-                DbConnection.connectionAttempts[i](err, result);
-            }
-
-            DbConnection.connectionAttempts = [];
-
-            DbConnection.connecting = false;
         });
-    }
+    };
+
+    // try calling apiMethod 10 times with linear backoff
+    // (i.e. intervals of 100, 200, 400, 800, 1600, ... milliseconds)
+    async.retry({
+        times: 240,
+        interval: function (retryCount)
+        {
+            const msecs = 500;
+            Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to Virtuoso at " + self.host + ":" + self.port + "...");
+            return msecs;
+        }
+    }, tryToConnect, function (err, result)
+    {
+        if (!isNull(err))
+        {
+            const msg = "[ERROR] Error connecting to graph database running on " + self.host + ":" + self.port;
+            Logger.log("error", msg);
+            Logger.log("error", err);
+            Logger.log("error", result);
+        }
+        else
+        {
+            const msg = "Connection to Virtuoso at " + self.host + ":" + self.port + " was established!";
+            Logger.log("info", msg);
+        }
+
+        for (let i = 0; i < DbConnection.connectionAttempts.length; i++)
+        {
+            DbConnection.connectionAttempts[i](err, result);
+        }
+
+        DbConnection.connectionAttempts = [];
+        DbConnection.connecting = false;
+    });
+
 };
 
 DbConnection.prototype.closeConnectionPool = function (callback)
