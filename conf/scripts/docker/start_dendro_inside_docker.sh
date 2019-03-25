@@ -10,7 +10,8 @@ function copy_source_to_destination()
   echo "Copying files..."
 
   diff -q "$source_dir" "$running_dir"
-  rsync --progress --human-readable --recursive "$source_dir"/ "$running_dir"/
+
+  rsync --quiet --recursive "$source_dir"/ "$running_dir"/
 }
 
 # Switch to dendro user to start the app instead of using root
@@ -23,17 +24,19 @@ ls -la "$DENDRO_INSTALL_DIR"
 echo "Contents of running dir.................."
 ls -la "$DENDRO_RUNNING_DIR"
 
-MAIN_SOURCE_FILE="$DENDRO_RUNNING_DIR/src/app.js"
-if [ ! -f "$MAIN_SOURCE_FILE" ]; then
-	echo "Dendro main source file is NOT PRESENT at $MAIN_SOURCE_FILE, so we assume this is the first bootup of the container."
+if [ -z "$(ls -A $DENDRO_RUNNING_DIR)" ]; then
+	echo "Dendro running dir is empty, so we assume this is the first bootup of the container."
 	echo "Copying all data from $DENDRO_INSTALL_DIR into $DENDRO_RUNNING_DIR..."
-  copy_source_to_destination "$DENDRO_INSTALL_DIR" "$DENDRO_RUNNING_DIR"
 else
-	echo "Dendro main source file ($MAIN_SOURCE_FILE) exists, assuming it is already installed."
+	echo "Dendro running directory ($DENDRO_RUNNING_DIR) is not empty, assuming it is already installed."
+  echo "Synchronizing files"
 fi
+
+copy_source_to_destination "$DENDRO_INSTALL_DIR" "$DENDRO_RUNNING_DIR"
 
 echo "Contents of running dir $DENDRO_RUNNING_DIR"
 ls -la $DENDRO_RUNNING_DIR
+
 
 cd "$DENDRO_RUNNING_DIR" && echo "Switched to folder $(pwd) to start Dendro..." \
   || ( echo "Unable to find directory $DENDRO_RUNNING_DIR" && exit 1 )
@@ -50,7 +53,7 @@ node src/app.js --config="$DENDRO_ACTIVE_DEPLOYMENT_CONFIG"
 
 if [[ "$?" != "0" ]];
 then
-  echo "There was an error starting or running dendro!"
+  echo "There was an error starting dendro."
   exit 1
   # echo "Showing the contents of $DENDRO_INSTALL_DIR and $(pwd)..."
   # printf "$DENDRO_INSTALL_DIR\n"
