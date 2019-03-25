@@ -332,6 +332,8 @@ dev:
     - hdg
     - ddiup
     - disco
+    - phys
+    - chm
   authentication:
     default:
       enabled: true

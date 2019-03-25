@@ -37,6 +37,11 @@ services:
     expose:
       - "8890"
       - "1111"
+    ports:
+      - published: 8890
+        target: 8890
+      - published: 1111
+        target: 1111
     environment:
       - "SPARQL_UPDATE=true"
       - "VIRT_Parameters_CheckpointSyncMode=2"
