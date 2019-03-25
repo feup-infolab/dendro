@@ -10,7 +10,7 @@ function copy_source_to_destination()
   echo "Copying files..."
 
   diff -q "$source_dir" "$running_dir"
-  rsync --progress --human-readable --recursive "$source_dir"/ "$running_dir"/
+  rsync --quiet --recursive "$source_dir"/ "$running_dir"/
 }
 
 # Switch to dendro user to start the app instead of using root
