@@ -8,6 +8,7 @@ angular.module("dendroApp.controllers")
             $scope,
             $http,
             $filter
+
         )
         {
             $scope.get_current_url = function ()
@@ -275,8 +276,8 @@ angular.module("dendroApp.controllers")
 
                 if (index === "1" && one && date)
                 {
-                    const date_now = new Date();
-                    if (date_now > date)
+                    const dateNow = new Date();
+                    if (dateNow > date)
                     {
                         return true;
                     }
@@ -373,7 +374,6 @@ angular.module("dendroApp.controllers")
 
             $scope.disable_save_bookmark_ckan = function (newRepository)
             {
-                console.log(newRepository);
                 if (!newRepository || !newRepository.dcterms || !newRepository.dcterms.title)
                 {
                     return true;

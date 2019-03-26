@@ -14,6 +14,8 @@ const Zenodo = rlequire("dendro", "src/export_libs/zenodo/zenodo.js");
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const CkanUtils = rlequire("dendro", "src/utils/datasets/ckanUtils.js");
 const generalDatasetUtils = rlequire("dendro", "src/utils/datasets/generalDatasetUtils.js");
+const uuidv1 = require("uuid/v1");
+const request = require("superagent");
 
 const async = require("async");
 const _ = require("underscore");
@@ -1130,8 +1132,181 @@ export_to_dendro = function (req, res)
     const publicDeposit = req.body.publicDeposit;
     const titleOfDeposit = req.body.titleOfDeposit;
     let embargoedDate;
+    const uuid = uuidv1();
+    const DOI = "10.23673/" + uuid;
 
-    if(req.body.embargoed_date){
+    generateDoi = function (description, language, callback)
+    {
+        const auth = "Basic " + new Buffer("DEV.INFOLAB" + ":" + "8yD5qChSbUSK").toString("base64");
+
+        request
+            .post("https://api.test.datacite.org/dois")
+            .set("accept", "application/vnd.api+json")
+            .set("Accept-Language", "en-US,en;q=0.5")
+            .set("Referer", "https://doi.test.datacite.org/clients/dev.infolab/dois/new")
+            .set("Content-Type", "application/vnd.api+json")
+            .set("Authorization", auth)
+            .set("Origin", "https://doi.test.datacite.org")
+            .set("Connection", "keep-alive")
+            .set("TE", "Trailers")
+            .send({
+                data: {
+                    attributes:
+                {
+                    doi: DOI,
+                    confirmDoi: null,
+                    url: null,
+                    creators:
+                    [{
+                        name: null,
+                        givenName: null,
+                        familyName: null,
+                        nameType: "Personal",
+                        affiliation: null,
+                        nameIdentifiers:
+                        [{
+                            nameIdentifier: null,
+                            nameIdentifierScheme: null,
+                            schemeUri: null
+                        }]
+                    }],
+                    titles:
+                    [{
+                        title: titleOfDeposit,
+                        titleType: null,
+                        lang: language
+                    }],
+                    publisher: null,
+                    publicationYear: null,
+                    descriptions:
+                    [{
+                        description: description,
+                        descriptionType: "Abstract",
+                        lang: language
+                    }],
+                    xml: null,
+                    source: "fabricaForm",
+                    state: "draft",
+                    reason: null,
+                    event: null,
+                    mode: "new"
+                },
+                    relationships:
+                {
+                    client:
+                    {
+                        data:
+                        {
+                            type: "clients",
+                            id: "dev.infolab"
+                        }
+                    }
+                },
+                    type: "dois"
+                }
+            })
+            .then(function ()
+            {
+                callback(null, true);
+            })
+            .catch(function (error)
+            {
+                callback(1, error);
+            });
+    };
+
+    getCitation = function (doi,callback)
+    {
+        const auth = "Basic " + new Buffer("DEV.INFOLAB" + ":" + "8yD5qChSbUSK").toString("base64");
+
+        /*
+         curl 'https://api.test.datacite.org/dois/10.23673/0012114'
+        -H 'User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:65.0) Gecko/20100101 Firefox/65.0'
+        -H 'Accept: application/x-bibtex' -H 'Accept-Language: en-US,en;q=0.5' --compressed
+        -H 'Referer: https://doi.test.datacite.org/clients/dev.infolab/dois/10.23673%2F0012114'
+        -H 'Origin: https://doi.test.datacite.org'
+        -H 'Connection: keep-alive'
+        -H 'If-None-Match: W/"f22f63966173191414fa4afadda9ee0b"'
+        -H 'TE: Trailers'
+        */
+        request
+            .post("https://api.test.datacite.org/dois/" + doi)
+            .set("accept", "application/x-bibtex")
+            .set("Accept-Language", "en-US,en;q=0.5")
+            .set("Referer", "https://doi.test.datacite.org/clients/dev.infolab/dois/new")
+            .set("Content-Type", "application/vnd.api+json")
+            .set("Authorization", auth)
+            .set("Origin", "https://doi.test.datacite.org")
+            .set("Connection", "keep-alive")
+            .set("TE", "Trailers")
+            .send({
+                data: {
+                    attributes:
+              {
+                  doi: DOI,
+                  confirmDoi: null,
+                  url: null,
+                  creators:
+                  [{
+                      name: null,
+                      givenName: null,
+                      familyName: null,
+                      nameType: "Personal",
+                      affiliation: null,
+                      nameIdentifiers:
+                      [{
+                          nameIdentifier: null,
+                          nameIdentifierScheme: null,
+                          schemeUri: null
+                      }]
+                  }],
+                  titles:
+                  [{
+                      title: titleOfDeposit,
+                      titleType: null,
+                      lang: language
+                  }],
+                  publisher: null,
+                  publicationYear: null,
+                  descriptions:
+                  [{
+                      description: description,
+                      descriptionType: "Abstract",
+                      lang: language
+                  }],
+                  xml: null,
+                  source: "fabricaForm",
+                  state: "draft",
+                  reason: null,
+                  event: null,
+                  mode: "new"
+              },
+                    relationships:
+              {
+                  client:
+                  {
+                      data:
+                      {
+                          type: "clients",
+                          id: "dev.infolab"
+                      }
+                  }
+              },
+                    type: "dois"
+                }
+            })
+            .then(function ()
+            {
+                callback(null, true);
+            })
+            .catch(function (error)
+            {
+                callback(1, error);
+            });
+    };
+
+    if (req.body.embargoed_date)
+    {
         embargoedDate = req.body.embargoed_date;
     }
 
@@ -1145,24 +1320,42 @@ export_to_dendro = function (req, res)
                 {
                     if (isNull(err))
                     {
+                        const description = project.dcterms.description;
+                        const language = project.dcterms.language;
+                        async.series([ function (callback)
+                        {
+                            generateDoi(description, language, callback);
+                        }],
+                        function (err, results)
+                        {
+                            if (!isNull(err))
+                            {
+                                res.json(
+                                    {
+                                        result: "Error",
+                                        message: "Error"
+                                    }
+                                );
+                            }
+                        });
+
                         const registryData = {
                             dcterms: {
                                 title: titleOfDeposit,
                                 creator: req.user.uri,
                                 identifier: "123456789",
-                                description: project.dcterms.description,
-                                language: project.dcterms.language
+                                description: description,
+                                language: language
                             },
                             ddr: {
                                 exportedFromProject: project.uri,
                                 exportedFromFolder: file.uri,
-                                privacyStatus: publicDeposit ,
+                                privacyStatus: publicDeposit,
                                 exportedToRepository: "Dendro",
                                 exportedToPlatform: "Dendro",
                                 proposedCitation: "citation",
-                                DOI: "doi",
-                                embargoedDate: embargoedDate ? embargoedDate: null
-
+                                DOI: DOI,
+                                embargoedDate: isNull(embargoedDate) ? null : embargoedDate
 
                             }
 
@@ -1192,24 +1385,41 @@ export_to_dendro = function (req, res)
                             {
                                 if (isNull(err))
                                 {
+                                    const description = folder.dcterms.description;
+                                    const language = project.dcterms.language;
+                                    async.series([ function (callback)
+                                    {
+                                        generateDoi(description, language, callback);
+                                    }],
+                                    function (err, results)
+                                    {
+                                        if (!isNull(err))
+                                        {
+                                            res.json(
+                                                {
+                                                    result: "Error",
+                                                    message: "Error"
+                                                }
+                                            );
+                                        }
+                                    });
                                     const registryData = {
                                         dcterms: {
                                             title: titleOfDeposit,
                                             creator: req.user.uri,
                                             identifier: "123456789",
-                                            description: folder.dcterms.description,
-                                            language: project.dcterms.language
+                                            description: description,
+                                            language: language
                                         },
                                         ddr: {
                                             exportedFromProject: project.uri,
                                             exportedFromFolder: folder.uri,
-                                            privacyStatus: publicDeposit ,
+                                            privacyStatus: publicDeposit,
                                             exportedToRepository: "Dendro",
                                             exportedToPlatform: "Dendro",
                                             proposedCitation: "citation",
-                                            DOI: "doi",
-                                            embargoedDate: embargoedDate ? embargoedDate: null
-
+                                            DOI: DOI,
+                                            embargoedDate: isNull(embargoedDate) ? null : embargoedDate
                                         }
 
                                     };
