@@ -241,15 +241,24 @@ exports.download = function (req, res)
     // we are fetching the root folder of a project
     if (req.params.is_project_root)
     {
-        if(resource === "project") {
-            Project.findByUri(requestedResourceURI, function (err, project) {
-                if (isNull(err)) {
-                    if (!isNull(project)) {
-                        project.getRootFolder(function (err, rootFolder) {
-                            if (isNull(err)) {
-                                if (!(isNull(rootFolder)) && rootFolder instanceof Folder) {
+        if (resource === "project")
+        {
+            Project.findByUri(requestedResourceURI, function (err, project)
+            {
+                if (isNull(err))
+                {
+                    if (!isNull(project))
+                    {
+                        project.getRootFolder(function (err, rootFolder)
+                        {
+                            if (isNull(err))
+                            {
+                                if (!(isNull(rootFolder)) && rootFolder instanceof Folder)
+                                {
                                     downloadFolder(rootFolder.uri, res);
-                                } else {
+                                }
+                                else
+                                {
                                     const error = "Unable to determine the root folder of project : " + requestedResourceURI;
                                     Logger.log("error", error);
                                     res.status(500).write("Error : " + error + "\n");
@@ -257,13 +266,17 @@ exports.download = function (req, res)
                                 }
                             }
                         });
-                    } else {
+                    }
+                    else
+                    {
                         const error = "Non-existent project : " + requestedResourceURI;
                         Logger.log("error", error);
                         res.status(404).write("Error : " + error + "\n");
                         res.end();
                     }
-                } else {
+                }
+                else
+                {
                     const error = "Error occurred while retrieving project : " + requestedResourceURI;
                     Logger.log("error", error);
                     res.status(500).write("Error : " + error + "\n");
@@ -271,15 +284,24 @@ exports.download = function (req, res)
                 }
             });
         }
-        if(resource === "deposit"){
-            Deposit.findByUri(requestedResourceURI, function (err, deposit) {
-                if (isNull(err)) {
-                    if (!isNull(deposit)) {
-                        deposit.getRootFolder(function (err, rootFolder) {
-                            if (isNull(err)) {
-                                if (!(isNull(rootFolder)) && rootFolder instanceof Folder) {
+        if (resource === "deposit")
+        {
+            Deposit.findByUri(requestedResourceURI, function (err, deposit)
+            {
+                if (isNull(err))
+                {
+                    if (!isNull(deposit))
+                    {
+                        deposit.getRootFolder(function (err, rootFolder)
+                        {
+                            if (isNull(err))
+                            {
+                                if (!(isNull(rootFolder)) && rootFolder instanceof Folder)
+                                {
                                     downloadFolder(rootFolder.uri, res);
-                                } else {
+                                }
+                                else
+                                {
                                     const error = "Unable to determine the root folder of deposit : " + requestedResourceURI;
                                     Logger.log("error", error);
                                     res.status(500).write("Error : " + error + "\n");
@@ -287,13 +309,17 @@ exports.download = function (req, res)
                                 }
                             }
                         });
-                    } else {
+                    }
+                    else
+                    {
                         const error = "Non-existent deposit : " + requestedResourceURI;
                         Logger.log("error", error);
                         res.status(404).write("Error : " + error + "\n");
                         res.end();
                     }
-                } else {
+                }
+                else
+                {
                     const error = "Error occurred while retrieving deposit : " + requestedResourceURI;
                     Logger.log("error", error);
                     res.status(500).write("Error : " + error + "\n");
@@ -2458,34 +2484,48 @@ exports.ls = function (req, res)
 
     if (req.params.is_project_root)
     {
-        if(resource === "project") {
-            Project.findByUri(resourceURI, function (err, project) {
-                if (isNull(err)) {
-                    if (!isNull(project)) {
-                        project.getFirstLevelDirectoryContents(function (err, files) {
-                            if (isNull(err)) {
-                                if (!showDeleted) {
+        if (resource === "project")
+        {
+            Project.findByUri(resourceURI, function (err, project)
+            {
+                if (isNull(err))
+                {
+                    if (!isNull(project))
+                    {
+                        project.getFirstLevelDirectoryContents(function (err, files)
+                        {
+                            if (isNull(err))
+                            {
+                                if (!showDeleted)
+                                {
                                     const _ = require("underscore");
-                                    files = _.reject(files, function (file) {
+                                    files = _.reject(files, function (file)
+                                    {
                                         return file.ddr.deleted;
                                     });
                                 }
 
                                 res.json(files);
-                            } else {
+                            }
+                            else
+                            {
                                 res.status(500).json({
                                     result: "error",
                                     message: "Unable to fetch project root folder contents."
                                 });
                             }
                         });
-                    } else {
+                    }
+                    else
+                    {
                         res.status(404).json({
                             result: "error",
                             message: "Unable to fetch project with uri : " + req.params.requestedResourceUri + ". Project not found! "
                         });
                     }
-                } else {
+                }
+                else
+                {
                     res.status(500).json({
                         result: "error",
                         message: "Unable to fetch project with uri : " + req.params.requestedResourceUri
@@ -2493,34 +2533,48 @@ exports.ls = function (req, res)
                 }
             });
         }
-        if(resource === "deposit") {
-            Deposit.findByUri(resourceURI, function (err, deposit) {
-                if (isNull(err)) {
-                    if (!isNull(deposit)) {
-                        deposit.getFirstLevelDirectoryContents(function (err, files) {
-                            if (isNull(err)) {
-                                if (!showDeleted) {
+        if (resource === "deposit")
+        {
+            Deposit.findByUri(resourceURI, function (err, deposit)
+            {
+                if (isNull(err))
+                {
+                    if (!isNull(deposit))
+                    {
+                        deposit.getFirstLevelDirectoryContents(function (err, files)
+                        {
+                            if (isNull(err))
+                            {
+                                if (!showDeleted)
+                                {
                                     const _ = require("underscore");
-                                    files = _.reject(files, function (file) {
+                                    files = _.reject(files, function (file)
+                                    {
                                         return file.ddr.deleted;
                                     });
                                 }
 
                                 res.json(files);
-                            } else {
+                            }
+                            else
+                            {
                                 res.status(500).json({
                                     result: "error",
                                     message: "Unable to fetch deposit root folder contents."
                                 });
                             }
                         });
-                    } else {
+                    }
+                    else
+                    {
                         res.status(404).json({
                             result: "error",
                             message: "Unable to fetch deposit with uri : " + req.params.requestedResourceUri + ". Deposit not found! "
                         });
                     }
-                } else {
+                }
+                else
+                {
                     res.status(500).json({
                         result: "error",
                         message: "Unable to fetch deposit with uri : " + req.params.requestedResourceUri

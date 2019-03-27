@@ -800,22 +800,22 @@ Elements.ontologies.foaf =
 Elements.ontologies.ddr = {
     embargoedDate:
         {
-          type: Elements.types.date,
-          control: Controls.date_picker,
-          private: true,
-          locked: true
+            type: Elements.types.date,
+            control: Controls.date_picker,
+            private: true,
+            locked: true
         },
     proposedCitation:
         {
-          type: Elements.types.string,
-          control: Controls.markdown_box,
-          locked: true
+            type: Elements.types.string,
+            control: Controls.markdown_box,
+            locked: true
 
         },
     DOI:
         {
-          type: Elements.types.string,
-          control: Controls.input_box
+            type: Elements.types.string,
+            control: Controls.input_box
         },
     taskID:
         {

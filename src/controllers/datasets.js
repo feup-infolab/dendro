@@ -1215,94 +1215,12 @@ export_to_dendro = function (req, res)
             });
     };
 
-    getCitation = function (doi,callback)
+    generateCitation = function (url, creator, title, year)
     {
-        const auth = "Basic " + new Buffer("DEV.INFOLAB" + ":" + "8yD5qChSbUSK").toString("base64");
-
-        /*
-         curl 'https://api.test.datacite.org/dois/10.23673/0012114'
-        -H 'User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:65.0) Gecko/20100101 Firefox/65.0'
-        -H 'Accept: application/x-bibtex' -H 'Accept-Language: en-US,en;q=0.5' --compressed
-        -H 'Referer: https://doi.test.datacite.org/clients/dev.infolab/dois/10.23673%2F0012114'
-        -H 'Origin: https://doi.test.datacite.org'
-        -H 'Connection: keep-alive'
-        -H 'If-None-Match: W/"f22f63966173191414fa4afadda9ee0b"'
-        -H 'TE: Trailers'
-        */
-        request
-            .post("https://api.test.datacite.org/dois/" + doi)
-            .set("accept", "application/x-bibtex")
-            .set("Accept-Language", "en-US,en;q=0.5")
-            .set("Referer", "https://doi.test.datacite.org/clients/dev.infolab/dois/new")
-            .set("Content-Type", "application/vnd.api+json")
-            .set("Authorization", auth)
-            .set("Origin", "https://doi.test.datacite.org")
-            .set("Connection", "keep-alive")
-            .set("TE", "Trailers")
-            .send({
-                data: {
-                    attributes:
-              {
-                  doi: DOI,
-                  confirmDoi: null,
-                  url: null,
-                  creators:
-                  [{
-                      name: null,
-                      givenName: null,
-                      familyName: null,
-                      nameType: "Personal",
-                      affiliation: null,
-                      nameIdentifiers:
-                      [{
-                          nameIdentifier: null,
-                          nameIdentifierScheme: null,
-                          schemeUri: null
-                      }]
-                  }],
-                  titles:
-                  [{
-                      title: titleOfDeposit,
-                      titleType: null,
-                      lang: language
-                  }],
-                  publisher: null,
-                  publicationYear: null,
-                  descriptions:
-                  [{
-                      description: description,
-                      descriptionType: "Abstract",
-                      lang: language
-                  }],
-                  xml: null,
-                  source: "fabricaForm",
-                  state: "draft",
-                  reason: null,
-                  event: null,
-                  mode: "new"
-              },
-                    relationships:
-              {
-                  client:
-                  {
-                      data:
-                      {
-                          type: "clients",
-                          id: "dev.infolab"
-                      }
-                  }
-              },
-                    type: "dois"
-                }
-            })
-            .then(function ()
-            {
-                callback(null, true);
-            })
-            .catch(function (error)
-            {
-                callback(1, error);
-            });
+        let citation = "@misc{https://doi.org/" + DOI + ", \n doi = {" + DOI + "}, \n";
+        citation = citation + "url = {" + url + "}, \n";
+        citation = citation + "author = {{" + creator + "}}, \n title = {" + titleOfDeposit + "}, \n publisher = {Dendro}, \n year = {" + year + "} \n }";
+        return citation;
     };
 
     if (req.body.embargoed_date)
@@ -1339,6 +1257,8 @@ export_to_dendro = function (req, res)
                             }
                         });
 
+                        const citation = generateCitation("url", "creator", new Date().getFullYear());
+
                         const registryData = {
                             dcterms: {
                                 title: titleOfDeposit,
@@ -1353,7 +1273,7 @@ export_to_dendro = function (req, res)
                                 privacyStatus: publicDeposit,
                                 exportedToRepository: "Dendro",
                                 exportedToPlatform: "Dendro",
-                                proposedCitation: "citation",
+                                proposedCitation: citation,
                                 DOI: DOI,
                                 embargoedDate: isNull(embargoedDate) ? null : embargoedDate
 
@@ -1403,6 +1323,8 @@ export_to_dendro = function (req, res)
                                             );
                                         }
                                     });
+                                    const citation = generateCitation("url", "creator", new Date().getFullYear());
+
                                     const registryData = {
                                         dcterms: {
                                             title: titleOfDeposit,

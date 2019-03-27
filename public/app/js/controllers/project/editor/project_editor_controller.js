@@ -107,7 +107,8 @@ angular.module("dendroApp.controllers")
 
             return uri;
         };
-        $scope.validateResource = function(url){
+        $scope.validateResource = function (url)
+        {
             const regex = "^/r/(project|user|file)/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
             let result = new RegExp(regex);
             return result.test(url);
@@ -556,7 +557,7 @@ angular.module("dendroApp.controllers")
 
         $scope.load_folder_contents = function (includingDeletedFiles)
         {
-            console.log($scope.shared)
+            console.log($scope.shared);
             var loadFolderContentsPromise = $q.defer();
 
             filesService.get_folder_contents(windowService.get_current_url(), includingDeletedFiles)
@@ -672,7 +673,6 @@ angular.module("dendroApp.controllers")
 
         $scope.only_editable_metadata_descriptors = function (descriptor)
         {
-
             if (!descriptor.locked || descriptor.shortName === "privacyStatus")
             {
                 return true;
@@ -681,14 +681,14 @@ angular.module("dendroApp.controllers")
 
         $scope.only_proposed_citation = function (descriptor)
         {
-
             if (descriptor.locked && descriptor.shortName === "proposedCitation")
             {
                 return true;
             }
         };
-        $scope.is_descriptor_privateStatus = function (descriptor) {
-            if ( descriptor.shortName === "privacyStatus")
+        $scope.is_descriptor_privateStatus = function (descriptor)
+        {
+            if (descriptor.shortName === "privacyStatus")
             {
                 return true;
             }
@@ -711,7 +711,6 @@ angular.module("dendroApp.controllers")
             // put some services in scope i.e. to access constants
 
             $scope.recommendationService = recommendationService;
-
 
             // monitor url change events (ask to save if metadata changed)
 

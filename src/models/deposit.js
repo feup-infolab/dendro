@@ -19,7 +19,6 @@ const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const StorageConfig = rlequire("dendro", "src/models/storage/storageConfig.js").StorageConfig;
 const Storage = rlequire("dendro", "src/kb/storage/storage.js").Storage;
 
-
 const B2ShareClient = require("@feup-infolab/node-b2share-v2");
 
 const util = require("util");
