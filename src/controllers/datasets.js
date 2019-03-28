@@ -207,7 +207,7 @@ exports.calculate_ckan_repository_diffs = function (req, res)
     }
 };
 
-export_to_repository_ckan = function (req, res)
+const exportToRepositoryCkan = function (req, res)
 {
     try
     {
@@ -367,7 +367,7 @@ export_to_repository_ckan = function (req, res)
     }
 };
 
-export_to_repository_figshare = function (req, res)
+const exportToRepositoryFigshare = function (req, res)
 {
     const requestedResourceUri = req.params.requestedResourceUri;
     const targetRepository = req.body.repository;
@@ -560,7 +560,7 @@ export_to_repository_figshare = function (req, res)
     }
 };
 
-const export_to_repository_zenodo = function (req, res)
+const exportToRepositoryZenodo = function (req, res)
 {
     const requestedResourceUri = req.params.requestedResourceUri;
     const targetRepository = req.body.repository;
@@ -788,7 +788,7 @@ const export_to_repository_zenodo = function (req, res)
     }
 };
 
-export_to_repository_b2share = function (req, res)
+const exportToRepositoryB2share = function (req, res)
 {
     const requestedResourceUri = req.params.requestedResourceUri;
     const targetRepository = req.body.repository;
@@ -1126,7 +1126,7 @@ export_to_repository_b2share = function (req, res)
     });
 };
 
-export_to_dendro = function (req, res)
+const exportToDendro = function (req, res)
 {
     const requestedResourceUri = req.params.requestedResourceUri;
     const publicDeposit = req.body.publicDeposit;
@@ -1135,27 +1135,27 @@ export_to_dendro = function (req, res)
     const uuid = uuidv1();
     const DOI = "10.23673/" + uuid;
 
-    generateDoi = function (description, language, callback)
+    const generateDoi = function (description, language, callback)
     {
         const auth = "Basic " + new Buffer("DEV.INFOLAB" + ":" + "8yD5qChSbUSK").toString("base64");
 
         request
             .post("https://api.test.datacite.org/dois")
             .set("accept", "application/vnd.api+json")
-            .set("Accept-Language", "en-US,en;q=0.5")
             .set("Referer", "https://doi.test.datacite.org/clients/dev.infolab/dois/new")
-            .set("Content-Type", "application/vnd.api+json")
-            .set("Authorization", auth)
             .set("Origin", "https://doi.test.datacite.org")
-            .set("Connection", "keep-alive")
-            .set("TE", "Trailers")
+            .set("Authorization", auth)
+            .set("Content-Type", "application/vnd.api+json")
             .send({
                 data: {
                     attributes:
                 {
                     doi: DOI,
                     confirmDoi: null,
-                    url: null,
+                    url: "https://stats.datacite.org/stats/resolution-report/resolutions_09_2016.html",
+                    types: {
+                        resourceTypeGeneral: "Dataset"
+                    },
                     creators:
                     [{
                         name: null,
@@ -1205,9 +1205,9 @@ export_to_dendro = function (req, res)
                     type: "dois"
                 }
             })
-            .then(function ()
+            .then(function (result)
             {
-                callback(null, true);
+                callback(null, result);
             })
             .catch(function (error)
             {
@@ -1215,12 +1215,29 @@ export_to_dendro = function (req, res)
             });
     };
 
-    generateCitation = function (url, creator, title, year)
+    const generateCitation = function (callback)
     {
-        let citation = "@misc{https://doi.org/" + DOI + ", \n doi = {" + DOI + "}, \n";
-        citation = citation + "url = {" + url + "}, \n";
-        citation = citation + "author = {{" + creator + "}}, \n title = {" + titleOfDeposit + "}, \n publisher = {Dendro}, \n year = {" + year + "} \n }";
-        return citation;
+        const auth = "Basic " + new Buffer("DEV.INFOLAB" + ":" + "8yD5qChSbUSK").toString("base64");
+
+        request
+            .get("https://api.test.datacite.org/dois/10.23673/" + uuid)
+            .set("accept", "application/x-bibtex")
+        // .set("Accept-Language", "pt-PT,pt;q=0.8,en;q=0.5,en-US;q=0.3")
+            .set("Referer", "https://doi.test.datacite.org/clients/dev.infolab/dois/10.23673%2F" + uuid)
+            .set("Origin", "https://doi.test.datacite.org")
+            .set("Authorization", auth)
+        // .set("Connection", "keep-alive")
+        // .set("TE", "Trailers")
+        // .set("If-None-Match", "W/\"ac87ccb7537cac0554f0c678b85252e8")
+            .send()
+            .then(function (result)
+            {
+                callback(null, result);
+            })
+            .catch(function (error)
+            {
+                callback(1, error);
+            });
     };
 
     if (req.body.embargoed_date)
@@ -1243,52 +1260,58 @@ export_to_dendro = function (req, res)
                         async.series([ function (callback)
                         {
                             generateDoi(description, language, callback);
-                        }],
-                        function (err, results)
+                        },
+                        function (callback)
                         {
-                            if (!isNull(err))
+                            generateCitation(callback);
+                        },
+                        function (callback)
+                        {
+                            const registryData = {
+                                dcterms: {
+                                    title: titleOfDeposit,
+                                    creator: req.user.uri,
+                                    identifier: "123456789",
+                                    description: description,
+                                    language: language
+                                },
+                                ddr: {
+                                    exportedFromProject: project.uri,
+                                    exportedFromFolder: file.uri,
+                                    privacyStatus: publicDeposit,
+                                    exportedToRepository: "Dendro",
+                                    exportedToPlatform: "Dendro",
+                                    proposedCitation: "citation",
+                                    DOI: DOI,
+                                    embargoedDate: isNull(embargoedDate) ? null : embargoedDate
+
+                                }
+
+                            };
+                            Deposit.createDeposit({registryData: registryData, requestedResource: file, user: req.user}, function (err, registry)
                             {
+                                if (isNull(err))
+                                {
+                                    callback(null, registry);
+                                }
+                                else
+                                {
+                                    callback(1, true);
+                                }
+                            });
+                        }],
+                        function (err, registry)
+                        {
+                            if (isNull(err))
+                            {
+                                let msg = "<br/><br/>Deposited successfully to Dendro. Check deposit <a href='" + registry.uri + "'>here</a>";
                                 res.json(
                                     {
-                                        result: "Error",
-                                        message: "Error"
+                                        result: "OK",
+                                        message: msg
                                     }
                                 );
                             }
-                        });
-
-                        const citation = generateCitation("url", "creator", new Date().getFullYear());
-
-                        const registryData = {
-                            dcterms: {
-                                title: titleOfDeposit,
-                                creator: req.user.uri,
-                                identifier: "123456789",
-                                description: description,
-                                language: language
-                            },
-                            ddr: {
-                                exportedFromProject: project.uri,
-                                exportedFromFolder: file.uri,
-                                privacyStatus: publicDeposit,
-                                exportedToRepository: "Dendro",
-                                exportedToPlatform: "Dendro",
-                                proposedCitation: citation,
-                                DOI: DOI,
-                                embargoedDate: isNull(embargoedDate) ? null : embargoedDate
-
-                            }
-
-                        };
-                        Deposit.createDeposit({registryData: registryData, requestedResource: file, user: req.user}, function (err2, registry)
-                        {
-                            let msg = "<br/><br/>Deposited successfully to Dendro. Check deposit <a href='" + registry.uri + "'>here</a>";
-                            res.json(
-                                {
-                                    result: "OK",
-                                    message: msg
-                                }
-                            );
                         });
                     }
                 });
@@ -1307,57 +1330,60 @@ export_to_dendro = function (req, res)
                                 {
                                     const description = folder.dcterms.description;
                                     const language = project.dcterms.language;
-                                    async.series([ function (callback)
+                                    async.series([function (callback)
                                     {
                                         generateDoi(description, language, callback);
-                                    }],
-                                    function (err, results)
+                                    },
+                                    function (callback)
                                     {
-                                        if (!isNull(err))
+                                        generateCitation(callback);
+                                    },
+                                    function (callback)
+                                    {
+                                        const registryData = {
+                                            dcterms: {
+                                                title: titleOfDeposit,
+                                                creator: req.user.uri,
+                                                identifier: "123456789",
+                                                description: description,
+                                                language: language
+                                            },
+                                            ddr: {
+                                                exportedFromProject: project.uri,
+                                                exportedFromFolder: folder.uri,
+                                                privacyStatus: publicDeposit,
+                                                exportedToRepository: "Dendro",
+                                                exportedToPlatform: "Dendro",
+                                                proposedCitation: "citation",
+                                                DOI: DOI,
+                                                embargoedDate: isNull(embargoedDate) ? null : embargoedDate
+                                            }
+
+                                        };
+                                        Deposit.createDeposit({registryData: registryData, requestedResource: file, user: req.user}, function (err, registry)
                                         {
+                                            if (isNull(err))
+                                            {
+                                                callback(null, registry);
+                                            }
+                                            else
+                                            {
+                                                callback(1, true);
+                                            }
+                                        });
+                                    }],
+                                    function (err, registry)
+                                    {
+                                        if (isNull(err))
+                                        {
+                                            let msg = "<br/><br/>Deposited successfully to Dendro. Check deposit <a href='" + registry.uri + "'>here</a>";
                                             res.json(
                                                 {
-                                                    result: "Error",
-                                                    message: "Error"
+                                                    result: "OK",
+                                                    message: msg
                                                 }
                                             );
                                         }
-                                    });
-                                    const citation = generateCitation("url", "creator", new Date().getFullYear());
-
-                                    const registryData = {
-                                        dcterms: {
-                                            title: titleOfDeposit,
-                                            creator: req.user.uri,
-                                            identifier: "123456789",
-                                            description: description,
-                                            language: language
-                                        },
-                                        ddr: {
-                                            exportedFromProject: project.uri,
-                                            exportedFromFolder: folder.uri,
-                                            privacyStatus: publicDeposit,
-                                            exportedToRepository: "Dendro",
-                                            exportedToPlatform: "Dendro",
-                                            proposedCitation: "citation",
-                                            DOI: DOI,
-                                            embargoedDate: isNull(embargoedDate) ? null : embargoedDate
-                                        }
-
-                                    };
-                                    Deposit.createDeposit({
-                                        registryData: registryData,
-                                        requestedResource: folder,
-                                        user: req.user
-                                    }, function (err, registry)
-                                    {
-                                        let msg = "<br/><br/>Deposited successfully to Dendro. Check deposit <a href='" + registry.uri + "'>here</a>";
-                                        res.json(
-                                            {
-                                                result: "OK",
-                                                message: msg
-                                            }
-                                        );
                                     });
                                 }
                             });
@@ -1402,11 +1428,11 @@ exports.export_to_repository = function (req, res)
                     callback(null, nick);
                 }
             }
-        ], function (err, results)
+        ], function ()
         {
             if (nick === "ckan")
             {
-                export_to_repository_ckan(req, res);
+                exportToRepositoryCkan(req, res);
             }
             else if (nick === "dspace" || nick === "eprints")
             {
@@ -1414,23 +1440,23 @@ exports.export_to_repository = function (req, res)
             }
             else if (nick === "figshare")
             {
-                export_to_repository_figshare(req, res);
+                exportToRepositoryFigshare(req, res);
             }
             else if (nick === "zenodo")
             {
-                export_to_repository_zenodo(req, res);
+                exportToRepositoryZenodo(req, res);
             }
             else if (nick === "b2share")
             {
-                export_to_repository_b2share(req, res);
+                exportToRepositoryB2share(req, res);
             }
             else if (nick === "dendro")
             {
-                export_to_dendro(req, res);
+                exportToDendro(req, res);
             }
             else if (nick === "local")
             {
-                export_to_dendro(req, res);
+                exportToDendro(req, res);
             }
             else
             {
