@@ -481,7 +481,7 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
                                     Logger.log("error", JSON.stringify(results));
                                 }
 
-                                closeStatement(statement,function (err, result)
+                                closeStatement(statement, function (err, result)
                                 {
                                     if (isNull(err))
                                     {
@@ -496,7 +496,7 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
                         }
                         else
                         {
-                            closeStatement(statement,function (statementClosingError, result)
+                            closeStatement(statement, function (statementClosingError, result)
                             {
                                 if (isNull(statementClosingError))
                                 {
@@ -509,7 +509,8 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
                                         else
                                         {
                                             // It is really an error, not related to the connection loss. propagate the error up
-                                            self.releaseConnection(connection, function(err, result){
+                                            self.releaseConnection(connection, function (err, result)
+                                            {
                                                 callback(executionError, resultSet);
                                             });
                                         }
@@ -563,7 +564,8 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
                 }
 
                 recordQueryConclusionInLog(query, queryStartTime);
-                self.releaseConnection(connection, function(err, result){
+                self.releaseConnection(connection, function (err, result)
+                {
                     callback(err, results);
                 });
             });
