@@ -626,6 +626,22 @@ Config.enabledOntologies = {
         description: "A taxonomy that enables testbeds to semantically annotate the IoT data produced by heterogeneous devices. In this taxonomy, we classify devices, the domain of interests (health, smart home, smart kitchen, environmental monitoring, etc.), phenomena and unit of measurements",
         domain: "IoT",
         domain_specific: true
+    },
+    chm: {
+        prefix: "chm",
+        elements: Elements.ontologies.chm,
+        label: "Chemistry",
+        description: "Vocabulary for the description of data resulting from experiments in the chemistry domain: particle size; solution Ph, chemical Element, etc..",
+        domain: "Chemistry",
+        domain_specific: true
+    },
+    phys: {
+        prefix: "phys",
+        elements: Elements.ontologies.phys,
+        label: "Physics",
+        description: "Vocabulary for the description of data resulting from experiments in the physics domain: substrate; band gap, sample mass, etc..",
+        domain: "Physics",
+        domain_specific: true
     }
 };
 

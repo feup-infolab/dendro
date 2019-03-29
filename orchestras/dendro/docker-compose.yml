@@ -14,8 +14,6 @@ services:
       - "TAKE_FILE_OWNERSHIP=1"
     volumes:
       - ./volumes/elasticsearch:/usr/share/elasticsearch/data:consistent
-    networks:
-      - dendro
 
   solr:
     container_name: solr-dendro-dev
@@ -42,8 +40,6 @@ services:
       - "VIRT_Parameters_CheckpointSyncMode=2"
       - "VIRT_Parameters_PageMapCheck=1"
       - "VIRT_Parameters_CheckpointInterval=0"
-    networks:
-      - dendro
 
   mariadb:
     container_name: mariadb-dendro-dev
@@ -57,8 +53,6 @@ services:
       - "MYSQL_PASSWORD=dendr0_p4ssw0rd"
     volumes:
       - ./volumes/mariadb:/var/lib/mariadb
-    networks:
-      - dendro
 
   mongodb:
     container_name: mongodb-dendro-dev
@@ -70,9 +64,5 @@ services:
       - "MONGO_INITDB_ROOT_PASSWORD=34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
     volumes:
       - ./volumes/mongo:/data/db
-    networks:
-      - dendro
     command: mongod --smallfiles --bind_ip_all
 
-networks:
-  dendro: {}
