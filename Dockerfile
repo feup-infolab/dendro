@@ -114,8 +114,8 @@ RUN ls -la "$DENDRO_INSTALL_DIR"
 
 # Checkout specified DENDRO_GIT_BRANCH
 WORKDIR $DENDRO_INSTALL_DIR
-RUN git checkout "$DENDRO_GIT_BRANCH"
-RUN git pull
+# RUN git checkout "$DENDRO_GIT_BRANCH"
+# RUN git pull
 
 # Copy dendro startup script
 COPY ./conf/scripts/docker/start_dendro_inside_docker.sh "$DENDRO_INSTALL_DIR/dendro.sh"
