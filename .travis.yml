@@ -33,6 +33,7 @@ install:
 
 script:
   - docker-compose up -d
+  - chmod +x ${TRAVIS_BUILD_DIR}/conf/scripts/check_if_dendro_boots.sh
   - ${TRAVIS_BUILD_DIR}/conf/scripts/check_if_dendro_boots.sh 3001
 
 # after_success:
