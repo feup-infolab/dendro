@@ -32,8 +32,8 @@ install:
   - docker-compose build
 
 script:
-  - docker-compose up
-  - ${TRAVIS_BUILD_DIR}/scripts/chec_if_dendro_boots.sh 3001
+  - docker-compose up -d
+  - ${TRAVIS_BUILD_DIR}/scripts/check_if_dendro_boots.sh 3001
 
 # after_success:
 #   - nvm use 8.10.0
