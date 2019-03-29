@@ -25,8 +25,8 @@ before_script:
   - sudo /etc/init.d/mysql stop
   - sudo /etc/init.d/postgresql stop
   # The following did not work reliable
-  - sudo service mysql stop
-  - sudo service postgresql stop
+  # - sudo service mysql stop
+  # - sudo service postgresql stop
 
 install:
   - docker-compose build
