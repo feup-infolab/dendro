@@ -33,13 +33,13 @@ install:
 
 script:
   - docker-compose up -d
-  - ${TRAVIS_BUILD_DIR}/scripts/check_if_dendro_boots.sh 3001
+  - ${TRAVIS_BUILD_DIR}/conf/scripts/check_if_dendro_boots.sh 3001
 
 # after_success:
 #   - nvm use 8.10.0
 #   - npm run report-coverage
 
-after_script:
-  - docker stop $(docker ps -a -q) || true
-  - docker rm -f $(docker ps -a -q) || true
-  - docker rmi -f $(docker ps -a -q) || true
+# after_script:
+#  - docker stop $(docker ps -a -q) || true
+#  - docker rm -f $(docker ps -a -q) || true
+#  - docker rmi -f $(docker ps -a -q) || true
