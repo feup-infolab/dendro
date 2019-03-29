@@ -1239,6 +1239,63 @@ const exportToDendro = function (req, res)
                 callback(1, error);
             });
     };
+    const createDepositAux = function (exportedFromProject, exportedFromFolder, file, description, language, callback)
+    {
+        async.series([ function (callback)
+        {
+            generateDoi(description, language, callback);
+        },
+        function (callback)
+        {
+            generateCitation(callback);
+        },
+        function (callback)
+        {
+            const registryData = {
+                dcterms: {
+                    title: titleOfDeposit,
+                    creator: req.user.uri,
+                    identifier: "123456789",
+                    description: description,
+                    language: language
+                },
+                ddr: {
+                    exportedFromProject: exportedFromProject,
+                    exportedFromFolder: exportedFromFolder,
+                    privacyStatus: publicDeposit,
+                    exportedToRepository: "Dendro",
+                    exportedToPlatform: "Dendro",
+                    proposedCitation: "citation",
+                    DOI: DOI,
+                    embargoedDate: isNull(embargoedDate) ? null : embargoedDate
+
+                }
+
+            };
+            Deposit.createDeposit({registryData: registryData, requestedResource: file, user: req.user}, function (err, registry)
+            {
+                if (isNull(err))
+                {
+                    callback(null, registry);
+                }
+                else
+                {
+                    callback(1, true);
+                }
+            });
+        }],
+        function (err, registry)
+        {
+            if (isNull(err))
+            {
+                callback(null, registry[2]);
+            }
+            else
+            {
+                callback(1, true);
+            }
+        });
+    };
 
     if (req.body.embargoed_date)
     {
@@ -1257,50 +1314,7 @@ const exportToDendro = function (req, res)
                     {
                         const description = project.dcterms.description;
                         const language = project.dcterms.language;
-                        async.series([ function (callback)
-                        {
-                            generateDoi(description, language, callback);
-                        },
-                        function (callback)
-                        {
-                            generateCitation(callback);
-                        },
-                        function (callback)
-                        {
-                            const registryData = {
-                                dcterms: {
-                                    title: titleOfDeposit,
-                                    creator: req.user.uri,
-                                    identifier: "123456789",
-                                    description: description,
-                                    language: language
-                                },
-                                ddr: {
-                                    exportedFromProject: project.uri,
-                                    exportedFromFolder: file.uri,
-                                    privacyStatus: publicDeposit,
-                                    exportedToRepository: "Dendro",
-                                    exportedToPlatform: "Dendro",
-                                    proposedCitation: "citation",
-                                    DOI: DOI,
-                                    embargoedDate: isNull(embargoedDate) ? null : embargoedDate
-
-                                }
-
-                            };
-                            Deposit.createDeposit({registryData: registryData, requestedResource: file, user: req.user}, function (err, registry)
-                            {
-                                if (isNull(err))
-                                {
-                                    callback(null, registry);
-                                }
-                                else
-                                {
-                                    callback(1, true);
-                                }
-                            });
-                        }],
-                        function (err, registry)
+                        createDepositAux(project.uri, file.uri, file, description, language, function (err, registry)
                         {
                             if (isNull(err))
                             {
@@ -1309,6 +1323,15 @@ const exportToDendro = function (req, res)
                                     {
                                         result: "OK",
                                         message: msg
+                                    }
+                                );
+                            }
+                            else
+                            {
+                                res.json(
+                                    {
+                                        result: "ERROR",
+                                        message: "<br/><br/>Deposit not deposited"
                                     }
                                 );
                             }
@@ -1328,51 +1351,9 @@ const exportToDendro = function (req, res)
                             {
                                 if (isNull(err))
                                 {
-                                    const description = folder.dcterms.description;
+                                    const description = project.dcterms.description;
                                     const language = project.dcterms.language;
-                                    async.series([function (callback)
-                                    {
-                                        generateDoi(description, language, callback);
-                                    },
-                                    function (callback)
-                                    {
-                                        generateCitation(callback);
-                                    },
-                                    function (callback)
-                                    {
-                                        const registryData = {
-                                            dcterms: {
-                                                title: titleOfDeposit,
-                                                creator: req.user.uri,
-                                                identifier: "123456789",
-                                                description: description,
-                                                language: language
-                                            },
-                                            ddr: {
-                                                exportedFromProject: project.uri,
-                                                exportedFromFolder: folder.uri,
-                                                privacyStatus: publicDeposit,
-                                                exportedToRepository: "Dendro",
-                                                exportedToPlatform: "Dendro",
-                                                proposedCitation: "citation",
-                                                DOI: DOI,
-                                                embargoedDate: isNull(embargoedDate) ? null : embargoedDate
-                                            }
-
-                                        };
-                                        Deposit.createDeposit({registryData: registryData, requestedResource: file, user: req.user}, function (err, registry)
-                                        {
-                                            if (isNull(err))
-                                            {
-                                                callback(null, registry);
-                                            }
-                                            else
-                                            {
-                                                callback(1, true);
-                                            }
-                                        });
-                                    }],
-                                    function (err, registry)
+                                    createDepositAux(project.uri, folder.uri, file, description, language, function (err, registry)
                                     {
                                         if (isNull(err))
                                         {
