@@ -33,28 +33,28 @@ FROM base AS dependencies
 
 # Install preliminary dependencies
 RUN apt-get update
-RUN apt-get -y -f -q install sudo unzip devscripts autoconf automake libtool flex bison gperf gawk m4 make libssl-dev imagemagick subversion zip wget curl git rsync --fix-missing
-RUN apt-get -y -q install apt-utils --no-install-recommends
+RUN apt-get -y -f -qq install sudo unzip devscripts autoconf automake libtool flex bison gperf gawk m4 make libssl-dev imagemagick subversion zip wget curl git rsync --fix-missing
+RUN apt-get -y -qq install apt-utils --no-install-recommends
 
 # Install text extraction tools
-RUN apt-get -y -f -q install poppler-utils antiword unrtf tesseract-ocr
+RUN apt-get -y -f -qq install poppler-utils antiword unrtf tesseract-ocr
 
 # Install python 2.7
-RUN apt-get -y -f -q install python2.7
+RUN apt-get -y -f -qq install python2.7
 RUN ln -s /usr/bin/python2.7 /usr/bin/python
 
 # Install Java Oracle SDK 8
-RUN apt-get install -y -q software-properties-common
+RUN apt-get install -y -qq software-properties-common
 RUN \
   echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections && \
   add-apt-repository -y ppa:webupd8team/java && \
-  apt-get -q update && \
-  apt-get -y -q install oracle-java8-installer && \
+  apt-get -qq update && \
+  apt-get -y -qq install oracle-java8-installer && \
   rm -rf /var/lib/apt/lists/* && \
   rm -rf /var/cache/oracle-jdk8-installer
 
 # Set Java Oracle SDK 8 as default Java
-RUN apt-get install -y -q oracle-java8-set-default
+RUN apt-get install -y -qq oracle-java8-set-default
 
 # compatibility fix for node on ubuntu
 RUN ln -s /usr/bin/nodejs /usr/bin/node
