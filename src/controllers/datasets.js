@@ -14,8 +14,6 @@ const Zenodo = rlequire("dendro", "src/export_libs/zenodo/zenodo.js");
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const CkanUtils = rlequire("dendro", "src/utils/datasets/ckanUtils.js");
 const generalDatasetUtils = rlequire("dendro", "src/utils/datasets/generalDatasetUtils.js");
-const uuidv1 = require("uuid/v1");
-const request = require("superagent");
 
 const async = require("async");
 const _ = require("underscore");
@@ -1132,163 +1130,34 @@ const exportToDendro = function (req, res)
     const publicDeposit = req.body.publicDeposit;
     const titleOfDeposit = req.body.titleOfDeposit;
     let embargoedDate;
-    const uuid = uuidv1();
-    const DOI = "10.23673/" + uuid;
-
-    const generateDoi = function (description, language, callback)
-    {
-        const auth = "Basic " + new Buffer("DEV.INFOLAB" + ":" + "8yD5qChSbUSK").toString("base64");
-
-        request
-            .post("https://api.test.datacite.org/dois")
-            .set("accept", "application/vnd.api+json")
-            .set("Referer", "https://doi.test.datacite.org/clients/dev.infolab/dois/new")
-            .set("Origin", "https://doi.test.datacite.org")
-            .set("Authorization", auth)
-            .set("Content-Type", "application/vnd.api+json")
-            .send({
-                data: {
-                    attributes:
-                {
-                    doi: DOI,
-                    confirmDoi: null,
-                    url: "https://stats.datacite.org/stats/resolution-report/resolutions_09_2016.html",
-                    types: {
-                        resourceTypeGeneral: "Dataset"
-                    },
-                    creators:
-                    [{
-                        name: null,
-                        givenName: null,
-                        familyName: null,
-                        nameType: "Personal",
-                        affiliation: null,
-                        nameIdentifiers:
-                        [{
-                            nameIdentifier: null,
-                            nameIdentifierScheme: null,
-                            schemeUri: null
-                        }]
-                    }],
-                    titles:
-                    [{
-                        title: titleOfDeposit,
-                        titleType: null,
-                        lang: language
-                    }],
-                    publisher: null,
-                    publicationYear: null,
-                    descriptions:
-                    [{
-                        description: description,
-                        descriptionType: "Abstract",
-                        lang: language
-                    }],
-                    xml: null,
-                    source: "fabricaForm",
-                    state: "draft",
-                    reason: null,
-                    event: null,
-                    mode: "new"
-                },
-                    relationships:
-                {
-                    client:
-                    {
-                        data:
-                        {
-                            type: "clients",
-                            id: "dev.infolab"
-                        }
-                    }
-                },
-                    type: "dois"
-                }
-            })
-            .then(function (result)
-            {
-                callback(null, result);
-            })
-            .catch(function (error)
-            {
-                callback(1, error);
-            });
-    };
-
-    const generateCitation = function (callback)
-    {
-        const auth = "Basic " + new Buffer("DEV.INFOLAB" + ":" + "8yD5qChSbUSK").toString("base64");
-
-        request
-            .get("https://api.test.datacite.org/dois/10.23673/" + uuid)
-            .set("accept", "application/x-bibtex")
-        // .set("Accept-Language", "pt-PT,pt;q=0.8,en;q=0.5,en-US;q=0.3")
-            .set("Referer", "https://doi.test.datacite.org/clients/dev.infolab/dois/10.23673%2F" + uuid)
-            .set("Origin", "https://doi.test.datacite.org")
-            .set("Authorization", auth)
-        // .set("Connection", "keep-alive")
-        // .set("TE", "Trailers")
-        // .set("If-None-Match", "W/\"ac87ccb7537cac0554f0c678b85252e8")
-            .send()
-            .then(function (result)
-            {
-                callback(null, result);
-            })
-            .catch(function (error)
-            {
-                callback(1, error);
-            });
-    };
     const createDepositAux = function (exportedFromProject, exportedFromFolder, file, description, language, callback)
     {
-        async.series([ function (callback)
-        {
-            generateDoi(description, language, callback);
-        },
-        function (callback)
-        {
-            generateCitation(callback);
-        },
-        function (callback)
-        {
-            const registryData = {
-                dcterms: {
-                    title: titleOfDeposit,
-                    creator: req.user.uri,
-                    identifier: "123456789",
-                    description: description,
-                    language: language
-                },
-                ddr: {
-                    exportedFromProject: exportedFromProject,
-                    exportedFromFolder: exportedFromFolder,
-                    privacyStatus: publicDeposit,
-                    exportedToRepository: "Dendro",
-                    exportedToPlatform: "Dendro",
-                    proposedCitation: "citation",
-                    DOI: DOI,
-                    embargoedDate: isNull(embargoedDate) ? null : embargoedDate
+        const registryData = {
+            dcterms: {
+                title: titleOfDeposit,
+                creator: req.user.uri,
+                identifier: "123456789",
+                description: description,
+                language: language
+            },
+            ddr: {
+                exportedFromProject: exportedFromProject,
+                exportedFromFolder: exportedFromFolder,
+                privacyStatus: publicDeposit,
+                exportedToRepository: "Dendro",
+                exportedToPlatform: "Dendro",
+                proposedCitation: "citation",
+                DOI: "DOI",
+                embargoedDate: isNull(embargoedDate) ? null : embargoedDate
 
-                }
+            }
 
-            };
-            Deposit.createDeposit({registryData: registryData, requestedResource: file, user: req.user}, function (err, registry)
-            {
-                if (isNull(err))
-                {
-                    callback(null, registry);
-                }
-                else
-                {
-                    callback(1, true);
-                }
-            });
-        }],
-        function (err, registry)
+        };
+        Deposit.createDeposit({registryData: registryData, requestedResource: file, user: req.user}, function (err, newDeposit)
         {
             if (isNull(err))
             {
-                callback(null, registry[2]);
+                callback(null, newDeposit);
             }
             else
             {

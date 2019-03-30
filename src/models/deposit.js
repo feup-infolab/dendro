@@ -18,6 +18,8 @@ const db = Config.getDBByID();
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const StorageConfig = rlequire("dendro", "src/models/storage/storageConfig.js").StorageConfig;
 const Storage = rlequire("dendro", "src/kb/storage/storage.js").Storage;
+const uuidv1 = require("uuid/v1");
+const superRequest = require("superagent");
 
 const B2ShareClient = require("@feup-infolab/node-b2share-v2");
 
@@ -49,60 +51,202 @@ function Deposit (object)
 Deposit.createDeposit = function (data, callback)
 {
     let object = data.registryData;
+    //object.dcterms.DOI = "DOI";
+
     let content = data.requestedResource;
-    const newDeposit = new Deposit(object);
-
-    const requestedResourceURI = object.ddr.exportedFromFolder;
-
-    const isResource = function (url)
+    let newDeposit = new Deposit(object);
+    const uuid = uuidv1();
+    const DOI = "10.23673/" + uuid;
+    const generateDoi = function (callback)
     {
-        const regexp = /\/r\/(folder|file)\/.*/;
-        return regexp.test(url);
+        const auth = "Basic " + new Buffer("DEV.INFOLAB" + ":" + "8yD5qChSbUSK").toString("base64");
+
+        superRequest
+            .post("https://api.test.datacite.org/dois")
+            .set("accept", "application/vnd.api+json")
+            .set("Referer", "https://doi.test.datacite.org/clients/dev.infolab/dois/new")
+            .set("Origin", "https://doi.test.datacite.org")
+            .set("Authorization", auth)
+            .set("Content-Type", "application/vnd.api+json")
+            .send({
+                data: {
+                    attributes:
+                    {
+                        doi: DOI,
+                        confirmDoi: null,
+                        url: "http://localhost:3001" + newDeposit.uri,
+                        types: {
+                            resourceTypeGeneral: "Dataset"
+                        },
+                        creators:
+                          [{
+                              name: null,
+                              givenName: null,
+                              familyName: null,
+                              nameType: "Personal",
+                              affiliation: null,
+                              nameIdentifiers:
+                                [{
+                                    nameIdentifier: null,
+                                    nameIdentifierScheme: null,
+                                    schemeUri: null
+                                }]
+                          }],
+                        titles:
+                          [{
+                              title: newDeposit.dcterms.title,
+                              titleType: null,
+                              lang: newDeposit.dcterms.language
+                          }],
+                        publisher: null,
+                        publicationYear: null,
+                        descriptions:
+                          [{
+                              description: newDeposit.dcterms.description,
+                              descriptionType: "Abstract",
+                              lang: newDeposit.dcterms.language
+                          }],
+                        xml: null,
+                        source: "fabricaForm",
+                        state: "draft",
+                        reason: null,
+                        event: null,
+                        mode: "new"
+                    },
+                    relationships:
+                    {
+                        client:
+                          {
+                              data:
+                                {
+                                    type: "clients",
+                                    id: "dev.infolab"
+                                }
+                          }
+                    },
+                    type: "dois"
+                }
+            })
+            .then(function (result)
+            {
+                callback(null, result);
+            })
+            .catch(function (error)
+            {
+                callback(1, error);
+            });
+    };
+    const generateCitation = function (callback)
+    {
+        const auth = "Basic " + new Buffer("DEV.INFOLAB" + ":" + "8yD5qChSbUSK").toString("base64");
+
+        var headers = {
+            accept: "application/x-bibtex",
+            Referer: "https://doi.test.datacite.org/clients/dev.infolab/dois/10.23673%2F" + uuid,
+            Origin: "https://doi.test.datacite.org",
+            Authorization: auth
+        };
+
+        var options = {
+            url: "https://api.test.datacite.org/dois/10.23673/" + uuid,
+            headers: headers
+        };
+
+        function result (error, response, body)
+        {
+            if (!error && response.statusCode === 200)
+            {
+                callback(null, body);
+            }
+            else
+            {
+                callback(error, response);
+            }
+        }
+
+        request(options, result);
     };
 
-    if (isNull(object.ddr.lastVerifiedDate))
+    async.waterfall([ function (callback)
     {
-        object.ddr.lastVerifiedDate = moment().format();
-    }
-    object.ddr.isAvailable = true;
-
-    if (isResource(requestedResourceURI))
-    {
-        console.log("creating registry from deposit\n" + util.inspect(object));
-
-        let storageConf = new StorageConfig({
-            ddr: {
-                hasStorageType: "local"
-            }
-        });
-
-        storageConf.save(function (err, savedConfiguration)
+        generateDoi(function (err, result)
         {
-            if (isNull(err))
-            {
-                newDeposit.ddr.hasStorageConfig = savedConfiguration.uri;
-                // save deposited contents to dendro
-                Deposit.saveContents({newDeposit: newDeposit, content: content, user: data.user}, function (err, msg)
-                {
-                    newDeposit.save(function (err, newDeposit)
-                    {
-                        if (!err)
-                        {
-                            callback(err, newDeposit);
-                        }
-                        else
-                        {
-                            callback(err, "not good");
-                        }
-                    });
-                });
-            }
+            callback(err, result);
         });
-    }
-    else
+    },
+    function (result, callback)
     {
-        callback(1);
-    }
+        generateCitation(function (err, citation)
+        {
+            callback(err, citation);
+        });
+    },
+    function (citation, callback)
+    {
+        const requestedResourceURI = object.ddr.exportedFromFolder;
+        //object.dcterms.DOI = "DOI";
+        //newDeposit.dcterms.proposedCitation = "citation";
+
+        const isResource = function (url)
+        {
+            const regexp = /\/r\/(folder|file)\/.*/;
+            return regexp.test(url);
+        };
+
+        if (isNull(object.ddr.lastVerifiedDate))
+        {
+            object.ddr.lastVerifiedDate = moment().format();
+        }
+        object.ddr.isAvailable = true;
+
+        if (isResource(requestedResourceURI))
+        {
+            console.log("creating registry from deposit\n" + util.inspect(object));
+
+            let storageConf = new StorageConfig({
+                ddr: {
+                    hasStorageType: "local"
+                }
+            });
+
+            storageConf.save(function (err, savedConfiguration)
+            {
+                if (isNull(err))
+                {
+                    newDeposit.ddr.hasStorageConfig = savedConfiguration.uri;
+                    // save deposited contents to dendro
+                    Deposit.saveContents({newDeposit: newDeposit, content: content, user: data.user}, function (err, msg)
+                    {
+                        newDeposit.save(function (err, newDeposit)
+                        {
+                            if (!err)
+                            {
+                                callback(err, newDeposit);
+                            }
+                            else
+                            {
+                                callback(err, "not good");
+                            }
+                        });
+                    });
+                }
+            });
+        }
+        else
+        {
+            callback(1);
+        }
+    }], function (err, newDeposit)
+    {
+        if (isNull(err))
+        {
+            callback(null, newDeposit);
+        }
+        else
+        {
+            callback(1, true);
+        }
+    });
 };
 
 /**
