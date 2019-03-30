@@ -32,7 +32,7 @@ services:
     image: feupinfolab/virtuoso-with-dendro-ontologies:latest
     tty: true
     volumes:
-      - ./volumes/virtuoso:/data
+      - ./volumes/virtuoso:/database
     ports:
       - 8891:8890
       - 1112:1111
@@ -41,6 +41,7 @@ services:
       - "VIRT_Parameters_CheckpointSyncMode=2"
       - "VIRT_Parameters_PageMapCheck=1"
       - "VIRT_Parameters_CheckpointInterval=0"
+      - "DBA_PASSWORD=dba"
 
   mariadb:
     container_name: mariadb-dendro-dev

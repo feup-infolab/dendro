@@ -50,7 +50,7 @@ services:
       - "VIRT_Parameters_CheckpointInterval=0"
       - "DBA_PASSWORD=dba"
     volumes:
-        - ./volumes/virtuoso:/data
+        - ./volumes/virtuoso:/database
     networks:
       - dendro-docker-deployment
     restart: on-failure

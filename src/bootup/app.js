@@ -62,7 +62,7 @@ class App
             setTimeout(function ()
             {
                 const msg = "Graceful close timed out. Forcing server closing!";
-                Logger.log("warn", msg);
+                Logger.log("info", msg);
                 process.exit(1);
             }, Config.dbOperationTimeout);
         };
