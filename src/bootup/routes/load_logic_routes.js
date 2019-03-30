@@ -5,6 +5,7 @@ const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const Permissions = Object.create(rlequire("dendro", "src/models/meta/permissions.js").Permissions);
+const DockerManager = Object.create(rlequire("dendro", "src/utils/docker/docker_manager.js").DockerManager);
 const Resource = Object.create(rlequire("dendro", "src/models/resource.js").Resource);
 const QueryBasedRouter = Object.create(rlequire("dendro", "src/utils/query_based_router.js").QueryBasedRouter);
 let RecommendationUtils = rlequire("dendro", "src/utils/recommendation.js").RecommendationUtils;
@@ -30,6 +31,7 @@ const datasets = rlequire("dendro", "src/controllers/datasets");
 const posts = rlequire("dendro", "src/controllers/posts");
 const timeline = rlequire("dendro", "src/controllers/timeline");
 const notifications = rlequire("dendro", "src/controllers/notifications");
+const keywords = rlequire("dendro", "src/controllers/keywords");
 
 let recommendation;
 
@@ -1435,6 +1437,43 @@ const loadRoutes = function (app, callback)
     app.post("/interactions/fill_in_inherited_descriptor", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), interactions.fill_in_inherited_descriptor);
 
     app.delete("/interactions/delete_all", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), interactions.delete_all_interactions);
+
+    // keywords
+
+    if (Config.keywords_extraction.active)
+    {
+        app.post("/keywords/processExtract",
+            async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
+            async.apply(DockerManager.requireOrchestras, ["dendro_keywords"]),
+            keywords.processExtract);
+
+        app.post("/keywords/preProcessing",
+            async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
+            async.apply(DockerManager.requireOrchestras, ["dendro_keywords"]),
+            keywords.preProcessing);
+
+        app.post("/keywords/termExtraction",
+            async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
+            async.apply(DockerManager.requireOrchestras, ["dendro_keywords"]),
+            keywords.termExtraction);
+
+        app.post("/keywords/dbpediaResourceLookup",
+            async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
+            async.apply(DockerManager.requireOrchestras, ["dendro_keywords"]),
+            keywords.dbpediaResourceLookup);
+
+        app.post("/keywords/lovProperties",
+            async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
+            async.apply(DockerManager.requireOrchestras, ["dendro_keywords"]),
+            keywords.lovProperties);
+
+        app.post("/keywords/clustering",
+            async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
+            async.apply(DockerManager.requireOrchestras, ["dendro_keywords"]),
+            keywords.clustering);
+    }
+
+    // app.get("/keywords/loadfiles", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.loadfiles);
 
     // serve angular JS ejs-generated html partials
     app.get(/\/images\/icons\/extensions\/file_extension_([a-z0-9]+)\.png$/, files.extension_icon);

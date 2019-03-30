@@ -1,7 +1,6 @@
 const path = require("path");
 const rlequire = require("rlequire");
 const B2ShareClient = require("@feup-infolab/node-b2share-v2");
-const CKAN = require("ckan");
 
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
@@ -274,6 +273,7 @@ export_to_repository_ckan = function (req, res)
                 function (folder, extrasJSONArray, callback)
                 {
                     // construir o client e fazer o resto das funções
+                    const CKAN = require("ckan");
                     const client = new CKAN.Client(targetRepository.ddr.hasExternalUri, targetRepository.ddr.hasAPIKey);
                     CkanUtils.buildPackageForCkanExport(client, organization, targetRepository, extrasJSONArray, folder, callback);
                 },
@@ -297,6 +297,7 @@ export_to_repository_ckan = function (req, res)
                 {
                     // The success case
                     // Update the exportedAt property in the ckan package
+                    const CKAN = require("ckan");
                     const client = new CKAN.Client(targetRepository.ddr.hasExternalUri, targetRepository.ddr.hasAPIKey);
                     let packageId = CkanUtils.createPackageID(requestedResourceUri);
                     CkanUtils.updateOrInsertExportedAtByDendroForCkanDataset(packageId, client, function (err, result)

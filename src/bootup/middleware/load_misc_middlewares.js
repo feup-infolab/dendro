@@ -37,8 +37,8 @@ const loadMiscMiddlewares = function (app, callback)
 
     // app.use(express.logger('dev'));
 
-    app.use(bodyParser.urlencoded({extended: true}));
-    app.use(bodyParser.json());
+    app.use(bodyParser.urlencoded({limit: "5mb", extended: true}));
+    app.use(bodyParser.json({limit: "5mb"}));
 
     app.use(function (error, req, res, next)
     {

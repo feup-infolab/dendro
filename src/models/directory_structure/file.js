@@ -410,9 +410,16 @@ File.prototype.saveWithFileAndContents = function (localFilePath, callback, cust
                 callback(err, result);
             });
         }
-    ], function (err)
+    ], function (err, result)
     {
-        callback(err, self);
+        if (isNull(err))
+        {
+            callback(err, self);
+        }
+        else
+        {
+            callback(err, err);
+        }
     });
 };
 
@@ -1340,15 +1347,15 @@ File.prototype.extractTextAndSaveIntoGraph = function (callback)
                     }
                     else
                     {
-                        delete newFile.nie.plainTextContent;
+                        delete self.nie.plainTextContent;
                     }
                     self.save(callback);
                 }
                 else
                 {
                     Logger.log("error", "Error extracting text from " + locationOfTempFile + " : ");
-                    Logger.log("error", err);
-                    return callback(1, err);
+                    Logger.log("error", err.stack);
+                    return callback(err, err.message);
                 }
             });
         });

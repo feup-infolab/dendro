@@ -1,13 +1,14 @@
 const fs = require("fs");
 const _ = require("underscore");
 const async = require("async");
+const yaml = require("js-yaml");
 
 const rlequire = require("rlequire");
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const repository_platform_configs_file_path = rlequire.absPathInApp("dendro", "conf/repository_platform_configs.json");
-const active_config_file_path = rlequire.absPathInApp("dendro", "conf/active_deployment_config.json");
+const active_config_file_path = rlequire.absPathInApp("dendro", "conf/active_deployment_config.yml");
 
 const loadRepositoryPlatforms = function (app, callback)
 {
@@ -23,7 +24,7 @@ const loadRepositoryPlatforms = function (app, callback)
     }
     else
     {
-        activeConfigKey = JSON.parse(fs.readFileSync(active_config_file_path, "utf8")).key;
+        activeConfigKey = yaml.safeLoad(fs.readFileSync(active_config_file_path)).key;
     }
 
     let active_config_for_repositoryPlatforms = repositoryPlatformConfigs[activeConfigKey];
@@ -89,9 +90,12 @@ const loadRepositoryPlatforms = function (app, callback)
                 if (isNull(err))
                 {
                     Logger.log_boot_message("Repository platforms information successfully loaded from database.");
-                    return callback(null);
+                    callback(null);
                 }
-                return callback(true, "[ERROR] Unable to load repository platforms: " + JSON.stringify(results));
+                else
+                {
+                    callback(true, "[ERROR] Unable to load repository platforms: " + JSON.stringify(results));
+                }
             });
         }
         else

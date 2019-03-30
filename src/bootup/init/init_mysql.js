@@ -24,7 +24,7 @@ const initMySQL = function (app, callback)
             .then(() =>
             {
                 Logger.log_boot_message("Connected to MySQL!");
-                callback(null);
+                return callback(null);
             })
             .catch(err =>
             {
@@ -39,7 +39,7 @@ const initMySQL = function (app, callback)
         interval: function (retryCount)
         {
             const msecs = 500;
-            Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to determine ElasticSearch cluster health");
+            Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to determine if MySQL is running...");
             return msecs;
         }
     }, tryToCreateDatabaseIfNeeded, function (err)
@@ -48,6 +48,10 @@ const initMySQL = function (app, callback)
         {
             Logger.log("error", "Unable to connect to mysql server at " + Config.mySQLHost + ":" + Config.mySQLPort);
             Logger.log("error", err.message);
+        }
+        else
+        {
+            Logger.log("info", "Successfully connected to mysql server at " + Config.mySQLHost + ":" + Config.mySQLPort);
         }
 
         return callback(err);

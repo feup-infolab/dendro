@@ -1,0 +1,70 @@
+version: '3'
+
+services:
+  elasticsearch:
+    container_name: elasticsearch-dendro-dev
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.2
+    ports:
+      - 9201:9200
+      - 9301:9300
+    environment:
+      - "discovery.type=single-node"
+      - "http.host=0.0.0.0"
+      - "transport.host=127.0.0.1"
+      - "TAKE_FILE_OWNERSHIP=1"
+    volumes:
+      - ./volumes/elasticsearch:/usr/share/elasticsearch/data:consistent
+
+  solr:
+    container_name: solr-dendro-dev
+    image: solr:7.7.0-slim
+    ports:
+      - "8984:8983"
+    volumes:
+      - ./volumes/solr:/opt/solr/server/solr/mycores
+    entrypoint:
+      - bash
+      - "-c"
+      - "precreate-core dendro_graph; precreate-core social_dendro; precreate-core notifications_dendro; precreate-core dryad; precreate-core freebase; precreate-core dbpedia;  exec solr -f"
+
+  virtuoso:
+    container_name: virtuoso-dendro-dev
+    image: feupinfolab/virtuoso-with-dendro-ontologies:latest
+    tty: true
+    volumes:
+      - ./volumes/virtuoso:/database
+    ports:
+      - 8891:8890
+      - 1112:1111
+    environment:
+      - "SPARQL_UPDATE=true"
+      - "VIRT_Parameters_CheckpointSyncMode=2"
+      - "VIRT_Parameters_PageMapCheck=1"
+      - "VIRT_Parameters_CheckpointInterval=0"
+      - "DBA_PASSWORD=dba"
+
+  mariadb:
+    container_name: mariadb-dendro-dev
+    image: mariadb:5.5.62
+    ports:
+      - 3307:3306
+    environment:
+      - "MYSQL_ROOT_PASSWORD=r00t_p4ssw0rd"
+      - "MYSQL_DATABASE=dendro_data"
+      - "MYSQL_USER=dendro"
+      - "MYSQL_PASSWORD=dendr0_p4ssw0rd"
+    volumes:
+      - ./volumes/mariadb:/var/lib/mariadb
+
+  mongodb:
+    container_name: mongodb-dendro-dev
+    image: mongo:3.6.0
+    ports:
+      - 27018:27017
+    environment:
+      - "MONGO_INITDB_ROOT_USERNAME=admin"
+      - "MONGO_INITDB_ROOT_PASSWORD=34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
+    volumes:
+      - ./volumes/mongo:/data/db
+    command: mongod --smallfiles --bind_ip_all
+

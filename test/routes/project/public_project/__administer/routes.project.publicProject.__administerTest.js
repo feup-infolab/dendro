@@ -271,12 +271,11 @@ describe("Administer projects", function (done)
 
     after(function (done)
     {
-    // destroy graphs
+        // destroy graphs
 
-        db.deleteGraphs(function (err, data)
+        appUtils.clearAppState(function (err, data)
         {
             should.equal(err, null);
-            global.tests.server.close();
             done();
         });
     });

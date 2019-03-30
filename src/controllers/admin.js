@@ -7,6 +7,7 @@ const _ = require("underscore");
 const async = require("async");
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const fs = require("fs");
+const yaml = require("js-yaml");
 
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const IndexConnection = rlequire("dendro", "src/kb/index.js").IndexConnection;
@@ -146,9 +147,9 @@ module.exports.reindex = function (req, res)
                 // delete current index if requested
                 function (callback)
                 {
-                    indexConnection.create_new_index(deleteBeforeReindexing, function (err, result)
+                    indexConnection.createNewIndex(function (err, result)
                     {
-                        if (isNull(err) && isNull(result))
+                        if (isNull(err))
                         {
                             Logger.log("Index " + indexConnection.short_name + " recreated .");
                             return callback(null);
@@ -157,7 +158,7 @@ module.exports.reindex = function (req, res)
                         Logger.log("Error recreating index " + indexConnection.short_name + " . " + result);
                         // delete success, move on
                         return callback(1);
-                    });
+                    }, deleteBeforeReindexing);
                 },
                 // select all elements in the knowledge base
                 function (callback)
@@ -468,8 +469,8 @@ module.exports.logs = function (req, res)
 
 module.exports.configuration = function (req, res)
 {
-    const configFilePath = rlequire.absPathInApp("dendro", "conf/deployment_configs.json");
     const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+    const configFilePath = Config.activeConfigFilePath;
     if (req.originalMethod === "GET")
     {
         async.parallel([
@@ -513,7 +514,7 @@ module.exports.configuration = function (req, res)
                 {
                     if (isNull(err))
                     {
-                        cb(err, JSON.parse(config));
+                        cb(err, yaml.safeLoad(config));
                     }
                     else
                     {
@@ -552,7 +553,7 @@ module.exports.configuration = function (req, res)
             {
                 if (isNull(err))
                 {
-                    fs.writeFile(configFilePath, JSON.stringify(config, null, 4), function (err, result)
+                    fs.writeFile(configFilePath, yaml.safeDump(config), function (err, result)
                     {
                         if (!err)
                         {
@@ -604,7 +605,7 @@ module.exports.restartServer = function (req, res)
 
 const listOrphanResourcesAux = function (callback)
 {
-    let mongoClient = new DendroMongoClient(Config.mongoDBHost, Config.mongoDbPort, Config.mongoDbCollectionName, Config.mongoDBAuth.username, Config.mongoDBAuth.password);
+    let mongoClient = new DendroMongoClient(Config.mongoDBHost, Config.mongoDbPort, Config.mongoDbCollectionName, Config.mongoDBAuth.username, Config.mongoDBAuth.password, Config.mongoDBAuth.authDatabase);
     mongoClient.connect(function (err, mongoDb)
     {
         if (isNull(err) && !isNull(mongoDb))

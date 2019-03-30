@@ -3,7 +3,6 @@ const isNull = rlequire("dendro", "src/utils/null").isNull;
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const DockerManager = rlequire("dendro", "src/utils/docker/docker_manager.js").DockerManager;
-const VirtualBoxManager = rlequire("dendro", "src/utils/virtualbox/vm_manager.js").VirtualBoxManager;
 const _ = require("underscore");
 const async = require("async");
 const chai = require("chai");
@@ -246,10 +245,6 @@ exports.checkpointExists = function (checkpointIdentifier, callback)
             callback(err, exists);
         });
     }
-    else if (Config.virtualbox && Config.virtualbox.active)
-    {
-        VirtualBoxManager.checkpointExists(checkpointIdentifier, callback);
-    }
     else
     {
         callback(null, false);
@@ -258,87 +253,17 @@ exports.checkpointExists = function (checkpointIdentifier, callback)
 
 exports.restoreCheckpoint = function (checkpointIdentifier, callback)
 {
-    if (Config.docker.active || Config.virtualbox.active)
+    if (Config.docker.active && Config.docker.reuse_checkpoints)
     {
-        exports.checkpointExists(checkpointIdentifier, function (err, exists)
+        DockerManager.restoreCheckpoint(checkpointIdentifier, function (err, restoredCheckpoint)
         {
-            if (err)
-            {
-                throw new Error("Error checking if checkpoint " + checkpointIdentifier + " exists");
-            }
-            else
-            {
-                if (exists)
-                {
-                    if (Config.docker.active && Config.docker.reuse_checkpoints)
-                    {
-                        DockerManager.restoreCheckpoint(checkpointIdentifier, function (err, restoredCheckpoint)
-                        {
-                            callback(err, restoredCheckpoint);
-                        });
-                    }
-                    else if (Config.virtualbox && Config.virtualbox.active && Config.virtualbox.reuse_checkpoints)
-                    {
-                        async.series([
-                            function (callback)
-                            {
-                                if (!Config.virtualbox.reuseCheckpoints)
-                                {
-                                    Logger.log("Destroying VM checkpoint " + checkpointIdentifier + "...");
-                                    VirtualBoxManager.destroySnapshot(checkpointIdentifier, function (err, result)
-                                    {
-                                        if (!err)
-                                        {
-                                            callback(null, false);
-                                        }
-                                        else
-                                        {
-                                            callback(err, result);
-                                        }
-                                    }, true);
-                                }
-                                else
-                                {
-                                    callback(null);
-                                }
-                            },
-                            function (callback)
-                            {
-                                VirtualBoxManager.restoreCheckpoint(checkpointIdentifier, function (err, result)
-                                {
-                                    if (isNull(err))
-                                    {
-                                        if (!err)
-                                        {
-                                            callback(null, true);
-                                        }
-                                        else
-                                        {
-                                            callback(err, result);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        Logger.log("error", err);
-                                        Logger.log("error", result);
-                                        callback(err, "Error occurred while restoring the snapshot of VM with identifier " + checkpointIdentifier);
-                                    }
-                                });
-                            }
-                        ]);
-                    }
-                }
-                else
-                {
-                    callback(err, null);
-                }
-            }
+            callback(err, restoredCheckpoint);
         });
     }
     else
     {
-        Logger.log("Neither Docker nor Virtualbox Configs active when trying to restore checkpoint " + checkpointIdentifier + ". Proceeeding...");
-        callback(null);
+        Logger.log("Docker not active or checkpoint reuse not active when trying to restore checkpoint " + checkpointIdentifier + ". Proceeeding...");
+        callback(null, false);
     }
 };
 
@@ -457,27 +382,6 @@ exports.createCheckpointForUnit = function (unit, callback)
             else
             {
                 Logger.log("error", "Error halting app after loading databases for creating checkpoint: " + checkpointIdentifier);
-                callback(err, result);
-            }
-        });
-    }
-    else if (Config.virtualbox && Config.virtualbox.active && Config.virtualbox.create_snapshots)
-    {
-        Logger.log("Halting app after loading databases for creating checkpoint: " + checkpointIdentifier);
-
-        unit.shutdown(function (err, result)
-        {
-            if (!err)
-            {
-                Logger.log("Halted app after loading databases for creating VM Snapshot: " + checkpointIdentifier);
-                VirtualBoxManager.createCheckpoint(checkpointIdentifier, function (err, result)
-                {
-                    callback(err, result);
-                });
-            }
-            else
-            {
-                Logger.log("error", "Error halting app after loading databases for creating VM Snapshot: " + checkpointIdentifier);
                 callback(err, result);
             }
         });
@@ -626,35 +530,23 @@ exports.init = function (callback)
     const App = rlequire("dendro", "src/bootup/app.js").App;
     const dendroInstance = new App();
 
-    dendroInstance.initConnections(function (err, appInfo)
+    dendroInstance.startApp(function (err, appInfo)
     {
         if (isNull(err))
         {
-            dendroInstance.startApp(function (err, appInfo)
-            {
-                if (isNull(err))
+            chai.request(appInfo.app)
+                .get("/")
+                .end((err, res) =>
                 {
-                    chai.request(appInfo.app)
-                        .get("/")
-                        .end((err, res) =>
-                        {
-                            global.tests.app = appInfo.app;
-                            global.tests.dendroInstance = dendroInstance;
-                            global.tests.server = appInfo.server;
-                            callback(err, res);
-                        });
-                }
-                else
-                {
-                    Logger.log("error", "Error starting Dendro App!");
-                    Logger.log("error", JSON.stringify(err));
-                    callback(err);
-                }
-            });
+                    global.tests.app = appInfo.app;
+                    global.tests.dendroInstance = dendroInstance;
+                    global.tests.server = appInfo.server;
+                    callback(err, res);
+                });
         }
         else
         {
-            Logger.log("error", "Error initializing connections between dendro and database servers!");
+            Logger.log("error", "Error starting Dendro App!");
             Logger.log("error", JSON.stringify(err));
             callback(err);
         }
@@ -663,60 +555,76 @@ exports.init = function (callback)
 
 exports.setup = function (targetUnit, callback, forceLoad)
 {
+    if (!Config.docker.reuse_checkpoints)
+    {
+        forceLoad = true;
+    }
+
     const checkpointIdentifier = targetUnit.name;
     const tryToRestoreUnitState = function (callback)
     {
         if (Config.docker.active)
         {
-            // if(!Config.docker.reuse_checkpoints)
-            // {
-            //     DockerManager.nukeAndRebuild(true);
-            // }
-
-            if (Config.docker.destroy_existing_images_at_start)
+            const fetchAllImages = function (callback)
             {
-                DockerManager.nukeAndRebuild(true);
-            }
+                DockerManager.fetchAllOrchestras(callback, true);
+            };
 
-            Logger.log("Trying to recover checkpoint " + checkpointIdentifier + "...");
-
-            if (Config.docker.reuse_checkpoints && !forceLoad)
+            const restoreState = function (callback)
             {
-                exports.restoreCheckpoint(checkpointIdentifier, function (err, result)
+                Logger.log("Trying to recover checkpoint " + checkpointIdentifier + "...");
+
+                if (Config.docker.reuse_checkpoints && !forceLoad)
                 {
-                    callback(err, !!result);
-                }, !forceLoad);
-            }
-            else
-            {
-                callback(null, null);
-            }
-        }
-        else if (Config.virtualbox && Config.virtualbox.active)
-        {
-            if (Config.virtualbox.create_snapshots)
-            {
-                if (!Config.virtualbox.reuse_shapshots)
-                {
-                    VirtualBoxManager.returnToBaselineCheckpoint(function (err, result)
+                    exports.restoreCheckpoint(checkpointIdentifier, function (err, result)
                     {
-                        VirtualBoxManager.destroyAllSnapshots(function (err, result)
-                        {
-                            callback(err, false);
-                        }, !forceLoad);
+                        callback(err, !!result);
                     }, !forceLoad);
                 }
                 else
                 {
-                    VirtualBoxManager.restoreCheckpoint(checkpointIdentifier, function (err, result)
-                    {
-                        callback(err, result);
-                    });
+                    callback(null, null);
                 }
+            };
+
+            if (Config.docker.destroy_existing_images_at_start)
+            {
+                async.series([
+                    function (callback)
+                    {
+                        DockerManager.destroyAllOrchestras(callback, true);
+                    },
+                    function (callback)
+                    {
+                        DockerManager.destroyAllSavedImages(callback, true);
+                    },
+                    function (callback)
+                    {
+                        fetchAllImages(callback);
+                    }
+                ], function (err, result)
+                {
+                    if (!isNull(err))
+                    {
+                        const msg = "Error destroying docker images and containers while trying to restore state " + checkpointIdentifier;
+                        Logger.log("error", msg);
+                        callback(1, msg);
+                    }
+                    else
+                    {
+                        restoreState(function (err, restoredState)
+                        {
+                            callback(err, restoredState);
+                        });
+                    }
+                });
             }
             else
             {
-                callback(null, false);
+                fetchAllImages(function ()
+                {
+                    restoreState(callback);
+                });
             }
         }
         else
@@ -791,7 +699,7 @@ exports.setup = function (targetUnit, callback, forceLoad)
                 }
                 else
                 {
-                    if ((Config.docker.active && Config.docker.reuse_checkpoints) || (Config.virtualbox.active && Config.virtualbox.reuse_shapshots))
+                    if (Config.docker.active && Config.docker.reuse_checkpoints)
                     {
                         Logger.log("Final checkpoint " + checkpointIdentifier + " does not exist. Will try to load the last checkpoint up the unit dependency chain...");
                         exports.loadLastSavedCheckpointInUnitHierarchy(targetUnit, function (err, loadedUnit)

@@ -11,6 +11,9 @@ class Job
     // STATIC METHODS
     static initDependencies (callback)
     {
+        Job._jobTypes = [];
+        Job._agenda = null;
+        Job._jobsStorageClient = null;
         const initAgenda = function (callback)
         {
             const jobsFolder = rlequire.absPathInApp("dendro", "src/models/jobs/subtypes");
@@ -45,6 +48,20 @@ class Job
                         },
                         maxConcurrency: 1
                     });
+
+                    agenda.on("error", function (error)
+                    {
+                        if (error.message === "Lost MongoDB connection" && Job.disconnectErrors < 15)
+                        {
+                            Logger.log("debug", "Mongodb Connnection of Agenda was lost, will attempt a reconnect...");
+                            Job.disconnectErrors++;
+                        }
+                        else
+                        {
+                            throw error;
+                        }
+                    });
+
                     Job._agenda = agenda;
                 }
                 catch (error)
@@ -89,6 +106,7 @@ class Job
     {
         Job._agenda.on("success:" + jobName, function (job)
         {
+            Job.disconnectErrors = 0;
             successHandlerFunction(job);
         });
 
@@ -145,7 +163,13 @@ class Job
         {
             Job._agenda.stop(function (err, result)
             {
-                callback(err, result);
+                // TODO
+                // Force connection to DIE DIE DIE otherwise it is dropped!
+                Job._agenda._mdb.close(true, function (err, result)
+                {
+                    delete Job._agenda;
+                    callback(err, result);
+                });
             });
         }
         else

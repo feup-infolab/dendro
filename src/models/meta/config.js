@@ -10,14 +10,17 @@ function Config ()
 const fs = require("fs");
 const path = require("path");
 const _ = require("underscore");
+const yaml = require("js-yaml");
 const isNull = require("../../utils/null.js").isNull;
 
 const Elements = require("./elements.js").Elements;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
-const activeConfigFilePath = rlequire.absPathInApp("dendro", "conf/active_deployment_config.json");
-const configs = rlequire("dendro", "conf/deployment_configs.json");
+const RedisCache = rlequire("dendro", "src/kb/cache/caches/redis.js").RedisCache;
+const MongoDBCache = rlequire("dendro", "src/kb/cache/caches/mongodb.js").MongoDBCache;
+const NeDBCache = rlequire("dendro", "src/kb/cache/caches/nedb.js").NeDBCache;
 
+const configSelectorFilePath = rlequire.absPathInApp("dendro", "conf/active_deployment_config.yml");
 let activeConfigKey;
 
 const argv = require("yargs").argv;
@@ -29,34 +32,50 @@ if (argv.config)
 }
 else
 {
-    if (argv.config)
+    if (!isNull(process.env.DENDRO_ACTIVE_DEPLOYMENT_CONFIG) && process.env.DENDRO_ACTIVE_DEPLOYMENT_CONFIG !== "")
     {
-        activeConfigKey = argv.config;
-    }
-    else if (process.env.NODE_ENV === "test")
-    {
-        activeConfigKey = "test";
-        Logger.log("Running in test environment detected");
+        Logger.log("info", "Deployment configuration overriden by DENDRO_ACTIVE_DEPLOYMENT_CONFIG environment variable. Configuration is " + process.env.DENDRO_ACTIVE_DEPLOYMENT_CONFIG);
+        activeConfigKey = process.env.DENDRO_ACTIVE_DEPLOYMENT_CONFIG;
     }
     else
     {
-        activeConfigKey = JSON.parse(fs.readFileSync(activeConfigFilePath, "utf8")).key;
-        Logger.log("Running with deployment config " + activeConfigKey);
+        if (process.env.NODE_ENV === "test")
+        {
+            activeConfigKey = "test";
+            Logger.log("Running in test environment detected.");
+            Logger.log("debug", "Deployment configuration overriden by test environment. Configuration is " + activeConfigKey + ".");
+        }
+        else
+        {
+            if (!fs.existsSync(configSelectorFilePath))
+            {
+                const msg = "Configuration file " + configSelectorFilePath + " does not exist!";
+                Logger.log("error", msg);
+                throw new Error(msg);
+            }
+            else
+            {
+                activeConfigKey = yaml.safeLoad(fs.readFileSync(configSelectorFilePath)).key;
+                Logger.log("debug", "Configuration file exists at " + configSelectorFilePath + " and the configuration key inside is " + activeConfigKey);
+            }
+        }
     }
 }
 
-const activeConfig = configs[activeConfigKey];
+Config.activeConfigKey = activeConfigKey;
+Config.activeConfigFilePath = rlequire.absPathInApp("dendro", `conf/deployment_configs/${activeConfigKey}.yml`);
+Config.activeConfig = yaml.safeLoad(fs.readFileSync(Config.activeConfigFilePath))[activeConfigKey];
 
-if (isNull(activeConfig))
+if (isNull(Config.activeConfig))
 {
-    const noConfigPresentError = "There is no configuration with key " + activeConfigKey + " in " + activeConfigFilePath + " ! The key is invalid or the file needs to be reconfigured.";
+    const noConfigPresentError = "There is no configuration with key " + Config.activeConfigKey + " in " + Config.activeConfigFilePath + " ! The key is invalid or the file needs to be reconfigured.";
     Logger.log("error", noConfigPresentError);
     throw new Error(noConfigPresentError);
 }
 
 const getConfigParameter = function (parameter, defaultValue)
 {
-    if (isNull(activeConfig[parameter]))
+    if (isNull(Config.activeConfig[parameter]))
     {
         if (!isNull(defaultValue))
         {
@@ -65,15 +84,13 @@ const getConfigParameter = function (parameter, defaultValue)
             return Config[parameter];
         }
 
-        throw new Error("[FATAL ERROR] Unable to retrieve parameter " + parameter + " from '" + activeConfigKey + "' configuration. Please review the deployment_configs.json file.");
+        throw new Error("[FATAL ERROR] Unable to retrieve parameter " + parameter + " from '" + Config.activeConfigKey + "' configuration. Please review the " + Config.activeConfigFilePath + " file.");
     }
     else
     {
-        return activeConfig[parameter];
+        return Config.activeConfig[parameter];
     }
 };
-
-Config.activeConfiguration = activeConfigKey;
 
 // hostname for the machine in which this is running, configure when running on a production machine
 Config.port = getConfigParameter("port");
@@ -99,22 +116,19 @@ Config.eudatCommunityId = getConfigParameter("eudatCommunityId");
 Config.sendGridUser = getConfigParameter("sendGridUser");
 Config.sendGridPassword = getConfigParameter("sendGridPassword");
 
-Config.elasticSearchHost = getConfigParameter("elasticSearchHost");
-Config.elasticSearchPort = getConfigParameter("elasticSearchPort");
+Config.index = getConfigParameter("index");
 
 Config.cache = getConfigParameter("cache");
 Config.datastore = getConfigParameter("datastore");
 Config.ontologies_cache = getConfigParameter("ontologies_cache");
 
-Config.virtuosoHost = getConfigParameter("virtuosoHost");
-Config.virtuosoPort = getConfigParameter("virtuosoPort");
-Config.virtuosoISQLPort = getConfigParameter("virtuosoISQLPort");
-Config.virtuosoSQLLogLevel = getConfigParameter("virtuosoSQLLogLevel");
+Config.virtuoso = getConfigParameter("virtuoso");
+
 Config.skipDescriptorValuesValidation = getConfigParameter("skipDescriptorValuesValidation", false);
 
-Config.virtuosoConnector = (function ()
+Config.virtuoso.connector = (function ()
 {
-    const connectorType = getConfigParameter("virtuosoConnector");
+    const connectorType = Config.virtuoso.connector;
 
     if (connectorType === "jdbc" || connectorType === "http")
     {
@@ -122,8 +136,6 @@ Config.virtuosoConnector = (function ()
     }
     throw new Error("Invalid Virtuoso Server connector type " + connectorType);
 }());
-
-Config.virtuosoAuth = getConfigParameter("virtuosoAuth");
 
 // maps
 Config.maps = getConfigParameter("maps");
@@ -157,9 +169,6 @@ Config.mySQLDBName = getConfigParameter("mySQLDBName");
 Config.maxUploadSize = getConfigParameter("maxUploadSize");
 // 10000MB®
 Config.maxProjectSize = getConfigParameter("maxProjectSize");
-Config.maxSimultaneousConnectionsToDb = getConfigParameter("maxSimultaneousConnectionsToDb");
-
-Config.dbOperationTimeout = getConfigParameter("dbOperationTimeout");
 
 if (path.isAbsolute(getConfigParameter("tempFilesDir")))
 {
@@ -238,7 +247,7 @@ Config.recommendation.getTargetTable = function ()
 
     if (isNull(tableName))
     {
-        throw new Error("Unspecified interactions table name. Check your deployment_configs.json for recommendation/interactions_recording_table field.");
+        throw new Error("Unspecified interactions table name. Check your " + Config.activeConfigFilePath + " file for recommendation/interactions_recording_table field.");
     }
     else
     {
@@ -366,7 +375,7 @@ Config.db = {
         graphUri: "http://" + Config.host + "/dendro_graph",
         cache: {
             id: "default",
-            type: "mongodb"
+            type: NeDBCache.type
         }
     },
     social: {
@@ -375,7 +384,7 @@ Config.db = {
         graphUri: "http://" + Config.host + "/social_dendro",
         cache: {
             id: "social",
-            type: "mongodb"
+            type: NeDBCache.type
         }
     },
     notifications: {
@@ -384,7 +393,7 @@ Config.db = {
         graphUri: "http://" + Config.host + "/notifications_dendro",
         cache: {
             id: "notifications",
-            type: "mongodb"
+            type: NeDBCache.type
         }
     }
 };
@@ -617,6 +626,24 @@ Config.enabledOntologies = {
         description: "A taxonomy that enables testbeds to semantically annotate the IoT data produced by heterogeneous devices. In this taxonomy, we classify devices, the domain of interests (health, smart home, smart kitchen, environmental monitoring, etc.), phenomena and unit of measurements",
         domain: "IoT",
         domain_specific: true
+    },
+    chm: {
+        prefix: "chm",
+        uri: "http://www.dendro.fe.up.pt/ontology/chemistry#",
+        elements: Elements.ontologies.chm,
+        label: "Chemistry",
+        description: "Vocabulary for the description of data resulting from experiments in the chemistry domain: particle size; solution Ph, chemical Element, etc..",
+        domain: "Chemistry",
+        domain_specific: true
+    },
+    p0: {
+        prefix: "p0",
+        uri: "http://www.dendro.fe.up.pt/ontology/physics#",
+        elements: Elements.ontologies.p0,
+        label: "Physics",
+        description: "Vocabulary for the description of data resulting from experiments in the physics domain: substrate; band gap, sample mass, etc..",
+        domain: "Physics",
+        domain_specific: true
     }
 };
 
@@ -660,10 +687,6 @@ Config.streaming =
       page_size: 200
   }
 };
-
-Config.useElasticSearchAuth = activeConfig.useElasticSearchAuth;
-
-Config.elasticSearchAuthCredentials = activeConfig.elasticSearchAuthCredentials;
 
 /**
  * Plugins
@@ -915,12 +938,7 @@ Config.authentication = getConfigParameter("authentication");
 Config.numCPUs = getConfigParameter("numCPUs");
 Config.testing = getConfigParameter("testing");
 Config.docker = getConfigParameter("docker");
-Config.virtualbox = getConfigParameter("virtualbox");
-
-if (Config.docker.active && Config.virtualbox.active)
-{
-    throw new Error("Cannot have docker and virtualbox flags active at the same time in the deployment config!");
-}
+Config.keywords_extraction = getConfigParameter("keywords_extraction");
 
 if (process.env.NODE_ENV === "production")
 {

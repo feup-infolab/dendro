@@ -1,13 +1,7 @@
-const fs = require("fs");
-const _ = require("underscore");
-const async = require("async");
-
 const rlequire = require("rlequire");
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
-const repository_platform_configs_file_path = rlequire.absPathInApp("dendro", "conf/repository_platform_configs.json");
-const active_config_file_path = rlequire.absPathInApp("dendro", "conf/active_deployment_config.json");
 
 const Sequelize = require("sequelize");
 const Umzug = require("umzug");
@@ -110,7 +104,7 @@ const buildMySQLDatabase = function (app, callback)
                 operatorsAliases: false
             });
 
-            var umzug = new Umzug({
+            const umzug = new Umzug({
                 storage: "sequelize",
                 storageOptions: { sequelize: sequelize },
                 migrations: {

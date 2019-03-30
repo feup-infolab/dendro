@@ -56,15 +56,15 @@ class App
             return;
         }
 
-        // if this fancy cleanup fails, we drop the hammer in 10 secs
+        // if this fancy cleanup fails, we drop the hammer in 20 secs
         const setupForceKillTimer = function ()
         {
             setTimeout(function ()
             {
                 const msg = "Graceful close timed out. Forcing server closing!";
-                Logger.log("warn", msg);
-                process.exit(1);
-            }, Config.dbOperationTimeout);
+                Logger.log("info", msg);
+                throw new Error(msg);
+            }, 20000);
         };
 
         const signals = ["SIGHUP", "SIGINT", "SIGQUIT", "SIGABRT", "SIGTERM"];
@@ -84,28 +84,54 @@ class App
             });
         });
 
+        process.on("unhandledRejection", up =>
+        {
+            Logger.log("error", "Unhandled rejection detected.");
+            Logger.log("error", up.message);
+            Logger.log("error", up.stack);
+
+            if (process.env.NODE_ENV !== "test")
+            {
+                throw up;
+            }
+        });
+
         process.on("uncaughtException", function (exception)
         {
-            let msg = "Critical error occurred!";
+            Logger.log("error", "Critical error occurred. Dendro will have to shut down!");
 
-            msg += "\n" + JSON.stringify(exception);
+            if (!isNull(exception.message))
+            {
+                Logger.log("error", exception.message);
+            }
 
             if (!isNull(exception.stack))
             {
-                msg += "\n" + exception.stack;
+                Logger.log("error", exception.stack);
             }
 
-            Logger.log("error", msg);
-
-            process.nextTick(function ()
+            if (!isNull(process.env.NODE_ENV))
             {
-                process.exit(1);
-            });
+                if (process.env.NODE_ENV !== "test")
+                {
+                    process.nextTick(function ()
+                    {
+                        process.exit(1);
+                    });
+                }
+            }
+            else
+            {
+                process.nextTick(function ()
+                {
+                    process.exit(1);
+                });
+            }
         });
 
         process.on("exit", function (code)
         {
-            if (code !== 0)
+            if (!isNull(code) && code !== 0)
             {
                 Logger.log(`Unknown error occurred! About to exit with code ${code}`);
             }
@@ -113,10 +139,11 @@ class App
             self.freeResources(function ()
             {
                 Logger.log("Freed all resources.");
-                if (code !== 0)
+                if (!isNull(code) && code !== 0)
                 {
                     Logger.log("error", `Dendro exited because of an error. Check the logs at the ${path.join(__dirname, "logs")} folder`);
                 }
+
                 process.exit(code);
             });
         });
@@ -212,23 +239,7 @@ class App
     bootupDependencies (callback)
     {
         const self = this;
-
-        async.series([
-
-            function (callback)
-            {
-                // start VirtualBox VM
-                rlequire("dendro", "src/bootup/init/init_virtualbox.js").initVirtualBoxVM(self.app, callback);
-            },
-            function (callback)
-            {
-                // start docker containers
-                rlequire("dendro", "src/bootup/init/init_docker.js").initDockerContainers(self.app, callback);
-            }
-        ], function (err)
-        {
-            callback(err);
-        });
+        rlequire("dendro", "src/bootup/init/init_docker.js").initDockerContainers(self.app, callback);
     }
 
     initConnections (callback, force)
@@ -250,7 +261,7 @@ class App
                 },
                 function (callback)
                 {
-                    // create search indexes on elasticsearch if needed
+                    // create search indexes if needed
                     rlequire("dendro", "src/bootup/init/connect_to_indexes.js").connectToIndexes(self.app, callback);
                 },
                 function (callback)
@@ -304,7 +315,7 @@ class App
         Logger.log_boot_message("Welcome! Booting up a Dendro Node on this machine. Using NodeJS " + process.version);
         Logger.log_boot_message("Possible arguments : ");
         Logger.log_boot_message("--seed_databases : Will destroy the contents of the current databases and reload demo users and ontologies. A clean Dendro installation. Can be useful for development. ");
-        Logger.log_boot_message("--config=\"<config-key\" : Used to force Dendro to boot up using a specific configuration from the conf/deployment_configs.json file");
+        Logger.log_boot_message("--config=\"<config-key\" : Used to force Dendro to boot up using a specific configuration from the conf/<config-key>.yml file");
 
         if (process.env.NODE_ENV === "test")
         {
@@ -342,7 +353,10 @@ class App
                 },
                 function (callback)
                 {
-                    self.bootupDependencies(callback);
+                    self.bootupDependencies(function (err, restoredCheckpoint)
+                    {
+                        callback(err);
+                    });
                 },
                 function (callback)
                 {
@@ -570,6 +584,11 @@ class App
         async.series([
             function (callback)
             {
+                // build mysql database from migrations
+                self.runIfMaster(rlequire("dendro", "src/bootup/load/build_mysql_database.js").buildMySQLDatabase, self.app, callback);
+            },
+            function (callback)
+            {
                 // destroy graphs if needed
                 self.runIfMaster(rlequire("dendro", "src/bootup/load/destroy_all_graphs.js").destroyAllGraphs, self.app, callback);
             },
@@ -602,11 +621,6 @@ class App
             {
                 // clear datastore
                 self.runIfMaster(rlequire("dendro", "src/bootup/load/clear_datastore.js").clearDataStore, self.app, callback);
-            },
-            function (callback)
-            {
-                // build mysql database from migrations
-                self.runIfMaster(rlequire("dendro", "src/bootup/load/build_mysql_database.js").buildMySQLDatabase, self.app, callback);
             }
         ], callback);
     }
@@ -650,7 +664,7 @@ class App
                 Logger.log("Waiting for pending connections to finish up...");
                 async.during(function (callback)
                 {
-                    if (count > 20)
+                    if (count > 200)
                     {
                         Logger.log("warn", "Still pending connections even after " + count + " attempts!");
                         callback(null);
@@ -659,14 +673,14 @@ class App
                     {
                         self.server.getConnections(function (err, connections)
                         {
-                            callback(err, (connections > 0));
+                            callback(err, (connections > 1));
                         });
                     }
                 },
                 function (callback)
                 {
                     count++;
-                    setTimeout(callback, 1000);
+                    setTimeout(callback, 500);
                 },
                 function (err, result)
                 {
@@ -684,9 +698,16 @@ class App
             const DbConnection = rlequire("dendro", "src/kb/db.js").DbConnection;
             DbConnection.finishUpAllConnectionsAndClose(function ()
             {
-                const timeout = 2000;
-                Logger.log("Waiting " + timeout + "ms for virtuoso to flush the buffers...");
-                setTimeout(cb, timeout);
+                const timeout = 0;
+                if(timeout)
+                {
+                    Logger.log("Waiting " + timeout + "ms for virtuoso to flush the buffers...");
+                    setTimeout(cb, timeout);
+                }
+                else
+                {
+                    cb(null);
+                }
             });
         };
 
@@ -816,11 +837,11 @@ class App
 
         const haltDockerContainers = function (cb)
         {
-            if (Config.docker && Config.docker.active && Config.docker.start_and_stop_containers_automatically)
+            if (Config.docker && Config.docker.active && Config.docker.stop_containers_automatically)
             {
                 Logger.log("Halting docker containers...");
 
-                DockerManager.stopAllContainers(function (err, result)
+                DockerManager.stopAllOrchestras(function (err, result)
                 {
                     cb(err, result);
                 });
@@ -838,22 +859,30 @@ class App
             cb(null);
         };
 
-        async.series([
-            closeAgenda,
-            waitForPendingConnectionsToFinishup,
-            closeVirtuosoConnections,
-            closeCacheConnections,
-            closeIndexConnections,
-            closeGridFSConnections,
-            closeMySQLConnectionPool,
-            haltHTTPServer,
-            callGarbageCollector,
-            removePIDFile,
-            haltDockerContainers,
-            destroyLogger
+        async.parallel([
+            function (callback)
+            {
+                async.series([
+                    closeAgenda,
+                    closeVirtuosoConnections,
+                    waitForPendingConnectionsToFinishup,
+                    closeCacheConnections,
+                    closeIndexConnections,
+                    closeGridFSConnections,
+                    closeMySQLConnectionPool,
+                    haltHTTPServer,
+                    callGarbageCollector,
+                    removePIDFile,
+                    haltDockerContainers,
+                    destroyLogger
+                ], function (err, results)
+                {
+                    callback(err, results);
+                });
+            }
         ], function (err, results)
         {
-            if (!err)
+            if (isNull(err))
             {
                 Logger.log("Freed all resources. Halting Dendro Server now.");
             }
@@ -861,11 +890,13 @@ class App
             {
                 Logger.log("error", "Unable to free all resources, but we are halting Dendro Server anyway.");
             }
-            // don't call cleanup handler again
-            if (!isNull(callback) && typeof callback === "function")
-            {
-                callback(err, results);
-            }
+            // // don't call cleanup handler again
+            // if (!isNull(callback) && typeof callback === "function")
+            // {
+            //     callback(err, results);
+            // }
+
+            callback(err, results);
         });
     }
 }

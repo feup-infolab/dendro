@@ -1,4 +1,4 @@
-const fs = require("fs");
+const async = require("async");
 
 const rlequire = require("rlequire");
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
@@ -10,18 +10,45 @@ const createIndexes = function (app, callback)
 {
     Logger.log_boot_message("Now trying to connect to ElasticSearch Cluster to check if the required indexes exist or need to be created...");
 
-    IndexConnection.createAllIndexes(Config.startup.destroy_all_indexes, function (error, result)
-    {
-        if (!isNull(error))
+    async.series([
+        function (callback)
         {
-            callback("[ERROR] Unable to create or link to index " + IndexConnection._all.dendro_graph.short_name);
-        }
-        else
+            if (Config.startup.load_databases && Config.startup.destroy_all_indexes)
+            {
+                IndexConnection.destroyAllIndexes(function (error, result)
+                {
+                    if (!isNull(error))
+                    {
+                        callback("[ERROR] Unable to delete all indexes on startup!");
+                    }
+                    else
+                    {
+                        Logger.log_boot_message("Deleted all indexes on startup!");
+                        callback(null);
+                    }
+                });
+            }
+            else
+            {
+                callback(null);
+            }
+        },
+        function (callback)
         {
-            Logger.log_boot_message("Indexes are up and running on " + Config.elasticSearchHost + ":" + Config.elasticSearchPort);
-            callback(null);
+            IndexConnection.createAllIndexes(function (error, result)
+            {
+                if (!isNull(error))
+                {
+                    callback("[ERROR] Unable to create all indexes on startup!");
+                }
+                else
+                {
+                    Logger.log_boot_message("Indexes are up and running!");
+                    callback(null);
+                }
+            });
         }
-    });
+    ], callback);
 };
 
 module.exports.createIndexes = createIndexes;

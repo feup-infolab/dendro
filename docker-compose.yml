@@ -1,12 +1,12 @@
-version: '3'
+version: '3.2'
 
 services:
   elasticsearch:
-    container_name: elasticsearch-dendro-dev
+    container_name: elasticsearch-dendro
     image: docker.elastic.co/elasticsearch/elasticsearch:6.2.2
-    ports:
-      - "9201:9200"
-      - "9301:9300"
+    expose:
+      - "9200"
+      - "9300"
     environment:
       - "discovery.type=single-node"
       - "http.host=0.0.0.0"
@@ -15,47 +15,100 @@ services:
     volumes:
       - ./volumes/elasticsearch:/usr/share/elasticsearch/data:consistent
     networks:
-      - dendro
+      - dendro-docker-deployment
+    restart: on-failure
+
+  # solr:
+  #   container_name: solr-dendro
+  #   image: solr:7.7.0-slim
+  #   expose:
+  #     - "8983"
+  #   volumes:
+  #     - ./volumes/solr:/opt/solr/server/solr/mycores
+  #   entrypoint:
+  #     - bash
+  #     - "-c"
+  #     - "precreate-core dendro_graph; precreate-core social_dendro; precreate-core notifications_dendro; precreate-core dryad; precreate-core freebase; precreate-core dbpedia;  exec solr -f"
+  #   restart: on-failure
 
   virtuoso:
-    container_name: virtuoso-dendro-dev
-    image: joaorosilva/virtuoso:7.2.4-for-dendro-0.4
+    container_name: virtuoso-dendro
+    image: feupinfolab/virtuoso-with-dendro-ontologies:latest
+    expose:
+      - "8890"
+      - "1111"
+    tty: true
     ports:
-      - "8891:8890"
-      - "1112:1111"
+      - published: 8890
+        target: 8890
+      - published: 1111
+        target: 1111
     environment:
       - "SPARQL_UPDATE=true"
       - "VIRT_Parameters_CheckpointSyncMode=2"
       - "VIRT_Parameters_PageMapCheck=1"
       - "VIRT_Parameters_CheckpointInterval=0"
+      - "DBA_PASSWORD=dba"
+    volumes:
+        - ./volumes/virtuoso:/database
     networks:
-      - dendro
+      - dendro-docker-deployment
+    restart: on-failure
 
-  mysql:
-    container_name: mysql-dendro-dev
-    image: mysql:5.7.22
-    ports:
-      - "3307:3306"
+  mariadb:
+    container_name: mariadb-dendro
+    image: mariadb:5.5.62
+    expose:
+      - "3306"
     environment:
       - "MYSQL_ROOT_PASSWORD=r00t_p4ssw0rd"
+      - "MYSQL_DATABASE=dendro_data"
+      - "MYSQL_USER=dendro"
+      - "MYSQL_PASSWORD=dendr0_p4ssw0rd"
     volumes:
-      - ./volumes/mysql:/var/lib/mysql:consistent
+      - ./volumes/mariadb:/var/lib/mariadb
     networks:
-      - dendro
+      - dendro-docker-deployment
+    restart: on-failure
 
   mongodb:
-    container_name: mongodb-dendro-dev
+    container_name: mongodb-dendro
     image: mongo:3.6.0
-    ports:
-      - 27018:27017
+    expose:
+      - "27017"
     environment:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi
     volumes:
       - ./volumes/mongo:/data/db
     networks:
-      - dendro
+      - dendro-docker-deployment
     command: mongod --smallfiles --bind_ip_all
+    restart: on-failure
+
+  dendro:
+    container_name: dendro
+    image: feupinfolab/dendro:latest
+    build:
+      dockerfile: Dockerfile
+      args:
+        - "SOURCE_BRANCH=dendrokeywords"
+      context: .
+    ports:
+      - published: 3001
+        target: 3001
+    depends_on:
+      - elasticsearch
+      - mariadb
+      - mongodb
+      - virtuoso
+    volumes:
+      - ./volumes/dendro:/dendro
+    environment:
+      DENDRO_ACTIVE_DEPLOYMENT_CONFIG: docker
+    networks:
+      - dendro-docker-deployment
+    restart: on-failure
 
 networks:
-  dendro: {}
+  dendro-docker-deployment: {}

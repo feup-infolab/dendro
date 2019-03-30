@@ -5,7 +5,7 @@ const DockerManager = rlequire("dendro", "src/utils/docker/docker_manager.js").D
 
 const initDockerContainers = function (app, callback)
 {
-    if (Config.docker && Config.docker.active && Config.docker.start_and_stop_containers_automatically)
+    if (Config.docker && Config.docker.active && Config.docker.start_containers_automatically)
     {
         try
         {

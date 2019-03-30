@@ -1571,9 +1571,6 @@ Resource.prototype.reindex = function (callback, customGraphUri)
         last_indexing_date: now.toISOString()
     };
 
-    // Logger.log("Reindexing resource " + self.uri);
-    // Logger.log("Document: \n" + JSON.stringify(document, null, 4));
-
     self.getIndexDocumentId(function (err, id)
     {
         if (isNull(err))
@@ -1584,27 +1581,26 @@ Resource.prototype.reindex = function (callback, customGraphUri)
             }
 
             indexConnection.indexDocument(
-                IndexConnection.indexTypes.resource,
                 document,
                 function (err, result)
                 {
+                    let msg;
                     if (isNull(err))
                     {
-                        let msg;
                         if (isNull(id))
                         {
-                            msg = self.uri + " resource successfully indexed in index " + indexConnection.short_name;
+                            msg = "Resource " + self.uri + " successfully indexed in index " + indexConnection.getDescription();
                         }
                         else
                         {
-                            msg = self.uri + " resource successfully REindexed in index " + indexConnection.short_name;
+                            msg = "Resource " + self.uri + " successfully REindexed in index " + indexConnection.getDescription();
                         }
 
                         Logger.log("debug", msg);
                         return callback(null, self);
                     }
 
-                    const msg = "Error indexing document for resource " + self.uri + " error returned " + JSON.stringify(result, null, 4);
+                    msg = "Error indexing document for resource " + self.uri + " error returned " + JSON.stringify(result, null, 4);
                     errorMessages.push(msg);
                     Logger.log("error", msg);
                     return callback(1, errorMessages);
@@ -1622,51 +1618,24 @@ Resource.prototype.unindex = function (callback, customGraphUri)
 {
     const self = this;
 
-    const document = {
-        uri: self.uri
-    };
-
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
     const indexConnection = IndexConnection.getByGraphUri(graphUri);
 
-    self.getIndexDocumentId(function (err, id)
-    {
-        if (isNull(err))
+    indexConnection.deleteDocument(
+        self.uri,
+        function (err, result)
         {
-            if (!isNull(id))
+            if (isNull(err))
             {
-                document._id = id;
-
-                indexConnection.deleteDocument(
-                    id,
-                    IndexConnection.indexTypes.resource,
-                    function (err, result)
-                    {
-                        if (isNull(err))
-                        {
-                            const msg = "Resource " + self.uri + "  successfully unindexed in index " + indexConnection.short_name;
-                            Logger.log("debug", msg);
-                            return callback(null, self);
-                        }
-
-                        const msg = "Error deleting old document for resource " + self.uri + " error returned " + JSON.stringify(result, null, 4) + " while unindexing it .";
-                        Logger.log("error", msg);
-                        return callback(1, self);
-                    });
-            }
-            else
-            {
-                // resource does not not exist in the index, just return without error, no need to remove it.
+                const msg = "Resource " + self.uri + " successfully unindexed in index " + indexConnection.getDescription();
+                Logger.log("debug", msg);
                 return callback(null, self);
             }
-        }
-        else
-        {
-            const msg = "Error getting document id for resource " + self.uri + " error returned " + id + " while unindexing it .";
+
+            const msg = "Error deleting old document for resource " + self.uri + " error returned " + JSON.stringify(result, null, 4) + " while unindexing it .";
             Logger.log("error", msg);
-            return callback(1, msg);
-        }
-    });
+            return callback(1, self);
+        });
 };
 
 Resource.prototype.getIndexDocumentId = function (callback, customGraphUri)
@@ -1674,53 +1643,7 @@ Resource.prototype.getIndexDocumentId = function (callback, customGraphUri)
     let self = this;
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
     const indexConnection = IndexConnection.getByGraphUri(graphUri);
-
-    // fetch document from the index that matches the current resource
-    const queryObject = {
-        query: {
-            constant_score: {
-                filter: {
-                    term: {
-                        uri: self.uri
-                    }
-                }
-            }
-        },
-        from: 0,
-        size: 200
-    };
-
-    indexConnection.search(
-        // search in all graphs for resources (generic type)
-        IndexConnection.indexTypes.resource,
-        queryObject,
-        function (err, hits)
-        {
-            if (isNull(err))
-            {
-                if (!isNull(hits) && hits instanceof Array && hits.length > 0)
-                {
-                    if (hits.length > 1)
-                    {
-                        Logger.log("error", "Duplicate document in index detected for resource !!! Fix it " + self.uri);
-                    }
-                    let hit = hits[0];
-                    if (isNull(hit._id))
-                    {
-                        let message = "_id value is missing when looking for the index document id for " + self.uri;
-                        Logger.log("error", message);
-                        return callback(1, message);
-                    }
-
-                    return callback(null, hit._id);
-                }
-
-                // Resource was not previously indexed
-                return callback(null, null);
-            }
-            return callback(1, [hits]);
-        }
-    );
+    indexConnection.getDocumentIDForResource(self.uri, callback);
 };
 
 Resource.prototype.getTextuallySimilarResources = function (callback, maxResultSize, customGraphUri)
@@ -1732,11 +1655,10 @@ Resource.prototype.getTextuallySimilarResources = function (callback, maxResultS
     {
         if (isNull(err))
         {
-            if (!isNull(id))
+            if (!isNull(id) && typeof indexConnection.moreLikeThis === "function")
             {
                 // search in all graphs for resources (generic type)
                 indexConnection.moreLikeThis(
-                    IndexConnection.indexTypes.resource,
                     id,
                     function (err, results)
                     {
@@ -1758,6 +1680,7 @@ Resource.prototype.getTextuallySimilarResources = function (callback, maxResultS
             else
             {
                 // document is not indexed, therefore has no ID. return empty array as list of similar resources.
+                // alternatively, the index connection does not implement More Like This, so we return
                 return callback(null, []);
             }
         }
@@ -1782,25 +1705,15 @@ Resource.findResourcesByTextQuery = function (
     callback)
 {
     const queryObject = {
-        query: {
-            match: {
-                "descriptors.object": {
-                    query: queryString
-                }
-            }
-        },
+        query: queryString,
         from: resultSkip,
-        size: maxResultSize,
-        sort: [
-            "_score"
-        ]
+        size: maxResultSize
     };
 
     Logger.log("debug", "Index Query in JSON : " + JSON.stringify(queryObject, null, 4));
 
     indexConnection.search(
         // search in all graphs for resources (generic type)
-        IndexConnection.indexTypes.resource,
         queryObject,
         function (err, results)
         {
@@ -1846,25 +1759,9 @@ Resource.prototype.restoreFromIndexDocument = function (callback, customGraphUri
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
     const indexConnection = IndexConnection.getByGraphUri(graphUri);
 
-    // fetch document from the index that matches the current resource
-    const queryObject = {
-        query: {
-            constant_score: {
-                filter: {
-                    term: {
-                        uri: self.uri
-                    }
-                }
-            }
-        },
-        from: 0,
-        size: 200
-    };
-
-    indexConnection.search(
+    indexConnection.getDocumentByResourceURI(
         // search in all graphs for resources (generic type)
-        IndexConnection.indexTypes.resource,
-        queryObject,
+        self.uri,
         function (err, hits)
         {
             if (isNull(err))
@@ -2067,29 +1964,30 @@ Resource.findByUri = function (uri, callback, allowedGraphsArray, customGraphUri
 
     const getFromCache = function (uri, callback)
     {
-        let typesArray;
-        if (self.prefixedRDFType instanceof Array)
+        const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+        let typesArray = Descriptor.convertToFullUris(Class.getAllPrefixedRDFTypes(self));
+        if (!typesArray instanceof Array)
         {
-            typesArray = self.prefixedRDFType;
+            typesArray = [typesArray];
         }
-        else
+
+        let queryObject = {
+            $and: [
+                { uri: uri }
+            ]
+        };
+
+        if (typesArray.length > 0)
         {
-            typesArray = [self.prefixedRDFType];
+            queryObject.$and.push(
+                {
+                    "rdf.type": typesArray
+                }
+            );
         }
 
         Cache.getByGraphUri(customGraphUri).getByQuery(
-            {
-                $and: [
-                    { uri: uri },
-                    {
-                        rdf: {
-                            type: {
-                                $all: typesArray
-                            }
-                        }
-                    }
-                ]
-            },
+            queryObject,
             function (err, result)
             {
                 if (isNull(err))
@@ -2278,33 +2176,30 @@ Resource.findByPropertyValue = function (
 
     const getFromCache = function (callback)
     {
-        let typesArray;
-        if (self.prefixedRDFType instanceof Array)
+        const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+        let typesArray = Descriptor.convertToFullUris(Class.getAllPrefixedRDFTypes(self));
+        if (!typesArray instanceof Array)
         {
-            typesArray = self.prefixedRDFType;
-        }
-        else
-        {
-            typesArray = [self.prefixedRDFType];
+            typesArray = [typesArray];
         }
 
         let queryObject = {
-            $and: [
-                {
-                    rdf: {
-                        type: {
-                            $all: typesArray
-                        }
-                    }
-                }
-            ]
+            $and: []
         };
+
+        if (typesArray.length > 0)
+        {
+            queryObject.$and.push(
+                {
+                    "rdf.type": typesArray
+                }
+            );
+        }
 
         const getValueRestriction = function (descriptor)
         {
             let valueRestriction = {};
-            valueRestriction[descriptor.prefix] = {};
-            valueRestriction[descriptor.prefix][descriptor.shortName] = descriptor.value;
+            valueRestriction[`${descriptor.prefix}.${descriptor.shortName}`] = descriptor.value;
             return valueRestriction;
         };
 
@@ -2644,17 +2539,22 @@ Resource.prototype.loadFromIndexHit = function (hit)
     self.indexData.id = hit._id;
     self.indexData.indexId = hit._id;
     self.indexData.score = hit._score;
-    self.uri = hit._source.uri;
-    self.indexData.graph = hit._source.graph;
-    self.indexData.last_indexing_date = hit._source.last_indexing_date;
+    self.uri = hit.uri;
+    self.indexData.graph = hit.graph;
+    self.indexData.last_indexing_date = hit.last_indexing_date;
 
     let descriptorsAndValues = {};
 
-    for (let i = 0; i < hit._source.descriptors.length; i++)
+    for (let i = 0; i < hit.descriptors.length; i++)
     {
-        let descriptorObject = hit._source.descriptors[i];
+        let descriptorObject = hit.descriptors[i];
         let descriptorUri = descriptorObject.predicate;
         let descriptorValue = descriptorObject.object;
+
+        if (descriptorValue instanceof Array && descriptorValue.length === 1)
+        {
+            descriptorValue = descriptorValue[0];
+        }
 
         if (isNull(descriptorsAndValues[descriptorUri]))
         {
@@ -3569,7 +3469,7 @@ Resource.deleteAll = function (callback, customGraphUri)
 
     query = query + "} \n";
 
-    Cache.getByGraphUri(graphUri).deleteAlByType(self.prefixedRDFType, function (err, result)
+    Cache.getByGraphUri(graphUri).deleteAllByType(self.prefixedRDFType, function (err, result)
     {
         if (isNull(err))
         {
@@ -3742,12 +3642,12 @@ Resource.prototype.deleteAllOfMyTypeAndTheirOutgoingTriples = function (callback
     const self = this;
     const type = self.rdf.type;
 
-    self.uri = object.uri;
     self.prefix = self.getNamespacePrefix();
     self.ontology = self.getOwnerOntologyUri();
     self.shortName = self.getShortName();
     self.prefixedForm = self.getPrefixedForm();
 
+    const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
     const typeDescriptor = new Descriptor(
         {
             prefixedForm: "rdf:type",
@@ -3758,22 +3658,12 @@ Resource.prototype.deleteAllOfMyTypeAndTheirOutgoingTriples = function (callback
     Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples(typeDescriptor, callback, customGraphUri);
 };
 
-Resource.prototype.addURIAndRDFType = function (object, resourceTypeSection, classPrototype)
+Resource.prototype.addURI = function (object, resourceTypeSection)
 {
     const self = this;
     if (isNull(object))
     {
         object = {};
-    }
-
-    if (isNull(self.rdf))
-    {
-        self.rdf = {};
-    }
-
-    if (isNull(self.rdf.type))
-    {
-        self.rdf.type = classPrototype.prefixedRDFType;
     }
 
     if (isNull(object) || isNull(object.uri))
@@ -3791,7 +3681,48 @@ Resource.prototype.addURIAndRDFType = function (object, resourceTypeSection, cla
             self.uri = object.uri;
         }
     }
+};
 
+Resource.getRDFTypesURIs = function (classPrototype)
+{
+    const self = this;
+
+    if (isNull(classPrototype))
+    {
+        classPrototype = self;
+    }
+
+    const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+    return Descriptor.convertToFullUris(classPrototype.prefixedRDFType);
+};
+
+Resource.prototype.addRDFType = function (classPrototype)
+{
+    const self = this;
+
+    if (isNull(classPrototype))
+    {
+        classPrototype = self.prototype;
+    }
+
+    if (isNull(self.rdf))
+    {
+        self.rdf = {};
+    }
+
+    if (isNull(self.rdf.type))
+    {
+        self.rdf.type = classPrototype.getRDFTypesURIs(classPrototype);
+    }
+
+    return self;
+};
+
+Resource.prototype.addURIAndRDFType = function (object, resourceTypeSection, classPrototype)
+{
+    const self = this;
+    self.addURI(object, resourceTypeSection);
+    self.addRDFType(classPrototype);
     return self;
 };
 
@@ -4029,7 +3960,7 @@ Resource.prototype.refreshHumanReadableUri = function (callback, customGraphUri)
             }
             else
             {
-                callback(1, "Unable to determine new human readable uri for resource " + newResource.uri);
+                callback(1, "Unable to determine new human readable uri for resource " + self.uri);
             }
         }
     );

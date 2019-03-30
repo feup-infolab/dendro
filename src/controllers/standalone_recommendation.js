@@ -453,7 +453,15 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                     },
                     function (callback)
                     {
-                        getDescriptorsFromTextuallySimilarResources(resourceUri, callback); // 2
+                        // only indexes that support "more like this" queries can be used
+                        if(Config.index.type === "elasticsearch")
+                        {
+                            getDescriptorsFromTextuallySimilarResources(resourceUri, callback); // 2
+                        }
+                        else
+                        {
+                            callback(null, []);
+                        }
                     },
                     function (callback)
                     {

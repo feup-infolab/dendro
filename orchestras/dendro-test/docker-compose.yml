@@ -1,0 +1,59 @@
+version: '3'
+
+services:
+#  elasticsearch:
+#    container_name: elasticsearch-dendro-test
+#    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.2${DENDRO_DOCKER_CONTAINERS_SUFFIX}
+#    ports:
+#      - 9200:9200
+#      - 9300:9300
+#    environment:
+#      - "discovery.type=single-node"
+#      - "http.host=0.0.0.0"
+#      - "transport.host=127.0.0.1"
+#      - "TAKE_FILE_OWNERSHIP=1"
+#    networks:
+#      - dendro
+
+  solr:
+    container_name: solr-dendro-test
+    image: solr:7.7.0-slim${DENDRO_DOCKER_CONTAINERS_SUFFIX}
+    ports:
+      - 8983:8983
+    entrypoint:
+      - bash
+      - "-c"
+      - "precreate-core dendro_graph; precreate-core social_dendro; precreate-core notifications_dendro; precreate-core dryad; precreate-core freebase; precreate-core dbpedia;  exec solr -f"
+
+  virtuoso:
+    container_name: virtuoso-dendro-test
+    image: joaorosilva/virtuoso:7.2.4-for-dendro-0.4${DENDRO_DOCKER_CONTAINERS_SUFFIX}
+    ports:
+      - 8890:8890
+      - 1111:1111
+    environment:
+      - "SPARQL_UPDATE=true"
+      - "VIRT_Parameters_CheckpointSyncMode=2"
+      - "VIRT_Parameters_PageMapCheck=1"
+      - "VIRT_Parameters_CheckpointInterval=0"
+
+  mariadb:
+    container_name: mariadb-dendro-test
+    image: joaorosilva/mysql:5.7-no-volumes${DENDRO_DOCKER_CONTAINERS_SUFFIX}
+    ports:
+      - 3306:3306
+    environment:
+      - "MYSQL_ROOT_PASSWORD=r00t_p4ssw0rd"
+      - "MYSQL_DATABASE=dendro_data"
+      - "MYSQL_USER=dendro"
+      - "MYSQL_PASSWORD=dendr0_p4ssw0rd"
+
+  mongodb:
+    container_name: mongodb-dendro-test
+    image: joaorosilva/mongodb:3.7-no-volumes${DENDRO_DOCKER_CONTAINERS_SUFFIX}
+    ports:
+      - 27017:27017
+    environment:
+      - "MONGO_INITDB_ROOT_USERNAME=admin"
+      - "MONGO_INITDB_ROOT_PASSWORD=34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
+    command: mongod --smallfiles --bind_ip_all

@@ -142,8 +142,8 @@ Logger.init = function (startTime)
 
             const env = process.env.NODE_ENV;
 
-            const logFilePath = path.join(absPath, env, fileNameDateSection, `${slug(Config.activeConfiguration)}_${loggerLevel}.log`);
-            const errorLogFilePath = path.join(absPath, env, fileNameDateSection, `${slug(Config.activeConfiguration)}_error.log`);
+            const logFilePath = path.join(absPath, env, fileNameDateSection, `${slug(Config.activeConfigKey)}_${loggerLevel}.log`);
+            const errorLogFilePath = path.join(absPath, env, fileNameDateSection, `${slug(Config.activeConfigKey)}_error.log`);
 
             mkdirp.sync(path.join(absPath, env, fileNameDateSection));
 

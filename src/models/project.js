@@ -892,18 +892,26 @@ Project.prototype.getRootFolder = function (callback)
                 });
 
                 newRootFolder.nie.isLogicalPartOf = self.uri;
-                newRootFolder.save(function (err)
+                newRootFolder.save(function (err, result)
                 {
                     if (isNull(err))
                     {
                         self.ddr.rootFolder = newRootFolder.uri;
-                        self.save(function (err)
+                        self.save(function (err, result)
                         {
+                            if (!isNull(err))
+                            {
+                                Logger.log("error", "Error saving project " + self.uri + ": " + result);
+                            }
                             callback(err, newRootFolder);
                         });
                     }
                     else
                     {
+                        if (!isNull(err))
+                        {
+                            Logger.log("error", "Error saving project " + self.uri + ": " + result);
+                        }
                         callback(err, newRootFolder);
                     }
                 });
@@ -1857,7 +1865,19 @@ Project.prototype.clearCacheRecords = function (callback, customGraphUri)
             ],
             function (err, results)
             {
-                callback(err, results);
+                if (isNull(err))
+                {
+                    const uris = _.map(results, function (result)
+                    {
+                        return result.part;
+                    });
+
+                    callback(err, uris);
+                }
+                else
+                {
+                    callback(err, results);
+                }
             }
         );
     };
@@ -1874,10 +1894,17 @@ Project.prototype.clearCacheRecords = function (callback, customGraphUri)
                 else
                 {
                     currentResults = members;
-                    Cache.getByGraphUri(graphUri).delete(members, function (err, result)
+                    if (!isNull(members))
+                    {
+                        Cache.getByGraphUri(graphUri).delete(members, function (err, result)
+                        {
+                            callback(err, result);
+                        });
+                    }
+                    else
                     {
                         callback(err, result);
-                    });
+                    }
                 }
             });
         },
@@ -1919,7 +1946,7 @@ Project.prototype.getActiveStorageConnection = function (callback)
     const StorageGridFs = rlequire("dendro", "src/kb/storage/storageGridFs.js").StorageGridFs;
     self.getActiveStorageConfig(function (err, config)
     {
-        if (isNull(err))
+        if (isNull(err) && !isNull(config))
         {
             if (config.ddr.hasStorageType === "local")
             {
@@ -2089,7 +2116,26 @@ Project.prototype.reindex = function (callback, customGraphUri)
     {
         if (isNull(err))
         {
-            async.series([
+            async.parallel([
+                function (callback)
+                {
+                    if (self.ddr.privacyStatus === "public" || self.ddr.privacyStatus === "metadata_only")
+                    {
+                        // reindex the Project object itself.
+                        Project.baseConstructor.prototype.reindex.call(self, function (err, result)
+                        {
+                            callback(err, result);
+                        });
+                    }
+                    else
+                    {
+                        // unindex the Project object itself.
+                        Project.baseConstructor.prototype.unindex.call(self, function (err, result)
+                        {
+                            callback(err, result);
+                        });
+                    }
+                },
                 function (callback)
                 {
                     // reindex the entire directory structure
@@ -2170,25 +2216,6 @@ Project.prototype.reindex = function (callback, customGraphUri)
                         true,
                         customGraphUri
                     );
-                },
-                function (callback)
-                {
-                    if (self.ddr.privacyStatus === "public" || self.ddr.privacyStatus === "metadata_only")
-                    {
-                        // reindex the Project object itself.
-                        Project.baseConstructor.prototype.reindex.call(self, function (err, result)
-                        {
-                            callback(err, result);
-                        });
-                    }
-                    else
-                    {
-                        // unindex the Project object itself.
-                        Project.baseConstructor.prototype.unindex.call(self, function (err, result)
-                        {
-                            callback(err, result);
-                        });
-                    }
                 }
             ], function (err, result)
             {

@@ -1319,7 +1319,23 @@ Descriptor.getUriFromPrefixedForm = function (prefixedForm)
 
 Descriptor.convertToFullUris = function (prefixedFormsArray)
 {
-    const results = _.map(prefixedFormsArray, Descriptor.getUriFromPrefixedForm);
+    let results;
+    if (isNull(prefixedFormsArray))
+    {
+        results = [];
+    }
+    else
+    {
+        if (prefixedFormsArray instanceof Array)
+        {
+            results = _.map(prefixedFormsArray, Descriptor.getUriFromPrefixedForm).sort();
+        }
+        else
+        {
+            results = Descriptor.getUriFromPrefixedForm(prefixedFormsArray);
+        }
+    }
+
     return results;
 };
 
