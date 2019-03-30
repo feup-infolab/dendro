@@ -30,6 +30,7 @@ services:
   virtuoso:
     container_name: virtuoso-dendro-dev
     image: feupinfolab/virtuoso-with-dendro-ontologies:latest
+    tty: true
     volumes:
       - ./volumes/virtuoso:/data
     ports:

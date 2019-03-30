@@ -37,6 +37,7 @@ services:
     expose:
       - "8890"
       - "1111"
+    tty: true
     ports:
       - published: 8890
         target: 8890
