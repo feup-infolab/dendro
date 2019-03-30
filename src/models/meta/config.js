@@ -629,15 +629,17 @@ Config.enabledOntologies = {
     },
     chm: {
         prefix: "chm",
+        uri: "http://www.dendro.fe.up.pt/ontology/chemistry#",
         elements: Elements.ontologies.chm,
         label: "Chemistry",
         description: "Vocabulary for the description of data resulting from experiments in the chemistry domain: particle size; solution Ph, chemical Element, etc..",
         domain: "Chemistry",
         domain_specific: true
     },
-    phys: {
-        prefix: "phys",
-        elements: Elements.ontologies.phys,
+    p0: {
+        prefix: "p0",
+        uri: "http://www.dendro.fe.up.pt/ontology/physics#",
+        elements: Elements.ontologies.p0,
         label: "Physics",
         description: "Vocabulary for the description of data resulting from experiments in the physics domain: substrate; band gap, sample mass, etc..",
         domain: "Physics",

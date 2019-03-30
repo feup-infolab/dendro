@@ -1946,7 +1946,7 @@ Project.prototype.getActiveStorageConnection = function (callback)
     const StorageGridFs = rlequire("dendro", "src/kb/storage/storageGridFs.js").StorageGridFs;
     self.getActiveStorageConfig(function (err, config)
     {
-        if (isNull(err))
+        if (isNull(err) && !isNull(config))
         {
             if (config.ddr.hasStorageType === "local")
             {

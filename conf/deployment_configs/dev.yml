@@ -13,7 +13,7 @@ dev:
   sendGridUser: __FIXME
   sendGridPassword: __FIXME
   index:
-    type: solr
+    type: elasticsearch
     solr:
       connection_log_type: 'DEBUG'
       use_auth: false
@@ -238,7 +238,7 @@ dev:
     load_databases: true
     reload_administrators_on_startup: true
     reload_demo_users_on_startup: true
-    reload_ontologies_on_startup: true
+    reload_ontologies_on_startup: false
     clear_session_store: true
     log_bootup_actions: true
     destroy_all_graphs: false
@@ -332,7 +332,7 @@ dev:
     - hdg
     - ddiup
     - disco
-    - phys
+    - p0
     - chm
   authentication:
     default:
@@ -367,4 +367,7 @@ dev:
       server_address: 'http://localhost:9000'
     yake:
       active: true
-      commmand: 'docker run yake-dendro-dev -it ''${texttoprocess}'''
+      server_address: 'http://localhost:5000'
+      max_ngram_size: 3
+      number_of_keywords: 30
+      language: en

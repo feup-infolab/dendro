@@ -301,23 +301,29 @@ module.exports.termExtraction = function (req, res)
     let yake = function (lookup, cb)
     {
         let headers = {
-            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Type": "application/json",
             Accept: "application/json"
         };
-        let dataString = "text=" + lookup;
+
+        const requestUrl = `${Config.keywords_extraction.yake.server_address}/yake/`;
 
         let options = {
-            url: "https://127.0.0.1:5000/yake/extract_keywords?max_ngram_size=3&number_of_keywords=30",
+            url: requestUrl,
             method: "POST",
             headers: headers,
-            body: dataString
+            json: {
+                text: lookup,
+                max_ngram_size: Config.keywords_extraction.yake.max_ngram_size,
+                number_of_keywords: Config.keywords_extraction.yake.number_of_keywords,
+                language: Config.keywords_extraction.yake.language
+            }
         };
 
         request(options, function (error, response, body)
         {
             if (!error && response.statusCode === 200)
             {
-                cb(null, JSON.parse(body));
+                cb(null, body);
             }
             else
             {
@@ -527,6 +533,7 @@ module.exports.termExtraction = function (req, res)
     };
 
     let processedTest = req.body.preprocessingResults;
+    let method = req.body.method;
     let results = [];
     let documents = [];
     let documentLength = [];
@@ -561,11 +568,12 @@ module.exports.termExtraction = function (req, res)
 
                 for (let i = 0; i < results.length; i++)
                 {
-                    for (let j = 0; j < results[i].keywords.length; j++)
+                    for (let j = 0; j < results[i].length; j++)
                     {
+                        let keywordAndNgram = results[i][j];
                         dbpediaTerms.keywords.push({
-                            words: results[i].keywords[j].ngram,
-                            score: results[i].keywords[j].score
+                            words: keywordAndNgram.ngram,
+                            score: keywordAndNgram.score
                         });
                     }
                 }

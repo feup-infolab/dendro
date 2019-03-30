@@ -284,6 +284,8 @@ docker:
     - hdg
     - ddiup
     - disco
+    - p0
+    - chm
   authentication:
     default:
       enabled: true
@@ -316,5 +318,8 @@ docker:
       active: false
       server_address: 'http://corenlp-dendro:9000'
     yake:
-      active: false
-      commmand: 'docker run yake-dendro-dev -it ''${texttoprocess}'''
+      active: true
+      server_address: 'http://localhost:5000'
+      max_ngram_size: 3
+      number_of_keywords: 30
+      language: en

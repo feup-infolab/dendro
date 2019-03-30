@@ -434,7 +434,7 @@ DockerManager.startOrchestra = function (orchestraName, callback, imagesSuffix)
         }
         else
         {
-            if (imagesSuffix)
+            if (isNull(imagesSuffix))
             {
                 Logger.log("Starting all Docker containers in orchestra " + orchestraName);
             }

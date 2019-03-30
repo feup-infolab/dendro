@@ -3416,7 +3416,7 @@ Elements.ontologies.ssn = {
 /**
  * Elements of the chemistry ontology
  */
-Elements.chm = {
+Elements.ontologies.chm = {
     absorbanceMeasurementInstrument:
         {
             type: Elements.types.string,
@@ -3642,7 +3642,7 @@ Elements.chm = {
 /**
  * Elements of the Physics
  */
-Elements.phys =
+Elements.ontologies.p0 =
     {
         pulseDuration:
             {
