@@ -17,6 +17,7 @@ ENV HOME /root
 ENV NVM_DIR /root/.nvm
 
 ENV BOWER_TMP_DIR /tmp/public
+ENV NPM_TMP_DIR /tmp/npm
 
 ENV NODE_VERSION v8.10.0
 #####    END CONSTANTS    ######
@@ -90,19 +91,24 @@ FROM global_npms as app_libs_installed
 
 #create temporary librarry directories as root
 RUN mkdir -p "$BOWER_TMP_DIR"
-
-# Switch to dendro install dir
-WORKDIR $DENDRO_INSTALL_DIR
+RUN mkdir -p "$NPM_TMP_DIR"
 
 # Install node dependencies in /tmp to use the Docker cache
 # use changes to package.json to force Docker not to use the cache
 # when we change our application's nodejs dependencies:
-COPY package.json /tmp/package.json
-RUN cd /tmp && npm install
+COPY ./package.json "$NPM_TMP_DIR"
+WORKDIR "$NPM_TMP_DIR"
+RUN cd "$NPM_TMP_DIR" && npm install
+RUN echo "contents of $NPM_TMP_DIR"
+RUN ls -la
 
 # same for bower
 COPY ./public/bower.json "$BOWER_TMP_DIR"
+WORKDIR "$BOWER_TMP_DIR"
 RUN cd "$BOWER_TMP_DIR" && bower install --allow-root
+RUN echo "contents of $BOWER_TMP_DIR"
+RUN ls -la
+
 
 ############################################
 FROM app_libs_installed AS dendro_installed
@@ -124,7 +130,7 @@ COPY ./conf/scripts/docker/start_dendro_inside_docker.sh "$DENDRO_INSTALL_DIR/de
 RUN chmod ugo+rx "$DENDRO_INSTALL_DIR/dendro.sh"
 
 # Put compiled libraries in place
-RUN cp -R /tmp/node_modules "$DENDRO_INSTALL_DIR"
+RUN cp -R "$NPM_TMP_DIR/node_modules" "$DENDRO_INSTALL_DIR"
 RUN cp -R "$BOWER_TMP_DIR/bower_components" "$DENDRO_INSTALL_DIR/public"
 
 # Expose dendro running directory as a volume
