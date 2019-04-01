@@ -33,3 +33,7 @@ sudo chmod +x /usr/local/bin/docker-compose
 source ~/.bashrc
 docker-compose --version
 echo "Done!"
+
+# Start docker service
+echo "Starting Docker..."
+sudo service docker start
