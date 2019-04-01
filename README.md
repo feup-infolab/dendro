@@ -25,7 +25,12 @@ We offer three alternatives for installation: 1. Docker image (fast and easy) 2.
 
 To install Dendro using Docker, do the following:
 
-1. Install [Docker for windows](https://docs.docker.com/docker-for-windows/install/) or run [this script](https://github.com/feup-infolab/dendro/blob/master/conf/scripts/docker/install_docker.sh) for installing it on Ubuntu.
+1. Install [Docker for windows](https://docs.docker.com/docker-for-windows/install/) or run [this script](https://github.com/feup-infolab/dendro/blob/master/conf/scripts/docker/install_docker.sh) for installing it on Ubuntu:
+
+```bash
+source <(curl -s https://raw.githubusercontent.com/feup-infolab/dendro/master/conf/scripts/docker/install_docker.sh)
+```
+
 2. Open a Terminal window on Linux/Mac or press Ctrl+R on Windows, type cmd.exe in the box that appears and press Enter
 3. Clone the Dendro repository by pasting this code
 ````bash
