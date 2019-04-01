@@ -235,6 +235,17 @@ exports.show = function (req, res)
                 callback(null, false);
             }
         };
+        const _ = require("underscore");
+
+        const isEditor = _.filter(req.permissions_management.reasons_for_authorizing, function (authorization)
+        {
+            const reason = authorization.role;
+            if (req.params.is_deposit_root)
+            {
+                return _.isEqual(reason, Permissions.settings.role.users_role_in_deposit) || _.isEqual(reason, Permissions.settings.role.in_system.admin);
+            }
+            return _.isEqual(reason, Permissions.settings.role.users_role_in_deposit) || _.isEqual(reason, Permissions.settings.role.in_system.admin);
+        });
 
         // client requested JSON, RDF, TXT, etc...
         sendResponseInRequestedFormat(function (error, alreadySent)
@@ -248,9 +259,18 @@ exports.show = function (req, res)
             {
                 if (!alreadySent)
                 {
-                    res.render("registry/show",
-                        viewVars
-                    );
+                    if (isEditor.length > 0 || isAdmin)
+                    {
+                        res.render("registry/show",
+                            viewVars
+                        );
+                    }
+                    else
+                    {
+                        res.render("registry/show_readonly",
+                            viewVars
+                        );
+                    }
                 }
             }
         });

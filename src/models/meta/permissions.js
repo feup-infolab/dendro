@@ -269,6 +269,7 @@ const checkUsersRoleInProject = function (req, user, role, project, callback)
     }
 };
 
+
 const getPostsProject = function (postUri, callback)
 {
     Post.findByUri(postUri, function (err, post)
@@ -509,7 +510,7 @@ const checkUsersRoleInDeposit = function (req, user, role, depositUri, callback)
                             {
                                 async.eachSeries(predicateRoles, function (predicate, cb)
                                 {
-                                    project.checkIfHasPredicateValue(predicate, user.uri, function (err, result)
+                                    deposit.checkIfHasPredicateValue(predicate, user.uri, function (err, result)
                                     {
                                         if (isNull(err))
                                         {
@@ -803,6 +804,13 @@ Permissions.settings = {
                 object: "private",
                 error_message_user: "This is a resource that belongs to a private deposit, and neither data nor metadata can be accessed.",
                 error_message_api: "Unauthorized Access. This is a resource that belongs to a private deposit, and neither data nor metadata can be accessed."
+            },
+            metadata_only: {
+                type: Permissions.types.privacy_of_deposit,
+                predicate: "ddr:privacyStatus",
+                object: "metadata_only",
+                error_message_user: "This is a resource that belongs to a deposit with only metadata access. Data metadata cannot be accessed.",
+                error_message_api: "Unauthorized Access. This is a resource that belongs to a project with only metadata access. Data metadata cannot be accessed."
             }
         }
     }

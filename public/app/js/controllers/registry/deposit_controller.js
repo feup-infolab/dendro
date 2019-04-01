@@ -47,9 +47,22 @@ angular.module("dendroApp.controllers", [])
             },
             privateDeposit: {
                 type: "checkbox",
-                label: "Private Deposits only",
+                list: true,
+                label: "Privacy",
                 key: "private",
-                value: false
+                value: [
+                    {
+                        name: "Public deposit",
+                        value: true
+                    },
+                    {
+                        name: "Private deposit",
+                        value: true
+                    },
+                    {
+                        name: "Metadata only",
+                        value: true
+                    }]
             },
             system: {
                 type: "checkbox",

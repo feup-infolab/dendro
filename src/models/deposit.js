@@ -51,7 +51,7 @@ function Deposit (object)
 Deposit.createDeposit = function (data, callback)
 {
     let object = data.registryData;
-    //object.dcterms.DOI = "DOI";
+    // object.dcterms.DOI = "DOI";
 
     let content = data.requestedResource;
     let newDeposit = new Deposit(object);
@@ -184,8 +184,8 @@ Deposit.createDeposit = function (data, callback)
     function (citation, callback)
     {
         const requestedResourceURI = object.ddr.exportedFromFolder;
-        //object.dcterms.DOI = "DOI";
-        //newDeposit.dcterms.proposedCitation = "citation";
+        // object.dcterms.DOI = "DOI";
+        // newDeposit.dcterms.proposedCitation = "citation";
 
         const isResource = function (url)
         {
@@ -284,6 +284,94 @@ Deposit.createQuery = function (params, callback)
 
     if (params.self)
     {
+        var addUnion = false;
+        for (let j = 0; j < params.private.length; j++)
+        {
+            if (j === 0)
+            {
+                query += "   { \n";
+            }
+
+            var object = JSON.parse(params.private[j]);
+            switch (object.name)
+            {
+            case "Metadata only":
+                if (object.value === true)
+                {
+                    if (addUnion)
+                    {
+                        query += "       UNION \n";
+                    }
+                    query +=
+                          "       { \n" +
+                          "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
+                          "       } \n";
+                    variables.push(
+                        {
+                            type: Elements.ontologies.ddr.privacyStatus.type,
+                            value: "metadata_only"
+                        });
+                    // addUnion = true;
+                }
+                break;
+            case "Private deposit":
+                if (object.value === true)
+                {
+                    if (addUnion)
+                    {
+                        query += "       UNION \n";
+                    }
+                    query +=
+                      "         { \n" +
+                          "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
+                          "         VALUES ?role { dcterms:creator dcterms:contributor } . \n" +
+                          "         ?projused ?role [" + i++ + "] . \n" +
+                          "       } \n";
+                    variables = variables.concat([
+                        {
+                            type: Elements.ontologies.ddr.privacyStatus.type,
+                            value: "private"
+                        },
+                        {
+                            type: Elements.ontologies.dcterms.creator.type,
+                            value: params.self
+                        }]);
+                    addUnion = true;
+                }
+                break;
+            default: {
+                if (object.value === true)
+                {
+                    if (addUnion)
+                    {
+                        query += "       UNION \n";
+                    }
+                    query +=
+                          "       { \n" +
+                          "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
+                          "       } \n";
+                    variables.push(
+                        {
+                            type: Elements.ontologies.ddr.privacyStatus.type,
+                            value: "public"
+                        });
+                    addUnion = true;
+                }
+            }
+            }
+            if (j === params.private.length - 1)
+            {
+                query += "   } \n";
+            }
+        }
+
+        /* if(params.private[j])
+            query += "[" + i++ + "] ";
+            variables.push({
+                type: Elements.types.string,
+                value: params.platforms[j]
+            });
+        }
         if (isNull(params.private) || params.private === "false")
         {
             query +=
@@ -321,7 +409,7 @@ Deposit.createQuery = function (params, callback)
             {
                 type: Elements.ontologies.dcterms.creator.type,
                 value: params.self
-            }]);
+            }]);*/
     }
     else
     {
