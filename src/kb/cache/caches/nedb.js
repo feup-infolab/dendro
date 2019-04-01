@@ -241,12 +241,12 @@ NeDBCache.prototype.delete = function (resourceUriOrArrayOfResourceUris, callbac
             }
             else
             {
-                return callback(1, "Tried to fetch a resource from cache " + JSON.stringify(self) + " providing a null resourceUri array!");
+                return callback(1, "Tried to fetch a resource from cache " + JSON.stringify(self.id) + " providing a null resourceUri array!");
             }
         }
         else
         {
-            return callback(1, "Must open connection to NeDB cache " + JSON.stringify(self) + "first!");
+            return callback(1, "Must open connection to NeDB cache " + JSON.stringify(self.id) + "first!");
         }
     }
     else

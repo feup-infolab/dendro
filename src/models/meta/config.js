@@ -30,29 +30,35 @@ if (argv.config)
     Logger.log("info", "Deployment configuration overriden by --conf argument. Configuration is " + argv.config);
     activeConfigKey = argv.config;
 }
-else if (!isNull(process.env.DENDRO_ACTIVE_DEPLOYMENT_CONFIG) && process.env.DENDRO_ACTIVE_DEPLOYMENT_CONFIG !== "")
-{
-    Logger.log("info", "Deployment configuration overriden by DENDRO_ACTIVE_DEPLOYMENT_CONFIG environment variable. Configuration is " + process.env.DENDRO_ACTIVE_DEPLOYMENT_CONFIG);
-    activeConfigKey = process.env.DENDRO_ACTIVE_DEPLOYMENT_CONFIG;
-}
-else if (process.env.NODE_ENV === "test")
-{
-    activeConfigKey = "test";
-    Logger.log("Running in test environment detected.");
-    Logger.log("debug", "Deployment configuration overriden by test environment. Configuration is " + activeConfigKey + ".");
-}
 else
 {
-    if (!fs.existsSync(configSelectorFilePath))
+    if (!isNull(process.env.DENDRO_ACTIVE_DEPLOYMENT_CONFIG) && process.env.DENDRO_ACTIVE_DEPLOYMENT_CONFIG !== "")
     {
-        const msg = "Configuration file " + configSelectorFilePath + " does not exist!";
-        Logger.log("error", msg);
-        throw new Error(msg);
+        Logger.log("info", "Deployment configuration overriden by DENDRO_ACTIVE_DEPLOYMENT_CONFIG environment variable. Configuration is " + process.env.DENDRO_ACTIVE_DEPLOYMENT_CONFIG);
+        activeConfigKey = process.env.DENDRO_ACTIVE_DEPLOYMENT_CONFIG;
     }
     else
     {
-        activeConfigKey = yaml.safeLoad(fs.readFileSync(configSelectorFilePath)).key;
-        Logger.log("debug", "Configuration file exists at " + configSelectorFilePath + " and the configuration key inside is " + activeConfigKey);
+        if (process.env.NODE_ENV === "test")
+        {
+            activeConfigKey = "test";
+            Logger.log("Running in test environment detected.");
+            Logger.log("debug", "Deployment configuration overriden by test environment. Configuration is " + activeConfigKey + ".");
+        }
+        else
+        {
+            if (!fs.existsSync(configSelectorFilePath))
+            {
+                const msg = "Configuration file " + configSelectorFilePath + " does not exist!";
+                Logger.log("error", msg);
+                throw new Error(msg);
+            }
+            else
+            {
+                activeConfigKey = yaml.safeLoad(fs.readFileSync(configSelectorFilePath)).key;
+                Logger.log("debug", "Configuration file exists at " + configSelectorFilePath + " and the configuration key inside is " + activeConfigKey);
+            }
+        }
     }
 }
 
@@ -619,6 +625,24 @@ Config.enabledOntologies = {
         label: "M3-lite Taxonomy",
         description: "A taxonomy that enables testbeds to semantically annotate the IoT data produced by heterogeneous devices. In this taxonomy, we classify devices, the domain of interests (health, smart home, smart kitchen, environmental monitoring, etc.), phenomena and unit of measurements",
         domain: "IoT",
+        domain_specific: true
+    },
+    chm: {
+        prefix: "chm",
+        uri: "http://www.dendro.fe.up.pt/ontology/chemistry#",
+        elements: Elements.ontologies.chm,
+        label: "Chemistry",
+        description: "Vocabulary for the description of data resulting from experiments in the chemistry domain: particle size; solution Ph, chemical Element, etc..",
+        domain: "Chemistry",
+        domain_specific: true
+    },
+    p0: {
+        prefix: "p0",
+        uri: "http://www.dendro.fe.up.pt/ontology/physics#",
+        elements: Elements.ontologies.p0,
+        label: "Physics",
+        description: "Vocabulary for the description of data resulting from experiments in the physics domain: substrate; band gap, sample mass, etc..",
+        domain: "Physics",
         domain_specific: true
     }
 };

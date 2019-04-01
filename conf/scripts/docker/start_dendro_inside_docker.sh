@@ -1,95 +1,64 @@
 #!/usr/bin/env bash
 
-VOLUME_DIR="/dendro"
-INSTALL_DIR="/tmp/dendro"
-RUNNING_DIR="$VOLUME_DIR/dendro"
-NODE_VERSION="$(cat $INSTALL_DIR/.nvmrc)"
-
-
-ELASTICSEARCH_HOST="elasticsearch-dendro"
-MONGO_HOST="mongodb-dendro"
-MARIADB_HOST="mariadb-dendro"
-VIRTUOSO_HOST="virtuoso-dendro"
-
-# starts containers with the volumes mounted
-function wait_for_server_to_boot_on_port()
+function copy_source_to_destination()
 {
-    local ip=$1
-    local sentenceToFindInResponse=$2
+  local source_dir=$1
+  local running_dir=$2
 
-    if [[ $ip == "" ]]; then
-      ip="127.0.0.1"
-    fi
-    local port=$2
-    local attempts=0
-    local max_attempts=60
+  # diff -r -q "$source_dir" "$running_dir"
 
-    echo "Waiting for server on $ip:$port to boot up..."
+  echo "Copying files..."
 
-    response=$(curl -s $ip:$port)
-    echo $response
-
-	until $(curl --output /dev/null --silent --head --fail http://$ip:$port) || [[ $attempts > $max_attempts ]]; do
-        attempts=$((attempts+1))
-        echo "waiting... (${attempts}/${max_attempts})"
-        sleep 1;
-	done
-
-    if (( $attempts == $max_attempts ));
-    then
-        echo "Server on $ip:$port failed to start after $max_attempts"
-    elif (( $attempts < $max_attempts ));
-    then
-        echo "Server on $ip:$port started successfully at attempt (${attempts}/${max_attempts})"
-    fi
+  diff -q "$source_dir" "$running_dir"
+  rsync --quiet --recursive "$source_dir"/ "$running_dir"/
 }
-
-# #wait for all servers to boot up before starting dendro
-# wait_for_server_to_boot_on_port "$ELASTICSEARCH_HOST" 9200
-# wait_for_server_to_boot_on_port "$MONGO_HOST" 27017
-# wait_for_server_to_boot_on_port "$MARIADB_HOST" 3306
-# wait_for_server_to_boot_on_port "$VIRTUOSO_HOST" 1111
-# wait_for_server_to_boot_on_port "$VIRTUOSO_HOST" 8890
-
 
 # Switch to dendro user to start the app instead of using root
 HOME="/root"
 
-echo "Dendro starting up at $RUNNING_DIR, installation dir $INSTALL_DIR and user $(whoami)"
+echo "Dendro starting up at $DENDRO_RUNNING_DIR, installation dir $DENDRO_INSTALL_DIR and user $(whoami)"
 
 echo "Contents of install dir.................."
-ls -la $INSTALL_DIR
+ls -la "$DENDRO_INSTALL_DIR"
 echo "Contents of running dir.................."
-ls -la $RUNNING_DIR
+ls -la "$DENDRO_RUNNING_DIR"
 
-if [[ ! -f $RUNNING_DIR ]]; then
-	echo "Dendro running dir does not exist at $RUNNING_DIR, creating directory..."
-	mkdir -p $RUNNING_DIR
-	ls -la $VOLUME_DIR
-fi
-
-if [ -z "$(ls -A $RUNNING_DIR)" ]; then
-	echo "Dendro running dir is empty, so we assume this is the first bootup of the container."
-	echo "Copying all data from $INSTALL_DIR into $RUNNING_DIR..."
-	cp -R $INSTALL_DIR/* $RUNNING_DIR
+MAIN_SOURCE_FILE="$DENDRO_RUNNING_DIR/src/app.js"
+if [ ! -f "$MAIN_SOURCE_FILE" ]; then
+	echo "Dendro main source file is NOT PRESENT at $MAIN_SOURCE_FILE, so we assume this is the first bootup of the container."
+	echo "Copying all data from $DENDRO_INSTALL_DIR into $DENDRO_RUNNING_DIR..."
+  copy_source_to_destination "$DENDRO_INSTALL_DIR" "$DENDRO_RUNNING_DIR"
 else
-	echo "Dendro running directory ($RUNNING_DIR) is not empty, assuming it is already installed."
-   	echo "Refreshing code on startup..."
-   	rsync $INSTALL_DIR $RUNNING_DIR
+	echo "Dendro main source file ($MAIN_SOURCE_FILE) exists, assuming it is already installed."
 fi
 
-# Change ownership
-echo "Contents of running dir $RUNNING_DIR"
-ls -la $VOLUME_DIR
+echo "Contents of running dir $DENDRO_RUNNING_DIR"
+ls -la $DENDRO_RUNNING_DIR
 
-cd "$RUNNING_DIR" && echo "Switched to folder $(pwd) to start Dendro..." || exit "Unable to find directory $RUNNING_DIR"
+cd "$DENDRO_RUNNING_DIR" && echo "Switched to folder $(pwd) to start Dendro..." \
+  || ( echo "Unable to find directory $DENDRO_RUNNING_DIR" && exit 1 )
 
 . $HOME/.nvm/nvm.sh
-nvm use --delete-prefix "$RUNNING_DIR"
-nvm alias default "$(cat $RUNNING_DIR/.nvmrc)"
+nvm use --delete-prefix "$DENDRO_RUNNING_DIR"
+nvm alias default "$(cat $DENDRO_RUNNING_DIR/.nvmrc)"
 
 if [[ "$DENDRO_ACTIVE_DEPLOYMENT_CONFIG" == "" ]]; then
     DENDRO_ACTIVE_DEPLOYMENT_CONFIG="docker"
 fi
 
 node src/app.js --config="$DENDRO_ACTIVE_DEPLOYMENT_CONFIG"
+
+if [[ "$?" != "0" ]];
+then
+  echo "There was an error starting or running dendro!"
+  exit 1
+  # echo "Showing the contents of $DENDRO_INSTALL_DIR and $(pwd)..."
+  # printf "$DENDRO_INSTALL_DIR\n"
+  # ls "$DENDRO_INSTALL_DIR"
+  #
+  # printf "$(pwd)\n"
+  # ls "$(pwd)"
+  #
+  # echo "Trying to copy again all contents of install dir $DENDRO_DENDRO_INSTALL_DIR to running idr $DENDRO_RUNNING_DIR"
+  # copy_source_to_destination "$DENDRO_INSTALL_DIR" "$DENDRO_RUNNING_DIR"
+fi

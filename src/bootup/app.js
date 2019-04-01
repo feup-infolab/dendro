@@ -56,15 +56,15 @@ class App
             return;
         }
 
-        // if this fancy cleanup fails, we drop the hammer in 10 secs
+        // if this fancy cleanup fails, we drop the hammer in 20 secs
         const setupForceKillTimer = function ()
         {
             setTimeout(function ()
             {
                 const msg = "Graceful close timed out. Forcing server closing!";
-                Logger.log("warn", msg);
-                process.exit(1);
-            }, Config.dbOperationTimeout);
+                Logger.log("info", msg);
+                throw new Error(msg);
+            }, 20000);
         };
 
         const signals = ["SIGHUP", "SIGINT", "SIGQUIT", "SIGABRT", "SIGTERM"];
@@ -664,7 +664,7 @@ class App
                 Logger.log("Waiting for pending connections to finish up...");
                 async.during(function (callback)
                 {
-                    if (count > 20)
+                    if (count > 200)
                     {
                         Logger.log("warn", "Still pending connections even after " + count + " attempts!");
                         callback(null);
@@ -673,14 +673,14 @@ class App
                     {
                         self.server.getConnections(function (err, connections)
                         {
-                            callback(err, (connections > 0));
+                            callback(err, (connections > 1));
                         });
                     }
                 },
                 function (callback)
                 {
                     count++;
-                    setTimeout(callback, 1000);
+                    setTimeout(callback, 500);
                 },
                 function (err, result)
                 {
@@ -698,9 +698,16 @@ class App
             const DbConnection = rlequire("dendro", "src/kb/db.js").DbConnection;
             DbConnection.finishUpAllConnectionsAndClose(function ()
             {
-                const timeout = 1;
-                Logger.log("Waiting " + timeout + "ms for virtuoso to flush the buffers...");
-                setTimeout(cb, timeout);
+                const timeout = 0;
+                if(timeout)
+                {
+                    Logger.log("Waiting " + timeout + "ms for virtuoso to flush the buffers...");
+                    setTimeout(cb, timeout);
+                }
+                else
+                {
+                    cb(null);
+                }
             });
         };
 
@@ -857,8 +864,8 @@ class App
             {
                 async.series([
                     closeAgenda,
-                    waitForPendingConnectionsToFinishup,
                     closeVirtuosoConnections,
+                    waitForPendingConnectionsToFinishup,
                     closeCacheConnections,
                     closeIndexConnections,
                     closeGridFSConnections,

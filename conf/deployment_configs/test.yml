@@ -317,10 +317,15 @@ test:
     ckan: {}
   analytics_tracking_code: GOOGLE_ANALYTICS_DEVELOPMENT_ANALYTICS_TRACKING_CODE
   public_ontologies:
-  - foaf
-  - dcterms
-  - bdv
-  - research
+    - foaf
+    - dcterms
+    - bdv
+    - research
+    - hdg
+    - ddiup
+    - disco
+    - p0
+    - chm
   authentication:
     default:
       enabled: true
@@ -354,4 +359,7 @@ test:
       server_address: http://localhost:9000
     yake:
       active: true
-      commmand: docker run yake-dendro-dev -it '${texttoprocess}'
+      server_address: 'http://localhost:5000'
+      max_ngram_size: 3
+      number_of_keywords: 30
+      language: en

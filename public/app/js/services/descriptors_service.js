@@ -2,6 +2,18 @@ angular.module("dendroApp.services")
     .service("descriptorsService", ["$http",
         function ($http)
         {
+            const injectMissingCommentMessage = function (descriptors)
+            {
+                return _.map(descriptors, function (descriptor)
+                {
+                    if (!descriptor.comment)
+                    {
+                        descriptor.comment = "No detailed description available";
+                    }
+                    return descriptor;
+                });
+            };
+
             this.get_descriptors_by_text_search = function (current_resource_uri, typed)
             {
                 if (typeof typed !== "undefined")
@@ -44,6 +56,7 @@ angular.module("dendroApp.services")
                         headers: {Accept: "application/json"}
                     }).then(function (response)
                     {
+                        response.data.descriptors = injectMissingCommentMessage(response.data.descriptors);
                         return response.data.descriptors;
                     }
                     ).catch(function (error)
@@ -69,6 +82,7 @@ angular.module("dendroApp.services")
                             headers: {Accept: "application/json"}
                         }).then(function (response)
                         {
+                            response.data.descriptors = injectMissingCommentMessage(response.data.descriptors);
                             return response.data.descriptors;
                         }
                         ).catch(function (error)
@@ -76,6 +90,7 @@ angular.module("dendroApp.services")
                             throw "Error fetching ontologies from ontology " + ontologyUri + " in the context of resource " + resourceUri + ": " + JSON.stringify(error);
                         });
                     }
+
                     return $http({
                         method: "GET",
                         params: {
@@ -86,6 +101,7 @@ angular.module("dendroApp.services")
                         headers: {Accept: "application/json"}
                     }).then(function (response)
                     {
+                        response.data.descriptors = injectMissingCommentMessage(response.data.descriptors);
                         return response.data.descriptors;
                     }
                     ).catch(function (error)

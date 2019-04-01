@@ -13,6 +13,7 @@ const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 const Queue = require("better-queue");
 const rp = require("request-promise-native");
+const JDBC = require("jdbc");
 const jinst = require("jdbc/lib/jinst");
 const Pool = require("jdbc/lib/pool");
 const uuid = require("uuid");
@@ -345,12 +346,11 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
     {
         const retryConnection = function (err, callback)
         {
-            Logger.log("debug", "Retrying connection to virtuoso because of error: ");
-            Logger.log("debug", JSON.stringify(err));
-            const disconnectErrors = ["Virtuoso Communications Link Failure (timeout)", "Problem during closing : Broken pipe", "Problem during serialization : Broken pipe"];
-
             if (!isNull(err))
             {
+                Logger.log("debug", "Retrying connection to virtuoso at " + self.host + ":" + self.port + "because of error: ");
+                Logger.log("debug", JSON.stringify(err));
+                const disconnectErrors = ["Virtuoso Communications Link Failure (timeout)", "Problem during closing : Broken pipe", "Problem during serialization : Broken pipe"];
                 const stackText = err.stack;
 
                 for (let i = 0; i < disconnectErrors.length; i++)
@@ -358,6 +358,7 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
                     let disconnectError = disconnectErrors[i];
                     if (stackText.indexOf(disconnectError) > -1)
                     {
+                        Logger.log("debug", "Connection to virtuoso was lost during a query, trying to recover it...");
                         self.tryToConnect(function (err)
                         {
                             callback(err);
@@ -412,6 +413,7 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
                         }
                         else
                         {
+                            // Logger.log("debug", "Connection to virtuoso was lost during an update query, trying to recover it...");
                             statement.close(function (err)
                             {
                                 if (!isNull(err))
@@ -424,7 +426,7 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
                                         }
                                         else
                                         {
-                                            callback(err, "Connection to virtuoso was unable to be recovered after it was broken.");
+                                            callback(err, "Connection to virtuoso was unable to be recovered after it was broken during an update query.");
                                         }
                                     });
                                 }
@@ -443,18 +445,33 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
             });
         };
 
+        const closeStatement = function (statement, callback)
+        {
+            statement.close(function (err, result)
+            {
+                if (!isNull(err))
+                {
+                    Logger.log("error", "Error closing statement on query statement");
+                    Logger.log("error", JSON.stringify(err));
+                    Logger.log("error", JSON.stringify(result));
+                }
+
+                callback(err, result);
+            });
+        };
+
         const executeSelectQuery = function (selectQuery, callback)
         {
             connection.conn.createStatement(function (err, statement)
             {
                 if (isNull(err))
                 {
-                    statement.executeQuery(selectQuery, function (err, resultset)
+                    statement.executeQuery(selectQuery, function (executionError, resultSet)
                     {
-                        if (isNull(err))
+                        if (isNull(executionError))
                         {
                             // Convert the result set to an object array.
-                            resultset.toObjArray(function (err, results)
+                            resultSet.toObjArray(function (err, results)
                             {
                                 if (!isNull(err))
                                 {
@@ -464,34 +481,45 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
                                     Logger.log("error", JSON.stringify(results));
                                 }
 
-                                statement.close(function (err, result)
+                                closeStatement(statement, function (err, result)
                                 {
-                                    if (!isNull(err))
+                                    if (isNull(err))
                                     {
-                                        Logger.log("error", "Error closing statement on query statement");
-                                        Logger.log("error", JSON.stringify(err));
-                                        Logger.log("error", JSON.stringify(result));
+                                        callback(err, results);
                                     }
-
-                                    callback(err, results);
+                                    else
+                                    {
+                                        callback(err, result);
+                                    }
                                 });
                             });
                         }
                         else
                         {
-                            statement.close(function (err)
+                            closeStatement(statement, function (statementClosingError, result)
                             {
-                                retryConnection(err, function (err)
+                                if (isNull(statementClosingError))
                                 {
-                                    if (isNull(err))
+                                    retryConnection(executionError, function (err)
                                     {
-                                        executeSelectQuery(selectQuery, callback);
-                                    }
-                                    else
-                                    {
-                                        callback(err, "Connection to virtuoso was unable to be recovered after it was broken.");
-                                    }
-                                });
+                                        if (isNull(err))
+                                        {
+                                            executeSelectQuery(selectQuery, callback);
+                                        }
+                                        else
+                                        {
+                                            // It is really an error, not related to the connection loss. propagate the error up
+                                            self.releaseConnection(connection, function (err, result)
+                                            {
+                                                callback(executionError, resultSet);
+                                            });
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    callback(statementClosingError, result);
+                                }
                             });
                         }
                     });
@@ -765,6 +793,7 @@ DbConnection.prototype.create = function (callback)
 
     const checkDatabaseConnectionViaHttp = function (callback)
     {
+        Logger.log("debug", "Checking virtuoso connectivity via HTTP...");
         const xmlHttp = new XMLHttpRequest();
         // prepare callback
         xmlHttp.onreadystatechange = function ()
@@ -792,6 +821,7 @@ DbConnection.prototype.create = function (callback)
 
     const checkDatabaseConnectionViaJDBC = function (callback)
     {
+        Logger.log("debug", "Checking virtuoso connectivity via JDBC...");
         if (!jinst.isJvmCreated())
         {
             jinst.addOption("-Xrs");
@@ -814,7 +844,7 @@ DbConnection.prototype.create = function (callback)
             properties: {}
         };*/
 
-        const timeoutSecs = 1;
+        const timeoutSecs = 10;
         const connectionString = `jdbc:virtuoso://${self.host}:${self.port_isql}/UID=${self.username}/PWD=${self.password}/PWDTYPE=cleartext/CHARSET=UTF-8/TIMEOUT=${timeoutSecs}`;
 
         const config = {
@@ -823,14 +853,14 @@ DbConnection.prototype.create = function (callback)
             drivername: "virtuoso.jdbc4.Driver",
             maxpoolsize: self.maxSimultaneousConnections,
             minpoolsize: 0,
-            // 1 seconds idle time (should be handled by the TIMEOUT setting, but we specify this to kill any dangling connections...
+            // X seconds idle time (should be handled by the TIMEOUT setting, but we specify this to kill any dangling connections...
             maxidle: 1000 * timeoutSecs,
             properties: {}
         };
 
-        const pool = new Pool(config);
+        const virtuosoDB = new JDBC(config);
 
-        pool.initialize(function (err, result)
+        virtuosoDB.initialize(function (err, result)
         {
             if (err)
             {
@@ -841,7 +871,7 @@ DbConnection.prototype.create = function (callback)
             }
             else
             {
-                self.pool = pool;
+                self.pool = virtuosoDB;
                 callback(null, self);
             }
         });
@@ -849,6 +879,7 @@ DbConnection.prototype.create = function (callback)
 
     const setupQueryQueues = function (callback)
     {
+        Logger.log("debug", "Setting up JDBC Queue of Virtuoso...");
         self.queue_jdbc = new Queue(
             function (queryObject, popQueueCallback)
             {
@@ -866,6 +897,7 @@ DbConnection.prototype.create = function (callback)
                 id: "query_id"
             });
 
+        Logger.log("debug", "Setting up HTTP Queue of Virtuoso...");
         self.queue_http = new Queue(
             function (queryObject, popQueueCallback)
             {
@@ -1037,70 +1069,64 @@ DbConnection.prototype.tryToConnect = function (callback)
 
     DbConnection.connectionAttempts.push(callback);
 
-    if (!DbConnection.connecting)
+    const tryToConnect = function (callback)
     {
-        DbConnection.connecting = true;
-
-        const tryToConnect = function (callback)
+        self.closeConnectionPool(function (err, result)
         {
-            self.closeConnectionPool(function (err, result)
+            self.create(function (err, db)
             {
-                self.create(function (err, db)
+                if (isNull(err))
                 {
-                    if (isNull(err))
+                    if (isNull(db))
                     {
-                        if (isNull(db))
-                        {
-                            const msg = "[ERROR] Unable to connect to graph database running on " + self.host + ":" + self.port;
-                            Logger.log_boot_message(msg);
-                            return callback(msg);
-                        }
-
-                        Logger.log_boot_message("Connected to graph database running on " + self.host + ":" + self.port);
-                        // set default connection. If you want to add other connections, add them in succession.
-                        return callback(null);
+                        const msg = "[ERROR] Unable to connect to graph database running on " + self.host + ":" + self.port;
+                        Logger.log_boot_message(msg);
+                        return callback(msg);
                     }
 
-                    callback(1);
-                });
+                    Logger.log_boot_message("Connected to graph database running on " + self.host + ":" + self.port);
+                    // set default connection. If you want to add other connections, add them in succession.
+                    return callback(null);
+                }
+
+                callback(1);
             });
-        };
-
-        // try calling apiMethod 10 times with linear backoff
-        // (i.e. intervals of 100, 200, 400, 800, 1600, ... milliseconds)
-        async.retry({
-            times: 240,
-            interval: function (retryCount)
-            {
-                const msecs = 500;
-                Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to Virtuoso at " + self.host + ":" + self.port + "...");
-                return msecs;
-            }
-        }, tryToConnect, function (err, result)
-        {
-            if (!isNull(err))
-            {
-                const msg = "[ERROR] Error connecting to graph database running on " + self.host + ":" + self.port;
-                Logger.log("error", msg);
-                Logger.log("error", err);
-                Logger.log("error", result);
-            }
-            else
-            {
-                const msg = "Connection to Virtuoso at " + self.host + ":" + self.port + " was established!";
-                Logger.log("info", msg);
-            }
-
-            for (let i = 0; i < DbConnection.connectionAttempts.length; i++)
-            {
-                DbConnection.connectionAttempts[i](err, result);
-            }
-
-            DbConnection.connectionAttempts = [];
-
-            DbConnection.connecting = false;
         });
-    }
+    };
+
+    // try calling apiMethod 10 times with linear backoff
+    // (i.e. intervals of 100, 200, 400, 800, 1600, ... milliseconds)
+    async.retry({
+        times: 240,
+        interval: function (retryCount)
+        {
+            const msecs = 500;
+            Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to Virtuoso at " + self.host + ":" + self.port + "...");
+            return msecs;
+        }
+    }, tryToConnect, function (err, result)
+    {
+        if (!isNull(err))
+        {
+            const msg = "[ERROR] Error connecting to graph database running on " + self.host + ":" + self.port;
+            Logger.log("error", msg);
+            Logger.log("error", err);
+            Logger.log("error", result);
+        }
+        else
+        {
+            const msg = "Connection to Virtuoso at " + self.host + ":" + self.port + " was established!";
+            Logger.log("info", msg);
+        }
+
+        for (let i = 0; i < DbConnection.connectionAttempts.length; i++)
+        {
+            DbConnection.connectionAttempts[i](err, result);
+        }
+
+        DbConnection.connectionAttempts = [];
+        DbConnection.connecting = false;
+    });
 };
 
 DbConnection.prototype.closeConnectionPool = function (callback)
