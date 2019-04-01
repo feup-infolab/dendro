@@ -798,6 +798,12 @@ Elements.ontologies.foaf =
  */
 
 Elements.ontologies.ddr = {
+    accessTerms: {
+        type: Elements.types.string,
+        control: Controls.markdown_box,
+        private: true,
+        locked: true
+    },
     embargoedDate:
         {
             type: Elements.types.date,

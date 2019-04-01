@@ -1,43 +1,54 @@
 <h1 class="page-header">Share current folder to Dendro</h1>
-<div class="form-group">
-    <label for="recalled_b2share_repository_label">Label</label>
-    <input type="text" ng-model="recalled_repository.dcterms.title" class="form-control" id="recalled_b2share_repository_label" placeholder="Label" disabled>
+<div class="col-lg-12">
+    <div class="row form-group">
+        <label for="recalled_b2share_repository_label">Label</label>
+        <input type="text" ng-model="recalled_repository.dcterms.title" class="form-control" id="recalled_b2share_repository_label" placeholder="Label" disabled>
 
-    <label for="titleOfDeposit">Title of deposit:</label>
-    <input  ng-show="title_of_file_selected_disabled == true" type="text" ng-model="title_of_file_selected" class="form-control" id="titleOfDeposit" placeholder="Title of deposit" disabled>
-    <input  ng-show="title_of_file_selected_disabled == false" type="text" ng-model="title_of_file_selected" class="form-control" id="titleOfDeposit1" placeholder="Title of deposit">
+        <label for="titleOfDeposit">Title of deposit:</label>
+        <input  ng-show="title_of_file_selected_disabled == true" type="text" ng-model="title_of_file_selected" class="form-control" id="titleOfDeposit" placeholder="Title of deposit" disabled>
+        <input  ng-show="title_of_file_selected_disabled == false" type="text" ng-model="title_of_file_selected" class="form-control" id="titleOfDeposit1" placeholder="Title of deposit">
 
-    <br>
-    <div class="form-group col-lg-6">
-        <label>Privacy:</label>
-        <div class=" pull-right col-lg-6">
-            <div class="checkbox">
-                <input class="checkbox" for ="publicDeposit0" id="publicDeposit0" type="checkbox"  ng-change="change_privacy_checkbox(publicDeposit, 0)" ng-model="publicDeposit[0]">
-                <label name=publicDeposit0">Make this deposit public</label>
+        <br>
+        <div class="form-group col-lg-10">
+            <label>Privacy:</label>
+            <div class=" pull-right col-lg-8">
+                <div class="checkbox">
+                    <input class="checkbox" for ="publicDeposit0" id="publicDeposit0" type="checkbox"  ng-change="change_privacy_checkbox(publicDeposit, 0)" ng-model="publicDeposit[0]">
+                    <label name=publicDeposit0">Make this deposit public</label>
+                </div>
+                <div class="checkbox">
+                    <input type="checkbox" for ="publicDeposit1" id="publicDeposit1" type="checkbox"  ng-change="change_privacy_checkbox(publicDeposit, 1)" ng-model="publicDeposit[1]">
+                    <label>Make this registry embargoed until</label>
+                    <input ng-disabled="!publicDeposit[1]" type="date"  ng-model="embargoed" name="embargoed" >
+                </div>
+                <div class="checkbox">
+                    <input type="checkbox" for ="publicDeposit2" id="publicDeposit2" type="checkbox" ng-change="change_privacy_checkbox(publicDeposit, 2)" ng-model="publicDeposit[2]">
+                    <label name=publicDeposit2">Make this deposit private</label>
+                </div>
+                <div class="checkbox">
+                    <input type="checkbox" for ="publicDeposit3" id="publicDeposit3" type="checkbox" ng-change="change_privacy_checkbox(publicDeposit, 3)" ng-model="publicDeposit[3]">
+                    <label name=publicDeposit3">Make public metadata only</label>
+                </div>
             </div>
-            <div class="checkbox">
-                <input type="checkbox" for ="publicDeposit1" id="publicDeposit1" type="checkbox"  ng-change="change_privacy_checkbox(publicDeposit, 1)" ng-model="publicDeposit[1]">
-                <label>Make this registry embargoed until</label>
-                <input ng-disabled="!publicDeposit[1]" type="date"  ng-model="embargoed"  name="embargoed" >
+        </div>
+        <div class="row col-lg-4">
+                <label for="accessTerms" id="accessTerms">Access conditions:</label>
+                <textarea placeholder="Complete your conditions of access to the deposit" name="accessTerms" ng-model="accessTerms">
+                </textarea>
+        </div>
+
+        <div class="row">
+            <div ng-if="!is_sending_data" class="col-lg-12">
+                <button type="button" ng-click="delete_bookmark(recalled_repository, true)" class="btn btn-danger btn-large"><span class="glyphicon glyphicon-remove "></span>Delete this bookmark</button>
+
+                <button type="cancel"
+                        ng-click="upload_to_repository(recalled_repository, publicDeposit, title_of_file_selected, embargoed, accessTerms)"
+                        ng-disabled="disable_send_bookmark_dendro(title_of_file_selected, publicDeposit, embargoed)"
+                        class="btn btn-success pull-right"><span class="glyphicon glyphicon-upload"></span>Send</button>
             </div>
-            <div class="checkbox">
-                <input type="checkbox" for ="publicDeposit2" id="publicDeposit2" type="checkbox" ng-change="change_privacy_checkbox(publicDeposit, 2)" ng-model="publicDeposit[2]">
-                <label name=publicDeposit2">Make this deposit private</label>
+            <div ng-if="is_sending_data" class="col-lg-6">
+                <button type="cancel" class="btn btn-success pull-right" disabled="disabled"> <img src="/images/loading.gif">Sending</button>
             </div>
         </div>
     </div>
 </div>
-<div class="row">
-    <div ng-if="!is_sending_data" class="col-lg-12">
-        <button type="button" ng-click="delete_bookmark(recalled_repository, true)" class="btn btn-danger btn-large"><span class="glyphicon glyphicon-remove "></span>Delete this bookmark</button>
-
-        <button type="cancel"
-                ng-click="upload_to_repository(recalled_repository, publicDeposit, title_of_file_selected, embargoed)"
-                ng-disabled="disable_send_bookmark_dendro(title_of_file_selected, publicDeposit, embargoed)"
-                class="btn btn-success pull-right"><span class="glyphicon glyphicon-upload"></span>Send</button>
-    </div>
-    <div ng-if="is_sending_data" class="col-lg-6">
-        <button type="cancel" class="btn btn-success pull-right" disabled="disabled"> <img src="/images/loading.gif">Sending</button>
-    </div>
-</div>
-

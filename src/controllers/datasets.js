@@ -1129,6 +1129,7 @@ const exportToDendro = function (req, res)
     const requestedResourceUri = req.params.requestedResourceUri;
     const publicDeposit = req.body.publicDeposit;
     const titleOfDeposit = req.body.titleOfDeposit;
+    const accessTerms = req.body.accessTerms;
     let embargoedDate;
     const createDepositAux = function (exportedFromProject, exportedFromFolder, file, description, language, callback)
     {
@@ -1148,6 +1149,7 @@ const exportToDendro = function (req, res)
                 exportedToPlatform: "Dendro",
                 proposedCitation: "citation",
                 DOI: "DOI",
+                accessTerms: isNull(accessTerms) ? null : accessTerms,
                 embargoedDate: isNull(embargoedDate) ? null : embargoedDate
 
             }

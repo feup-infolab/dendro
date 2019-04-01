@@ -483,9 +483,9 @@ angular.module("dendroApp.controllers")
             };
             $scope.change_privacy_checkbox = function (array, index)
             {
-                for (i = 0; i < 3; i++)
+                for (i = 0; i < 4; i++)
                 {
-                    if (i != index)
+                    if (i !== index)
                     {
                         array[i] = false;
                     }
@@ -501,7 +501,7 @@ angular.module("dendroApp.controllers")
          * @param uri
          */
             // TODO William add boolean of public deposit in 2nd
-            $scope.upload_to_repository = function (targetRepository, publicDeposit, titleOfDeposit, embargoedDate, overwrite, deleteChangesOriginatedFromCkan, propagateDendroChangesIntoCkan)
+            $scope.upload_to_repository = function (targetRepository, publicDeposit, titleOfDeposit, embargoedDate,accessTerms, overwrite, deleteChangesOriginatedFromCkan, propagateDendroChangesIntoCkan)
             {
                 var payload = {
                     repository: targetRepository,
@@ -522,13 +522,14 @@ angular.module("dendroApp.controllers")
                                 break;
                             case "1":
                                 payload.publicDeposit = "embargoed";
+                                payload.embargoed_date = embargoedDate;
+                                break;
+                            case "2":
+                                payload.publicDeposit = "private";
                                 break;
                             default:
-                                payload.publicDeposit = "private";
-                            }
-                            if (key === "1")
-                            {
-                                payload.embargoed_date = embargoedDate;
+                                payload.publicDeposit = "metadata_only";
+                                break;
                             }
                         }
                     }
@@ -543,6 +544,10 @@ angular.module("dendroApp.controllers")
                     {
                         payload.publicDeposit = "public";
                     }
+                }
+                if(accessTerms)
+                {
+                    payload.accessTerms = accessTerms;
                 }
 
                 if (overwrite)
