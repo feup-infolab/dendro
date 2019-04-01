@@ -25,7 +25,12 @@ We offer three alternatives for installation: 1. Docker image (fast and easy) 2.
 
 To install Dendro using Docker, do the following:
 
-1. Install [Docker](https://docs.docker.com/docker-for-windows/install/)
+1. Install [Docker for windows](https://docs.docker.com/docker-for-windows/install/) or run [this script](https://github.com/feup-infolab/dendro/blob/master/conf/scripts/docker/install_docker.sh) for installing it on Ubuntu:
+
+```bash
+source <(curl -s https://raw.githubusercontent.com/feup-infolab/dendro/master/conf/scripts/docker/install_docker.sh)
+```
+
 2. Open a Terminal window on Linux/Mac or press Ctrl+R on Windows, type cmd.exe in the box that appears and press Enter
 3. Clone the Dendro repository by pasting this code
 ````bash
@@ -43,7 +48,9 @@ We provide a [Docker image](https://hub.docker.com/r/feupinfolab/dendro/) for ge
 
 ### 2. Code in local folder, databases running as Docker containers (for development)
 
-If you just want to download dendro and start developing, Dendro now supports automatic deployment using Docker containers for all dependencies (MySQL, Virtuoso and ElasticSearch). This only works for Mac and Linux machines (for now).
+If you just want to download dendro and start developing, Dendro now supports automatic deployment using Docker containers for all dependencies (MySQL, Virtuoso and ElasticSearch). 
+
+This only in all operating systems.
 
 1. Install Docker
 
@@ -101,12 +108,6 @@ npm start
 ````
 6. Access Dendro at `http://127.0.0.1:3001`
 7. Start developing :-)
-
-### 3. Installation scripts for production machines (Advanced)
-
-[Installation scripts for production machines](https://github.com/feup-infolab/dendro-install) (this is recommended for IT professionals). 
-
-These scripts can be used not only to build a Virtual Machine that boots Dendro using Vagrant but also to set up an Ubuntu-powered production machine.
 
 ## Description
 
