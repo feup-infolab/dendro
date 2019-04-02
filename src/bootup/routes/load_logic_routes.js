@@ -751,9 +751,9 @@ const loadRoutes = function (app, callback)
 
             const defaultPermissionsForDeposits = [
                  Permissions.settings.privacy.of_deposit.public,
-                Permissions.settings.privacy.of_deposit.metadata_only
+                //Permissions.settings.privacy.of_deposit.metadata_only
 
-                // Permissions.settings.role.users_role_in_deposit
+                 Permissions.settings.role.users_role_in_deposit
             ];
 
             req.params.is_project_root = true;

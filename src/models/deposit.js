@@ -257,7 +257,7 @@ Deposit.createDeposit = function (data, callback)
 Deposit.createQuery = function (params, callback)
 {
     let query =
-        "SELECT DISTINCT ?label ?user ?date ?platformsUsed ?projectTitle ?creator ?privacy ?uri ?folder ?folderName ?repository \n" +
+        "SELECT DISTINCT ?label ?user ?date ?platformsUsed  ?privacy ?uri ?folder ?folderName ?repository \n" +
         "FROM [0] \n" +
         "WHERE " +
         "{ \n" +
@@ -267,6 +267,7 @@ Deposit.createQuery = function (params, callback)
         "   ?uri dcterms:title ?label . \n" +
         "   ?uri dcterms:date ?date . \n" +
         "   ?uri ddr:exportedFromFolder ?folder . \n" +
+        "   ?uri  ddr:privacyStatus ?privacy . \n" +
         "   ?uri ddr:exportedToRepository ?repository . \n" +
         "   ?uri ddr:exportedToPlatform ?platformsUsed . \n" +
         "   ?folder nie:title ?folderName . \n";
@@ -279,68 +280,68 @@ Deposit.createQuery = function (params, callback)
             value: db.graphUri
         }];
 
-    if (params.self)
+    // if (params.self)
+    // {
+    var addUnion = false;
+    for (let j = 0; j < params.private.length; j++)
     {
-        var addUnion = false;
-        for (let j = 0; j < params.private.length; j++)
+        if (j === 0)
         {
-            if (j === 0)
-            {
-                query += "   { \n";
-            }
-            if (addUnion)
-            {
-                query += "       UNION \n";
-            }
-            query +=
+            query += "   { \n";
+        }
+        if (addUnion)
+        {
+            query += "       UNION \n";
+        }
+        query +=
               "       { \n" +
               "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
               "       } \n";
 
-            var object = JSON.parse(params.private[j]);
-            switch (object.name)
+        var object = JSON.parse(params.private[j]);
+        switch (object.name)
+        {
+        case "Metadata only":
+            if (object.value === true)
             {
-            case "Metadata only":
-                if (object.value === true)
-                {
-                    variables.push(
-                        {
-                            type: Elements.ontologies.ddr.privacyStatus.type,
-                            value: "metadata_only"
-                        });
-                    addUnion = true;
-                }
-                break;
-            case "Private deposit":
-                if (object.value === true)
-                {
-                    variables.push(
-                        {
-                            type: Elements.ontologies.ddr.privacyStatus.type,
-                            value: "private"
-                        });
-                    addUnion = true;
-                }
-                break;
-            default: {
-                if (object.value === true)
-                {
-                    variables.push(
-                        {
-                            type: Elements.ontologies.ddr.privacyStatus.type,
-                            value: "public"
-                        });
-                    addUnion = true;
-                }
+                variables.push(
+                    {
+                        type: Elements.ontologies.ddr.privacyStatus.type,
+                        value: "metadata_only"
+                    });
+                addUnion = true;
             }
-            }
-            if (j === params.private.length - 1)
+            break;
+        case "Private deposit":
+            if (object.value === true)
             {
-                query += "   } \n";
+                variables.push(
+                    {
+                        type: Elements.ontologies.ddr.privacyStatus.type,
+                        value: "private"
+                    });
+                addUnion = true;
+            }
+            break;
+        default: {
+            if (object.value === true)
+            {
+                variables.push(
+                    {
+                        type: Elements.ontologies.ddr.privacyStatus.type,
+                        value: "public"
+                    });
+                addUnion = true;
             }
         }
+        }
+        if (j === params.private.length - 1)
+        {
+            query += "   } \n";
+        }
+    }
 
-        /* if(params.private[j])
+    /* if(params.private[j])
             query += "[" + i++ + "] ";
             variables.push({
                 type: Elements.types.string,
@@ -385,7 +386,7 @@ Deposit.createQuery = function (params, callback)
                 type: Elements.ontologies.dcterms.creator.type,
                 value: params.self
             }]);*/
-    }
+    /* }
     else
     {
         query += "   ?uri ddr:privacyStatus [" + i++ + "] . \n";
@@ -394,7 +395,7 @@ Deposit.createQuery = function (params, callback)
             value: "public"
         });
     }
-
+*/
     let ending =
         "} \n" +
         "ORDER BY " + params.order + "(?" + params.labelToSort + ") \n" +
@@ -619,9 +620,67 @@ Deposit.getAllRepositories = function (params, callback)
 
     let i = 1;
 
-    if (params.self)
+    /* if (params.self)
+    {*/
+    var addUnion = false;
+    for (let j = 0; j < params.private.length; j++)
     {
-        if (isNull(params.private) || params.private === "false")
+        if (j === 0)
+        {
+            query += "   { \n";
+        }
+        if (addUnion)
+        {
+            query += "       UNION \n";
+        }
+        query +=
+          "       { \n" +
+          "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
+          "       } \n";
+
+        var object = JSON.parse(params.private[j]);
+        switch (object.name)
+        {
+        case "Metadata only":
+            if (object.value === true)
+            {
+                variables.push(
+                    {
+                        type: Elements.ontologies.ddr.privacyStatus.type,
+                        value: "metadata_only"
+                    });
+                addUnion = true;
+            }
+            break;
+        case "Private deposit":
+            if (object.value === true)
+            {
+                variables.push(
+                    {
+                        type: Elements.ontologies.ddr.privacyStatus.type,
+                        value: "private"
+                    });
+                addUnion = true;
+            }
+            break;
+        default: {
+            if (object.value === true)
+            {
+                variables.push(
+                    {
+                        type: Elements.ontologies.ddr.privacyStatus.type,
+                        value: "public"
+                    });
+                addUnion = true;
+            }
+        }
+        }
+        if (j === params.private.length - 1)
+        {
+            query += "   } \n";
+        }
+    }
+    /* if (isNull(params.private) || params.private === "false")
         {
             query +=
               "   { \n" +
@@ -666,7 +725,7 @@ Deposit.getAllRepositories = function (params, callback)
             type: Elements.ontologies.ddr.privacyStatus.type,
             value: "public"
         });
-    }
+    }*/
 
     if (params.project)
     {
