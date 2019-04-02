@@ -291,6 +291,14 @@ Deposit.createQuery = function (params, callback)
             {
                 query += "   { \n";
             }
+            if (addUnion)
+            {
+                query += "       UNION \n";
+            }
+            query +=
+              "       { \n" +
+              "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
+              "       } \n";
 
             var object = JSON.parse(params.private[j]);
             switch (object.name)
@@ -298,35 +306,17 @@ Deposit.createQuery = function (params, callback)
             case "Metadata only":
                 if (object.value === true)
                 {
-                    if (addUnion)
-                    {
-                        query += "       UNION \n";
-                    }
-                    query +=
-                          "       { \n" +
-                          "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
-                          "       } \n";
                     variables.push(
                         {
                             type: Elements.ontologies.ddr.privacyStatus.type,
                             value: "metadata_only"
                         });
-                    // addUnion = true;
+                    addUnion = true;
                 }
                 break;
             case "Private deposit":
                 if (object.value === true)
                 {
-                    if (addUnion)
-                    {
-                        query += "       UNION \n";
-                    }
-                    query +=
-                      "         { \n" +
-                          "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
-                          "         VALUES ?role { dcterms:creator dcterms:contributor } . \n" +
-                          "         ?projused ?role [" + i++ + "] . \n" +
-                          "       } \n";
                     variables = variables.concat([
                         {
                             type: Elements.ontologies.ddr.privacyStatus.type,
@@ -342,14 +332,6 @@ Deposit.createQuery = function (params, callback)
             default: {
                 if (object.value === true)
                 {
-                    if (addUnion)
-                    {
-                        query += "       UNION \n";
-                    }
-                    query +=
-                          "       { \n" +
-                          "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
-                          "       } \n";
                     variables.push(
                         {
                             type: Elements.ontologies.ddr.privacyStatus.type,
