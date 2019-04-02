@@ -175,6 +175,11 @@ exports.allowed = function (req, callback)
     });*/
 };
 
+exports.requestAccess = function (req, res)
+{
+
+
+};
 exports.getDeposit = function (req, res)
 {
     const acceptsHTML = req.accepts("html");

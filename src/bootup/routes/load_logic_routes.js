@@ -750,10 +750,10 @@ const loadRoutes = function (app, callback)
             req.params.requestedResourceUri = resourceUri;
 
             const defaultPermissionsForDeposits = [
-                 Permissions.settings.privacy.of_deposit.public,
-                //Permissions.settings.privacy.of_deposit.metadata_only
+                Permissions.settings.privacy.of_deposit.public,
+                // Permissions.settings.privacy.of_deposit.metadata_only
 
-                 Permissions.settings.role.users_role_in_deposit
+                Permissions.settings.role.users_role_in_deposit
             ];
 
             req.params.is_project_root = true;
@@ -774,6 +774,12 @@ const loadRoutes = function (app, callback)
                         handler: files.ls,
                         permissions: defaultPermissionsForDeposits,
                         authentication_error: "Permission denied : cannot list the contents of this deposit."
+                    },
+                    {
+                        queryKeys: ["request_access"],
+                        handler: deposits.requestAccess,
+                        permissions: [Permissions.settings.role.in_system.user],
+                        authentication_error: "Permission denied : cannot request access to this deposit."
                     },
 
                     // default case
