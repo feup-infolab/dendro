@@ -285,47 +285,42 @@ Deposit.createQuery = function (params, callback)
     var addUnion = false;
     for (let j = 0; j < params.private.length; j++)
     {
+        var object = JSON.parse(params.private[j]);
+
         if (j === 0)
         {
             query += "   { \n";
         }
-        if (addUnion)
+        if (object.value === true)
         {
-            query += "       UNION \n";
-        }
-        query +=
+            if (addUnion)
+            {
+                query += "       UNION \n";
+            }
+            query +=
               "       { \n" +
               "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
               "       } \n";
 
-        var object = JSON.parse(params.private[j]);
-        switch (object.name)
-        {
-        case "Metadata only":
-            if (object.value === true)
+            switch (object.name)
             {
+            case "Metadata only":
                 variables.push(
                     {
                         type: Elements.ontologies.ddr.privacyStatus.type,
                         value: "metadata_only"
                     });
                 addUnion = true;
-            }
-            break;
-        case "Private deposit":
-            if (object.value === true)
-            {
+                break;
+            case "Private deposit":
                 variables.push(
                     {
                         type: Elements.ontologies.ddr.privacyStatus.type,
                         value: "private"
                     });
                 addUnion = true;
-            }
-            break;
-        default: {
-            if (object.value === true)
-            {
+                break;
+            default: {
                 variables.push(
                     {
                         type: Elements.ontologies.ddr.privacyStatus.type,
@@ -333,7 +328,7 @@ Deposit.createQuery = function (params, callback)
                     });
                 addUnion = true;
             }
-        }
+            }
         }
         if (j === params.private.length - 1)
         {
@@ -625,47 +620,44 @@ Deposit.getAllRepositories = function (params, callback)
     var addUnion = false;
     for (let j = 0; j < params.private.length; j++)
     {
+        var object = JSON.parse(params.private[j]);
+
         if (j === 0)
         {
             query += "   { \n";
         }
-        if (addUnion)
+        if (object.value === true)
         {
-            query += "       UNION \n";
-        }
-        query +=
-          "       { \n" +
-          "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
-          "       } \n";
-
-        var object = JSON.parse(params.private[j]);
-        switch (object.name)
-        {
-        case "Metadata only":
-            if (object.value === true)
+            if (addUnion)
             {
+                query += "       UNION \n";
+            }
+            query +=
+            "       { \n" +
+            "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
+            "       } \n";
+
+            switch (object.name)
+            {
+            case "Metadata only":
+
                 variables.push(
                     {
                         type: Elements.ontologies.ddr.privacyStatus.type,
                         value: "metadata_only"
                     });
                 addUnion = true;
-            }
-            break;
-        case "Private deposit":
-            if (object.value === true)
-            {
+                break;
+            case "Private deposit":
+
                 variables.push(
                     {
                         type: Elements.ontologies.ddr.privacyStatus.type,
                         value: "private"
                     });
                 addUnion = true;
-            }
-            break;
-        default: {
-            if (object.value === true)
-            {
+                break;
+            default:
                 variables.push(
                     {
                         type: Elements.ontologies.ddr.privacyStatus.type,
@@ -673,7 +665,6 @@ Deposit.getAllRepositories = function (params, callback)
                     });
                 addUnion = true;
             }
-        }
         }
         if (j === params.private.length - 1)
         {
