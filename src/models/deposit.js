@@ -257,15 +257,12 @@ Deposit.createDeposit = function (data, callback)
 Deposit.createQuery = function (params, callback)
 {
     let query =
-        "SELECT DISTINCT ?label ?user ?date ?platformsUsed ?projectTitle ?projused ?creator ?privacy ?uri ?folder ?folderName ?repository \n" +
+        "SELECT DISTINCT ?label ?user ?date ?platformsUsed ?projectTitle ?creator ?privacy ?uri ?folder ?folderName ?repository \n" +
         "FROM [0] \n" +
         "WHERE " +
         "{ \n" +
         "   ?uri rdf:type ddr:Registry . \n" +
         "   ?uri ddr:exportedFromProject ?projused . \n" +
-        "   ?projused rdf:type ddr:Project . \n" +
-        "   ?projused dcterms:title ?projectTitle . \n" +
-        "   ?projused ddr:privacyStatus ?privacy . \n" +
         "   ?uri dcterms:creator ?user . \n" +
         "   ?uri dcterms:title ?label . \n" +
         "   ?uri dcterms:date ?date . \n" +
@@ -317,15 +314,11 @@ Deposit.createQuery = function (params, callback)
             case "Private deposit":
                 if (object.value === true)
                 {
-                    variables = variables.concat([
+                    variables.push(
                         {
                             type: Elements.ontologies.ddr.privacyStatus.type,
                             value: "private"
-                        },
-                        {
-                            type: Elements.ontologies.dcterms.creator.type,
-                            value: params.self
-                        }]);
+                        });
                     addUnion = true;
                 }
                 break;
