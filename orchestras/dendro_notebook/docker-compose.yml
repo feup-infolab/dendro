@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  corenlp:
+    container_name: corenlp-dendro
+    image: graham3333/corenlp-complete
+    environment:
+      - JAVA_XMX=3g
+    ports:
+      - 9000:9000
+
+  yake:
+    container_name: yake-dendro
+    image: liaad/yake-server:latest
+    ports:
+      - 5000:5000
