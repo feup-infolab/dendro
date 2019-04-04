@@ -47,9 +47,22 @@ angular.module("dendroApp.controllers", [])
             },
             privateDeposit: {
                 type: "checkbox",
-                label: "Private Deposits only",
+                list: true,
+                label: "Privacy",
                 key: "private",
-                value: false
+                value: [
+                    {
+                        name: "Public deposit",
+                        value: true
+                    },
+                    {
+                        name: "Private deposit",
+                        value: true
+                    },
+                    {
+                        name: "Metadata only",
+                        value: true
+                    }]
             },
             system: {
                 type: "checkbox",
@@ -186,7 +199,7 @@ angular.module("dendroApp.controllers", [])
             const handle = function (data, change)
             {
                 $scope.offset = 1;
-                $scope.updateDeposits(data);
+                //$scope.updateDeposits(data);
                 $scope.totalDeposits = 0;
 
                 if (change && data.repositories instanceof Array && data.repositories.length > 0)
@@ -226,16 +239,6 @@ angular.module("dendroApp.controllers", [])
             let url = $scope.get_current_url();
             url += "deposits/search";
             listings.getListing($scope, url, $scope.page, $scope.offset - 1, $scope.search, change, handle);
-        };
-
-        $scope.updateDeposits = function (data)
-        {
-            let deposits = data.deposits;
-            for (let i = 0; i < deposits.length; i++)
-            {
-                deposits[i].date = moment(deposits[i].date).fromNow();
-            }
-            $scope.deposits = deposits;
         };
 
         $scope.changePage = function (pageNumber)

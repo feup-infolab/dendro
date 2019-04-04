@@ -751,6 +751,8 @@ const loadRoutes = function (app, callback)
 
             const defaultPermissionsForDeposits = [
                 Permissions.settings.privacy.of_deposit.public,
+                // Permissions.settings.privacy.of_deposit.metadata_only
+
                 Permissions.settings.role.users_role_in_deposit
             ];
 
@@ -773,6 +775,12 @@ const loadRoutes = function (app, callback)
                         permissions: defaultPermissionsForDeposits,
                         authentication_error: "Permission denied : cannot list the contents of this deposit."
                     },
+                    {
+                        queryKeys: ["request_access"],
+                        handler: deposits.requestAccess,
+                        permissions: [Permissions.settings.role.in_system.user],
+                        authentication_error: "Permission denied : cannot request access to this deposit."
+                    },
 
                     // default case
                     {
@@ -790,7 +798,15 @@ const loadRoutes = function (app, callback)
                           permissions: Permissions.settings.role.in_system.admin,
                           authentication_error: "Permission denied : cannot delete deposit because you do not have permissions to administer this deposit."
                       }
-                  ]
+                  ],
+                post: [
+                    {
+                        queryKeys: ["request_access"],
+                        handler: deposits.requestAccess,
+                        permissions: [Permissions.settings.role.in_system.user],
+                        authentication_error: "Permission denied : cannot request access to this project."
+                    },
+                ]
             };
 
             QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next, true);

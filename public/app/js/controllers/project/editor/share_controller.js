@@ -481,9 +481,9 @@ angular.module("dendroApp.controllers")
                     doDeletion(bookmark);
                 }
             };
-            $scope.change_privacy_checkbox = function (array, index)
+            $scope.change_checkbox = function (array, length, index)
             {
-                for (i = 0; i < 4; i++)
+                for (let i = 0; i < length; i++)
                 {
                     if (i !== index)
                     {
@@ -501,7 +501,7 @@ angular.module("dendroApp.controllers")
          * @param uri
          */
             // TODO William add boolean of public deposit in 2nd
-            $scope.upload_to_repository = function (targetRepository, publicDeposit, titleOfDeposit, embargoedDate,accessTerms, overwrite, deleteChangesOriginatedFromCkan, propagateDendroChangesIntoCkan)
+            $scope.upload_to_repository = function (targetRepository, publicDeposit, titleOfDeposit, embargoedDate, accessTerms, overwrite, deleteChangesOriginatedFromCkan, propagateDendroChangesIntoCkan)
             {
                 var payload = {
                     repository: targetRepository,
@@ -545,7 +545,7 @@ angular.module("dendroApp.controllers")
                         payload.publicDeposit = "public";
                     }
                 }
-                if(accessTerms)
+                if (accessTerms)
                 {
                     payload.accessTerms = accessTerms;
                 }
@@ -656,6 +656,7 @@ angular.module("dendroApp.controllers")
                     statusCode: $scope.statusCodeDefaults
                 });
             };
+
 
             $scope.get_repository_types = function ()
             {

@@ -51,7 +51,7 @@ function Deposit (object)
 Deposit.createDeposit = function (data, callback)
 {
     let object = data.registryData;
-    //object.dcterms.DOI = "DOI";
+    // object.dcterms.DOI = "DOI";
 
     let content = data.requestedResource;
     let newDeposit = new Deposit(object);
@@ -184,8 +184,8 @@ Deposit.createDeposit = function (data, callback)
     function (citation, callback)
     {
         const requestedResourceURI = object.ddr.exportedFromFolder;
-        //object.dcterms.DOI = "DOI";
-        //newDeposit.dcterms.proposedCitation = "citation";
+        // object.dcterms.DOI = "DOI";
+        // newDeposit.dcterms.proposedCitation = "citation";
 
         const isResource = function (url)
         {
@@ -257,19 +257,17 @@ Deposit.createDeposit = function (data, callback)
 Deposit.createQuery = function (params, callback)
 {
     let query =
-        "SELECT DISTINCT ?label ?user ?date ?platformsUsed ?projectTitle ?projused ?creator ?privacy ?uri ?folder ?folderName ?repository \n" +
+        "SELECT DISTINCT ?label ?user ?date ?platformsUsed  ?privacy ?uri ?folder ?folderName ?repository \n" +
         "FROM [0] \n" +
         "WHERE " +
         "{ \n" +
         "   ?uri rdf:type ddr:Registry . \n" +
         "   ?uri ddr:exportedFromProject ?projused . \n" +
-        "   ?projused rdf:type ddr:Project . \n" +
-        "   ?projused dcterms:title ?projectTitle . \n" +
-        "   ?projused ddr:privacyStatus ?privacy . \n" +
         "   ?uri dcterms:creator ?user . \n" +
         "   ?uri dcterms:title ?label . \n" +
         "   ?uri dcterms:date ?date . \n" +
         "   ?uri ddr:exportedFromFolder ?folder . \n" +
+        "   ?uri  ddr:privacyStatus ?privacy . \n" +
         "   ?uri ddr:exportedToRepository ?repository . \n" +
         "   ?uri ddr:exportedToPlatform ?platformsUsed . \n" +
         "   ?folder nie:title ?folderName . \n";
@@ -282,8 +280,69 @@ Deposit.createQuery = function (params, callback)
             value: db.graphUri
         }];
 
-    if (params.self)
+    // if (params.self)
+    // {
+    var addUnion = false;
+    for (let j = 0; j < params.private.length; j++)
     {
+        var object = JSON.parse(params.private[j]);
+
+        if (j === 0)
+        {
+            query += "   { \n";
+        }
+        if (object.value === true)
+        {
+            if (addUnion)
+            {
+                query += "       UNION \n";
+            }
+            query +=
+              "       { \n" +
+              "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
+              "       } \n";
+
+            switch (object.name)
+            {
+            case "Metadata only":
+                variables.push(
+                    {
+                        type: Elements.ontologies.ddr.privacyStatus.type,
+                        value: "metadata_only"
+                    });
+                addUnion = true;
+                break;
+            case "Private deposit":
+                variables.push(
+                    {
+                        type: Elements.ontologies.ddr.privacyStatus.type,
+                        value: "private"
+                    });
+                addUnion = true;
+                break;
+            default: {
+                variables.push(
+                    {
+                        type: Elements.ontologies.ddr.privacyStatus.type,
+                        value: "public"
+                    });
+                addUnion = true;
+            }
+            }
+        }
+        if (j === params.private.length - 1)
+        {
+            query += "   } \n";
+        }
+    }
+
+    /* if(params.private[j])
+            query += "[" + i++ + "] ";
+            variables.push({
+                type: Elements.types.string,
+                value: params.platforms[j]
+            });
+        }
         if (isNull(params.private) || params.private === "false")
         {
             query +=
@@ -321,8 +380,8 @@ Deposit.createQuery = function (params, callback)
             {
                 type: Elements.ontologies.dcterms.creator.type,
                 value: params.self
-            }]);
-    }
+            }]);*/
+    /* }
     else
     {
         query += "   ?uri ddr:privacyStatus [" + i++ + "] . \n";
@@ -331,7 +390,7 @@ Deposit.createQuery = function (params, callback)
             value: "public"
         });
     }
-
+*/
     let ending =
         "} \n" +
         "ORDER BY " + params.order + "(?" + params.labelToSort + ") \n" +
@@ -556,9 +615,63 @@ Deposit.getAllRepositories = function (params, callback)
 
     let i = 1;
 
-    if (params.self)
+    /* if (params.self)
+    {*/
+    var addUnion = false;
+    for (let j = 0; j < params.private.length; j++)
     {
-        if (isNull(params.private) || params.private === "false")
+        var object = JSON.parse(params.private[j]);
+
+        if (j === 0)
+        {
+            query += "   { \n";
+        }
+        if (object.value === true)
+        {
+            if (addUnion)
+            {
+                query += "       UNION \n";
+            }
+            query +=
+            "       { \n" +
+            "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
+            "       } \n";
+
+            switch (object.name)
+            {
+            case "Metadata only":
+
+                variables.push(
+                    {
+                        type: Elements.ontologies.ddr.privacyStatus.type,
+                        value: "metadata_only"
+                    });
+                addUnion = true;
+                break;
+            case "Private deposit":
+
+                variables.push(
+                    {
+                        type: Elements.ontologies.ddr.privacyStatus.type,
+                        value: "private"
+                    });
+                addUnion = true;
+                break;
+            default:
+                variables.push(
+                    {
+                        type: Elements.ontologies.ddr.privacyStatus.type,
+                        value: "public"
+                    });
+                addUnion = true;
+            }
+        }
+        if (j === params.private.length - 1)
+        {
+            query += "   } \n";
+        }
+    }
+    /* if (isNull(params.private) || params.private === "false")
         {
             query +=
               "   { \n" +
@@ -603,7 +716,7 @@ Deposit.getAllRepositories = function (params, callback)
             type: Elements.ontologies.ddr.privacyStatus.type,
             value: "public"
         });
-    }
+    }*/
 
     if (params.project)
     {

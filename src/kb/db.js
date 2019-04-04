@@ -75,7 +75,7 @@ const queryObjectToString = function (query, argumentsArray, callback)
                 case Elements.types.double:
                     transformedQuery = transformedQuery.replace(pattern, currentArgument.value);
                     break;
-                case Elements.types.boolean:
+                case Elements.types.boolean: {
                     let booleanForm;
                     try
                     {
@@ -92,9 +92,10 @@ const queryObjectToString = function (query, argumentsArray, callback)
                     }
 
                     transformedQuery = transformedQuery.replace(pattern, "\"" + booleanForm.toString() + "\"");
+                }
 
                     break;
-                case Elements.types.prefixedResource:
+                case Elements.types.prefixedResource: {
                     const validator = require("validator");
                     if (validator.isURL(currentArgument.value))
                     {
@@ -151,6 +152,7 @@ const queryObjectToString = function (query, argumentsArray, callback)
                             return callback(1, error);
                         }
                     }
+                }
                     break;
                 case Elements.types.date:
                     transformedQuery = transformedQuery.replace(pattern, "\"" + currentArgument.value + "\"");
@@ -951,8 +953,6 @@ DbConnection.prototype.create = function (callback)
                                     for (let i = 0; i < numberOfRows; i++)
                                     {
                                         let datatypes = [];
-                                        let columnHeaders = [];
-
                                         let row = parsedBody.results.bindings[i];
 
                                         if (!isNull(row))
@@ -1496,7 +1496,6 @@ DbConnection.prototype.executeViaHTTP = function (queryStringWithArguments, argu
                 self.queue_http.push({
                     queryStartTime: new Date(),
                     query: query,
-                    callback,
                     callback,
                     query_id: newQueryId,
                     fullUrl: fullUrl,
