@@ -13,20 +13,20 @@
             <label>Privacy:</label>
             <div class=" pull-right col-lg-8">
                 <div class="checkbox">
-                    <input class="checkbox" for ="publicDeposit0" id="publicDeposit0" type="checkbox"  ng-change="change_privacy_checkbox(publicDeposit, 0)" ng-model="publicDeposit[0]">
+                    <input type="checkbox" for ="publicDeposit0" id="publicDeposit0" ng-change="change_checkbox(publicDeposit, 4, 0)" ng-model="publicDeposit[0]">
                     <label name=publicDeposit0">Make this deposit public</label>
                 </div>
                 <div class="checkbox">
-                    <input type="checkbox" for ="publicDeposit1" id="publicDeposit1" type="checkbox"  ng-change="change_privacy_checkbox(publicDeposit, 1)" ng-model="publicDeposit[1]">
+                    <input type="checkbox" for ="publicDeposit1" id="publicDeposit1" ng-change="change_checkbox(publicDeposit, 4, 1)" ng-model="publicDeposit[1]">
                     <label>Make this registry embargoed until</label>
-                    <input ng-disabled="!publicDeposit[1]" type="date"  ng-model="embargoed" name="embargoed" >
+                    <input ng-disabled="!publicDeposit[1]" type="date" ng-model="embargoed" name="embargoed" >
                 </div>
                 <div class="checkbox">
-                    <input type="checkbox" for ="publicDeposit2" id="publicDeposit2" type="checkbox" ng-change="change_privacy_checkbox(publicDeposit, 2)" ng-model="publicDeposit[2]">
+                    <input type="checkbox" for ="publicDeposit2" id="publicDeposit2" ng-change="change_checkbox(publicDeposit, 4, 2)" ng-model="publicDeposit[2]">
                     <label name=publicDeposit2">Make this deposit private</label>
                 </div>
                 <div class="checkbox">
-                    <input type="checkbox" for ="publicDeposit3" id="publicDeposit3" type="checkbox" ng-change="change_privacy_checkbox(publicDeposit, 3)" ng-model="publicDeposit[3]">
+                    <input type="checkbox" for ="publicDeposit3" id="publicDeposit3" ng-change="change_checkbox(publicDeposit, 4, 3)" ng-model="publicDeposit[3]">
                     <label name=publicDeposit3">Make public metadata only</label>
                 </div>
             </div>

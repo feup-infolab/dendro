@@ -9,6 +9,11 @@ const dateFormat = require("dateformat");
 const rlequire = require("rlequire");
 const path = require("path");
 const _ = require("underscore");
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const User = rlequire("dendro", "src/models/user.js").User;
+const nodemailer = require("nodemailer");
+
+const Administrator = rlequire("dendro", "src/models/administrator.js").Administrator;
 
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
@@ -73,7 +78,7 @@ exports.allowed = function (req, callback)
     }
 
     let platforms = [];
-    for (platform in params.platforms)
+    for (let platform in params.platforms)
     {
         const p = JSON.parse(params.platforms[platform]);
         if (p.value)
@@ -95,7 +100,7 @@ exports.allowed = function (req, callback)
     {
         if (params.repositories instanceof Array)
         {
-            for (repo in params.repositories)
+            for (let repo in params.repositories)
             {
                 const p = JSON.parse(params.repositories[repo]);
                 if (p.value)
@@ -177,8 +182,107 @@ exports.allowed = function (req, callback)
 
 exports.requestAccess = function (req, res)
 {
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
 
+    if (req.originalMethod === "GET")
+    {
+        if (acceptsJSON && !acceptsHTML)
+        {
+            res.status(400).json({
+                result: "error",
+                message: "API Request not valid for this route."
+            });
+        }
+        else
+        {
+            Deposit.findByUri(req.params.requestedResourceUri, function (err, deposit)
+            {
+                if (isNull(err) && deposit instanceof Deposit)
+                {
+                    res.render("registry/request_access",
+                        {
+                            deposit: deposit
+                        });
+                }
+                else
+                {
+                    req.flash("error", "Deposit " + req.params.requestedResourceUri + " not found.");
+                    res.redirect("/");
+                }
+            });
+        }
+    }
+    else if (req.originalMethod === "POST")
+    {
+        const flash = require("connect-flash");
+        if (req.body.access_deposits)
+        {
+            Logger.log(req.user);
+            Deposit.findByUri(req.params.requestedResourceUri, function (err, deposit)
+            {
+                if (isNull(err) && deposit instanceof Deposit)
+                {
+                    const lastSlash = deposit.dcterms.creator.lastIndexOf("\/");
+                    const creatorUsername = deposit.dcterms.creator.substring(lastSlash + 1);
 
+                    User.findByUsername(creatorUsername, function (err, user)
+                    {
+                        if (isNull(err) && user instanceof User)
+                        {
+                          /*  const userMail = user.foaf.mbox;
+
+                            const client = nodemailer.createTransport("SMTP", {
+                                service: "SendGrid",
+                                auth: {
+                                    user: Config.sendGridUser,
+                                    pass: Config.sendGridPassword
+                                }
+                            });
+
+                            const email = {
+                                from: "support@dendro.fe.up.pt",
+                                to: "ffjs1993@gmail.com",
+                                subject: "Request for deposit \"" + deposit.ddr.handle + "\"",
+                                text: "User " + req.user.uri + " requested access for deposit \"" + deposit.ddr.handle + "\".\ " +
+                                  "To accept this, please add him as a contributor."
+                            };
+
+                            client.sendMail(email, function (err, info)
+                            {
+                                if (err)
+                                {
+                                    Logger.log("[NODEMAILER] " + err);
+                                    flash("error", "Error sending request to user. Please try again later");
+                                    res.redirect("/");
+                                }
+                                else
+                                {
+                                    Logger.log("[NODEMAILER] email sent: " + info);
+                                    flash("success", "Sent request to deposit's owner");
+                                    res.redirect("/");
+                                }
+                            });*/
+                        }
+                        else
+                        {
+                            flash("error", "Error finding deposit's owner. Please try again later");
+                            res.redirect("/");
+                        }
+                    });
+                }
+                else
+                {
+                    flash("error", "Error retrieving deposit. Please try again later");
+                    res.redirect("/");
+                }
+            });
+        }
+        else
+        {
+            res.redirect("/");
+        }
+    }
 };
 exports.getDeposit = function (req, res)
 {
@@ -391,6 +495,7 @@ exports.show = function (req, res)
                         ],
                         function (err, results)
                         {
+                            let goUpOptions;
                             if (isNull(err))
                             {
                                 const parents = results[0];
@@ -403,7 +508,7 @@ exports.show = function (req, res)
                                 {
                                     if (immediateParent.uri === ownerDeposit.ddr.rootFolder)
                                     {
-                                        go_up_options = {
+                                        goUpOptions = {
                                             uri: ownerDeposit.uri,
                                             title: ownerDeposit.dcterms.title,
                                             icons: [
@@ -414,7 +519,7 @@ exports.show = function (req, res)
                                     }
                                     else
                                     {
-                                        go_up_options = {
+                                        goUpOptions = {
                                             uri: immediateParent.uri,
                                             title: immediateParent.nie.title,
                                             icons: [
@@ -426,7 +531,7 @@ exports.show = function (req, res)
                                 }
                                 else
                                 {
-                                    go_up_options = {
+                                    goUpOptions = {
                                         uri: ownerDeposit.uri,
                                         title: ownerDeposit.dcterms.title,
                                         icons: [
@@ -464,7 +569,7 @@ exports.show = function (req, res)
                                 return callback(null,
                                     {
                                         breadcrumbs: breadcrumbs,
-                                        go_up_options: go_up_options
+                                        go_up_options: goUpOptions
                                     }
                                 );
                             }

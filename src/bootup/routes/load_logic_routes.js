@@ -798,7 +798,15 @@ const loadRoutes = function (app, callback)
                           permissions: Permissions.settings.role.in_system.admin,
                           authentication_error: "Permission denied : cannot delete deposit because you do not have permissions to administer this deposit."
                       }
-                  ]
+                  ],
+                post: [
+                    {
+                        queryKeys: ["request_access"],
+                        handler: deposits.requestAccess,
+                        permissions: [Permissions.settings.role.in_system.user],
+                        authentication_error: "Permission denied : cannot request access to this project."
+                    },
+                ]
             };
 
             QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next, true);

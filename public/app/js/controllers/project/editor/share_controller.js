@@ -481,9 +481,9 @@ angular.module("dendroApp.controllers")
                     doDeletion(bookmark);
                 }
             };
-            $scope.change_privacy_checkbox = function (array, index)
+            $scope.change_checkbox = function (array, length, index)
             {
-                for (i = 0; i < 4; i++)
+                for (let i = 0; i < length; i++)
                 {
                     if (i !== index)
                     {
