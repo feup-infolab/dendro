@@ -233,7 +233,7 @@ angular.module("dendroApp.controllers", [])
                         }
                     }
                 }
-                // $scope.totalDeposits = Math.ceil($scope.totalDeposits / $scope.page);
+                 //$scope.totalDeposits = Math.ceil($scope.totalDeposits / $scope.page);
             };
 
             let url = $scope.get_current_url();

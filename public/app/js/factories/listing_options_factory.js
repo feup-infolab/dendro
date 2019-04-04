@@ -23,6 +23,7 @@ angular.module("dendroApp.factories")
                     {
                         if (response.data !== null && response.data !== undefined)
                         {
+                            $scope.deposits = response.data.deposits;
                             callback(response.data, change);
                         }
                     }).catch(function (error)
