@@ -51,8 +51,6 @@ function Deposit (object)
 Deposit.createDeposit = function (data, callback)
 {
     let object = data.registryData;
-    // object.dcterms.DOI = "DOI";
-
     let content = data.requestedResource;
     let newDeposit = new Deposit(object);
     const uuid = uuidv1();
@@ -167,56 +165,57 @@ Deposit.createDeposit = function (data, callback)
         request(options, result);
     };
 
-    async.waterfall([ function (callback)
+    const requestedResourceURI = object.ddr.exportedFromFolder;
+
+    const isResource = function (url)
     {
-        generateDoi(function (err, result)
-        {
-            callback(err, result);
+        const regexp = /\/r\/(folder|file)\/.*/;
+        return regexp.test(url);
+    };
+
+    if (isNull(object.ddr.lastVerifiedDate))
+    {
+        object.ddr.lastVerifiedDate = moment().format();
+    }
+    object.ddr.isAvailable = true;
+
+    if (isResource(requestedResourceURI))
+    {
+        console.log("creating registry from deposit\n" + util.inspect(object));
+
+        let storageConf = new StorageConfig({
+            ddr: {
+                hasStorageType: "local"
+            }
         });
-    },
-    function (result, callback)
-    {
-        generateCitation(function (err, citation)
+
+        storageConf.save(function (err, savedConfiguration)
         {
-            callback(err, citation);
-        });
-    },
-    function (citation, callback)
-    {
-        const requestedResourceURI = object.ddr.exportedFromFolder;
-        // object.dcterms.DOI = "DOI";
-        // newDeposit.dcterms.proposedCitation = "citation";
-
-        const isResource = function (url)
-        {
-            const regexp = /\/r\/(folder|file)\/.*/;
-            return regexp.test(url);
-        };
-
-        if (isNull(object.ddr.lastVerifiedDate))
-        {
-            object.ddr.lastVerifiedDate = moment().format();
-        }
-        object.ddr.isAvailable = true;
-
-        if (isResource(requestedResourceURI))
-        {
-            console.log("creating registry from deposit\n" + util.inspect(object));
-
-            let storageConf = new StorageConfig({
-                ddr: {
-                    hasStorageType: "local"
-                }
-            });
-
-            storageConf.save(function (err, savedConfiguration)
+            if (isNull(err))
             {
-                if (isNull(err))
+                newDeposit.ddr.hasStorageConfig = savedConfiguration.uri;
+                // save deposited contents to dendro
+                Deposit.saveContents({newDeposit: newDeposit, content: content, user: data.user}, function (err, msg)
                 {
-                    newDeposit.ddr.hasStorageConfig = savedConfiguration.uri;
-                    // save deposited contents to dendro
-                    Deposit.saveContents({newDeposit: newDeposit, content: content, user: data.user}, function (err, msg)
+                    async.waterfall([ function (callback)
                     {
+                        generateDoi(function (err, result)
+                        {
+                            callback(err, result);
+                        });
+                    },
+                    function (result, callback)
+                    {
+                        generateCitation(function (err, citation)
+                        {
+                            callback(err, citation);
+                        });
+                    },
+                    function (citation, callback)
+                    {
+                        newDeposit.ddr.DOI = DOI;
+                        newDeposit.ddr.proposedCitation = citation;
+
                         newDeposit.save(function (err, newDeposit)
                         {
                             if (!err)
@@ -228,25 +227,25 @@ Deposit.createDeposit = function (data, callback)
                                 callback(err, "not good");
                             }
                         });
+                    }], function (err, newDeposit)
+                    {
+                        if (isNull(err))
+                        {
+                            callback(null, newDeposit);
+                        }
+                        else
+                        {
+                            callback(1, true);
+                        }
                     });
-                }
-            });
-        }
-        else
-        {
-            callback(1);
-        }
-    }], function (err, newDeposit)
+                });
+            }
+        });
+    }
+    else
     {
-        if (isNull(err))
-        {
-            callback(null, newDeposit);
-        }
-        else
-        {
-            callback(1, true);
-        }
-    });
+        callback(1);
+    }
 };
 
 /**

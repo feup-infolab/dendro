@@ -798,6 +798,24 @@ Elements.ontologies.foaf =
  */
 
 Elements.ontologies.ddr = {
+    acceptingUser: {
+        type: Elements.types.resource,
+        control: Controls.input_box,
+        private: true,
+        locked: true
+    },
+    dataset: {
+        type: Elements.types.resource,
+        control: Controls.input_box,
+        private: true,
+        locked: true
+    },
+    dateOfAcceptance: {
+        type: Elements.types.date,
+        control: Controls.date_picker,
+        private: true,
+        locked: true
+    },
     accessTerms: {
         type: Elements.types.string,
         control: Controls.markdown_box,

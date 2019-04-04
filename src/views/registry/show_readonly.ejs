@@ -41,6 +41,17 @@
             </div>
         </div>
     <% } else if( deposit.ddr.privacyStatus == "metadata_only" ) { %>
+        <form action="/r/deposit/bdda9560-4fd0-49b2-bb77-bdcc1bb98e09?request_access" method="GET">
+            <button type="submit"
+                    class="btn btn-sm btn-success"
+                    id="access_deposit_button"
+                    name="access_deposits"
+                    value="true"
+            >
+                Request access
+            </button>
+        </form>
+
         <div class="row">
             <div class="col-xs-12 col-sm-9" ng-controller="metadataEditorCtrl" ng-init="init()">
                 <%- include show/metadata_viewer.ejs %>

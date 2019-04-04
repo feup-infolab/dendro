@@ -25,6 +25,8 @@ const Ontology = rlequire("dendro", "src/models/meta/ontology.js").Ontology;
 const Permissions = rlequire("dendro", "src/models/meta/permissions.js").Permissions;
 const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
 
+const ConditionsAcceptance = rlequire("dendro", "src/models/conditionsAcceptance.js").ConditionsAcceptance;
+
 exports.search = function (req, res)
 {
     const user = req.user;
@@ -223,50 +225,27 @@ exports.requestAccess = function (req, res)
             {
                 if (isNull(err) && deposit instanceof Deposit)
                 {
-                    const lastSlash = deposit.dcterms.creator.lastIndexOf("\/");
-                    const creatorUsername = deposit.dcterms.creator.substring(lastSlash + 1);
+                    // const lastSlashUser = req.user.lastIndexOf("\/");
 
-                    User.findByUsername(creatorUsername, function (err, user)
+                    let registryData = {
+                        ddr: {
+                            acceptingUser: req.user.uri,
+                            dataset: deposit.uri,
+                            dateOfAcceptance: new Date()
+                        }
+                    };
+
+                    ConditionsAcceptance.create(registryData, function (err, deposit)
                     {
-                        if (isNull(err) && user instanceof User)
+                        if (isNull(err))
                         {
-                          /*  const userMail = user.foaf.mbox;
-
-                            const client = nodemailer.createTransport("SMTP", {
-                                service: "SendGrid",
-                                auth: {
-                                    user: Config.sendGridUser,
-                                    pass: Config.sendGridPassword
-                                }
-                            });
-
-                            const email = {
-                                from: "support@dendro.fe.up.pt",
-                                to: "ffjs1993@gmail.com",
-                                subject: "Request for deposit \"" + deposit.ddr.handle + "\"",
-                                text: "User " + req.user.uri + " requested access for deposit \"" + deposit.ddr.handle + "\".\ " +
-                                  "To accept this, please add him as a contributor."
-                            };
-
-                            client.sendMail(email, function (err, info)
-                            {
-                                if (err)
+                            res.render("registry/request_access",
                                 {
-                                    Logger.log("[NODEMAILER] " + err);
-                                    flash("error", "Error sending request to user. Please try again later");
-                                    res.redirect("/");
-                                }
-                                else
-                                {
-                                    Logger.log("[NODEMAILER] email sent: " + info);
-                                    flash("success", "Sent request to deposit's owner");
-                                    res.redirect("/");
-                                }
-                            });*/
+                                    deposit: deposit
+                                });
                         }
                         else
                         {
-                            flash("error", "Error finding deposit's owner. Please try again later");
                             res.redirect("/");
                         }
                     });

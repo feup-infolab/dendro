@@ -178,7 +178,7 @@ const getOwnerProject = function (requestedResource, callback)
     });
 };
 
-const getOwnerDeposit = function (requestedResource, callback)
+const getDeposit = function (requestedResource, callback)
 {
     InformationElement.findByUri(requestedResource, function (err, resource)
     {
@@ -268,7 +268,6 @@ const checkUsersRoleInProject = function (req, user, role, project, callback)
         return callback(null, false);
     }
 };
-
 
 const getPostsProject = function (postUri, callback)
 {
@@ -498,45 +497,32 @@ const checkUsersRoleInDeposit = function (req, user, role, depositUri, callback)
         predicateRoles = role.predicates;
         if (!isNull(user) && !isNull(depositUri))
         {
-            getOwnerDeposit(depositUri, function (err, deposit)
+            getDeposit(depositUri, function (err, deposit)
             {
-                if (isNull(err))
+                if (isNull(err) && deposit instanceof Deposit)
                 {
-                    if (deposit instanceof Deposit)
+                    async.eachSeries(predicateRoles, function (predicate, cb)
                     {
-                        deposit.getProject(function (err, project)
+                        deposit.checkIfHasPredicateValue(predicate, user.uri, function (err, result)
                         {
-                            if (isNull(err) && project instanceof Project)
+                            if (isNull(err))
                             {
-                                async.eachSeries(predicateRoles, function (predicate, cb)
+                                if (result === true)
                                 {
-                                    deposit.checkIfHasPredicateValue(predicate, user.uri, function (err, result)
-                                    {
-                                        if (isNull(err))
-                                        {
-                                            if (result === true)
-                                            {
-                                                return callback(err, result);
-                                            }
+                                    return callback(err, result);
+                                }
 
-                                            cb(err, result);
-                                        }
-                                        else
-                                        {
-                                            return callback(err, false);
-                                        }
-                                    });
-                                }, function (err)
-                                {
-                                    return callback(null, false);
-                                });
+                                cb(err, result);
+                            }
+                            else
+                            {
+                                return callback(err, false);
                             }
                         });
-                    }
-                    else
+                    }, function (err)
                     {
-                        return callback("Invalid project type supplied!", null);
-                    }
+                        return callback(null, false);
+                    });
                 }
                 else
                 {
@@ -597,9 +583,25 @@ const checkPrivacyOfOwnerProject = function (req, user, role, resource, callback
     });
 };
 
-const checkPrivacyOfOwnerDeposit = function (req, user, role, resource, callback)
+const checkOwnerDeposit = function (req, user, role, resource, callback)
 {
-    getOwnerDeposit(resource, function (err, deposit)
+    getDeposit(resource, function (err, deposit)
+    {
+        if (isNull(err))
+        {
+            if (!isNull(deposit) && deposit instanceof Deposit)
+            {
+                return callback(null, true);
+            }
+            return callback(null, false);
+        }
+        return callback(err, null);
+    });
+};
+
+const checkPrivacyOfDeposit = function (req, user, role, resource, callback)
+{
+    getDeposit(resource, function (err, deposit)
     {
         if (isNull(err))
         {
@@ -607,7 +609,7 @@ const checkPrivacyOfOwnerDeposit = function (req, user, role, resource, callback
             {
                 const privacy = deposit.ddr.privacyStatus;
 
-                if (!isNull(role.object) && privacy === role.object)
+                if (!isNull(role.object) && (privacy === role.object || privacy === "metadata_only"))
                 {
                     return callback(null, true);
                 }
@@ -650,7 +652,10 @@ Permissions.types = {
         validator: checkPrivacyOfOwnerProject
     },
     privacy_of_deposit: {
-        validator: checkPrivacyOfOwnerDeposit
+        validator: checkPrivacyOfDeposit
+    },
+    owner_deposit: {
+        validator: checkOwnerDeposit
     }
 };
 
@@ -727,7 +732,6 @@ Permissions.settings = {
         user_role_in_array_of_posts_project: {
             type: Permissions.types.user_role_in_array_of_posts_project,
             predicates: [
-                "dcterms:contributor",
                 "dcterms:creator"
             ],
             error_message_user: "You are not a contributor or creator of all the projects to which these posts belongs to.",
@@ -736,11 +740,16 @@ Permissions.settings = {
         users_role_in_deposit: {
             type: Permissions.types.role_in_deposit,
             predicates: [
-                "dcterms:contributor",
                 "dcterms:creator"
             ],
             error_message_user: "You are not a contributor or creator of project to which this deposit belongs to.",
             error_message_api: "Unauthorized access. Must be signed on as a contributor or creator of the project this deposit belong to."
+        },
+        in_owner_deposit: {
+            type: Permissions.types.owner_deposit,
+            predicate: "dcterms:creator",
+            error_message_user: "Error trying to access a deposit or a file / folder within a deposit that you have not created.",
+            error_message_api: "Unauthorized access. Must be signed on as a creator of the deposit the resource belongs to."
         }
     },
     privacy: {

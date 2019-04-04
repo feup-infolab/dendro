@@ -292,7 +292,7 @@ exports.download = function (req, res)
                 {
                     if (!isNull(deposit))
                     {
-                        deposit.getRootFolder(function (err, rootFolder)
+                        Project.prototype.getRootFolder.bind(deposit)(function (err, rootFolder)
                         {
                             if (isNull(err))
                             {
