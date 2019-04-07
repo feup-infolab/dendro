@@ -798,6 +798,12 @@ Elements.ontologies.foaf =
  */
 
 Elements.ontologies.ddr = {
+    userAccepted: {
+        type: Elements.types.boolean,
+        control: Controls.input_box,
+        private: true,
+        locked: true
+    },
     acceptingUser: {
         type: Elements.types.resource,
         control: Controls.input_box,

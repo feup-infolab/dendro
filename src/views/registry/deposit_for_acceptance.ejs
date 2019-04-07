@@ -1,0 +1,39 @@
+<%- include ../layout/header.ejs %>
+<div ng-controller="shareCtrl">
+
+    <h1 class="page-header">
+        Request for access to the deposit
+    </h1>
+
+        <div class="panel-success panel">
+            <div class="panel-heading"><strong>Request for access to the deposit realized</strong></div>
+            <div class="panel-body text-center" >
+                <h4 class="page-header">
+                    Wait for the acceptance by the author
+                </h4>
+            </div>
+        </div>
+        <div class="text-center">
+            <button type="submit"
+                    class="btn btn-sm btn-success"
+                    onclick="clickBtn()"
+            >
+                Back to menu
+            </button>
+
+
+        </div>
+</div>
+
+    <script type="text/javascript" >
+
+
+      function clickBtn ()
+      {
+        window.location.href = "/";
+      }
+
+    </script>
+
+    <%- include ../layout/footer.ejs %>
+</div>

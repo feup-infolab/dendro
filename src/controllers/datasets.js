@@ -1137,7 +1137,6 @@ const exportToDendro = function (req, res)
             dcterms: {
                 title: titleOfDeposit,
                 creator: req.user.uri,
-                identifier: "123456789",
                 description: description,
                 language: language
             },
@@ -1147,8 +1146,6 @@ const exportToDendro = function (req, res)
                 privacyStatus: publicDeposit,
                 exportedToRepository: "Dendro",
                 exportedToPlatform: "Dendro",
-                proposedCitation: "citation",
-                DOI: "DOI",
                 accessTerms: isNull(accessTerms) ? null : accessTerms,
                 embargoedDate: isNull(embargoedDate) ? null : embargoedDate
 

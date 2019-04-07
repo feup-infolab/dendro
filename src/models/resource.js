@@ -1486,8 +1486,7 @@ Resource.prototype.getLiteralPropertiesFromOntologies = function (ontologyURIsAr
                 " FILTER isLiteral(?object) .\n" +
                 filterString +
             "} \n",
-        argumentsArray
-        ,
+        argumentsArray,
         function (err, results)
         {
             if (err)

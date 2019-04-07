@@ -215,6 +215,7 @@ Deposit.createDeposit = function (data, callback)
                     {
                         newDeposit.ddr.DOI = DOI;
                         newDeposit.ddr.proposedCitation = citation;
+                        newDeposit.dcterms.identifier = DOI;
 
                         newDeposit.save(function (err, newDeposit)
                         {

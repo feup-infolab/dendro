@@ -225,27 +225,24 @@ exports.requestAccess = function (req, res)
             {
                 if (isNull(err) && deposit instanceof Deposit)
                 {
-                    // const lastSlashUser = req.user.lastIndexOf("\/");
-
                     let registryData = {
                         ddr: {
                             acceptingUser: req.user.uri,
                             dataset: deposit.uri,
-                            dateOfAcceptance: new Date()
+                            dateOfAcceptance: new Date(),
+                            userAccepted: false
                         }
                     };
 
-                    ConditionsAcceptance.create(registryData, function (err, deposit)
+                    ConditionsAcceptance.create(registryData, function (err, conditions)
                     {
                         if (isNull(err))
                         {
-                            res.render("registry/request_access",
-                                {
-                                    deposit: deposit
-                                });
+                            res.redirect(deposit.uri);
                         }
                         else
                         {
+                            flash("error", "Error retrieving deposit. Please try again later");
                             res.redirect("/");
                         }
                     });
@@ -355,9 +352,36 @@ exports.show = function (req, res)
                     }
                     else
                     {
-                        res.render("registry/show_readonly",
-                            viewVars
-                        );
+                        ConditionsAcceptance.getCondition(req.user.uri, requestedResource.uri, function (err, result)
+                        {
+                            if (isNull(err))
+                            {
+                                if (result.length !== 0)
+                                {
+                                    if (result[0].userAccepted === "true")
+                                    {
+                                        res.render("registry/show_readonly",
+                                            viewVars
+                                        );
+                                    }
+                                    else
+                                    {
+                                        res.render("registry/deposit_for_acceptance",
+                                            viewVars
+                                        );
+                                    }
+                                }
+                                else
+                                {
+                                    res.redirect(requestedResource.uri + "?request_access");
+                                }
+                            }
+                            else
+                            {
+                                req.flash("error", "Error!");
+                                res.redirect("/");
+                            }
+                        });
                     }
                 }
             }
