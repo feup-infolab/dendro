@@ -352,36 +352,36 @@ exports.show = function (req, res)
                     }
                     else
                     {
-                        ConditionsAcceptance.getCondition(req.user.uri, requestedResource.uri, function (err, result)
+                        if (viewVars.deposit.ddr.privacyStatus === "private")
                         {
-                            if (isNull(err))
+                            if (viewVars.acceptingUser === true)
                             {
-                                if (result.length !== 0)
+                                if (viewVars.userAccepted === true)
                                 {
-                                    if (result[0].userAccepted === "true")
-                                    {
-                                        res.render("registry/show_readonly",
-                                            viewVars
-                                        );
-                                    }
-                                    else
-                                    {
-                                        res.render("registry/deposit_for_acceptance",
-                                            viewVars
-                                        );
-                                    }
+                                    res.render("registry/show_readonly",
+                                        viewVars
+                                    );
                                 }
                                 else
                                 {
-                                    res.redirect(requestedResource.uri + "?request_access");
+                                    res.render("registry/deposit_for_acceptance",
+                                        viewVars
+                                    );
                                 }
                             }
                             else
                             {
-                                req.flash("error", "Error!");
-                                res.redirect("/");
+                                res.redirect(requestedResource.uri + "?request_access",
+                                    viewVars
+                                );
                             }
-                        });
+                        }
+                        else
+                        {
+                            res.render("registry/show_readonly",
+                                viewVars
+                            );
+                        }
                     }
                 }
             }
@@ -441,29 +441,61 @@ exports.show = function (req, res)
                 Deposit.validatePlatformUri(deposit, function (deposit)
                 {
                     viewVars.go_up_options =
-            {
-                uri: resourceURI,
-                title: deposit.dcterms.title,
-                icons: [
-                    "/images/icons/folders.png",
-                    "/images/icons/bullet_user.png"
-                ]
-            };
-
-                    deposit.dcterms.date = moment(deposit.dcterms.date).format("LLLL");
-                    deposit.externalUri = appendPlatformUrl(deposit) + deposit.dcterms.identifier;
-                    viewVars.deposit = deposit;
-
-                    const depositDescriptors = deposit.getDescriptors(
-                        [Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_readable], [Elements.access_types.locked_for_projects, Elements.access_types.locked]
-                    );
-
-                    if (!isNull(depositDescriptors) && depositDescriptors instanceof Array)
                     {
-                        viewVars.descriptors = depositDescriptors;
+                        uri: resourceURI,
+                        title: deposit.dcterms.title,
+                        icons: [
+                            "/images/icons/folders.png",
+                            "/images/icons/bullet_user.png"
+                        ]
+                    };
 
-                        sendResponse(viewVars, deposit);
-                    }
+                    ConditionsAcceptance.getCondition(req.user.uri, resourceURI.uri, function (err, result)
+                    {
+                        if (isNull(err))
+                        {
+                            if (result.length > 0)
+                            {
+                                if (result[0].userAccepted === "true")
+                                {
+                                    viewVars.userAccepted = true;
+                                    viewVars.acceptingUser = true;
+                                }
+                                else
+                                {
+                                    viewVars.userAccepted = false;
+                                    viewVars.acceptingUser = true;
+                                }
+                            }
+                            else
+                            {
+                                if (viewVars.deposit.ddr.accessTerms || viewVars.deposit.ddr.privacyStatus !== "public")
+                                {
+                                    viewVars.userAccepted = false;
+                                    viewVars.acceptingUser = false;
+                                }
+                                else
+                                {
+                                    viewVars.userAccepted = true;
+                                    viewVars.acceptingUser = true;
+                                }
+                            }
+                            deposit.dcterms.date = moment(deposit.dcterms.date).format("LLLL");
+                            deposit.externalUri = appendPlatformUrl(deposit) + deposit.dcterms.identifier;
+                            viewVars.deposit = deposit;
+
+                            const depositDescriptors = deposit.getDescriptors(
+                                [Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_readable], [Elements.access_types.locked_for_projects, Elements.access_types.locked]
+                            );
+
+                            if (!isNull(depositDescriptors) && depositDescriptors instanceof Array)
+                            {
+                                viewVars.descriptors = depositDescriptors;
+
+                                sendResponse(viewVars, deposit);
+                            }
+                        }
+                    });
                 });
             }
         });

@@ -1,8 +1,5 @@
 <%- include ../layout/header.ejs %>
 
-<% if (is_deposit_root) { %>
-    <%- include deposit.ejs %>
-<% } %>
 <!--&nbsp;-->
 <div class="container-fluid" ng-controller="projectEditorCtrl" ng-init="init()">
         <div ng-controller="depositCtrl"

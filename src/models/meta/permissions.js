@@ -609,7 +609,7 @@ const checkPrivacyOfDeposit = function (req, user, role, resource, callback)
             {
                 const privacy = deposit.ddr.privacyStatus;
 
-                if (!isNull(role.object) && (privacy === role.object || privacy === "metadata_only"))
+                if (!isNull(role.object) && (privacy === role.object || privacy === "metadata_only" || privacy === "private"))
                 {
                     return callback(null, true);
                 }

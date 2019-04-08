@@ -88,43 +88,6 @@ ConditionsAcceptance.getCondition = function (user, dataset, callback)
     });
 };
 
-/* ConditionsAcceptance.acceptedCondition = function (user, dataset, callback)
-{
-    let i = 1;
-    let query =
-      "SELECT DISTINCT * \n" +
-      "FROM [0] \n" +
-      "WHERE " +
-      "{ \n" +
-      "       ?condition ddr:userAccepted [" + i++ + "]. \n" +
-      "       ?condition rdf:type ddr:Conditions.\n" +
-      "       ?condition ddr:dataset [" + i++ + "]. \n" +
-
-      "} \n";
-
-    let variables = [
-        {
-            type: Elements.types.resourceNoEscape,
-            value: db.graphUri
-        },
-        {
-            type: Elements.ontologies.ddr.acceptingUser.type,
-            value: user
-        }, {
-            type: Elements.ontologies.ddr.acceptingUser.type,
-            value: user
-        },
-        {
-            type: Elements.ontologies.ddr.dataset.type,
-            value: dataset
-        }];
-
-    db.connection.executeViaJDBC(query, variables, function (err, regs)
-    {
-        callback(err, regs);
-    });
-};
-*/
 ConditionsAcceptance.prototype.acceptUserAccess = function (callback)
 {
     const self = this;

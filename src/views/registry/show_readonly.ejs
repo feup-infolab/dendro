@@ -8,7 +8,7 @@
         </div>
     </div>
 
-    <% if( deposit.ddr.privacyStatus == "public" ) { %>
+    <% if( userAccepted == true) { %>
         <div class="row">
             <div class="col-xs-6 col-sm-3" ng-controller="fileExplorerCtrl" ng-init="init()">
                 <h4>Folder</h4>
@@ -40,17 +40,19 @@
                 <%- include show/metadata_viewer.ejs %>
             </div>
         </div>
-    <% } else if( deposit.ddr.privacyStatus == "metadata_only" ) { %>
-        <form action="/r/deposit/bdda9560-4fd0-49b2-bb77-bdcc1bb98e09?request_access" method="GET">
+    <% } else  {  if( acceptingUser == false) { %>
+
             <button type="submit"
                     class="btn btn-sm btn-success"
+                    ng-click="request_access()"
                     id="access_deposit_button"
                     name="access_deposits"
                     value="true"
             >
                 Request access
             </button>
-        </form>
+            <% }  %>
+
 
         <div class="row">
             <div class="col-xs-12 col-sm-9" ng-controller="metadataEditorCtrl" ng-init="init()">
@@ -58,5 +60,6 @@
             </div>
         </div>
     <% }  %>
+
 
 </div>

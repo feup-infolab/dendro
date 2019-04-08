@@ -637,7 +637,6 @@ angular.module("dendroApp.controllers")
 
         $scope.reset_metadata = function (metadata)
         {
-
             $scope.shared.metadata = metadataService.deserialize_metadata(metadata.descriptors);
             $scope.shared.proposedCitation = $filter("filter")($scope.shared.metadata, $scope.only_proposed_citation)[0];
             $scope.shared.metadata = $filter("filter")($scope.shared.metadata, $scope.only_editable_metadata_descriptors);
@@ -651,7 +650,7 @@ angular.module("dendroApp.controllers")
 
         $scope.load_metadata = function (abortIfDirty)
         {
-            console.log($scope.shared)
+            console.log($scope.shared);
 
             if (abortIfDirty && $scope.dirty_metadata())
             {
@@ -715,7 +714,6 @@ angular.module("dendroApp.controllers")
 
             $scope.recommendationService = recommendationService;
 
-
             // monitor url change events (ask to save if metadata changed)
 
             function isChrome ()
@@ -746,7 +744,6 @@ angular.module("dendroApp.controllers")
 
             if (isChrome())
             {
-
                 window.onbeforeunload = function (event)
                 {
                     event.preventDefault();
@@ -767,6 +764,11 @@ angular.module("dendroApp.controllers")
                 };
             }
 
+            $scope.request_access = function ()
+            {
+                console.log($scope.get_calling_uri());
+                window.location.href = $scope.get_calling_uri() + "?request_access";
+            };
 
             $scope.$on("$locationChangeStart", function (event, next, current)
             {

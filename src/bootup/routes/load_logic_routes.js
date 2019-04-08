@@ -750,7 +750,7 @@ const loadRoutes = function (app, callback)
             req.params.requestedResourceUri = resourceUri;
 
             const defaultPermissionsForDeposits = [
-                 Permissions.settings.privacy.of_deposit.public
+              Permissions.settings.privacy.of_deposit.public
             ];
 
             req.params.is_project_root = true;
@@ -785,7 +785,7 @@ const loadRoutes = function (app, callback)
                     {
                         queryKeys: [],
                         handler: deposits.show,
-                        authentication_error: "Permission denied : cannot show the project because you do not have permissions to access it."
+                      authentication_error: "Permission denied : cannot show the project because you do not have permissions to access it."
                     }
                 ],
                 all:
