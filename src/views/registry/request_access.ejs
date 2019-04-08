@@ -16,7 +16,7 @@
                     Identifier: <a href="<%=deposit.uri%>"><%=deposit.uri%></a>
                 </h5>
                 <h5>
-                    Title: <%=(deposit.dcterms.title)? deposit.dcterms.title: "Notitle available"%>
+                    Title: <%=(deposit.dcterms.title)? deposit.dcterms.title: "No title available"%>
                 </h5>
                 <h5>
                     Description: <%=(deposit.dcterms.description)? deposit.dcterms.description: "No description available"%>
@@ -38,7 +38,7 @@
                 </div>
             <div class="checkbox">
                 <input  for ="accept" id="accept" type="checkbox" onchange="disableBtn(false)" ng-change="change_checkbox(accept, 2, 0)" ng-model="accept[0]">
-                <label> I accept the terms.</label>
+                <label > I accept the terms.</label>
             </div>
             <button type="submit"
                     class="btn btn-sm btn-danger"

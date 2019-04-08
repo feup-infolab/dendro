@@ -7,7 +7,7 @@ const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const db = Config.getDBByID();
 const Elements = rlequire("dendro", "src//models/meta/elements.js").Elements;
 
-function ConditionsAcceptance (object)
+function ConditionsAcceptance (object, privacy)
 {
     const self = this;
     self.addURIAndRDFType(object, "Conditions", ConditionsAcceptance);
@@ -16,9 +16,9 @@ function ConditionsAcceptance (object)
 
     if (!isNull(object.ddr))
     {
-        if (!isNull(object.ddr.userAccepted))
+        if (privacy === "public")
         {
-            self.ddr.userAccepted = object.ddr.userAccepted;
+            self.ddr.userAccepted = true;
         }
         if (!isNull(object.ddr.acceptingUser))
         {
@@ -38,9 +38,9 @@ function ConditionsAcceptance (object)
     return self;
 }
 
-ConditionsAcceptance.create = function (data, callback)
+ConditionsAcceptance.create = function (data, privacy, callback)
 {
-    let conditions = new ConditionsAcceptance(data);
+    let conditions = new ConditionsAcceptance(data, privacy);
     conditions.save(function (err, result)
     {
         if (isNull(err))

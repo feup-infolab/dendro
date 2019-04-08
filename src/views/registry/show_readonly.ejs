@@ -40,26 +40,38 @@
                 <%- include show/metadata_viewer.ejs %>
             </div>
         </div>
-    <% } else  {  if( acceptingUser == false) { %>
+    <% } else {
+          if(deposit.ddr.privacyStatus == "metadata_only") {
+                  if( acceptingUser == true && userAccepted == false) { %>
 
-            <button type="submit"
+                    <div class="panel-success panel">
+                        <div class="panel-heading"><strong>Request for access to the deposit realized</strong></div>
+                        <div class="panel-body text-center" >
+                            <h4 class="page-header">
+                                Wait for the acceptance by the author
+                            </h4>
+                        </div>
+                    </div>
+                <% }
+                if(acceptingUser == false){%>
+
+                    <button type="submit"
                     class="btn btn-sm btn-success"
                     ng-click="request_access()"
                     id="access_deposit_button"
                     name="access_deposits"
                     value="true"
-            >
-                Request access
-            </button>
-            <% }  %>
+                    >
+                        Request access
+                    </button>
+            <% } %>
 
 
-        <div class="row">
-            <div class="col-xs-12 col-sm-9" ng-controller="metadataEditorCtrl" ng-init="init()">
-                <%- include show/metadata_viewer.ejs %>
-            </div>
-        </div>
-    <% }  %>
-
-
+                <div class="row">
+                    <div class="col-xs-12 col-sm-9" ng-controller="metadataEditorCtrl" ng-init="init()">
+                        <%- include show/metadata_viewer.ejs %>
+                    </div>
+                </div>
+        <% }
+        } %>
 </div>

@@ -71,6 +71,26 @@
                         <br>
                         <%- include show/file_explorer.ejs %>
                     </div>
+                    <div ng-class="{'col-md-6 col-xs-12 col-sm-9': showing_descriptor_selection_area(), 'col-md-9 col-sm-9 col-xs-9': !showing_descriptor_selection_area()}"
+                         ng-controller="metadataEditorCtrl" ng-init="init()">
+                        <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
+                            <li class="active">
+                                <a href="#metadata-editor" data-toggle="tab" ng-click="load_metadata(true)">
+                                    Information
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#change_log_project"
+                                   data-toggle="tab"
+                                   ng-controller="changeLogController"
+                                   ng-click="get_recent_changes_of_project()">
+                                    <span class="label label-info">Project</span>
+                                    Changes
+                                </a>
+                            </li>
+
+                        </ul>
+                    </div>
                     <div class="col-xs-6 col-sm-9" ng-controller="metadataEditorCtrl" ng-init="init()">
                         <div ng-if="shared.is_a_file">
                             <%- include show/file_preview.ejs %>

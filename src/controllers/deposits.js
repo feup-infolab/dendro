@@ -233,8 +233,9 @@ exports.requestAccess = function (req, res)
                             userAccepted: false
                         }
                     };
+                    let privacy = deposit.ddr.privacyStatus;
 
-                    ConditionsAcceptance.create(registryData, function (err, conditions)
+                    ConditionsAcceptance.create(registryData, privacy, function (err, conditions)
                     {
                         if (isNull(err))
                         {
@@ -352,7 +353,7 @@ exports.show = function (req, res)
                     }
                     else
                     {
-                        if (viewVars.deposit.ddr.privacyStatus === "private")
+                        if (viewVars.deposit.ddr.privacyStatus === "private" || (viewVars.deposit.ddr.privacyStatus === "public" && viewVars.deposit.ddr.accessTerms))
                         {
                             if (viewVars.acceptingUser === true)
                             {
@@ -371,8 +372,7 @@ exports.show = function (req, res)
                             }
                             else
                             {
-                                res.redirect(requestedResource.uri + "?request_access",
-                                    viewVars
+                                res.redirect(resourceURI + "?request_access"
                                 );
                             }
                         }
@@ -450,8 +450,11 @@ exports.show = function (req, res)
                         ]
                     };
 
-                    ConditionsAcceptance.getCondition(req.user.uri, resourceURI.uri, function (err, result)
+                    ConditionsAcceptance.getCondition(req.user.uri, resourceURI, function (err, result)
                     {
+                        deposit.dcterms.date = moment(deposit.dcterms.date).format("LLLL");
+                        deposit.externalUri = appendPlatformUrl(deposit) + deposit.dcterms.identifier;
+                        viewVars.deposit = deposit;
                         if (isNull(err))
                         {
                             if (result.length > 0)
@@ -480,9 +483,7 @@ exports.show = function (req, res)
                                     viewVars.acceptingUser = true;
                                 }
                             }
-                            deposit.dcterms.date = moment(deposit.dcterms.date).format("LLLL");
-                            deposit.externalUri = appendPlatformUrl(deposit) + deposit.dcterms.identifier;
-                            viewVars.deposit = deposit;
+
 
                             const depositDescriptors = deposit.getDescriptors(
                                 [Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_readable], [Elements.access_types.locked_for_projects, Elements.access_types.locked]
