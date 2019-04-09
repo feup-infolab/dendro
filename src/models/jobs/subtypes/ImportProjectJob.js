@@ -171,7 +171,7 @@ class ImportProjectJob extends Job
         super.registerJobEvents(name, successHandlerFunction, errorHandlerFunction);
     }
 
-    static fetchJobsStillInMongoAndRestartThem ()
+    static startJobs ()
     {
         const restartJobFunction = function (jobs)
         {
@@ -328,7 +328,7 @@ class ImportProjectJob extends Job
                 Logger.log("info", msg);
             }
         };
-        super.fetchJobsStillInMongoAndRestartThem(name, restartJobFunction);
+        super.startJobs(name, restartJobFunction);
     }
 
     // INSTANCE METHODS

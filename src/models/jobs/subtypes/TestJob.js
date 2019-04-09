@@ -13,7 +13,7 @@ class TestJob extends Job
     {
         const jobDefinitionFunction = function (job, done)
         {
-            Logger.log("info", "This is a test job, Hello!!!");
+            Logger.log("info", "This is a test job, running at " + new Date().toDateString() + "Hello!!!");
             done();
         };
         super.defineJob(name, jobDefinitionFunction);
@@ -21,25 +21,29 @@ class TestJob extends Job
 
     static registerJobEvents ()
     {
+        const self = this;
         const successHandlerFunction = function (job)
         {
             Logger.log("info", name + " executed Successfully");
-            job.remove(function (err)
+            if (!self.isSingleton)
             {
-                if (isNull(err))
+                job.remove(function (err)
                 {
-                    Logger.log("info", "Successfully removed " + name + " job from collection");
-                }
-                else
-                {
-                    Logger.log("error", "Could not remove " + name + " job from collection");
-                }
-            });
+                    if (isNull(err))
+                    {
+                        Logger.log("info", "Successfully removed " + name + " job from collection");
+                    }
+                    else
+                    {
+                        Logger.log("error", "Could not remove " + name + " job from collection");
+                    }
+                });
+            }
         };
 
         const errorHandlerFunction = function (job)
         {
-            Logger.log("info", name + " job failed, error: " + JSON.stringify(err));
+            Logger.log("info", name + " job failed, error: " + JSON.stringify(job));
             job.remove(function (err)
             {
                 if (isNull(err))
@@ -56,13 +60,12 @@ class TestJob extends Job
         super.registerJobEvents(name, successHandlerFunction, errorHandlerFunction);
     }
 
-    static fetchJobsStillInMongoAndRestartThem ()
+    static startJobs ()
     {
         const restartJobFunction = function (jobs)
         {
             if (!isNull(jobs) && jobs.length > 0)
             {
-                let errorMessages = [];
                 jobs.forEach(function (job)
                 {
                     Logger.log("info", "Will attempt to run " + name);
@@ -79,7 +82,7 @@ class TestJob extends Job
                 Logger.log("debug", msg);
             }
         };
-        super.fetchJobsStillInMongoAndRestartThem(name, restartJobFunction);
+        super.startJobs(name, restartJobFunction);
     }
 
     // INSTANCE METHODS
@@ -90,12 +93,14 @@ class TestJob extends Job
 
     start (callback)
     {
-        let self = this;
         super.start(function (err)
         {
             callback(err);
         });
     }
 }
+
+// TestJob.isSingleton = true;
+// TestJob.cronExpression = "2 seconds";
 
 module.exports.TestJob = TestJob;

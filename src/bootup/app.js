@@ -699,7 +699,7 @@ class App
             DbConnection.finishUpAllConnectionsAndClose(function ()
             {
                 const timeout = 0;
-                if(timeout)
+                if (timeout)
                 {
                     Logger.log("Waiting " + timeout + "ms for virtuoso to flush the buffers...");
                     setTimeout(cb, timeout);
