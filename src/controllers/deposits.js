@@ -261,6 +261,51 @@ exports.requestAccess = function (req, res)
         }
     }
 };
+
+exports.userAccess = function (req, res)
+{
+    Deposit.findByUri(req.params.requestedResourceUri, function (err, deposit)
+    {
+        if (isNull(err))
+        {
+            const offset = parseInt(req.query.offset);
+            const limit = parseInt(req.query.limit);
+
+            async.series([
+                function (callback)
+                {
+                    ConditionsAcceptance.getDepositConditions(function (err, revisionsCount)
+                    {
+                        if (isNull(err))
+                        {
+                            return callback(err, revisionsCount);
+                        }
+                        return callback(1,
+                            {
+                                result: "error",
+                                message: "Error calculating calculating number of revisions in deposit . Error reported : " + JSON.stringify(err) + "."
+                            });
+                    });
+                }
+            ],
+            function (err, result)
+            {
+                if (err)
+                {
+                    res.status(500).json(result);
+                }
+            });
+        }
+        else
+        {
+            res.status(500).json({
+                result: "error",
+                message: "Invalid deposit : " + req.params.requestedResourceUri + " : " + deposit
+            });
+        }
+    });
+};
+
 exports.getDeposit = function (req, res)
 {
     const acceptsHTML = req.accepts("html");
@@ -483,7 +528,6 @@ exports.show = function (req, res)
                                     viewVars.acceptingUser = true;
                                 }
                             }
-
 
                             const depositDescriptors = deposit.getDescriptors(
                                 [Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_readable], [Elements.access_types.locked_for_projects, Elements.access_types.locked]
