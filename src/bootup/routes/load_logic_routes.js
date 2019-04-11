@@ -32,6 +32,7 @@ const posts = rlequire("dendro", "src/controllers/posts");
 const timeline = rlequire("dendro", "src/controllers/timeline");
 const notifications = rlequire("dendro", "src/controllers/notifications");
 const keywords = rlequire("dendro", "src/controllers/keywords");
+const notebooks =rlequire("dendro", "src/controllers/notebook");
 
 let recommendation;
 
@@ -1438,6 +1439,25 @@ const loadRoutes = function (app, callback)
 
     app.delete("/interactions/delete_all", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), interactions.delete_all_interactions);
 
+
+
+    //notebook
+
+    if (Config.notebooks.active)
+    {
+        //note so far only creator will have access must change
+        app.post("/r/notebook/${guid}",
+        async.apply(Permissions.require, [Permissions.settings.role.in_project.creator]),
+            async.apply(DockerManager.requireOrchestras, ["notebooks"]),
+        notebooks.show);
+
+
+        app.post("/r/notebook/${guid}?activate",
+        async.apply(Permissions.require, [Permissions.settings.role.in_project.creator]),
+            async.apply(DockerManager.requireOrchestras, ["notebooks"]),
+        notebooks.activate);
+
+    }
     // keywords
 
     if (Config.keywords_extraction.active)

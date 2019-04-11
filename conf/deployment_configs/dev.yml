@@ -371,3 +371,10 @@ dev:
       max_ngram_size: 3
       number_of_keywords: 30
       language: en
+
+  notebooks:
+    active: true
+      jupyter:
+        active: true
+        server_address: 'http://localhost:8000'
+
