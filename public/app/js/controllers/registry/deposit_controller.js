@@ -12,15 +12,19 @@ angular.module("dendroApp.controllers", [])
         $timeout,
         metadataService,
         windowService,
-        usersService
+        usersService,
+        depositsService
     )
     {
         $scope.active_tab = null;
-        $scope.offset = 1;
-        $scope.page = 5;
-        $scope.totalDeposits = 0;
+        $scope.search_settings = {
+            offset: 1,
+            page: 5,
+            totalDeposits: 0
+        };
 
         $scope.search = {
+
             creator: {
                 type: "text",
                 label: "Username",
@@ -220,7 +224,7 @@ angular.module("dendroApp.controllers", [])
                             count: repo.count,
                             value: true
                         });
-                        $scope.totalDeposits += parseInt(repo.count);
+                        $scope.search_settings.totalDeposits += parseInt(repo.count);
                     }
                 }
                 else if ($scope.search.repositories)
@@ -229,43 +233,68 @@ angular.module("dendroApp.controllers", [])
                     {
                         if (repo.value === true)
                         {
-                            $scope.totalDeposits += parseInt(repo.count);
+                            $scope.search_settings.totalDeposits += parseInt(repo.count);
                         }
                     }
                 }
-                 //$scope.totalDeposits = Math.ceil($scope.totalDeposits / $scope.page);
+                // $scope.totalDeposits = Math.ceil($scope.totalDeposits / $scope.search_settings.page);
             };
 
             let url = $scope.get_current_url();
             url += "deposits/search";
-            listings.getListing($scope, url, $scope.page, $scope.offset - 1, $scope.search, change, handle);
+            listings.getListing($scope, url, $scope.search_settings.page, $scope.search_settings.offset - 1, $scope.search, change, handle);
         };
 
         $scope.changePage = function (pageNumber)
         {
             let url = $scope.get_current_url();
             url += "deposits/search";
-            listings.getListing($scope, url, $scope.page, pageNumber - 1, $scope.search, false, $scope.updateDeposits);
-            $scope.offset = pageNumber;
+            listings.getListing($scope, url, $scope.search_settings.page, pageNumber - 1, $scope.search, false, $scope.updateDeposits);
+            $scope.search_settings.offset = pageNumber;
         };
 
         $scope.nextPage = function ()
         {
             let url = $scope.get_current_url();
             url += "deposits/search";
-            listings.getListing($scope, url, $scope.page, ++$scope.offset - 1, $scope.search, false, $scope.updateDeposits);
+            listings.getListing($scope, url, $scope.search_settings.page, ++$scope.search_settings.offset - 1, $scope.search, false, $scope.updateDeposits);
         };
         $scope.previousPage = function ()
         {
             let url = $scope.get_current_url();
             url += "deposits/search";
-            listings.getListing($scope, url, $scope.page, --$scope.offset - 1, $scope.search, false, $scope.updateDeposits);
+            listings.getListing($scope, url, $scope.search_settings.page, --$scope.search_settings.offset - 1, $scope.search, false, $scope.updateDeposits);
         };
 
         $scope.showPerPage = function (amount)
         {
-            $scope.page = amount;
+            $scope.search_settings.page = amount;
             $scope.getRegistry();
+        };
+
+        $scope.getDepositConditions = function ()
+        {
+            depositsService.get_deposit_conditions()
+                .then(function (response)
+                {
+                    $scope.conditionsAccepted = response.conditionsAccepted;
+                    $scope.conditionsAccepting = response.conditionsAccepting;
+                })
+                .catch(function (error)
+                {
+                    $scope.conditionsAccepted = [];
+                    sscope.conditionsAccepting = [];
+                });
+        };
+        $scope.changeUserAccess = function ()
+        {
+            depositsService.change_user_access()
+                .then(function (response)
+                {
+                })
+                .catch(function (error)
+                {
+                });
         };
 
         $scope.deposits = [];

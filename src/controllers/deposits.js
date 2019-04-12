@@ -262,65 +262,120 @@ exports.requestAccess = function (req, res)
     }
 };
 
-exports.userAccess = function (req, res)
+exports.getDepositConditions = function (req, res)
 {
+    let user = req.user.uri;
+
     Deposit.findByUri(req.params.requestedResourceUri, function (err, deposit)
     {
-        if (isNull(err))
+        if (isNull(err) && deposit instanceof Deposit)
         {
-            const offset = parseInt(req.query.offset);
-            const limit = parseInt(req.query.limit);
-
-            async.series([
-                function (callback)
-                {
-                    ConditionsAcceptance.getDepositConditions(function (err, revisionsCount)
-                    {
-                        if (isNull(err))
-                        {
-                            return callback(err, revisionsCount);
-                        }
-                        return callback(1,
-                            {
-                                result: "error",
-                                message: "Error calculating calculating number of revisions in deposit . Error reported : " + JSON.stringify(err) + "."
-                            });
-                    });
-                }
-            ],
-            function (err, result)
+            if (user === deposit.dcterms.creator)
             {
-                if (err)
+                async.series([
+                    function (callback)
+                    {
+                        ConditionsAcceptance.getDepositConditions(req.params.requestedResourceUri, true, function (err, conditions)
+                        {
+                            if (isNull(err))
+                            {
+                                return callback(err, conditions);
+                            }
+                            return callback(1, err);
+                        });
+                    }, function (callback)
+                    {
+                        ConditionsAcceptance.getDepositConditions(req.params.requestedResourceUri, false, function (err, conditions)
+                        {
+                            if (isNull(err))
+                            {
+                                return callback(err, conditions);
+                            }
+                            return callback(1, err);
+                        });
+                    }
+                ],
+                function (err, result)
                 {
-                    res.status(500).json(result);
+                    if (err)
+                    {
+                        res.status(500).json(result);
+                    }
+                    else
+                    {
+                        res.json({
+                            conditionsAccepted: result[0],
+                            conditionsAccepting: result[1]
+                        });
+                    }
+                });
+            }
+            else
+            {
+                req.flash("error", "Is not the creator of the deposit");
+                res.redirect("/");
+            }
+        }
+        else
+        {
+            req.flash("error", "Deposit " + req.params.requestedResourceUri + " not found.");
+            res.redirect("/");
+        }
+    });
+};
+
+exports.changeUserAccess = function (req, res)
+{
+    let user = req.user.uri;
+
+    ConditionsAcceptance.findByUri(req.params.conditionUri, function (err, condition)
+    {
+        if (isNull(err) && condition instanceof ConditionsAcceptance)
+        {
+            Deposit.findByUri(condition.dataset, function (err, deposit)
+            {
+                if (isNull(err) && deposit instanceof Deposit)
+                {
+                    if (deposit.dcterms.creator === user)
+                    {
+                        ConditionsAcceptance.changeUserAccess(condition, true, function (err, result)
+                        {
+                            if (isNull(err))
+                            {
+                                const msg = "Access allowed to the user; " + user;
+                                Logger.log(msg);
+                                res.json(
+                                    {
+                                        result: "OK",
+                                        message: msg
+                                    }
+                                );
+                            }
+                            else
+                            {
+                                res.status(500).json(result);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        req.flash("error", "The user does not have permissions to perform this action.");
+                        res.redirect("/");
+                    }
+                }
+                else
+                {
+                    req.flash("error", "Condition deposit was not found.");
+                    res.redirect("/");
                 }
             });
         }
         else
         {
-            res.status(500).json({
-                result: "error",
-                message: "Invalid deposit : " + req.params.requestedResourceUri + " : " + deposit
-            });
+            req.flash("error", "Condition " + req.params.conditionUri + " not found.");
+            res.redirect("/");
         }
     });
-};
-
-exports.getDeposit = function (req, res)
-{
-    const acceptsHTML = req.accepts("html");
-    const acceptsJSON = req.accepts("json");
-    let display;
-    if (acceptsJSON && !acceptsHTML)
-    {
-        display = "json";
-    }
-    else if (!acceptsJSON && acceptsHTML)
-    {
-        display = "render";
-    }
-
-    let resourceURI = req.params.requestedResourceUri;
 };
 
 exports.show = function (req, res)

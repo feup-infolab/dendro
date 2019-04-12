@@ -780,12 +780,24 @@ const loadRoutes = function (app, callback)
                         // permissions: [Permissions.settings.role.in_system.user],
                         authentication_error: "Permission denied : cannot request access to this deposit."
                     },
+                    {
+                        queryKeys: ["get_deposit_conditions"],
+                        handler: deposits.getDepositConditions,
+                        permissions: Permissions.settings.role.in_system.user,
+                        authentication_error: "Permission denied : cannot request access to this deposit."
+                    },
+                    {
+                        queryKeys: ["change_user_access"],
+                        handler: deposits.changeUserAccess,
+                        permissions: Permissions.settings.role.in_system.user,
+                        authentication_error: "Permission denied : cannot request access to this deposit."
+                    },
 
                     // default case
                     {
                         queryKeys: [],
                         handler: deposits.show,
-                      authentication_error: "Permission denied : cannot show the project because you do not have permissions to access it."
+                        authentication_error: "Permission denied : cannot show the project because you do not have permissions to access it."
                     }
                 ],
                 all:

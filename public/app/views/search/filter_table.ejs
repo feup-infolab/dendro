@@ -30,13 +30,13 @@
         </td>
         <td>
             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                {{page}} <span class="caret"></span>
+                {{search_settings.page}} <span class="caret"></span>
             </button>
             <ul class="dropdown-menu" role="menu">
-                <li><a href="#" ng-click="page = 5; $eval(update())">5</a></li>
-                <li><a href="#" ng-click="page = 10; $eval(update())">10</a></li>
-                <li><a href="#" ng-click="page = 20; $eval(update())">20</a></li>
-                <li><a href="#" ng-click="page = 50; $eval(update())">50</a></li>
+                <li><a href="#" ng-click="search_settings.page = 5; $eval(update())">5</a></li>
+                <li><a href="#" ng-click="search_settings.page = 10; $eval(update())">10</a></li>
+                <li><a href="#" ng-click="search_settings.page = 20; $eval(update())">20</a></li>
+                <li><a href="#" ng-click="search_settings.page = 50; $eval(update())">50</a></li>
             </ul>
         </td>
     </tr>

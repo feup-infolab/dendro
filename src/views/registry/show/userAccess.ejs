@@ -1,25 +1,53 @@
 <div class="row">
     <div class="col-md-12">
+
         <div class="panel panel-info">
             <div class="panel-heading">
-                <h3 class="panel-title">
-                    User Access
-                </h3>
+                <div class="panel-success">
+                    <h4 class="panel-title">Users with the accepted conditions</h4>
+                </div>
             </div>
-            <div class="panel-body" ng-show="has_editable_metadata()" >
-                <form id="user_access" class="form-horizontal navbar-spacer" role="form">
-                    <div class="control-group" ng-repeat="descriptor in shared.metadata | filter:only_editable_metadata_descriptors track by $index">
-                        <div ng-switch="descriptor.control">
-                            <div ng-switch-when="url_box">
-                                <ng-include src="'/app/views/registry/show/controls_read_only/url_box.html'"></ng-include>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="panel-body" ng-show="!has_editable_metadata()" >
-                There is no information available for this resource.
+            <div class="panel-body" ng-show="conditionsAccepted.size == 0" >
+                <div class="panel-success">
+                    <h4 class="panel-title">No terms accepted</h4>
+                </div>
             </div>
         </div>
+
+
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <div class="panel-success">
+                    <h4 class="panel-title">Conditions to accept</h4>
+                </div>
+            </div>
+        <div class="panel-body" ng-repeat="condition in conditionsAccepting">
+            {{condition.acceptingUser}}
+            <button  type="submit"
+               class="btn btn-sm btn-success pull-right"
+               id="btn-condition-accepting"
+               ng-click=""
+               onmouseover="$(this).toggleClass('btn-primary');"
+               onmouseout="$(this).toggleClass('btn-primary');">
+                <span class="glyphicon glyphicon-ok"></span> Accept </button>
+
+            <button  type="submit"
+                     class="btn btn-sm btn-danger pull-right"
+                     id="delete_project_button"
+                     data-loading-text="Preparing Package..." ng-click="delete_deposit()"
+                     onmouseover="$(this).toggleClass('btn-primary');"
+                     onmouseout="$(this).toggleClass('btn-primary');"><span class="glyphicon glyphicon-ok"></span> Decline </button>
+
+
+        </div>
+        <div class="panel-body" ng-show="conditionsAccepting.size ==0" >
+            <div class="panel-success">
+                <h4 class="panel-title">Without conditions to accept</h4>
+            </div>
+        </div>
+        </div>
+
+
+
+        </div>
     </div>
-</div>

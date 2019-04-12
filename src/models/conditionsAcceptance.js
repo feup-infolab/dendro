@@ -88,7 +88,7 @@ ConditionsAcceptance.getCondition = function (user, dataset, callback)
     });
 };
 
-ConditionsAcceptance.getDepositConditions = function (datasetUri, callback)
+ConditionsAcceptance.getDepositConditions = function (datasetUri, accepted, callback)
 {
     let i = 1;
     let query =
@@ -96,7 +96,7 @@ ConditionsAcceptance.getDepositConditions = function (datasetUri, callback)
     "FROM [0] \n" +
     "WHERE " +
     "{ \n" +
-    "       ?condition ddr:userAccepted ?userAccepted.\n" +
+    "       ?condition ddr:userAccepted [" + i++ + "].\n" +
     "       ?condition ddr:acceptingUser ?acceptingUser. \n" +
     "       ?condition rdf:type ddr:Conditions.\n" +
     "       ?condition ddr:dataset [" + i++ + "]. \n" +
@@ -106,6 +106,10 @@ ConditionsAcceptance.getDepositConditions = function (datasetUri, callback)
         {
             type: Elements.types.resourceNoEscape,
             value: db.graphUri
+        },
+        {
+            type: Elements.ontologies.ddr.userAccepted.type,
+            value: accepted
         },
         {
             type: Elements.ontologies.ddr.dataset.type,
@@ -118,22 +122,34 @@ ConditionsAcceptance.getDepositConditions = function (datasetUri, callback)
     });
 };
 
-ConditionsAcceptance.prototype.acceptUserAccess = function (callback)
+ConditionsAcceptance.changeUserAccess = function (condition, value, callback)
 {
-    const self = this;
-    self.ddr.userAccepted = true;
-
-    self.save(function (err, result)
+    if (value === true)
     {
-        if (isNull(err))
+        condition.ddr.userAccepted = value;
+        condition.save(function (err, result)
         {
-            callback(err, result);
-        }
-        else
+            if (isNull(err))
+            {
+                callback(err, result);
+            }
+            else
+            {
+                callback(err, result);
+            }
+        });
+    }
+    else
+    {
+        ConditionsAcceptance.delete(function (err, result)
         {
-            callback(err, result);
-        }
-    });
+            if (isNull(err))
+            {
+                return callback(null, result);
+            }
+            return callback(err, result);
+        });
+    }
 };
 
 ConditionsAcceptance = Class.extend(ConditionsAcceptance, Resource, "ddr:Conditions");
