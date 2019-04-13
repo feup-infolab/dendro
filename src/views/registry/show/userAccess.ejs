@@ -7,7 +7,18 @@
                     <h4 class="panel-title">Users with the accepted conditions</h4>
                 </div>
             </div>
-            <div class="panel-body" ng-show="conditionsAccepted.size == 0" >
+            <div class="panel-body" ng-repeat="condition in conditionsAccepted">
+                {{condition.acceptingUser}}
+                <button  type="submit"
+                         class="btn btn-sm btn-danger pull-right"
+                         id="btn-condition-accepting"
+                         ng-click="changeUserAccess(condition, false, true)"
+                         onmouseover="$(this).toggleClass('btn-primary');"
+                         onmouseout="$(this).toggleClass('btn-primary');">
+                    <span class="glyphicon glyphicon-trash"></span> Not allow access </button>
+
+            </div>
+            <div class="panel-body" ng-show="!conditionsAccepted.length" >
                 <div class="panel-success">
                     <h4 class="panel-title">No terms accepted</h4>
                 </div>
@@ -22,25 +33,24 @@
                 </div>
             </div>
         <div class="panel-body" ng-repeat="condition in conditionsAccepting">
-            {{condition.acceptingUser}}
-            <button  type="submit"
-               class="btn btn-sm btn-success pull-right"
-               id="btn-condition-accepting"
-               ng-click=""
-               onmouseover="$(this).toggleClass('btn-primary');"
-               onmouseout="$(this).toggleClass('btn-primary');">
-                <span class="glyphicon glyphicon-ok"></span> Accept </button>
+                {{condition.acceptingUser}}
+                <button  type="submit"
+                   class="btn btn-sm btn-success pull-right"
+                   id="btn-condition-accepting"
+                   ng-click="changeUserAccess(condition, true)"
+                   onmouseover="$(this).toggleClass('btn-primary');"
+                   onmouseout="$(this).toggleClass('btn-primary');">
+                    <span class="glyphicon glyphicon-ok"></span> Accept </button>
 
-            <button  type="submit"
-                     class="btn btn-sm btn-danger pull-right"
-                     id="delete_project_button"
-                     data-loading-text="Preparing Package..." ng-click="delete_deposit()"
-                     onmouseover="$(this).toggleClass('btn-primary');"
-                     onmouseout="$(this).toggleClass('btn-primary');"><span class="glyphicon glyphicon-ok"></span> Decline </button>
-
+                <button  type="submit"
+                         class="btn btn-sm btn-danger pull-right"
+                         id="delete_project_button"
+                         ng-click="changeUserAccess(condition.condition, false)"
+                         onmouseover="$(this).toggleClass('btn-primary');"
+                         onmouseout="$(this).toggleClass('btn-primary');"><span class="glyphicon glyphicon-remove"></span> Decline </button>
 
         </div>
-        <div class="panel-body" ng-show="conditionsAccepting.size ==0" >
+        <div class="panel-body" ng-show="!conditionsAccepting.length">
             <div class="panel-success">
                 <h4 class="panel-title">Without conditions to accept</h4>
             </div>

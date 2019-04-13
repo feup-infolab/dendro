@@ -80,6 +80,10 @@ angular.module("dendroApp.services")
                     var newURL = window.location.protocol + "//" + window.location.host + window.location.pathname;
                     return newURL;
                 };
+                this.get_resource_from_URL = function ()
+                {
+                    return window.location.pathname;
+                };
 
                 this.download_url = function (url, parametersString)
                 {

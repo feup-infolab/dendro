@@ -786,12 +786,7 @@ const loadRoutes = function (app, callback)
                         permissions: Permissions.settings.role.in_system.user,
                         authentication_error: "Permission denied : cannot request access to this deposit."
                     },
-                    {
-                        queryKeys: ["change_user_access"],
-                        handler: deposits.changeUserAccess,
-                        permissions: Permissions.settings.role.in_system.user,
-                        authentication_error: "Permission denied : cannot request access to this deposit."
-                    },
+
 
                     // default case
                     {
@@ -816,6 +811,12 @@ const loadRoutes = function (app, callback)
                         handler: deposits.requestAccess,
                         permissions: Permissions.settings.role.in_system.user,
                         authentication_error: "Permission denied : cannot request access to this ."
+                    },
+                    {
+                        queryKeys: ["change_user_access"],
+                        handler: deposits.changeUserAccess,
+                        permissions: Permissions.settings.role.in_system.user,
+                        authentication_error: "Permission denied : cannot request access to this deposit."
                     }
                 ]
             };

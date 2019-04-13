@@ -327,35 +327,81 @@ exports.getDepositConditions = function (req, res)
 exports.changeUserAccess = function (req, res)
 {
     let user = req.user.uri;
+    let requestcondition = req.body.condition;
+    let value = req.body.value;
+    let forDelete;
 
-    ConditionsAcceptance.findByUri(req.params.conditionUri, function (err, condition)
+    if (req.body.forDelete)
+    {
+        forDelete = req.body.forDelete;
+    }
+
+    ConditionsAcceptance.findByUri(requestcondition.condition, function (err, condition)
     {
         if (isNull(err) && condition instanceof ConditionsAcceptance)
         {
-            Deposit.findByUri(condition.dataset, function (err, deposit)
+            Deposit.findByUri(condition.ddr.dataset, function (err, deposit)
             {
                 if (isNull(err) && deposit instanceof Deposit)
                 {
                     if (deposit.dcterms.creator === user)
                     {
-                        ConditionsAcceptance.changeUserAccess(condition, true, function (err, result)
+                        if (value === true)
                         {
-                            if (isNull(err))
+                            ConditionsAcceptance.changeUserAccess(condition, true, function (err, result)
                             {
-                                const msg = "Access allowed to the user; " + user;
-                                Logger.log(msg);
-                                res.json(
+                                if (isNull(err))
+                                {
+                                    const msg = "Access allowed to the user " + user;
+                                    Logger.log(msg);
+                                    res.json(
+                                        {
+                                            result: "OK",
+                                            message: msg
+                                        }
+                                    );
+                                }
+                                else
+                                {
+                                    res.status(500).json(result);
+                                }
+                            });
+                        }
+                        else
+                        {
+                            ConditionsAcceptance.deleteAll(function (err, result)
+                            {
+                                if (isNull(err))
+                                {
+                                    if (forDelete === true)
                                     {
-                                        result: "OK",
-                                        message: msg
+                                        const msg = "Successfully deleted user access " + user;
+                                        Logger.log(msg);
+                                        res.json(
+                                            {
+                                                result: "OK",
+                                                message: msg
+                                            }
+                                        );
                                     }
-                                );
-                            }
-                            else
-                            {
-                                res.status(500).json(result);
-                            }
-                        });
+                                    else
+                                    {
+                                        const msg = "The access condition for user deposit " + user + " was not successfully accepted";
+                                        Logger.log(msg);
+                                        res.json(
+                                            {
+                                                result: "OK",
+                                                message: msg
+                                            }
+                                        );
+                                    }
+                                }
+                                else
+                                {
+                                    res.status(500).json(result);
+                                }
+                            });
+                        }
                     }
                     else
                     {
@@ -365,14 +411,14 @@ exports.changeUserAccess = function (req, res)
                 }
                 else
                 {
-                    req.flash("error", "Condition deposit was not found.");
+                    req.flash("error", "Deposit was not found.");
                     res.redirect("/");
                 }
             });
         }
         else
         {
-            req.flash("error", "Condition " + req.params.conditionUri + " not found.");
+            req.flash("error", "Condition " + requestcondition + " not found.");
             res.redirect("/");
         }
     });

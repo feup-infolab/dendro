@@ -33,17 +33,17 @@ angular.module("dendroApp.services")
 
                     return deferred.promise;
                 };
-                this.change_user_access = function ()
+                this.change_user_access = function (condition, value, forDelete)
                 {
                     var deferred = $q.defer();
 
-                    var payload = JSON.stringify({});
-
                     var URL = windowService.get_current_url();
+                    var payload = JSON.stringify({condition: condition, value: value, forDelete: forDelete});
+
                     URL += "?change_user_access";
 
                     $http({
-                        method: "GET",
+                        method: "POST",
                         url: URL,
                         data: payload,
                         contentType: "application/json",

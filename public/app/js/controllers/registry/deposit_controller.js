@@ -203,7 +203,7 @@ angular.module("dendroApp.controllers", [])
             const handle = function (data, change)
             {
                 $scope.offset = 1;
-                //$scope.updateDeposits(data);
+                // $scope.updateDeposits(data);
                 $scope.totalDeposits = 0;
 
                 if (change && data.repositories instanceof Array && data.repositories.length > 0)
@@ -282,18 +282,31 @@ angular.module("dendroApp.controllers", [])
                 })
                 .catch(function (error)
                 {
+                    $scope.show_popup("error", "Error occurred", JSON.stringify(error));
                     $scope.conditionsAccepted = [];
-                    sscope.conditionsAccepting = [];
+                    $scope.conditionsAccepting = [];
                 });
         };
-        $scope.changeUserAccess = function ()
+        $scope.changeUserAccess = function (condition, value, forDelete)
         {
-            depositsService.change_user_access()
+            depositsService.change_user_access(condition, value, forDelete)
                 .then(function (response)
                 {
+                    $scope.show_popup("success", "Success", response.message);
+                    depositsService.get_deposit_conditions()
+                        .then(function (response)
+                        {
+                            $scope.conditionsAccepted = response.conditionsAccepted;
+                            $scope.conditionsAccepting = response.conditionsAccepting;
+                        })
+                        .catch(function (error)
+                        {
+                            $scope.show_popup("error", "Error occurred", JSON.stringify(error));
+                        });
                 })
                 .catch(function (error)
                 {
+                    $scope.show_popup("error", "Error occurred", JSON.stringify(error));
                 });
         };
 

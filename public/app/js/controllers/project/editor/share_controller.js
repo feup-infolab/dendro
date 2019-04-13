@@ -657,7 +657,6 @@ angular.module("dendroApp.controllers")
                 });
             };
 
-
             $scope.get_repository_types = function ()
             {
                 $.ajax({
