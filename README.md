@@ -39,6 +39,7 @@ git clone https://github.com/feup-infolab/dendro
 4. Run the installation command in the same terminal and wait until no more text is printed. It can take several minutes.
 ````bash
 cd dendro
+docker-compose pull
 docker-compose up
 ````
 5. Access your dendro installation at [127.0.0.1:3001](http://127.0.0.1:3001) in your browser.

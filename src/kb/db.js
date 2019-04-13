@@ -360,12 +360,15 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
                     let disconnectError = disconnectErrors[i];
                     if (stackText.indexOf(disconnectError) > -1)
                     {
-                        Logger.log("debug", "Connection to virtuoso was lost during a query, trying to recover it...");
-                        self.tryToConnect(function (err)
+                        const msec = 1000;
+                        Logger.log("debug", "Connection to virtuoso was lost during a query, trying to recover it in " + msec + " ms ...");
+                        setTimeout(function ()
                         {
-                            callback(err);
-                        });
-
+                            self.tryToConnect(function (err)
+                            {
+                                callback(err);
+                            });
+                        }, msec);
                         return;
                     }
                 }

@@ -23,7 +23,7 @@ const Notification = rlequire("dendro", "src/models/notifications/notification.j
 
 const db = Config.getDBByID();
 
-function Folder (object= {})
+function Folder (object = {})
 {
     const self = this;
     self.addURIAndRDFType(object, "folder", Folder);
@@ -50,12 +50,12 @@ Folder.prototype.saveIntoFolder = function (
     const self = this;
 
     const saveIntoFolder = function
-        (node,
-            destinationFolderAbsPath,
-            includeMetadata,
-            includeTempFilesLocations,
-            includeOriginalNodes,
-            callback)
+    (node,
+        destinationFolderAbsPath,
+        includeMetadata,
+        includeTempFilesLocations,
+        includeOriginalNodes,
+        callback)
     {
         if (node instanceof File)
         {
@@ -531,7 +531,7 @@ Folder.prototype.bagit = function (bagItOptions, callback)
             },
             function (absolutePathOfFinishedFolder, parentFolderPath, cb)
             {
-                const gladstone = rlequire("dendro","node_modules/gladstone/gladstone.js");
+                const gladstone = rlequire("dendro", "node_modules/gladstone/gladstone.js");
                 gladstone.createBagDirectory(bagItOptions)
                     .then(function (result)
                     {
@@ -750,7 +750,8 @@ Folder.prototype.loadContentsOfFolderIntoThis = function (absolutePathOfLocalFol
             return child.uri;
         });
 
-        self.save(function(err, result){
+        self.save(function (err, result)
+        {
             cb(err, result);
         });
     };
@@ -980,7 +981,7 @@ Folder.prototype.loadContentsOfFolderIntoThis = function (absolutePathOfLocalFol
                     if (isNull(err))
                     {
                         Notification.sendProgress(
-                            `Adding children of " + ${path.basename(absolutePathOfLocalFolder)} to ${self.nie.title}...`,
+                            `Adding children of ${path.basename(absolutePathOfLocalFolder)} to ${self.nie.title}...`,
                             progressReporter,
                             self
                         );
@@ -988,7 +989,7 @@ Folder.prototype.loadContentsOfFolderIntoThis = function (absolutePathOfLocalFol
                         addChildrenTriples(results, function (err, result)
                         {
                             Notification.sendProgress(
-                                `All children of " + ${path.basename(absolutePathOfLocalFolder)} loaded into ${self.nie.title}.`,
+                                `All children of ${path.basename(absolutePathOfLocalFolder)} loaded into ${self.nie.title}.`,
                                 progressReporter,
                                 self
                             );
@@ -1071,12 +1072,12 @@ Folder.prototype.loadMetadata = function (
 
         const loadMetadataForChildFolder = function (childNode, callback)
         {
-            //Child is a folder
+            // Child is a folder
             if (!isNull(childNode.children) && childNode.children instanceof Array)
             {
-                //we are restoring a folder into the same original folder
-                //so we can look for the child by uri
-                if(!isNull(restoreIntoTheSameRootFolder) && restoreIntoTheSameRootFolder === true)
+                // we are restoring a folder into the same original folder
+                // so we can look for the child by uri
+                if (!isNull(restoreIntoTheSameRootFolder) && restoreIntoTheSameRootFolder === true)
                 {
                     Folder.findByUri(childNode.resource, function (err, folder)
                     {
@@ -1123,11 +1124,11 @@ Folder.prototype.loadMetadata = function (
                 }
                 else
                 {
-                    //we are restoring a folder into a folder other than the original folder
-                    //so we cannot look for the child by the uri specified in the metadata.json file
-                    //as it could ruin the original folder if it still exists in Dendro
-                    //so we need to find the child in the current folder but find it by the title descriptor
-                    //as at this point this parent folder already has the metadata restored in Dendro
+                    // we are restoring a folder into a folder other than the original folder
+                    // so we cannot look for the child by the uri specified in the metadata.json file
+                    // as it could ruin the original folder if it still exists in Dendro
+                    // so we need to find the child in the current folder but find it by the title descriptor
+                    // as at this point this parent folder already has the metadata restored in Dendro
                     const titleDescriptor = getDescriptor("nie:title", childNode);
                     self.findChildWithDescriptor(titleDescriptor, function (err, folder)
                     {
@@ -1155,11 +1156,11 @@ Folder.prototype.loadMetadata = function (
             }
             else
             {
-                //Child is a file
-                if(!isNull(restoreIntoTheSameRootFolder) && restoreIntoTheSameRootFolder == true)
+                // Child is a file
+                if (!isNull(restoreIntoTheSameRootFolder) && restoreIntoTheSameRootFolder == true)
                 {
-                    //we are restoring a file into the same original folder
-                    //so we can look for the child by uri
+                    // we are restoring a file into the same original folder
+                    // so we can look for the child by uri
                     File.findByUri(childNode.resource, function (err, file)
                     {
                         if (isNull(err) && !isNull(file))
@@ -1213,11 +1214,11 @@ Folder.prototype.loadMetadata = function (
                 }
                 else
                 {
-                    //we are restoring a file into a folder other than the original folder
-                    //so we cannot look for the child by the uri specified in the metadata.json file
-                    //as it could ruin the original file if it still exists in Dendro
-                    //so we need to find the child in the current folder but find it by the title descriptor
-                    //as at this point this parent folder already has the metadata restored in Dendro
+                    // we are restoring a file into a folder other than the original folder
+                    // so we cannot look for the child by the uri specified in the metadata.json file
+                    // as it could ruin the original file if it still exists in Dendro
+                    // so we need to find the child in the current folder but find it by the title descriptor
+                    // as at this point this parent folder already has the metadata restored in Dendro
                     const titleDescriptor = getDescriptor("nie:title", childNode);
 
                     self.findChildWithDescriptor(titleDescriptor, function (err, file)
@@ -1430,7 +1431,7 @@ Folder.prototype.restoreFromFolder = function (absPathOfRootFolder,
 
                             const node = JSON.parse(data);
                             let restoreIntoTheSameRootFolder = false;
-                            if(node.resource === self.uri)
+                            if (node.resource === self.uri)
                             {
                                 Logger.log("info", "This is a restore to the same root folder");
                                 restoreIntoTheSameRootFolder = true;
@@ -1477,7 +1478,8 @@ Folder.prototype.setDescriptorsRecursively = function (descriptors, callback, ur
         if (node instanceof File)
         {
             node.updateDescriptors(descriptors);
-            node.save(function(err, result){
+            node.save(function (err, result)
+            {
                 Notification.sendProgress(
                     `Marked file ${self.nie.title} successfully as deleted.`,
                     progressReporter,
@@ -1612,7 +1614,7 @@ Folder.prototype.delete = function (callback, uriOfUserDeletingTheFolder, notRec
                     }
                     else if (child instanceof File)
                     {
-                        if(isNull(reallyDelete))
+                        if (isNull(reallyDelete))
                         {
                             child.delete(cb, uriOfUserDeletingTheFolder, false, progressReporter);
                         }
@@ -1829,7 +1831,7 @@ Folder.prototype.forAllChildren = function (
     customGraphUri,
     descriptorTypesToRemove,
     descriptorTypesToExemptFromRemoval,
-    includeArchivedResources,
+    includeArchivedResources
 )
 {
     const self = this;
@@ -1923,7 +1925,8 @@ Folder.prototype.forAllChildren = function (
                     {
                         dummyReq.query.currentPage++;
 
-                        results = _.without(results, function(result){
+                        results = _.without(results, function (result)
+                        {
                             return isNull(result);
                         });
 
@@ -1932,7 +1935,7 @@ Folder.prototype.forAllChildren = function (
                             {
                                 InformationElement.findByUri(result.uri, function (err, completeResource)
                                 {
-                                    if(!isNull(completeResource))
+                                    if (!isNull(completeResource))
                                     {
                                         if (!isNull(descriptorTypesToRemove) && descriptorTypesToRemove instanceof Array)
                                         {
@@ -1996,7 +1999,7 @@ Folder.prototype.getHumanReadableUri = function (callback)
                         {
                             callback(null, parentResource.ddr.humanReadableURI + "/data");
                         }
-                        else if(parentResource.isA(Folder))
+                        else if (parentResource.isA(Folder))
                         {
                             callback(null, parentResource.ddr.humanReadableURI + "/" + self.nie.title);
                         }
@@ -2040,12 +2043,12 @@ Folder.prototype.refreshChildrenHumanReadableUris = function (callback, customGr
                     {
                         if (!isNull(resource))
                         {
-                            if(!isNull(progressReporter))
+                            if (!isNull(progressReporter))
                             {
-                              Notification.sendProgress(
-                                `Updating internal uri of resource ${resource.nie.title}...`,
-                                progressReporter
-                              );
+                                Notification.sendProgress(
+                                    `Updating internal uri of resource ${resource.nie.title}...`,
+                                    progressReporter
+                                );
                             }
 
                             resource.refreshHumanReadableUri(callback, graphUri, progressReporter);
@@ -2089,11 +2092,13 @@ Folder.prototype.refreshChildrenHumanReadableUris = function (callback, customGr
     );
 };
 
-Folder.prototype.rename = function(newTitle, callback, userPerformingOperation, progressReporter)
+Folder.prototype.rename = function (newTitle, callback, userPerformingOperation, progressReporter)
 {
     const self = this;
-    InformationElement.prototype.rename.call(self, newTitle, function(err, updatedFolder){
-        if(isNull(err))
+
+    InformationElement.prototype.rename.call(self, newTitle, function (err, updatedFolder)
+    {
+        if (isNull(err))
         {
             self.refreshChildrenHumanReadableUris(function (err, result)
             {

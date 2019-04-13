@@ -124,20 +124,50 @@ class Job
         });
     }
 
-    static fetchJobsStillInMongoAndRestartThem (jobName, restartJobFunction)
+    static startJobs (jobName, restartJobFunction)
     {
-        Logger.log("info", "Attempting to restart any " + jobName + " remaining in mongodb");
-        Job._agenda.jobs({name: jobName}, function (err, jobs)
+        const self = this;
+        if (self.isSingleton)
         {
-            if (isNull(err))
+            if (!self.alreadyRunning)
             {
-                restartJobFunction(jobs);
+                let singletonJob = new self.prototype.constructor({});
+
+                if (self.cronExpression)
+                {
+                    singletonJob.repeatEvery(self.cronExpression, function (err)
+                    {
+                        if (isNull(err))
+                        {
+                            Logger.log("info", "Job " + self.name + " running...");
+                            self.alreadyRunning = true;
+                        }
+                        else
+                        {
+                            self.alreadyRunning = false;
+                            const msg = "Job " + self.name + " failed to start!";
+                            Logger.log("error", msg);
+                            throw new Error(msg);
+                        }
+                    });
+                }
             }
-            else
+        }
+        else
+        {
+            Logger.log("info", "Attempting to restart any " + jobName + " remaining in mongodb");
+            Job._agenda.jobs({name: jobName}, function (err, jobs)
             {
-                Logger.log("error", "Error at fetchJobsStillInMongoAndRestartThem: " + JSON.stringify(err));
-            }
-        });
+                if (isNull(err))
+                {
+                    restartJobFunction(jobs);
+                }
+                else
+                {
+                    Logger.log("error", "Error at startJobs: " + JSON.stringify(err));
+                }
+            });
+        }
     }
 
     // INSTANCE METHODS
@@ -152,6 +182,15 @@ class Job
     {
         let self = this;
         Job._agenda.now(self.name, self.jobData, function (info)
+        {
+            callback(null);
+        });
+    }
+
+    repeatEvery (cronExpression, callback)
+    {
+        let self = this;
+        Job._agenda.every(cronExpression, self.name, function (info)
         {
             callback(null);
         });
