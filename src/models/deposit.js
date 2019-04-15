@@ -312,6 +312,14 @@ Deposit.createQuery = function (params, callback)
                     });
                 addUnion = true;
                 break;
+            case "Embargoed deposit":
+                variables.push(
+                    {
+                        type: Elements.ontologies.ddr.privacyStatus.type,
+                        value: "embargoed"
+                    });
+                addUnion = true;
+                break;
             case "Private deposit":
                 variables.push(
                     {
@@ -335,62 +343,6 @@ Deposit.createQuery = function (params, callback)
             query += "   } \n";
         }
     }
-
-    /* if(params.private[j])
-            query += "[" + i++ + "] ";
-            variables.push({
-                type: Elements.types.string,
-                value: params.platforms[j]
-            });
-        }
-        if (isNull(params.private) || params.private === "false")
-        {
-            query +=
-              "   { \n" +
-              "       { \n" +
-              "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
-              "       } \n" +
-              "       UNION \n" +
-              "       { \n" +
-              "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
-              "         VALUES ?role { dcterms:creator dcterms:contributor } . \n" +
-              "         ?projused ?role [" + i++ + "] . \n" +
-              "       } \n" +
-              "   } \n";
-
-            variables.push(
-                {
-                    type: Elements.ontologies.ddr.privacyStatus.type,
-                    value: "public"
-                }
-            );
-        }
-        else
-        {
-            query +=
-            "    ?uri ddr:privacyStatus [" + i++ + "] . \n" +
-            "    VALUES ?role { dcterms:creator dcterms:contributor } . \n" +
-            "    ?projused ?role [" + i++ + "] . \n";
-        }
-        variables = variables.concat([
-            {
-                type: Elements.ontologies.ddr.privacyStatus.type,
-                value: "private"
-            },
-            {
-                type: Elements.ontologies.dcterms.creator.type,
-                value: params.self
-            }]);*/
-    /* }
-    else
-    {
-        query += "   ?uri ddr:privacyStatus [" + i++ + "] . \n";
-        variables.push({
-            type: Elements.ontologies.ddr.privacyStatus.type,
-            value: "public"
-        });
-    }
-*/
     let ending =
         "} \n" +
         "ORDER BY " + params.order + "(?" + params.labelToSort + ") \n" +
@@ -905,6 +857,42 @@ Deposit.prototype.getProject = function (callback)
     Project.findByUri(projectUri, function (err, project)
     {
         callback(err, project);
+    });
+};
+
+Deposit.getDepositsEmbargoed = function (callback)
+{
+    let date = new Date();
+    let dateNow = date.toISOString();
+    let i = 1;
+    let query =
+      "SELECT DISTINCT * \n" +
+      "FROM [0] \n" +
+      "WHERE " +
+      "{ \n" +
+      "   ?uri rdf:type ddr:Registry . \n" +
+      "   ?uri dcterms:date ?date . \n" +
+      "   ?uri  ddr:privacyStatus [" + i++ + "]. \n" +
+      "    FILTER ( xsd:dateTime(?date) < xsd:dateTime([" + i++ + "])). \n" +
+    "} \n";
+
+    let variables = [
+        {
+            type: Elements.types.resourceNoEscape,
+            value: db.graphUri
+        },
+        {
+            type: Elements.ontologies.ddr.privacyStatus.type,
+            value: "embargoed"
+        },
+        {
+            type: Elements.ontologies.dcterms.date.type,
+            value: dateNow
+        }];
+
+    db.connection.executeViaJDBC(query, variables, function (err, regs)
+    {
+        callback(err, regs);
     });
 };
 

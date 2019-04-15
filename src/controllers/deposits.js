@@ -469,16 +469,6 @@ exports.show = function (req, res)
         };
         const _ = require("underscore");
 
-        const isEditor = _.filter(req.permissions_management.reasons_for_authorizing, function (authorization)
-        {
-            const reason = authorization.role;
-            if (req.params.is_deposit_root)
-            {
-                return _.isEqual(reason, Permissions.settings.role.users_role_in_deposit) || _.isEqual(reason, Permissions.settings.role.in_system.admin);
-            }
-            return _.isEqual(reason, Permissions.settings.role.users_role_in_deposit) || _.isEqual(reason, Permissions.settings.role.in_system.admin);
-        });
-
         // client requested JSON, RDF, TXT, etc...
         sendResponseInRequestedFormat(function (error, alreadySent)
         {
@@ -491,42 +481,61 @@ exports.show = function (req, res)
             {
                 if (!alreadySent)
                 {
-                    if (isEditor.length > 0 || isAdmin)
+                    if (isAdmin)
                     {
                         res.render("registry/show",
                             viewVars
                         );
                     }
-                    else
+                    else if (req.permissions_management)
                     {
-                        if (viewVars.deposit.ddr.privacyStatus === "private" || (viewVars.deposit.ddr.privacyStatus === "public" && viewVars.deposit.ddr.accessTerms))
+                        const isEditor = _.filter(req.permissions_management.reasons_for_authorizing, function (authorization)
                         {
-                            if (viewVars.acceptingUser === true)
+                            const reason = authorization.role;
+                            if (req.params.is_deposit_root)
                             {
-                                if (viewVars.userAccepted === true)
+                                return _.isEqual(reason, Permissions.settings.role.users_role_in_deposit) || _.isEqual(reason, Permissions.settings.role.in_system.admin);
+                            }
+                            return _.isEqual(reason, Permissions.settings.role.users_role_in_deposit) || _.isEqual(reason, Permissions.settings.role.in_system.admin);
+                        });
+
+                        if (isEditor.length > 0)
+                        {
+                            res.render("registry/show",
+                                viewVars
+                            );
+                        }
+                        else
+                        {
+                            if (viewVars.deposit.ddr.privacyStatus === "private" || (viewVars.deposit.ddr.privacyStatus === "public" && viewVars.deposit.ddr.accessTerms))
+                            {
+                                if (viewVars.acceptingUser === true)
                                 {
-                                    res.render("registry/show_readonly",
-                                        viewVars
-                                    );
+                                    if (viewVars.userAccepted === true)
+                                    {
+                                        res.render("registry/show_readonly",
+                                            viewVars
+                                        );
+                                    }
+                                    else
+                                    {
+                                        res.render("registry/deposit_for_acceptance",
+                                            viewVars
+                                        );
+                                    }
                                 }
                                 else
                                 {
-                                    res.render("registry/deposit_for_acceptance",
-                                        viewVars
+                                    res.redirect(resourceURI + "?request_access"
                                     );
                                 }
                             }
                             else
                             {
-                                res.redirect(resourceURI + "?request_access"
+                                res.render("registry/show_readonly",
+                                    viewVars
                                 );
                             }
-                        }
-                        else
-                        {
-                            res.render("registry/show_readonly",
-                                viewVars
-                            );
                         }
                     }
                 }
@@ -843,7 +852,7 @@ exports.delete = function (req, res)
     let acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
 
-    const getProject = function (callback)
+    const getDeposit = function (callback)
     {
         Deposit.findByUri(req.params.requestedResourceUri, function (err, deposit)
         {
@@ -886,7 +895,7 @@ exports.delete = function (req, res)
     {
         if (req.originalMethod === "GET")
         {
-            getProject(function (err, deposit)
+            getDeposit(function (err, deposit)
             {
                 res.render("registry/delete",
                     {
@@ -898,7 +907,7 @@ exports.delete = function (req, res)
         }
         else if (req.originalMethod === "POST" || req.originalMethod === "DELETE")
         {
-            getProject(function (err, deposit)
+            getDeposit(function (err, deposit)
             {
                 if (!err)
                 {

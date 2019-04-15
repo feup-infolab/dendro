@@ -750,7 +750,13 @@ const loadRoutes = function (app, callback)
             req.params.requestedResourceUri = resourceUri;
 
             const defaultPermissionsForDeposits = [
-              Permissions.settings.privacy.of_deposit.public
+                Permissions.settings.privacy.of_deposit.public
+            ];
+            const adminPermissions = [
+                Permissions.settings.role.in_system.admin
+            ];
+            const userPermissions = [
+                Permissions.settings.role.in_system.user
             ];
 
             req.params.is_project_root = true;
@@ -762,7 +768,7 @@ const loadRoutes = function (app, callback)
                     {
                         queryKeys: ["download"],
                         handler: files.download,
-                        permissions: defaultPermissionsForDeposits,
+                        permissions: userPermissions,
                         authentication_error: "Permission denied : cannot download this deposit."
                     },
                     // list contents
@@ -775,7 +781,7 @@ const loadRoutes = function (app, callback)
                     {
                         queryKeys: ["request_access"],
                         handler: deposits.requestAccess,
-                        permissions: Permissions.settings.role.in_system.user,
+                        permissions: userPermissions,
 
                         // permissions: [Permissions.settings.role.in_system.user],
                         authentication_error: "Permission denied : cannot request access to this deposit."
@@ -787,12 +793,11 @@ const loadRoutes = function (app, callback)
                         authentication_error: "Permission denied : cannot request access to this deposit."
                     },
 
-
                     // default case
                     {
                         queryKeys: [],
                         handler: deposits.show,
-                        authentication_error: "Permission denied : cannot show the project because you do not have permissions to access it."
+                        authentication_error: "Permission denied : cannot show the deposit because you do not have permissions to access it."
                     }
                 ],
                 all:
@@ -801,7 +806,7 @@ const loadRoutes = function (app, callback)
                       {
                           queryKeys: ["delete"],
                           handler: deposits.delete,
-                          permissions: Permissions.settings.role.in_system.admin,
+                          permissions: adminPermissions,
                           authentication_error: "Permission denied : cannot delete deposit because you do not have permissions to administer this deposit."
                       }
                   ],

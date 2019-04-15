@@ -66,6 +66,10 @@ angular.module("dendroApp.controllers", [])
                     {
                         name: "Metadata only",
                         value: true
+                    },
+                    {
+                        name: "Embargoed deposit",
+                        value: true
                     }]
             },
             system: {

@@ -609,7 +609,7 @@ const checkPrivacyOfDeposit = function (req, user, role, resource, callback)
             {
                 const privacy = deposit.ddr.privacyStatus;
 
-                if (!isNull(role.object) && (privacy === role.object || privacy === "metadata_only" || privacy === "private"))
+                if (!isNull(role.object) && privacy === role.object)
                 {
                     return callback(null, true);
                 }
@@ -914,10 +914,11 @@ Permissions.check = function (permissionsRequired, req, callback)
             }
             else if (permission.type === Permissions.types.privacy_of_deposit)
             {
-                Permissions.types.privacy_of_deposit.validator(req, user, permission, resource, function (err, result)
+                /* Permissions.types.role_in_system.validator(req, user, permission, resource, function (err, result)
                 {
                     cb(err, {authorized: result, role: permission});
-                });
+                });*/
+                cb(null, {authorized: true, role: "permisssion"});
             }
             else if (permission.type === Permissions.types.role_in_deposit)
             {
