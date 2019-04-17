@@ -939,6 +939,7 @@ Config.numCPUs = getConfigParameter("numCPUs");
 Config.testing = getConfigParameter("testing");
 Config.docker = getConfigParameter("docker");
 Config.keywords_extraction = getConfigParameter("keywords_extraction");
+Config.notebooks = getConfigParameter("notebooks");
 
 if (process.env.NODE_ENV === "production")
 {

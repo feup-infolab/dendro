@@ -32,7 +32,7 @@ const posts = rlequire("dendro", "src/controllers/posts");
 const timeline = rlequire("dendro", "src/controllers/timeline");
 const notifications = rlequire("dendro", "src/controllers/notifications");
 const keywords = rlequire("dendro", "src/controllers/keywords");
-const notebooks =rlequire("dendro", "src/controllers/notebook");
+const notebooks =rlequire("dendro", "src/controllers/notebooks");
 
 let recommendation;
 
@@ -1445,17 +1445,17 @@ const loadRoutes = function (app, callback)
 
     if (Config.notebooks.active)
     {
-        //note so far only creator will have access must change
-        app.post("/r/notebook/${guid}",
-        async.apply(Permissions.require, [Permissions.settings.role.in_project.creator]),
-            async.apply(DockerManager.requireOrchestras, ["notebooks"]),
-        notebooks.show);
+        var notebookregex = getNonHumanReadableRouteRegex("notebook");
+        //TODO so far only creator will have access must change
+        app.get(notebookregex,
+            async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
+            async.apply(DockerManager.requireOrchestras, ["dendro_notebook"]),
+            notebooks.show);
 
-
-        app.post("/r/notebook/${guid}?activate",
-        async.apply(Permissions.require, [Permissions.settings.role.in_project.creator]),
-            async.apply(DockerManager.requireOrchestras, ["notebooks"]),
-        notebooks.activate);
+        app.get(`${notebookregex}?activate`,
+            async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
+            async.apply(DockerManager.requireOrchestras, ["dendro_notebook"]),
+            notebooks.activate);
 
     }
     // keywords

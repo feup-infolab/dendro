@@ -1,16 +1,24 @@
 version: '3'
 
 services:
-  corenlp:
-    container_name: corenlp-dendro
-    image: graham3333/corenlp-complete
-    environment:
-      - JAVA_XMX=3g
+  jupyter_notebook:
+    container_name: jupyter-dendro
+    image:  jupyter/scipy-notebook:17aba6048f44
+   # environment:
+    #  - JAVA_XMX=3g
     ports:
-      - 9000:9000
+      - 8888:8888
 
-  yake:
-    container_name: yake-dendro
-    image: liaad/yake-server:latest
+
+  nginx_proxy:
+    container_name: nginx-proxy
+    image:  jwilder/nginx-proxy:latest
     ports:
-      - 5000:5000
+      - 80:80
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
+  whoami:
+    image: jwilder/whoami
+    environment:
+      - VIRTUAL_HOST=whoami.local
