@@ -822,6 +822,12 @@ Elements.ontologies.ddr = {
         private: true,
         locked: true
     },
+    requestDate: {
+        type: Elements.types.date,
+        control: Controls.date_picker,
+        private: true,
+        locked: true
+    },
     accessTerms: {
         type: Elements.types.string,
         control: Controls.markdown_box,

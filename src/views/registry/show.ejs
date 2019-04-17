@@ -79,14 +79,17 @@
                                     Information
                                 </a>
                             </li>
-                            <li>
-                                <a href="#user_access"
-                                   data-toggle="tab"
-                                   ng-click="getDepositConditions()">
-                                    <span class="label label-info">Management</span>
-                                    User access
-                                </a>
-                            </li>
+
+                            <% if(owner == true) { %>
+                                <li>
+                                    <a href="#user_access"
+                                       data-toggle="tab"
+                                       ng-click="getDepositConditions()">
+                                        <span class="label label-info">Management</span>
+                                        User access
+                                    </a>
+                                </li>
+                            <% } %>
                         </ul>
                     </div>
                     <div class="col-xs-6 col-sm-9" ng-controller="metadataEditorCtrl" ng-init="init()">

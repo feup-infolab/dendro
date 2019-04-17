@@ -7,7 +7,8 @@ angular.module("dendroApp.controllers")
         function (
             $scope,
             $http,
-            $filter
+            $filter,
+            windowService
 
         )
         {
@@ -564,6 +565,8 @@ angular.module("dendroApp.controllers")
                 {
                     payload.propagateDendroChangesIntoCkan = propagateDendroChangesIntoCkan;
                 }
+                payload.protocolAndHost = windowService.get_protocol_and_host();
+
 
                 var requestString = JSON.stringify(payload);
 

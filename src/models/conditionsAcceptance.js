@@ -29,9 +29,9 @@ function ConditionsAcceptance (object, privacy)
         {
             self.ddr.dataset = object.ddr.dataset;
         }
-        if (!isNull(object.ddr.dateOfAcceptance))
+        if (!isNull(object.ddr.requestDate))
         {
-            self.ddr.dateOfAcceptance = object.ddr.dateOfAcceptance;
+            self.ddr.requestDate = object.ddr.requestDate;
         }
     }
 
@@ -127,6 +127,7 @@ ConditionsAcceptance.changeUserAccess = function (condition, value, callback)
     if (value === true)
     {
         condition.ddr.userAccepted = value;
+        condition.ddr.dateOfAcceptance = new Date();
         condition.save(function (err, result)
         {
             if (isNull(err))

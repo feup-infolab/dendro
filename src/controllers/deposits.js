@@ -158,6 +158,7 @@ exports.allowed = function (req, callback)
         function (callback)
         {
             Deposit.createQuery(params, callback);
+            // Deposit.getDepositsEmbargoed(callback);
         },
         function (callback)
         {
@@ -229,7 +230,7 @@ exports.requestAccess = function (req, res)
                         ddr: {
                             acceptingUser: req.user.uri,
                             dataset: deposit.uri,
-                            dateOfAcceptance: new Date(),
+                            requestDate: new Date(),
                             userAccepted: false
                         }
                     };
@@ -481,61 +482,70 @@ exports.show = function (req, res)
             {
                 if (!alreadySent)
                 {
-                    if (isAdmin)
-                    {
-                        res.render("registry/show",
-                            viewVars
-                        );
-                    }
-                    else if (req.permissions_management)
+                    if (req.permissions_management)
                     {
                         const isEditor = _.filter(req.permissions_management.reasons_for_authorizing, function (authorization)
                         {
                             const reason = authorization.role;
                             if (req.params.is_deposit_root)
                             {
-                                return _.isEqual(reason, Permissions.settings.role.users_role_in_deposit) || _.isEqual(reason, Permissions.settings.role.in_system.admin);
+                                return _.isEqual(reason, Permissions.settings.role.users_role_in_deposit);
                             }
-                            return _.isEqual(reason, Permissions.settings.role.users_role_in_deposit) || _.isEqual(reason, Permissions.settings.role.in_system.admin);
+                            return _.isEqual(reason, Permissions.settings.role.users_role_in_deposit);
                         });
 
                         if (isEditor.length > 0)
                         {
+                            viewVars.owner = true;
+                            res.render("registry/show",
+                                viewVars
+                            );
+                        }
+                        viewVars.owner = false;
+
+                        if (viewVars.deposit.ddr.privacyStatus === "private" || viewVars.deposit.ddr.privacyStatus === "embargoed" || (viewVars.deposit.ddr.privacyStatus === "public" && viewVars.deposit.ddr.accessTerms))
+                        {
+                            if (viewVars.acceptingUser === true)
+                            {
+                                if (viewVars.userAccepted === true)
+                                {
+                                    res.render("registry/show_readonly",
+                                        viewVars
+                                    );
+                                }
+                                else
+                                {
+                                    res.render("registry/deposit_for_acceptance",
+                                        viewVars
+                                    );
+                                }
+                            }
+                            else
+                            {
+                                res.redirect(resourceURI + "?request_access"
+                                );
+                            }
+                        }
+                        else
+                        {
+                            res.render("registry/show_readonly",
+                                viewVars
+                            );
+                        }
+                    }
+                    else
+                    {
+
+                        if (isAdmin)
+                        {
+                            viewVars.owner = false;
                             res.render("registry/show",
                                 viewVars
                             );
                         }
                         else
                         {
-                            if (viewVars.deposit.ddr.privacyStatus === "private" || (viewVars.deposit.ddr.privacyStatus === "public" && viewVars.deposit.ddr.accessTerms))
-                            {
-                                if (viewVars.acceptingUser === true)
-                                {
-                                    if (viewVars.userAccepted === true)
-                                    {
-                                        res.render("registry/show_readonly",
-                                            viewVars
-                                        );
-                                    }
-                                    else
-                                    {
-                                        res.render("registry/deposit_for_acceptance",
-                                            viewVars
-                                        );
-                                    }
-                                }
-                                else
-                                {
-                                    res.redirect(resourceURI + "?request_access"
-                                    );
-                                }
-                            }
-                            else
-                            {
-                                res.render("registry/show_readonly",
-                                    viewVars
-                                );
-                            }
+                            res.redirect("/");
                         }
                     }
                 }

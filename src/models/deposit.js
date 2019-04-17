@@ -55,6 +55,7 @@ Deposit.createDeposit = function (data, callback)
     let newDeposit = new Deposit(object);
     const uuid = uuidv1();
     const DOI = "10.23673/" + uuid;
+    const protocolAndHost = data.protocolAndHost;
     const generateDoi = function (callback)
     {
         const auth = "Basic " + new Buffer("DEV.INFOLAB" + ":" + "8yD5qChSbUSK").toString("base64");
@@ -72,7 +73,7 @@ Deposit.createDeposit = function (data, callback)
                     {
                         doi: DOI,
                         confirmDoi: null,
-                        url: "http://localhost:3001" + newDeposit.uri,
+                        url: protocolAndHost + newDeposit.uri,
                         types: {
                             resourceTypeGeneral: "Dataset"
                         },
@@ -97,7 +98,7 @@ Deposit.createDeposit = function (data, callback)
                               lang: newDeposit.dcterms.language
                           }],
                         publisher: null,
-                        publicationYear: null,
+                        publicationYear: new Date().getFullYear(),
                         descriptions:
                           [{
                               description: newDeposit.dcterms.description,
@@ -871,9 +872,9 @@ Deposit.getDepositsEmbargoed = function (callback)
       "WHERE " +
       "{ \n" +
       "   ?uri rdf:type ddr:Registry . \n" +
-      "   ?uri dcterms:date ?date . \n" +
+      "   ?uri ddr:embargoedDate ?embargoedDate . \n" +
       "   ?uri  ddr:privacyStatus [" + i++ + "]. \n" +
-      "    FILTER ( xsd:dateTime(?date) < xsd:dateTime([" + i++ + "])). \n" +
+      "    FILTER ( xsd:dateTime(?embargoedDate) < xsd:dateTime([" + i++ + "])). \n" +
     "} \n";
 
     let variables = [

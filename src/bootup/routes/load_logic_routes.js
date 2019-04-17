@@ -758,6 +758,12 @@ const loadRoutes = function (app, callback)
             const userPermissions = [
                 Permissions.settings.role.in_system.user
             ];
+            const creatorPermissions = [
+                Permissions.settings.role.in_deposit.creator
+            ];
+            const userAccepted = [
+                Permissions.settings.permission.on_deposit
+            ];
 
             req.params.is_project_root = true;
             req.params.resource = "deposit";
@@ -768,29 +774,27 @@ const loadRoutes = function (app, callback)
                     {
                         queryKeys: ["download"],
                         handler: files.download,
-                        permissions: userPermissions,
+                        permissions: userAccepted,
                         authentication_error: "Permission denied : cannot download this deposit."
                     },
                     // list contents
                     {
                         queryKeys: ["ls"],
                         handler: files.ls,
-                        permissions: Permissions.settings.role.in_owner_deposit,
+                        permissions: userAccepted,
                         authentication_error: "Permission denied : cannot list the contents of this deposit."
                     },
                     {
                         queryKeys: ["request_access"],
                         handler: deposits.requestAccess,
                         permissions: userPermissions,
-
-                        // permissions: [Permissions.settings.role.in_system.user],
-                        authentication_error: "Permission denied : cannot request access to this deposit."
+                        authentication_error: "Permission denied : cannot request access to this resource."
                     },
                     {
                         queryKeys: ["get_deposit_conditions"],
                         handler: deposits.getDepositConditions,
-                        permissions: Permissions.settings.role.in_system.user,
-                        authentication_error: "Permission denied : cannot request access to this deposit."
+                        permissions: creatorPermissions,
+                        authentication_error: "Permission denied : cannot request access to this resource."
                     },
 
                     // default case
@@ -814,14 +818,14 @@ const loadRoutes = function (app, callback)
                     {
                         queryKeys: ["request_access"],
                         handler: deposits.requestAccess,
-                        permissions: Permissions.settings.role.in_system.user,
-                        authentication_error: "Permission denied : cannot request access to this ."
+                        permissions: userPermissions,
+                        authentication_error: "Permission denied : cannot request access to this resource"
                     },
                     {
                         queryKeys: ["change_user_access"],
                         handler: deposits.changeUserAccess,
-                        permissions: Permissions.settings.role.in_system.user,
-                        authentication_error: "Permission denied : cannot request access to this deposit."
+                        permissions: creatorPermissions,
+                        authentication_error: "Permission denied : cannot request access to this resource."
                     }
                 ]
             };

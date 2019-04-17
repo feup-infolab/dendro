@@ -12,6 +12,7 @@ const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Fo
 const User = rlequire("dendro", "src/models/user.js").User;
 const Project = rlequire("dendro", "src/models/project.js").Project;
 const Deposit = rlequire("dendro", "src/models/deposit.js").Deposit;
+const ConditionsAcceptance = rlequire("dendro", "src/models/conditionsAcceptance.js").ConditionsAcceptance;
 const Post = rlequire("dendro", "src/models/social/post.js").Post;
 const Notification = rlequire("dendro", "src/models/notifications/notification.js").Notification;
 
@@ -213,6 +214,27 @@ const getDeposit = function (requestedResource, callback)
     });
 };
 
+const getCondition = function (user, dataset, callback)
+{
+    ConditionsAcceptance.getCondition(user, dataset, function (err, condition)
+    {
+        if (isNull(err))
+        {
+            if (condition.length)
+            {
+                callback(err, condition[0]);
+            }
+            else
+            {
+                callback(err, null);
+            }
+        }
+        else
+        {
+            callback(1, err);
+        }
+    });
+};
 /** Role-based validation **/
 
 const checkRoleInSystem = Permissions.checkRoleInSystem = function (req, user, role, callback)
@@ -484,6 +506,59 @@ const checkUsersRoleInParentProject = Permissions.checkUsersRoleInParentProject 
     }
 };
 
+const checkUsersPermissionOnDeposit = function (req, user, role, depositUri, callback)
+{
+    let predicateRoles = null;
+    if (isNull(role) || isNull(role.predicates) || !(role.predicates instanceof Array))
+    {
+        Logger.log("error", "Error at checkUsersRoleInDeposit, 'role' object should exist and 'role.predicates' and arrayOfPostsUris must be an array!");
+        callback(null, false);
+    }
+    else
+    {
+        predicateRoles = role.predicates;
+        if (!isNull(user) && !isNull(depositUri))
+        {
+            if (req.session.isAdmin === true)
+            {
+                return callback(null, true);
+            }
+            getDeposit(depositUri, function (err, deposit)
+            {
+                if (isNull(err))
+                {
+                    if (deposit.dcterms.creator === user.uri)
+                    {
+                        return callback(null, true);
+                    }
+                    if (deposit.ddr.privacyStatus === "public" && isNull(deposit.ddr.accessTerms))
+                    {
+                        return callback(null, true);
+                    }
+                    getCondition(user.uri, depositUri, function (err, condition)
+                    {
+                        if (isNull(err) && condition !== null)
+                        {
+                            if (condition.userAccepted === "true")
+                            {
+                                return callback(null, true);
+                            }
+                            return callback(null, false);
+                        }
+
+                        return callback(null, false);
+                    });
+                }
+                else callback(err, false);
+            });
+        }
+        else
+        {
+            return callback(null, false);
+        }
+    }
+};
+
 const checkUsersRoleInDeposit = function (req, user, role, depositUri, callback)
 {
     let predicateRoles = null;
@@ -645,6 +720,9 @@ Permissions.types = {
     role_in_deposit: {
         validator: checkUsersRoleInDeposit
     },
+    permission_on_deposit: {
+        validator: checkUsersPermissionOnDeposit
+    },
     privacy_of_project: {
         validator: checkPrivacyOfProject
     },
@@ -745,11 +823,15 @@ Permissions.settings = {
             error_message_user: "You are not a contributor or creator of project to which this deposit belongs to.",
             error_message_api: "Unauthorized access. Must be signed on as a contributor or creator of the project this deposit belong to."
         },
-        in_owner_deposit: {
-            type: Permissions.types.owner_deposit,
-            predicate: "dcterms:creator",
-            error_message_user: "Error trying to access a deposit or a file / folder within a deposit that you have not created.",
-            error_message_api: "Unauthorized access. Must be signed on as a creator of the deposit the resource belongs to."
+        in_deposit: {
+            creator: {
+                type: Permissions.types.role_in_deposit,
+                predicates: [
+                    "dcterms:creator"
+                ],
+                error_message_user: "Error trying to access a deposit or a file / folder within a deposit that you have not created.",
+                error_message_api: "Unauthorized access. Must be signed on as a creator of this deposit."
+            }
         }
     },
     privacy: {
@@ -821,6 +903,18 @@ Permissions.settings = {
                 error_message_user: "This is a resource that belongs to a deposit with only metadata access. Data metadata cannot be accessed.",
                 error_message_api: "Unauthorized Access. This is a resource that belongs to a project with only metadata access. Data metadata cannot be accessed."
             }
+        }
+    },
+    permission: {
+        on_deposit: {
+            type: Permissions.types.permission_on_deposit,
+            predicates: [
+                "ddr:acceptingUser",
+                "ddr:dataset",
+                "ddr:userAccepted"
+            ],
+            error_message_user: "Error trying to access the resources that do not have access",
+            error_message_api: "Unauthorized access. You must have permission to visualize this deposit."
         }
     }
 };
@@ -918,11 +1012,18 @@ Permissions.check = function (permissionsRequired, req, callback)
                 {
                     cb(err, {authorized: result, role: permission});
                 });*/
-                cb(null, {authorized: true, role: "permisssion"});
+                cb(null, {authorized: true, role: "permission"});
             }
             else if (permission.type === Permissions.types.role_in_deposit)
             {
                 Permissions.types.role_in_deposit.validator(req, user, permission, resource, function (err, result)
+                {
+                    cb(err, {authorized: result, role: permission});
+                });
+            }
+            else if (permission.type === Permissions.types.permission_on_deposit)
+            {
+                Permissions.types.permission_on_deposit.validator(req, user, permission, resource, function (err, result)
                 {
                     cb(err, {authorized: result, role: permission});
                 });
