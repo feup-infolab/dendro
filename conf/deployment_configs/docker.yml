@@ -286,6 +286,7 @@ docker:
     - disco
     - p0
     - chm
+    - mibbiup
   authentication:
     default:
       enabled: true
