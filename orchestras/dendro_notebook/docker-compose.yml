@@ -21,4 +21,8 @@ services:
   whoami:
     image: jwilder/whoami
     environment:
-      - VIRTUAL_HOST=whoami.local
+      - VIRTUAL_PORT=whoami.local
+#  whoami2:
+#    image: jwilder/whoami
+#    environment:
+#      - VIRTUAL_PORT=whoami2.local

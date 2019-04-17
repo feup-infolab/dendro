@@ -1452,6 +1452,7 @@ const loadRoutes = function (app, callback)
             async.apply(DockerManager.requireOrchestras, ["dendro_notebook"]),
             notebooks.show);
 
+        //TODO fix this activate
         app.get(`${notebookregex}?activate`,
             async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
             async.apply(DockerManager.requireOrchestras, ["dendro_notebook"]),

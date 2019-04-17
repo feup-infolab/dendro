@@ -374,7 +374,12 @@ dev:
 
   notebooks:
     active: true
-  jupyter:
+    jupyter:
       active: true
       server_address: 'http://localhost:8888'
+    nginx:
+      active: true
+      server_address: 'http://localhost:80'
+
+
 
