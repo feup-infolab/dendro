@@ -1,5 +1,5 @@
 ############################################
-FROM "ubuntu:18.04" as base
+FROM "ubuntu:19.04" as base
 ############################################
 
 ######    BUILD ARGUMENTS    ######
@@ -44,18 +44,46 @@ RUN apt-get -y -f -qq install poppler-utils antiword unrtf tesseract-ocr
 RUN apt-get -y -f -qq install python2.7
 RUN ln -s /usr/bin/python2.7 /usr/bin/python
 
-# Install Java Oracle SDK 8
-RUN apt-get install -y -qq software-properties-common
-RUN \
-  echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections && \
-  add-apt-repository -y ppa:webupd8team/java && \
-  apt-get -qq update && \
-  apt-get -y -qq install oracle-java8-installer && \
-  rm -rf /var/lib/apt/lists/* && \
-  rm -rf /var/cache/oracle-jdk8-installer
 
-# Set Java Oracle SDK 8 as default Java
-RUN apt-get install -y -qq oracle-java8-set-default
+# Since there is no image of Ubuntu 19.04 at this time, I pasted from
+# https://github.com/AdoptOpenJDK/openjdk-docker/blob/master/8/jdk/ubuntu/Dockerfile.hotspot.releases.full
+RUN set -eux; \
+    ARCH="$(dpkg --print-architecture)"; \
+    case "${ARCH}" in \
+       ppc64el|ppc64le) \
+         ESUM='485533573e0a6aa4188a9adb336d24e795f9de8c59499d5b88a651b263fa1c34'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u202-b08/OpenJDK8U-jdk_ppc64le_linux_hotspot_8u202b08.tar.gz'; \
+         ;; \
+       s390x) \
+         ESUM='d47b6cfcf974e50363635bfc7c989b25b4681cd29286ba5ed426cfd486b65c5f'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u202-b08/OpenJDK8U-jdk_s390x_linux_hotspot_8u202b08.tar.gz'; \
+         ;; \
+       amd64|x86_64) \
+         ESUM='f5a1c9836beb3ca933ec3b1d39568ecbb68bd7e7ca6a9989a21ff16a74d910ab'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u202-b08/OpenJDK8U-jdk_x64_linux_hotspot_8u202b08.tar.gz'; \
+         ;; \
+       aarch64|arm64) \
+         ESUM='8eee0aede947b804f9a5f49c8a38b52aace8a30a9ebd9383b7d06042fb5a237c'; \
+         BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u191-b12/OpenJDK8U-jdk_aarch64_linux_hotspot_8u191b12.tar.gz'; \
+         ;; \
+       *) \
+         echo "Unsupported arch: ${ARCH}"; \
+         exit 1; \
+         ;; \
+    esac; \
+    curl -Lso /tmp/openjdk.tar.gz ${BINARY_URL}; \
+    sha256sum /tmp/openjdk.tar.gz; \
+    mkdir -p /opt/java/openjdk; \
+    cd /opt/java/openjdk; \
+    echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
+    tar -xf /tmp/openjdk.tar.gz; \
+    jdir=$(dirname $(dirname $(find /opt/java/openjdk -name java | grep -v "/jre/bin"))); \
+    mv ${jdir}/* /opt/java/openjdk; \
+    rm -rf ${jdir} /tmp/openjdk.tar.gz;
+
+ENV JAVA_HOME=/opt/java/openjdk \
+    PATH="/opt/java/openjdk/bin:$PATH"
+ENV JAVA_TOOL_OPTIONS=""
 
 # compatibility fix for node on ubuntu
 RUN ln -s /usr/bin/nodejs /usr/bin/node
