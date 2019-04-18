@@ -169,8 +169,11 @@ RUN chmod ugo+rx "$DENDRO_INSTALL_DIR/dendro.sh"
 RUN cp -R "$NPM_TMP_DIR/node_modules" "$DENDRO_INSTALL_DIR"
 RUN cp -R "$BOWER_TMP_DIR/bower_components" "$DENDRO_INSTALL_DIR/public"
 
-# Expose dendro running directory as a volume
-VOLUME [ "$DENDRO_RUNNING_DIR"]
+# Expose some of dendro running directory's subdirs as volumes
+VOLUME [ "$DENDRO_RUNNING_DIR/conf"]
+VOLUME [ "$DENDRO_RUNNING_DIR/logs"]
+VOLUME [ "$DENDRO_RUNNING_DIR/orchestras"]
+VOLUME [ "$DENDRO_RUNNING_DIR/profiling"]
 
 # Show contents of folders
 RUN echo "Contents of Dendro install dir are:"
