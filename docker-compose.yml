@@ -1,4 +1,4 @@
-version: '3.7'
+version: '3.3'
 
 services:
   elasticsearch:
@@ -38,7 +38,6 @@ services:
       - "8890"
       - "1111"
     tty: true
-    init: true
     ports:
       - published: 8890
         target: 8890

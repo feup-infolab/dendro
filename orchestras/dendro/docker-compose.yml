@@ -1,4 +1,4 @@
-version: '3.7'
+version: '3.3'
 
 services:
   elasticsearch:
@@ -31,7 +31,6 @@ services:
     container_name: virtuoso-dendro-dev
     image: feupinfolab/virtuoso-with-dendro-ontologies:latest
     tty: true
-    init: true
     volumes:
       - ./volumes/virtuoso:/database
     ports:

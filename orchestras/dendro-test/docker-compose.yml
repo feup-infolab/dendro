@@ -1,4 +1,4 @@
-version: '3.7'
+version: '3.3'
 
 services:
 #  elasticsearch:
@@ -29,7 +29,6 @@ services:
     container_name: virtuoso-dendro-test
     image: joaorosilva/virtuoso:7.2.4-for-dendro-0.4${DENDRO_DOCKER_CONTAINERS_SUFFIX}
     tty: true
-    init: true
     ports:
       - 8890:8890
       - 1111:1111
