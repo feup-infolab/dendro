@@ -208,6 +208,7 @@ class ElasticSearchConnection extends IndexConnection
                                     {
                                         ElasticSearchConnection._all[self.id] = self;
                                         callback(null, self.client);
+                                        ElasticSearchConnection.successfullyConnectedBefore = true;
                                     }
                                     else
                                     {
@@ -217,8 +218,11 @@ class ElasticSearchConnection extends IndexConnection
                         }
                         else
                         {
-                            Logger.log("warn", "Error trying to check if ElasticSearch is online.");
-                            Logger.log("warn", err);
+                            if(ElasticSearchConnection.successfullyConnectedBefore)
+                            {
+                                Logger.log("warn", "Error trying to check if ElasticSearch is online.");
+                                Logger.log("warn", err);
+                            }
                             callback(err, false);
                         }
                     });
@@ -847,6 +851,8 @@ class ElasticSearchConnection extends IndexConnection
         return "ElasticSearch Index " + self.id + " running on http://" + self.host + ":" + self.port;
     }
 }
+
+ElasticSearchConnection.successfullyConnectedBefore=false;
 
 ElasticSearchConnection.indexTypes = {
     resource: "resource"

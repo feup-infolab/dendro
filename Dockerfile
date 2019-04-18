@@ -44,6 +44,9 @@ RUN apt-get -y -f -qq install poppler-utils antiword unrtf tesseract-ocr
 RUN apt-get -y -f -qq install python2.7
 RUN ln -s /usr/bin/python2.7 /usr/bin/python
 
+############################################
+#####         Start JDK Install        #####
+############################################
 
 # Since there is no image of Ubuntu 19.04 at this time, I pasted from
 # https://github.com/AdoptOpenJDK/openjdk-docker/blob/master/8/jdk/ubuntu/Dockerfile.hotspot.releases.full
@@ -84,6 +87,11 @@ RUN set -eux; \
 ENV JAVA_HOME=/opt/java/openjdk \
     PATH="/opt/java/openjdk/bin:$PATH"
 ENV JAVA_TOOL_OPTIONS=""
+ENV LD_LIBRARY_PATH="$JAVA_HOME/jre/lib/amd64/server"
+
+############################################
+#####          End JDK Install         #####
+############################################
 
 # compatibility fix for node on ubuntu
 RUN ln -s /usr/bin/nodejs /usr/bin/node

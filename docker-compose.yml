@@ -1,4 +1,4 @@
-version: '3.2'
+version: '3.7'
 
 services:
   elasticsearch:
@@ -38,6 +38,7 @@ services:
       - "8890"
       - "1111"
     tty: true
+    init: true
     ports:
       - published: 8890
         target: 8890
@@ -47,7 +48,8 @@ services:
       - "SPARQL_UPDATE=true"
       - "VIRT_Parameters_CheckpointSyncMode=2"
       - "VIRT_Parameters_PageMapCheck=1"
-      - "VIRT_Parameters_CheckpointInterval=0"
+      - "VIRT_Parameters_CheckpointInterval=1"
+      - "VIRT_Parameters_MinAutoCheckpointSize=1"
       - "DBA_PASSWORD=dba"
     volumes:
         - ./volumes/virtuoso:/database

@@ -1,4 +1,4 @@
-version: '3'
+version: '3.7'
 
 services:
   elasticsearch:
@@ -31,6 +31,7 @@ services:
     container_name: virtuoso-dendro-dev
     image: feupinfolab/virtuoso-with-dendro-ontologies:latest
     tty: true
+    init: true
     volumes:
       - ./volumes/virtuoso:/database
     ports:
@@ -40,7 +41,8 @@ services:
       - "SPARQL_UPDATE=true"
       - "VIRT_Parameters_CheckpointSyncMode=2"
       - "VIRT_Parameters_PageMapCheck=1"
-      - "VIRT_Parameters_CheckpointInterval=0"
+      - "VIRT_Parameters_CheckpointInterval=1"
+      - "VIRT_Parameters_MinAutoCheckpointSize=1"
       - "DBA_PASSWORD=dba"
 
   mariadb:

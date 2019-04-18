@@ -882,11 +882,7 @@ class App
             }
         ], function (err, results)
         {
-            if (isNull(err))
-            {
-                Logger.log("Freed all resources. Halting Dendro Server now.");
-            }
-            else
+            if (!isNull(err))
             {
                 Logger.log("error", "Unable to free all resources, but we are halting Dendro Server anyway.");
             }

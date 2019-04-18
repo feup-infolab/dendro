@@ -716,12 +716,18 @@ DockerManager.containerIsRunning = function (containerName, callback)
     });
 };
 
-DockerManager.runCommandOnContainer = function (containerName, command, callback)
+DockerManager.runCommandOnContainer = function (containerName, command, callback, omitOutput)
 {
-    childProcess.exec(`docker exec ${containerName} ${command}`, {
-        cwd: rlequire.getRootFolder("dendro"),
-        stdio: [0, 1, 2]
-    }, function (err, result)
+    const options = {
+        cwd: rlequire.getRootFolder("dendro")
+    };
+
+    if (!omitOutput)
+    {
+        options.stdio = [0, 1, 2];
+    }
+
+    childProcess.exec(`docker exec ${containerName} ${command}`, options, function (err, result)
     {
         if (isNull(err))
         {
