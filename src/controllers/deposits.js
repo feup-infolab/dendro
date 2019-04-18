@@ -501,10 +501,10 @@ exports.show = function (req, res)
                                 viewVars
                             );
                         }
-                        viewVars.owner = false;
-
-                        if (viewVars.deposit.ddr.privacyStatus === "private" || viewVars.deposit.ddr.privacyStatus === "embargoed" || (viewVars.deposit.ddr.privacyStatus === "public" && viewVars.deposit.ddr.accessTerms))
+                        else if (viewVars.deposit.ddr.privacyStatus === "private" || viewVars.deposit.ddr.privacyStatus === "embargoed" || (viewVars.deposit.ddr.privacyStatus === "public" && viewVars.deposit.ddr.accessTerms))
                         {
+                            viewVars.owner = false;
+
                             if (viewVars.acceptingUser === true)
                             {
                                 if (viewVars.userAccepted === true)
@@ -528,6 +528,7 @@ exports.show = function (req, res)
                         }
                         else
                         {
+                            viewVars.owner = false;
                             res.render("registry/show_readonly",
                                 viewVars
                             );
@@ -535,7 +536,6 @@ exports.show = function (req, res)
                     }
                     else
                     {
-
                         if (isAdmin)
                         {
                             viewVars.owner = false;
