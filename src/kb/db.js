@@ -1322,7 +1322,7 @@ DbConnection.prototype.close = function (callback)
     {
         if (Config.docker.active && Config.docker.virtuoso_container_name && self.forceClientDisconnectOnConnectionClose)
         {
-            const disconnectCommand = `isql 1111 -U ${self.username} -P ${self.password} 'EXEC=disconnect_user ('${self.username}');'`;
+            const disconnectCommand = `isql 1111 -U ${self.username} -P ${self.password} \"EXEC=disconnect_user ('${self.username}');\"`;
             DockerManager.runCommandOnContainer(Config.docker.virtuoso_container_name, disconnectCommand, function (err, result)
             {
                 if (!isNull(err))
