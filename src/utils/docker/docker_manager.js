@@ -346,7 +346,7 @@ DockerManager.destroyAllOrchestras = function (callback, onlyOnce)
     {
         DockerManager.forAllOrchestrasDo(function (subdir, callback)
         {
-            const dockerSubProcess = childProcess.exec("docker-compose down --remove-orphans --rmi local ", {
+            const dockerSubProcess = childProcess.exec("docker-compose down --remove-orphans", {
                 cwd: subdir
             }, function (err, result)
             {

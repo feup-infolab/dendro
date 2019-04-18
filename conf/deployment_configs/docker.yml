@@ -310,6 +310,7 @@ docker:
     reuse_checkpoints: false
     create_checkpoints: false
     destroy_existing_images_at_start: false
+    restart_all_orchestras_at_start: false
     stop_containers_automatically: false
     start_containers_automatically: true
     virtuoso_container_name: virtuoso-dendro
