@@ -314,6 +314,7 @@ docker:
     stop_containers_automatically: false
     start_containers_automatically: true
     virtuoso_container_name: virtuoso-dendro
+    restart_containers_every_x_tests: 1
   keywords_extraction:
     active: false
     corenlp:

@@ -218,7 +218,7 @@ class ElasticSearchConnection extends IndexConnection
                         }
                         else
                         {
-                            if(ElasticSearchConnection.successfullyConnectedBefore)
+                            if (ElasticSearchConnection.successfullyConnectedBefore)
                             {
                                 Logger.log("warn", "Error trying to check if ElasticSearch is online.");
                                 Logger.log("warn", err);
@@ -852,7 +852,7 @@ class ElasticSearchConnection extends IndexConnection
     }
 }
 
-ElasticSearchConnection.successfullyConnectedBefore=false;
+ElasticSearchConnection.successfullyConnectedBefore = false;
 
 ElasticSearchConnection.indexTypes = {
     resource: "resource"

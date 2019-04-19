@@ -1444,7 +1444,7 @@ DbConnection.prototype.close = function (callback)
             closePendingConnections,
             closeConnectionPool,
             destroyQueues,
-            forceCloseClientConnections,
+            // forceCloseClientConnections,
             shutdownVirtuoso
         ], function (err, result)
         {

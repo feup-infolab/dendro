@@ -107,6 +107,13 @@ class SolrIndexConnection extends IndexConnection
                     {
                         callback(null, "Index is empty... Solr does not find the root field!");
                     }
+                    else if (err === "Solr server error: 503")
+                    {
+                        setTimeout(function ()
+                        {
+                            self.deleteDocument(resourceUri, callback);
+                        }, 500);
+                    }
                     else
                     {
                         callback(err.status, "Unable to delete document " + resourceUri + ".  error reported : " + JSON.stringify(err));
@@ -262,6 +269,13 @@ class SolrIndexConnection extends IndexConnection
                 if (isNull(err))
                 {
                     callback(null, result);
+                }
+                else if (err === "Solr server error: 503")
+                {
+                    setTimeout(function ()
+                    {
+                        self.deleteIndex(callback);
+                    }, 500);
                 }
                 else
                 {

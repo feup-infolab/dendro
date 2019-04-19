@@ -353,6 +353,7 @@ test:
     stop_containers_automatically: false
     start_containers_automatically: true
     virtuoso_container_name: virtuoso-dendro-test
+    restart_containers_every_x_texts: -1
   keywords_extraction:
     active: true
     corenlp:
