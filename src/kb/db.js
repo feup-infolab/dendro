@@ -595,7 +595,7 @@ DbConnection.finishUpAllConnectionsAndClose = function (callback)
             {
                 if (isNull(err))
                 {
-                    Logger.log("Virtuoso connection " + dbConfig.connection.databaseName + " closed gracefully.");
+                    Logger.log("Virtuoso connection with id " + dbConfig.connection.databaseName + " closed gracefully.");
                     cb(null, result);
                 }
                 else
@@ -1389,15 +1389,24 @@ DbConnection.prototype.close = function (callback)
                 if (!isNull(err))
                 {
                     Logger.log("error", "Error flushing buffers on virtuoso container before shutting down virtuoso.");
-                    Logger.log("error", err);
-                    Logger.log("error", result);
+                    if (!isNull((err)))
+                    {
+                        Logger.log("error", err);
+                    }
+                    if (!isNull((result)))
+                    {
+                        Logger.log("debug", result);
+                    }
                     callback(err, result);
                 }
                 else
                 {
                     callback(null, result);
                     Logger.log("debug", "Flushed buffers on virtuoso container before shutting down virtuoso.");
-                    Logger.log("debug", result);
+                    if (!isNull((result)) && result.length > 0)
+                    {
+                        Logger.log("debug", result);
+                    }
                 }
             });
         }
@@ -1417,8 +1426,14 @@ DbConnection.prototype.close = function (callback)
                 if (!isNull(err))
                 {
                     Logger.log("error", "Error disconnecting user " + self.username + " before shutting down virtuoso.");
-                    Logger.log("error", err);
-                    Logger.log("error", result);
+                    if (!isNull((err)))
+                    {
+                        Logger.log("error", err);
+                    }
+                    if (!isNull((result)))
+                    {
+                        Logger.log("debug", result);
+                    }
                     callback(err, result);
                 }
                 else
@@ -1461,14 +1476,13 @@ DbConnection.prototype.close = function (callback)
                                     if (!isNull(err))
                                     {
                                         Logger.log("debug", "Unable to run shutdown command on virtuoso container.");
+                                        Logger.log("debug", JSON.stringify(err));
+                                        Logger.log("debug", JSON.stringify(result));
                                     }
                                     else
                                     {
                                         Logger.log("debug", "Successfully ran shutdown command on virtuoso container.");
                                     }
-
-                                    Logger.log("debug", JSON.stringify(err));
-                                    Logger.log("debug", JSON.stringify(result));
                                 });
                             },
                             function (callback)

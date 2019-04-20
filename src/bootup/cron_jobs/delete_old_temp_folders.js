@@ -7,6 +7,7 @@ const tmpLocation = Config.tempFilesDir;
 const exec = require("child_process").exec;
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const fs = require("fs");
+const path = require('path');
 
 const deleteOldTempFolders = function (app, callback)
 {
@@ -18,9 +19,9 @@ const deleteOldTempFolders = function (app, callback)
         // deletes resources older than two hours inside the temp folder
         // find /Users/nelsonpereira/Desktop/infolaRepos/dendroRepo/dendro/temp/ -not -newermt '-7200 seconds' -mindepth 1 -delete
         // TODO look for a way to do this using nodejs code only -> so that it runs on machines other than macOs and Ubunto
-        fs.open(tmpLocation, function (err, fd)
+        path.exists(tmpLocation, function (exists)
         {
-            if (!err)
+            if (exists)
             {
                 InformationElement.isSafePath(tmpLocation, function (err, isSafe)
                 {
@@ -67,8 +68,6 @@ const deleteOldTempFolders = function (app, callback)
                         cb(true, errorMsg);
                     }
                 });
-
-                fs.close(fd);
             }
             else
             {

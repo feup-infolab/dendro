@@ -67,6 +67,31 @@ class App
             }, 20000);
         };
 
+        const exitHandler = function (code)
+        {
+            self.freeResources(function ()
+            {
+                Logger.log("Freed all resources.");
+
+                if (process.env.NODE_ENV !== "test")
+                {
+                    Logger.log("Halting Dendro Server with PID " + process.pid + "\" now.");
+
+                    if (!isNull(code) && code !== 0)
+                    {
+                        Logger.log(`About to exit with code ${code}`);
+                    }
+
+                    if (!isNull(code) && code !== 0)
+                    {
+                        Logger.log("error", `Dendro exited because of an error. Check the logs at the ${path.join(__dirname, "logs")} folder`);
+                    }
+
+                    process.exit(code);
+                }
+            });
+        };
+
         const signals = ["SIGHUP", "SIGINT", "SIGQUIT", "SIGABRT", "SIGTERM"];
 
         _.map(signals, function (signal)
@@ -75,12 +100,7 @@ class App
             {
                 setupForceKillTimer();
                 Logger.log("warn", "Signal " + signal + " received!");
-
-                self.freeResources(function ()
-                {
-                    Logger.log("Freed all resources. Halting Dendro Server with PID " + process.pid + " now. ");
-                    process.exit(0);
-                });
+                exitHandler(0);
             });
         });
 
@@ -110,42 +130,7 @@ class App
                 Logger.log("error", exception.stack);
             }
 
-            if (!isNull(process.env.NODE_ENV))
-            {
-                if (process.env.NODE_ENV !== "test")
-                {
-                    process.nextTick(function ()
-                    {
-                        process.exit(1);
-                    });
-                }
-            }
-            else
-            {
-                process.nextTick(function ()
-                {
-                    process.exit(1);
-                });
-            }
-        });
-
-        process.on("exit", function (code)
-        {
-            if (!isNull(code) && code !== 0)
-            {
-                Logger.log(`Unknown error occurred! About to exit with code ${code}`);
-            }
-
-            self.freeResources(function ()
-            {
-                Logger.log("Freed all resources.");
-                if (!isNull(code) && code !== 0)
-                {
-                    Logger.log("error", `Dendro exited because of an error. Check the logs at the ${path.join(__dirname, "logs")} folder`);
-                }
-
-                process.exit(code);
-            });
+            exitHandler(1);
         });
 
         App._handlers_are_installed = true;
