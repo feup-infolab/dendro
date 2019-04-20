@@ -951,8 +951,6 @@ DbConnection.prototype.create = function (callback)
 
     const setupQueryQueues = function (callback)
     {
-        Logger.log("debug", "Setting up JDBC Queue of Virtuoso...");
-
         const clearQueueIfNeeded = function (queue, callback)
         {
             if (!isNull(queue))
@@ -990,11 +988,6 @@ DbConnection.prototype.create = function (callback)
                 });
 
             Logger.log("debug", "Setting up HTTP Queue of Virtuoso...");
-            if (!isNull(self.queue_http))
-            {
-                self.queue_http.clear();
-            }
-
             self.queue_http = new Queue(
                 function (queryObject, popQueueCallback)
                 {
@@ -1532,12 +1525,6 @@ DbConnection.prototype.close = function (callback)
         }
     };
 
-    const purgePool = function (callback)
-    {
-        self.pool.purge();
-        callback(null);
-    };
-
     if (!exited)
     {
         async.series([
@@ -1546,9 +1533,8 @@ DbConnection.prototype.close = function (callback)
             closePendingConnections,
             closeConnectionPool,
             destroyQueues,
-            // forceCloseClientConnections,
-            shutdownVirtuoso,
-            purgePool
+            forceCloseClientConnections,
+            shutdownVirtuoso
         ], function (err, result)
         {
             callback(err, result);
