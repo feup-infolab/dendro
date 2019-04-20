@@ -114,6 +114,13 @@ class SolrIndexConnection extends IndexConnection
                             self.deleteDocument(resourceUri, callback);
                         }, 500);
                     }
+                    else if (err.indexOf("reason: socket hang up"))
+                    {
+                        setTimeout(function ()
+                        {
+                            self.deleteDocument(callback);
+                        }, 500);
+                    }
                     else
                     {
                         callback(err.status, "Unable to delete document " + resourceUri + ".  error reported : " + JSON.stringify(err));
@@ -277,6 +284,13 @@ class SolrIndexConnection extends IndexConnection
                         self.deleteIndex(callback);
                     }, 500);
                 }
+                else if (err.indexOf("reason: socket hang up") > -1)
+                {
+                    setTimeout(function ()
+                    {
+                        self.deleteIndex(callback);
+                    }, 500);
+                }
                 else
                 {
                     const error = "Error deleting SOLR core (index)  " + self.id + ". Reported error : " + JSON.stringify(err);
@@ -419,6 +433,13 @@ class SolrIndexConnection extends IndexConnection
                             setTimeout(function ()
                             {
                                 self.getDocumentIDForResource(resourceURI, callback);
+                            }, 500);
+                        }
+                        else if (err.indexOf("reason: socket hang up") > -1)
+                        {
+                            setTimeout(function ()
+                            {
+                                self.getDocumentIDForResource(callback);
                             }, 500);
                         }
                         else

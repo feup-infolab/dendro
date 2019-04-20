@@ -32,7 +32,7 @@ const runPeriodicFunctionsEveryXTests = function (callback)
         {
             if (Config.docker.active && Config.docker.restart_containers_every_x_tests > 0 && numberofTestsRun % Config.docker.restart_containers_every_x_tests === 0)
             {
-                Logger.log("Restarting containers because " + Config.testing.restart_containers_every_x_tests + " tests have been run!");
+                Logger.log("Restarting containers because " + Config.docker.restart_containers_every_x_tests + " tests have been run!");
                 DockerManager.restartContainers(cb);
             }
             else
