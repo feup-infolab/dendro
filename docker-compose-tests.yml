@@ -1,0 +1,116 @@
+version: '3.5'
+
+services:
+  elasticsearch:
+    container_name: ${TEST_NAME}.elasticsearch-dendro
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.2${PARENT_TEST}
+    expose:
+      - "9200"
+      - "9300"
+    environment:
+      - "discovery.type=single-node"
+      - "http.host=0.0.0.0"
+      - "transport.host=127.0.0.1"
+      - "TAKE_FILE_OWNERSHIP=1"
+    volumes:
+      - ./volumes/elasticsearch:/usr/share/elasticsearch/data:consistent
+    networks:
+      custom_net:
+        aliases:
+          - elasticsearch
+    restart: on-failure
+
+  virtuoso:
+    container_name: ${TEST_NAME}.virtuoso-dendro
+    image: feupinfolab/virtuoso-with-dendro-ontologies:latest${PARENT_TEST}
+    expose:
+      - "8890"
+      - "1111"
+    tty: true
+    ports:
+      - published: 8890
+        target: 8890
+      - published: 1111
+        target: 1111
+    environment:
+      - "SPARQL_UPDATE=true"
+      - "VIRT_Parameters_CheckpointSyncMode=2"
+      - "VIRT_Parameters_PageMapCheck=1"
+      - "VIRT_Parameters_CheckpointInterval=1"
+      - "VIRT_Parameters_MinAutoCheckpointSize=1"
+      - "DBA_PASSWORD=dba"
+    volumes:
+        - ./volumes/virtuoso:/database
+    networks:
+      custom_net:
+        aliases:
+          - virtuoso
+    restart: on-failure
+
+  mariadb:
+    container_name: ${TEST_NAME}.mariadb-dendro
+    image: mariadb:5.5.62${PARENT_TEST}
+    expose:
+      - "3306"
+    environment:
+      - "MYSQL_ROOT_PASSWORD=r00t_p4ssw0rd"
+      - "MYSQL_DATABASE=dendro_data"
+      - "MYSQL_USER=dendro"
+      - "MYSQL_PASSWORD=dendr0_p4ssw0rd"
+    volumes:
+      - ./volumes/mariadb:/var/lib/mariadb
+    networks:
+      custom_net:
+        aliases:
+          - mariadb
+    restart: on-failure
+
+  mongodb:
+    container_name: ${TEST_NAME}.mongodb-dendro
+    image: mongo:3.6.0${PARENT_TEST}
+    expose:
+      - "27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi
+    volumes:
+      - ./volumes/mongo:/data/db
+    networks:
+      custom_net:
+        aliases:
+          - mongodb
+    command: mongod --smallfiles --bind_ip_all
+    restart: on-failure
+
+  dendro:
+    container_name: ${TEST_NAME}.dendro
+    image: feupinfolab/dendro:latest${PARENT_TEST}
+    build:
+      dockerfile: Dockerfile
+      args:
+        - "SOURCE_BRANCH=dendrokeywords"
+      context: .
+    ports:
+      - published: 3001
+        target: 3001
+    depends_on:
+      - elasticsearch
+      - mariadb
+      - mongodb
+      - virtuoso
+    volumes:
+      - ./volumes/dendro/conf:/dendro/conf
+      - ./volumes/dendro/logs:/dendro/logs
+      - ./volumes/profiling/logs:/dendro/profiling
+    environment:
+      DENDRO_ACTIVE_DEPLOYMENT_CONFIG: docker
+    networks:
+      custom_net:
+        aliases:
+          - dendro
+    restart: on-failure
+
+networks:
+  custom_net:
+    name: ${TEST_NAME}
+    driver: bridge
