@@ -58,7 +58,7 @@ DataStoreConnection.prototype.open = function (callback)
 DataStoreConnection.prototype.close = function ()
 {
     const self = this;
-    self.close();
+    self.client.close();
 };
 
 DataStoreConnection.prototype.getSheets = function (callback)
@@ -75,7 +75,7 @@ DataStoreConnection.prototype.getSheets = function (callback)
     cursor.toArray(function (err, results)
     {
         callback(err, results);
-        //self.close();
+        self.close();
     });
 };
 
@@ -273,7 +273,7 @@ DataStoreConnection.prototype.getDataByQuery = function (query, writeStream, ski
             ], function (err, result)
             {
                 writeStream.end();
-                //self.close();
+                self.close();
             });
         }
         else
@@ -281,7 +281,7 @@ DataStoreConnection.prototype.getDataByQuery = function (query, writeStream, ski
             cursor.stream().pipe(JSONStream.stringify()).pipe(writeStream);
             cursor.on("end", function ()
             {
-                //self.close();
+                self.close();
             });
         }
     }
@@ -292,14 +292,8 @@ DataStoreConnection.prototype.getDataByQuery = function (query, writeStream, ski
 };
 DataStoreConnection.prototype.getData = function (writeStream, callback, sheetName, outputFormat)
 {
-    const self = this;
-    DataStoreConnection.prototype.getDataByQuery({}, writeStream, null, null, sheetName, function (err, result)
-    {
-        callback(err, result);
-    },
-    outputFormat);
+    DataStoreConnection.prototype.getDataByQuery({}, writeStream, null, null, sheetName, callback, outputFormat);
 };
-
 DataStoreConnection.prototype.clearData = function (callback, sheetIndex)
 {
     const self = this;
@@ -376,10 +370,7 @@ DataStoreConnection.prototype.clearData = function (callback, sheetIndex)
         };
 
         const async = require("async");
-        async.series([clearDataRecords, clearSheetRecord], function (err, results)
-        {
-            callback(err, results);
-        });
+        async.series([clearDataRecords, clearSheetRecord], callback);
     }
     else
     {
