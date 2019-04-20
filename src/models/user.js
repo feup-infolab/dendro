@@ -138,7 +138,7 @@ User.autocomplete_search = function (value, maxResults, callback)
 {
     if (Config.debug.users.log_fetch_by_username)
     {
-        Logger.log("finding by username " + username);
+        Logger.log("finding by username " + value);
     }
 
     const query =

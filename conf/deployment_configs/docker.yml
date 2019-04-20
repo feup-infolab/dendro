@@ -64,7 +64,6 @@ docker:
     host: virtuoso-dendro
     port: 8890
     iSQLPort: 1111
-    connector: http
     auth:
       user: dba
       password: dba

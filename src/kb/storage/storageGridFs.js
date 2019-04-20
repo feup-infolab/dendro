@@ -46,7 +46,14 @@ class StorageGridFs extends Storage
     close (callback)
     {
         const self = this;
-        self.connection.close(callback);
+        self.connection.close(function (err, result)
+        {
+            if (!err)
+            {
+                self.opened = false;
+            }
+            callback(err, result);
+        });
     }
 
     put (file, inputStream, callback, metadata, customBucket)
@@ -54,7 +61,13 @@ class StorageGridFs extends Storage
         const self = this;
         self.open(function ()
         {
-            self.connection.put(file.uri, inputStream, callback, metadata, customBucket);
+            self.connection.put(file.uri, inputStream, function (err, result)
+            {
+                self.close(function ()
+                {
+                    callback(err, result);
+                }, metadata, customBucket);
+            });
         });
     }
 
@@ -63,7 +76,17 @@ class StorageGridFs extends Storage
         const self = this;
         self.open(function ()
         {
-            self.connection.get(file.uri, outputStream, callback, customBucket);
+            self.connection.get(file.uri,
+                outputStream,
+                function (err, result)
+                {
+                    self.close(function ()
+                    {
+                        callback(err, result);
+                    });
+                },
+                customBucket
+            );
         });
     }
 
@@ -72,7 +95,17 @@ class StorageGridFs extends Storage
         const self = this;
         self.open(function ()
         {
-            self.connection.delete(file.uri, callback, customBucket);
+            self.connection.delete(
+                file.uri,
+                function (err, result)
+                {
+                    self.close(function ()
+                    {
+                        callback(err, result);
+                    });
+                },
+                customBucket
+            );
         });
     }
 
@@ -86,9 +119,11 @@ class StorageGridFs extends Storage
                 if (!err)
                 {
                     Logger.log_boot_message("All files in GridFS storage cleared successfully.");
+                    callback(err);
                 }
                 else
                 {
+                    Logger.log("error", "Error clearing GridFS storage !");
                     callback(err);
                 }
             });

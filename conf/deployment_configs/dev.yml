@@ -112,7 +112,6 @@ dev:
     host: 127.0.0.1
     port: '8891'
     iSQLPort: '1112'
-    connector: http
     auth:
       user: dba
       password: dba

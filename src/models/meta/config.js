@@ -127,17 +127,6 @@ Config.virtuoso = getConfigParameter("virtuoso");
 
 Config.skipDescriptorValuesValidation = getConfigParameter("skipDescriptorValuesValidation", false);
 
-Config.virtuoso.connector = (function ()
-{
-    const connectorType = Config.virtuoso.connector;
-
-    if (connectorType === "jdbc" || connectorType === "http")
-    {
-        return connectorType;
-    }
-    throw new Error("Invalid Virtuoso Server connector type " + connectorType);
-}());
-
 // maps
 Config.maps = getConfigParameter("maps");
 

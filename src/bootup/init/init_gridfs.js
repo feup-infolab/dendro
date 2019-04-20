@@ -17,7 +17,6 @@ const initGridFS = function (app, callback)
         Config.mongoDBAuth.password
     );
 
-
     const attemptConnection = function (callback)
     {
         gfs.open(function (err, gfsConn)
@@ -27,18 +26,16 @@ const initGridFS = function (app, callback)
                 Logger.log("error", "Error Connecting to GridFS. Message: " + err.message);
                 return callback(err, gfsConn);
             }
-            else
-            {
-                return callback(null, gfsConn);
-            }
+
+            return callback(null, gfsConn);
         });
-    }
+    };
 
     async.retry({
         times: 240,
         interval: function (retryCount)
         {
-            const msecs = 500;
+            const msecs = 1000;
             Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to GridFS");
             return msecs;
         }
@@ -52,8 +49,9 @@ const initGridFS = function (app, callback)
         }
         else
         {
-            callback("[ERROR] Unable to connect to MongoDB file storage cluster running on " + Config.mongoDBHost + ":" + Config.mongoDbPort + "\n Error description : " + gfsConn);
-            Logger.log("error", );
+            const msg = "[ERROR] Unable to connect to MongoDB file storage cluster running on " + Config.mongoDBHost + ":" + Config.mongoDbPort + "\n Error description : " + gfsConn;
+            callback(msg);
+            Logger.log("error", msg);
             throw new Error(msg);
         }
     });

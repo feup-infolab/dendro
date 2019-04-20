@@ -112,7 +112,6 @@ test_no_setup_caching:
     host: 127.0.0.1
     port: '8890'
     iSQLPort: '1111'
-    connector: http
     auth:
       user: dba
       password: dba
