@@ -347,8 +347,7 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
         {
             if (!isNull(err))
             {
-                Logger.log("debug", "Retrying connection to virtuoso at " + self.host + ":" + self.port + "because of error: ");
-                Logger.log("debug", JSON.stringify(err));
+                Logger.log("debug", "Retrying connection to virtuoso at " + self.host + ":" + self.port + "because of error: " + JSON.stringify(err));
                 const disconnectErrors = ["Virtuoso Communications Link Failure (timeout)", "Problem during closing : Broken pipe", "Problem during serialization : Broken pipe"];
                 const stackText = err.stack;
 
