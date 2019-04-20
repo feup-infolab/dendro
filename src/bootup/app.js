@@ -67,7 +67,7 @@ class App
             }, 20000);
         };
 
-        const exitHandler = function (code)
+        const exitHandler = function (code, exception)
         {
             self.freeResources(function ()
             {
@@ -88,6 +88,11 @@ class App
                     }
 
                     process.exit(code);
+                }
+                else
+                {
+                    if(!isNull(exception))
+                        throw exception;
                 }
             });
         };
@@ -130,7 +135,7 @@ class App
                 Logger.log("error", exception.stack);
             }
 
-            exitHandler(1);
+            exitHandler(1, exception);
         });
 
         App._handlers_are_installed = true;
