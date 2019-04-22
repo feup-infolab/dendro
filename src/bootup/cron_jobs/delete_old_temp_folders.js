@@ -7,7 +7,7 @@ const tmpLocation = Config.tempFilesDir;
 const exec = require("child_process").exec;
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const fs = require("fs");
-const path = require('path');
+const path = require("path");
 
 const deleteOldTempFolders = function (app, callback)
 {
