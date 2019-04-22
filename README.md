@@ -10,15 +10,14 @@
 
 Dendro is the software powering [INESC TEC](https://dendro.inesctec.pt) and the [University of Porto](https://dendro-rdm.up.pt) data staging platforms. It allows researchers to manage research data in preparation for deposit in any research data repository. "Upload files and fill in metadata once, deposit anywhere you like".
 
-<!-- ## The user interface
+## The user interface
 <img src="https://raw.githubusercontent.com/feup-infolab/dendro/master/public/images/Screen%20Shot%202017-04-04%20at%2012.22.08.png" alt="drawing" style="width:100%;"/>
 
 ## Main Features
--->
 
-<img src="https://raw.githubusercontent.com/feup-infolab/dendro/master/public/images/dendro-tutorial/dendro_ui_2" alt="dendro user interface" style="width:90%;"/>
+<img src="https://raw.githubusercontent.com/feup-infolab/dendro/master/public/images/dendro-tutorial/dendro_ui_2.png" alt="dendro user interface" style="width:90%;"/>
 
-<img src="https://raw.githubusercontent.com/feup-infolab/dendro/master/public/images/dendro-tutorial/dendro_ui_1" alt="dendro features" style="width:90%;"/>
+<img src="https://raw.githubusercontent.com/feup-infolab/dendro/master/public/images/dendro-tutorial/dendro_ui_1.png" alt="dendro features" style="width:90%;"/>
 
 ## How to install
 
