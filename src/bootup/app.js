@@ -581,23 +581,23 @@ class App
         });
     }
 
-    uncaughtExceptionHander (exception)
-    {
-        const self = this;
-        Logger.log("error", "Critical error occurred. Dendro will have to shut down!");
-
-        if (!isNull(exception.message))
-        {
-            Logger.log("error", exception.message);
-        }
-
-        if (!isNull(exception.stack))
-        {
-            Logger.log("error", exception.stack);
-        }
-
-        self.exitHandler(1, exception);
-    }
+    // uncaughtExceptionHander (exception)
+    // {
+    //     const self = this;
+    //     Logger.log("error", "Critical error occurred. Dendro will have to shut down!");
+    //
+    //     if (!isNull(exception.message))
+    //     {
+    //         Logger.log("error", exception.message);
+    //     }
+    //
+    //     if (!isNull(exception.stack))
+    //     {
+    //         Logger.log("error", exception.stack);
+    //     }
+    //
+    //     self.exitHandler(1, exception);
+    // }
 
     signalHandler (signal)
     {
@@ -627,7 +627,7 @@ class App
         });
 
         process.on("unhandledRejection", self.unhandledExceptionHandler);
-        process.on("uncaughtException", self.uncaughtExceptionHander);
+        // process.on("uncaughtException", self.uncaughtExceptionHander);
 
         App._handlers_are_installed = true;
     }
@@ -636,7 +636,7 @@ class App
     {
         const self = this;
         process.on("unhandledRejection", self.unhandledExceptionHandler);
-        process.on("uncaughtException", self.uncaughtExceptionHander);
+        // process.on("uncaughtException", self.uncaughtExceptionHander);
 
         _.map(App.handledSignals, function (signal)
         {
@@ -882,10 +882,10 @@ class App
             cb(null);
         };
 
-        const unregisterHandlers = function(cb)
+        const unregisterHandlers = function (cb)
         {
             self.unregisterHandlers(cb);
-        }
+        };
 
         async.parallel([
             function (callback)

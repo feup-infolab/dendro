@@ -21,6 +21,16 @@ module.exports = function (grunt)
                 recursive: true,
                 exclude: [".git", "node_modules", "components", "grunt-tasks", "bower_components", ".sass-cache", "volumes"]
             }
+        },
+        jsdoc: {
+            dist: {
+                src: ["src/!(node_modules)**/*.js", "README.md"],
+                options: {
+                    destination: "public/docs",
+                    template: "node_modules/jaguarjs-jsdoc",
+                    configure: "conf/jsdoc-config.json"
+                }
+            }
         }
     });
 
@@ -29,7 +39,8 @@ module.exports = function (grunt)
 
     // install bower deps
     grunt.loadNpmTasks("grunt-auto-install");
+    grunt.loadNpmTasks("grunt-jsdoc");
 
     // Default task(s).
-    grunt.registerTask("default", ["auto_install"]);
+    grunt.registerTask("default", ["auto_install", "grunt-jsdoc"]);
 };
