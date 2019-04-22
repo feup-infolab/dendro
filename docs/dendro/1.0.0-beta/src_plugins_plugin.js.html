@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>src/plugins/plugin.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <li class="nav-link nav-home-link"><a href="index.html">Home</a></li><li class="nav-heading"><a href="global.html">Globals</a></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#arrayContainsArray">arrayContainsArray</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#buildCkanFileIDsFromDendroFileNames">buildCkanFileIDsFromDendroFileNames</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#buildExtrasJSONArray">buildExtrasJSONArray</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#buildPackageForCkanExport">buildPackageForCkanExport</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#buildPermissionsToBeCheck">buildPermissionsToBeCheck</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#calculateCkanRepositoryDiffs">calculateCkanRepositoryDiffs</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#calculateDendroDiffs">calculateDendroDiffs</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#checkIfFolderAndTargetRepositoryHaveRequiredMetadata">checkIfFolderAndTargetRepositoryHaveRequiredMetadata</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#checkIfResourceHasTheRequiredMetadataForExport">checkIfResourceHasTheRequiredMetadataForExport</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#checkPrivacyOfProject">checkPrivacyOfProject</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#checkResourceTypeAndChildren">checkResourceTypeAndChildren</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#checkRoleInSystem">checkRoleInSystem</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#Config">Config</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#createCkanFileIdBasedOnDendroFileName">createCkanFileIdBasedOnDendroFileName</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#createOrUpdateFilesInPackage">createOrUpdateFilesInPackage</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#createPackageID">createPackageID</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#createPackageInCkan">createPackageInCkan</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#deleteResourceInCkan">deleteResourceInCkan</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#exportPackageToCkan">exportPackageToCkan</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#get_recommendations">get_recommendations</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getAllPosts">getAllPosts</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getBothDendroDiffsAndCkanDiffs">getBothDendroDiffsAndCkanDiffs</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getExportedAtByDendroForCkanDataset">getExportedAtByDendroForCkanDataset</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#isObject">isObject</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#jarPath">jarPath</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#mergeDeep">mergeDeep</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#purgeCkanDataset">purgeCkanDataset</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#register_interaction">register_interaction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#repository_types">repository_types</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#request">request</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#updateOrInsertExportedAtByDendroForCkanDataset">updateOrInsertExportedAtByDendroForCkanDataset</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#updatePackageInCkan">updatePackageInCkan</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#validateChangesPermissions">validateChangesPermissions</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#verifyIfCkanFileWasCreatedInDendro">verifyIfCkanFileWasCreatedInDendro</a></span></li>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">src/plugins/plugin.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const path = require("path");
+const rlequire = require("rlequire");
+const async = require("async");
+
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Permissions = rlequire("dendro", "src/models/meta/permissions.js").Permissions;
+
+function Plugin (object = {})
+{
+    const self = this;
+    Plugin.baseConstructor.call(this, object);
+    return self;
+}
+
+Plugin.registerStaticFilesRoute = function (app)
+{
+    const self = this;
+    self.pluginBaseFolderName = self.config.plugin_folder_name;
+    self.fullRoute = "/plugins/" + self.pluginBaseFolderName + "/public";
+    const absPathToPluginPublicFolder = path.join(self.getPluginRootFolder(), "package", "public");
+
+    const express = require("express");
+
+    app.use(self.fullRoute, express.static(absPathToPluginPublicFolder));
+
+    return app;
+};
+
+Plugin.registerRoute = function (app, method, route, permissions, controllerMethod)
+{
+    const self = this;
+    const pluginBaseFolderName = self.config.plugin_folder_name;
+    let fullRoute;
+
+    if (route instanceof RegExp)
+    {
+        fullRoute = "\\/plugins\\/" + pluginBaseFolderName + "\\" + route.toString();
+        if (fullRoute[fullRoute.length - 1] === "/")
+        {
+            fullRoute = fullRoute.substring(0, fullRoute.length - 1);
+        }
+        self.fullRoute = new RegExp(fullRoute);
+    }
+    else if (route === "/")
+    {
+        self.fullRoute = "/plugins/" + pluginBaseFolderName;
+    }
+    else
+    {
+        self.fullRoute = "/plugins/" + pluginBaseFolderName + "/" + route;
+    }
+
+    if (method.toLowerCase() === "get")
+    {
+        app = app.get(self.fullRoute, async.apply(Permissions.require, permissions), controllerMethod);
+    }
+    else if (method.toLowerCase() === "post")
+    {
+        app = app.post(self.fullRoute, async.apply(Permissions.require, permissions), controllerMethod);
+    }
+    else if (method.toLowerCase() === "put")
+    {
+        app = app.put(self.fullRoute, async.apply(Permissions.require, permissions), controllerMethod);
+    }
+    else if (method.toLowerCase() === "delete")
+    {
+        app = app.delete(self.fullRoute, async.apply(Permissions.require, permissions), controllerMethod);
+    }
+
+    return app;
+};
+
+Plugin.getPluginRootFolder = function ()
+{
+    const self = this;
+    const allPluginsRootFolder = rlequire.absPathInApp("dendro", "src/plugins");
+    const myConfig = self.config;
+
+    return path.join(allPluginsRootFolder, myConfig.plugin_folder_name);
+};
+
+Plugin.renderView = function (res, viewPath, dataObject)
+{
+    const self = this;
+    const ejs = require("ejs");
+
+    /**
+     * Add the ".ejs" suffix if it is not present
+     */
+    if (!viewPath.indexOf(".ejs", this.length - ".ejs".length) !== -1)
+    {
+        viewPath = viewPath + ".ejs";
+    }
+
+    const pluginViewAbsPath = path.join(rlequire.absPathInApp("dendro", "src/plugins"), self.config.plugin_folder_name, "package", "views", viewPath);
+
+    /**
+     * Copy global data objects so that they are accessible in the plugins' views
+     * (THIS IS UGLY and non-expansible)
+     * TODO FIX LATER?
+     */
+    dataObject.locals = res.locals;
+    dataObject.settings = res.app.settings;
+
+    ejs.renderFile(
+        pluginViewAbsPath,
+        dataObject,
+        function (error, html)
+        {
+            if (isNull(error))
+            {
+                res.send(html);
+            }
+            else
+            {
+                res.status(500).send("Error in plugin " + self.config.name + error);
+            }
+        }
+    );
+};
+
+module.exports.Plugin = Plugin;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Apr 22 2019 13:41:01 GMT+0100 (WEST) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

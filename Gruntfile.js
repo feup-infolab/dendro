@@ -24,10 +24,7 @@ module.exports = function (grunt)
         },
         jsdoc: {
             dist: {
-                src: ["src/!(node_modules)**/*.js", "README.md"],
                 options: {
-                    destination: "public/docs",
-                    template: "node_modules/jaguarjs-jsdoc",
                     configure: "conf/jsdoc-config.json"
                 }
             }
@@ -42,5 +39,5 @@ module.exports = function (grunt)
     grunt.loadNpmTasks("grunt-jsdoc");
 
     // Default task(s).
-    grunt.registerTask("default", ["auto_install", "grunt-jsdoc"]);
+    grunt.registerTask("default", ["auto_install", "jsdoc"]);
 };
