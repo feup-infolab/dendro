@@ -50,7 +50,7 @@ if (process.env.NODE_ENV === "production")
             {
                 const msg = "PM2 instances of " + Config.pm2AppName + " ended successfully.";
                 Logger.log(msg);
-                process.exit(0);
+                // process.exit(0);
             }
             else
             {
@@ -82,7 +82,7 @@ if (process.env.NODE_ENV === "production")
     }
 }
 // App has to be manually started by units in Test mode.
-else if (process.env.NODE_ENV !== "test")
+else if (process.env.NODE_ENV !== "test" || Config.configWasOverriden)
 {
     dendroInstance.killPM2InstancesIfRunning(function (err)
     {
@@ -98,13 +98,13 @@ else if (process.env.NODE_ENV !== "test")
                 {
                     dendroInstance.freeResources(function (err, result)
                     {
-                        if (!err)
+                        if (err)
                         {
-                            process.exit(0);
+                            throw err;
                         }
                         else
                         {
-                            throw err;
+                            // process.exit(0);
                         }
                     });
                 }

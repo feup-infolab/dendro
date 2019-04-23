@@ -69,3 +69,4 @@ volumes/
 orchestras/*/volumes/
 
 conf/profile_queries/
+.clinic/

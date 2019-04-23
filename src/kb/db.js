@@ -14,8 +14,7 @@ const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 const Queue = require("better-queue");
 const rp = require("request-promise-native");
 const JDBC = require("jdbc");
-const jinst = require("jdbc/lib/jinst");
-const Pool = require("jdbc/lib/pool");
+let jinst = require("jdbc/lib/jinst");
 const uuid = require("uuid");
 
 let bootStartTimestamp = new Date().toISOString();
@@ -350,8 +349,7 @@ DbConnection.prototype.sendQueryViaJDBC = function (query, queryId, callback, ru
         {
             if (!isNull(err))
             {
-                Logger.log("debug", "Retrying connection to virtuoso at " + self.host + ":" + self.port + "because of error: ");
-                Logger.log("debug", JSON.stringify(err));
+                Logger.log("debug", "Retrying connection to virtuoso at " + self.host + ":" + self.port + "because of error: " + JSON.stringify(err));
                 const disconnectErrors = ["Virtuoso Communications Link Failure (timeout)", "Problem during closing : Broken pipe", "Problem during serialization : Broken pipe"];
                 const stackText = err.stack;
 
@@ -598,7 +596,7 @@ DbConnection.finishUpAllConnectionsAndClose = function (callback)
             {
                 if (isNull(err))
                 {
-                    Logger.log("Virtuoso connection " + dbConfig.connection.databaseName + " closed gracefully.");
+                    Logger.log("Virtuoso connection with id " + dbConfig.connection.databaseName + " closed gracefully.");
                     cb(null, result);
                 }
                 else
@@ -796,32 +794,102 @@ DbConnection.prototype.create = function (callback)
 {
     const self = this;
 
-    const checkDatabaseConnectionViaHttp = function (callback)
+    const checkDatabaseConnectivity = function (callback)
     {
-        Logger.log("debug", "Checking virtuoso connectivity via HTTP...");
-        const xmlHttp = new XMLHttpRequest();
-        // prepare callback
-        xmlHttp.onreadystatechange = function ()
+        const tryToConnect = function (callback)
         {
-            if (xmlHttp.readyState === 4)
+            const checkConnectivityOnPort = function (checkObject, callback)
             {
-                if (xmlHttp.status === 200)
+                const port = checkObject.port;
+                const textToExpectOnSuccess = checkObject.text;
+                Logger.log("debug", "Checking virtuoso connectivity via HTTP on Port " + port + "...");
+
+                const request = require("request");
+
+                let fullUrl = "http://" + self.host;
+
+                if (port)
                 {
-                    return callback(null);
+                    fullUrl = fullUrl + ":" + port;
                 }
-                return callback(1, "Unable to contact Virtuoso Server at " + self.host + " : " + self.port);
-            }
+
+                request.get({
+                    url: fullUrl
+                },
+                function (e, r, data)
+                {
+                    if (isNull(e))
+                    {
+                        if (data.indexOf(textToExpectOnSuccess) > -1)
+                        {
+                            callback(null);
+                        }
+                        else
+                        {
+                            callback(1, "Response not matched when checking for Virtuoso connectivity on " + self.host + " : " + self.port);
+                        }
+                    }
+                    else
+                    {
+                        if (e.code === "ECONNRESET" && textToExpectOnSuccess === "")
+                        {
+                            callback(null);
+                        }
+                        else
+                        {
+                            callback(1, "Unable to contact Virtuoso Server at " + self.host + " : " + self.port);
+                        }
+                    }
+                });
+            };
+
+            async.series([
+                function (callback)
+                {
+                    checkConnectivityOnPort(
+                        {
+                            port: self.port,
+                            text: "Welcome to OpenLink Virtuoso Universal Server"
+                        }, callback);
+                },
+                function (callback)
+                {
+                    checkConnectivityOnPort(
+                        {
+                            port: self.port_isql,
+                            text: ""
+                        }, callback);
+                }
+            ],
+            function (err, results)
+            {
+                callback(err, isNull(err));
+            });
         };
 
-        let fullUrl = "http://" + self.host;
-
-        if (self.port)
+        // try calling apiMethod 10 times with linear backoff
+        // (i.e. intervals of 100, 200, 400, 800, 1600, ... milliseconds)
+        async.retry({
+            times: 240,
+            interval: function (retryCount)
+            {
+                const msecs = 1000;
+                Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to Virtuoso");
+                return msecs;
+            }
+        }, tryToConnect, function (err)
         {
-            fullUrl = fullUrl + ":" + self.port;
-        }
-
-        xmlHttp.open("GET", fullUrl, true);
-        xmlHttp.send(null);
+            if (isNull(err))
+            {
+                callback(null);
+            }
+            else
+            {
+                const msg = "Unable to establish a connection to Virtuoso in time. This is a fatal error.";
+                Logger.log("error", msg);
+                throw new Error(msg);
+            }
+        });
     };
 
     const checkDatabaseConnectionViaJDBC = function (callback)
@@ -884,171 +952,193 @@ DbConnection.prototype.create = function (callback)
 
     const setupQueryQueues = function (callback)
     {
-        Logger.log("debug", "Setting up JDBC Queue of Virtuoso...");
-        self.queue_jdbc = new Queue(
-            function (queryObject, popQueueCallback)
+        const clearQueueIfNeeded = function (queue, callback)
+        {
+            if (!isNull(queue))
             {
-                self.sendQueryViaJDBC(queryObject.query, queryObject.query_id, function (err, results)
+                queue.destroy(callback);
+            }
+            else
+            {
+                callback(null);
+            }
+        };
+
+        async.series([
+            async.apply(clearQueueIfNeeded, self.queue_jdbc),
+            async.apply(clearQueueIfNeeded, self.queue_http)
+        ], function (err, results)
+        {
+            Logger.log("debug", "Setting up JDBC Queue of Virtuoso...");
+            self.queue_jdbc = new Queue(
+
+                function (queryObject, popQueueCallback)
                 {
-                    queryObject.callback(err, results);
-                    popQueueCallback();
-                }, queryObject.runAsUpdate);
-            },
-            {
-                concurrent: self.maxSimultaneousConnections,
-                maxTimeout: self.dbOperationTimeout,
-                maxRetries: 10,
-                // retryDelay : 100,
-                id: "query_id"
-            });
-
-        Logger.log("debug", "Setting up HTTP Queue of Virtuoso...");
-        self.queue_http = new Queue(
-            function (queryObject, popQueueCallback)
-            {
-                if (Config.debug.active && Config.debug.database.log_all_queries)
-                {
-                    Logger.log("--POSTING QUERY (HTTP): \n" + queryObject.query);
-                }
-
-                const queryRequest = rp({
-                    method: "POST",
-                    uri: queryObject.fullUrl,
-                    simple: false,
-                    form: {
-                        query: queryObject.query,
-                        maxrows: queryObject.maxRows,
-                        format: queryObject.resultsFormat
-                    },
-                    json: true,
-                    forever: true,
-                    encoding: "utf8"
-                    // timeout : self.dbOperationTimeout
-
-                })
-                    .then(function (parsedBody)
+                    self.sendQueryViaJDBC(queryObject.query, queryObject.query_id, function (err, results)
                     {
-                        delete self.pendingRequests[queryObject.query_id];
-                        const transformedResults = [];
-                        // iterate through all the rows in the result list
+                        queryObject.callback(err, results);
+                        popQueueCallback();
+                    }, queryObject.runAsUpdate);
+                },
+                {
+                    concurrent: self.maxSimultaneousConnections,
+                    maxTimeout: self.dbOperationTimeout,
+                    maxRetries: 10,
+                    // retryDelay : 100,
+                    id: "query_id"
+                });
 
-                        if (!isNull(parsedBody.boolean))
+            Logger.log("debug", "Setting up HTTP Queue of Virtuoso...");
+            self.queue_http = new Queue(
+                function (queryObject, popQueueCallback)
+                {
+                    if (Config.debug.active && Config.debug.database.log_all_queries)
+                    {
+                        Logger.log("--POSTING QUERY (HTTP): \n" + queryObject.query);
+                    }
+
+                    const queryRequest = rp({
+                        method: "POST",
+                        uri: queryObject.fullUrl,
+                        simple: false,
+                        form: {
+                            query: queryObject.query,
+                            maxrows: queryObject.maxRows,
+                            format: queryObject.resultsFormat
+                        },
+                        json: true,
+                        forever: true,
+                        encoding: "utf8"
+                        // timeout : self.dbOperationTimeout
+
+                    })
+                        .then(function (parsedBody)
                         {
-                            recordQueryConclusionInLog(queryObject);
-                            popQueueCallback();
-                            queryObject.callback(null, parsedBody.boolean);
-                        }
-                        else
-                        {
-                            if (!isNull(parsedBody.results))
+                            delete self.pendingRequests[queryObject.query_id];
+                            const transformedResults = [];
+                            // iterate through all the rows in the result list
+
+                            if (!isNull(parsedBody.boolean))
                             {
-                                const rows = parsedBody.results.bindings;
-                                const numberOfRows = rows.length;
+                                recordQueryConclusionInLog(queryObject);
+                                popQueueCallback();
+                                queryObject.callback(null, parsedBody.boolean);
+                            }
+                            else
+                            {
+                                if (!isNull(parsedBody.results))
+                                {
+                                    const rows = parsedBody.results.bindings;
+                                    const numberOfRows = rows.length;
 
-                                if (numberOfRows === 0)
-                                {
-                                    recordQueryConclusionInLog(queryObject);
-                                    popQueueCallback();
-                                    queryObject.callback(null, []);
-                                }
-                                else
-                                {
-                                    for (let i = 0; i < numberOfRows; i++)
+                                    if (numberOfRows === 0)
                                     {
-                                        let datatypes = [];
-                                        let row = parsedBody.results.bindings[i];
-
-                                        if (!isNull(row))
+                                        recordQueryConclusionInLog(queryObject);
+                                        popQueueCallback();
+                                        queryObject.callback(null, []);
+                                    }
+                                    else
+                                    {
+                                        for (let i = 0; i < numberOfRows; i++)
                                         {
-                                            transformedResults[i] = {};
-                                            for (let j = 0; j < parsedBody.head.vars.length; j++)
-                                            {
-                                                let cellHeader = parsedBody.head.vars[j];
-                                                const cell = row[cellHeader];
+                                            let datatypes = [];
+                                            let columnHeaders = [];
 
-                                                if (!isNull(cell))
+                                            let row = parsedBody.results.bindings[i];
+
+                                            if (!isNull(row))
+                                            {
+                                                transformedResults[i] = {};
+                                                for (let j = 0; j < parsedBody.head.vars.length; j++)
                                                 {
-                                                    let datatype;
+                                                    let cellHeader = parsedBody.head.vars[j];
+                                                    const cell = row[cellHeader];
+
                                                     if (!isNull(cell))
                                                     {
-                                                        datatype = cell.type;
-                                                    }
-                                                    else
-                                                    {
-                                                        datatype = datatypes[j];
-                                                    }
+                                                        let datatype;
+                                                        if (!isNull(cell))
+                                                        {
+                                                            datatype = cell.type;
+                                                        }
+                                                        else
+                                                        {
+                                                            datatype = datatypes[j];
+                                                        }
 
-                                                    let value = cell.value;
+                                                        let value = cell.value;
 
-                                                    switch (datatype)
-                                                    {
-                                                    case ("http://www.w3.org/2001/XMLSchema#integer"):
-                                                    {
-                                                        const newInt = parseInt(value);
-                                                        transformedResults[" + i + "].header = newInt;
-                                                        break;
-                                                    }
-                                                    case ("uri"):
-                                                    {
-                                                        transformedResults[i][cellHeader] = value;
-                                                        break;
-                                                    }
-                                                    // default is a string value
-                                                    default:
-                                                    {
-                                                        transformedResults[i][cellHeader] = value;
-                                                        break;
-                                                    }
+                                                        switch (datatype)
+                                                        {
+                                                        case ("http://www.w3.org/2001/XMLSchema#integer"):
+                                                        {
+                                                            const newInt = parseInt(value);
+                                                            transformedResults[" + i + "].header = newInt;
+                                                            break;
+                                                        }
+                                                        case ("uri"):
+                                                        {
+                                                            transformedResults[i][cellHeader] = value;
+                                                            break;
+                                                        }
+                                                        // default is a string value
+                                                        default:
+                                                        {
+                                                            transformedResults[i][cellHeader] = value;
+                                                            break;
+                                                        }
+                                                        }
                                                     }
                                                 }
                                             }
                                         }
-                                    }
 
+                                        recordQueryConclusionInLog(queryObject);
+                                        popQueueCallback();
+                                        queryObject.callback(null, transformedResults);
+                                    }
+                                }
+                                else
+                                {
+                                    const msg = "Invalid response from server while running query \n" + queryObject.query + ": " + JSON.stringify(parsedBody, null, 4);
+                                    Logger.log("error", msg);
                                     recordQueryConclusionInLog(queryObject);
-                                    popQueueCallback();
-                                    queryObject.callback(null, transformedResults);
+                                    popQueueCallback(1, msg);
+                                    queryObject.callback(1, "Invalid response from server");
                                 }
                             }
-                            else
-                            {
-                                const msg = "Invalid response from server while running query \n" + queryObject.query + ": " + JSON.stringify(parsedBody, null, 4);
-                                Logger.log("error", msg);
-                                recordQueryConclusionInLog(queryObject);
-                                popQueueCallback(1, msg);
-                                queryObject.callback(1, "Invalid response from server");
-                            }
-                        }
-                    })
-                    .catch(function (err)
-                    {
-                        delete self.pendingRequests[queryObject.query_id];
-                        Logger.log("error", "Query " + queryObject.query_id + " Failed!\n" + queryObject.query + "\n");
-                        const error = "Virtuoso server returned error: \n " + util.inspect(err);
-                        Logger.log("error", error);
-                        recordQueryConclusionInLog(queryObject);
-                        popQueueCallback(1, error);
-                        queryObject.callback(1, error);
-                    });
+                        })
+                        .catch(function (err)
+                        {
+                            delete self.pendingRequests[queryObject.query_id];
+                            Logger.log("error", "Query " + queryObject.query_id + " Failed!\n" + queryObject.query + "\n");
+                            const error = "Virtuoso server returned error: \n " + util.inspect(err);
+                            Logger.log("error", error);
+                            recordQueryConclusionInLog(queryObject);
+                            popQueueCallback(1, error);
+                            queryObject.callback(1, error);
+                        });
 
-                self.pendingRequests[queryObject.query_id] = queryRequest;
-            },
-            {
-                concurrent: self.maxSimultaneousConnections,
-                maxTimeout: self.dbOperationTimeout,
-                maxRetries: 10,
-                // retryDelay : 500,
-                id: "query_id"
-            });
+                    self.pendingRequests[queryObject.query_id] = queryRequest;
+                },
+                {
+                    concurrent: self.maxSimultaneousConnections,
+                    maxTimeout: self.dbOperationTimeout,
+                    maxRetries: 10,
+                    // retryDelay : 500,
+                    id: "query_id"
+                });
 
-        callback(null);
+            callback(err, results);
+        });
     };
 
     async.series([
+        checkDatabaseConnectivity,
         checkDatabaseConnectionViaJDBC,
-        checkDatabaseConnectionViaHttp,
         setupQueryQueues
-    ], function (err)
+    ],
+    function (err)
     {
         if (isNull(err))
         {
@@ -1103,7 +1193,7 @@ DbConnection.prototype.tryToConnect = function (callback)
         times: 240,
         interval: function (retryCount)
         {
-            const msecs = 500;
+            const msecs = 1000;
             Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to Virtuoso at " + self.host + ":" + self.port + "...");
             return msecs;
         }
@@ -1273,7 +1363,7 @@ DbConnection.prototype.close = function (callback)
         Logger.log("Committing pending transactions via checkpoint; command before shutting down virtuoso....");
         if (Config.docker.active && Config.docker.virtuoso_container_name)
         {
-            const checkpointCommand = `isql-v 1111 ${self.username} ${self.password} "checkpoint;"`;
+            const checkpointCommand = `isql 1111 -U ${self.username} -P ${self.password} 'EXEC=checkpoint;'`;
             DockerManager.runCommandOnContainer(Config.docker.virtuoso_container_name, checkpointCommand, function (err, result)
             {
                 if (!isNull(err))
@@ -1300,15 +1390,24 @@ DbConnection.prototype.close = function (callback)
                 if (!isNull(err))
                 {
                     Logger.log("error", "Error flushing buffers on virtuoso container before shutting down virtuoso.");
-                    Logger.log("error", err);
-                    Logger.log("error", result);
+                    if (!isNull((err)))
+                    {
+                        Logger.log("error", err);
+                    }
+                    if (!isNull((result)))
+                    {
+                        Logger.log("debug", result);
+                    }
                     callback(err, result);
                 }
                 else
                 {
                     callback(null, result);
                     Logger.log("debug", "Flushed buffers on virtuoso container before shutting down virtuoso.");
-                    Logger.log("debug", result);
+                    if (!isNull((result)) && result.length > 0)
+                    {
+                        Logger.log("debug", result);
+                    }
                 }
             });
         }
@@ -1322,14 +1421,20 @@ DbConnection.prototype.close = function (callback)
     {
         if (Config.docker.active && Config.docker.virtuoso_container_name && self.forceClientDisconnectOnConnectionClose)
         {
-            const disconnectCommand = `isql-v 1111 ${self.username} ${self.password} 'disconnect_user ('${self.username}');'`;
+            const disconnectCommand = `isql 1111 -U ${self.username} -P ${self.password} \"EXEC=disconnect_user ('${self.username}');\"`;
             DockerManager.runCommandOnContainer(Config.docker.virtuoso_container_name, disconnectCommand, function (err, result)
             {
                 if (!isNull(err))
                 {
                     Logger.log("error", "Error disconnecting user " + self.username + " before shutting down virtuoso.");
-                    Logger.log("error", err);
-                    Logger.log("error", result);
+                    if (!isNull((err)))
+                    {
+                        Logger.log("error", err);
+                    }
+                    if (!isNull((result)))
+                    {
+                        Logger.log("debug", result);
+                    }
                     callback(err, result);
                 }
                 else
@@ -1365,21 +1470,20 @@ DbConnection.prototype.close = function (callback)
                         async.series([
                             function (callback)
                             {
-                                DockerManager.runCommandOnContainer(Config.docker.virtuoso_container_name, `isql-v 1111 ${self.username} ${self.password} 'EXEC=checkpoint; shutdown;'`, function (err, result)
+                                DockerManager.runCommandOnContainer(Config.docker.virtuoso_container_name, `isql 1111 -U ${self.username} -P ${self.password} 'EXEC=checkpoint; shutdown;'`, function (err, result)
                                 {
                                     callback(err, result);
 
                                     if (!isNull(err))
                                     {
                                         Logger.log("debug", "Unable to run shutdown command on virtuoso container.");
+                                        Logger.log("debug", JSON.stringify(err));
+                                        Logger.log("debug", JSON.stringify(result));
                                     }
                                     else
                                     {
                                         Logger.log("debug", "Successfully ran shutdown command on virtuoso container.");
                                     }
-
-                                    Logger.log("debug", JSON.stringify(err));
-                                    Logger.log("debug", JSON.stringify(result));
                                 });
                             },
                             function (callback)
@@ -1400,7 +1504,7 @@ DbConnection.prototype.close = function (callback)
                                     times: 240,
                                     interval: function (retryCount)
                                     {
-                                        const msecs = 500;
+                                        const msecs = 1000;
                                         Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to determine Virtuoso status after closing on " + self.host + " : " + self.port + "...");
                                         return msecs;
                                     }
@@ -1500,6 +1604,7 @@ DbConnection.prototype.executeViaHTTP = function (queryStringWithArguments, argu
                     queryStartTime: new Date(),
                     query: query,
                     callback,
+                    callback,
                     query_id: newQueryId,
                     fullUrl: fullUrl,
                     resultsFormat: resultsFormat,
@@ -1536,7 +1641,7 @@ DbConnection.prototype.executeViaJDBC = function (queryStringOrArray, argumentsA
                     query = "SPARQL\n" + query;
                 }
 
-                // // Uncomment to use JDBC-controlled query queuing
+                // Uncomment to use JDBC-controlled query queuing
                 // self.sendQueryViaJDBC(
                 //     query,
                 //     uuid.v4(),

@@ -29,6 +29,7 @@ if (argv.config)
 {
     Logger.log("info", "Deployment configuration overriden by --conf argument. Configuration is " + argv.config);
     activeConfigKey = argv.config;
+    Config.configWasOverriden = true;
 }
 else
 {
@@ -125,17 +126,6 @@ Config.ontologies_cache = getConfigParameter("ontologies_cache");
 Config.virtuoso = getConfigParameter("virtuoso");
 
 Config.skipDescriptorValuesValidation = getConfigParameter("skipDescriptorValuesValidation", false);
-
-Config.virtuoso.connector = (function ()
-{
-    const connectorType = Config.virtuoso.connector;
-
-    if (connectorType === "jdbc" || connectorType === "http")
-    {
-        return connectorType;
-    }
-    throw new Error("Invalid Virtuoso Server connector type " + connectorType);
-}());
 
 // maps
 Config.maps = getConfigParameter("maps");
@@ -632,7 +622,7 @@ Config.enabledOntologies = {
         uri: "http://www.dendro.fe.up.pt/ontology/chemistry#",
         elements: Elements.ontologies.chm,
         label: "Chemistry",
-        description: "Vocabulary for the description of data resulting from experiments in the chemistry domain: particle size; solution Ph, chemical Element, etc..",
+        description: "Vocabulary for the description of data resulting from experiments in the chemistry domain: particle size; solution Ph, chemical Element, etc...",
         domain: "Chemistry",
         domain_specific: true
     },
@@ -641,8 +631,17 @@ Config.enabledOntologies = {
         uri: "http://www.dendro.fe.up.pt/ontology/physics#",
         elements: Elements.ontologies.p0,
         label: "Physics",
-        description: "Vocabulary for the description of data resulting from experiments in the physics domain: substrate; band gap, sample mass, etc..",
+        description: "Vocabulary for the description of data resulting from experiments in the physics domain: substrate; band gap, sample mass, etc...",
         domain: "Physics",
+        domain_specific: true
+    },
+    mibbiup: {
+        prefix: "mibbiup",
+        uri: "http://www.dendro.fe.up.pt/ontology/mibbiup#",
+        elements: Elements.ontologies.mibbiup,
+        label: "Minimum Information for Biological and Biomedical Investigations",
+        description: "Vocabulary for the description of data resulting from experiments in the biology/biomedical domains: samples used, methods, etc...",
+        domain: "Biology",
         domain_specific: true
     }
 };
@@ -939,6 +938,8 @@ Config.numCPUs = getConfigParameter("numCPUs");
 Config.testing = getConfigParameter("testing");
 Config.docker = getConfigParameter("docker");
 Config.keywords_extraction = getConfigParameter("keywords_extraction");
+
+Config.jobs = getConfigParameter("jobs");
 
 if (process.env.NODE_ENV === "production")
 {

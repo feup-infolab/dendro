@@ -16,7 +16,7 @@ export CODECLIMATE_TOKEN="d35a03f94b5472b37f30f55a2689d730e6e3bd03563357af841236
 export RUNNING_IN_JENKINS="1"
 
 npm run delete-coverage
-npm run calculate-coverage-travis
+npm run calculate-coverage
 
 #report_coverage()
 #{

@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>src/models/meta/ontology.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <li class="nav-link nav-home-link"><a href="index.html">Home</a></li><li class="nav-heading"><a href="global.html">Globals</a></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#arrayContainsArray">arrayContainsArray</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#buildCkanFileIDsFromDendroFileNames">buildCkanFileIDsFromDendroFileNames</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#buildExtrasJSONArray">buildExtrasJSONArray</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#buildPackageForCkanExport">buildPackageForCkanExport</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#buildPermissionsToBeCheck">buildPermissionsToBeCheck</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#calculateCkanRepositoryDiffs">calculateCkanRepositoryDiffs</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#calculateDendroDiffs">calculateDendroDiffs</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#checkIfFolderAndTargetRepositoryHaveRequiredMetadata">checkIfFolderAndTargetRepositoryHaveRequiredMetadata</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#checkIfResourceHasTheRequiredMetadataForExport">checkIfResourceHasTheRequiredMetadataForExport</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#checkPrivacyOfProject">checkPrivacyOfProject</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#checkResourceTypeAndChildren">checkResourceTypeAndChildren</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#checkRoleInSystem">checkRoleInSystem</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#Config">Config</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#createCkanFileIdBasedOnDendroFileName">createCkanFileIdBasedOnDendroFileName</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#createOrUpdateFilesInPackage">createOrUpdateFilesInPackage</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#createPackageID">createPackageID</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#createPackageInCkan">createPackageInCkan</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#deleteResourceInCkan">deleteResourceInCkan</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#exportPackageToCkan">exportPackageToCkan</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#get_recommendations">get_recommendations</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getAllPosts">getAllPosts</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getBothDendroDiffsAndCkanDiffs">getBothDendroDiffsAndCkanDiffs</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getExportedAtByDendroForCkanDataset">getExportedAtByDendroForCkanDataset</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#isObject">isObject</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#jarPath">jarPath</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#mergeDeep">mergeDeep</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#purgeCkanDataset">purgeCkanDataset</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#register_interaction">register_interaction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#repository_types">repository_types</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#request">request</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#updateOrInsertExportedAtByDendroForCkanDataset">updateOrInsertExportedAtByDendroForCkanDataset</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#updatePackageInCkan">updatePackageInCkan</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#validateChangesPermissions">validateChangesPermissions</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#verifyIfCkanFileWasCreatedInDendro">verifyIfCkanFileWasCreatedInDendro</a></span></li>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">src/models/meta/ontology.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const Controls = rlequire("dendro", "src/models/meta/controls.js").Controls;
+
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const ResearchDomain = rlequire("dendro", "src/models/meta/research_domain.js").ResearchDomain;
+const Class = rlequire("dendro", "src/models/meta/class.js").Class;
+const Resource = rlequire("dendro", "src/models/resource.js").Resource;
+
+const db = Config.getDBByID();
+
+const _ = require("underscore");
+const async = require("async");
+
+function Ontology (object = {})
+{
+    const self = this;
+    self.copyOrInitDescriptors(object);
+
+    if (!isNull(object) &amp;&amp; object instanceof Object)
+    {
+        if (!isNull(object.uri) &amp;&amp; isNull(object.prefix))
+        {
+            const allOntologies = Ontology.getAllOntologiesArray();
+            for (let i = 0; i &lt; allOntologies.length; i++)
+            {
+                const ontology = allOntologies[i];
+
+                if (ontology.uri === object.uri)
+                {
+                    self.prefix = ontology.prefix;
+
+                    if (!isNull(Config.enabledOntologies[self.prefix]))
+                    {
+                        self.prefix = Config.enabledOntologies[self.prefix].prefix;
+                        self.uri = Config.enabledOntologies[self.prefix].uri;
+                        // self.elements = Config.enabledOntologies[self.prefix].elements;
+                    }
+                }
+            }
+        }
+        else if (!isNull(object.prefix))
+        {
+            if (!isNull(Config.enabledOntologies[object.prefix]))
+            {
+                self.prefix = Config.enabledOntologies[object.prefix].prefix;
+                self.uri = Config.enabledOntologies[object.prefix].uri;
+                // self.elements = Config.enabledOntologies[object.prefix].elements;
+            }
+        }
+
+        if (!isNull(object.description))
+        {
+            self.description = object.description;
+        }
+
+        if (!isNull(object.domain))
+        {
+            self.domain = object.domain;
+        }
+    }
+
+    return self;
+}
+
+Ontology.findByUri = function (uri, callback)
+{
+    Resource.findByUri(uri, function (err, ontology)
+    {
+        if (isNull(err))
+        {
+            if (!isNull(ontology))
+            {
+                const newOntology = new Ontology({
+                    prefix: ontology.ddr.hasPrefix,
+                    uri: ontology.uri,
+                    description: ontology.dcterms.description,
+                    domain: ontology.ddr.hasResearchDomain
+                });
+
+                return callback(null, newOntology);
+            }
+            return callback(null, null);
+        }
+        return callback(err, ontology);
+    });
+};
+
+Ontology.all = function (callback)
+{
+    const allOntologiesQuery =
+        "WITH [0] \n" +
+        "SELECT ?uri \n" +
+        "WHERE { \n" +
+        "   ?uri rdf:type ddr:Ontology . \n" +
+        "} \n";
+
+    db.connection.executeViaJDBC(allOntologiesQuery,
+        [
+            {
+                type: Elements.types.resourceNoEscape,
+                value: db.graphUri
+            }
+        ],
+        function (err, results)
+        {
+            if (isNull(err))
+            {
+                const getOntology = function (ontologyResult, callback)
+                {
+                    Ontology.findByUri(ontologyResult.uri, callback);
+                };
+
+                async.mapSeries(results, getOntology, function (err, allOntologies)
+                {
+                    return callback(err, allOntologies);
+                });
+            }
+        });
+};
+
+Ontology.setAllOntologies = function (ontologies)
+{
+    const self = this;
+    self.allOntologies = ontologies;
+};
+
+Ontology.initAllFromDatabase = function (callback)
+{
+    Logger.log("(Re) Loading ontology configurations from database...");
+
+    const recreateOntologiesInDatabase = function (ontologiesArray, callback)
+    {
+        const checkForOntology = function (ontologyUri, callback)
+        {
+            Ontology.findByUri(ontologyUri, function (err, ontology)
+            {
+                if (err)
+                {
+                    Logger.log("Error occurred when searching for ontology with URI : " + ontologyUri + ". Error description : " + JSON.stringify(ontology));
+                }
+                else
+                {
+                    if (isNull(ontology))
+                    {
+                        Logger.log("Ontology : " + ontologyUri + " not found. Will have to be recorded in database.");
+                    }
+                    else
+                    {
+                        Logger.log("Ontology : " + ontologyUri + " exists. Reading from database...");
+                    }
+                }
+
+                return callback(err, ontology);
+            });
+        };
+
+        const createOntologyRecordInDatabase = function (ontologyObject, callback)
+        {
+            const newOntology = new Ontology(ontologyObject);
+
+            newOntology.save(function (err, result)
+            {
+                if (isNull(err))
+                {
+                    Logger.log("Loaded ontology with URI : " + ontologyObject.uri + ".");
+                }
+                else
+                {
+                    Logger.log("error", "Error loading ontology with URI : " + ontologyObject.uri + ": ");
+                    Logger.log("error", JSON.stringify(err));
+                    Logger.log("error", JSON.stringify(result));
+                }
+
+                return callback(err, newOntology);
+            });
+        };
+
+        async.mapSeries(ontologiesArray, function (ontologyObject, callback)
+        {
+            checkForOntology(ontologyObject.uri, function (err, ontology)
+            {
+                if (isNull(ontology))
+                {
+                    createOntologyRecordInDatabase(ontologyObject, function (err, result)
+                    {
+                        return callback(err, result);
+                    });
+                }
+                else
+                {
+                    return callback(null, ontology);
+                }
+            });
+        }, function (err, results)
+        {
+            return callback(err, results);
+        });
+    };
+    const loadOntologyConfigurationsFromDatabase = function (callback)
+    {
+        const addDescriptorInformation = function (ontology, callback)
+        {
+            const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+            Descriptor.all_in_ontology(ontology.uri, function (err, descriptors)
+            {
+                if (isNull(err))
+                {
+                    for (let i = 0; i &lt; descriptors.length; i++)
+                    {
+                        let descriptor = descriptors[i];
+                        if (Elements.ontologies.hasOwnProperty(descriptor.prefix) &amp;&amp;
+                            Elements.ontologies[descriptor.prefix].hasOwnProperty(descriptor.shortName))
+                        {
+                            Elements.ontologies[descriptor.prefix][descriptor.shortName].label = descriptors[i].label;
+                            Elements.ontologies[descriptor.prefix][descriptor.shortName].comment = descriptors[i].comment;
+                        }
+                    }
+
+                    return callback(err, ontology);
+                }
+                return callback(err, ontology);
+            }, null, null, true);
+        };
+        const getFullResearchDomain = function (researchDomainUri, callback)
+        {
+            ResearchDomain.findByUri(researchDomainUri, callback);
+        };
+        const addResearchDomainsDetails = function (ontology, callback)
+        {
+            if (ontology.domain instanceof Array)
+            {
+                async.mapSeries(ontology.domain, getFullResearchDomain, function (err, results)
+                {
+                    if (isNull(err))
+                    {
+                        ontology.domain = results;
+                    }
+
+                    return callback(err, ontology);
+                });
+            }
+            else if (typeof ontology.domain === "string")
+            {
+                async.mapSeries([ontology.domain], getFullResearchDomain, function (err, results)
+                {
+                    if (!isNull(results))
+                    {
+                        ontology.domain = results;
+                    }
+
+                    return callback(err, ontology);
+                });
+            }
+            else
+            {
+                return callback(null, ontology);
+            }
+        };
+        const addDescriptorValidationData = function (ontology, callback)
+        {
+            const getAlternativesForDescriptor = function (elementUri, callback)
+            {
+                db.connection.executeViaJDBC(
+                    "WITH [0] \n" +
+                    "SELECT ?alternative \n" +
+                    "WHERE \n" +
+                    "{ \n" +
+                    "   [1] ddr:hasAlternative ?alternative\n" +
+                    "} \n",
+                    [
+                        {
+                            type: Elements.types.resourceNoEscape,
+                            value: ontology.uri
+                        },
+                        {
+                            type: Elements.types.resourceNoEscape,
+                            value: elementUri
+                        }
+                    ],
+                    function (err, alternatives)
+                    {
+                        if (isNull(err))
+                        {
+                            if (alternatives.length === 0)
+                            {
+                                return callback(null, null);
+                            }
+
+                            const results = [];
+
+                            for (let i = 0; i &lt; alternatives.length; i++)
+                            {
+                                results.push(alternatives[i].alternative);
+                            }
+
+                            return callback(null, results);
+                        }
+
+                        Logger.log("error", "Error retrieving valid alternatives for descriptor " + elementUri + "! Error returned " + JSON.stringify(alternatives));
+                        return callback(null, null);
+                    }
+                );
+            };
+
+            const getRegexForDescriptor = function (elementUri, ontologyUri, callback)
+            {
+                db.connection.executeViaJDBC(
+                    "WITH [0] \n" +
+                    "SELECT ?regex \n" +
+                    "WHERE \n" +
+                    "{ \n" +
+                    "   [1] ddr:hasRegex ?regex\n" +
+                    "} \n",
+                    [
+                        {
+                            type: Elements.types.resourceNoEscape,
+                            value: ontologyUri
+                        },
+                        {
+                            type: Elements.types.resourceNoEscape,
+                            value: elementUri
+                        }
+                    ],
+                    function (err, regex)
+                    {
+                        if (isNull(err))
+                        {
+                            if (regex.length > 1)
+                            {
+                                Logger.log("error", "There are two different Regular Expressions for validating element " + elementUri + "! Please review the ontology with URI " + ontologyUri + " and delete hasRegex annotation properties until there is only one.");
+                                return callback(1, null);
+                            }
+
+                            if (regex.length === 1)
+                            {
+                                return callback(null, regex[0].regex);
+                            }
+
+                            return callback(null, null);
+                        }
+
+                        Logger.log("error", "Error retrieving Regular Expression that validates " + elementUri + "! Error returned " + JSON.stringify(regex));
+                        return callback(null, null);
+                    }
+                );
+            };
+
+            let ontologyElements = Elements.ontologies[ontology.prefix];
+
+            if (!isNull(ontologyElements))
+            {
+                async.mapSeries(
+                    Object.keys(ontologyElements),
+                    function (elementShortName, callback)
+                    {
+                        const elementUri = Config.enabledOntologies[ontology.prefix].uri + elementShortName;
+                        const element = ontologyElements[elementShortName];
+
+                        element.shortName = elementShortName;
+
+                        async.waterfall([
+                            function (callback)
+                            {
+                                getRegexForDescriptor(elementUri, ontology.uri, function (err, result)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        if (!isNull(result))
+                                        {
+                                            element.hasRegex = result;
+                                            element.control = Controls.regex_checking_input_box;
+                                        }
+                                    }
+
+                                    return callback(err, element);
+                                });
+                            },
+                            function (element, callback)
+                            {
+                                getAlternativesForDescriptor(elementUri, function (err, result)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        if (!isNull(result))
+                                        {
+                                            element.hasAlternative = result;
+                                            element.control = Controls.combo_box;
+                                        }
+                                    }
+
+                                    return callback(err, element);
+                                });
+                            }
+                        ],
+                        function (err, result)
+                        {
+                            result.prefix = ontology.prefix;
+                            result.uri = elementUri;
+                            result.ontology_uri = ontology.uri;
+                            return callback(err, result);
+                        });
+                    },
+                    function (err, results)
+                    {
+                        // TODO check this !!!!!
+
+                        const result = {};
+                        for (let i = 0; i &lt; results.length; i++)
+                        {
+                            result[results[i].shortName] = results[i];
+                        }
+
+                        return callback(err, result);
+                    });
+            }
+            else
+            {
+                Logger.log("Ontology " + ontology.uri + " has no elements, skipping validation data fetching!");
+                callback(null, []);
+            }
+        };
+
+        Ontology.all(function (err, ontologies)
+        {
+            if (isNull(err))
+            {
+                async.waterfall(
+                    [
+                        function (callback)
+                        {
+                            async.mapSeries(ontologies, addDescriptorInformation, function (err, loadedOntologies)
+                            {
+                                if (isNull(err))
+                                {
+                                    Logger.log("Finished loading descriptor information from database");
+                                }
+
+                                return callback(err, loadedOntologies);
+                            });
+                        },
+                        function (ontologies, callback)
+                        {
+                            async.mapSeries(ontologies, addResearchDomainsDetails, function (err, loadedOntologies)
+                            {
+                                if (isNull(err))
+                                {
+                                    Logger.log("Finished loading research domain configurations for descriptors from database");
+                                }
+
+                                return callback(err, loadedOntologies);
+                            });
+                        },
+                        function (ontologies, callback)
+                        {
+                            async.mapSeries(ontologies, addDescriptorValidationData, function (err, loadedOntologies)
+                            {
+                                if (isNull(err))
+                                {
+                                    Logger.log("Finished loading validation information (Regex + alternatives) for the descriptors in the database");
+                                }
+
+                                return callback(err, loadedOntologies);
+                            });
+                        }
+                    ],
+                    function (err, loadedOntologies)
+                    {
+                        if (isNull(err))
+                        {
+                            return callback(err, loadedOntologies);
+                        }
+
+                        return callback(err, loadedOntologies);
+                    }
+                );
+            }
+            else
+            {
+                const msg = "[ERROR] Error loading ontology configurations from database: Unable to fetch all resources from the graph";
+                Logger.log(msg);
+                return callback(1, msg);
+            }
+        });
+    };
+
+    async.series([
+        function (callback)
+        {
+            recreateOntologiesInDatabase(Ontology.getAllOntologiesArray(), function (err, result)
+            {
+                return callback(err, result);
+            });
+        },
+        function (callback)
+        {
+            loadOntologyConfigurationsFromDatabase(function (err, ontologyDescriptors)
+            {
+                return callback(err, ontologyDescriptors);
+            });
+        }
+    ],
+    function (err, results)
+    {
+        if (isNull(err))
+        {
+            const allOntologies = {};
+            const allElements = {};
+            const ontologies = results[0];
+            const descriptors = results[1];
+
+            for (let i = 0; i &lt; ontologies.length; i++)
+            {
+                let ontology = ontologies[i];
+                allOntologies[ontology.prefix] = ontologies[i];
+                // Looks for the correct descriptorsIndex corresponding to each ontology
+                let correctDescriptorsIndex = _.findIndex(descriptors, function (ontologyDescriptors)
+                {
+                    return _.find(ontologyDescriptors, function (descriptor)
+                    {
+                        return descriptor.prefix === ontology.prefix;
+                    });
+                });
+                // It is only going to be saved in allElements if the index is an integer and above or equal to zero
+                if (!isNull(correctDescriptorsIndex) &amp;&amp; Number.isInteger(correctDescriptorsIndex) &amp;&amp; correctDescriptorsIndex >= 0)
+                {
+                    allElements[ontology.prefix] = descriptors[correctDescriptorsIndex];
+                }
+                else
+                {
+                    Logger.log("error", "Error: Ontology " + ontology.uri + " has its descriptors incorrectly parametrized");
+                }
+            }
+
+            return callback(err, allOntologies, allElements);
+        }
+
+        return callback(err);
+    });
+};
+
+Ontology.getAllOntologyPrefixes = function ()
+{
+    if (isNull(Ontology.allOntologyPrefixes))
+    {
+        Ontology.allOntologyPrefixes = [];
+        const ontologies = Ontology.getAllOntologiesArray();
+
+        for (let i = 0; i &lt; ontologies.length; i++)
+        {
+            const ontology = ontologies[i];
+            Ontology.allOntologyPrefixes.push(ontology.prefix);
+        }
+    }
+
+    return Ontology.allOntologyPrefixes;
+};
+
+Ontology.getAllOntologiesArray = function ()
+{
+    Ontology.allOntologiesArray = [];
+
+    for (let ontologyPrefix in Ontology.allOntologies)
+    {
+        if (Ontology.allOntologies.hasOwnProperty(ontologyPrefix))
+        {
+            const ontology = Config.enabledOntologies[ontologyPrefix];
+            Ontology.allOntologiesArray.push(ontology);
+        }
+    }
+
+    return Ontology.allOntologiesArray;
+};
+
+Ontology.getAllOntologiesUris = function ()
+{
+    if (isNull(Ontology.ontologyUris))
+    {
+        const ontologies = Ontology.getAllOntologiesArray();
+
+        Ontology.ontologyUris = [];
+
+        for (let i = 0; i &lt; ontologies.length; i++)
+        {
+            const ontology = ontologies[i];
+            Ontology.ontologyUris.push(ontology.uri);
+        }
+    }
+
+    return Ontology.ontologyUris;
+};
+
+Ontology.getOntologyByQuery = function (jsonPathQuery)
+{
+    if (isNull(Ontology.allOntologies))
+    {
+        const JSONPath = require("JSONPath");
+        return JSONPath({json: Ontology.allOntologies, path: jsonPathQuery});
+    }
+    throw new Error("Ontologies not initialized!");
+};
+
+/**
+ * Public ontologies
+ * @returns {Array}
+ */
+
+Ontology.getPublicOntologyPrefixes = function ()
+{
+    if (isNull(Ontology.publicOntologyPrefixes))
+    {
+        Ontology.publicOntologyPrefixes = [];
+
+        const ontologies = Ontology.getAllOntologiesArray();
+
+        for (let i = 0; i &lt; ontologies.length; i++)
+        {
+            const ontology = ontologies[i];
+            if (!ontology.private)
+            {
+                Ontology.publicOntologyPrefixes.push(ontology.prefix);
+            }
+        }
+    }
+
+    return Ontology.publicOntologyPrefixes;
+};
+
+Ontology.getPublicOntologies = function ()
+{
+    if (isNull(Ontology.publicOntologies))
+    {
+        Ontology.publicOntologies = [];
+        let ontologies;
+
+        if (!isNull(Config.public_ontologies) &amp;&amp; Config.public_ontologies instanceof Array &amp;&amp; Config.public_ontologies.length > 0)
+        {
+            ontologies = _.filter(Ontology.getAllOntologiesArray(), function (ontology)
+            {
+                return _.contains(Config.public_ontologies, ontology.prefix);
+            });
+        }
+        else
+        {
+            ontologies = Ontology.getAllOntologiesArray();
+        }
+
+        for (let i = 0; i &lt; ontologies.length; i++)
+        {
+            let ontology = ontologies[i];
+            if (!ontology.private)
+            {
+                Ontology.publicOntologies.push(ontology);
+            }
+        }
+    }
+
+    return Ontology.publicOntologies;
+};
+
+Ontology.getPublicOntologiesUris = function ()
+{
+    if (isNull(Ontology.publicOntologyUris))
+    {
+        Ontology.publicOntologyUris = [];
+
+        const ontologies = Ontology.getAllOntologiesArray();
+        for (let i = 0; i &lt; ontologies.length; i++)
+        {
+            const ontology = ontologies[i];
+            if (!ontology.private)
+            {
+                Ontology.publicOntologyUris.push(ontology.uri);
+            }
+        }
+    }
+
+    return Ontology.publicOntologyUris;
+};
+
+Ontology.getOntologyPrefix = function (ontologyUri)
+{
+    if (isNull(Ontology.ontologyPrefixesMatcher))
+    {
+        Ontology.ontologyPrefixesMatcher = {};
+
+        const ontologies = Ontology.getAllOntologiesArray();
+
+        for (let i = 0; i &lt; ontologies.length; i++)
+        {
+            const ontology = ontologies[i];
+            Ontology.ontologyPrefixesMatcher[ontology.uri] = ontology.prefix;
+        }
+    }
+
+    return Ontology.ontologyPrefixesMatcher[ontologyUri];
+};
+
+Ontology.findByResearchDomainPrefixOrComment = function (query, maxNumberOfResults, callback)
+{
+    const results = [];
+
+    const containsString = function (needle, haystack)
+    {
+        if (isNull(haystack))
+        {
+            return false;
+        }
+        const downcasedNeedle = needle.toLowerCase();
+        const downcasedHaystack = haystack.toLowerCase();
+
+        if (downcasedHaystack.indexOf(downcasedNeedle) > -1)
+        {
+            return true;
+        }
+        return false;
+    };
+
+    const containsResearchDomain = function (ontology, query)
+    {
+        if (isNull(ontology.domain) || !(ontology.domain instanceof Array))
+        {
+            return false;
+        }
+        for (let i = 0; i &lt; ontology.domain.length; i++)
+        {
+            const aDomain = ontology.domain[i];
+
+            // TODO should be aDomain.dcterms.description but not implemented yet
+            return containsString(query, aDomain);
+        }
+    };
+
+    const ontologies = Ontology.getPublicOntologies();
+
+    for (var i = 0; i &lt; ontologies.length &amp;&amp; results.length &lt; maxNumberOfResults; i++)
+    {
+        var ontology = ontologies[i];
+
+        if (!isNull(ontology.description) || !isNull(ontology.prefix) || (!isNull(ontology.domain)))
+        {
+            const typeOfDomain = typeof ontology.domain;
+            if (typeOfDomain === "string")
+            {
+                ontology.domain = [ontology.domain];
+            }
+
+            if (
+                containsString(query, ontology.description) ||
+                containsString(query, ontology.prefix) ||
+                containsResearchDomain(ontology, query)
+            )
+            {
+                if (Config.debug.active &amp;&amp; Config.debug.log_autocomplete_requests)
+                {
+                    Logger.log("Ontology " + ontology.uri + " CONTAINS THE TERM " + query + " !!!!!!!!!!!!!!!!!!!");
+                }
+
+                results.push(ontology);
+            }
+            else
+            {
+                if (Config.debug.active &amp;&amp; Config.debug.log_autocomplete_requests)
+                {
+                    Logger.log("Ontology " + ontology.uri + " does not contain the term " + query);
+                }
+            }
+        }
+    }
+
+    if (Config.debug.active &amp;&amp; Config.debug.log_autocomplete_requests &amp;&amp; results.length > 0)
+    {
+        Logger.log(JSON.stringify(results));
+    }
+
+    return callback(null, results);
+};
+
+Ontology.prototype.save = function (callback)
+{
+    const self = this;
+    const uri = self.uri;
+
+    const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+
+    const description = new Descriptor(
+        {
+            prefixedForm: "dcterms:description",
+            value: self.description
+        });
+
+    const domainsArray = [];
+
+    if (!isNull(self.domain) &amp;&amp; self.domain instanceof Array)
+    {
+        for (let i = 0; i &lt; self.domain.length; i++)
+        {
+            domainsArray.push(self.domain[i].uri);
+        }
+    }
+
+    const domain = new Descriptor(
+        {
+            prefixedForm: "ddr:hasResearchDomain",
+            value: domainsArray
+        });
+
+    const type = new Descriptor({
+        prefixedForm: "rdf:type",
+        value: Ontology.prefixedRDFType
+    });
+
+    const prefix = new Descriptor({
+        prefixedForm: "ddr:hasPrefix",
+        value: self.prefix
+    });
+
+    const modified = new Descriptor({
+        prefixedForm: "ddr:modified",
+        value: new Date().toISOString()
+    });
+
+    const newDescriptorsArray = [description, domain, type, prefix, modified];
+
+    self.replaceDescriptorsInTripleStore(newDescriptorsArray, db, function (err, result)
+    {
+        if (isNull(err))
+        {
+            return callback(err, result);
+        }
+        const msg = "Unable to SAVE ontology with uri : " + uri + " because of error: " + result;
+        Logger.log("error", msg);
+        return callback(err, msg);
+    });
+};
+
+Ontology.autocomplete_research_domains = function (query, callback)
+{
+    const autocompleteResearchDomainsQuery =
+        "WITH [0] \n" +
+        "SELECT * \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   ?uri rdf:type ddr:Ontology . \n" +
+        "   ?uri ddr:hasResearchDomain ?domain .\n" +
+        "   FILTER regex(?domain, [1] , \"i\"). \n" +
+        "} \n";
+
+    db.connection.executeViaJDBC(autocompleteResearchDomainsQuery,
+        [
+            {
+                type: Elements.types.resourceNoEscape,
+                value: db.graphUri
+            },
+            {
+                type: Elements.types.string,
+                value: autocompleteResearchDomainsQuery
+            }
+        ],
+        function (err, results)
+        {
+            const domains = [];
+
+            if (err)
+            {
+                for (let i = 0; i &lt; results.length; i++)
+                {
+                    domains.push(results.domain);
+                }
+            }
+
+            return callback(err, domains);
+        });
+};
+
+Ontology.findByPrefix = function (prefix, callback)
+{
+    const prefixes = Object.keys(Ontology.allOntologies);
+
+    // look first in memory, then go to the database if if fails.
+    for (let i = 0; i &lt; prefixes.length; i++)
+    {
+        const aPrefix = prefixes[i];
+        if (aPrefix === prefix)
+        {
+            const result = {uri: Config.enabledOntologies[aPrefix].uri};
+            const ontology = new Ontology(result);
+            return callback(null, ontology);
+        }
+    }
+
+    const findByPrefixQuery =
+        "WITH [0] \n" +
+        "SELECT * \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   ?uri rdf:type ddr:Ontology . \n" +
+        "   ?uri ddr:hasPrefix [1] \n" +
+        "} \n";
+
+    db.connection.executeViaJDBC(findByPrefixQuery,
+        [
+            {
+                type: Elements.types.resourceNoEscape,
+                value: db.graphUri
+            },
+            {
+                type: Elements.ontologies.ddr.hasPrefix.type,
+                value: prefix
+            }
+        ],
+        function (err, results)
+        {
+            if (isNull(err) &amp;&amp; !isNull(results))
+            {
+                if (results.length > 1)
+                {
+                    const msg = "[FATAL ERROR] More than one ontology registered for the same prefix in Dendro! There must be only one ontology with a given prefix! Prefix that has more than one ontology associated is : " + prefix;
+                    Logger.log("error", msg);
+                    return callback(1, msg);
+                }
+                else if (results.length === 1)
+                {
+                    const newOntology = new Ontology(results[0]);
+                    return callback(null, newOntology);
+                }
+
+                // not found
+                return callback(null, null);
+            }
+        });
+};
+
+Ontology.allOntologies = (function ()
+{
+    if (isNull(Ontology._allOntologies))
+    {
+        Ontology._allOntologies = Config.enabledOntologies;
+    }
+    return Ontology._allOntologies;
+}());
+
+Ontology = Class.extend(Ontology, Resource, "ddr:Ontology");
+
+module.exports.Ontology = Ontology;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Apr 23 2019 16:29:36 GMT+0100 (WEST) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

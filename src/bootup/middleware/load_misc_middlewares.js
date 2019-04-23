@@ -62,6 +62,7 @@ const loadMiscMiddlewares = function (app, callback)
 
     app.use(require("stylus").middleware(rlequire.absPathInApp("dendro", "public/")));
 
+    app.use("/docs", express.static(rlequire.absPathInApp("dendro", "docs/")));
     app.use(express.static(rlequire.absPathInApp("dendro", "public/")));
 
     app.set("title", "Dendro");
