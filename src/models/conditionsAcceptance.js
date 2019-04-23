@@ -54,6 +54,36 @@ ConditionsAcceptance.create = function (data, privacy, callback)
     });
 };
 
+ConditionsAcceptance.getDepositConditions = function (dataset, callback)
+{
+    let i = 1;
+    let query =
+      "SELECT DISTINCT ?condition \n" +
+      "FROM [0] \n" +
+      "WHERE " +
+      "{ \n" +
+      "       ?condition ddr:userAccepted ?userAccepted.\n" +
+      "       ?condition ddr:acceptingUser ?acceptingUser. \n" +
+      "       ?condition  rdf:type ddr:Conditions.\n" +
+      "       ?condition  ddr:dataset [" + i++ + "]. \n" +
+      "} \n";
+
+    let variables = [
+        {
+            type: Elements.types.resourceNoEscape,
+            value: db.graphUri
+        },
+        {
+            type: Elements.ontologies.ddr.dataset.type,
+            value: dataset
+        }];
+
+    db.connection.executeViaJDBC(query, variables, function (err, regs)
+    {
+        callback(err, regs);
+    });
+};
+
 ConditionsAcceptance.getCondition = function (user, dataset, callback)
 {
     let i = 1;

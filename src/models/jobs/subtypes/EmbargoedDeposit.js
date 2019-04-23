@@ -6,6 +6,7 @@ const Deposit = rlequire("dendro", "src/models/deposit.js").Deposit;
 
 const Job = rlequire("dendro", "src/models/jobs/Job.js").Job;
 const name = path.parse(__filename).name;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 class EmbargoedDeposit extends Job
 {
@@ -140,6 +141,6 @@ class EmbargoedDeposit extends Job
 }
 
 EmbargoedDeposit.isSingleton = true;
-EmbargoedDeposit.cronExpression = "60 seconds";
+EmbargoedDeposit.cronExpression = Config.jobs.embargoed.disembargo_cron_expression;
 
 module.exports.EmbargoedDeposit = EmbargoedDeposit;

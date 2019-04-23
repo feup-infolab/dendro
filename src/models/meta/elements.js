@@ -494,6 +494,11 @@ Elements.ontologies.foaf =
                 type: Elements.types.string,
                 control: Controls.input_box
             },
+        affiliation:
+          {
+              type: Elements.types.string,
+              control: Controls.input_box
+          },
         account:
             {
                 type: Elements.types.string,

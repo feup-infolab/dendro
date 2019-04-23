@@ -20,6 +20,7 @@ const StorageConfig = rlequire("dendro", "src/models/storage/storageConfig.js").
 const Storage = rlequire("dendro", "src/kb/storage/storage.js").Storage;
 const uuidv1 = require("uuid/v1");
 const superRequest = require("superagent");
+const ConditionsAcceptance = rlequire("dendro", "src/models/conditionsAcceptance.js").ConditionsAcceptance;
 
 const B2ShareClient = require("@feup-infolab/node-b2share-v2");
 
@@ -56,6 +57,7 @@ Deposit.createDeposit = function (data, callback)
     const uuid = uuidv1();
     const DOI = "10.23673/" + uuid;
     const protocolAndHost = data.protocolAndHost;
+    const user = data.user;
     const generateDoi = function (callback)
     {
         const auth = "Basic " + new Buffer("DEV.INFOLAB" + ":" + "8yD5qChSbUSK").toString("base64");
@@ -79,14 +81,14 @@ Deposit.createDeposit = function (data, callback)
                         },
                         creators:
                           [{
-                              name: null, // firts namae + surname
-                              givenName: null, // first name
-                              familyName: null, // surname
+                              name: user.foaf.firstName + " " + user.foaf.surname,
+                              givenName: user.foaf.firstName,
+                              familyName: user.foaf.surname,
                               nameType: "Personal",
-                              affiliation: null, // affiliation
+                              affiliation: user.foaf.affiliation,
                               nameIdentifiers:
                                 [{
-                                    nameIdentifier: null, // uri
+                                    nameIdentifier: user.uri,
                                     nameIdentifierScheme: null,
                                     schemeUri: null
                                 }]
@@ -196,7 +198,7 @@ Deposit.createDeposit = function (data, callback)
             {
                 newDeposit.ddr.hasStorageConfig = savedConfiguration.uri;
                 // save deposited contents to dendro
-                Deposit.saveContents({newDeposit: newDeposit, content: content, user: data.user}, function (err, msg)
+                Deposit.saveContents({newDeposit: newDeposit, content: content, user: user}, function (err, msg)
                 {
                     async.waterfall([ function (callback)
                     {
@@ -900,6 +902,7 @@ Deposit.getDepositsEmbargoed = function (callback)
 Deposit.prototype.delete = function (callback, customGraphUri)
 {
     const self = this;
+
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
     const deleteProjectTriples = function (callback)
@@ -971,7 +974,33 @@ Deposit.prototype.delete = function (callback, customGraphUri)
         });
     };
 
+    const deleteDepositConditions = function (callback)
+    {
+        ConditionsAcceptance.getDepositConditions(self.uri, function (err, result)
+        {
+            if (isNull(err))
+            {
+                result.forEach(function (condition)
+                {
+                    condition.delete(function (err, result)
+                    {
+                        if (!isNull(err))
+                        {
+                            callback(err, result);
+                        }
+                    });
+                });
+                callback(err, result);
+            }
+            else
+            {
+                callback(err, result);
+            }
+        });
+    };
+
     async.series([
+        deleteDepositConditions,
         clearCacheRecords,
         deleteProjectFiles,
         deleteAllStorageConfigs,
