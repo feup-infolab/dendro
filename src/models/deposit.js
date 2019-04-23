@@ -79,14 +79,14 @@ Deposit.createDeposit = function (data, callback)
                         },
                         creators:
                           [{
-                              name: null,
-                              givenName: null,
-                              familyName: null,
+                              name: null, // firts namae + surname
+                              givenName: null, // first name
+                              familyName: null, // surname
                               nameType: "Personal",
-                              affiliation: null,
+                              affiliation: null, // affiliation
                               nameIdentifiers:
                                 [{
-                                    nameIdentifier: null,
+                                    nameIdentifier: null,//uri
                                     nameIdentifierScheme: null,
                                     schemeUri: null
                                 }]

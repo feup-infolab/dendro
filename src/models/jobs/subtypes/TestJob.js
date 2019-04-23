@@ -4,6 +4,7 @@ const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
 const Job = rlequire("dendro", "src/models/jobs/Job.js").Job;
+const Config
 const name = path.parse(__filename).name;
 
 class TestJob extends Job
@@ -99,8 +100,7 @@ class TestJob extends Job
         });
     }
 }
-
-// TestJob.isSingleton = true;
-// TestJob.cronExpression = "2 seconds";
+//TestJob.isSingleton = true;
+//TestJob.cronExpression = Config.jobs.embargoed.disembargo_cron_expression;
 
 module.exports.TestJob = TestJob;
