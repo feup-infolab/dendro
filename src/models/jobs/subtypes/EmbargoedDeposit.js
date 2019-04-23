@@ -27,11 +27,11 @@ class EmbargoedDeposit extends Job
                         {
                             if (isNull(err))
                             {
-
+                                done();
                             }
                             else
                             {
-
+                                done();
                             }
                         });
                     });
@@ -140,6 +140,6 @@ class EmbargoedDeposit extends Job
 }
 
 EmbargoedDeposit.isSingleton = true;
-EmbargoedDeposit.cronExpression = "2 seconds";
+EmbargoedDeposit.cronExpression = "60 seconds";
 
-module.exports.TestJob = EmbargoedDeposit;
+module.exports.EmbargoedDeposit = EmbargoedDeposit;
