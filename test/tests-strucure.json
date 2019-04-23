@@ -1,0 +1,126 @@
+{
+  "states":
+  {
+    "TestUnit": {"depends_on": null, "path":  "test/units/testUnit.js"},
+    "BootupUnit": {"depends_on": "TestUnit", "path":  "test/units/bootup.Unit.js"},
+    "LoadOntologies": {"depends_on": "BootupUnit", "path": "test/units/ontologies/loadOntologies.Unit.js"},
+    "CreateUsersUnit": {"depends_on":  "LoadOntologies", "path":  "test/units/users/createUsers.Unit.js"},
+    "CreateProjectsUnit": {"depends_on": "CreateUsersUnit", "path": "test/units/projects/createProjects.Unit.js"},
+    "AddContributorsToProjectsUnit": {"depends_on": "CreateProjectsUnit", "path": "test/units/projects/addContributorsToProjects.Unit.js"},
+    "CreateFoldersUnit": {"depends_on": "AddContributorsToProjectsUnit", "path": "test/units/folders/createFolders.Unit.js"},
+
+    "CreateFilesUnit": {"depends_on": "CreateFoldersUnit", "path": "test/units/files/createFiles.Unit.js"},
+    "CreateFoldersForLsByName": {"depends_on": "CreateFoldersUnit", "path": "test/units/folders/createFoldersForLsByName.Unit.js"},
+
+    "CreateFoldersPublicProject": {"depends_on":  "AddContributorsToProjectsUnit", "path":  "test/units/folders/createFoldersPublicProject.Unit.js"},
+    "AddMetadataToFoldersPublicProject": {"depends_on": "CreateFoldersPublicProject", "path": "test/units/metadata/addMetadataToFoldersPublicProject.Unit.js"},,
+
+    "AddMetadataToFoldersUnit": {"depends_on": "CreateFoldersUnit", "path": "test/units/metadata/addMetadataToFolders.Unit.js"},
+
+    "CreateAvatarsForUsersUnit": {"depends_on": "CreateUsersUnit", "path": "test/units/users/createAvatarsForUsers.Unit.js"},
+  },
+  "tests":
+  {
+    "select_ontology_manually": {"parent": "CreateFilesUnit", "path": "test/routes/interactions/select_ontology_manually/routes.interactions.selectOntologyManually.Test.js"},
+    "favorite_descriptor_from_quick_list_for_project": {"parent":  "CreateFilesUnit", "path": "test/routes/interactions/favorite_descriptor_from_quick_list_for_project/routes.interactions.favoriteDescriptorFromQuickListForProject.Test.js"},
+    "favorite_descriptor_from_manual_list_for_project" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/favorite_descriptor_from_manual_list_for_project/routes.interactions.favoriteDescriptorFromManualListForProject.Test.js"},
+    "favorite_descriptor_from_manual_list_for_user" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/favorite_descriptor_from_manual_list_for_user/routes.interactions.favoriteDescriptorFromManualListForUser.Test.js"},
+    "favorite_descriptor_from_quick_list_for_user" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/favorite_descriptor_from_quick_list_for_user/routes.interactions.favoriteDescriptorFromQuickListForUser.Test.js"},
+    "hide_descriptor_from_quick_list_for_project" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/hide_descriptor_from_quick_list_for_project/routes.interactions.hideDescriptorFromQuickListForProject.Test.js"},
+    "hide_descriptor_from_quick_list_for_user" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/hide_descriptor_from_quick_list_for_user/routes.interactions.hideDescriptorFromQuickListForUser.Test.js"},
+    "unfavorite_descriptor_from_quick_list_for_user" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/unfavorite_descriptor_from_quick_list_for_user/routes.interactions.unfavoriteDescriptorFromQuickListForUser.Test.js"},
+    "unfavorite_descriptor_from_quick_list_for_project" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/unfavorite_descriptor_from_quick_list_for_project/routes.interactions.unfavoriteDescriptorFromQuickListForProject.Test.js"},
+    "unhide_descriptor_from_quick_list_for_project" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/unhide_descriptor_from_quick_list_for_project/routes.interactions.unhideDescriptorFromQuickListForProject.Test.js"},
+    "unhide_descriptor_from_quick_list_for_user" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/unhide_descriptor_from_quick_list_for_user/routes.interactions.unhideDescriptorFromQuickListForUser.Test.js"},
+    "acceptDescriptorFromQuickList" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/accept_descriptor_from_quick_list/routes.interactions.acceptDescriptorFromQuickList.Test.js"},
+    "acceptDescriptorFromQuickListWhileItWasAProjectFavorite" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/accept_descriptor_from_quick_list_while_it_was_a_project_favorite/routes.interactions.acceptDescriptorFromQuickListWhileItWasAProjectFavorite.Test.js"},
+    "acceptDescriptorFromQuickListWhileItWasAUserFavorite" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/accept_descriptor_from_quick_list_while_it_was_a_user_favorite/routes.interactions.acceptDescriptorFromQuickListWhileItWasAUserFavorite.Test.js"},
+    "acceptDescriptorFromQuickListWhileItWasAUserAndProjectFavorite" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite/routes.interactions.acceptDescriptorFromQuickListWhileItWasAUserAndProjectFavorite.Test.js"},
+    "acceptDescriptorFromManualList" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/accept_descriptor_from_manual_list/routes.interactions.acceptDescriptorFromManualList.Test.js"},
+    "acceptDescriptorFromManualListWhileItWasAProjectFavorite" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/accept_descriptor_from_manual_list_while_it_was_a_project_favorite/routes.interactions.acceptDescriptorFromManualListWhileItWasAProjectFavorite.Test.js"},
+    "accept_descriptor_from_manual_list_while_it_was_a_user_favorite" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_favorite/routes.interactions.acceptDescriptorFromManualListWhileItWasAUserFavorite.Test.js"},
+    "accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite/routes.interactions.acceptDescriptorFromManualListWhileItWasAUserAndProjectFavorite.Test.js"},
+    "accept_descriptor_from_autocomplete" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/accept_descriptor_from_autocomplete/routes.interactions.acceptDescriptorFromAutocomplete.Test.js"},
+    "select_descriptor_from_manual_list" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/select_descriptor_from_manual_list/routes.interactions.selectDescriptorFromManualList.Test.js"},
+    "accept_smart_descriptor_in_metadata_editor" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/accept_smart_descriptor_in_metadata_editor/routes.interactions.acceptSmartDescriptorInMetadataEditor.Test.js"},
+    "accept_favorite_descriptor_in_metadata_editor" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/accept_favorite_descriptor_in_metadata_editor/routes.interactions.acceptFavoriteDescriptorInMetadataEditor.Test.js"},
+    "delete_descriptor_in_metadata_editor" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/delete_descriptor_in_metadata_editor/routes.interactions.deleteDescriptorInMetadataEditor.Test.js"},
+    "fill_in_descriptor_from_manual_list_in_metadata_editor" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/fill_in_descriptor_from_manual_list_in_metadata_editor/routes.interactions.fillInDescriptorFromManualListInMetadataEditor.Test.js"},
+    "fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite/routes.interactions.fillInDescriptorFromManualListWhileItWasAProjectFavorite.Test.js"},
+    "fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite/routes.interactions.fillInDescriptorFromManualListWhileItWasAUserFavorite.Test.js"},
+    "fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite/routes.interactions.fillInDescriptorFromManualListWhileItWasAUserAndProjectFavorite.Test.js"},
+    "fill_in_descriptor_from_quick_list_in_metadata_editor" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/fill_in_descriptor_from_quick_list_in_metadata_editor/routes.interactions.fillInDescriptorFromQuickListInMetadataEditor.Test.js"},
+    "fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite/routes.interactions.fillInDescriptorFromQuickListWhileItWasAProjectFavorite.Test.js"},
+    "fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite/routes.interactions.fillInDescriptorFromQuickListWhileItWasAUserFavorite.Test.js"},
+    "fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite/routes.interactions.fillInDescriptorFromQuickListWhileItWasAUserAndProjectFavorite.Test.js"},
+    "fill_in_inherited_descriptor" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/fill_in_inherited_descriptor/routes.interactions.fillInInheritedDescriptor.Test.js"},
+    "delete_all" : {"parent":  "CreateFilesUnit","path": "test/routes/interactions/delete_all/routes.interactions.deleteAll.Test.js"},
+
+    "publicProject.data.testFolder1.__ls_by_name" : {"parent": "CreateFoldersForLsByName", "path": "test/routes/project/public_project/data/testFolder1/__ls_by_name/routes.project.publicProject.data.testFolder1.__ls_by_name.Test.js"},
+    "privateProject.data.testFolder1.__ls_by_name" : {"parent":  "CreateFoldersForLsByName","path": "test/routes/project/private_project/data/testFolder1/__ls_by_name/routes.project.privateProject.data.testFolder1.__ls_by_name.Test.js"},
+    "metadataOnlyProject.data.testFolder1.__ls_by_name" : {"parent":  "CreateFoldersForLsByName","path": "test/routes/project/metadata_only_project/data/testFolder1/__ls_by_name/routes.project.metadataOnlyProject.data.testFolder1.__ls_by_name.Test.js"},
+
+    "admin.reindex" : {"parent":  "AddMetadataToFoldersPublicProject","path": "test/routes/admin/reindex/routes.admin.reindex.Test.js"},
+
+    "search" : {"parent":  "AddMetadataToFoldersUnit","path": "test/routes/search/routes.search.Test.js"},
+
+    "publicProject.data.testFolder1.__restore" : {"parent":  "AddMetadataToFoldersPublicProject", "path": "test/routes/project/public_project/data/testFolder1/__restore/routes.project.publicProject.data.testFolder1.__restore.Test.js"},
+    "publicProject.__administerTest" : {"parent":  "AddMetadataToFoldersPublicProject","path": "test/routes/project/public_project/__administer/routes.project.publicProject.__administerTest.js"},
+
+    ---->"loggedUser" : {"parent":  "","path": "test/routes/users/loggedUser/route.users.loggedUser.Test.js"},
+
+    "users" : {"parent":  "CreateUsersUnit","path": "test/routes/users/route.users.Test.js"},
+    "demouser1" : {"parent":  "CreateUsersUnit","path": "test/routes/user/demouser1/route.user.demouser1.Test.js"},
+    "demouser2" : {"parent":  "CreateUsersUnit","path": "test/routes/user/demouser1/route.user.demouser2.Test.js"},
+    "demouser3" : {"parent":  "CreateUsersUnit","path": "test/routes/user/demouser1/route.user.demouser3.Test.js"},
+    "user.edit" : {"parent":  "CreateUsersUnit","path": "test/routes/user/edit/routes.user.edit.Test.js"},
+    "user_avatar" : {"parent":  "CreateUsersUnit","path": "test/routes/user_avatar/routes.user_avatar.Test.js"},
+
+    "demouser1.avatar" : {"parent":  "CreateAvatarsForUsersUnit","path": "test/routes/user/demouser1/avatar/routes.user.demouser1.avatar.Test.js"},
+    "demouser2.avatar" : {"parent":  "CreateAvatarsForUsersUnit","path": "test/routes/user/demouser1/avatar/routes.user.demouser2.avatar.Test.js"},
+    "demouser3.avatar" : {"parent":  "CreateAvatarsForUsersUnit","path": "test/routes/user/demouser1/avatar/routes.user.demouser3.avatar.Test.js"},
+
+    "projects.new" : {"parent":  "CreateUsersUnit","path": "test/routes/projects/new/route.projects.new.Test.js"},
+    "projects-list" : {"parent":  "AddContributorsToProjectsUnit","path": "test/routes/projects/route.projects.Test.js"},
+    "projects-my" : {"parent":  "AddContributorsToProjectsUnit","path": "test/routes/projects/my/route.projects.my.Test.js"},
+    "from_ontology" : {"parent":  "AddContributorsToProjectsUnit","path": "test/routes/descriptors/from_ontology/route.descriptors.from_ontology.Test.js"},
+
+    "publicProject.__mkdir" : {"parent":  "AddContributorsToProjectsUnit","path": "test/routes/project/public_project/__mkdir/routes.project.publicProject.__mkdir.Test.js"},
+    "privateProject.__mkdir" : {"parent":  "AddContributorsToProjectsUnit","path": "test/routes/project/private_project/__mkdir/routes.project.privateProject.__mkdir.Test.js"},
+    "metadataOnlyProject.__mkdir" : {"parent":  "AddContributorsToProjectsUnit","path": "test/routes/project/metadata_only_project/__mkdir/routes.project.metadataonlyProject.__mkdir.Test.js"},
+
+    "publicProject.data.testFolder1.__mkdir" : {"parent":  "CreateFoldersUnit","path": "test/routes/project/public_project/data/testFolder1/__mkdir/routes.project.publicProject.data.testFolder1.__mkdir.Test.js"},
+    "publicProject.data.testFolder2.__mkdir" : {"parent":  "CreateFoldersUnit","path": "test/routes/project/public_project/data/testFolder2/__mkdir/routes.project.publicProject.data.testFolder2.__mkdir.Test.js"},
+    "privateProject.data.testFolder1.__mkdir" : {"parent":  "CreateFoldersUnit","path": "test/routes/project/private_project/data/testFolder1/__mkdir/routes.project.privateProject.data.testFolder1.__mkdir.Test.js"},
+    "privateProject.data.testFolder2.__mkdir" : {"parent":  "CreateFoldersUnit","path": "test/routes/project/private_project/data/testFolder2/__mkdir/routes.project.privateProject.data.testFolder2.__mkdir.Test.js"},
+    "metadataOnlyProject.data.testFolder1.__mkdir" : {"parent":  "CreateFoldersUnit","path": "test/routes/project/metadata_only_project/data/testFolder1/__mkdir/routes.project.metadataonlyProject.data.testFolder1.__mkdir.Test.js"},
+    "metadataOnlyProject.data.testFolder2.__mkdir" : {"parent":  "CreateFoldersUnit","path": "test/routes/project/metadata_only_project/data/testFolder2/__mkdir/routes.project.metadataonlyProject.data.testFolder2.__mkdir.Test.js"},
+
+    "publicProject.data.testFolder1.__update_metadata" : {"parent":  "CreateFoldersUnit","path": "test/routes/project/public_project/data/testFolder1/__update_metadata/routes.project.publicProject.data.testFolder1.__update_metadata.Test.js"},
+    "publicProject.data.testFolder2.__update_metadata" : {"parent":  "CreateFoldersUnit","path": "test/routes/project/public_project/data/testFolder2/__update_metadata/routes.project.publicProject.data.testFolder2.__update_metadata.Test.js"},
+    "privateProject.data.testFolder1.__update_metadata" : {"parent":  "CreateFoldersUnit","path": "test/routes/project/private_project/data/testFolder1/__update_metadata/routes.project.privateProject.data.testFolder1.__update_metadata.Test.js"},
+    "privateProject.data.testFolder2.__update_metadata" : {"parent":  "CreateFoldersUnit","path": "test/routes/project/private_project/data/testFolder2/__update_metadata/routes.project.privateProject.data.testFolder2.__update_metadata.Test.js"},
+    "metadataonlyProject.data.testFolder1.__update_metadata.Test" : {"parent":  "CreateFoldersUnit","path": "test/routes/project/metadata_only_project/data/testFolder1/__update_metadata/routes.project.metadataonlyProject.data.testFolder1.__update_metadata.Test.js"},
+    "metadataonlyProject.data.testFolder2.__update_metadata.Test" : {"parent":  "CreateFoldersUnit","path": "test/routes/project/metadata_only_project/data/testFolder2/__update_metadata/routes.project.metadataonlyProject.data.testFolder2.__update_metadata.Test.js"},
+
+    "" : {"parent":  "CreateFoldersUnit","path": ""},
+    "" : {"parent":  "CreateFoldersUnit","path": ""},
+    "" : {"parent":  "CreateFoldersUnit","path": ""},
+
+
+
+
+
+
+
+
+
+    "" : {"parent":  "","path": ""},
+    "" : {"parent":  "","path": ""},
+    "" : {"parent":  "","path": ""},
+    "" : {"parent":  "","path": ""},
+    "" : {"parent":  "","path": ""},
+    "" : {"parent":  "","path": ""},
+    "" : {"parent":  "","path": ""}
+  }
+}

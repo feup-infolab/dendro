@@ -71,16 +71,22 @@ rlequire("dendro", "test/routes/interactions/unhide_descriptor_from_quick_list_f
 // /interactions/unhide_descriptor_from_quick_list_for_user
 rlequire("dendro", "test/routes/interactions/unhide_descriptor_from_quick_list_for_user/routes.interactions.unhideDescriptorFromQuickListForUser.Test.js");
 
+// /interactions/acceptDescriptorFromQuickList
 rlequire("dendro", "test/routes/interactions/accept_descriptor_from_quick_list/routes.interactions.acceptDescriptorFromQuickList.Test.js");
 
+// /acceptDescriptorFromQuickListWhileItWasAProjectFavorite
 rlequire("dendro", "test/routes/interactions/accept_descriptor_from_quick_list_while_it_was_a_project_favorite/routes.interactions.acceptDescriptorFromQuickListWhileItWasAProjectFavorite.Test.js");
 
+// /acceptDescriptorFromQuickListWhileItWasAUserFavorite
 rlequire("dendro", "test/routes/interactions/accept_descriptor_from_quick_list_while_it_was_a_user_favorite/routes.interactions.acceptDescriptorFromQuickListWhileItWasAUserFavorite.Test.js");
 
+// acceptDescriptorFromQuickListWhileItWasAUserAndProjectFavorite
 rlequire("dendro", "test/routes/interactions/accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite/routes.interactions.acceptDescriptorFromQuickListWhileItWasAUserAndProjectFavorite.Test.js");
 
+// acceptDescriptorFromManualList
 rlequire("dendro", "test/routes/interactions/accept_descriptor_from_manual_list/routes.interactions.acceptDescriptorFromManualList.Test.js");
 
+// acceptDescriptorFromManualListWhileItWasAProjectFavorite
 rlequire("dendro", "test/routes/interactions/accept_descriptor_from_manual_list_while_it_was_a_project_favorite/routes.interactions.acceptDescriptorFromManualListWhileItWasAProjectFavorite.Test.js");
 
 // accept_descriptor_from_manual_list_while_it_was_a_user_favorite
