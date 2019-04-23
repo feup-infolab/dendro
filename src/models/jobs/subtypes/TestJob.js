@@ -4,7 +4,6 @@ const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
 const Job = rlequire("dendro", "src/models/jobs/Job.js").Job;
-const Config
 const name = path.parse(__filename).name;
 
 class TestJob extends Job
