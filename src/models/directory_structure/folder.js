@@ -367,8 +367,9 @@ Folder.prototype.zipAndDownload = function (includeMetadata, callback, bagItOpti
                 {
                     if (includeMetadata)
                     {
-                        self.saveMetadata({absolutePathOfFinishedFolder, metadata}, function(err){
-                           cb(err);
+                        self.saveMetadata({absolutePathOfFinishedFolder, metadata}, function (err)
+                        {
+                            cb(err);
                         });
                     }
                     else
@@ -429,47 +430,53 @@ Folder.prototype.zipAndDownload = function (includeMetadata, callback, bagItOpti
 
 Folder.prototype.copyPaste = function ({includeMetadata, user, destinationFolder}, callback)
 {
-  const self = this;
-  self.createTempFolderWithContents(includeMetadata, false, false, function (err, parentFolderPath, absolutePathOfFinishedFolder, metadata) {
-    if (isNull(err)) {
-      async.series([
-        function (cb)
+    const self = this;
+    self.createTempFolderWithContents(includeMetadata, false, false, function (err, parentFolderPath, absolutePathOfFinishedFolder, metadata)
+    {
+        if (isNull(err))
         {
-          if (includeMetadata)
-          {
-             self.saveMetadata({absolutePathOfFinishedFolder, metadata}, function(err){
-              cb(err);
-            });
-          }
-          else
-          {
-            cb(null);
-          }
-        }], function(err){
-          if(isNull(err)){
-            Logger.log("Preparing to copy paste contents of folder : " + absolutePathOfFinishedFolder);
-            destinationFolder.restoreFromFolder(absolutePathOfFinishedFolder, user, true, false, function(err, result)
+            async.series([
+                function (cb)
+                {
+                    if (includeMetadata)
+                    {
+                        self.saveMetadata({absolutePathOfFinishedFolder, metadata}, function (err)
+                        {
+                            cb(err);
+                        });
+                    }
+                    else
+                    {
+                        cb(null);
+                    }
+                }], function (err)
             {
-              if (isNull(err))
-              {
-                Folder.deleteOnLocalFileSystem(absolutePathOfFinishedFolder, function (err, result) {
-                  //self.undelete(callback, userRestoringTheFolder.uri, true);
-                  callback(null, "copied folder successfully.");
-                });
-              }
-              else
-              {
-                return callback(err, "Unable to copy folder " + self.uri + " to another folder.");
-              }
-            }, true);
-          }
-
-      });
-
-    }else{
-        callback(err, "error");
-    }
-  });
+                if (isNull(err))
+                {
+                    Logger.log("Preparing to copy paste contents of folder : " + absolutePathOfFinishedFolder);
+                    destinationFolder.restoreFromFolder(absolutePathOfFinishedFolder, user, true, false, function (err, result)
+                    {
+                        if (isNull(err))
+                        {
+                            Folder.deleteOnLocalFileSystem(absolutePathOfFinishedFolder, function (err, result)
+                            {
+                                // self.undelete(callback, userRestoringTheFolder.uri, true);
+                                callback(null, "copied folder successfully.");
+                            });
+                        }
+                        else
+                        {
+                            return callback(err, "Unable to copy folder " + self.uri + " to another folder.");
+                        }
+                    }, true);
+                }
+            });
+        }
+        else
+        {
+            callback(err, "error");
+        }
+    });
 };
 
 // bag folder according to the Bagit 0.97 Spec
@@ -1995,7 +2002,7 @@ Folder.prototype.getHumanReadableUri = function (callback)
                     {
                         const Project = rlequire("dendro", "src/models/project.js").Project;
                         const Deposit = rlequire("dendro", "src/models/deposit.js").Deposit;
-                        if(parentResource.isA(Project) || parentResource.isA(Deposit))
+                        if (parentResource.isA(Project) || parentResource.isA(Deposit))
                         {
                             callback(null, parentResource.ddr.humanReadableURI + "/data");
                         }

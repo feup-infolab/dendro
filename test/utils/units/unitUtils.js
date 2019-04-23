@@ -565,11 +565,6 @@ exports.setup = function (targetUnit, callback, forceLoad)
     {
         if (Config.docker.active)
         {
-            const fetchAllImages = function (callback)
-            {
-                DockerManager.fetchAllOrchestras(callback, true);
-            };
-
             const restoreState = function (callback)
             {
                 Logger.log("Trying to recover checkpoint " + checkpointIdentifier + "...");
@@ -578,7 +573,7 @@ exports.setup = function (targetUnit, callback, forceLoad)
                 {
                     exports.restoreCheckpoint(checkpointIdentifier, function (err, result)
                     {
-                        callback(err, !!result);
+                        callback(err, Boolean(result));
                     }, !forceLoad);
                 }
                 else
@@ -587,45 +582,10 @@ exports.setup = function (targetUnit, callback, forceLoad)
                 }
             };
 
-            if (Config.docker.destroy_existing_images_at_start)
+            restoreState(function (err, restoredState)
             {
-                async.series([
-                    function (callback)
-                    {
-                        DockerManager.destroyAllOrchestras(callback, true);
-                    },
-                    function (callback)
-                    {
-                        DockerManager.destroyAllSavedImages(callback, true);
-                    },
-                    function (callback)
-                    {
-                        fetchAllImages(callback);
-                    }
-                ], function (err, result)
-                {
-                    if (!isNull(err))
-                    {
-                        const msg = "Error destroying docker images and containers while trying to restore state " + checkpointIdentifier;
-                        Logger.log("error", msg);
-                        callback(1, msg);
-                    }
-                    else
-                    {
-                        restoreState(function (err, restoredState)
-                        {
-                            callback(err, restoredState);
-                        });
-                    }
-                });
-            }
-            else
-            {
-                fetchAllImages(function ()
-                {
-                    restoreState(callback);
-                });
-            }
+                callback(err, restoredState);
+            });
         }
         else
         {
@@ -679,101 +639,153 @@ exports.setup = function (targetUnit, callback, forceLoad)
         });
     };
 
-    if (forceLoad)
+    const cleanupAndPrefetchImages = function (callback)
     {
-        runAllLoadFunctions(callback);
-    }
-    else
-    {
-        tryToRestoreUnitState(function (err, checkpointRestored)
+        const fetchAllImages = function (callback)
         {
-            if (!err)
+            DockerManager.fetchAllOrchestras(callback, true);
+        };
+
+        async.series([
+            function (callback)
             {
-                if (checkpointRestored)
+                if (Config.docker.restart_all_orchestras_at_start)
                 {
-                    targetUnit.init(function (err, result)
-                    {
-                        Logger.log("Ran only init function of " + targetUnit.name + " because the state was restored from an existing checkpoint.");
-                        callback(err, result);
-                    });
+                    DockerManager.destroyAllOrchestras(callback, true);
                 }
                 else
                 {
-                    if (Config.docker.active && Config.docker.reuse_checkpoints)
+                    callback(null);
+                }
+            },
+            function (callback)
+            {
+                if (Config.docker.destroy_existing_images_at_start)
+                {
+                    DockerManager.destroyAllSavedImages(callback, true);
+                }
+                else
+                {
+                    callback(null);
+                }
+            },
+            function (callback)
+            {
+                fetchAllImages(callback);
+            }
+        ], function (err, result)
+        {
+            if (!isNull(err))
+            {
+                const msg = "Error destroying docker images and containers while preparing startup";
+                Logger.log("error", msg);
+                callback(1, msg);
+            }
+            else
+            {
+                callback(err, result);
+            }
+        });
+    };
+
+    cleanupAndPrefetchImages(function (err, result)
+    {
+        if (forceLoad)
+        {
+            runAllLoadFunctions(callback);
+        }
+        else
+        {
+            tryToRestoreUnitState(function (err, checkpointRestored)
+            {
+                if (!err)
+                {
+                    if (checkpointRestored)
                     {
-                        Logger.log("Final checkpoint " + checkpointIdentifier + " does not exist. Will try to load the last checkpoint up the unit dependency chain...");
-                        exports.loadLastSavedCheckpointInUnitHierarchy(targetUnit, function (err, loadedUnit)
+                        targetUnit.init(function (err, result)
                         {
-                            if (isNull(err))
-                            {
-                                let startingUnit;
-                                if (!isNull(loadedUnit))
-                                {
-                                    Logger.log("Loaded " + loadedUnit.name + ", will now run load remaining functions up the unit dependency chain...");
-                                }
-
-                                exports.runLoadFunctionsFromExistingCheckpointUntilUnit(loadedUnit, targetUnit, function (err, result)
-                                {
-                                    if (isNull(err))
-                                    {
-                                        if (startingUnit)
-                                        {
-                                            Logger.log("Ran load functions between " + loadedUnit.name + " and " + targetUnit.name + " successfully");
-                                        }
-                                        else
-                                        {
-                                            Logger.log("Ran all load functions until " + targetUnit.name + " successfully");
-                                        }
-
-                                        exports.init(function (err, result)
-                                        {
-                                            if (!err)
-                                            {
-                                                Logger.log("Started dendro instance successfully!");
-                                            }
-                                            else
-                                            {
-                                                Logger.log("error", "Error starting dendro instance");
-                                                Logger.log("error", err);
-                                                Logger.log("error", result);
-                                            }
-                                            callback(err, result);
-                                        });
-                                    }
-                                    else
-                                    {
-                                        if (!isNull(loadedUnit))
-                                        {
-                                            Logger.log("Error running functions between " + loadedUnit.name + " and " + targetUnit.name + " !");
-                                        }
-                                        else
-                                        {
-                                            Logger.log("Error running functions from the root until " + targetUnit.name + " !");
-                                        }
-
-                                        Logger.log("error", err);
-                                        Logger.log("error", JSON.stringify(result));
-                                        callback(err, result);
-                                    }
-                                });
-                            }
-                            else
-                            {
-                                throw new Error("Unable to load last checkpoint unit " + checkpointIdentifier + " state");
-                            }
+                            Logger.log("Ran only init function of " + targetUnit.name + " because the state was restored from an existing checkpoint.");
+                            callback(err, result);
                         });
                     }
                     else
                     {
-                        runAllLoadFunctions(callback);
+                        if (Config.docker.active && Config.docker.reuse_checkpoints)
+                        {
+                            Logger.log("Final checkpoint " + checkpointIdentifier + " does not exist. Will try to load the last checkpoint up the unit dependency chain...");
+                            exports.loadLastSavedCheckpointInUnitHierarchy(targetUnit, function (err, loadedUnit)
+                            {
+                                if (isNull(err))
+                                {
+                                    let startingUnit;
+                                    if (!isNull(loadedUnit))
+                                    {
+                                        Logger.log("Loaded " + loadedUnit.name + ", will now run load remaining functions up the unit dependency chain...");
+                                    }
+
+                                    exports.runLoadFunctionsFromExistingCheckpointUntilUnit(loadedUnit, targetUnit, function (err, result)
+                                    {
+                                        if (isNull(err))
+                                        {
+                                            if (startingUnit)
+                                            {
+                                                Logger.log("Ran load functions between " + loadedUnit.name + " and " + targetUnit.name + " successfully");
+                                            }
+                                            else
+                                            {
+                                                Logger.log("Ran all load functions until " + targetUnit.name + " successfully");
+                                            }
+
+                                            exports.init(function (err, result)
+                                            {
+                                                if (!err)
+                                                {
+                                                    Logger.log("Started dendro instance successfully!");
+                                                }
+                                                else
+                                                {
+                                                    Logger.log("error", "Error starting dendro instance");
+                                                    Logger.log("error", err);
+                                                    Logger.log("error", result);
+                                                }
+                                                callback(err, result);
+                                            });
+                                        }
+                                        else
+                                        {
+                                            if (!isNull(loadedUnit))
+                                            {
+                                                Logger.log("Error running functions between " + loadedUnit.name + " and " + targetUnit.name + " !");
+                                            }
+                                            else
+                                            {
+                                                Logger.log("Error running functions from the root until " + targetUnit.name + " !");
+                                            }
+
+                                            Logger.log("error", err);
+                                            Logger.log("error", JSON.stringify(result));
+                                            callback(err, result);
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    throw new Error("Unable to load last checkpoint unit " + checkpointIdentifier + " state");
+                                }
+                            });
+                        }
+                        else
+                        {
+                            runAllLoadFunctions(callback);
+                        }
                     }
                 }
-            }
-            else
-            {
-                throw new Error("Unable to restore unit " + checkpointIdentifier + " state");
-            }
-        });
-    }
+                else
+                {
+                    throw new Error("Unable to restore unit " + checkpointIdentifier + " state");
+                }
+            });
+        }
+    });
 };
 

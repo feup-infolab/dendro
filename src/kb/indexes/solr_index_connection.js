@@ -107,6 +107,20 @@ class SolrIndexConnection extends IndexConnection
                     {
                         callback(null, "Index is empty... Solr does not find the root field!");
                     }
+                    else if (err === "Solr server error: 503")
+                    {
+                        setTimeout(function ()
+                        {
+                            self.deleteDocument(resourceUri, callback);
+                        }, 500);
+                    }
+                    else if (err.indexOf("reason: socket hang up"))
+                    {
+                        setTimeout(function ()
+                        {
+                            self.deleteDocument(callback);
+                        }, 500);
+                    }
                     else
                     {
                         callback(err.status, "Unable to delete document " + resourceUri + ".  error reported : " + JSON.stringify(err));
@@ -232,7 +246,7 @@ class SolrIndexConnection extends IndexConnection
             times: 240,
             interval: function (retryCount)
             {
-                const msecs = 500;
+                const msecs = 1000;
                 Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to determine Solr status on " + self.host + " : " + self.port + "...");
                 return msecs;
             }
@@ -262,6 +276,20 @@ class SolrIndexConnection extends IndexConnection
                 if (isNull(err))
                 {
                     callback(null, result);
+                }
+                else if (err === "Solr server error: 503")
+                {
+                    setTimeout(function ()
+                    {
+                        self.deleteIndex(callback);
+                    }, 500);
+                }
+                else if (err.indexOf("reason: socket hang up") > -1)
+                {
+                    setTimeout(function ()
+                    {
+                        self.deleteIndex(callback);
+                    }, 500);
                 }
                 else
                 {
@@ -405,6 +433,13 @@ class SolrIndexConnection extends IndexConnection
                             setTimeout(function ()
                             {
                                 self.getDocumentIDForResource(resourceURI, callback);
+                            }, 500);
+                        }
+                        else if (err.indexOf("reason: socket hang up") > -1)
+                        {
+                            setTimeout(function ()
+                            {
+                                self.getDocumentIDForResource(callback);
                             }, 500);
                         }
                         else

@@ -7,11 +7,12 @@ const async = require("async");
 
 const mkdirp = require("mkdirp");
 const getDirName = require("path").dirname;
+const DockerManager = rlequire("dendro", "src/utils/docker/docker_manager.js").DockerManager;
 
 // to try to cool down tests so that virtuoso does not clog up...
 let numberofTestsRun = 0;
 
-const applyCooldownToTests = function (callback)
+const runPeriodicFunctionsEveryXTests = function (callback)
 {
     numberofTestsRun++;
     Logger.log("Ran " + numberofTestsRun + " test files.");
@@ -26,6 +27,18 @@ const applyCooldownToTests = function (callback)
                 sleep.sleep(Config.testing.cooldown_secs);
             }
             cb(null);
+        },
+        function (cb)
+        {
+            if (Config.docker.active && Config.docker.restart_containers_every_x_tests > 0 && numberofTestsRun % Config.docker.restart_containers_every_x_tests === 0)
+            {
+                Logger.log("Restarting containers because " + Config.docker.restart_containers_every_x_tests + " tests have been run!");
+                DockerManager.restartContainers(cb);
+            }
+            else
+            {
+                cb(null);
+            }
         }
     ], function (err, results)
     {
@@ -54,7 +67,7 @@ exports.clearAppState = function (cb)
             delete global.tests.app;
             delete global.tests.server;
             delete global.tests.dendroInstance;
-            applyCooldownToTests(function (err)
+            runPeriodicFunctionsEveryXTests(function (err)
             {
                 if (err)
                 {

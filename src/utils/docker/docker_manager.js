@@ -217,32 +217,61 @@ DockerManager.restoreCheckpoint = function (checkpointName, callback)
 //     }
 // };
 
-DockerManager.restartContainers = function (onlyOnce)
+DockerManager.restartContainers = function (callback, onlyOnce)
 {
     Logger.log("Restarting all Docker containers.");
     if (Config.docker && Config.docker.active)
     {
-        const performOperation = function ()
+        const performOperation = function (callback)
         {
-            childProcess.execSync("docker-compose down; docker-compose up", {
-                cwd: rlequire.getRootFolder("dendro"),
-                stdio: [0, 1, 2]
-            });
+            async.series([
+                function (callback)
+                {
+                    DockerManager.stopOrchestra(DockerManager.defaultOrchestra, function (err, result)
+                    {
+                        if (!isNull(err))
+                        {
+                            Logger.log("error", "Error occurred while stopping orchestra during restart" + DockerManager.defaultOrchestra);
+                            Logger.log("error", err.message);
+                        }
 
-            Logger.log("Restarted all containers");
-            DockerManager._restartedOnce = true;
+                        callback(err, result);
+                    });
+                },
+                function (callback)
+                {
+                    DockerManager.startOrchestra(DockerManager.defaultOrchestra, function (err, result)
+                    {
+                        if (!isNull(err))
+                        {
+                            Logger.log("error", "Error occurred while starting orchestra during restart" + DockerManager.defaultOrchestra);
+                            Logger.log("error", err.message);
+                        }
+
+                        callback(err, result);
+                    });
+                }
+            ], function (err, result)
+            {
+                if (isNull(err))
+                {
+                    Logger.log("Restarted all containers");
+                    DockerManager._restartedOnce = true;
+                }
+                callback(err, result);
+            });
         };
 
         if (onlyOnce)
         {
             if (!DockerManager._restartedOnce)
             {
-                performOperation();
+                performOperation(callback);
             }
         }
         else
         {
-            performOperation();
+            performOperation(callback);
         }
         Logger.log("Restarted all containers.");
     }
@@ -345,7 +374,7 @@ DockerManager.destroyAllOrchestras = function (callback, onlyOnce)
     {
         DockerManager.forAllOrchestrasDo(function (subdir, callback)
         {
-            const dockerSubProcess = childProcess.exec("docker-compose down --remove-orphans --rmi local ", {
+            const dockerSubProcess = childProcess.exec("docker-compose down --remove-orphans", {
                 cwd: subdir
             }, function (err, result)
             {
@@ -715,12 +744,18 @@ DockerManager.containerIsRunning = function (containerName, callback)
     });
 };
 
-DockerManager.runCommandOnContainer = function (containerName, command, callback)
+DockerManager.runCommandOnContainer = function (containerName, command, callback, omitOutput)
 {
-    childProcess.exec(`docker exec ${containerName} ${command}`, {
-        cwd: rlequire.getRootFolder("dendro"),
-        stdio: [0, 1, 2]
-    }, function (err, result)
+    const options = {
+        cwd: rlequire.getRootFolder("dendro")
+    };
+
+    if (!omitOutput)
+    {
+        options.stdio = [0, 1, 2];
+    }
+
+    childProcess.exec(`docker exec ${containerName} ${command}`, options, function (err, result)
     {
         if (isNull(err))
         {

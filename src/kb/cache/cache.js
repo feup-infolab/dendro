@@ -48,7 +48,7 @@ Cache.initConnections = function (callback)
                                     times: 240,
                                     interval: function (retryCount)
                                     {
-                                        const msecs = 500;
+                                        const msecs = 1000;
                                         Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to MongoDB Cache " + cacheId + "...");
                                         return msecs;
                                     }

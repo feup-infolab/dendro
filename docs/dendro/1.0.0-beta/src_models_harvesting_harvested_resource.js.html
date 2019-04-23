@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>src/models/harvesting/harvested_resource.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <li class="nav-link nav-home-link"><a href="index.html">Home</a></li><li class="nav-heading"><a href="global.html">Globals</a></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#arrayContainsArray">arrayContainsArray</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#buildCkanFileIDsFromDendroFileNames">buildCkanFileIDsFromDendroFileNames</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#buildExtrasJSONArray">buildExtrasJSONArray</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#buildPackageForCkanExport">buildPackageForCkanExport</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#buildPermissionsToBeCheck">buildPermissionsToBeCheck</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#calculateCkanRepositoryDiffs">calculateCkanRepositoryDiffs</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#calculateDendroDiffs">calculateDendroDiffs</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#checkIfFolderAndTargetRepositoryHaveRequiredMetadata">checkIfFolderAndTargetRepositoryHaveRequiredMetadata</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#checkIfResourceHasTheRequiredMetadataForExport">checkIfResourceHasTheRequiredMetadataForExport</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#checkPrivacyOfProject">checkPrivacyOfProject</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#checkResourceTypeAndChildren">checkResourceTypeAndChildren</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#checkRoleInSystem">checkRoleInSystem</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#Config">Config</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#createCkanFileIdBasedOnDendroFileName">createCkanFileIdBasedOnDendroFileName</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#createOrUpdateFilesInPackage">createOrUpdateFilesInPackage</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#createPackageID">createPackageID</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#createPackageInCkan">createPackageInCkan</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#deleteResourceInCkan">deleteResourceInCkan</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#exportPackageToCkan">exportPackageToCkan</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#get_recommendations">get_recommendations</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getAllPosts">getAllPosts</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getBothDendroDiffsAndCkanDiffs">getBothDendroDiffsAndCkanDiffs</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getExportedAtByDendroForCkanDataset">getExportedAtByDendroForCkanDataset</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#isObject">isObject</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#jarPath">jarPath</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#mergeDeep">mergeDeep</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#purgeCkanDataset">purgeCkanDataset</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#register_interaction">register_interaction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#repository_types">repository_types</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#request">request</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#updateOrInsertExportedAtByDendroForCkanDataset">updateOrInsertExportedAtByDendroForCkanDataset</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#updatePackageInCkan">updatePackageInCkan</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#validateChangesPermissions">validateChangesPermissions</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#verifyIfCkanFileWasCreatedInDendro">verifyIfCkanFileWasCreatedInDendro</a></span></li>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">src/models/harvesting/harvested_resource.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const IndexConnection = rlequire("dendro", "src/kb/index.js").IndexConnection;
+
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Class = rlequire("dendro", "src/models/meta/class.js").Class;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+const Resource = rlequire("dendro", "src/models/resource.js").Resource;
+
+const db = Config.getDBByID();
+
+function HarvestedResource (object = {})
+{
+    HarvestedResource.baseConstructor.call(this, object);
+
+    const self = this;
+
+    self.ddr.lastHarvested = object.ddr.lastHarvested;
+    self.ddr.md5Checksum = object.ddr.md5Checksum;
+    self.ddr.sourceRepository = object.ddr.sourceRepository;
+
+    return self;
+}
+
+/**
+ * Records a resource harvested from an external source of Linked Open Data into the Dendro Graph
+ * @deprecated
+ * @param indexConnection Connection to the ElasticSearch cluster
+ * @param callback function to call after the resource is saved
+ */
+
+HarvestedResource.prototype.save = function (callback, customGraphUri)
+{
+    const self = this;
+    let metadataInsertionString = "";
+    let argumentCount = 6;
+    const graphUri = (!isNull(customGraphUri) &amp;&amp; typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+    const indexConnection = IndexConnection.getByGraphUri(graphUri);
+
+    const argumentsArray =
+    [
+        {
+            type: Elements.types.resourceNoEscape,
+            value: db.graphUri
+        },
+        {
+            type: Elements.types.resource,
+            value: self.uri
+        },
+        {
+            type: Elements.types.resource,
+            value: self.sourceRepository.uri
+        },
+        {
+            type: Elements.types.date,
+            value: self.timestamp
+        },
+        {
+            type: Elements.types.string,
+            value: self.md5Checksum
+        },
+        {
+            type: Elements.types.string,
+            value: self.md5Checksum
+        }
+    ];
+
+    for (let i = 0; i &lt; self.metadata.length; i++)
+    {
+        const metadataDescriptor = self.metadata[i];
+
+        if (!isNull(metadataDescriptor.namespace) &amp;&amp; !isNull(metadataDescriptor.element))
+        {
+            let predicate = null;
+
+            if (isNull(metadataDescriptor.qualifier))
+            {
+                predicate = {
+                    value: metadataDescriptor.namespace + ":" + metadataDescriptor.element,
+                    type: Elements.types.prefixedResource
+                };
+            }
+            else
+            {
+                predicate = {
+                    value: metadataDescriptor.namespace + ":" + metadataDescriptor.qualifier,
+                    type: Elements.types.prefixedResource
+                };
+            }
+
+            metadataInsertionString = metadataInsertionString + "[1] [" + argumentCount + "] [" + (argumentCount + 1) + "] .\n";
+
+            const object = {
+                value: metadataDescriptor.value,
+                type: Elements.types.string
+            };
+
+            argumentsArray.push(predicate);
+            argumentsArray.push(object);
+
+            argumentCount = argumentCount + 2;
+        }
+    }
+
+    // TODO CACHE
+    const fullQueryString =
+        " DELETE FROM [0]\n" +
+        "{ \n" +
+        "[1] ?p ?o . \n" +
+        "}" +
+        "WHERE \n" +
+        "{ \n" +
+        " FILTER NOT EXISTS " +
+        "{ \n" +
+        " [1] ddr:md5_checksum [2] .\n" +
+        "} \n" +
+        "}; \n" +
+        " INSERT INTO [0]\n" +
+        "{ \n" +
+        "   [1] rdf:type ddr:HarvestedResource . \n" +
+        "   [1] ddr:last_harvested [3] . \n" +
+        "   [1] ddr:md5_checksum [4] . \n" +
+        "   [1] dcterms:publisher [5] . \n " +
+        "   [2] rdf:type ddr:ExternalRepository . \n " +
+        metadataInsertionString +
+        "} \n" +
+        "WHERE \n" +
+        "{ \n" +
+        " FILTER NOT EXISTS " +
+        "{ \n" +
+        " [1] rdf:type ddr:HarvestedResource . \n" +
+        " [1] ddr:md5_checksum [3] .\n" +
+        "} \n" +
+        "} \n";
+
+    db.connection.executeViaJDBC(
+        fullQueryString,
+        argumentsArray,
+        function (err, result)
+        {
+            if (isNull(err))
+            {
+                self.reindex(indexConnection, function (err, result)
+                {
+                    if (isNull(err))
+                    {
+                        return callback(null, "Metadata successfully inserted for resource : " + self.uri + " Virtuoso error : " + result);
+                    }
+                    const error = "Error indexing harvested resource with uri " + self.uri + ". Error reported: " + result;
+                    Logger.log("error", error);
+                    return callback(1, error);
+                });
+            }
+            else
+            {
+                return callback(1, "Error inserting metadata for resource : " + self.uri + " : Virtuoso error : " + result);
+            }
+        }, null, null, null, true
+    );
+};
+
+HarvestedResource = Class.extend(HarvestedResource, Resource, "ddr:HarvestedResource");
+
+module.exports.HarvestedResource = HarvestedResource;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Apr 23 2019 16:29:36 GMT+0100 (WEST) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

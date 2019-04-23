@@ -13,7 +13,7 @@ dev:
   sendGridUser: __FIXME
   sendGridPassword: __FIXME
   index:
-    type: elasticsearch
+    type: solr
     solr:
       connection_log_type: debug
       use_auth: false
@@ -112,7 +112,6 @@ dev:
     host: 127.0.0.1
     port: '8891'
     iSQLPort: '1112'
-    connector: http
     auth:
       user: dba
       password: dba
@@ -238,7 +237,7 @@ dev:
     load_databases: true
     reload_administrators_on_startup: true
     reload_demo_users_on_startup: true
-    reload_ontologies_on_startup: false
+    reload_ontologies_on_startup: true
     clear_session_store: true
     log_bootup_actions: true
     destroy_all_graphs: false
@@ -334,6 +333,7 @@ dev:
     - disco
     - p0
     - chm
+    - mibbiup
   authentication:
     default:
       enabled: true
@@ -357,9 +357,11 @@ dev:
     reuse_checkpoints: false
     create_checkpoints: false
     destroy_existing_images_at_start: false
+    restart_all_orchestras_at_start: false
     stop_containers_automatically: false
     start_containers_automatically: true
-    virtuoso_container_name: virtuoso-dendro-test
+    virtuoso_container_name: virtuoso-dendro-dev
+    restart_containers_every_x_tests: 1
   keywords_extraction:
     active: true
     corenlp:

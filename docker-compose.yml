@@ -1,4 +1,4 @@
-version: '3.2'
+version: '3.3'
 
 services:
   elasticsearch:
@@ -47,7 +47,8 @@ services:
       - "SPARQL_UPDATE=true"
       - "VIRT_Parameters_CheckpointSyncMode=2"
       - "VIRT_Parameters_PageMapCheck=1"
-      - "VIRT_Parameters_CheckpointInterval=0"
+      - "VIRT_Parameters_CheckpointInterval=1"
+      - "VIRT_Parameters_MinAutoCheckpointSize=1"
       - "DBA_PASSWORD=dba"
     volumes:
         - ./volumes/virtuoso:/database
@@ -103,7 +104,9 @@ services:
       - mongodb
       - virtuoso
     volumes:
-      - ./volumes/dendro:/dendro
+      - ./volumes/dendro/conf:/dendro/conf
+      - ./volumes/dendro/logs:/dendro/logs
+      - ./volumes/profiling/logs:/dendro/profiling
     environment:
       DENDRO_ACTIVE_DEPLOYMENT_CONFIG: docker
     networks:

@@ -86,7 +86,7 @@ Deposit.createDeposit = function (data, callback)
                               affiliation: null, // affiliation
                               nameIdentifiers:
                                 [{
-                                    nameIdentifier: null,//uri
+                                    nameIdentifier: null, // uri
                                     nameIdentifierScheme: null,
                                     schemeUri: null
                                 }]

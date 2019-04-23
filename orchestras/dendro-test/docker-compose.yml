@@ -1,4 +1,4 @@
-version: '3'
+version: '3.3'
 
 services:
 #  elasticsearch:
@@ -27,15 +27,23 @@ services:
 
   virtuoso:
     container_name: virtuoso-dendro-test
-    image: joaorosilva/virtuoso:7.2.4-for-dendro-0.4${DENDRO_DOCKER_CONTAINERS_SUFFIX}
+    image: feupinfolab/virtuoso-with-dendro-ontologies:latest
+    expose:
+      - "8890"
+      - "1111"
+    tty: true
     ports:
-      - 8890:8890
-      - 1111:1111
+      - published: 8890
+        target: 8890
+      - published: 1111
+        target: 1111
     environment:
       - "SPARQL_UPDATE=true"
       - "VIRT_Parameters_CheckpointSyncMode=2"
       - "VIRT_Parameters_PageMapCheck=1"
-      - "VIRT_Parameters_CheckpointInterval=0"
+      - "VIRT_Parameters_CheckpointInterval=1"
+      - "VIRT_Parameters_MinAutoCheckpointSize=1"
+      - "DBA_PASSWORD=dba"
 
   mariadb:
     container_name: mariadb-dendro-test

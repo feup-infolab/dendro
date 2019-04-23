@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>src/controllers/repo_bookmarks.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <li class="nav-link nav-home-link"><a href="index.html">Home</a></li><li class="nav-heading"><a href="global.html">Globals</a></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#arrayContainsArray">arrayContainsArray</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#buildCkanFileIDsFromDendroFileNames">buildCkanFileIDsFromDendroFileNames</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#buildExtrasJSONArray">buildExtrasJSONArray</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#buildPackageForCkanExport">buildPackageForCkanExport</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#buildPermissionsToBeCheck">buildPermissionsToBeCheck</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#calculateCkanRepositoryDiffs">calculateCkanRepositoryDiffs</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#calculateDendroDiffs">calculateDendroDiffs</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#checkIfFolderAndTargetRepositoryHaveRequiredMetadata">checkIfFolderAndTargetRepositoryHaveRequiredMetadata</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#checkIfResourceHasTheRequiredMetadataForExport">checkIfResourceHasTheRequiredMetadataForExport</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#checkPrivacyOfProject">checkPrivacyOfProject</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#checkResourceTypeAndChildren">checkResourceTypeAndChildren</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#checkRoleInSystem">checkRoleInSystem</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#Config">Config</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#createCkanFileIdBasedOnDendroFileName">createCkanFileIdBasedOnDendroFileName</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#createOrUpdateFilesInPackage">createOrUpdateFilesInPackage</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#createPackageID">createPackageID</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#createPackageInCkan">createPackageInCkan</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#deleteResourceInCkan">deleteResourceInCkan</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#exportPackageToCkan">exportPackageToCkan</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#get_recommendations">get_recommendations</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getAllPosts">getAllPosts</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getBothDendroDiffsAndCkanDiffs">getBothDendroDiffsAndCkanDiffs</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getExportedAtByDendroForCkanDataset">getExportedAtByDendroForCkanDataset</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#isObject">isObject</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#jarPath">jarPath</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#mergeDeep">mergeDeep</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#purgeCkanDataset">purgeCkanDataset</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#register_interaction">register_interaction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#repository_types">repository_types</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#request">request</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#updateOrInsertExportedAtByDendroForCkanDataset">updateOrInsertExportedAtByDendroForCkanDataset</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#updatePackageInCkan">updatePackageInCkan</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#validateChangesPermissions">validateChangesPermissions</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#verifyIfCkanFileWasCreatedInDendro">verifyIfCkanFileWasCreatedInDendro</a></span></li>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">src/controllers/repo_bookmarks.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const path = require("path");
+const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+
+const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+const ExternalRepository = rlequire("dendro", "src/models/harvesting/external_repository.js").ExternalRepository;
+const RepositoryPlatform = rlequire("dendro", "src/models/harvesting/repo_platform").RepositoryPlatform;
+const Resource = rlequire("dendro", "src/models/resource.js").Resource;
+const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
+
+const async = require("async");
+const _ = require("underscore");
+
+const validateNewBookmarkRequest = function (req, res)
+{
+    const validator = require("validator");
+    const regex = Resource.getResourceRegex("repo_platform");
+
+    if (isNull(req.body.dcterms.title))
+    {
+        res.status(400).json({
+            result: "error",
+            message: "No bookmark title specified."
+        });
+        return false;
+    }
+    else if (isNull(req.body.ddr.username) &amp;&amp; req.body.ddr.hasPlatform.foaf.nick !== "figshare" &amp;&amp; req.body.ddr.hasPlatform.foaf.nick !== "zenodo" &amp;&amp; req.body.ddr.hasPlatform.foaf.nick !== "b2share" &amp;&amp; req.body.ddr.hasPlatform.foaf.nick !== "dendro" &amp;&amp; req.body.ddr.hasPlatform.foaf.nick !== "local")
+    {
+        res.status(400).json({
+            result: "error",
+            message: "No repository username specified."
+        });
+
+        return false;
+    }
+    else if (isNull(req.body.ddr.hasPlatform))
+    {
+        res.status(400).json({
+            result: "error",
+            message: "No repository type specified."
+        });
+
+        return false;
+    }
+    else if (isNull(req.body.ddr.hasPlatform.uri))
+    {
+        res.status(400).json({
+            result: "error",
+            message: "Platform field does not have a valid uri field."
+        });
+
+        return false;
+    }
+    else if (!regex.test(req.body.ddr.hasPlatform.uri))
+    {
+        res.status(400).json({
+            result: "error",
+            message: "Invalid platform URI specified. "
+        });
+
+        return false;
+    }
+    else if (req.body.ddr.hasPlatform.foaf.nick === "local")
+    {
+        return true;
+    }
+    else if (req.body.ddr.hasPlatform.foaf.nick === "dspace" || req.body.ddr.hasPlatform.foaf.nick === "eprints")
+    {
+        if (isNull(req.body.ddr.hasExternalUri))
+        {
+            res.status(400).json({
+                result: "error",
+                message: "You must specify the url of the bookmarked repository"
+            });
+
+            return false;
+        }
+
+        if (isNull(req.body.ddr.hasSwordCollectionUri) || isNull(req.body.ddr.hasSwordCollectionLabel))
+        {
+            res.status(400).json({
+                result: "error",
+                message: "No collection specified"
+            });
+
+            return false;
+        }
+    }
+    else if (req.body.ddr.hasPlatform.foaf.nick === "ckan")
+    {
+        if (isNull(req.body.ddr.hasExternalUri))
+        {
+            res.status(400).json({
+                result: "error",
+                message: "You must specify the url of the bookmarked repository"
+            });
+
+            return false;
+        }
+        if (isNull(req.body.ddr.hasAPIKey))
+        {
+            res.status(400).json({
+                result: "error",
+                message: "No API Key specified"
+            });
+
+            return false;
+        }
+    }
+    else if (req.body.ddr.hasPlatform.foaf.nick === "figshare")
+    {
+        if (isNull(req.body.ddr.hasExternalUri))
+        {
+            res.status(400).json({
+                result: "error",
+                message: "You must specify the url of the bookmarked repository"
+            });
+
+            return false;
+        }
+
+        if (isNull(req.body.ddr.hasConsumerKey))
+        {
+            res.status(400).json({
+                result: "error",
+                message: "No consumer key specified"
+            });
+
+            return false;
+        }
+        else if (isNull(req.body.ddr.hasConsumerSecret))
+        {
+            res.status(400).json({
+                result: "error",
+                message: "No consumer secret specified"
+            });
+
+            return false;
+        }
+        else if (isNull(req.body.ddr.hasAccessToken))
+        {
+            res.status(400).json({
+                result: "error",
+                message: "No access token specified"
+            });
+
+            return false;
+        }
+        else if (isNull(req.body.ddr.hasAccessTokenSecret))
+        {
+            res.status(400).json({
+                result: "error",
+                message: "No access token secret specified"
+            });
+
+            return false;
+        }
+    }
+
+    return true;
+};
+
+/*
+expected format :
+    {
+        uri : "http://dendro.fe.up.pt/bookmark1",
+        dcterms : {
+            title : "CKAN Demo Repository"
+        },
+        ddr: {
+            hasPassword : "DVet1658",
+            hasUsername : "ricardoamorim",
+            hasExternalUri : "http://demo.ckan.org",
+            hasPlatform : {
+                uri : "http://dendro.fe.up.pt/repository_platforms/ckan",
+                dcterms : {
+                    title : "CKAN"
+                },
+                foaf: {
+                    nick : "ckan",
+                    homepage : "http://ckan.org"
+                }
+            }
+        }
+    }
+ */
+exports.new = function (req, res)
+{
+    if (!req.body)
+    {
+        return res.status(400).json({
+            result: "error",
+            message: "HTTP Body of the request was null."
+        });
+    }
+    else if (isNull(req.user))
+    {
+        return res.status(401).json({
+            result: "error",
+            message: "You are not logged in the system."
+        });
+    }
+    else if (req.originalMethod === "POST")
+    {
+        try
+        {
+            if (validateNewBookmarkRequest(req, res))
+            {
+                if (req.body.ddr.hasPlatform.foaf.nick === "eprints")
+                {
+                    req.body.ddr.hasSwordCollectionUri = req.body.ddr.hasExternalUri + Config.swordConnection.EprintsCollectionRef;
+                    req.body.ddr.hasSwordCollectionLabel = "EPrints";
+                }
+                else if (req.body.ddr.hasPlatform.foaf.nick === "b2share")
+                {
+                    if (isNull(req.body.ddr.hasAccessToken))
+                    {
+                        req.body.ddr.hasAccessToken = Config.eudatToken;
+                    }
+                }
+
+                RepositoryPlatform.findByPropertyValue(new Descriptor(
+                    {
+                        value: req.body.ddr.hasPlatform.ddr.handle,
+                        prefixedForm: "ddr:handle"
+                    }), function (err, repo_platform)
+                {
+                    if (isNull(err))
+                    {
+                        if (repo_platform instanceof RepositoryPlatform)
+                        {
+                            const newBookmark = new ExternalRepository({
+                                dcterms: {
+                                    title: req.body.dcterms.title,
+                                    creator: req.user.uri
+                                },
+                                ddr: {
+                                    username: req.body.ddr.username,
+                                    hasPlatform: repo_platform.uri,
+                                    hasExternalUri: req.body.ddr.hasExternalUri,
+                                    hasSwordCollectionLabel: req.body.ddr.hasSwordCollectionLabel,
+                                    hasSwordCollectionUri: req.body.ddr.hasSwordCollectionUri,
+                                    hasConsumerKey: req.body.ddr.hasConsumerKey,
+                                    hasConsumerSecret: req.body.ddr.hasConsumerSecret,
+                                    hasAccessToken: req.body.ddr.hasAccessToken,
+                                    hasAccessTokenSecret: req.body.ddr.hasAccessTokenSecret,
+                                    hasOrganization: req.body.ddr.hasOrganization,
+                                    hasAPIKey: req.body.ddr.hasAPIKey
+                                }
+                            });
+
+                            if (newBookmark instanceof ExternalRepository)
+                            {
+                                newBookmark.save(function (err, result)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        res.json({
+                                            result: "ok",
+                                            message: "New bookmark saved as " + newBookmark.dcterms.title
+                                        });
+                                    }
+                                    else
+                                    {
+                                        res.status(500).json({
+                                            result: "error",
+                                            message: "Error saving new bookmark . " + result
+                                        });
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                res.status(500).json({
+                                    result: "error",
+                                    message: "Error saving the new bookmark. Error reported: " + newBookmark.error
+                                });
+                            }
+                        }
+                        else
+                        {
+                            res.status(500).json({
+                                result: "error",
+                                message: "Error fetching repo_platform handle for the new bookmark. Error reported: " + JSON.stringify(repo_platform)
+                            });
+                        }
+                    }
+                    else
+                    {
+                        res.status(500).json({
+                            result: "error",
+                            message: "Error fetching repo_platform handle for the new bookmark. Error reported: " + JSON.stringify(repo_platform)
+                        });
+                    }
+                });
+            }
+        }
+        catch (e)
+        {
+            res.status(400).json({
+                result: "error",
+                message: "Invalid HTTP Body : " + e.message
+            });
+        }
+    }
+    else
+    {
+        res.status(400).json({
+            result: "error",
+            message: "Invalid HTTP Method. Only POST requests are allowed."
+        });
+    }
+};
+
+/*
+returned format :
+    {
+        uri : "http://dendro.fe.up.pt/bookmark1",
+        dcterms : {
+            title : "CKAN Demo Repository"
+        },
+        ddr: {
+            hasUsername : "ricardoamorim",
+            hasExternalUri : "http://demo.ckan.org",
+            hasPlatform : {
+                uri : "http://dendro.fe.up.pt/repository_platforms/ckan",
+                dcterms : {
+                    title : "CKAN"
+                },
+                foaf: {
+                    nick : "ckan",
+                    homepage : "http://ckan.org"
+                }
+            }
+        }
+    }
+ */
+
+exports.my = function (req, res)
+{
+    ExternalRepository.findByCreator(req.user.uri, function (err, myRepositoryBookmarks)
+    {
+        if (isNull(err))
+        {
+            const getPlatformDetails = function (myRepositoryBookmark, callback)
+            {
+                if (isNull(myRepositoryBookmark))
+                {
+                    return callback(null, []);
+                }
+
+                RepositoryPlatform.findByUri(myRepositoryBookmark.ddr.hasPlatform, function (err, platform)
+                {
+                    if (isNull(err))
+                    {
+                        if (!isNull(platform))
+                        {
+                            myRepositoryBookmark.ddr.hasPlatform = platform;
+                        }
+
+                        return callback(null, myRepositoryBookmark);
+                    }
+                    return callback(err, platform);
+                });
+            };
+
+            async.mapSeries(myRepositoryBookmarks, getPlatformDetails, function (err, bookmarksWithPlatforms)
+            {
+                if (isNull(err))
+                {
+                    res.json(bookmarksWithPlatforms);
+                }
+                else
+                {
+                    const msg = "Error fetching repository platforms for your bookmarks.";
+
+                    res.status(500).json({
+                        result: "error",
+                        message: msg
+                    });
+                }
+            });
+        }
+        else
+        {
+            const msg = "Unable to find repository bookmarks created by " + req.user.uri + " . Error returned : " + myRepositoryBookmarks;
+
+            res.status(500).json({
+                result: "error",
+                message: msg
+            });
+        }
+    });
+};
+
+exports.all = function (req, res)
+{
+    const acceptsHTML = req.accepts("html");
+    let acceptsJSON = req.accepts("json");
+
+    if (!acceptsJSON &amp;&amp; acceptsHTML)
+    {
+        res.status(400).json({
+            result: "error",
+            message: "HTML Request not valid for this route."
+        });
+    }
+    else
+    {
+        ExternalRepository.all(function (err, externalRepositories)
+        {
+            if (isNull(err))
+            {
+                for (let i = 0; i &lt; externalRepositories.length; i++)
+                {
+                    Descriptor.removeUnauthorizedFromObject(externalRepositories[i], [Elements.access_types.private, Elements.access_types.audit], [Elements.access_types.api_readable]);
+                }
+
+                res.json(externalRepositories);
+            }
+            else
+            {
+                const msg = "Unable to retrieve all instances of external repositories";
+                res.status(500).json({
+                    result: "error",
+                    message: msg
+                });
+            }
+        });
+    }
+};
+
+exports.delete = function (req, res)
+{
+    const requestedResourceUri = req.originalUrl;
+
+    if (req.originalMethod === "DELETE")
+    {
+        ExternalRepository.findByUri(requestedResourceUri, function (err, bookmark)
+        {
+            if (isNull(err))
+            {
+                if (!bookmark)
+                {
+                    const msg = "Unable to retrieve the requested bookmark for deletion.";
+                    res.status(400).json({
+                        result: "error",
+                        message: msg
+                    });
+                }
+                else
+                {
+                    bookmark.deleteAllMyTriples(function (err, result)
+                    {
+                        if (isNull(err))
+                        {
+                            const msg = "Bookmark " + bookmark.dcterms.title + " successfully deleted. ";
+                            res.json({
+                                result: "ok",
+                                message: msg
+                            });
+                        }
+                        else
+                        {
+                            const msg = "Error deleting bookmark " + requestedResourceUri + ". Error reported: " + result;
+                            res.status(500).json({
+                                result: "error",
+                                message: msg
+                            });
+                        }
+                    });
+                }
+            }
+            else
+            {
+                const msg = "Unable to retrieve types of external repository platforms for this Dendro instance.";
+                res.status(500).json({
+                    result: "error",
+                    message: msg
+                });
+            }
+        });
+    }
+};
+
+/**
+ * Returned format
+ $scope.repository_types = [
+ {
+     uri : "http://dendro.fe.up.pt/repository_platforms/ckan",
+     dcterms : {
+         title : "CKAN Demo Repository"
+     },
+     foaf: {
+         nick : "ckan",
+         homepage : "http://ckan.org"
+     },
+     ddr: {
+         hasPassword : "DVet1658",
+         hasUsername : "ricardoamorim",
+         hasExternalUri : "http://demo.ckan.org",
+         hasPlatform : {
+             uri : "http://dendro.fe.up.pt/repository_platforms/ckan",
+             dcterms : {
+                 title : "CKAN"
+             },
+             foaf: {
+                 nick : "ckan",
+                 homepage : "http://ckan.org"
+             }
+         }
+     }
+ }
+ ];
+ */
+exports.repository_types = function (req, res)
+{
+    RepositoryPlatform.all(function (err, types)
+    {
+        if (isNull(err))
+        {
+            res.json(types);
+        }
+        else
+        {
+            const msg = "Unable to retrieve types of external repository platforms for this Dendro instance.";
+            res.status(500).json({
+                result: "error",
+                message: msg
+            });
+        }
+    });
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Apr 23 2019 16:29:36 GMT+0100 (WEST) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

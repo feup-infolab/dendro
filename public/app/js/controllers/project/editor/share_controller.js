@@ -567,7 +567,6 @@ angular.module("dendroApp.controllers")
                 }
                 payload.protocolAndHost = windowService.get_protocol_and_host();
 
-
                 var requestString = JSON.stringify(payload);
 
                 var url = $scope.get_calling_uri() + "?export_to_repository";
