@@ -13,7 +13,7 @@
     "CreateFoldersForLsByName": {"depends_on": "CreateFoldersUnit", "path": "test/units/folders/createFoldersForLsByName.Unit.js"},
 
     "CreateFoldersPublicProject": {"depends_on":  "AddContributorsToProjectsUnit", "path":  "test/units/folders/createFoldersPublicProject.Unit.js"},
-    "AddMetadataToFoldersPublicProject": {"depends_on": "CreateFoldersPublicProject", "path": "test/units/metadata/addMetadataToFoldersPublicProject.Unit.js"},,
+    "AddMetadataToFoldersPublicProject": {"depends_on": "CreateFoldersPublicProject", "path": "test/units/metadata/addMetadataToFoldersPublicProject.Unit.js"},
 
     "AddMetadataToFoldersUnit": {"depends_on": "CreateFoldersUnit", "path": "test/units/metadata/addMetadataToFolders.Unit.js"},
 
@@ -76,7 +76,6 @@
     "publicProject.data.testFolder1.__restore" : {"state":  "AddMetadataToFoldersPublicProject", "path": "test/routes/project/public_project/data/testFolder1/__restore/routes.project.publicProject.data.testFolder1.__restore.Test.js"},
     "publicProject.__administerTest" : {"state":  "AddMetadataToFoldersPublicProject","path": "test/routes/project/public_project/__administer/routes.project.publicProject.__administerTest.js"},
 
-    ---->"loggedUser" : {"state":  "","path": "test/routes/users/loggedUser/route.users.loggedUser.Test.js"},
 
     "users" : {"state":  "CreateUsersUnit","path": "test/routes/users/route.users.Test.js"},
     "demouser1" : {"state":  "CreateUsersUnit","path": "test/routes/user/demouser1/route.user.demouser1.Test.js"},
@@ -86,8 +85,8 @@
     "user_avatar" : {"state":  "CreateUsersUnit","path": "test/routes/user_avatar/routes.user_avatar.Test.js"},
 
     "demouser1.avatar" : {"state":  "CreateAvatarsForUsersUnit","path": "test/routes/user/demouser1/avatar/routes.user.demouser1.avatar.Test.js"},
-    "demouser2.avatar" : {"state":  "CreateAvatarsForUsersUnit","path": "test/routes/user/demouser1/avatar/routes.user.demouser2.avatar.Test.js"},
-    "demouser3.avatar" : {"state":  "CreateAvatarsForUsersUnit","path": "test/routes/user/demouser1/avatar/routes.user.demouser3.avatar.Test.js"},
+    "demouser2.avatar" : {"state":  "CreateAvatarsForUsersUnit","path": "test/routes/user/demouser2/avatar/routes.user.demouser2.avatar.Test.js"},
+    "demouser3.avatar" : {"state":  "CreateAvatarsForUsersUnit","path": "test/routes/user/demouser3/avatar/routes.user.demouser3.avatar.Test.js"},
 
     "projects.new" : {"state":  "CreateUsersUnit","path": "test/routes/projects/new/route.projects.new.Test.js"},
     "projects-list" : {"state":  "AddContributorsToProjectsUnit","path": "test/routes/projects/route.projects.Test.js"},
@@ -113,7 +112,7 @@
     "metadataonlyProject.data.testFolder2.__update_metadata" : {"state":  "CreateFoldersUnit","path": "test/routes/project/metadata_only_project/data/testFolder2/__update_metadata/routes.project.metadataonlyProject.data.testFolder2.__update_metadata.Test.js"},
 
     "publicProject.data.testFolder1.__undelete" : {"state":  "DeleteFoldersUnit","path": "test/routes/project/public_project/data/testFolder1/__undelete/routes.project.publicProject.data.testFolder1.__undelete.Test.js"},
-    "publicProject.data.testFolder2.__undelete" : {"state":  "DeleteFoldersUnit","path": "test/routes/project/public_project/data/testFolder1/__undelete/routes.project.publicProject.data.testFolder2.__undelete.Test.js"},
+    "publicProject.data.testFolder2.__undelete" : {"state":  "DeleteFoldersUnit","path": "test/routes/project/public_project/data/testFolder2/__undelete/routes.project.publicProject.data.testFolder2.__undelete.Test.js"},
     "privateProject.data.testFolder1.__undelete" : {"state":  "DeleteFoldersUnit","path": "test/routes/project/private_project/data/testFolder1/__undelete/routes.project.privateProject.data.testFolder1.__undelete.Test.js"},
     "privateProject.data.testFolder2.__undelete" : {"state":  "DeleteFoldersUnit","path": "test/routes/project/private_project/data/testFolder2/__undelete/routes.project.privateProject.data.testFolder2.__undelete.Test.js"},
     "metadataonlyProject.data.testFolder1.__undelete" : {"state":  "DeleteFoldersUnit","path": "test/routes/project/metadata_only_project/data/testFolder1/__undelete/routes.project.metadataonlyProject.data.testFolder1.__undelete.Test.js"},
@@ -216,6 +215,6 @@
     "privateProject.data.testFolder1.__restore_metadata_version" : {"state":  "AddMetadataToFoldersUnit","path": "test/routes/project/private_project/data/testFolder1/__restore_metadata_version/routes.project.privateProject.data.testFolder1.__restore_metadata_version.Test.js"},
     "privateProject.data.testFolder2.__restore_metadata_version" : {"state":  "AddMetadataToFoldersUnit","path": "test/routes/project/private_project/data/testFolder2/__restore_metadata_version/routes.project.privateProject.data.testFolder2.__restore_metadata_version.Test.js"},
     "metadataonlyProject.data.testFolder1.__restore_metadata_version" : {"state":  "AddMetadataToFoldersUnit","path": "test/routes/project/metadata_only_project/data/testFolder1/__restore_metadata_version/routes.project.metadataonlyProject.data.testFolder1.__restore_metadata_version.Test.js"},
-    "metadataonlyProject.data.testFolder2.__restore_metadata_version" : {"state":  "AddMetadataToFoldersUnit","path": "test/routes/project/metadata_only_project/data/testFolder2/__restore_metadata_version/routes.project.metadataonlyProject.data.testFolder2.__restore_metadata_version.Test.js"},
+    "metadataonlyProject.data.testFolder2.__restore_metadata_version" : {"state":  "AddMetadataToFoldersUnit","path": "test/routes/project/metadata_only_project/data/testFolder2/__restore_metadata_version/routes.project.metadataonlyProject.data.testFolder2.__restore_metadata_version.Test.js"}
   }
 }
