@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  nginx_proxy:
+    container_name: nginx-proxy
+    image:  jwilder/nginx-proxy:latest
+    ports:
+      - 8888:80
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
+  whoami:
+    container_name: whoami
+    image: jwilder/whoami
+    environment:
+      - VIRTUAL_HOST=whoami.local
+    expose:
+      - 8000
+  whoami2:
+    container_name: whoami2
+    image: jwilder/whoami
+    environment:
+      - VIRTUAL_HOST=whoami2.local
+    expose:
+      - 8000
+

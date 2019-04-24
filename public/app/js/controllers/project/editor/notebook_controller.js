@@ -2,7 +2,7 @@ angular.module("dendroApp.controllers")
 /*
     *  Notebook controller
     */
-    .controller("notebookCtrl", function(
+    .controller("notebookCtrl", function (
         $scope,
         $rootScope,
         $http,
@@ -56,9 +56,9 @@ angular.module("dendroApp.controllers")
             notebookService.startnotebook();
         };
 
-        $scope.start_notebook = function (resource_uri) {
+        $scope.start_notebook = function (resource_uri)
+        {
             console.log("Hey there I am starting");
-
 
             if (resource_uri != null)
             {
@@ -75,7 +75,6 @@ angular.module("dendroApp.controllers")
                     return response;
                 });
             }
-        }
+        };
     });
-
 

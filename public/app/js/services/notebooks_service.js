@@ -23,13 +23,13 @@ angular.module("dendroApp.services")
                         contentType: "application/json",
                         headers: {Accept: "application/json"}
                     }).then(function (response)
+                    {
+                        if (response.data != null && response.data instanceof Object)
                         {
-                            if (response.data != null && response.data instanceof Object)
-                            {
-                                return response.data;
-                            }
-                            return [];
+                            return response.data;
                         }
+                        return [];
+                    }
                     );
                 };
                 this.mkdir = function (newFolderName, parentFolderUri)

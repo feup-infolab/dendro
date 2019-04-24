@@ -32,7 +32,7 @@ const posts = rlequire("dendro", "src/controllers/posts");
 const timeline = rlequire("dendro", "src/controllers/timeline");
 const notifications = rlequire("dendro", "src/controllers/notifications");
 const keywords = rlequire("dendro", "src/controllers/keywords");
-const notebooks =rlequire("dendro", "src/controllers/notebooks");
+const notebooks = rlequire("dendro", "src/controllers/notebooks");
 
 let recommendation;
 
@@ -1439,25 +1439,28 @@ const loadRoutes = function (app, callback)
 
     app.delete("/interactions/delete_all", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), interactions.delete_all_interactions);
 
-
-
-    //notebook
+    // notebook
 
     if (Config.notebooks.active)
     {
         var notebookregex = getNonHumanReadableRouteRegex("notebook");
-        //TODO so far only creator will have access must change
+        // TODO so far only creator will have access must change
         app.get(notebookregex,
             async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
-            async.apply(DockerManager.requireOrchestras, ["dendro_notebook"]),
+            async.apply(DockerManager.requireOrchestras, ["dendro_notebook_vhosts"]),
             notebooks.show);
 
-        //TODO fix this activate
+        // TODO fix this activate
+        app.get(`/notebooks/new`,
+            async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
+            async.apply(DockerManager.requireOrchestras, ["dendro_notebook_vhosts"]),
+            notebooks.new);
+
+        // TODO fix this activate
         app.get(`${notebookregex}?activate`,
             async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
-            async.apply(DockerManager.requireOrchestras, ["dendro_notebook"]),
+            async.apply(DockerManager.requireOrchestras, ["dendro_notebook_vhosts"]),
             notebooks.activate);
-
     }
     // keywords
 
@@ -1529,6 +1532,20 @@ const loadRoutes = function (app, callback)
                 }
             });
         });
+
+    // var vhost = require("vhost");
+    // var connect = require('connect')
+    // var app2 = connect();
+    //
+    // app2.use(vhost("lol.joaomacbookpro.local", function handle (req, res, next)
+    // {
+    //     // for match of "foo.bar.example.com:8080" against "*.*.example.com":
+    //     console.dir(req.vhost.host); // => 'foo.bar.example.com:8080'
+    //     console.dir(req.vhost.hostname); // => 'foo.bar.example.com'
+    //     console.dir(req.vhost.length); // => 2
+    //     console.dir(req.vhost[0]); // => 'foo'
+    //     console.dir(req.vhost[1]); // => 'bar'
+    // }));
 
     callback(null);
 };

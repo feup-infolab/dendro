@@ -4,25 +4,11 @@ services:
   jupyter_notebook:
     container_name: jupyter-dendro
     image:  jupyter/scipy-notebook:17aba6048f44
-   # environment:
-    #  - JAVA_XMX=3g
-    ports:
-      - 8888:8888
-
-
-  nginx_proxy:
-    container_name: nginx-proxy
-    image:  jwilder/nginx-proxy:latest
-    ports:
-      - 80:80
-    volumes:
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-
-  whoami:
-    image: jwilder/whoami
     environment:
-      - VIRTUAL_PORT=whoami.local
-#  whoami2:
-#    image: jwilder/whoami
-#    environment:
-#      - VIRTUAL_PORT=whoami2.local
+      - VIRTUAL_HOST=${DENDRO_NOTEBOOK_VIRTUAL_HOST}
+      # - VIRTUAL_PORT=${DENDRO_NOTEBOOK_VIRTUAL_HOST}
+      #- JAVA_XMX=3g
+    # ports:
+    #  - 8888:8888
+    expose:
+      - 8888
