@@ -96,7 +96,7 @@ class ElasticSearchConnection extends IndexConnection
                 times: 240,
                 interval: function (retryCount)
                 {
-                    const msecs = 500;
+                    const msecs = 1000;
                     Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to determine ElasticSearch cluster health");
                     return msecs;
                 }
@@ -150,7 +150,7 @@ class ElasticSearchConnection extends IndexConnection
                 times: 240,
                 interval: function (retryCount)
                 {
-                    const msecs = 500;
+                    const msecs = 1000;
                     Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to ElasticSearch while checking if index " + self.short_name + " is ready...");
                     return msecs;
                 }
@@ -234,7 +234,7 @@ class ElasticSearchConnection extends IndexConnection
                 times: 240,
                 interval: function (retryCount)
                 {
-                    const msecs = 500;
+                    const msecs = 1000;
                     Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to ElasticSearch...");
                     return msecs;
                 }
@@ -632,7 +632,7 @@ class ElasticSearchConnection extends IndexConnection
             times: 240,
             interval: function (retryCount)
             {
-                const msecs = 500;
+                const msecs = 1000;
                 Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to verify if ElasticSearch index " + self.short_name + " exists...");
                 return msecs;
             }

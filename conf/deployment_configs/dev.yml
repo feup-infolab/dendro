@@ -13,7 +13,7 @@ dev:
   sendGridUser: __FIXME
   sendGridPassword: __FIXME
   index:
-    type: elasticsearch
+    type: solr
     solr:
       connection_log_type: 'DEBUG'
       use_auth: false
@@ -112,7 +112,6 @@ dev:
     host: 127.0.0.1
     port: '8891'
     iSQLPort: '1112'
-    connector: http
     auth:
       user: dba
       password: dba

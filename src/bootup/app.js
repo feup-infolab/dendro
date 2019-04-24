@@ -35,7 +35,7 @@ class App
         let express = require("express");
         self.app = express();
 
-        self.setupHandlers();
+        self.registerHandlers();
 
         if (!isNull(options))
         {
@@ -47,108 +47,27 @@ class App
         }
     }
 
-    setupHandlers ()
+    unhandledExceptionHandler (up)
     {
-        const self = this;
+        Logger.log("error", "Unhandled rejection detected.");
+        Logger.log("error", up.message);
+        Logger.log("error", up.stack);
 
-        if (App._handlers_are_installed === true)
+        if (process.env.NODE_ENV !== "test")
         {
-            return;
+            throw up;
         }
+    }
 
+    setupForcedKillTimer ()
+    {
         // if this fancy cleanup fails, we drop the hammer in 20 secs
-        const setupForceKillTimer = function ()
+        setTimeout(function ()
         {
-            setTimeout(function ()
-            {
-                const msg = "Graceful close timed out. Forcing server closing!";
-                Logger.log("info", msg);
-                throw new Error(msg);
-            }, 20000);
-        };
-
-        const signals = ["SIGHUP", "SIGINT", "SIGQUIT", "SIGABRT", "SIGTERM"];
-
-        _.map(signals, function (signal)
-        {
-            process.on(signal, function ()
-            {
-                setupForceKillTimer();
-                Logger.log("warn", "Signal " + signal + " received!");
-
-                self.freeResources(function ()
-                {
-                    Logger.log("Freed all resources. Halting Dendro Server with PID " + process.pid + " now. ");
-                    process.exit(0);
-                });
-            });
-        });
-
-        process.on("unhandledRejection", up =>
-        {
-            Logger.log("error", "Unhandled rejection detected.");
-            Logger.log("error", up.message);
-            Logger.log("error", up.stack);
-
-            if (process.env.NODE_ENV !== "test")
-            {
-                throw up;
-            }
-        });
-
-        process.on("uncaughtException", function (exception)
-        {
-            Logger.log("error", "Critical error occurred. Dendro will have to shut down!");
-
-            if (!isNull(exception.message))
-            {
-                Logger.log("error", exception.message);
-            }
-
-            if (!isNull(exception.stack))
-            {
-                Logger.log("error", exception.stack);
-            }
-
-            if (!isNull(process.env.NODE_ENV))
-            {
-                if (process.env.NODE_ENV !== "test")
-                {
-                    process.nextTick(function ()
-                    {
-                        process.exit(1);
-                    });
-                }
-            }
-            else
-            {
-                process.nextTick(function ()
-                {
-                    process.exit(1);
-                });
-            }
-        });
-
-        process.on("exit", function (code)
-        {
-            if (!isNull(code) && code !== 0)
-            {
-                Logger.log(`Unknown error occurred! About to exit with code ${code}`);
-            }
-
-            self.freeResources(function ()
-            {
-                Logger.log("Freed all resources.");
-                if (!isNull(code) && code !== 0)
-                {
-                    Logger.log("error", `Dendro exited because of an error. Check the logs at the ${path.join(__dirname, "logs")} folder`);
-                }
-
-                process.exit(code);
-            });
-        });
-
-        App._handlers_are_installed = true;
+            const msg = "Graceful close timed out. Forcing server closing!";
+            Logger.log("info", msg);
+            throw new Error(msg);
+        }, 20000);
     }
 
     initLogger ()
@@ -625,6 +544,110 @@ class App
         ], callback);
     }
 
+    exitHandler (code, exception)
+    {
+        const self = this;
+        self.freeResources(function ()
+        {
+            Logger.log("info", "Freed all resources.");
+
+            if (process.env.NODE_ENV !== "test")
+            {
+                Logger.log("Halting Dendro Server with PID " + process.pid + " now!");
+
+                if (!isNull(code) && code !== 0)
+                {
+                    Logger.log(`About to exit with code ${code}`);
+                }
+
+                if (!isNull(code) && code !== 0)
+                {
+                    Logger.log("error", `Dendro exited because of an error. Check the logs at the ${path.join(__dirname, "logs")} folder`);
+                }
+                else
+                {
+                    Logger.log("info", `Dendro exited gracefully.`);
+                }
+
+                process.exit(code);
+            }
+            else
+            {
+                if (!isNull(exception))
+                {
+                    throw exception;
+                }
+            }
+        });
+    }
+
+    // uncaughtExceptionHander (exception)
+    // {
+    //     const self = this;
+    //     Logger.log("error", "Critical error occurred. Dendro will have to shut down!");
+    //
+    //     if (!isNull(exception.message))
+    //     {
+    //         Logger.log("error", exception.message);
+    //     }
+    //
+    //     if (!isNull(exception.stack))
+    //     {
+    //         Logger.log("error", exception.stack);
+    //     }
+    //
+    //     self.exitHandler(1, exception);
+    // }
+
+    signalHandler (signal)
+    {
+        const self = this;
+        self.setupForcedKillTimer();
+        Logger.log("warn", "Signal " + signal + " received!");
+        self.exitHandler(0);
+    }
+
+    registerHandlers ()
+    {
+        const self = this;
+
+        if (App._handlers_are_installed === true)
+        {
+            return;
+        }
+
+        _.map(App.handledSignals, function (signal)
+        {
+            process.on(signal, function ()
+            {
+                Logger.log("warn", "Signal " + signal + " received!");
+                self.setupForcedKillTimer();
+                self.exitHandler(0);
+            });
+        });
+
+        process.on("unhandledRejection", self.unhandledExceptionHandler);
+        // process.on("uncaughtException", self.uncaughtExceptionHander);
+
+        App._handlers_are_installed = true;
+    }
+
+    unregisterHandlers (cb)
+    {
+        const self = this;
+        process.on("unhandledRejection", self.unhandledExceptionHandler);
+        // process.on("uncaughtException", self.uncaughtExceptionHander);
+
+        _.map(App.handledSignals, function (signal)
+        {
+            process.removeListener(signal, self.signalHandler);
+        });
+
+        delete App._handlers_are_installed;
+
+        cb(null);
+    }
+
     freeResources (callback)
     {
         const self = this;
@@ -859,6 +882,11 @@ class App
             cb(null);
         };
 
+        const unregisterHandlers = function (cb)
+        {
+            self.unregisterHandlers(cb);
+        };
+
         async.parallel([
             function (callback)
             {
@@ -874,7 +902,8 @@ class App
                     callGarbageCollector,
                     removePIDFile,
                     haltDockerContainers,
-                    destroyLogger
+                    destroyLogger,
+                    unregisterHandlers
                 ], function (err, results)
                 {
                     callback(err, results);
@@ -896,6 +925,8 @@ class App
         });
     }
 }
+
+App.handledSignals = ["SIGHUP", "SIGINT", "SIGQUIT", "SIGABRT", "SIGTERM"];
 
 if (!(App._handlers_are_installed === true) || isNull(App._handlers_are_installed))
 {
