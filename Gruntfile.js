@@ -27,7 +27,11 @@ module.exports = function (grunt)
                 options: {
                     configure: "conf/jsdoc-config.json"
                 }
-            }
+            },
+            options:
+                {
+                    failOnError: false
+                }
         }
     });
 
@@ -39,5 +43,5 @@ module.exports = function (grunt)
     grunt.loadNpmTasks("grunt-jsdoc");
 
     // Default task(s).
-    grunt.registerTask("default", ["auto_install", "jsdoc"]);
+    grunt.registerTask("default", ["auto_install"]);
 };
