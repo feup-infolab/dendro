@@ -24,7 +24,8 @@ angular.module("dendroApp.controllers")
         storageService,
         recommendationService,
         usersService,
-        ContextMenuEvents
+        ContextMenuEvents,
+        notebookService
     )
     {
         $scope.init = function ()
@@ -52,6 +53,7 @@ angular.module("dendroApp.controllers")
 
             $scope.allowDir = false;
             $scope.dropAvailable = true;
+            notebookService.startnotebook();
         };
 
         $scope.start_notebook = function (resource_uri) {
