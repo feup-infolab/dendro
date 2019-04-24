@@ -1,21 +1,23 @@
-## Build Statuses
-
-UPDigital Server [![Build Status](http://buildserver-rdm.up.pt:8111/job/Dendro/job/dendro/job/post-ranking/badge/icon)](http://buildserver-rdm.up.pt:8111/job/Dendro/job/dendro/job/post-ranking/) Travis [![Build Status](https://travis-ci.org/feup-infolab/dendro.svg?branch=master)](https://travis-ci.org/feup-infolab/dendro)
-
-## Code Quality
+<!--UPDigital Server [![Build Status](http://buildserver-rdm.up.pt:8111/job/Dendro/job/dendro/job/post-ranking/badge/icon)](http://buildserver-rdm.up.pt:8111/job/Dendro/job/dendro/job/post-ranking/) -->
+[![Build Status](https://travis-ci.org/feup-infolab/dendro.svg?branch=master)](https://travis-ci.org/feup-infolab/dendro)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/28789e8562c4460280710d730bd65ca0)](https://www.codacy.com/app/silvae86/dendro?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=feup-infolab/dendro&amp;utm_campaign=Badge_Grade)
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/28789e8562c4460280710d730bd65ca0)](https://www.codacy.com/app/silvae86/dendro?utm_source=github.com&utm_medium=referral&utm_content=feup-infolab/dendro&utm_campaign=Badge_Coverage)
 [![dependencies](https://david-dm.org/feup-infolab/dendro.svg)](https://david-dm.org/feup-infolab/dendro)
 [![Chat on gitter](https://img.shields.io/gitter/room/badges/shields.svg)](https://gitter.im/feup-infolab/dendro)
-[![](https://images.microbadger.com/badges/version/joaorosilva/dendro:master.svg)](https://microbadger.com/images/joaorosilva/dendro:master "Get your own version badge on microbadger.com")
+[![](https://images.microbadger.com/badges/image/feupinfolab/dendro.svg)](https://microbadger.com/images/feupinfolab/dendro "Get your own image badge on microbadger.com")
 
 ## What is Dendro?
 
 Dendro is the software powering [INESC TEC](https://dendro.inesctec.pt) and the [University of Porto](https://dendro-rdm.up.pt) data staging platforms. It allows researchers to manage research data in preparation for deposit in any research data repository. "Upload files and fill in metadata once, deposit anywhere you like".
 
 ## The user interface
+<img src="https://raw.githubusercontent.com/feup-infolab/dendro/master/public/images/Screen%20Shot%202017-04-04%20at%2012.22.08.png" alt="drawing" style="width:100%;"/>
 
-![dendro UI](https://raw.githubusercontent.com/feup-infolab/dendro/master/public/images/Screen%20Shot%202017-04-04%20at%2012.22.08.png "Dendro UI")
+## Main Features
+
+<img src="https://raw.githubusercontent.com/feup-infolab/dendro/master/public/images/dendro-tutorial/dendro_ui_2.png" alt="dendro user interface" style="width:90%;"/>
+
+<img src="https://raw.githubusercontent.com/feup-infolab/dendro/master/public/images/dendro-tutorial/dendro_ui_1.png" alt="dendro features" style="width:90%;"/>
 
 ## How to install
 
@@ -39,6 +41,7 @@ git clone https://github.com/feup-infolab/dendro
 4. Run the installation command in the same terminal and wait until no more text is printed. It can take several minutes.
 ````bash
 cd dendro
+docker-compose pull
 docker-compose up
 ````
 5. Access your dendro installation at [127.0.0.1:3001](http://127.0.0.1:3001) in your browser.
@@ -164,7 +167,7 @@ This work was supported by project NORTE-07-0124-FEDER-000059, financed by the N
 
 This work is financed by the ERDF – European Regional Development Fund through the Operational Programme for Competitiveness and Internationalisation - COMPETE 2020 Programme and by National Funds through the Portuguese funding agency, FCT - Fundação para a Ciência e a Tecnologia within project POCI-01-0145-FEDER-016736.
 
-<img src="https://github.com/feup-infolab-rdm/dendro-install/raw/master/logos.jpg">
+<img src="https://github.com/feup-infolab-rdm/dendro-install/raw/master/logos.jpg" alt="dendro features" style="width:90%;"/>
 
 ## License
 

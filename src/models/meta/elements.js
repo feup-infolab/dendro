@@ -3799,6 +3799,163 @@ Elements.ontologies.p0 =
             }
     };
 
+/**
+ * Elements of the Minimum Information for Biological and Biomedical Investigations
+ */
+Elements.ontologies.mibbiup =
+    {
+        Age:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        Assay_Type:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        Cell_Line:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        Cell_Type:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        Collection_Date:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        Development_Stage:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        Disease:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        Drug_Usage:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        Environmental_Factor:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        Ethnicity:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        Experimental_Factor:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        Instrument_Name:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        Instrument_Type:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        Material:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        Measurement:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        Method:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        Molecule:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        Organism:
+            {
+                type: Elements.types.string,
+                control: Controls.input_box
+            },
+        Organism_Part:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+        Reagent:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+        Sample_Collection_Protocol:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+        Sample_Size:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+        Sample_Type:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+        Sex:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+        Software:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+        Study_Design:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+        Study_Domain:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+        Temperature:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+        Tissue:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
+        Treatment_Protocol:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        }
+    };
+
 Elements.setAllElements = function (loadedElements)
 {
     for (let i = 0; i < loadedElements.length; i++)

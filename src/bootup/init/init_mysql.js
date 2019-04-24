@@ -38,7 +38,7 @@ const initMySQL = function (app, callback)
         times: 240,
         interval: function (retryCount)
         {
-            const msecs = 500;
+            const msecs = 1000;
             Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to determine if MySQL is running...");
             return msecs;
         }

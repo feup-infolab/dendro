@@ -1,4 +1,4 @@
-version: '3'
+version: '3.3'
 
 services:
   elasticsearch:
@@ -40,7 +40,8 @@ services:
       - "SPARQL_UPDATE=true"
       - "VIRT_Parameters_CheckpointSyncMode=2"
       - "VIRT_Parameters_PageMapCheck=1"
-      - "VIRT_Parameters_CheckpointInterval=0"
+      - "VIRT_Parameters_CheckpointInterval=1"
+      - "VIRT_Parameters_MinAutoCheckpointSize=1"
       - "DBA_PASSWORD=dba"
 
   mariadb:

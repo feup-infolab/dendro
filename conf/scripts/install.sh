@@ -44,17 +44,54 @@ then
     # In Ubuntu
     elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
         echo "Installing Java 8 JDK. This will take a few minutes."
-        sudo apt-get install --yes python-software-properties
-        sudo add-apt-repository -y ppa:webupd8team/java
-        sudo apt-get update -qq
-        echo debconf shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
-        echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo /usr/bin/debconf-set-selections
-        echo "This will take a few minutes and no messages will be shown. PLEASE WAIT!"
-        sudo apt-get install -qq --yes oracle-java8-installer > /dev/null
-        yes "" | sudo apt-get -f install > /dev/null || die "There was an error installing Oracle JDK 8."
+        ############################################
+        #####         Start JDK Install        #####
+        ############################################
 
-        echo "Installing Oracle JDK 8. There is no output but the installation is working in the background. Please WAIT!"
-        sudo apt install oracle-java8-set-default > /dev/null
+        # Since there is no image of Ubuntu 19.04 at this time, I pasted from
+        # https://github.com/AdoptOpenJDK/openjdk-docker/blob/master/8/jdk/ubuntu/Dockerfile.hotspot.releases.full
+        set -eux; \
+            ARCH="$(dpkg --print-architecture)"; \
+            case "${ARCH}" in \
+               ppc64el|ppc64le) \
+                 ESUM='485533573e0a6aa4188a9adb336d24e795f9de8c59499d5b88a651b263fa1c34'; \
+                 BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u202-b08/OpenJDK8U-jdk_ppc64le_linux_hotspot_8u202b08.tar.gz'; \
+                 ;; \
+               s390x) \
+                 ESUM='d47b6cfcf974e50363635bfc7c989b25b4681cd29286ba5ed426cfd486b65c5f'; \
+                 BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u202-b08/OpenJDK8U-jdk_s390x_linux_hotspot_8u202b08.tar.gz'; \
+                 ;; \
+               amd64|x86_64) \
+                 ESUM='f5a1c9836beb3ca933ec3b1d39568ecbb68bd7e7ca6a9989a21ff16a74d910ab'; \
+                 BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u202-b08/OpenJDK8U-jdk_x64_linux_hotspot_8u202b08.tar.gz'; \
+                 ;; \
+               aarch64|arm64) \
+                 ESUM='8eee0aede947b804f9a5f49c8a38b52aace8a30a9ebd9383b7d06042fb5a237c'; \
+                 BINARY_URL='https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u191-b12/OpenJDK8U-jdk_aarch64_linux_hotspot_8u191b12.tar.gz'; \
+                 ;; \
+               *) \
+                 echo "Unsupported arch: ${ARCH}"; \
+                 exit 1; \
+                 ;; \
+            esac; \
+            curl -Lso /tmp/openjdk.tar.gz ${BINARY_URL}; \
+            sha256sum /tmp/openjdk.tar.gz; \
+            mkdir -p /opt/java/openjdk; \
+            cd /opt/java/openjdk; \
+            echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
+            tar -xf /tmp/openjdk.tar.gz; \
+            jdir=$(dirname $(dirname $(find /opt/java/openjdk -name java | grep -v "/jre/bin"))); \
+            mv ${jdir}/* /opt/java/openjdk; \
+            rm -rf ${jdir} /tmp/openjdk.tar.gz;
+
+        export  JAVA_HOME=/opt/java/openjdk \
+                PATH="/opt/java/openjdk/bin:$PATH"
+        export  JAVA_TOOL_OPTIONS=""
+        export  LD_LIBRARY_PATH="$JAVA_HOME/jre/lib/amd64/server"
+
+        ############################################
+        #####          End JDK Install         #####
+        ############################################
     fi
 else
     echo "Java 1.8 installed and set as default..."

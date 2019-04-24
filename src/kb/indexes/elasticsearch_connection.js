@@ -96,7 +96,7 @@ class ElasticSearchConnection extends IndexConnection
                 times: 240,
                 interval: function (retryCount)
                 {
-                    const msecs = 500;
+                    const msecs = 1000;
                     Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to determine ElasticSearch cluster health");
                     return msecs;
                 }
@@ -150,7 +150,7 @@ class ElasticSearchConnection extends IndexConnection
                 times: 240,
                 interval: function (retryCount)
                 {
-                    const msecs = 500;
+                    const msecs = 1000;
                     Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to ElasticSearch while checking if index " + self.short_name + " is ready...");
                     return msecs;
                 }
@@ -208,6 +208,7 @@ class ElasticSearchConnection extends IndexConnection
                                     {
                                         ElasticSearchConnection._all[self.id] = self;
                                         callback(null, self.client);
+                                        ElasticSearchConnection.successfullyConnectedBefore = true;
                                     }
                                     else
                                     {
@@ -217,8 +218,11 @@ class ElasticSearchConnection extends IndexConnection
                         }
                         else
                         {
-                            Logger.log("warn", "Error trying to check if ElasticSearch is online.");
-                            Logger.log("warn", err);
+                            if (ElasticSearchConnection.successfullyConnectedBefore)
+                            {
+                                Logger.log("warn", "Error trying to check if ElasticSearch is online.");
+                                Logger.log("warn", err);
+                            }
                             callback(err, false);
                         }
                     });
@@ -230,7 +234,7 @@ class ElasticSearchConnection extends IndexConnection
                 times: 240,
                 interval: function (retryCount)
                 {
-                    const msecs = 500;
+                    const msecs = 1000;
                     Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to ElasticSearch...");
                     return msecs;
                 }
@@ -628,7 +632,7 @@ class ElasticSearchConnection extends IndexConnection
             times: 240,
             interval: function (retryCount)
             {
-                const msecs = 500;
+                const msecs = 1000;
                 Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to verify if ElasticSearch index " + self.short_name + " exists...");
                 return msecs;
             }
@@ -847,6 +851,8 @@ class ElasticSearchConnection extends IndexConnection
         return "ElasticSearch Index " + self.id + " running on http://" + self.host + ":" + self.port;
     }
 }
+
+ElasticSearchConnection.successfullyConnectedBefore = false;
 
 ElasticSearchConnection.indexTypes = {
     resource: "resource"

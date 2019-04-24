@@ -21,6 +21,17 @@ module.exports = function (grunt)
                 recursive: true,
                 exclude: [".git", "node_modules", "components", "grunt-tasks", "bower_components", ".sass-cache", "volumes"]
             }
+        },
+        jsdoc: {
+            dist: {
+                options: {
+                    configure: "conf/jsdoc-config.json"
+                }
+            },
+            options:
+                {
+                    failOnError: false
+                }
         }
     });
 
@@ -29,6 +40,7 @@ module.exports = function (grunt)
 
     // install bower deps
     grunt.loadNpmTasks("grunt-auto-install");
+    grunt.loadNpmTasks("grunt-jsdoc");
 
     // Default task(s).
     grunt.registerTask("default", ["auto_install"]);

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>src/export_libs/sword-connection/lib/sword-connection.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <li class="nav-link nav-home-link"><a href="index.html">Home</a></li><li class="nav-heading"><a href="global.html">Globals</a></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#arrayContainsArray">arrayContainsArray</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#buildCkanFileIDsFromDendroFileNames">buildCkanFileIDsFromDendroFileNames</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#buildExtrasJSONArray">buildExtrasJSONArray</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#buildPackageForCkanExport">buildPackageForCkanExport</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#buildPermissionsToBeCheck">buildPermissionsToBeCheck</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#calculateCkanRepositoryDiffs">calculateCkanRepositoryDiffs</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#calculateDendroDiffs">calculateDendroDiffs</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#checkIfFolderAndTargetRepositoryHaveRequiredMetadata">checkIfFolderAndTargetRepositoryHaveRequiredMetadata</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#checkIfResourceHasTheRequiredMetadataForExport">checkIfResourceHasTheRequiredMetadataForExport</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#checkPrivacyOfProject">checkPrivacyOfProject</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#checkResourceTypeAndChildren">checkResourceTypeAndChildren</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#checkRoleInSystem">checkRoleInSystem</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#Config">Config</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#createCkanFileIdBasedOnDendroFileName">createCkanFileIdBasedOnDendroFileName</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#createOrUpdateFilesInPackage">createOrUpdateFilesInPackage</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#createPackageID">createPackageID</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#createPackageInCkan">createPackageInCkan</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#deleteResourceInCkan">deleteResourceInCkan</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#exportPackageToCkan">exportPackageToCkan</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#get_recommendations">get_recommendations</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getAllPosts">getAllPosts</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getBothDendroDiffsAndCkanDiffs">getBothDendroDiffsAndCkanDiffs</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getExportedAtByDendroForCkanDataset">getExportedAtByDendroForCkanDataset</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#isObject">isObject</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#jarPath">jarPath</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#mergeDeep">mergeDeep</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#purgeCkanDataset">purgeCkanDataset</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#register_interaction">register_interaction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#repository_types">repository_types</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#request">request</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#updateOrInsertExportedAtByDendroForCkanDataset">updateOrInsertExportedAtByDendroForCkanDataset</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#updatePackageInCkan">updatePackageInCkan</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#validateChangesPermissions">validateChangesPermissions</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#verifyIfCkanFileWasCreatedInDendro">verifyIfCkanFileWasCreatedInDendro</a></span></li>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">src/export_libs/sword-connection/lib/sword-connection.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Created by Filipe on 09/07/2014.
+ */
+const jarPath = "./export_libs/sword-connection/sword2-client.jar"; // attention with this path, relative path from the root project
+
+function SwordConnection (user, password, serviceDocumentRef)
+{
+    const newConnection = Object.create(SwordConnection);
+    newConnection.user = user;
+    newConnection.password = password;
+    newConnection.serviceDocRef = serviceDocumentRef;
+
+    return newConnection;
+}
+executeCommand = function (command, callback)
+{
+    const exec = require("child_process").exec;
+
+    const child = exec(command, function (error, stdout, stderr)
+    {
+        if (error)
+        {
+            return callback(true, stderr, null);
+        }
+        const data = JSON.parse(stdout);
+
+        if (data.success === "true")
+        {
+            return callback(null, data.message, data.response);
+        }
+        if ("message" in data)
+        {
+            return callback(true, data.message, null);
+        }
+        return callback(true, null, null);
+    });
+};
+SwordConnection.listCollections = function (callback)
+{
+    const option = "list-collections";
+    const command = "java -jar " + jarPath + " " + option + " " + "sword" + " " + this.user + " " + this.password + " " + this.serviceDocRef;
+
+    executeCommand(command, callback);
+};
+SwordConnection.sendFile = function (repositoryType, filePath, collectionRef, sendMetadata, metadataJsonRef, callback)
+{
+    const option = "send-file";
+    let command = "java -jar " + jarPath + " " + option + " " + repositoryType + " " + this.user + " " + this.password + " " + this.serviceDocRef;
+    command += " " + filePath + " " + collectionRef + " " + sendMetadata;
+    if (sendMetadata)
+    {
+        command += " " + metadataJsonRef;
+    }
+    executeCommand(command, callback);
+};
+module.exports.SwordConnection = SwordConnection;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Apr 24 2019 17:25:52 GMT+0100 (WEST) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

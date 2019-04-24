@@ -26,7 +26,7 @@ const init = function (app, callback)
                     {
                         Job._jobTypes.forEach(function (type)
                         {
-                            type.fetchJobsStillInMongoAndRestartThem();
+                            type.startJobs();
                         });
                     }
                     else
