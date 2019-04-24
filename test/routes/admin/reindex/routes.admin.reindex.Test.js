@@ -26,7 +26,7 @@ describe("Resource re-indexing page ( /admin/reindex )", function (done)
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        AddMetadataToFoldersPublicProject.setup(function (err, res)
+        AddMetadataToFoldersPublicProject.init(function (err, res)
         {
             should.equal(err, null);
             app = global.tests.app;

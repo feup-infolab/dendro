@@ -27,7 +27,7 @@ describe("Public project testFolder1 level ls_by_name tests", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createFoldersForLsByName.setup(function (err, results)
+        createFoldersForLsByName.init(function (err, results)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {

@@ -36,7 +36,7 @@ describe("Import projects", function (done)
 
     before(function (done)
     {
-        createUsersUnit.setup(function (err, results)
+        createUsersUnit.init(function (err, results)
         {
             should.equal(err, null);
             done();

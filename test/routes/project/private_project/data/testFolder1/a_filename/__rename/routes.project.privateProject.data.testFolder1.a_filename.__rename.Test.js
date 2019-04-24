@@ -35,7 +35,7 @@ describe("Private project testFolder1 ?rename", function ()
     {
         before(function (done)
         {
-            createFilesUnit.setup(function (err, results)
+            createFilesUnit.init(function (err, results)
             {
                 userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                 {

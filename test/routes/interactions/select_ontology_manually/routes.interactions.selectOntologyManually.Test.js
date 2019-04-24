@@ -43,7 +43,7 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] select_ontology
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createFilesUnit.setup(function (err, results)
+        createFilesUnit.init(function (err, results)
         {
             should.equal(err, null);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)

@@ -86,7 +86,7 @@ describe("Public project testFolder1 level restore folder tests", function ()
     let folderDebug3Uri;
     before(function (done)
     {
-        addMetadataToFoldersInPublicProjectUnit.setup(function (err, results)
+        addMetadataToFoldersInPublicProjectUnit.init(function (err, results)
         {
             try
             {

@@ -30,7 +30,7 @@ describe("Metadata only project testFolder1 level ?version", function ()
 
     before(function (done)
     {
-        addMetadataToFoldersUnit.setup(function (err, results)
+        addMetadataToFoldersUnit.init(function (err, results)
         {
             should.equal(err, null);
             done();

@@ -40,7 +40,7 @@ describe("/search", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        AddMetadataToFoldersUnit.setup(function (err, results)
+        AddMetadataToFoldersUnit.init(function (err, results)
         {
             should.not.exist(err);
 

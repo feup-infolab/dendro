@@ -74,13 +74,13 @@
     "search" : {"state":  "AddMetadataToFoldersUnit","path": "test/routes/search/routes.search.Test.js"},
 
     "publicProject.data.testFolder1.__restore" : {"state":  "AddMetadataToFoldersPublicProject", "path": "test/routes/project/public_project/data/testFolder1/__restore/routes.project.publicProject.data.testFolder1.__restore.Test.js"},
-    "publicProject.__administerTest" : {"state":  "AddMetadataToFoldersPublicProject","path": "test/routes/project/public_project/__administer/routes.project.publicProject.__administerTest.js"},
+    "publicProject.__administerTest" : {"state":  "CreateProjectsUnit","path": "test/routes/project/public_project/__administer/routes.project.publicProject.__administerTest.js"},
 
 
     "users" : {"state":  "CreateUsersUnit","path": "test/routes/users/route.users.Test.js"},
     "demouser1" : {"state":  "CreateUsersUnit","path": "test/routes/user/demouser1/route.user.demouser1.Test.js"},
-    "demouser2" : {"state":  "CreateUsersUnit","path": "test/routes/user/demouser1/route.user.demouser2.Test.js"},
-    "demouser3" : {"state":  "CreateUsersUnit","path": "test/routes/user/demouser1/route.user.demouser3.Test.js"},
+    "demouser2" : {"state":  "CreateUsersUnit","path": "test/routes/user/demouser2/route.user.demouser2.Test.js"},
+    "demouser3" : {"state":  "CreateUsersUnit","path": "test/routes/user/demouser3/route.user.demouser3.Test.js"},
     "user.edit" : {"state":  "CreateUsersUnit","path": "test/routes/user/edit/routes.user.edit.Test.js"},
     "user_avatar" : {"state":  "CreateUsersUnit","path": "test/routes/user_avatar/routes.user_avatar.Test.js"},
 

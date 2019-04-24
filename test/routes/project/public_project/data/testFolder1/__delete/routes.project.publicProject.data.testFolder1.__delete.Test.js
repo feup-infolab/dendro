@@ -28,7 +28,7 @@ describe("Public project testFolder1 level soft delete tests", function ()
     this.timeout(Config.testsTimeout);
     before(function (done)
     {
-        createFoldersUnit.setup(function (err, results)
+        createFoldersUnit.init(function (err, results)
         {
             should.equal(err, null);
             done();
