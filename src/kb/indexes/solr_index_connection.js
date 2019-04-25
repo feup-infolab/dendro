@@ -181,7 +181,7 @@ class SolrIndexConnection extends IndexConnection
                     protocol: "http"
 
                 });
-                callback(null, self.client);
+                callback(null);
             }
         ], function (err, results)
         {
@@ -215,41 +215,18 @@ class SolrIndexConnection extends IndexConnection
 
         const tryToConnect = function (callback)
         {
-            const tcpp = require("tcp-ping");
-
-            tcpp.probe(self.host, self.port, function (err, available)
+            self.checkIfIndexExists(function (err, exists, response)
             {
-                if (available === true)
+                if (!exists)
                 {
-                    self.client.search(`q=*:*&rows=1`, function (err, result)
+                    self.createNewIndex(function (err, result)
                     {
-                        if (!isNull(err) && err.status === 200)
-                        {
-                            callback(null, true, result);
-                        }
-                        else if (!isNull(err) && err.status === 404)
-                        {
-                            self.createNewIndex(function (err, result)
-                            {
-                                if (isNull(err))
-                                {
-                                    self.ensureIndexIsReady(callback);
-                                }
-                                else
-                                {
-                                    callback(null, isNull(err), result);
-                                }
-                            });
-                        }
-                        else
-                        {
-                            callback(null, isNull(err), result);
-                        }
+                        callback(null, isNull(err), result);
                     });
                 }
                 else
                 {
-                    callback(null, false);
+                    callback(null, true, response);
                 }
             });
         };
@@ -318,9 +295,30 @@ class SolrIndexConnection extends IndexConnection
     checkIfIndexExists (callback)
     {
         const self = this;
-        self.ensureIndexIsReady(function (err, available)
+        // http://localhost:8984/solr/admin/cores?action=STATUS&core=dbpedia
+        const request = require("request");
+
+        request.get({
+            url: `http://${self.host}:${self.port}/solr/admin/cores?action=STATUS&core=${self.id}`,
+            json: true
+        },
+        function (err, response, data)
         {
-            callback(null, available);
+            if (isNull(err))
+            {
+                if (JSON.stringify(data.status[self.id]) === JSON.stringify({}))
+                {
+                    callback(err, false, data);
+                }
+                else
+                {
+                    callback(err, true, data);
+                }
+            }
+            else
+            {
+                callback(err, false, data);
+            }
         });
     }
 
