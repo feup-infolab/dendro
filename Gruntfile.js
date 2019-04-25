@@ -27,11 +27,7 @@ module.exports = function (grunt)
                 options: {
                     configure: "conf/jsdoc-config.json"
                 }
-            },
-            options:
-                {
-                    failOnError: false
-                }
+            }
         }
     });
 
@@ -41,7 +37,8 @@ module.exports = function (grunt)
     // install bower deps
     grunt.loadNpmTasks("grunt-auto-install");
     grunt.loadNpmTasks("grunt-jsdoc");
+    grunt.loadNpmTasks('grunt-force-task');
 
     // Default task(s).
-    grunt.registerTask("default", ["auto_install"]);
+    grunt.registerTask("default", ["auto_install", "force:jsdoc"]);
 };
