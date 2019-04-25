@@ -227,6 +227,20 @@ class SolrIndexConnection extends IndexConnection
                         {
                             callback(null, false, result);
                         }
+                        else if (!isNull(err) && err.status === 404)
+                        {
+                            self.createNewIndex(function (err, result)
+                            {
+                                if (isNull(err))
+                                {
+                                    self.ensureIndexIsReady(callback);
+                                }
+                                else
+                                {
+                                    callback(null, isNull(err), result);
+                                }
+                            });
+                        }
                         else
                         {
                             callback(null, isNull(err), result);
