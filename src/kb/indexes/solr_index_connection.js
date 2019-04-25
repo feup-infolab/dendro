@@ -118,7 +118,7 @@ class SolrIndexConnection extends IndexConnection
                     {
                         setTimeout(function ()
                         {
-                            self.deleteDocument(callback);
+                            self.deleteDocument(resourceUri, callback);
                         }, 500);
                     }
                     else
