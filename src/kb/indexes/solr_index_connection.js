@@ -223,9 +223,9 @@ class SolrIndexConnection extends IndexConnection
                 {
                     self.client.search(`q=*:*&rows=1`, function (err, result)
                     {
-                        if (!isNull(err) && err.status !== 200)
+                        if (!isNull(err) && err.status === 200)
                         {
-                            callback(null, false, result);
+                            callback(null, true, result);
                         }
                         else if (!isNull(err) && err.status === 404)
                         {
