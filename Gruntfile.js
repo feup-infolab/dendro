@@ -37,8 +37,9 @@ module.exports = function (grunt)
     // install bower deps
     grunt.loadNpmTasks("grunt-auto-install");
     grunt.loadNpmTasks("grunt-jsdoc");
-    grunt.loadNpmTasks('grunt-force-task');
+    // grunt.loadNpmTasks("grunt-force-task");
 
     // Default task(s).
-    grunt.registerTask("default", ["auto_install", "force:jsdoc"]);
+    // grunt.registerTask("default", ["auto_install", "force:jsdoc"]);
+    grunt.registerTask("default", ["auto_install"]);
 };
