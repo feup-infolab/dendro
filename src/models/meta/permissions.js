@@ -576,27 +576,39 @@ const checkUsersRoleInDeposit = function (req, user, role, depositUri, callback)
             {
                 if (isNull(err) && deposit instanceof Deposit)
                 {
-                    async.eachSeries(predicateRoles, function (predicate, cb)
-                    {
-                        deposit.checkIfHasPredicateValue(predicate, user.uri, function (err, result)
+                    async.waterfall([
+                        function (callback)
                         {
-                            if (isNull(err))
+                            deposit.checkIfHasPredicateValue(role.predicate[0], user.uri, function (err, result)
                             {
-                                if (result === true)
-                                {
-                                    return callback(err, result);
-                                }
-
-                                cb(err, result);
+                                return callback(err, result);
+                            });
+                        },
+                        function (result, callback)
+                        {
+                            if (result === true)
+                            {
+                                return callback(null, result);
                             }
-                            else
+
+                            user.checkIfHasPredicateValue(role.predicate[1], role.object, function (err, result)
                             {
-                                return callback(err, false);
+                                return callback(err, result);
+                            });
+                        }], function (err, result)
+                    {
+                        if (!isNull(err))
+                        {
+                            callback(null, false);
+                        }
+                        result.forEach(function (value)
+                        {
+                            if (value === true)
+                            {
+                                callback(null, value);
                             }
                         });
-                    }, function (err)
-                    {
-                        return callback(null, false);
+                        callback(null, false);
                     });
                 }
                 else
@@ -660,6 +672,14 @@ const checkPrivacyOfOwnerProject = function (req, user, role, resource, callback
 
 const checkOwnerDeposit = function (req, user, role, resource, callback)
 {
+    if (!isNull(user))
+    {
+        // user.checkIfHasPredicateValue(role.predicate, role.object, function (err, result)
+        user.checkIfHasPredicateValue(role.predicate, role.object, function (err, result)
+        {
+            return callback(err, result);
+        });
+    }
     getDeposit(resource, function (err, deposit)
     {
         if (isNull(err))
@@ -827,8 +847,10 @@ Permissions.settings = {
             creator: {
                 type: Permissions.types.role_in_deposit,
                 predicates: [
+                    "rdf:type",
                     "dcterms:creator"
                 ],
+                object: "ddr:Administrator",
                 error_message_user: "Error trying to access a deposit or a file / folder within a deposit that you have not created.",
                 error_message_api: "Unauthorized access. Must be signed on as a creator of this deposit."
             }

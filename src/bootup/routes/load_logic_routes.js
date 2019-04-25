@@ -400,6 +400,9 @@ const loadRoutes = function (app, callback)
     app.get("/projects/import", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), projects.import);
     app.post("/projects/import", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), projects.import);
 
+    // deposits
+    app.get("/deposits/my", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), deposits.my);
+
     // external repository bookmarks
     app.get("/external_repositories/types", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), repo_bookmarks.repository_types);
     app.get("/external_repositories/my", async.apply(Permissions.require, [Permissions.settings.role.in_system.user ]), repo_bookmarks.my);

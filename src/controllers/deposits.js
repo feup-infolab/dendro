@@ -24,42 +24,9 @@ const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descripto
 const Ontology = rlequire("dendro", "src/models/meta/ontology.js").Ontology;
 const Permissions = rlequire("dendro", "src/models/meta/permissions.js").Permissions;
 const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
+const DbConnection = rlequire("dendro", "src/kb/db.js").DbConnection;
 
 const ConditionsAcceptance = rlequire("dendro", "src/models/conditionsAcceptance.js").ConditionsAcceptance;
-
-exports.search = function (req, res)
-{
-    const user = req.user;
-    const acceptsHTML = req.accepts("html");
-    const acceptsJSON = req.accepts("json");
-    let display;
-
-    const verification = function (err, results)
-    {
-        if (isNull(err))
-        {
-            if (display === "json")
-            {
-                res.json({deposits: results[0], repositories: results[1]});
-            }
-            else
-            {
-                res.render("", {deposits: results[0], repositories: results[1]});
-            }
-        }
-    };
-
-    if (acceptsJSON && !acceptsHTML)
-    {
-        display = "json";
-    }
-    else if (!acceptsJSON && acceptsHTML)
-    {
-        display = "render";
-    }
-
-    exports.allowed(req, verification);
-};
 
 exports.allowed = function (req, callback)
 {
@@ -183,148 +150,6 @@ exports.allowed = function (req, callback)
     });*/
 };
 
-exports.requestAccess = function (req, res)
-{
-    let acceptsHTML = req.accepts("html");
-    const acceptsJSON = req.accepts("json");
-
-    if (req.originalMethod === "GET")
-    {
-        if (acceptsJSON && !acceptsHTML)
-        {
-            res.status(400).json({
-                result: "error",
-                message: "API Request not valid for this route."
-            });
-        }
-        else
-        {
-            Deposit.findByUri(req.params.requestedResourceUri, function (err, deposit)
-            {
-                if (isNull(err) && deposit instanceof Deposit)
-                {
-                    res.render("registry/request_access",
-                        {
-                            deposit: deposit
-                        });
-                }
-                else
-                {
-                    req.flash("error", "Deposit " + req.params.requestedResourceUri + " not found.");
-                    res.redirect("/");
-                }
-            });
-        }
-    }
-    else if (req.originalMethod === "POST")
-    {
-        const flash = require("connect-flash");
-        if (req.body.access_deposits)
-        {
-            Logger.log(req.user);
-            Deposit.findByUri(req.params.requestedResourceUri, function (err, deposit)
-            {
-                if (isNull(err) && deposit instanceof Deposit)
-                {
-                    let registryData = {
-                        ddr: {
-                            acceptingUser: req.user.uri,
-                            dataset: deposit.uri,
-                            requestDate: new Date(),
-                            userAccepted: false
-                        }
-                    };
-                    let privacy = deposit.ddr.privacyStatus;
-
-                    ConditionsAcceptance.create(registryData, privacy, function (err, conditions)
-                    {
-                        if (isNull(err))
-                        {
-                            res.redirect(deposit.uri);
-                        }
-                        else
-                        {
-                            flash("error", "Error retrieving deposit. Please try again later");
-                            res.redirect("/");
-                        }
-                    });
-                }
-                else
-                {
-                    flash("error", "Error retrieving deposit. Please try again later");
-                    res.redirect("/");
-                }
-            });
-        }
-        else
-        {
-            res.redirect("/");
-        }
-    }
-};
-
-exports.getDepositConditions = function (req, res)
-{
-    let user = req.user.uri;
-
-    Deposit.findByUri(req.params.requestedResourceUri, function (err, deposit)
-    {
-        if (isNull(err) && deposit instanceof Deposit)
-        {
-            if (user === deposit.dcterms.creator)
-            {
-                async.series([
-                    function (callback)
-                    {
-                        ConditionsAcceptance.getDepositConditions(req.params.requestedResourceUri, true, function (err, conditions)
-                        {
-                            if (isNull(err))
-                            {
-                                return callback(err, conditions);
-                            }
-                            return callback(1, err);
-                        });
-                    }, function (callback)
-                    {
-                        ConditionsAcceptance.getDepositConditions(req.params.requestedResourceUri, false, function (err, conditions)
-                        {
-                            if (isNull(err))
-                            {
-                                return callback(err, conditions);
-                            }
-                            return callback(1, err);
-                        });
-                    }
-                ],
-                function (err, result)
-                {
-                    if (err)
-                    {
-                        res.status(500).json(result);
-                    }
-                    else
-                    {
-                        res.json({
-                            conditionsAccepted: result[0],
-                            conditionsAccepting: result[1]
-                        });
-                    }
-                });
-            }
-            else
-            {
-                req.flash("error", "Is not the creator of the deposit");
-                res.redirect("/");
-            }
-        }
-        else
-        {
-            req.flash("error", "Deposit " + req.params.requestedResourceUri + " not found.");
-            res.redirect("/");
-        }
-    });
-};
-
 exports.changeUserAccess = function (req, res)
 {
     let user = req.user.uri;
@@ -425,6 +250,243 @@ exports.changeUserAccess = function (req, res)
     });
 };
 
+exports.delete = function (req, res)
+{
+    let acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
+
+    const getDeposit = function (callback)
+    {
+        Deposit.findByUri(req.params.requestedResourceUri, function (err, deposit)
+        {
+            if (isNull(err))
+            {
+                if (!isNull(deposit) && deposit instanceof Deposit)
+                {
+                    callback(null, deposit);
+                }
+                else
+                {
+                    res.render("registry/delete",
+                        {
+                            title: "Delete a deposit",
+                            success_messages: [ "Deposit with URI " + req.params.requestedResourceUri + " does not exist" ]
+                        }
+                    );
+                }
+            }
+            else
+            {
+                res.status(500).render("registry/delete",
+                    {
+                        title: "Delete a deposit",
+                        error_messages: [ "Error fetching deposit with uri " + deposit.uri ]
+                    }
+                );
+            }
+        });
+    };
+
+    if (acceptsJSON && !acceptsHTML)
+    {
+        res.status(400).json({
+            result: "error",
+            message: "API Request not valid for this route."
+        });
+    }
+    else
+    {
+        if (req.originalMethod === "GET")
+        {
+            getDeposit(function (err, deposit)
+            {
+                res.render("registry/delete",
+                    {
+                        title: "Delete a deposit",
+                        deposit: deposit
+                    }
+                );
+            });
+        }
+        else if (req.originalMethod === "POST" || req.originalMethod === "DELETE")
+        {
+            getDeposit(function (err, deposit)
+            {
+                if (!err)
+                {
+                    if (!isNull(deposit) && deposit instanceof Deposit)
+                    {
+                        deposit.delete(function (err, result)
+                        {
+                            if (isNull(err))
+                            {
+                                req.flash("success", [ "Deposit " + deposit.uri + " deleted successfully" ]);
+                                res.redirect("/");
+                            }
+                            else
+                            {
+                                req.flash("error", [ "Error deleting deposit " + deposit.uri + " : " + JSON.stringify(result) ]);
+                                res.status(500).redirect(req.url);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        req.flash("error", "Deposit " + req.params.requestedResourceUri + " does not exist");
+                        res.status(404).redirect("/");
+                    }
+                }
+                else
+                {
+                    req.flash("error", "Error retrieving deposit " + req.params.requestedResourceUri);
+                    req.flash("error", "Error details" + deposit);
+                    res.status(500).redirect("/");
+                }
+            });
+        }
+    }
+};
+
+exports.getDepositConditions = function (req, res)
+{
+    let user = req.user.uri;
+
+    Deposit.findByUri(req.params.requestedResourceUri, function (err, deposit)
+    {
+        if (isNull(err) && deposit instanceof Deposit)
+        {
+            if (user === deposit.dcterms.creator)
+            {
+                async.series([
+                    function (callback)
+                    {
+                        ConditionsAcceptance.getDepositConditions(req.params.requestedResourceUri, true, function (err, conditions)
+                        {
+                            if (isNull(err))
+                            {
+                                return callback(err, conditions);
+                            }
+                            return callback(1, err);
+                        });
+                    }, function (callback)
+                    {
+                        ConditionsAcceptance.getDepositConditions(req.params.requestedResourceUri, false, function (err, conditions)
+                        {
+                            if (isNull(err))
+                            {
+                                return callback(err, conditions);
+                            }
+                            return callback(1, err);
+                        });
+                    }
+                ],
+                function (err, result)
+                {
+                    if (err)
+                    {
+                        res.status(500).json(result);
+                    }
+                    else
+                    {
+                        res.json({
+                            conditionsAccepted: result[0],
+                            conditionsAccepting: result[1]
+                        });
+                    }
+                });
+            }
+            else
+            {
+                req.flash("error", "Is not the creator of the deposit");
+                res.redirect("/");
+            }
+        }
+        else
+        {
+            req.flash("error", "Deposit " + req.params.requestedResourceUri + " not found.");
+            res.redirect("/");
+        }
+    });
+};
+
+exports.my = function (req, res)
+{
+    let viewVars = {
+        // title: "My projects"
+    };
+
+    Deposit.findByCreator(req.user.uri, function (err, deposits)
+    {
+        if (isNull(err) && !isNull(deposits))
+        {
+            let acceptsHTML = req.accepts("html");
+            const acceptsJSON = req.accepts("json");
+
+            if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
+            {
+                res.json(
+                    {
+                        deposits: deposits
+                    }
+                );
+            }
+            else
+            {
+                viewVars = DbConnection.paginate(req,
+                    viewVars
+                );
+
+                viewVars.deposits = deposits;
+                res.render("deposits/my",
+                    viewVars
+                );
+            }
+        }
+        else
+        {
+            viewVars.depoists = [];
+            viewVars.info_messages = ["You have not created any deposits"];
+            res.render("deposits/my",
+                viewVars
+            );
+        }
+    });
+};
+
+exports.search = function (req, res)
+{
+    const user = req.user;
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
+    let display;
+
+    const verification = function (err, results)
+    {
+        if (isNull(err))
+        {
+            if (display === "json")
+            {
+                res.json({deposits: results[0], repositories: results[1]});
+            }
+            else
+            {
+                res.render("", {deposits: results[0], repositories: results[1]});
+            }
+        }
+    };
+
+    if (acceptsJSON && !acceptsHTML)
+    {
+        display = "json";
+    }
+    else if (!acceptsJSON && acceptsHTML)
+    {
+        display = "render";
+    }
+
+    exports.allowed(req, verification);
+};
+
 exports.show = function (req, res)
 {
     let resourceURI = req.params.requestedResourceUri;
@@ -482,7 +544,13 @@ exports.show = function (req, res)
             {
                 if (!alreadySent)
                 {
-                    if (req.permissions_management)
+                    if (isAdmin)
+                    {
+                        res.render("registry/show",
+                            viewVars
+                        );
+                    }
+                    else if (req.permissions_management)
                     {
                         const isEditor = _.filter(req.permissions_management.reasons_for_authorizing, function (authorization)
                         {
@@ -496,15 +564,12 @@ exports.show = function (req, res)
 
                         if (isEditor.length > 0)
                         {
-                            viewVars.owner = true;
                             res.render("registry/show",
                                 viewVars
                             );
                         }
                         else if (viewVars.deposit.ddr.privacyStatus === "private" || viewVars.deposit.ddr.privacyStatus === "embargoed" || (viewVars.deposit.ddr.privacyStatus === "public" && viewVars.deposit.ddr.accessTerms))
                         {
-                            viewVars.owner = false;
-
                             if (viewVars.acceptingUser === true)
                             {
                                 if (viewVars.userAccepted === true)
@@ -528,24 +593,9 @@ exports.show = function (req, res)
                         }
                         else
                         {
-                            viewVars.owner = false;
                             res.render("registry/show_readonly",
                                 viewVars
                             );
-                        }
-                    }
-                    else
-                    {
-                        if (isAdmin)
-                        {
-                            viewVars.owner = false;
-                            res.render("registry/show",
-                                viewVars
-                            );
-                        }
-                        else
-                        {
-                            res.redirect("/");
                         }
                     }
                 }
@@ -857,99 +907,82 @@ exports.show = function (req, res)
     }
 };
 
-exports.delete = function (req, res)
+exports.requestAccess = function (req, res)
 {
     let acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
 
-    const getDeposit = function (callback)
+    if (req.originalMethod === "GET")
     {
-        Deposit.findByUri(req.params.requestedResourceUri, function (err, deposit)
+        if (acceptsJSON && !acceptsHTML)
         {
-            if (isNull(err))
-            {
-                if (!isNull(deposit) && deposit instanceof Deposit)
-                {
-                    callback(null, deposit);
-                }
-                else
-                {
-                    res.render("registry/delete",
-                        {
-                            title: "Delete a deposit",
-                            success_messages: [ "Deposit with URI " + req.params.requestedResourceUri + " does not exist" ]
-                        }
-                    );
-                }
-            }
-            else
-            {
-                res.status(500).render("registry/delete",
-                    {
-                        title: "Delete a deposit",
-                        error_messages: [ "Error fetching deposit with uri " + deposit.uri ]
-                    }
-                );
-            }
-        });
-    };
-
-    if (acceptsJSON && !acceptsHTML)
-    {
-        res.status(400).json({
-            result: "error",
-            message: "API Request not valid for this route."
-        });
-    }
-    else
-    {
-        if (req.originalMethod === "GET")
-        {
-            getDeposit(function (err, deposit)
-            {
-                res.render("registry/delete",
-                    {
-                        title: "Delete a deposit",
-                        deposit: deposit
-                    }
-                );
+            res.status(400).json({
+                result: "error",
+                message: "API Request not valid for this route."
             });
         }
-        else if (req.originalMethod === "POST" || req.originalMethod === "DELETE")
+        else
         {
-            getDeposit(function (err, deposit)
+            Deposit.findByUri(req.params.requestedResourceUri, function (err, deposit)
             {
-                if (!err)
+                if (isNull(err) && deposit instanceof Deposit)
                 {
-                    if (!isNull(deposit) && deposit instanceof Deposit)
-                    {
-                        deposit.delete(function (err, result)
+                    res.render("registry/request_access",
                         {
-                            if (isNull(err))
-                            {
-                                req.flash("success", [ "Deposit " + deposit.uri + " deleted successfully" ]);
-                                res.redirect("/");
-                            }
-                            else
-                            {
-                                req.flash("error", [ "Error deleting deposit " + deposit.uri + " : " + JSON.stringify(result) ]);
-                                res.status(500).redirect(req.url);
-                            }
+                            deposit: deposit
                         });
-                    }
-                    else
-                    {
-                        req.flash("error", "Deposit " + req.params.requestedResourceUri + " does not exist");
-                        res.status(404).redirect("/");
-                    }
                 }
                 else
                 {
-                    req.flash("error", "Error retrieving deposit " + req.params.requestedResourceUri);
-                    req.flash("error", "Error details" + deposit);
-                    res.status(500).redirect("/");
+                    req.flash("error", "Deposit " + req.params.requestedResourceUri + " not found.");
+                    res.redirect("/");
                 }
             });
+        }
+    }
+    else if (req.originalMethod === "POST")
+    {
+        const flash = require("connect-flash");
+        if (req.body.access_deposits)
+        {
+            Logger.log(req.user);
+            Deposit.findByUri(req.params.requestedResourceUri, function (err, deposit)
+            {
+                if (isNull(err) && deposit instanceof Deposit)
+                {
+                    let registryData = {
+                        ddr: {
+                            acceptingUser: req.user.uri,
+                            dataset: deposit.uri,
+                            requestDate: new Date(),
+                            userAccepted: false
+                        }
+                    };
+                    let privacy = deposit.ddr.privacyStatus;
+
+                    ConditionsAcceptance.create(registryData, privacy, function (err, conditions)
+                    {
+                        if (isNull(err))
+                        {
+                            res.redirect(deposit.uri);
+                        }
+                        else
+                        {
+                            flash("error", "Error retrieving deposit. Please try again later");
+                            res.redirect("/");
+                        }
+                    });
+                }
+                else
+                {
+                    flash("error", "Error retrieving deposit. Please try again later");
+                    res.redirect("/");
+                }
+            });
+        }
+        else
+        {
+            res.redirect("/");
         }
     }
 };

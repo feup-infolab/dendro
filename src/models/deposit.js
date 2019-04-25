@@ -1011,6 +1011,57 @@ Deposit.prototype.delete = function (callback, customGraphUri)
     });
 };
 
+Deposit.findByCreator = function (creator, callback)
+{
+    const query =
+      "SELECT * " +
+      "FROM [0] " +
+      "WHERE " +
+      "{ " +
+      " ?uri rdf:type ddr:Deposit . " +
+      " ?uri dcterms:creator [1] ." +
+      " ?uri dcterms:title ?title ." +
+      " ?uri dcterms:description ?description . " +
+      " ?uri ddr:privacyStatus ?privacyStatus . " +
+      "} ";
+
+    db.connection.executeViaJDBC(query,
+        [
+            {
+                type: Elements.types.resourceNoEscape,
+                value: db.graphUri
+            },
+            {
+                type: Elements.ontologies.dcterms.creator.type,
+                value: creator
+            }
+        ],
+        function (err, deposits)
+        {
+            if (isNull(err))
+            {
+                if (deposits instanceof Array)
+                {
+                    const depositsToReturn = [];
+                    for (let i = 0; i < deposits.length; i++)
+                    {
+                        const aDeposit = new Deposit(deposits[i]);
+
+                        aDeposit.creator = creator;
+                        depositsToReturn.push(aDeposit);
+                    }
+
+                    return callback(null, depositsToReturn);
+                }
+                // project does not exist, return null
+                return callback(null, null);
+            }
+            // project var will contain an error message instead of a single-element
+            // array containing project data.
+            return callback(err, [deposits]);
+        });
+};
+
 Deposit = Class.extend(Deposit, Resource, "ddr:Registry");
 
 module.exports.Deposit = Deposit;
