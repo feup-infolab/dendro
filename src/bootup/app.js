@@ -47,7 +47,7 @@ class App
         }
     }
 
-    unhandledExceptionHandler (up)
+    unhandledRejectionHandler (up)
     {
         Logger.log("error", "Unhandled rejection detected.");
         Logger.log("error", up.message);
@@ -626,7 +626,7 @@ class App
             });
         });
 
-        process.on("unhandledRejection", self.unhandledExceptionHandler);
+        process.on("unhandledRejection", self.unhandledRejectionHandler);
         // process.on("uncaughtException", self.uncaughtExceptionHander);
 
         App._handlers_are_installed = true;
@@ -635,7 +635,7 @@ class App
     unregisterHandlers (cb)
     {
         const self = this;
-        process.on("unhandledRejection", self.unhandledExceptionHandler);
+        process.on("unhandledRejection", self.unhandledRejectionHandler);
         // process.on("uncaughtException", self.uncaughtExceptionHander);
 
         _.map(App.handledSignals, function (signal)
