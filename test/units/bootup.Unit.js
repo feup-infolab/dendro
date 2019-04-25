@@ -59,4 +59,6 @@ class BootupUnit extends TestUnit
     }
 }
 
+(async () => {await require("@feup-infolab/docker-mocha").runSetup(BootupUnit);})();
+
 module.exports = BootupUnit;

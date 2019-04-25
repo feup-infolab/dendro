@@ -25,4 +25,6 @@ class TestUnit
     }
 }
 
+(async () => {await require("@feup-infolab/docker-mocha").runSetup(TestUnit);})();
+
 module.exports = TestUnit;

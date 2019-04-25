@@ -90,4 +90,6 @@ class UploadFilesAndAddMetadata extends AddMetadataToFoldersUnit
     }
 }
 
+(async () => {await require("@feup-infolab/docker-mocha").runSetup(UploadFilesAndAddMetadata);})();
+
 module.exports = UploadFilesAndAddMetadata;

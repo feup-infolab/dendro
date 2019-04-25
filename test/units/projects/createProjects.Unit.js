@@ -115,4 +115,6 @@ class CreateProjects extends CreateUsersUnit
 
 CreateProjects.projectsData = projectsData;
 
+(async () => {await require("@feup-infolab/docker-mocha").runSetup(CreateProjects);})();
+
 module.exports = CreateProjects;

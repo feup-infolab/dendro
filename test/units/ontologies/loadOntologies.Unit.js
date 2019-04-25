@@ -39,4 +39,6 @@ class LoadOntologies extends BootupUnit
     }
 }
 
+(async () => {await require("@feup-infolab/docker-mocha").runSetup(LoadOntologies);})();
+
 module.exports = LoadOntologies;

@@ -55,4 +55,6 @@ class AddMetadataToFoldersPublicProject extends CreateFoldersPublicProject
     }
 }
 
+(async () => {await require("@feup-infolab/docker-mocha").runSetup(AddMetadataToFoldersPublicProject);})();
+
 module.exports = AddMetadataToFoldersPublicProject;
