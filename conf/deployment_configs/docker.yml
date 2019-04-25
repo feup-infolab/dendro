@@ -331,3 +331,6 @@ docker:
       max_ngram_size: 3
       number_of_keywords: 30
       language: en
+  jobs:
+    embargoed:
+      disembargo_cron_expression: "0 0 * * *"
