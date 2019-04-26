@@ -54,37 +54,7 @@ ConditionsAcceptance.create = function (data, privacy, callback)
     });
 };
 
-ConditionsAcceptance.getDepositConditions = function (dataset, callback)
-{
-    let i = 1;
-    let query =
-      "SELECT DISTINCT ?condition \n" +
-      "FROM [0] \n" +
-      "WHERE " +
-      "{ \n" +
-      "       ?condition ddr:userAccepted ?userAccepted.\n" +
-      "       ?condition ddr:acceptingUser ?acceptingUser. \n" +
-      "       ?condition  rdf:type ddr:Conditions.\n" +
-      "       ?condition  ddr:dataset [" + i++ + "]. \n" +
-      "} \n";
-
-    let variables = [
-        {
-            type: Elements.types.resourceNoEscape,
-            value: db.graphUri
-        },
-        {
-            type: Elements.ontologies.ddr.dataset.type,
-            value: dataset
-        }];
-
-    db.connection.executeViaJDBC(query, variables, function (err, regs)
-    {
-        callback(err, regs);
-    });
-};
-
-ConditionsAcceptance.getCondition = function (user, dataset, callback)
+ConditionsAcceptance.getUserConditionOnTheDeposit = function (user, dataset, callback)
 {
     let i = 1;
     let query =
@@ -118,7 +88,7 @@ ConditionsAcceptance.getCondition = function (user, dataset, callback)
     });
 };
 
-ConditionsAcceptance.getDepositConditions = function (datasetUri, accepted, callback)
+ConditionsAcceptance.getDepositConditionsDependingOnTheValue = function (datasetUri, value, callback)
 {
     let i = 1;
     let query =
@@ -139,11 +109,41 @@ ConditionsAcceptance.getDepositConditions = function (datasetUri, accepted, call
         },
         {
             type: Elements.ontologies.ddr.userAccepted.type,
-            value: accepted
+            value: value
         },
         {
             type: Elements.ontologies.ddr.dataset.type,
             value: datasetUri
+        }];
+
+    db.connection.executeViaJDBC(query, variables, function (err, regs)
+    {
+        callback(err, regs);
+    });
+};
+
+ConditionsAcceptance.getDepositConditions = function (dataset, callback)
+{
+    let i = 1;
+    let query =
+      "SELECT DISTINCT ?condition \n" +
+      "FROM [0] \n" +
+      "WHERE " +
+      "{ \n" +
+      "       ?condition ddr:userAccepted ?userAccepted.\n" +
+      "       ?condition ddr:acceptingUser ?acceptingUser. \n" +
+      "       ?condition  rdf:type ddr:Conditions.\n" +
+      "       ?condition  ddr:dataset [" + i++ + "]. \n" +
+      "} \n";
+
+    let variables = [
+        {
+            type: Elements.types.resourceNoEscape,
+            value: db.graphUri
+        },
+        {
+            type: Elements.ontologies.ddr.dataset.type,
+            value: dataset
         }];
 
     db.connection.executeViaJDBC(query, variables, function (err, regs)

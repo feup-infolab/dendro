@@ -13,7 +13,7 @@ dev:
   sendGridUser: __FIXME
   sendGridPassword: __FIXME
   index:
-    type: solr
+    type: elasticsearch
     solr:
       connection_log_type: debug
       use_auth: false

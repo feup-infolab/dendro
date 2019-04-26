@@ -257,7 +257,7 @@ const getDeposit = function (requestedResource, callback)
 
 const getCondition = function (user, dataset, callback)
 {
-    ConditionsAcceptance.getCondition(user, dataset, function (err, condition)
+    ConditionsAcceptance.getUserConditionOnTheDeposit(user, dataset, function (err, condition)
     {
         if (isNull(err))
         {

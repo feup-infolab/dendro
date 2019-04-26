@@ -216,7 +216,7 @@ const getDeposit = function (requestedResource, callback)
 
 const getCondition = function (user, dataset, callback)
 {
-    ConditionsAcceptance.getCondition(user, dataset, function (err, condition)
+    ConditionsAcceptance.getUserConditionOnTheDeposit(user, dataset, function (err, condition)
     {
         if (isNull(err))
         {
@@ -511,7 +511,7 @@ const checkUsersPermissionOnDeposit = function (req, user, role, depositUri, cal
     let predicateRoles = null;
     if (isNull(role) || isNull(role.predicates) || !(role.predicates instanceof Array))
     {
-        Logger.log("error", "Error at checkUsersRoleInDeposit, 'role' object should exist and 'role.predicates' and arrayOfPostsUris must be an array!");
+        Logger.log("error", "Error at checkUsersPermissionOnDeposit, 'role' object should exist and 'role.predicates' and arrayOfPostsUris must be an array!");
         callback(null, false);
     }
     else
@@ -559,7 +559,7 @@ const checkUsersPermissionOnDeposit = function (req, user, role, depositUri, cal
     }
 };
 
-const checkUsersRoleInDeposit = function (req, user, role, depositUri, callback)
+const checkOwnerDeposit = function (req, user, role, depositUri, callback)
 {
     let predicateRoles = null;
     if (isNull(role) || isNull(role.predicates) || !(role.predicates instanceof Array))
@@ -579,7 +579,7 @@ const checkUsersRoleInDeposit = function (req, user, role, depositUri, callback)
                     async.waterfall([
                         function (callback)
                         {
-                            deposit.checkIfHasPredicateValue(role.predicate[0], user.uri, function (err, result)
+                            deposit.checkIfHasPredicateValue(role.predicates[0], user.uri, function (err, result)
                             {
                                 return callback(err, result);
                             });
@@ -591,7 +591,7 @@ const checkUsersRoleInDeposit = function (req, user, role, depositUri, callback)
                                 return callback(null, result);
                             }
 
-                            user.checkIfHasPredicateValue(role.predicate[1], role.object, function (err, result)
+                            user.checkIfHasPredicateValue(role.predicates[1], role.object, function (err, result)
                             {
                                 return callback(err, result);
                             });
@@ -670,28 +670,39 @@ const checkPrivacyOfOwnerProject = function (req, user, role, resource, callback
     });
 };
 
-const checkOwnerDeposit = function (req, user, role, resource, callback)
+const checkUsersRoleInDeposit = function (req, user, role, depositUri, callback)
 {
-    if (!isNull(user))
+    if (!isNull(user) && !isNull(depositUri))
     {
-        // user.checkIfHasPredicateValue(role.predicate, role.object, function (err, result)
-        user.checkIfHasPredicateValue(role.predicate, role.object, function (err, result)
+        if (!isNull(user))
         {
-            return callback(err, result);
-        });
-    }
-    getDeposit(resource, function (err, deposit)
-    {
-        if (isNull(err))
-        {
-            if (!isNull(deposit) && deposit instanceof Deposit)
+            user.checkIfHasPredicateValue(role.predicates[0], role.object, function (err, result)
             {
-                return callback(null, true);
-            }
-            return callback(null, false);
+                if (result === true)
+                {
+                    return callback(err, result);
+                }
+                getDeposit(depositUri, function (err, deposit)
+                {
+                    if (isNull(err) && deposit instanceof Deposit)
+                    {
+                        deposit.checkIfHasPredicateValue(role.predicates[1], user.uri, function (err, result)
+                        {
+                            return callback(err, result);
+                        });
+                    }
+                    else
+                    {
+                        return callback(null, false);
+                    }
+                });
+            });
         }
-        return callback(err, null);
-    });
+    }
+    else
+    {
+        return callback(null, false);
+    }
 };
 
 const checkPrivacyOfDeposit = function (req, user, role, resource, callback)
@@ -838,22 +849,22 @@ Permissions.settings = {
         users_role_in_deposit: {
             type: Permissions.types.role_in_deposit,
             predicates: [
+                "rdf:type",
                 "dcterms:creator"
             ],
+            object: "ddr:Administrator",
             error_message_user: "You are not a contributor or creator of project to which this deposit belongs to.",
             error_message_api: "Unauthorized access. Must be signed on as a contributor or creator of the project this deposit belong to."
         },
         in_deposit: {
-            creator: {
-                type: Permissions.types.role_in_deposit,
-                predicates: [
-                    "rdf:type",
-                    "dcterms:creator"
-                ],
-                object: "ddr:Administrator",
-                error_message_user: "Error trying to access a deposit or a file / folder within a deposit that you have not created.",
-                error_message_api: "Unauthorized access. Must be signed on as a creator of this deposit."
-            }
+            type: Permissions.types.owner_deposit,
+            predicates: [
+                "rdf:type",
+                "dcterms:creator"
+            ],
+            object: "ddr:Administrator",
+            error_message_user: "Error trying to access a deposit or a file / folder within a deposit that you have not created.",
+            error_message_api: "Unauthorized access. Must be signed on as a creator of this deposit."
         }
     },
     privacy: {
@@ -1046,6 +1057,13 @@ Permissions.check = function (permissionsRequired, req, callback)
             else if (permission.type === Permissions.types.permission_on_deposit)
             {
                 Permissions.types.permission_on_deposit.validator(req, user, permission, resource, function (err, result)
+                {
+                    cb(err, {authorized: result, role: permission});
+                });
+            }
+            else if (permission.type === Permissions.types.owner_deposit)
+            {
+                Permissions.types.owner_deposit.validator(req, user, permission, resource, function (err, result)
                 {
                     cb(err, {authorized: result, role: permission});
                 });

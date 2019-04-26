@@ -762,7 +762,7 @@ const loadRoutes = function (app, callback)
                 Permissions.settings.role.in_system.user
             ];
             const creatorPermissions = [
-                Permissions.settings.role.in_deposit.creator
+                Permissions.settings.role.users_role_in_deposit
             ];
             const userAccepted = [
                 Permissions.settings.permission.on_deposit

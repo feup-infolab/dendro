@@ -170,7 +170,7 @@ exports.changeUserAccess = function (req, res)
             {
                 if (isNull(err) && deposit instanceof Deposit)
                 {
-                    if (deposit.dcterms.creator === user)
+                    if (deposit.dcterms.creator === user || req.session.isAdmin === true)
                     {
                         if (value === true)
                         {
@@ -316,18 +316,34 @@ exports.delete = function (req, res)
                 {
                     if (!isNull(deposit) && deposit instanceof Deposit)
                     {
-                        deposit.delete(function (err, result)
+                        async.waterfall([
+                            function (callback)
+                            {
+                                ConditionsAcceptance.getDepositConditions(deposit.uri, function (err, result)
+                                {
+                                    // TODO
+                                    callback(err, result);
+                                });
+                            },
+                            function ()
+                            {
+                                deposit.delete(function (err, result)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        req.flash("success", [ "Deposit " + deposit.uri + " deleted successfully" ]);
+                                        res.redirect("/");
+                                    }
+                                    else
+                                    {
+                                        req.flash("error", [ "Error deleting deposit " + deposit.uri + " : " + JSON.stringify(result) ]);
+                                        res.status(500).redirect(req.url);
+                                    }
+                                });
+                            }
+                        ], function (err, result)
                         {
-                            if (isNull(err))
-                            {
-                                req.flash("success", [ "Deposit " + deposit.uri + " deleted successfully" ]);
-                                res.redirect("/");
-                            }
-                            else
-                            {
-                                req.flash("error", [ "Error deleting deposit " + deposit.uri + " : " + JSON.stringify(result) ]);
-                                res.status(500).redirect(req.url);
-                            }
+                            return callback(err, result);
                         });
                     }
                     else
@@ -355,12 +371,12 @@ exports.getDepositConditions = function (req, res)
     {
         if (isNull(err) && deposit instanceof Deposit)
         {
-            if (user === deposit.dcterms.creator)
+            if (user === deposit.dcterms.creator || req.session.isAdmin === true)
             {
                 async.series([
                     function (callback)
                     {
-                        ConditionsAcceptance.getDepositConditions(req.params.requestedResourceUri, true, function (err, conditions)
+                        ConditionsAcceptance.getDepositConditionsDependingOnTheValue(req.params.requestedResourceUri, true, function (err, conditions)
                         {
                             if (isNull(err))
                             {
@@ -370,7 +386,7 @@ exports.getDepositConditions = function (req, res)
                         });
                     }, function (callback)
                     {
-                        ConditionsAcceptance.getDepositConditions(req.params.requestedResourceUri, false, function (err, conditions)
+                        ConditionsAcceptance.getDepositConditionsDependingOnTheValue(req.params.requestedResourceUri, false, function (err, conditions)
                         {
                             if (isNull(err))
                             {
@@ -397,7 +413,7 @@ exports.getDepositConditions = function (req, res)
             }
             else
             {
-                req.flash("error", "Is not the creator of the deposit");
+                req.flash("error", "Is not the creator of the deposit or system administrator");
                 res.redirect("/");
             }
         }
@@ -665,7 +681,7 @@ exports.show = function (req, res)
                         ]
                     };
 
-                    ConditionsAcceptance.getCondition(req.user.uri, resourceURI, function (err, result)
+                    ConditionsAcceptance.getUserConditionOnTheDeposit(req.user.uri, resourceURI, function (err, result)
                     {
                         deposit.dcterms.date = moment(deposit.dcterms.date).format("LLLL");
                         deposit.externalUri = appendPlatformUrl(deposit) + deposit.dcterms.identifier;
