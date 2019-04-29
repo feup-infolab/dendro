@@ -296,7 +296,6 @@ angular.module("dendroApp.controllers", [])
             depositsService.change_user_access(condition, value, forDelete)
                 .then(function (response)
                 {
-                    $scope.show_popup("success", "Success", response.message);
                     depositsService.get_deposit_conditions()
                         .then(function (response)
                         {

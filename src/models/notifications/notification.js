@@ -163,9 +163,9 @@ Notification.buildFromSystemMessage = function (message, targetUserUri, referenc
     return newNotification;
 };
 
-Notification.buildAndSaveFromSystemMessage = function (message, targetUserUri, callback, referencedResource)
+Notification.buildAndSaveFromSystemMessage = function (message, targetUserUri, referencedResource, actionType, callback)
 {
-    const newNotification = Notification.buildFromSystemMessage(message, targetUserUri, callback, referencedResource);
+    const newNotification = Notification.buildFromSystemMessage(message, targetUserUri, referencedResource, actionType);
     newNotification.save(function (err, info)
     {
         callback(err, info);

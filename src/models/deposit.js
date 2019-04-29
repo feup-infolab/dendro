@@ -905,35 +905,12 @@ Deposit.prototype.delete = function (callback, customGraphUri)
 
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
-    const deleteProjectTriples = function (callback)
+    const deleteDepositsTriples = function (callback)
     {
-        const deleteQuery =
-      "DELETE FROM [0]\n" +
-      "{\n" +
-      "    ?resource ?p ?o \n" +
-      "} \n" +
-      "WHERE \n" +
-      "{ \n" +
-      "    ?resource ?p ?o .\n" +
-      "    [1] nie:hasLogicalPart* ?resource\n" +
-      "} \n";
-
-        db.connection.executeViaJDBC(deleteQuery,
-            [
-                {
-                    type: Elements.types.resourceNoEscape,
-                    value: graphUri
-                },
-                {
-                    type: Elements.types.resourceNoEscape,
-                    value: self.uri
-                }
-            ],
-            function (err, result)
-            {
-                callback(err, result);
-            }
-        );
+        self.deleteAllMyTriples(function (err, result)
+        {
+            callback(err, result);
+        });
     };
 
     const deleteAllStorageConfigs = function (callback)
@@ -982,12 +959,13 @@ Deposit.prototype.delete = function (callback, customGraphUri)
             {
                 result.forEach(function (condition)
                 {
-                    condition.delete(function (err, result)
+                    ConditionsAcceptance.findByUri(condition.condition, function (err, conditionResult)
                     {
-                        if (!isNull(err))
+                        conditionResult.deleteAllMyTriples(function (err, result)
                         {
-                            callback(err, result);
-                        }
+                            Logger.log("error", err);
+                            Logger.log("info", result);
+                        });
                     });
                 });
                 callback(err, result);
@@ -1004,7 +982,7 @@ Deposit.prototype.delete = function (callback, customGraphUri)
         clearCacheRecords,
         deleteProjectFiles,
         deleteAllStorageConfigs,
-        deleteProjectTriples
+        deleteDepositsTriples
     ], function (err, results)
     {
         callback(err, results);

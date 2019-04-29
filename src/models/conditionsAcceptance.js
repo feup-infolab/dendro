@@ -101,6 +101,8 @@ ConditionsAcceptance.getDepositConditionsDependingOnTheValue = function (dataset
     "       ?condition rdf:type ddr:Conditions.\n" +
     "       ?condition ddr:dataset [" + i++ + "]. \n" +
     "} \n";
+    // userAccepted: true or false
+    // acceptingUser: user.uri
 
     let variables = [
         {
@@ -121,7 +123,6 @@ ConditionsAcceptance.getDepositConditionsDependingOnTheValue = function (dataset
         callback(err, regs);
     });
 };
-
 ConditionsAcceptance.getDepositConditions = function (dataset, callback)
 {
     let i = 1;

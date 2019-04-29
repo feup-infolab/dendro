@@ -230,7 +230,7 @@ Folder.prototype.getChildrenRecursive = function (callback, includeSoftDeletedCh
             "FROM [0] \n" +
             "WHERE \n" +
             "{ \n" +
-            "   [1] nie:hasLogicalPart+ ?uri. \n" +
+            "   [1] nie:hasLogicalPart ?uri. \n" +
             "   ?uri ddr:modified ?last_modified. \n" +
             "   OPTIONAL {?uri ddr:deleted true}. \n" +
             "   ?uri nie:title ?name. \n" +
@@ -243,7 +243,7 @@ Folder.prototype.getChildrenRecursive = function (callback, includeSoftDeletedCh
             "FROM [0] \n" +
             "WHERE \n" +
             "{ \n" +
-            "   [1] nie:hasLogicalPart+ ?uri. \n" +
+            "   [1] nie:hasLogicalPart ?uri. \n" +
             "   ?uri ddr:modified ?last_modified. \n" +
             "   filter not exists { ?uri ddr:deleted 'true' }. \n" +
             "   ?uri nie:title ?name. \n" +
@@ -255,7 +255,7 @@ Folder.prototype.getChildrenRecursive = function (callback, includeSoftDeletedCh
         "FROM [0] \n" +
         "WHERE \n" +
         "{ \n" +
-        "   [1] nie:hasLogicalPart+ ?uri. \n" +
+        "   [1] nie:hasLogicalPart ?uri. \n" +
         "   ?uri ddr:modified ?last_modified. \n" +
         "   ?uri nie:title ?name. \n" +
         "} "; */
@@ -1872,7 +1872,7 @@ Folder.prototype.forAllChildren = function (
     /*
     if(getAllDescendentsAndNotJustChildren)
     {
-        query += "   [1] nie:hasLogicalPart+ ?uri \n"
+        query += "   [1] nie:hasLogicalPart ?uri \n"
     }
     else
     {
@@ -1880,7 +1880,7 @@ Folder.prototype.forAllChildren = function (
     }
     */
 
-    query += "   [1] nie:hasLogicalPart+ ?uri\n";
+    query += "   [1] nie:hasLogicalPart ?uri\n";
 
     if (isNull(includeArchivedResources) || !includeArchivedResources)
     {

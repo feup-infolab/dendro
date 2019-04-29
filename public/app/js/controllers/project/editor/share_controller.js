@@ -501,8 +501,7 @@ angular.module("dendroApp.controllers")
          * Project stats
          * @param uri
          */
-            // TODO William add boolean of public deposit in 2nd
-            $scope.upload_to_repository = function (targetRepository, publicDeposit, titleOfDeposit, embargoedDate, accessTerms, overwrite, deleteChangesOriginatedFromCkan, propagateDendroChangesIntoCkan)
+            $scope.upload_to_repository = function (targetRepository, publicDeposit, titleOfDeposit, embargoedDate, accessTerms, userAffiliation, overwrite, deleteChangesOriginatedFromCkan, propagateDendroChangesIntoCkan)
             {
                 var payload = {
                     repository: targetRepository,
@@ -549,6 +548,10 @@ angular.module("dendroApp.controllers")
                 if (accessTerms)
                 {
                     payload.accessTerms = accessTerms;
+                }
+                if (userAffiliation)
+                {
+                    payload.userAffiliation = userAffiliation;
                 }
 
                 if (overwrite)

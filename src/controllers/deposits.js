@@ -25,6 +25,7 @@ const Ontology = rlequire("dendro", "src/models/meta/ontology.js").Ontology;
 const Permissions = rlequire("dendro", "src/models/meta/permissions.js").Permissions;
 const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
 const DbConnection = rlequire("dendro", "src/kb/db.js").DbConnection;
+const Notification = rlequire("dendro", "src/models/notifications/notification.js").Notification;
 
 const ConditionsAcceptance = rlequire("dendro", "src/models/conditionsAcceptance.js").ConditionsAcceptance;
 
@@ -162,11 +163,11 @@ exports.changeUserAccess = function (req, res)
         forDelete = req.body.forDelete;
     }
 
-    ConditionsAcceptance.findByUri(requestcondition.condition, function (err, condition)
+    ConditionsAcceptance.findByUri(requestcondition.condition, function (err, conditionToChange)
     {
-        if (isNull(err) && condition instanceof ConditionsAcceptance)
+        if (isNull(err) && conditionToChange instanceof ConditionsAcceptance)
         {
-            Deposit.findByUri(condition.ddr.dataset, function (err, deposit)
+            Deposit.findByUri(conditionToChange.ddr.dataset, function (err, deposit)
             {
                 if (isNull(err) && deposit instanceof Deposit)
                 {
@@ -174,18 +175,25 @@ exports.changeUserAccess = function (req, res)
                     {
                         if (value === true)
                         {
-                            ConditionsAcceptance.changeUserAccess(condition, true, function (err, result)
+                            ConditionsAcceptance.changeUserAccess(conditionToChange, true, function (err, result)
                             {
                                 if (isNull(err))
                                 {
-                                    const msg = "Access allowed to the user " + user;
-                                    Logger.log(msg);
-                                    res.json(
+                                    const msg = "Access allowed to the deposit " + deposit.uri;
+                                    Notification.buildAndSaveFromSystemMessage(msg, conditionToChange.ddr.acceptingUser, deposit.uri, Notification.types.SYSTEM, function (err, info)
+                                    {
+                                        const msg = "Allowed access of user " + conditionToChange.ddr.acceptingUser + " to the deposit " + deposit.uri;
+                                        Notification.buildAndSaveFromSystemMessage(msg, user, deposit.uri, Notification.types.SYSTEM, function (err, info)
                                         {
-                                            result: "OK",
-                                            message: msg
-                                        }
-                                    );
+                                            Logger.log(msg);
+                                            res.json(
+                                                {
+                                                    result: "OK",
+                                                    message: msg
+                                                }
+                                            );
+                                        });
+                                    });
                                 }
                                 else
                                 {
@@ -195,7 +203,7 @@ exports.changeUserAccess = function (req, res)
                         }
                         else
                         {
-                            ConditionsAcceptance.deleteAll(function (err, result)
+                            conditionToChange.deleteAllMyTriples(function (err, result)
                             {
                                 if (isNull(err))
                                 {
@@ -212,7 +220,7 @@ exports.changeUserAccess = function (req, res)
                                     }
                                     else
                                     {
-                                        const msg = "The access condition for user deposit " + user + " was not successfully accepted";
+                                        const msg = "The access conditionToChange for user deposit " + user + " was not successfully accepted";
                                         Logger.log(msg);
                                         res.json(
                                             {
@@ -316,34 +324,23 @@ exports.delete = function (req, res)
                 {
                     if (!isNull(deposit) && deposit instanceof Deposit)
                     {
-                        async.waterfall([
-                            function (callback)
-                            {
-                                ConditionsAcceptance.getDepositConditions(deposit.uri, function (err, result)
-                                {
-                                    // TODO
-                                    callback(err, result);
-                                });
-                            },
-                            function ()
-                            {
-                                deposit.delete(function (err, result)
-                                {
-                                    if (isNull(err))
-                                    {
-                                        req.flash("success", [ "Deposit " + deposit.uri + " deleted successfully" ]);
-                                        res.redirect("/");
-                                    }
-                                    else
-                                    {
-                                        req.flash("error", [ "Error deleting deposit " + deposit.uri + " : " + JSON.stringify(result) ]);
-                                        res.status(500).redirect(req.url);
-                                    }
-                                });
-                            }
-                        ], function (err, result)
+                        deposit.delete(function (err, result)
                         {
-                            return callback(err, result);
+                            if (isNull(err))
+                            {
+                                /*                              const msg = "Deposit " + deposit.uri + " deleted successfully";
+                                Notification.buildAndSaveFromSystemMessage(msg, req.user.uri, deposit.uri, Notification.types.SYSTEM, function (err, info)
+                                {
+                                    res.redirect("/");
+                                });*/
+                                req.flash("success", [ "Deposit " + deposit.uri + " deleted successfully" ]);
+                                res.redirect("/");
+                            }
+                            else
+                            {
+                                req.flash("error", [ "Error deleting deposit " + deposit.uri + " : " + JSON.stringify(result) ]);
+                                res.status(500).redirect(req.url);
+                            }
                         });
                     }
                     else
@@ -980,7 +977,11 @@ exports.requestAccess = function (req, res)
                     {
                         if (isNull(err))
                         {
-                            res.redirect(deposit.uri);
+                            const msg = "Has a new request for access to the deposit" + deposit.uri;
+                            Notification.buildAndSaveFromSystemMessage(msg, deposit.dcterms.creator, deposit.uri, Notification.types.SYSTEM, function (err, info)
+                            {
+                                res.redirect(deposit.uri);
+                            });
                         }
                         else
                         {

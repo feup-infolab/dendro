@@ -1169,8 +1169,8 @@ InformationElement.prototype.containedIn = function (parentResource, callback, c
             "WHERE \n" +
             "{ \n" +
             "   {\n" +
-            "       [2] nie:isLogicalPartOf+ [1]. \n" +
-            "       [1] nie:hasLogicalPart+ [2]. \n" +
+            "       [2] nie:isLogicalPartOf [1]. \n" +
+            "       [1] nie:hasLogicalPart [2]. \n" +
             "   }\n" +
             "} \n",
 
