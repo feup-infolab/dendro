@@ -907,10 +907,33 @@ Deposit.prototype.delete = function (callback, customGraphUri)
 
     const deleteDepositsTriples = function (callback)
     {
-        self.deleteAllMyTriples(function (err, result)
-        {
-            callback(err, result);
-        });
+        const deleteQuery =
+      "DELETE FROM [0]\n" +
+        "{\n" +
+      " ?resource ?p ?o \n" +
+      "} \n" +
+      "WHERE \n" +
+      "{ \n" +
+      "    ?resource ?p ?o .\n" +
+      "    [1] nie:hasLogicalPart* ?resource\n" +
+      "} \n";
+
+        db.connection.executeViaJDBC(deleteQuery,
+            [
+                {
+                    type: Elements.types.resourceNoEscape,
+                    value: graphUri
+                },
+                {
+                    type: Elements.types.resourceNoEscape,
+                    value: self.uri
+                }
+            ],
+            function (err, result)
+            {
+                callback(err, result);
+            }
+        );
     };
 
     const deleteAllStorageConfigs = function (callback)
