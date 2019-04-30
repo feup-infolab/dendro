@@ -1130,7 +1130,6 @@ const exportToDendro = function (req, res)
     const publicDeposit = req.body.publicDeposit;
     const titleOfDeposit = req.body.titleOfDeposit;
     const accessTerms = req.body.accessTerms;
-    const protocolAndHost = req.body.protocolAndHost;
     let embargoedDate;
     const createDepositAux = function (exportedFromProject, exportedFromFolder, file, description, language, callback)
     {
@@ -1153,7 +1152,7 @@ const exportToDendro = function (req, res)
             }
 
         };
-        Deposit.createDeposit({registryData: registryData, requestedResource: file, user: req.user, protocolAndHost: protocolAndHost}, function (err, newDeposit)
+        Deposit.createDeposit({registryData: registryData, requestedResource: file, user: req.user}, function (err, newDeposit)
         {
             if (isNull(err))
             {

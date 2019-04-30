@@ -56,7 +56,6 @@ Deposit.createDeposit = function (data, callback)
     let newDeposit = new Deposit(object);
     const uuid = uuidv1();
     const DOI = "10.23673/" + uuid;
-    const protocolAndHost = data.protocolAndHost;
     const user = data.user;
     const generateDoi = function (callback)
     {
@@ -75,7 +74,7 @@ Deposit.createDeposit = function (data, callback)
                     {
                         doi: DOI,
                         confirmDoi: null,
-                        url: protocolAndHost + newDeposit.uri,
+                        url: newDeposit.ddr.absoluteUri,
                         types: {
                             resourceTypeGeneral: "Dataset"
                         },
@@ -88,7 +87,7 @@ Deposit.createDeposit = function (data, callback)
                               affiliation: user.foaf.affiliation,
                               nameIdentifiers:
                                 [{
-                                    nameIdentifier: user.uri,
+                                    nameIdentifier: user.ddr.absoluteUri,
                                     nameIdentifierScheme: null,
                                     schemeUri: null
                                 }]
@@ -143,13 +142,13 @@ Deposit.createDeposit = function (data, callback)
 
         var headers = {
             accept: "application/x-bibtex",
-            Referer: "https://doi.test.datacite.org/clients/dev.infolab/dois/10.23673%2F" + uuid,
+            Referer: Config.deposits.pids.datacite + "%2F" + uuid,
             Origin: "https://doi.test.datacite.org",
             Authorization: auth
         };
 
         var options = {
-            url: "https://api.test.datacite.org/dois/10.23673/" + uuid,
+            url: Config.deposits.pids.datacite + "/" + uuid,
             headers: headers
         };
 

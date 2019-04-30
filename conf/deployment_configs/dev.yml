@@ -382,4 +382,7 @@ dev:
   jobs:
     embargoed:
       disembargo_cron_expression: "0 0 * * *"
+  deposits:
+    pids:
+      datacite: "https://api.test.datacite.org/dois/10.23673"
 

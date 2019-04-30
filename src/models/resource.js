@@ -33,7 +33,10 @@ function Resource (object = {})
     {
         self.rdf.type = object.rdf.type;
     }
-
+    if (isNull(self.ddr.absoluteUri))
+    {
+        self.ddr.absoluteUri = self.getAbsoluteUri();
+    }
     return self;
 }
 
@@ -1042,7 +1045,6 @@ Resource.prototype.save = function
 
     const now = new Date();
     self.ddr.modified = now.toISOString();
-    self.ddr.absoluteUri = self.getAbsoluteUri();
 
     const validateValues = function (cb)
     {
