@@ -5,8 +5,8 @@
         <input type="text" ng-model="recalled_repository.dcterms.title" class="form-control" id="recalled_b2share_repository_label" placeholder="Label" disabled>
 
         <label for="titleOfDeposit">Title of deposit:</label>
-        <input  ng-show="title_of_file_selected_disabled == true" type="text" ng-model="title_of_file_selected" class="form-control" id="titleOfDeposit" placeholder="Title of deposit" disabled>
-        <input  ng-show="title_of_file_selected_disabled == false" type="text" ng-model="title_of_file_selected" class="form-control" id="titleOfDeposit1" placeholder="Title of deposit">
+        <input  ng-if="title_of_file_selected_disabled" type="text" ng-model="title_of_file_selected" class="form-control" id="titleOfDeposit" placeholder="Title of deposit" disabled>
+        <input  ng-if="!title_of_file_selected_disabled" type="text" ng-model="title_of_file_selected" class="form-control" id="titleOfDeposit1" placeholder="Title of deposit">
         <br>
         <label for="userAffiliation">User affiliation:</label>
         <input   type="text"  class="form-control" id="userAffiliation" placeholder="UserAffiliation">  {{userAffiliation}}

@@ -1042,6 +1042,7 @@ Resource.prototype.save = function
 
     const now = new Date();
     self.ddr.modified = now.toISOString();
+    self.ddr.absoluteUri = self.getAbsoluteUri();
 
     const validateValues = function (cb)
     {
@@ -4068,6 +4069,12 @@ Resource.prototype.deleteAllStorageConfigs = function (callback, customGraphUri)
             callback(err, configs);
         }
     });
+};
+
+Resource.prototype.getAbsoluteUri = function ()
+{
+    const self = this;
+    return Config.baseUri + self.uri;
 };
 
 Resource = Class.extend(Resource, Class, "ddr:Resource");

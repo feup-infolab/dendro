@@ -12,7 +12,7 @@ angular.module("dendroApp.controllers")
             usersService
         )
         {
-            $scope.init = function()
+            $scope.init = function ()
             {
                 usersService.get_logged_user()
                     .then(function (user)
