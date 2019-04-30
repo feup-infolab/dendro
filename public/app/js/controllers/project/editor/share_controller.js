@@ -8,10 +8,23 @@ angular.module("dendroApp.controllers")
             $scope,
             $http,
             $filter,
-            windowService
-
+            windowService,
+            usersService
         )
         {
+            $scope.init = function()
+            {
+                usersService.get_logged_user()
+                    .then(function (user)
+                    {
+                        $scope.loggedUser = user;
+                    })
+                    .catch(function (error)
+                    {
+                        $scope.show_popup("error", error, "Error fetching user", 20000);
+                    });
+            };
+
             $scope.get_current_url = function ()
             {
                 var newURL = window.location.protocol + "//" + window.location.host + window.location.pathname;
