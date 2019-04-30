@@ -979,18 +979,20 @@ Deposit.prototype.delete = function (callback, customGraphUri)
         {
             if (isNull(err))
             {
-                result.forEach(function (condition)
+                async.mapSeries(result, function (condition, callback)
                 {
                     ConditionsAcceptance.findByUri(condition.condition, function (err, conditionResult)
                     {
                         conditionResult.deleteAllMyTriples(function (err, result)
                         {
-                            Logger.log("error", err);
-                            Logger.log("info", result);
+                            callback(err, result);
                         });
                     });
+                }, function (err, result)
+                {
+                    callback(err, result);
                 });
-                callback(err, result);
+
             }
             else
             {
