@@ -99,10 +99,6 @@ services:
         - mariadb
         - mongodb
         - solr
-      volumes:
-        - ./volumes/dendro/conf:/dendro/conf
-        - ./volumes/dendro/logs:/dendro/logs
-        - ./volumes/profiling/logs:/dendro/profiling
       environment:
         DENDRO_ACTIVE_DEPLOYMENT_CONFIG: docker
       networks:
