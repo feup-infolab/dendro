@@ -761,6 +761,10 @@ angular.module("dendroApp.controllers")
                     $scope.title_of_file_selected = null;
                 }
             };
+            $scope.setAffiliation = function (affiliation)
+            {
+                $scope.userAffiliation = affiliation;
+            };
             $scope.get_my_repositories();
             $scope.get_repository_types();
             $scope.new_dataset = {};
