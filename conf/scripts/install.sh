@@ -76,13 +76,13 @@ then
             esac; \
             curl -Lso /tmp/openjdk.tar.gz ${BINARY_URL}; \
             sha256sum /tmp/openjdk.tar.gz; \
-            mkdir -p /opt/java/openjdk; \
+            sudo mkdir -p /opt/java/openjdk; \
             cd /opt/java/openjdk; \
             echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
             tar -xf /tmp/openjdk.tar.gz; \
             jdir=$(dirname $(dirname $(find /opt/java/openjdk -name java | grep -v "/jre/bin"))); \
-            mv ${jdir}/* /opt/java/openjdk; \
-            rm -rf ${jdir} /tmp/openjdk.tar.gz;
+            sudo mv ${jdir}/* /opt/java/openjdk; \
+            sudo rm -rf ${jdir} /tmp/openjdk.tar.gz;
 
         export  JAVA_HOME=/opt/java/openjdk \
                 PATH="/opt/java/openjdk/bin:$PATH"
