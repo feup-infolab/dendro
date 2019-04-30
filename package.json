@@ -36,7 +36,8 @@
     "fix-client": "eslint --fix ./public/app/** --config ./public/app/.eslintrc.json",
     "remote_debug": "node app.js --debug=5858",
     "postinstall": "npm i -g gladstone && npm install -g istanbul && npm i -g nyc && npm i -g coveralls",
-    "update-docker-installation": "docker-compose stop; docker-compose rm; docker-compose pull; docker-compose up"
+    "update-docker-installation": "docker-compose stop; docker-compose rm; docker-compose pull; docker-compose up",
+    "generate-docs": "grunt jsdoc --force"
   },
   "dependencies": {
     "@feup-infolab/node-b2drop": "^1.1.0",
@@ -219,6 +220,7 @@
     "eslint-plugin-node": "^6.0.1",
     "eslint-plugin-promise": "^3.7.0",
     "eslint-plugin-standard": "^3.0.1",
+    "grunt-force-task": "^2.0.0",
     "grunt-jsdoc": "^2.3.1",
     "jaguarjs-jsdoc": "^1.1.0",
     "jscs": "^3.0.7",
