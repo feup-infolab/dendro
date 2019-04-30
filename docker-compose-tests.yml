@@ -1,37 +1,41 @@
 version: '3.5'
 
 services:
-  #  elasticsearch:
-  #    container_name: elasticsearch-dendro-test
-  #    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.2${DENDRO_DOCKER_CONTAINERS_SUFFIX}
-  #    ports:
-  #      - 9200:9200
-  #      - 9300:9300
-  #    environment:
-  #      - "discovery.type=single-node"
-  #      - "http.host=0.0.0.0"
-  #      - "transport.host=127.0.0.1"
-  #      - "TAKE_FILE_OWNERSHIP=1"
-  #    networks:
-  #      - dendro
+#  elasticsearch:
+#    container_name: ${ENVIRONMENT}.elasticsearch-dendro
+#    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.2${STATE}
+#    expose:
+#      - "9200"
+#      - "9300"
+#    environment:
+#      - "discovery.type=single-node"
+#      - "http.host=0.0.0.0"
+#      - "transport.host=127.0.0.1"
+#      - "TAKE_FILE_OWNERSHIP=1"
+#  networks:
+#    dendro-docker-deployment:
+#      aliases:
+#        - elasticsearch-dendro
+#    restart: on-failure
 
   solr:
-    container_name: .${ENVIRONMENT}.solr-dendro-test
-    image: solr:7.7.0-slim${STATE}
-    ports:
-      - 8983:8983
+    container_name: ${ENVIRONMENT}.solr-dendro
+    image: feupinfolab/no-volumes/solr:latest${STATE}      #solr:7.7.0-slim
+    expose:
+      - "8983"
     entrypoint:
       - bash
       - "-c"
       - "precreate-core dendro_graph; precreate-core social_dendro; precreate-core notifications_dendro; precreate-core dryad; precreate-core freebase; precreate-core dbpedia;  exec solr -f"
     networks:
-      custom_net:
+      dendro-docker-deployment:
         aliases:
-          - solr
+          - solr-dendro
+    restart: on-failure
 
   virtuoso:
-    container_name: ${ENVIRONMENT}.virtuoso-dendro-test
-    image: feupinfolab/virtuoso-with-dendro-ontologies:latest${STATE}
+    container_name: ${ENVIRONMENT}.virtuoso-dendro
+    image: feupinfolab/no-volumes/virtuoso-with-dendro-ontologies:latest${STATE}
     expose:
       - "8890"
       - "1111"
@@ -49,60 +53,67 @@ services:
       - "VIRT_Parameters_MinAutoCheckpointSize=1"
       - "DBA_PASSWORD=dba"
     networks:
-      custom_net:
+      dendro-docker-deployment:
         aliases:
           - virtuoso
+    restart: on-failure
 
   mariadb:
-    container_name: ${ENVIRONMENT}.mariadb-dendro-test
-    image: joaorosilva/mysql:5.7-no-volumes${STATE}
-    ports:
-      - 3306:3306
+    container_name: ${ENVIRONMENT}.mariadb-dendro
+    image: feupinfolab/no-volumes/mariadb:latest${STATE} #mariadb:5.5.62
+    expose:
+      - "3306"
     environment:
       - "MYSQL_ROOT_PASSWORD=r00t_p4ssw0rd"
       - "MYSQL_DATABASE=dendro_data"
       - "MYSQL_USER=dendro"
       - "MYSQL_PASSWORD=dendr0_p4ssw0rd"
     networks:
-      custom_net:
+      dendro-docker-deployment:
         aliases:
-          - mariadb
+          - mariadb-dendro
+    restart: on-failure
 
   mongodb:
-    container_name: ${ENVIRONMENT}.mongodb-dendro-test
-    image: joaorosilva/mongodb:3.7-no-volumes${STATE}
-    ports:
-      - 27017:27017
+    container_name: ${ENVIRONMENT}.mongodb-dendro
+    image: feupinfolab/no-volumes/mongo:latest${STATE} #mongo:3.6.0
+    expose:
+      - "27017"
     environment:
-      - "MONGO_INITDB_ROOT_USERNAME=admin"
-      - "MONGO_INITDB_ROOT_PASSWORD=34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
-    command: mongod --smallfiles --bind_ip_all
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi
     networks:
-      custom_net:
+      dendro-docker-deployment:
         aliases:
-          - mongodb
+          - mongodb-dendro
+    command: mongod --smallfiles --bind_ip_all
+    restart: on-failure
 
+  dendro:
+    container_name: ${ENVIRONMENT}.dendro
+    image: feupinfolab/no-volumes/dendro:latest${STATE}
+    build:
+      dockerfile: Dockerfile
+      args:
+        - "SOURCE_BRANCH=dendrokeywords"
+      context: .
+    ports:
+      - published: 3001
+        target: 3001
+    depends_on:
+      - elasticsearch
+      - mariadb
+      - mongodb
+      - virtuoso
+    environment:
+      DENDRO_ACTIVE_DEPLOYMENT_CONFIG: d
+    networks:
+      dendro-docker-deployment:
+        aliases:
+          - dendro
+    restart: on-failure
 
-    dendro:
-      container_name: ${ENVIRONMENT}.dendro
-      image: feupinfolab/dendro:latest${STATE}
-      build:
-        dockerfile: Dockerfile
-        args:
-          - "SOURCE_BRANCH=dendrokeywords"
-        context: .
-      ports:
-        - published: 3001
-          target: 3001
-      depends_on:
-        - elasticsearch
-        - mariadb
-        - mongodb
-        - solr
-      environment:
-        DENDRO_ACTIVE_DEPLOYMENT_CONFIG: docker
-      networks:
-        custom_net:
-          aliases:
-            - dendro
-      restart: on-failure
+networks:
+  dendro-docker-deployment:
+    name: ${ENVIRONMENT}
+    driver: bridge
