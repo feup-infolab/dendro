@@ -80,7 +80,7 @@ then
             cd /opt/java/openjdk; \
             echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
             tar -xf /tmp/openjdk.tar.gz; \
-            jdir=$(dirname $(dirname $(find /opt/java/openjdk -name java | grep -v "/jre/bin"))); \
+            jdir=$(dirname $(dirname $(sudo find /opt/java/openjdk -name java | grep -v "/jre/bin"))); \
             sudo mv ${jdir}/* /opt/java/openjdk; \
             sudo rm -rf ${jdir} /tmp/openjdk.tar.gz;
 
