@@ -394,8 +394,7 @@ exports.show = function (req, res)
 
     const viewVars = {
         showing_history: showing_history,
-        Descriptor: Descriptor,
-        user_affiliation: req.user.foaf.affiliation
+        Descriptor: Descriptor
     };
 
     let go_up_options;
