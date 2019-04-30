@@ -678,40 +678,59 @@ exports.show = function (req, res)
                         ]
                     };
 
-                    ConditionsAcceptance.getUserConditionOnTheDeposit(req.user.uri, resourceURI, function (err, result)
-                    {
-                        deposit.dcterms.date = moment(deposit.dcterms.date).format("LLLL");
-                        deposit.externalUri = appendPlatformUrl(deposit) + deposit.dcterms.identifier;
-                        viewVars.deposit = deposit;
-                        if (isNull(err))
+                    async.series([
+                        function(callback)
                         {
-                            if (result.length > 0)
+                            deposit.dcterms.date = moment(deposit.dcterms.date).format("LLLL");
+                            deposit.externalUri = appendPlatformUrl(deposit) + deposit.dcterms.identifier;
+                            viewVars.deposit = deposit;
+                            callback(null);
+                        },
+                        function(callback)
+                        {
+                            if(!req.user)
                             {
-                                if (result[0].userAccepted === "true")
-                                {
-                                    viewVars.userAccepted = true;
-                                    viewVars.acceptingUser = true;
-                                }
-                                else
-                                {
-                                    viewVars.userAccepted = false;
-                                    viewVars.acceptingUser = true;
-                                }
+                                callback(null);
                             }
                             else
                             {
-                                if (viewVars.deposit.ddr.accessTerms || viewVars.deposit.ddr.privacyStatus !== "public")
+                                ConditionsAcceptance.getUserConditionOnTheDeposit(req.user.uri, resourceURI, function (err, result)
                                 {
-                                    viewVars.userAccepted = false;
-                                    viewVars.acceptingUser = false;
-                                }
-                                else
-                                {
-                                    viewVars.userAccepted = true;
-                                    viewVars.acceptingUser = true;
-                                }
+                                    if (isNull(err))
+                                    {
+                                        if (result.length > 0)
+                                        {
+                                            if (result[0].userAccepted === "true")
+                                            {
+                                                viewVars.userAccepted = true;
+                                                viewVars.acceptingUser = true;
+                                            }
+                                            else
+                                            {
+                                                viewVars.userAccepted = false;
+                                                viewVars.acceptingUser = true;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (viewVars.deposit.ddr.accessTerms || viewVars.deposit.ddr.privacyStatus !== "public")
+                                            {
+                                                viewVars.userAccepted = false;
+                                                viewVars.acceptingUser = false;
+                                            }
+                                            else
+                                            {
+                                                viewVars.userAccepted = true;
+                                                viewVars.acceptingUser = true;
+                                            }
+                                        }
+                                    }
+                                });
                             }
-
+                        }
+                    ], function(err, result){
+                        if(!err)
+                        {
                             const depositDescriptors = deposit.getDescriptors(
                                 [Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_readable], [Elements.access_types.locked_for_projects, Elements.access_types.locked]
                             );
@@ -722,6 +741,12 @@ exports.show = function (req, res)
 
                                 sendResponse(viewVars, deposit);
                             }
+                        }
+                        else
+                        {
+                            Logger.log("error", "Unable to retrieve deposit information");
+                            Logger.log("error", JSON.stringify(result));
+                            sendResponse(err, result);
                         }
                     });
                 });
