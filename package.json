@@ -16,7 +16,7 @@
     "restart": "npm run stop && npm start",
     "reinstall": "npm cache clean --force && rm -rf node_modules && npm install",
     "seed-databases": "node src/app.js --seed_databases",
-    "docker-mocha": "npm run docker-mocha -f ./test/tests.json -t 2 -c docker-compose-test.yml -e dendro -p 3001",
+    "docker-mocha": "npm run docker-mocha -f ./test/tests.json -t 2 -c docker-compose-test.yml -e dendro -p 3001 --config='docker_mocha'",
     "test": "cross-env NODE_ENV=test node node_modules/.bin/_mocha ./test/index.Test.js --ui bdd --exit",
     "test-dev": "cross-env NODE_ENV=test node node_modules/.bin/_mocha ./test/index.Test.dev.js --ui bdd --exit",
     "test-no-caching": "cross-env NODE_ENV=test node node_modules/.bin/_mocha ./test/index.Test.js --ui bdd --exit --config='test_no_setup_caching'",
