@@ -679,16 +679,16 @@ exports.show = function (req, res)
                     };
 
                     async.series([
-                        function(callback)
+                        function (callback)
                         {
                             deposit.dcterms.date = moment(deposit.dcterms.date).format("LLLL");
                             deposit.externalUri = appendPlatformUrl(deposit) + deposit.dcterms.identifier;
                             viewVars.deposit = deposit;
                             callback(null);
                         },
-                        function(callback)
+                        function (callback)
                         {
-                            if(!req.user)
+                            if (!req.user)
                             {
                                 callback(null);
                             }
@@ -725,11 +725,13 @@ exports.show = function (req, res)
                                             }
                                         }
                                     }
+                                    callback(err, result);
                                 });
                             }
                         }
-                    ], function(err, result){
-                        if(!err)
+                    ], function (err, result)
+                    {
+                        if (isNull(err))
                         {
                             const depositDescriptors = deposit.getDescriptors(
                                 [Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_readable], [Elements.access_types.locked_for_projects, Elements.access_types.locked]

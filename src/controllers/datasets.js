@@ -1205,6 +1205,15 @@ const exportToDendro = function (req, res)
                             }
                         });
                     }
+                    else
+                    {
+                        res.status(500).json(
+                            {
+                                result: "error",
+                                message: "Error finding" + file
+                            }
+                        );
+                    }
                 });
             }
             else
@@ -1221,7 +1230,7 @@ const exportToDendro = function (req, res)
                                 {
                                     const description = project.dcterms.description;
                                     const language = project.dcterms.language;
-                                    createDepositAux(project.uri, folder.uri, file, description, language, function (err, registry)
+                                    createDepositAux(project.uri, folder.uri, folder, description, language, function (err, registry)
                                     {
                                         if (isNull(err))
                                         {
@@ -1233,13 +1242,58 @@ const exportToDendro = function (req, res)
                                                 }
                                             );
                                         }
+                                        else
+                                        {
+                                            res.status(500).json(
+                                                {
+                                                    result: "error",
+                                                    message: "Error " + err
+                                                }
+                                            );
+                                        }
                                     });
+                                }
+                                else
+                                {
+                                    res.status(500).json(
+                                        {
+                                            result: "error",
+                                            message: "Error finding" + folder
+                                        }
+                                    );
                                 }
                             });
                         }
+                        else
+                        {
+                            res.status(500).json(
+                                {
+                                    result: "error",
+                                    message: "Error finding" + folder
+                                }
+                            );
+                        }
+                    }
+                    else
+                    {
+                        res.status(500).json(
+                            {
+                                result: "error",
+                                message: "Error " + err
+                            }
+                        );
                     }
                 });
             }
+        }
+        else
+        {
+            res.status(500).json(
+                {
+                    result: "error",
+                    message: "Error finding" + requestedResourceUri
+                }
+            );
         }
     });
 };

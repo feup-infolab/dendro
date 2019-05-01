@@ -992,7 +992,6 @@ Deposit.prototype.delete = function (callback, customGraphUri)
                 {
                     callback(err, result);
                 });
-
             }
             else
             {
