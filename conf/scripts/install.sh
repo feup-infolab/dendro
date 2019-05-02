@@ -16,7 +16,7 @@ fi
 JAVA_VERSION=$(java -version 2>&1 | sed -n ';s/.* version "\(.*\)\.\(.*\)\..*"/\1\2/p;')
 
 # install build tools if not present
-if ! [[ make > /dev/null ]]
+if [[ $(command -v make) != 0 ]]
 then
     if [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]]; then
         sudo apt-get -qq -y install build-essential make
@@ -24,7 +24,7 @@ then
 fi
 
 # install python if not present
-if ! [[ python > /dev/null ]]
+if [[ $(command -v python) != 0 ]]
 then
     if [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]]; then
         sudo apt-get -qq -y install python
@@ -32,7 +32,7 @@ then
 fi
 
 # check to see if text extraction tools need to be installed
-if [[ tesseract > /dev/null ]] || [[ pdftotext > /dev/null ]] || [[ `gs -v` > /dev/null  ]] || [[ `magick -v` > /dev/null ]]
+if [[ $(command -v tesseract) != 0 ]] || [[ $(command -v pdftotext) != 0 ]] || [[ $(command -v gs) != 0  ]] || [[ $(command -v magick) != 0 ]]
 then
     # install text extraction dependencies
     echo "Text extraction libraries not detected on your system, starting installation..."
@@ -118,7 +118,7 @@ fi
 
 echo "Installing Dendro in $INITIAL_DIR with username $(whoami) and Node $NODE_VERSION"
 
-if [ "$NODE_VERSION" == "" ]
+if [[ "$NODE_VERSION" == "" ]]
 then
     echo "Unable to determine the version of NodeJS to install!"
     exit 1
