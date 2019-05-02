@@ -1,4 +1,3 @@
-
 FROM openjdk:11-jre-slim
 
 LABEL maintainer="Martijn Koster \"mak-docker@greenhills.co.uk\""

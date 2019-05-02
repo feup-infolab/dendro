@@ -3,7 +3,7 @@ version: '3.5'
 services:
 #  elasticsearch:
 #    container_name: ${ENVIRONMENT}.elasticsearch-dendro
-#    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.2${STATE}
+#    image: feupinfolab/elasticsearch-no-volumes:latest${STATE} #elasticsearch:6.2.2
 #    expose:
 #      - "9200"
 #      - "9300"
@@ -20,7 +20,7 @@ services:
 
   solr:
     container_name: ${ENVIRONMENT}.solr-dendro
-    image: feupinfolab/no-volumes/solr:latest${STATE}      #solr:7.7.0-slim
+    image: feupinfolab/solr-no-volumes:latest${STATE}      #solr:7.7.0-slim
     expose:
       - "8983"
     entrypoint:
@@ -35,7 +35,7 @@ services:
 
   virtuoso:
     container_name: ${ENVIRONMENT}.virtuoso-dendro
-    image: feupinfolab/no-volumes/virtuoso-with-dendro-ontologies:latest${STATE}
+    image: feupinfolab/virtuoso-with-dendro-ontologies-no-volumes:latest${STATE}
     expose:
       - "8890"
       - "1111"
@@ -60,7 +60,7 @@ services:
 
   mariadb:
     container_name: ${ENVIRONMENT}.mariadb-dendro
-    image: feupinfolab/no-volumes/mariadb:latest${STATE} #mariadb:5.5.62
+    image: feupinfolab/mariadb-no-volumes:latest${STATE} #mariadb:5.5.62
     expose:
       - "3306"
     environment:
@@ -76,7 +76,7 @@ services:
 
   mongodb:
     container_name: ${ENVIRONMENT}.mongodb-dendro
-    image: feupinfolab/no-volumes/mongo:latest${STATE} #mongo:3.6.0
+    image: feupinfolab/mongo-no-volumes:latest${STATE} #mongo:3.6.0
     expose:
       - "27017"
     environment:
@@ -91,11 +91,11 @@ services:
 
   dendro:
     container_name: ${ENVIRONMENT}.dendro
-    image: feupinfolab/no-volumes/dendro:latest${STATE}
+    image: feupinfolab/dendro-no-volumes:latest${STATE}
     build:
       dockerfile: Dockerfile
       args:
-        - "SOURCE_BRANCH=dendrokeywords"
+        - "SOURCE_BRANCH=master"
       context: .
     ports:
       - published: 3001
@@ -106,7 +106,7 @@ services:
       - mongodb
       - virtuoso
     environment:
-      DENDRO_ACTIVE_DEPLOYMENT_CONFIG: d
+      DENDRO_ACTIVE_DEPLOYMENT_CONFIG: docker_mocha
     networks:
       dendro-docker-deployment:
         aliases:
