@@ -19,6 +19,7 @@ JAVA_VERSION=$(java -version 2>&1 | sed -n ';s/.* version "\(.*\)\.\(.*\)\..*"/\
 if [[ $(command -v make) != 0 ]]
 then
     if [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]]; then
+        echo "Build tools not detected on this system, installing 'build-essential' and 'make'..."
         sudo apt-get -qq -y install build-essential make
     fi
 fi
@@ -27,6 +28,7 @@ fi
 if [[ $(command -v python) != 0 ]]
 then
     if [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]]; then
+        echo "Python not detected on this system, installing 'python'..."
         sudo apt-get -qq -y install python
     fi
 fi
