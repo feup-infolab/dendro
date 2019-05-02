@@ -3,6 +3,16 @@
 INITIAL_DIR=`pwd`
 NODE_VERSION=`cat .nvmrc`
 EXPECTED_JAVA_VERSION="18"
+
+# For ubuntu only, need to set env vars. Ridiculous hack....
+if [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]]; then
+	
+  export  JAVA_HOME=/opt/java/openjdk \
+          PATH="/opt/java/openjdk/bin:$PATH"
+  export  JAVA_TOOL_OPTIONS=""
+  export  LD_LIBRARY_PATH="$JAVA_HOME/jre/lib/amd64/server"
+fi
+
 JAVA_VERSION=$(java -version 2>&1 | sed -n ';s/.* version "\(.*\)\.\(.*\)\..*"/\1\2/p;')
 
 if ! [[ make > /dev/null ]]
@@ -35,7 +45,7 @@ echo "Checking for Java 1.8..."
 echo "Current Java Version: $JAVA_VERSION"
 echo "Expected Java Version: $EXPECTED_JAVA_VERSION"
 
-if ! [ "$JAVA_VERSION" = "$EXPECTED_JAVA_VERSION" ]
+if ! [[ "$JAVA_VERSION" = "$EXPECTED_JAVA_VERSION" ]]
 then
     #For the Mac
     if [ "$(uname)" == "Darwin" ]; then
@@ -43,7 +53,7 @@ then
         brew cask install java8
     # In Ubuntu
     elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-        #echo "Installing Java 8 JDK. This will take a few minutes."
+        echo "Installing Java 8 JDK. This will take a few minutes."
         ############################################
         #####         Start JDK Install        #####
         ############################################
@@ -80,19 +90,14 @@ then
             cd /opt/java/openjdk; \
             echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
             sudo tar -xf /tmp/openjdk.tar.gz; \
-            jdir=$(sudo dirname $(sudo dirname $(sudo find /opt/java/openjdk -name java | grep -v "/jre/bin"))); \
-	    #sudo rm -rf /opt/java/openjdk; \
-	    #sudo mkdir -p /opt/java/openjdk; \
-            sudo cp -r ${jdir}/* /opt/java/openjdk || true; \
-            sudo rm -rf ${jdir} # /tmp/openjdk.tar.gz;
+            jdir=$(dirname $(dirname $(sudo find /opt/java/openjdk -name java | grep -v "/jre/bin"))); \
+            sudo mv ${jdir}/* /opt/java/openjdk; \
+            sudo rm -rf ${jdir} /tmp/openjdk.tar.gz;
 
-        export JAVA_HOME=/opt/java/openjdk \
+        export  JAVA_HOME=/opt/java/openjdk \
                 PATH="/opt/java/openjdk/bin:$PATH"
         export  JAVA_TOOL_OPTIONS=""
         export  LD_LIBRARY_PATH="$JAVA_HOME/jre/lib/amd64/server"
-
-	echo "Java version: "
-	java -version
 
         ############################################
         #####          End JDK Install         #####
@@ -114,10 +119,10 @@ else
     #install NVM, Node, Node Automatic Version switcher
     curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash &&
     export NVM_DIR="$HOME/.nvm" &&
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && # This loads nvm
-
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" || ( echo "Error loading NVM " && exit 1 ) ; # This loads nvm
+	
     if [[ -f $HOME/.bash_profile ]]; then
-   	source $HOME/.bash_profile
+   		source $HOME/.bash_profile
     fi
 #    nvm install "$NODE_VERSION"
 #    nvm use --delete-prefix "$NODE_VERSION" --silent
