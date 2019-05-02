@@ -18,7 +18,7 @@ JAVA_VERSION=$(java -version 2>&1 | sed -n ';s/.* version "\(.*\)\.\(.*\)\..*"/\
 # install build tools if not present
 if ! [[ make > /dev/null ]]
 then
-    if [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    if [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]]; then
         sudo apt-get -qq -y install build-essential make
     fi
 fi
@@ -26,7 +26,7 @@ fi
 # install python if not present
 if ! [[ python > /dev/null ]]
 then
-    if [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    if [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]]; then
         sudo apt-get -qq -y install python
     fi
 fi
@@ -37,12 +37,12 @@ then
     # install text extraction dependencies
     echo "Text extraction libraries not detected on your system, starting installation..."
     #For the Mac
-    if [ "$(uname)" == "Darwin" ]; then
+    if [[ "$(uname)" == "Darwin" ]]; then
         brew cask install xquartz && brew install ghostscript tesseract imagemagick@6 poppler
         brew install antiword
         brew tap caskroom/versions
     # In Ubuntu
-    elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    elif [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]]; then
         if [[ $(dpkg -l "poppler-utils" "antiword" "unrtf" "tesseract-ocr") ]]; then
             echo "I need your sudo password for installing text extraction dependencies..."
             sudo apt-get -y -f install poppler-utils antiword unrtf tesseract-ocr
@@ -57,11 +57,11 @@ echo "Expected Java Version: $EXPECTED_JAVA_VERSION"
 if ! [[ "$JAVA_VERSION" = "$EXPECTED_JAVA_VERSION" ]]
 then
     #For the Mac
-    if [ "$(uname)" == "Darwin" ]; then
+    if [[ "$(uname)" == "Darwin" ]]; then
         brew tap caskroom/versions
         brew cask install java8
     # In Ubuntu
-    elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    elif [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]]; then
         echo "Installing Java 8 JDK. This will take a few minutes."
         ############################################
         #####         Start JDK Install        #####
@@ -128,7 +128,7 @@ else
     #install NVM, Node, Node Automatic Version switcher
     curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash &&
     export NVM_DIR="$HOME/.nvm" &&
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" || ( echo "Error loading NVM " && exit 1 ) ; # This loads nvm
+    [[ -s "$NVM_DIR/nvm.sh" ]] && \. "$NVM_DIR/nvm.sh" || ( echo "Error loading NVM " && exit 1 ) ; # This loads nvm
 
     if [[ -f $HOME/.bash_profile ]]; then
    		source $HOME/.bash_profile
