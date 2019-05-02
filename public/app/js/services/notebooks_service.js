@@ -10,6 +10,7 @@ angular.module("dendroApp.services")
                     if (uri == null)
                     {
                         uri = windowService.get_host();
+                        console.log(uri);
                     }
                     else
                     {

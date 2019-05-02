@@ -1447,8 +1447,8 @@ const loadRoutes = function (app, callback)
         // TODO so far only creator will have access must change
         app.get(notebookregex,
             async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
-            async.apply(DockerManager.requireOrchestras, ["dendro_notebook_vhosts"]),
-            notebooks.show);
+            async.apply(DockerManager.requireOrchestras, ["dendro_notebook"]),
+            notebooks.new);
 
         // TODO fix this activate
         app.get(`/notebooks/new`,

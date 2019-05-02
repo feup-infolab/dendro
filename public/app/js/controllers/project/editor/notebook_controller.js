@@ -53,17 +53,18 @@ angular.module("dendroApp.controllers")
 
             $scope.allowDir = false;
             $scope.dropAvailable = true;
-            notebookService.startnotebook();
+            $scope.start_notebook();
         };
 
-        $scope.start_notebook = function (resource_uri)
+        $scope.start_notebook = function ()
         {
-            console.log("Hey there I am starting");
 
-            if (resource_uri != null)
-            {
-                var requestUri = resource_uri + "?recent_changes&limit=5";
+            var uri = $scope.get_last_section_of_url($scope.get_calling_uri());
 
+                var requestUri = $scope.get_host() + "/r/notebook/" + uri;
+                var url = $scope.get_host();
+                console.log(url);
+                window.open(url);
                 return $http({
                     method: "GET",
                     url: requestUri,
@@ -72,9 +73,9 @@ angular.module("dendroApp.controllers")
                     headers: {Accept: "application/json"}
                 }).then(function (response)
                 {
+                    console.log("Returned");
                     return response;
                 });
-            }
         };
     });
 
