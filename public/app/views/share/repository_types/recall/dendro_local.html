@@ -1,14 +1,14 @@
 <h1 class="page-header">Share current folder to Dendro</h1>
 <div class="col-lg-12">
-    <div class="row form-group">
-        <label for="recalled_b2share_repository_label">Label</label>
+    <div class="row form-group" ng-init="setUseraffiliation(loggedUser.foaf.affiliation)">
+            <label for="recalled_b2share_repository_label">Label</label>
         <input type="text" ng-model="recalled_repository.dcterms.title" class="form-control" id="recalled_b2share_repository_label" placeholder="Label" disabled>
 
         <label for="titleOfDeposit">Title of deposit:</label>
-        <input type="text" ng-model="title_of_file_selected" class="form-control" id="titleOfDeposit" placeholder="Title of deposit">
+        <input type="text" ng-model="titleOfDeposit" class="form-control" ng-value="title_of_file_selected" id="titleOfDeposit" placeholder="Title of deposit">
         <br>
         <label for="userAffiliation">User affiliation:</label>
-        <input   type="text"  class="form-control" id="userAffiliation" placeholder="UserAffiliation">  {{userAffiliation}}
+        <input type="text"  ng-model="userAffiliation" class="form-control" id="userAffiliation" placeholder="User Affiliation">
 
         <br>
         <div class="row col-lg-12 col-md-12">
@@ -16,7 +16,7 @@
             <div class=" pull-right col-lg-7 col-md-7">
                 <div class="checkbox">
                     <input type="checkbox" for ="publicDeposit0" id="publicDeposit0" ng-change="change_checkbox(publicDeposit, 4, 0)" ng-model="publicDeposit[0]">
-                    <label name=publicDeposit0">Make this deposit public</label>
+                    <label name="publicDeposit0">Make this deposit public</label>
                 </div>
                 <div class="checkbox">
                     <input type="checkbox" for ="publicDeposit1" id="publicDeposit1" ng-change="change_checkbox(publicDeposit, 4, 1)" ng-model="publicDeposit[1]">
@@ -25,11 +25,11 @@
                 </div>
                 <div class="checkbox">
                     <input type="checkbox" for ="publicDeposit2" id="publicDeposit2" ng-change="change_checkbox(publicDeposit, 4, 2)" ng-model="publicDeposit[2]">
-                    <label name=publicDeposit2">Make this deposit private</label>
+                    <label name="publicDeposit2">Make this deposit private</label>
                 </div>
                 <div class="checkbox">
                     <input type="checkbox" for ="publicDeposit3" id="publicDeposit3" ng-change="change_checkbox(publicDeposit, 4, 3)" ng-model="publicDeposit[3]">
-                    <label name=publicDeposit3">Make public metadata only</label>
+                    <label name="publicDeposit3">Make public metadata only</label>
                 </div>
             </div>
         </div>
@@ -46,8 +46,8 @@
                 <button type="button" ng-click="delete_bookmark(recalled_repository, true)" class="btn btn-danger btn-large"><span class="glyphicon glyphicon-remove "></span>Delete this bookmark</button>
 
                 <button type="cancel"
-                        ng-click="upload_to_repository(recalled_repository, publicDeposit, title_of_file_selected, embargoed, accessTerms, userAffiliation)"
-                        ng-disabled="disable_send_bookmark_dendro(title_of_file_selected, publicDeposit, embargoed)"
+                        ng-click="upload_to_repository(recalled_repository, publicDeposit, titleOfDeposit, embargoed, accessTerms, userAffiliation)"
+                        ng-disabled="disable_send_bookmark_dendro(titleOfDeposit, publicDeposit, embargoed, userAffiliation)"
                         class="btn btn-success pull-right"><span class="glyphicon glyphicon-upload"></span>Send</button>
             </div>
             <div ng-if="is_sending_data" class="pull-right">

@@ -269,12 +269,22 @@ angular.module("dendroApp.controllers")
                 return false;
             };
 
-            $scope.disable_send_bookmark_dendro = function (title, obj, date)
+            $scope.setUseraffiliation = function (userAffiliation)
+            {
+                $scope.userAffiliation = userAffiliation;
+            };
+
+            $scope.disable_send_bookmark_dendro = function (title, obj, date, userAffiliation)
             {
                 let one = false;
                 let index;
 
                 if (!title)
+                {
+                    return true;
+                }
+
+                if (!userAffiliation || userAffiliation === "")
                 {
                     return true;
                 }
