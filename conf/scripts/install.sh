@@ -4,6 +4,11 @@ INITIAL_DIR=`pwd`
 NODE_VERSION=`cat .nvmrc`
 EXPECTED_JAVA_VERSION="18"
 
+#create bash_profile file if not present
+if ! [[ -f $HOME/.bash_profile ]]; then
+  touch $HOME/.bash_profile
+fi
+
 # For ubuntu only, need to set env vars. Ridiculous hack....
 if [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]]; then
 
