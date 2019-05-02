@@ -137,6 +137,10 @@ else
     export NVM_DIR="$HOME/.nvm" &&
     [[ -s "$NVM_DIR/nvm.sh" ]] && \. "$NVM_DIR/nvm.sh" || ( echo "Error loading NVM " && exit 1 ) ; # This loads nvm
 
+    if [[ -f $HOME/.bashrc ]]; then
+   		source $HOME/.bashrc
+    fi
+
     if [[ -f $HOME/.bash_profile ]]; then
    		source $HOME/.bash_profile
     fi
