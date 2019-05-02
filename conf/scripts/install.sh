@@ -6,7 +6,7 @@ EXPECTED_JAVA_VERSION="18"
 
 # For ubuntu only, need to set env vars. Ridiculous hack....
 if [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]]; then
-	
+
   export  JAVA_HOME=/opt/java/openjdk \
           PATH="/opt/java/openjdk/bin:$PATH"
   export  JAVA_TOOL_OPTIONS=""
@@ -15,10 +15,19 @@ fi
 
 JAVA_VERSION=$(java -version 2>&1 | sed -n ';s/.* version "\(.*\)\.\(.*\)\..*"/\1\2/p;')
 
+# install build tools if not present
 if ! [[ make > /dev/null ]]
 then
     if [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-        sudo apt-get -qq -y install build-essential
+        sudo apt-get -qq -y install build-essential make
+    fi
+fi
+
+# install python if not present
+if ! [[ python > /dev/null ]]
+then
+    if [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+        sudo apt-get -qq -y install python
     fi
 fi
 
@@ -120,7 +129,7 @@ else
     curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash &&
     export NVM_DIR="$HOME/.nvm" &&
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" || ( echo "Error loading NVM " && exit 1 ) ; # This loads nvm
-	
+
     if [[ -f $HOME/.bash_profile ]]; then
    		source $HOME/.bash_profile
     fi
