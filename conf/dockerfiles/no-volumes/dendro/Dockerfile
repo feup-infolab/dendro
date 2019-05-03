@@ -178,8 +178,8 @@ RUN cp -R "$BOWER_TMP_DIR/bower_components" "$DENDRO_INSTALL_DIR/public"
 # Show contents of folders
 RUN echo "Contents of Dendro install dir are:"
 RUN ls -la "$DENDRO_INSTALL_DIR"
-RUN echo "Contents of Dendro running dir are:"
-RUN ls -la "$DENDRO_RUNNING_DIR"
+# RUN echo "Contents of Dendro running dir are:"
+# RUN ls -la "$DENDRO_RUNNING_DIR"
 
 # What is the active deployment config?
 RUN echo "Contents of Dendro active configuration file: $(cat $DENDRO_INSTALL_DIR/conf/active_deployment_config.yml)"
