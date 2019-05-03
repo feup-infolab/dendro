@@ -1,0 +1,92 @@
+SPARQL CLEAR GRAPH <http://www.w3.org/ns/auth/cert#>;
+DB.DBA.RDF_LOAD_RDFXML (file_to_string_output ('/usr/share/proj/dendro-ontologies/CERT/cert.rdf'), '', 'http://schema.org/');
+
+SPARQL CLEAR GRAPH <http://schema.org/>;
+DB.DBA.RDF_LOAD_RDFXML (file_to_string_output ('/usr/share/proj/dendro-ontologies/SCHEMA_ORG/schema.rdf'), '', 'http://schema.org/');
+
+SPARQL CLEAR GRAPH <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#>;
+ld_dir ('/usr/share/proj/dendro-ontologies/NFO', '*.n3', 'http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#');
+
+SPARQL CLEAR GRAPH <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#>;
+ld_dir ('/usr/share/proj/dendro-ontologies/NIE/', '*.n3', 'http://www.semanticdesktop.org/ontologies/2007/01/19/nie#');
+
+SPARQL CLEAR GRAPH <http://purl.org/dc/elements/1.1/>;
+DB.DBA.RDF_LOAD_RDFXML (file_to_string_output ('/usr/share/proj/dendro-ontologies/DCELEMENTS/dcelements.rdf'), '', 'http://purl.org/dc/elements/1.1/');
+
+SPARQL CLEAR GRAPH <http://purl.org/dc/terms/>;
+DB.DBA.RDF_LOAD_RDFXML (file_to_string_output ('/usr/share/proj/dendro-ontologies/DCTERMS/dcterms.rdf'), '', 'http://purl.org/dc/terms/');
+
+SPARQL CLEAR GRAPH <http://xmlns.com/foaf/0.1/>;
+DB.DBA.RDF_LOAD_RDFXML (file_to_string_output ('/usr/share/proj/dendro-ontologies/FOAF/index.rdf'), '', 'http://xmlns.com/foaf/0.1/');
+
+SPARQL CLEAR GRAPH <http://dendro.fe.up.pt/ontology/achem/>;
+DB.DBA.RDF_LOAD_RDFXML (file_to_string_output ('/usr/share/proj/dendro-ontologies/ACHEM/achem.owl'), '', 'http://dendro.fe.up.pt/ontology/achem/');
+
+SPARQL CLEAR GRAPH <http://www.dendro.fe.up.pt/ontology/mibbiup#>;
+DB.DBA.RDF_LOAD_RDFXML (file_to_string_output ('/usr/share/proj/dendro-ontologies/MIBBIUP/MibbiUP.owl'), '', 'http://www.dendro.fe.up.pt/ontology/mibbiup#');
+
+SPARQL CLEAR GRAPH <http://dendro.fe.up.pt/ontology/BIODIV/0.1#>;
+SPARQL LOAD <https://raw.githubusercontent.com/feup-infolab-rdm/dendro-ontologies/master/BIODIV/BIODIV_17Jun_1557.owl> INTO <http://dendro.fe.up.pt/ontology/BIODIV/0.1#>;
+
+SPARQL CLEAR GRAPH <http://dendro.fe.up.pt/ontology/BioOc#>;
+SPARQL LOAD <https://raw.githubusercontent.com/feup-infolab-rdm/dendro-ontologies/master/BIOOC/BioOc.owl> INTO <http://dendro.fe.up.pt/ontology/BioOc#>;
+
+SPARQL CLEAR GRAPH <http://dendro.fe.up.pt/ontology/cfd#>;
+SPARQL LOAD <https://raw.githubusercontent.com/feup-infolab-rdm/dendro-ontologies/master/COMPUTATIONAL_FLUID_DYNAMICS/cfd.owl> INTO GRAPH <http://dendro.fe.up.pt/ontology/cfd#>;
+
+SPARQL CLEAR GRAPH <http://dendro.fe.up.pt/ontology/cep/>;
+SPARQL LOAD <https://raw.githubusercontent.com/feup-infolab-rdm/dendro-ontologies/master/CUTTING_PACKING/cep.owl> INTO GRAPH <http://dendro.fe.up.pt/ontology/cep/>;
+
+SPARQL CLEAR GRAPH <http://dendro.fe.up.pt/ontology/dcb/>;
+SPARQL LOAD <https://raw.githubusercontent.com/feup-infolab-rdm/dendro-ontologies/master/DCB/dcb.owl> INTO GRAPH <http://dendro.fe.up.pt/ontology/dcb/>;
+
+SPARQL CLEAR GRAPH <http://dendro.fe.up.pt/ontology/0.1/>;
+SPARQL LOAD <https://raw.githubusercontent.com/feup-infolab-rdm/dendro-ontologies/master/DENDRO/dendro.owl> INTO GRAPH <http://dendro.fe.up.pt/ontology/0.1/>;
+
+SPARQL CLEAR GRAPH <http://dendro.fe.up.pt/ontology/EcoGeorref/0.1#>;
+SPARQL LOAD <https://raw.githubusercontent.com/feup-infolab-rdm/dendro-ontologies/master/ECOGEORREF/EcoGeorref.owl> INTO <http://dendro.fe.up.pt/ontology/EcoGeorref/0.1#>;
+
+SPARQL CLEAR GRAPH <http://dendro.fe.up.pt/ontology/gravimetry#>;
+SPARQL LOAD <https://raw.githubusercontent.com/feup-infolab-rdm/dendro-ontologies/master/GRAVIMETRY/gravimetry.owl> INTO <http://dendro.fe.up.pt/ontology/gravimetry#>;
+
+SPARQL CLEAR GRAPH <http://dendro.fe.up.pt/ontology/hydrogen#>;
+SPARQL LOAD <https://raw.githubusercontent.com/feup-infolab-rdm/dendro-ontologies/master/HYDROGEN/hydrogen.owl> INTO <http://dendro.fe.up.pt/ontology/hydrogen#>;
+
+SPARQL CLEAR GRAPH <http://dendro.fe.up.pt/ontology/research/>;
+SPARQL LOAD <https://raw.githubusercontent.com/feup-infolab-rdm/dendro-ontologies/master/RESEARCH/research.owl> INTO GRAPH <http://dendro.fe.up.pt/ontology/research/>;
+
+SPARQL CLEAR GRAPH <http://dendro.fe.up.pt/ontology/socialStudies#>;
+SPARQL LOAD <https://raw.githubusercontent.com/feup-infolab/dendro-ontologies/master/SOCIAL_STUDIES/SocialStudies.owl> INTO GRAPH <http://dendro.fe.up.pt/ontology/socialStudies#>;
+
+SPARQL CLEAR GRAPH <http://dendro.fe.up.pt/ontology/trafficSim#>;
+SPARQL LOAD <https://raw.githubusercontent.com/feup-infolab-rdm/dendro-ontologies/master/TRAFFIC_SIM/trafficSimDendro.owl> INTO GRAPH <http://dendro.fe.up.pt/ontology/trafficSim#>;
+
+SPARQL CLEAR GRAPH <http://dendro.fe.up.pt/ontology/game/>;
+SPARQL LOAD <https://raw.githubusercontent.com/feup-infolab-rdm/dendro-ontologies/master/GAME/game.owl> INTO GRAPH <http://dendro.fe.up.pt/ontology/game/>;
+
+SPARQL CLEAR GRAPH <http://dendro.fe.up.pt/ontology/tvu#>;
+SPARQL LOAD <https://raw.githubusercontent.com/feup-infolab/dendro-ontologies/master/TVU/TVU_XML.owl> INTO GRAPH <http://dendro.fe.up.pt/ontology/tvu#>;
+
+SPARQL CLEAR GRAPH <http://purl.org/ontology/po/>;
+SPARQL LOAD <https://raw.githubusercontent.com/feup-infolab/dendro-ontologies/master/PO/1.1.ttl> INTO GRAPH <http://purl.org/ontology/po/>;
+
+SPARQL CLEAR GRAPH <https://raw.githubusercontent.com/feup-infolab/dendro-ontologies/master/M3-LITE/M3-lite.owl#>;
+SPARQL LOAD <https://raw.githubusercontent.com/feup-infolab/dendro-ontologies/master/M3-LITE/M3-lite.owl> INTO GRAPH <https://raw.githubusercontent.com/feup-infolab/dendro-ontologies/master/M3-LITE/M3-lite.owl#>;
+
+SPARQL CLEAR GRAPH <https://raw.githubusercontent.com/feup-infolab/dendro-ontologies/master/SSN/SSN.owl#>;
+SPARQL LOAD <https://raw.githubusercontent.com/feup-infolab/dendro-ontologies/master/SSN/SSN.owl> INTO GRAPH <https://raw.githubusercontent.com/feup-infolab/dendro-ontologies/master/SSN/SSN.owl#>;
+
+SPARQL CLEAR GRAPH <http://dendro.fe.up.pt/ontology/ddiup#>;
+SPARQL LOAD <https://raw.githubusercontent.com/feup-infolab/dendro-ontologies/master/DDI_UP/ddi_up_ontology_2.0.rdf> INTO GRAPH <http://dendro.fe.up.pt/ontology/ddiup#>;
+
+SPARQL CLEAR GRAPH <http://rdf-vocabulary.ddialliance.org/discovery#>;
+SPARQL LOAD <https://raw.githubusercontent.com/feup-infolab/dendro-ontologies/master/DISCOVERY/discovery.rdf> INTO GRAPH <http://rdf-vocabulary.ddialliance.org/discovery#>;
+
+SPARQL CLEAR GRAPH <http://www.w3.org/1999/02/22-rdf-syntax-ns#>;
+SPARQL LOAD <https://www.w3.org/1999/02/22-rdf-syntax-ns.rdf> INTO GRAPH <http://www.w3.org/1999/02/22-rdf-syntax-ns#>;
+
+SPARQL CLEAR GRAPH <http://www.dendro.fe.up.pt/ontology/chemistry#>;
+SPARQL LOAD <https://raw.githubusercontent.com/feup-infolab/dendro-ontologies/master/CHM/chm.owl> INTO GRAPH <http://www.dendro.fe.up.pt/ontology/chemistry#>;
+
+SPARQL CLEAR GRAPH <http://www.dendro.fe.up.pt/ontology/physics#>;
+SPARQL LOAD <https://raw.githubusercontent.com/feup-infolab/dendro-ontologies/master/PHYS/phys.owl> INTO GRAPH <http://www.dendro.fe.up.pt/ontology/physics#>;
