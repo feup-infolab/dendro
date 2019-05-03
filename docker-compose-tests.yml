@@ -76,7 +76,7 @@ services:
 
   mongodb:
     container_name: ${ENVIRONMENT}.mongodb-dendro
-    image: feupinfolab/mongo-no-volumes:latest${STATE} #mongo:3.6.0
+    image: feupinfolab/mongodb-no-volumes:latest${STATE} #mongo:3.6.0
     expose:
       - "27017"
     environment:
