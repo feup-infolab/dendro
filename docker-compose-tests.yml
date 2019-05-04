@@ -50,7 +50,7 @@ services:
     networks:
       dendro-docker-deployment:
         aliases:
-          - virtuoso
+          - virtuoso-dendro
     restart: on-failure
 
   mariadb:

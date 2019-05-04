@@ -84,7 +84,7 @@ docker:
     authDatabase: admin
   storageDefaults:
     storageType: mongoDB
-    host: mongo-dendro
+    host: mongodb-dendro
     port: 27017
     collectionName: mongo_3001_files
     username: ''
