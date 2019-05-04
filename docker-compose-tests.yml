@@ -40,11 +40,6 @@ services:
       - "8890"
       - "1111"
     tty: true
-    ports:
-      - published: 8890
-        target: 8890
-      - published: 1111
-        target: 1111
     environment:
       - "SPARQL_UPDATE=true"
       - "VIRT_Parameters_CheckpointSyncMode=2"
@@ -92,9 +87,8 @@ services:
   dendro:
     container_name: ${ENVIRONMENT}.dendro
     image: feupinfolab/dendro-no-volumes:latest${STATE}
-    ports:
-      - published: 3001
-        target: 3001
+    expose:
+      - "3001"
     depends_on:
       - solr
       - mariadb
