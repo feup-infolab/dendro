@@ -3,7 +3,7 @@ version: '3.7'
 services:
   virtuoso:
     container_name: virtuoso-dendro
-    image: feupinfolab/virtuoso-with-dendro-ontologies:latest
+    image: feupinfolab/virtuoso-with-dendro-ontologies-no-volumes:latest
     tty: true
     privileged: true
     build:
