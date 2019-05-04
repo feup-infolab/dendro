@@ -143,12 +143,6 @@ exports.allowed = function (req, callback)
     {
         callback(err, results);
     });
-
-    /* Deposit.createQuery(params, function(err, results){
-        Deposit.getAllRepositories(function(err, repos){
-          callback(err, results);
-        })
-    });*/
 };
 
 exports.changeUserAccess = function (req, res)
@@ -563,19 +557,9 @@ exports.show = function (req, res)
                             viewVars
                         );
                     }
-                    else if (req.permissions_management)
+                    else
                     {
-                        const isEditor = _.filter(req.permissions_management.reasons_for_authorizing, function (authorization)
-                        {
-                            const reason = authorization.role;
-                            if (req.params.is_project_root)
-                            {
-                                return _.isEqual(reason, Permissions.settings.role.users_role_in_deposit);
-                            }
-                            return _.isEqual(reason, Permissions.settings.role.users_role_in_deposit);
-                        });
-
-                        if (isEditor.length > 0)
+                        if (viewVars.owner === true)
                         {
                             res.render("registry/show",
                                 viewVars
@@ -684,50 +668,51 @@ exports.show = function (req, res)
                             deposit.dcterms.date = moment(deposit.dcterms.date).format("LLLL");
                             deposit.externalUri = appendPlatformUrl(deposit) + deposit.dcterms.identifier;
                             viewVars.deposit = deposit;
+                            if (req.user.uri === deposit.dcterms.creator)
+                            {
+                                viewVars.owner = true;
+                            }
+                            else
+                            {
+                                viewVars.owner = false;
+                            }
                             callback(null);
                         },
                         function (callback)
                         {
-                            if (!req.user)
+                            ConditionsAcceptance.getUserConditionOnTheDeposit(req.user.uri, resourceURI, function (err, result)
                             {
-                                callback(null);
-                            }
-                            else
-                            {
-                                ConditionsAcceptance.getUserConditionOnTheDeposit(req.user.uri, resourceURI, function (err, result)
+                                if (isNull(err))
                                 {
-                                    if (isNull(err))
+                                    if (result.length > 0)
                                     {
-                                        if (result.length > 0)
+                                        if (result[0].userAccepted === "true")
                                         {
-                                            if (result[0].userAccepted === "true")
-                                            {
-                                                viewVars.userAccepted = true;
-                                                viewVars.acceptingUser = true;
-                                            }
-                                            else
-                                            {
-                                                viewVars.userAccepted = false;
-                                                viewVars.acceptingUser = true;
-                                            }
+                                            viewVars.userAccepted = true;
+                                            viewVars.acceptingUser = true;
                                         }
                                         else
                                         {
-                                            if (viewVars.deposit.ddr.accessTerms || viewVars.deposit.ddr.privacyStatus !== "public")
-                                            {
-                                                viewVars.userAccepted = false;
-                                                viewVars.acceptingUser = false;
-                                            }
-                                            else
-                                            {
-                                                viewVars.userAccepted = true;
-                                                viewVars.acceptingUser = true;
-                                            }
+                                            viewVars.userAccepted = false;
+                                            viewVars.acceptingUser = true;
                                         }
                                     }
-                                    callback(err, result);
-                                });
-                            }
+                                    else
+                                    {
+                                        if (viewVars.deposit.ddr.accessTerms || viewVars.deposit.ddr.privacyStatus !== "public")
+                                        {
+                                            viewVars.userAccepted = false;
+                                            viewVars.acceptingUser = false;
+                                        }
+                                        else
+                                        {
+                                            viewVars.userAccepted = true;
+                                            viewVars.acceptingUser = true;
+                                        }
+                                    }
+                                }
+                                callback(err, result);
+                            });
                         }
                     ], function (err, result)
                     {

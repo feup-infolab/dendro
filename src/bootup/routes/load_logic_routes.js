@@ -861,7 +861,7 @@ const loadRoutes = function (app, callback)
         getNonHumanReadableRouteRegex("deposit")
     ],
     extractUriFromRequest,
-    async.apply(Permissions.require, [Permissions.settings.privacy.of_deposit.public]), function (req, res)
+    async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), function (req, res)
     {
         req.params.is_project_root = true;
         deposits.show(req, res);
