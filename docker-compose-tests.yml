@@ -92,16 +92,11 @@ services:
   dendro:
     container_name: ${ENVIRONMENT}.dendro
     image: feupinfolab/dendro-no-volumes:latest${STATE}
-    build:
-      dockerfile: Dockerfile
-      args:
-        - "SOURCE_BRANCH=master"
-      context: .
     ports:
       - published: 3001
         target: 3001
     depends_on:
-      - elasticsearch
+      - solr
       - mariadb
       - mongodb
       - virtuoso
