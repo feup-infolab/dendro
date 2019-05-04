@@ -854,6 +854,19 @@ const loadRoutes = function (app, callback)
     }
     );
 
+    // TODO William
+    app.get("/deposits/search", deposits.search);
+
+    app.get([
+        getNonHumanReadableRouteRegex("deposit")
+    ],
+    extractUriFromRequest,
+    async.apply(Permissions.require, [Permissions.settings.privacy.of_deposit.public]), function (req, res)
+    {
+        req.params.is_project_root = true;
+        deposits.show(req, res);
+    });
+
     //      files and folders (data)
     //      downloads
     app.all([
@@ -1646,19 +1659,6 @@ const loadRoutes = function (app, callback)
             async.apply(DockerManager.requireOrchestras, ["dendro_keywords"]),
             keywords.clustering);
     }
-
-    // TODO William
-    app.get("/deposits/search", deposits.search);
-
-    app.get([
-        getNonHumanReadableRouteRegex("deposit")
-    ],
-    extractUriFromRequest,
-    async.apply(Permissions.require, [Permissions.settings.privacy.of_deposit.public, Permissions.settings.role.users_role_in_deposit]), function (req, res)
-    {
-        req.params.is_deposit_root = true;
-        deposits.show(req, res);
-    });
 
     // serve angular JS ejs-generated html partials
     app.get(/\/images\/icons\/extensions\/file_extension_([a-z0-9]+)\.png$/, files.extension_icon);

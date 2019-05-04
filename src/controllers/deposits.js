@@ -503,7 +503,7 @@ exports.search = function (req, res)
 exports.show = function (req, res)
 {
     let resourceURI = req.params.requestedResourceUri;
-    const isDepositRoot = req.params.is_deposit_root;
+    const isDepositRoot = req.params.is_project_root;
     const isAdmin = req.session.isAdmin;
 
     function sendResponse (viewVars, requestedResource)
@@ -568,7 +568,7 @@ exports.show = function (req, res)
                         const isEditor = _.filter(req.permissions_management.reasons_for_authorizing, function (authorization)
                         {
                             const reason = authorization.role;
-                            if (req.params.is_deposit_root)
+                            if (req.params.is_project_root)
                             {
                                 return _.isEqual(reason, Permissions.settings.role.users_role_in_deposit);
                             }
@@ -662,7 +662,7 @@ exports.show = function (req, res)
         {
             if (isNull(err))
             {
-                viewVars.is_deposit_root = true;
+                viewVars.is_project_root = true;
                 viewVars.is_admin = isAdmin;
                 viewVars.title = "Deposit information";
 
@@ -869,7 +869,7 @@ exports.show = function (req, res)
 
                 const getResourceMetadata = function (breadcrumbs, callback)
                 {
-                    viewVars.is_deposit_root = false;
+                    viewVars.is_project_root = false;
                     viewVars.is_admin = isAdmin;
                     viewVars.breadcrumbs = breadcrumbs.breadcrumbs;
                     viewVars.go_up_options = breadcrumbs.go_up_options;

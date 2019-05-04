@@ -3,7 +3,7 @@
 <!--&nbsp;-->
 <div class="container-fluid" ng-controller="projectEditorCtrl" ng-init="init()">
         <div ng-controller="depositCtrl"
-             ng-init="initSingleDeposit('<%= locals.deposit.nie.hasLogicalPart %>', <%= is_deposit_root %>)">
+             ng-init="initSingleDeposit('<%= locals.deposit.nie.hasLogicalPart %>', <%= is_project_root %>)">
             <div class="row">
                 <div class="col-xs-12">
                     <%- include show/breadcrumbs.ejs %>

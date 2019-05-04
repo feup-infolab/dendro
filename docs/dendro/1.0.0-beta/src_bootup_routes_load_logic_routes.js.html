@@ -1658,7 +1658,7 @@ const loadRoutes = function (app, callback)
     extractUriFromRequest,
     async.apply(Permissions.require, [Permissions.settings.privacy.of_deposit.public, Permissions.settings.role.users_role_in_deposit]), function (req, res)
     {
-        req.params.is_deposit_root = true;
+        req.params.is_project_root = true;
         deposits.show(req, res);
     });
 
