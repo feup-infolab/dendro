@@ -101,7 +101,7 @@ services:
       - mongodb
       - virtuoso
     environment:
-      DENDRO_ACTIVE_DEPLOYMENT_CONFIG: docker_mocha
+      DENDRO_ACTIVE_DEPLOYMENT_CONFIG: docker
     networks:
       dendro-docker-deployment:
         aliases:
