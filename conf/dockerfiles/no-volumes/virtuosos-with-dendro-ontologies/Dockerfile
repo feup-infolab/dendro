@@ -13,7 +13,7 @@ RUN git clone https://github.com/feup-infolab/dendro-ontologies.git /usr/share/p
 
 # Environment variables
 
-ENV ORIGINAL_VIRTUOSO_STARTUP_SCRIPT "/virtuoso-entrypoint.sh"
+ENV ORIGINAL_VIRTUOSO_STARTUP_SCRIPT "/virtuoso.sh"
 ENV VIRTUOSO_DBA_USER "dba"
 ENV DBA_PASSWORD "$DBA_PASSWORD"
 ENV SETUP_COMPLETED_PREVIOUSLY "/database/virtuoso_already_loaded_ontologies.dat"
