@@ -1,0 +1,85 @@
+log_enable(3);
+
+DB.DBA.XML_REMOVE_NS_BY_PREFIX('schema', 2);
+DB.DBA.XML_SET_NS_DECL ('schema', 'http://schema.org/', 2);
+
+DB.DBA.XML_REMOVE_NS_BY_PREFIX('nfo', 2);
+DB.DBA.XML_SET_NS_DECL ('nfo', 'http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#', 2);
+
+DB.DBA.XML_REMOVE_NS_BY_PREFIX('nie', 2);
+DB.DBA.XML_SET_NS_DECL ('nie', 'http://www.semanticdesktop.org/ontologies/2007/01/19/nie#', 2);
+
+DB.DBA.XML_REMOVE_NS_BY_PREFIX('dc', 2);
+DB.DBA.XML_SET_NS_DECL ('dc', 'http://purl.org/dc/elements/1.1/', 2);
+
+DB.DBA.XML_REMOVE_NS_BY_PREFIX('dcterms', 2);
+DB.DBA.XML_SET_NS_DECL ('dcterms', 'http://purl.org/dc/terms/', 2);
+
+DB.DBA.XML_REMOVE_NS_BY_PREFIX('foaf', 2);
+DB.DBA.XML_SET_NS_DECL ('foaf', 'http://xmlns.com/foaf/0.1/', 2);
+
+DB.DBA.XML_REMOVE_NS_BY_PREFIX('achem', 2);
+DB.DBA.XML_SET_NS_DECL ('achem', 'http://dendro.fe.up.pt/ontology/achem/', 2);
+
+DB.DBA.XML_REMOVE_NS_BY_PREFIX('bdv', 2);
+DB.DBA.XML_SET_NS_DECL ('bdv', 'http://dendro.fe.up.pt/ontology/BIODIV/0.1#', 2);
+
+DB.DBA.XML_REMOVE_NS_BY_PREFIX('biooc', 2);
+DB.DBA.XML_SET_NS_DECL ('biooc', 'http://dendro.fe.up.pt/ontology/BioOc#', 2);
+
+DB.DBA.XML_REMOVE_NS_BY_PREFIX('cfd', 2);
+DB.DBA.XML_SET_NS_DECL ('cfd', 'http://dendro.fe.up.pt/ontology/cfd#', 2);
+
+DB.DBA.XML_REMOVE_NS_BY_PREFIX('cep', 2);
+DB.DBA.XML_SET_NS_DECL ('cep', 'http://dendro.fe.up.pt/ontology/cep/', 2);
+
+DB.DBA.XML_REMOVE_NS_BY_PREFIX('dcb', 2);
+DB.DBA.XML_SET_NS_DECL ('dcb', 'http://dendro.fe.up.pt/ontology/dcb/', 2);
+
+DB.DBA.XML_REMOVE_NS_BY_PREFIX('ddr', 2);
+DB.DBA.XML_SET_NS_DECL ('ddr', 'http://dendro.fe.up.pt/ontology/0.1/', 2);
+
+DB.DBA.XML_REMOVE_NS_BY_PREFIX('ecogeorref', 2);
+DB.DBA.XML_SET_NS_DECL ('ecogeorref', 'http://dendro.fe.up.pt/ontology/achem/', 2);
+
+DB.DBA.XML_REMOVE_NS_BY_PREFIX('gravimetry', 2);
+DB.DBA.XML_SET_NS_DECL ('gravimetry', 'http://dendro.fe.up.pt/ontology/gravimetry#', 2);
+
+DB.DBA.XML_REMOVE_NS_BY_PREFIX('hdg', 2);
+DB.DBA.XML_SET_NS_DECL ('hdg', 'http://dendro.fe.up.pt/ontology/hydrogen#', 2);
+
+DB.DBA.XML_REMOVE_NS_BY_PREFIX('research', 2);
+DB.DBA.XML_SET_NS_DECL ('research', 'http://dendro.fe.up.pt/ontology/research/', 2);
+
+DB.DBA.XML_REMOVE_NS_BY_PREFIX('socialStudies', 2);
+DB.DBA.XML_SET_NS_DECL ('socialStudies', 'http://dendro.fe.up.pt/ontology/socialStudies#', 2);
+
+DB.DBA.XML_REMOVE_NS_BY_PREFIX('trafSim', 2);
+DB.DBA.XML_SET_NS_DECL ('trafSim', 'http://dendro.fe.up.pt/ontology/trafficSim#', 2);
+
+DB.DBA.XML_REMOVE_NS_BY_PREFIX('gm', 2);
+DB.DBA.XML_SET_NS_DECL ('gm', 'http://dendro.fe.up.pt/ontology/game/', 2);
+
+DB.DBA.XML_REMOVE_NS_BY_PREFIX('tvu', 2);
+DB.DBA.XML_SET_NS_DECL ('tvu', 'http://dendro.fe.up.pt/ontology/tvu#', 2);
+
+DB.DBA.XML_REMOVE_NS_BY_PREFIX('po', 2);
+DB.DBA.XML_SET_NS_DECL ('po', 'http://purl.org/ontology/po/', 2);
+
+DB.DBA.XML_REMOVE_NS_BY_PREFIX('ddiup', 2);
+DB.DBA.XML_SET_NS_DECL ('ddiup', 'http://dendro.fe.up.pt/ontology/ddiup#', 2);
+
+DB.DBA.XML_REMOVE_NS_BY_PREFIX('disco', 2);
+DB.DBA.XML_SET_NS_DECL ('disco', 'http://rdf-vocabulary.ddialliance.org/discovery#', 2);
+
+DB.DBA.XML_REMOVE_NS_BY_PREFIX('rdf', 2);
+DB.DBA.XML_SET_NS_DECL ('rdf', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#', 2);
+
+DB.DBA.XML_REMOVE_NS_BY_PREFIX('chm', 2);
+DB.DBA.XML_SET_NS_DECL ('chm', 'http://www.dendro.fe.up.pt/ontology/chemistry#', 2);
+
+DB.DBA.XML_REMOVE_NS_BY_PREFIX('phys', 2);
+DB.DBA.XML_SET_NS_DECL ('phys', 'http://www.dendro.fe.up.pt/ontology/physics#', 2);
+
+DB.DBA.XML_REMOVE_NS_BY_PREFIX('mibbiup', 2);
+DB.DBA.XML_SET_NS_DECL ('mibbiup', 'http://www.dendro.fe.up.pt/ontology/mibbiup#', 2);

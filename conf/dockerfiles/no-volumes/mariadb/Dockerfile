@@ -90,7 +90,7 @@ RUN set -ex; \
 
 # bashbrew-architectures: amd64 i386 ppc64le
 ENV MARIADB_MAJOR 5.5
-ENV MARIADB_VERSION 5.5.63+maria-1~trusty
+ENV MARIADB_VERSION 5.5.64+maria-1~trusty
 # release-status:Stable
 # (https://downloads.mariadb.org/mariadb/+releases/)
 
@@ -150,7 +150,7 @@ RUN set -ex; \
 # don't reverse lookup hostnames, they are usually another container
 	echo '[mysqld]\nskip-host-cache\nskip-name-resolve' > /etc/mysql/conf.d/docker.cnf
 
-#VOLUME /var/lib/mysql
+# VOLUME /var/lib/mysql
 
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN ln -s usr/local/bin/docker-entrypoint.sh / # backwards compat

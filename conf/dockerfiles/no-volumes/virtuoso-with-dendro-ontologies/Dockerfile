@@ -3,6 +3,10 @@ FROM feupinfolab/virtuoso-no-volumes:latest
 #iproute2
 SHELL ["/bin/bash", "-c"]
 
+RUN chmod +x /virtuoso.sh
+RUN ln -s /usr/local/virtuoso-opensource/bin/isql-v /usr/local/virtuoso-opensource/bin/isql
+RUN mkdir /database
+
 RUN apt-get update; apt-get -y -qq install curl netcat git iptables
 ARG DBA_PASSWORD="mysecret"
 
@@ -13,7 +17,7 @@ RUN git clone https://github.com/feup-infolab/dendro-ontologies.git /usr/share/p
 
 # Environment variables
 
-ENV ORIGINAL_VIRTUOSO_STARTUP_SCRIPT "/virtuoso-entrypoint.sh"
+ENV ORIGINAL_VIRTUOSO_STARTUP_SCRIPT "/virtuoso.sh"
 ENV VIRTUOSO_DBA_USER "dba"
 ENV DBA_PASSWORD "$DBA_PASSWORD"
 ENV SETUP_COMPLETED_PREVIOUSLY "/database/virtuoso_already_loaded_ontologies.dat"

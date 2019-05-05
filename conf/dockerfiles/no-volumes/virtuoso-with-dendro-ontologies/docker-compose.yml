@@ -1,0 +1,31 @@
+version: '3.7'
+
+services:
+  virtuoso:
+    container_name: virtuoso-dendro
+    image: feupinfolab/virtuoso-with-dendro-ontologies-no-volumes:latest
+    tty: true
+    privileged: true
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+          DBA_PASSWORD: dba
+    ports:
+      - target: 8890
+        published: 8892
+      - target: 1111
+        published: 1113
+    environment:
+      - "SPARQL_UPDATE=true"
+      - "VIRT_Parameters_CheckpointSyncMode=2"
+      - "VIRT_Parameters_PageMapCheck=1"
+      - "VIRT_Parameters_CheckpointInterval=1"
+      - "VIRT_Parameters_MinAutoCheckpointSize=1"
+    volumes:
+        - ./volumes/virtuoso:/database
+    networks:
+      - dendro-docker
+
+networks:
+  dendro-docker: {}
