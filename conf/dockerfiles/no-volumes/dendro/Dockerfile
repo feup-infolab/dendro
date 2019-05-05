@@ -175,6 +175,9 @@ RUN cp -R "$BOWER_TMP_DIR/bower_components" "$DENDRO_INSTALL_DIR/public"
 # VOLUME [ "$DENDRO_RUNNING_DIR/orchestras"]
 # VOLUME [ "$DENDRO_RUNNING_DIR/profiling"]
 
+# Creating DENDRO_RUNNING_DIR
+RUN mkdir "$DENDRO_RUNNING_DIR"
+
 # Show contents of folders
 RUN echo "Contents of Dendro install dir are:"
 RUN ls -la "$DENDRO_INSTALL_DIR"
