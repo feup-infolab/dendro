@@ -323,7 +323,7 @@ test:
     - hdg
     - ddiup
     - disco
-    - p0
+    # - p0
     - chm
   authentication:
     default:
