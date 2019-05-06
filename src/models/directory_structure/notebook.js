@@ -70,10 +70,14 @@ class Notebook
         {
             if (err) return console.error(err);
             console.log("success!");
+
             DockerManager.startOrchestra("dendro_notebook", function (err, result)
             {
                 callback(err, result);
-            }, null, self.runningPath, {DENDRO_NOTEBOOK_GUID: self.id});
+            }, null, self.runningPath, {
+                DENDRO_NOTEBOOK_GUID: self.id,
+                NB_UID: process.geteuid()
+            });
         });
     }
 }
