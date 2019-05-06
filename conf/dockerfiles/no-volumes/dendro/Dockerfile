@@ -189,6 +189,8 @@ RUN echo "Contents of Dendro active configuration file: $(cat $DENDRO_INSTALL_DI
 
 EXPOSE "$DENDRO_PORT"
 
-# Start Dendro
+#Chaning work dir
+WORKDIR "$DENDRO_RUNNING_DIR"
 
+# Start Dendro
 CMD [ "/bin/bash", "/tmp/dendro/dendro.sh" ]
