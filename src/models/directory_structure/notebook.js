@@ -18,6 +18,8 @@ const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
 const gfs = Config.getGFSByID();
 
 const async = require("async");
+const mkdirp = require("mkdirp");
+const fs = require("fs-extra");
 
 class Notebook
 {
@@ -36,7 +38,7 @@ class Notebook
         const re = /(?:\.([^.]+))?$/;
         let ext = re.exec(self.nie.title)[1]; // "txt"
 
-        if (isNull(ext))// todo
+        if (isNull(ext)) // todo
         {
             self.ddr.fileExtension = "default";
         }
@@ -47,13 +49,32 @@ class Notebook
             self.ddr.hasFontAwesomeClass = getClassNameForExtension(ext);
         }
 
+        const uuid = require("uuid");
+        self.id = uuid.v4();
+        self.runningPath = rlequire.absPathInApp("dendro", path.join("temp", "jupyter-notebooks", self.id));
+
         return self;
     }
 
-    spinUp ()
+    spinUp (callback)
     {
-       // const DockerManager = Object.create(rlequire("dendro", "src/utils/docker/docker_manager.js").DockerManager);
-       // DockerManager.startOrchestra("dendro_notebook");
+        const self = this;
+        const DockerManager = Object.create(rlequire("dendro", "src/utils/docker/docker_manager.js").DockerManager);
+        mkdirp.sync(self.runningPath);
+
+        const baseOrchestraFile = rlequire.absPathInApp("dendro","orchestras/dendro_notebook/docker-compose.yml");
+        const cloneOrchestraFile = path.join(self.runningPath, "docker-compose.yml");
+
+        // Async with callbacks:
+        fs.copy(baseOrchestraFile, cloneOrchestraFile, err =>
+        {
+            if (err) return console.error(err);
+            console.log("success!");
+            DockerManager.startOrchestra("dendro_notebook", function (err, result)
+            {
+                callback(err, result);
+            }, null, self.runningPath, {DENDRO_NOTEBOOK_GUID: self.id});
+        });
     }
 }
 
