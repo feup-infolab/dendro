@@ -1131,6 +1131,7 @@ const exportToDendro = function (req, res)
     const titleOfDeposit = req.body.titleOfDeposit;
     const accessTerms = req.body.accessTerms;
     let embargoedDate;
+    req.user.foaf.affiliation = req.body.userAffiliation;
     const createDepositAux = function (exportedFromProject, exportedFromFolder, file, description, language, callback)
     {
         const registryData = {

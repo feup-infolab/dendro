@@ -7,6 +7,7 @@ const Deposit = rlequire("dendro", "src/models/deposit.js").Deposit;
 const Job = rlequire("dendro", "src/models/jobs/Job.js").Job;
 const name = path.parse(__filename).name;
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
+const async = require("async");
 
 class EmbargoedDeposit extends Job
 {
@@ -20,23 +21,25 @@ class EmbargoedDeposit extends Job
             {
                 if (isNull(err))
                 {
-                    result.forEach(function (deposit)
+                    async.mapSeries(result, function (deposit, cb)
                     {
-                        deposit.ddr.privacyStatus = "public";
-                        deposit.ddr.embargoedDate = null;
-                        deposit.save(function (err, result)
+                        Deposit.findByUri(deposit.uri, function (err, result)
                         {
-                            if (isNull(err))
+                            result.ddr.privacyStatus = "public";
+                            delete result.ddr.embargoedDate;
+                            result.save(function (err, result)
                             {
-                                done();
-                            }
-                            else
-                            {
-                                done();
-                            }
+                                if (!isNull)
+                                {
+                                    Logger.log("error:", err);
+                                }
+                                cb(err, result);
+                            });
                         });
+                    }, function (err, result)
+                    {
+                        done();
                     });
-                    done();
                 }
                 else
                 {

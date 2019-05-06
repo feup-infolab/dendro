@@ -125,6 +125,24 @@ exports.allowed = function (req, callback)
     async.series([
         function (callback)
         {
+            if (params.creator)
+            {
+                User.findByUsername(params.creator, function (err, result)
+                {
+                    if (isNull(err) && result instanceof User)
+                    {
+                        params.creator = result.uri;
+                    }
+                    callback(null, true);
+                });
+            }
+            else
+            {
+                callback(null, true);
+            }
+        },
+        function (callback)
+        {
             Deposit.createQuery(params, callback);
             // Deposit.getDepositsEmbargoed(callback);
         },
@@ -473,11 +491,11 @@ exports.search = function (req, res)
         {
             if (display === "json")
             {
-                res.json({deposits: results[0], repositories: results[1]});
+                res.json({deposits: results[1], repositories: results[2]});
             }
             else
             {
-                res.render("", {deposits: results[0], repositories: results[1]});
+                res.render("", {deposits: results[1], repositories: results[2]});
             }
         }
     };
