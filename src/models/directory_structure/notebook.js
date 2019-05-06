@@ -52,8 +52,8 @@ class Notebook
 
     spinUp ()
     {
-        const DockerManager = Object.create(rlequire("dendro", "src/utils/docker/docker_manager.js").DockerManager);
-        DockerManager.startOrchestra("dendro_notebook");
+       // const DockerManager = Object.create(rlequire("dendro", "src/utils/docker/docker_manager.js").DockerManager);
+       // DockerManager.startOrchestra("dendro_notebook");
     }
 }
 
