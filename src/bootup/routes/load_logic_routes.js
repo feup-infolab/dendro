@@ -1443,15 +1443,21 @@ const loadRoutes = function (app, callback)
 
     if (Config.notebooks.active)
     {
-        var notebookregex = getNonHumanReadableRouteRegex("notebook");
-        // TODO so far only creator will have access must change
-        app.get(notebookregex,
+        // TODO fix this activate
+        app.get(`/notebooks/new`,
             async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
             async.apply(DockerManager.requireOrchestras, ["dendro_notebook_vhosts"]),
             notebooks.new);
 
         // TODO fix this activate
-        app.get(`/notebooks/new`,
+        app.get(`/notebook_runner/:guid`,
+            async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
+            async.apply(DockerManager.requireOrchestras, ["dendro_notebook_vhosts"]),
+            notebooks.pipe_to_instance);
+
+        var notebookregex = getNonHumanReadableRouteRegex("notebook");
+        // TODO so far only creator will have access must change
+        app.get(notebookregex,
             async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
             async.apply(DockerManager.requireOrchestras, ["dendro_notebook_vhosts"]),
             notebooks.new);
