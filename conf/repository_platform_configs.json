@@ -73,18 +73,6 @@
         "homepage" : "https://b2share.eudat.eu/"
       }
     },
-     {
-      "uri" : "/repository_platform/dendro",
-      "dcterms" :
-      {
-        "title" : "Dendro"
-      },
-      "foaf":
-      {
-        "nick" : "dendro",
-        "homepage" : "https://github.com/feup-infolab/dendro"
-      }
-    },
     {
       "uri" : "/repository_platform/dendro",
       "dcterms" :
@@ -176,18 +164,6 @@
       "uri" : "/repository_platform/dendro",
       "dcterms" :
       {
-        "title" : "Dendro"
-      },
-      "foaf":
-      {
-        "nick" : "dendro",
-        "homepage" : "https://github.com/feup-infolab/dendro"
-      }
-    },
-    {
-      "uri" : "/repository_platform/dendro",
-      "dcterms" :
-      {
         "title" : "Local deposit"
       },
       "foaf":
@@ -269,18 +245,6 @@
       {
         "nick" : "b2share",
         "homepage" : "https://b2share.eudat.eu/"
-      }
-    },
-    {
-      "uri" : "/repository_platform/dendro",
-      "dcterms" :
-      {
-        "title" : " this Dendro"
-      },
-      "foaf":
-      {
-        "nick" : "dendro",
-        "homepage" : "https://github.com/feup-infolab/dendro"
       }
     },
     {

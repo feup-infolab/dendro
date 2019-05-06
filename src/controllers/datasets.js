@@ -1354,10 +1354,6 @@ exports.export_to_repository = function (req, res)
             {
                 exportToRepositoryB2share(req, res);
             }
-            else if (nick === "dendro")
-            {
-                exportToDendro(req, res);
-            }
             else if (nick === "local")
             {
                 exportToDendro(req, res);

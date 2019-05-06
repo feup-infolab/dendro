@@ -56,11 +56,11 @@ angular.module("dendroApp.controllers", [])
                 key: "private",
                 value: [
                     {
-                        name: "Public deposit",
+                        name: "Public",
                         value: true
                     },
                     {
-                        name: "Private deposit",
+                        name: "Private",
                         value: true
                     },
                     {
@@ -68,7 +68,7 @@ angular.module("dendroApp.controllers", [])
                         value: true
                     },
                     {
-                        name: "Embargoed deposit",
+                        name: "Embargoed",
                         value: true
                     }]
             },
@@ -116,7 +116,7 @@ angular.module("dendroApp.controllers", [])
                 selected: "date descending",
                 value: [
                     {
-                        label: "date ascending"
+                        name: "date ascending"
                     },
                     {
                         name: "date descending"
@@ -135,56 +135,36 @@ angular.module("dendroApp.controllers", [])
                     }
                 ]
             },
-            keywords: {
+            descriptorTag: {
                 type: "dropdown",
                 list: true,
-                label: "Keywords",
-                key: "keywords",
-                selected: "Any of",
+                label: "Descriptor value",
+                key: "descriptorTag",
+                selected: "Any",
                 value: [
                     {
-                        name: "Any off"
+                        name: "Any"
                     },
                     {
-                        name: "All off"
+                        name: "All"
                     }
                 ]
             },
-            keyword: {
+            descriptorValue: {
                 type: "text",
-                key: "keyWord",
+                key: "descriptorValue",
                 value: ""
             },
-            popularTag: {
-                type: "dropdown",
-                list: true,
-                label: "Popular tags",
-                key: "popularTags",
-                selected: "Any of",
-                value: [
-                    {
-                        name: "Any off"
-                    },
-                    {
-                        name: "All off"
-                    }
-                ]
-            },
-            tag: {
+            identifier: {
                 type: "text",
-                key: "tag",
+                label: "Identifier",
+                key: "identifier",
                 value: ""
             },
-            persistentPid: {
+            description: {
                 type: "text",
-                label: "Persistent PID",
-                key: "persistentPid",
-                value: ""
-            },
-            descriptionText: {
-                type: "text",
-                label: "Description text",
-                key: "descriptionText",
+                label: "Description",
+                key: "description",
                 value: ""
             }
         };
@@ -201,11 +181,19 @@ angular.module("dendroApp.controllers", [])
         {
             $scope.getRegistry(true);
         };
+        $scope.updateDeposits = function (data, change)
+        {
+            $scope.deposits = data.deposits;
+
+        };
+
 
         $scope.getRegistry = function (change)
         {
             const handle = function (data, change)
             {
+                $scope.deposits = data.deposits;
+
                 $scope.offset = 1;
                 // $scope.updateDeposits(data);
                 $scope.totalDeposits = 0;
@@ -221,6 +209,7 @@ angular.module("dendroApp.controllers", [])
                         change: false,
                         value: []
                     };
+                    let depositCount = 0;
                     for (let repo of repository)
                     {
                         $scope.search.repositories.value.push({
@@ -228,20 +217,23 @@ angular.module("dendroApp.controllers", [])
                             count: repo.count,
                             value: true
                         });
-                        $scope.search_settings.totalDeposits += parseInt(repo.count);
+                        depositCount += parseInt(repo.count);
                     }
+                    $scope.search_settings.totalDeposits = Math.ceil(depositCount / $scope.search_settings.page);
                 }
                 else if ($scope.search.repositories)
                 {
+                    let depositCount = 0;
+
                     for (let repo of $scope.search.repositories.value)
                     {
                         if (repo.value === true)
                         {
-                            $scope.search_settings.totalDeposits += parseInt(repo.count);
+                            depositCount += parseInt(repo.count);
                         }
                     }
+                    $scope.search_settings.totalDeposits = Math.ceil(depositCount / $scope.search_settings.page);
                 }
-                // $scope.totalDeposits = Math.ceil($scope.totalDeposits / $scope.search_settings.page);
             };
 
             let url = $scope.get_current_url();

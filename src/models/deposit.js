@@ -269,7 +269,7 @@ Deposit.createQuery = function (params, callback)
         "   ?uri dcterms:title ?label . \n" +
         "   ?uri dcterms:date ?date . \n" +
         "   ?uri ddr:exportedFromFolder ?folder . \n" +
-        "   ?uri  ddr:privacyStatus ?privacy . \n" +
+        "   ?uri ddr:privacyStatus ?privacy . \n" +
         "   ?uri ddr:exportedToRepository ?repository . \n" +
         "   ?uri ddr:exportedToPlatform ?platformsUsed . \n" +
         "   ?folder nie:title ?folderName . \n";
@@ -569,109 +569,6 @@ Deposit.getAllRepositories = function (params, callback)
 
     let i = 1;
 
-    /* if (params.self)
-    {*/
-    var addUnion = false;
-    for (let j = 0; j < params.private.length; j++)
-    {
-        var object = JSON.parse(params.private[j]);
-
-        if (j === 0)
-        {
-            query += "   { \n";
-        }
-        if (object.value === true)
-        {
-            if (addUnion)
-            {
-                query += "       UNION \n";
-            }
-            query +=
-            "       { \n" +
-            "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
-            "       } \n";
-
-            switch (object.name)
-            {
-            case "Metadata only":
-
-                variables.push(
-                    {
-                        type: Elements.ontologies.ddr.privacyStatus.type,
-                        value: "metadata_only"
-                    });
-                addUnion = true;
-                break;
-            case "Private deposit":
-
-                variables.push(
-                    {
-                        type: Elements.ontologies.ddr.privacyStatus.type,
-                        value: "private"
-                    });
-                addUnion = true;
-                break;
-            default:
-                variables.push(
-                    {
-                        type: Elements.ontologies.ddr.privacyStatus.type,
-                        value: "public"
-                    });
-                addUnion = true;
-            }
-        }
-        if (j === params.private.length - 1)
-        {
-            query += "   } \n";
-        }
-    }
-    /* if (isNull(params.private) || params.private === "false")
-        {
-            query +=
-              "   { \n" +
-              "       { \n" +
-              "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
-              "       } \n" +
-              "       UNION \n" +
-              "       { \n" +
-              "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
-              "         VALUES ?role { dcterms:creator dcterms:contributor } . \n" +
-              "         ?projused ?role [" + i++ + "] . \n" +
-              "       } \n" +
-              "   } \n";
-
-            variables.push(
-                {
-                    type: Elements.ontologies.ddr.privacyStatus.type,
-                    value: "public"
-                });
-        }
-        else
-        {
-            query +=
-              "    ?uri ddr:privacyStatus [" + i++ + "] . \n" +
-              "    VALUES ?role { dcterms:creator dcterms:contributor } . \n" +
-              "    ?projused ?role [" + i++ + "] . \n";
-        }
-        variables = variables.concat([
-            {
-                type: Elements.ontologies.ddr.privacyStatus.type,
-                value: "private"
-            },
-            {
-                type: Elements.ontologies.dcterms.creator.type,
-                value: params.self
-            }]);
-    }
-    else
-    {
-        query += "   ?uri ddr:privacyStatus [" + i++ + "] . \n";
-        variables.push({
-            type: Elements.ontologies.ddr.privacyStatus.type,
-            value: "public"
-        });
-    }*/
-
     if (params.project)
     {
         query += "   ?projused dcterms:title [" + i++ + "] \n";
@@ -705,23 +602,6 @@ Deposit.getAllRepositories = function (params, callback)
         "} . \n" +
         "   ?uri ddr:exportedToPlatform ?platformsUsed . \n";
     }
-    /* if (params.repositories)
-    {
-        query +=
-        "    VALUES ?repository { ";
-
-        for (let j = 0; j < params.repositories.length; j++)
-        {
-            query += "[" + i++ + "] ";
-            variables.push({
-                type: Elements.ontologies.ddr.hasExternalUri.type,
-                value: params.repositories[j]
-            });
-        }
-        query +=
-        "} . \n" +
-        "    ?uri ddr:hasExternalUri ?repository . \n";
-    }*/
     if (params.dateFrom)
     {
         query += "  FILTER (?date > [" + i++ + "]^^xsd:dateTime )\n";

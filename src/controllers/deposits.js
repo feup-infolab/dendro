@@ -144,7 +144,6 @@ exports.allowed = function (req, callback)
         function (callback)
         {
             Deposit.createQuery(params, callback);
-            // Deposit.getDepositsEmbargoed(callback);
         },
         function (callback)
         {

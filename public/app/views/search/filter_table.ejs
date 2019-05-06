@@ -1,11 +1,11 @@
-<table>
+<table style="width:100%">
     <tr class="form-group sidebar-item" ng-repeat="item in $eval(attr()) track by $index">
         <td>
-            {{item.label}}
+            <b>{{item.label}}</b>
         </td>
 
-        <td ng-if="item.type === 'dropdown'">
-            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+        <td  ng-if="item.type === 'dropdown'">
+            <button  style="text-align: right" type="button" class="button-search  btn btn-default dropdown-toggle " data-toggle="dropdown">
                 {{item.selected}} <span class="caret"></span>
             </button>
             <ul class="dropdown-menu" role="menu">
@@ -14,19 +14,19 @@
         </td>
 
         <td ng-if="item.list && item.type !== 'dropdown'" class="{{item.type}}" ng-repeat="iterator in item.value track by $index">
-            <label ng-if="item.type !== 'dropdown'">
-                <input ng-model="iterator.value" ng-change="$eval(update(item.change))" ng-model-options="{debounce : 250}" type="{{item.type}}">
+            <label class="label-search" ng-if="item.type !== 'dropdown'">
+                <input ng-model="iterator.value" ng-change="$eval(update(item.change))" ng-model-options="{debounce : 500}" type="{{item.type}}">
                 {{iterator.name}}
                 <b ng-if="iterator.count">({{iterator.count}})</b>
             </label>
         </td>
         <td>
-            <input ng-if="!item.list" ng-model="item.value" ng-change="$eval(update(item.change))" ng-model-options="{debounce : 500}" type="{{item.type}}">
+            <input class="margin-bottom-4" style="width: 174px" ng-if="!item.list" ng-model="item.value" ng-change="$eval(update(item.change))" ng-model-options="{debounce : 500}" type="{{item.type}}">
         </td>
     </tr>
     <tr class="form-group sidebar-item" >
         <td>
-            Deposits per page
+            <b>Deposits per page</b>
         </td>
         <td>
             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">

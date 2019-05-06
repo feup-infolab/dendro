@@ -97,13 +97,6 @@
                                 </div>
                             </div>
                         </div>
-                        <div ng-switch-when="dendro">
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <ng-include src="'/app/views/share/repository_types/recall/dendro.html'"></ng-include>
-                                </div>
-                            </div>
-                        </div>
                         <div ng-switch-when="local">
                             <div class="row">
                                 <div class="col-lg-12">
@@ -113,7 +106,7 @@
                         </div>
                     </div>
 
-                    <div ng-show="new_repository_type != null" ng-switch="new_repository_type.foaf.nick">
+                        <div ng-show="new_repository_type != null" ng-switch="new_repository_type.foaf.nick">
                         <div ng-switch-when="ckan">
                             <div class="row">
                                 <div class="col-lg-12">
@@ -153,13 +146,6 @@
                             <div class="row">
                                 <div class="col-lg-12">
                                     <ng-include src="'/app/views/share/repository_types/create/b2share.html'"></ng-include>
-                                </div>
-                            </div>
-                        </div>
-                        <div ng-switch-when="dendro">
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <ng-include src="'/app/views/share/repository_types/create/dendro.html'"></ng-include>
                                 </div>
                             </div>
                         </div>
