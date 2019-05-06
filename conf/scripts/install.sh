@@ -3,27 +3,53 @@
 INITIAL_DIR=`pwd`
 NODE_VERSION=`cat .nvmrc`
 EXPECTED_JAVA_VERSION="18"
+
+#create bash_profile file if not present
+if ! [[ -f $HOME/.bash_profile ]]; then
+  touch $HOME/.bash_profile
+fi
+
+# For ubuntu only, need to set env vars. Ridiculous hack....
+if [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]]; then
+
+  export  JAVA_HOME=/opt/java/openjdk \
+          PATH="/opt/java/openjdk/bin:$PATH"
+  export  JAVA_TOOL_OPTIONS=""
+  export  LD_LIBRARY_PATH="$JAVA_HOME/jre/lib/amd64/server"
+fi
+
 JAVA_VERSION=$(java -version 2>&1 | sed -n ';s/.* version "\(.*\)\.\(.*\)\..*"/\1\2/p;')
 
-if ! [[ make > /dev/null ]]
+# install build tools if not present
+if [[ $(command -v make) != 0 ]]
 then
-    if [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-        sudo apt-get -qq -y install build-essential
+    if [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]]; then
+        echo "Build tools not detected on this system, installing 'build-essential' and 'make'..."
+        sudo apt-get -qq -y install build-essential make
+    fi
+fi
+
+# install python if not present
+if [[ $(command -v python) != 0 ]]
+then
+    if [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]]; then
+        echo "Python not detected on this system, installing 'python'..."
+        sudo apt-get -qq -y install python
     fi
 fi
 
 # check to see if text extraction tools need to be installed
-if [[ tesseract > /dev/null ]] || [[ pdftotext > /dev/null ]] || [[ `gs -v` > /dev/null  ]] || [[ `magick -v` > /dev/null ]]
+if [[ $(command -v tesseract) != 0 ]] || [[ $(command -v pdftotext) != 0 ]] || [[ $(command -v gs) != 0  ]] || [[ $(command -v magick) != 0 ]]
 then
     # install text extraction dependencies
     echo "Text extraction libraries not detected on your system, starting installation..."
     #For the Mac
-    if [ "$(uname)" == "Darwin" ]; then
+    if [[ "$(uname)" == "Darwin" ]]; then
         brew cask install xquartz && brew install ghostscript tesseract imagemagick@6 poppler
         brew install antiword
         brew tap caskroom/versions
     # In Ubuntu
-    elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    elif [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]]; then
         if [[ $(dpkg -l "poppler-utils" "antiword" "unrtf" "tesseract-ocr") ]]; then
             echo "I need your sudo password for installing text extraction dependencies..."
             sudo apt-get -y -f install poppler-utils antiword unrtf tesseract-ocr
@@ -35,14 +61,14 @@ echo "Checking for Java 1.8..."
 echo "Current Java Version: $JAVA_VERSION"
 echo "Expected Java Version: $EXPECTED_JAVA_VERSION"
 
-if ! [ "$JAVA_VERSION" = "$EXPECTED_JAVA_VERSION" ]
+if ! [[ "$JAVA_VERSION" = "$EXPECTED_JAVA_VERSION" ]]
 then
     #For the Mac
-    if [ "$(uname)" == "Darwin" ]; then
+    if [[ "$(uname)" == "Darwin" ]]; then
         brew tap caskroom/versions
         brew cask install java8
     # In Ubuntu
-    elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    elif [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]]; then
         echo "Installing Java 8 JDK. This will take a few minutes."
         ############################################
         #####         Start JDK Install        #####
@@ -76,13 +102,13 @@ then
             esac; \
             curl -Lso /tmp/openjdk.tar.gz ${BINARY_URL}; \
             sha256sum /tmp/openjdk.tar.gz; \
-            mkdir -p /opt/java/openjdk; \
+            sudo mkdir -p /opt/java/openjdk; \
             cd /opt/java/openjdk; \
             echo "${ESUM}  /tmp/openjdk.tar.gz" | sha256sum -c -; \
-            tar -xf /tmp/openjdk.tar.gz; \
-            jdir=$(dirname $(dirname $(find /opt/java/openjdk -name java | grep -v "/jre/bin"))); \
-            mv ${jdir}/* /opt/java/openjdk; \
-            rm -rf ${jdir} /tmp/openjdk.tar.gz;
+            sudo tar -xf /tmp/openjdk.tar.gz; \
+            jdir=$(dirname $(dirname $(sudo find /opt/java/openjdk -name java | grep -v "/jre/bin"))); \
+            sudo mv ${jdir}/* /opt/java/openjdk; \
+            sudo rm -rf ${jdir} /tmp/openjdk.tar.gz;
 
         export  JAVA_HOME=/opt/java/openjdk \
                 PATH="/opt/java/openjdk/bin:$PATH"
@@ -99,7 +125,7 @@ fi
 
 echo "Installing Dendro in $INITIAL_DIR with username $(whoami) and Node $NODE_VERSION"
 
-if [ "$NODE_VERSION" == "" ]
+if [[ "$NODE_VERSION" == "" ]]
 then
     echo "Unable to determine the version of NodeJS to install!"
     exit 1
@@ -109,9 +135,15 @@ else
     #install NVM, Node, Node Automatic Version switcher
     curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash &&
     export NVM_DIR="$HOME/.nvm" &&
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && # This loads nvm
+    [[ -s "$NVM_DIR/nvm.sh" ]] && \. "$NVM_DIR/nvm.sh" || ( echo "Error loading NVM " && exit 1 ) ; # This loads nvm
 
-    source $HOME/.bash_profile
+    if [[ -f $HOME/.bashrc ]]; then
+   		source $HOME/.bashrc
+    fi
+
+    if [[ -f $HOME/.bash_profile ]]; then
+   		source $HOME/.bash_profile
+    fi
 #    nvm install "$NODE_VERSION"
 #    nvm use --delete-prefix "$NODE_VERSION" --silent
 

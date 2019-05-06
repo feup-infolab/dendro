@@ -283,7 +283,7 @@ docker:
     - hdg
     - ddiup
     - disco
-    - p0
+    # - p0
     - chm
     - mibbiup
   authentication:
