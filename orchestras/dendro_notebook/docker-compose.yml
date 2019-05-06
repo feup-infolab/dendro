@@ -2,7 +2,7 @@ version: '3'
 
 services:
   jupyter_notebook:
-    container_name: jupyter-dendro
+    container_name: ${DENDRO_NOTEBOOK_GUID}jupyter-dendro
     image:  jupyter/scipy-notebook:17aba6048f44
     environment:
       - VIRTUAL_HOST=${DENDRO_NOTEBOOK_VIRTUAL_HOST}
