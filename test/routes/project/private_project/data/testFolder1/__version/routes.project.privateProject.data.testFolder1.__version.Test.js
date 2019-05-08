@@ -26,7 +26,7 @@ const db = rlequire("dendro", "test/utils/db/db.Test.js");
 
 describe("Private project testFolder1 level ?version", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         addMetadataToFoldersUnit.init(function (err, results)
@@ -53,7 +53,7 @@ describe("Private project testFolder1 level ?version", function ()
 
         it("Should give an error if the user is unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
 
             itemUtils.getItemVersion(true, agent, privateProject.handle, testFolder1.name, testFolder1.version, function (err, res)

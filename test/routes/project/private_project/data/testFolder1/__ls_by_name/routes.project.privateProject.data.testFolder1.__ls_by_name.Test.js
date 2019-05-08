@@ -26,7 +26,7 @@ let testFolder1Data;
 
 describe("Private project testFolder1 level ls_by_name tests", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         createFoldersForLsByName.init(function (err, results)
@@ -65,7 +65,7 @@ describe("Private project testFolder1 level ls_by_name tests", function ()
 
         it("Should give an unauthorized error when the user is unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
 
             folderUtils.getFolderContentsByUri(true, agent, testFolder1Data.uri, function (err, res)

@@ -36,7 +36,7 @@ let isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
 describe("Project storageConfig tests", function (done)
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         projectUnit.setup(function (err, results)

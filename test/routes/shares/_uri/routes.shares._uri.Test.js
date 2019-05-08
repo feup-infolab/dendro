@@ -53,7 +53,7 @@ let shareUriOfAManualPost;
 
 describe("Get a specific share information tests", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         // creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
@@ -89,7 +89,7 @@ describe("Get a specific share information tests", function ()
                                     res.statusCode.should.equal(200);
                                     demouser1PostURIsArray = res.body;// first index is now a share of a manualPost
                                     // Force logout
-                                    const app = global.tests.app;
+                                    const app = Config.tests.app;
                                     agent = chai.request.agent(app);
                                     socialDendroUtils.getShareUriPage(true, agent, demouser1PostURIsArray[0].uri, function (err, res)
                                     {

@@ -40,7 +40,7 @@ describe("Metadata only project testFolder1 level (default case) tests", functio
     {
         it("[HTML] should refuse to give the project page html [WITHOUT EDIT MODE] if the user is unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             itemUtils.viewItem(false, agent, metadataProject.handle, testFolder1.name, function (err, res)
             {
@@ -101,7 +101,7 @@ describe("Metadata only project testFolder1 level (default case) tests", functio
 
         it("[JSON] should refuse to give the project root data if the user is unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             itemUtils.viewItem(true, agent, metadataProject.handle, testFolder1.name, function (err, res)
             {
@@ -183,7 +183,7 @@ describe("Metadata only project testFolder1 level (default case) tests", functio
     {
         it("[HTML] should give the project page html with an error if the user is unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             itemUtils.viewItem(false, agent, invalidProject.handle, testFolder1.name, function (err, res)
             {
@@ -238,7 +238,7 @@ describe("Metadata only project testFolder1 level (default case) tests", functio
 
         it("[JSON] should give a 404 error if the user is unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             itemUtils.viewItem(true, agent, invalidProject.handle, testFolder1.name, function (err, res)
             {

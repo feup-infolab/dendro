@@ -14,7 +14,7 @@ let bootupUnit = rlequire("dendro", "test/units/bootup.Unit.js");
 
 describe("Initial clean-up...", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         bootupUnit.init(function (err, results)

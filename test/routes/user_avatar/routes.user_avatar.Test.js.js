@@ -15,7 +15,7 @@ const md5 = require("md5");
 
 describe("[POST] /user_avatar", function (done)
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         createUserUnit.init(function (err, results)
@@ -57,7 +57,7 @@ describe("[POST] /user_avatar", function (done)
 
     it("[HTML] should give an unauthorized error if the current user is not authenticated", function (done)
     {
-        var app = global.tests.app;
+        var app = Config.tests.app;
         var agent = chai.request.agent(app);
 
         userUtils.uploadAvatar(false, agent, avatar, function (err, res)

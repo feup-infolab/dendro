@@ -27,7 +27,7 @@ const createProjectsUnit = rlequire("dendro", "test/units/projects/createProject
 
 describe("Request access to public project", function (done)
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         createProjectsUnit.setup(function (err, results)
@@ -41,7 +41,7 @@ describe("Request access to public project", function (done)
     {
         it("Should get an error when trying to access the request access to a project HTML page when not authenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.getRequestProjectAccessPage(false, agent, publicProject.handle, function (err, res)
             {
@@ -99,7 +99,7 @@ describe("Request access to public project", function (done)
 
         it("Should get an error when user is not authenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
 
             projectUtils.requestAccessToProject(false, agent, publicProject.handle, function (err, res)

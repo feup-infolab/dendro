@@ -57,7 +57,7 @@ let notificationsDemouser3;
 
 describe("Get all notifications URIs for a user tests", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         // creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
@@ -96,7 +96,7 @@ describe("Get all notifications URIs for a user tests", function ()
         it("[For an unauthenticated user] Should give an unauthorized error", function (done)
         {
             // Force logout
-            const app = global.tests.app;
+            const app = Config.tests.app;
             agent = chai.request.agent(app);
             socialDendroUtils.getAllUsersNotifications(true, agent, function (err, res)
             {

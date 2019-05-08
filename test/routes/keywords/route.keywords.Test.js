@@ -36,7 +36,7 @@ const RoutePlanning = rlequire("dendro", "test/mockdata/files/keywords/RoutePlan
 // Dendro Keywords
 describe("Searches DBpedia for important terms", function (done)
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         createFoldersUnitKeywords.setup(function (err, results)

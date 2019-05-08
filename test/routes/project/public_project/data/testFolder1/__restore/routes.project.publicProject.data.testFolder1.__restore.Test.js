@@ -77,7 +77,7 @@ const createTempFileFromData = function (fileData, fileName, callback)
 
 describe("Public project testFolder1 level restore folder tests", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     let testFolder1Data;
     let restoredFolderData;
     let restoredFolderName = "folderDebug";
@@ -90,7 +90,7 @@ describe("Public project testFolder1 level restore folder tests", function ()
         {
             try
             {
-                const app = global.tests.app;
+                const app = Config.tests.app;
                 const agent = chai.request.agent(app);
                 projectUtils.getProjectRootContent(true, agent, publicProject.handle, function (err, res)
                 {
@@ -120,7 +120,7 @@ describe("Public project testFolder1 level restore folder tests", function ()
     {
         it("Should give an error if the user is unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             itemUtils.itemRestoreFolder(true, agent, testFolder1Data.uri, zipFileForRestoreFolder, function (err, res)
             {

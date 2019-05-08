@@ -152,7 +152,7 @@ FROM app_libs_installed AS dendro_installed
 
 # COPY dendro into install dir
 COPY . "$DENDRO_INSTALL_DIR"
-RUN ls -la "$DENDRO_INSTALL_DIR"
+# RUN ls -la "$DENDRO_INSTALL_DIR"
 
 # Checkout specified DENDRO_GIT_BRANCH
 # WORKDIR $DENDRO_INSTALL_DIR
@@ -176,10 +176,10 @@ VOLUME [ "$DENDRO_RUNNING_DIR/orchestras"]
 VOLUME [ "$DENDRO_RUNNING_DIR/profiling"]
 
 # Show contents of folders
-RUN echo "Contents of Dendro install dir are:"
-RUN ls -la "$DENDRO_INSTALL_DIR"
-RUN echo "Contents of Dendro running dir are:"
-RUN ls -la "$DENDRO_RUNNING_DIR"
+# RUN echo "Contents of Dendro install dir are:"
+# RUN ls -la "$DENDRO_INSTALL_DIR"
+# RUN echo "Contents of Dendro running dir are:"
+# RUN ls -la "$DENDRO_RUNNING_DIR"
 
 # What is the active deployment config?
 RUN echo "Contents of Dendro active configuration file: $(cat $DENDRO_INSTALL_DIR/conf/active_deployment_config.yml)"

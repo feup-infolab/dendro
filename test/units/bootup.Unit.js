@@ -17,7 +17,7 @@ class BootupUnit extends TestUnit
     {
         const self = this;
         unitUtils.startLoad(self);
-        const dendroInstance = global.tests.dendroInstance;
+        const dendroInstance = Config.tests.dendroInstance;
         dendroInstance.seedDatabases(function (err, result)
         {
             if (isNull(err))

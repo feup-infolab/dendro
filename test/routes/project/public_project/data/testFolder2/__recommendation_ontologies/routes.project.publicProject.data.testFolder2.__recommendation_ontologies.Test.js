@@ -27,7 +27,7 @@ const db = rlequire("dendro", "test/utils/db/db.Test.js");
 
 describe("Public project testFolder2 level recommendation_ontologies tests", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         addMetadataToFoldersUnit.setup(function (err, results)
@@ -54,7 +54,7 @@ describe("Public project testFolder2 level recommendation_ontologies tests", fun
 
         it("[JSON] should forbid ontology recommendation requests for ontologies in project " + publicProject.handle + " if no user is authenticated.", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             itemUtils.getItemRecommendationOntologies(true, agent, publicProject.handle, testFolder2.name, function (err, res)
             {
@@ -134,7 +134,7 @@ describe("Public project testFolder2 level recommendation_ontologies tests", fun
 
         it("[JSON] should forbid requests for recommendations in folder " + invalidProject.handle + " if no user is authenticated.", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             itemUtils.getItemRecommendationOntologies(true, agent, invalidProject.handle, testFolder2.name, function (err, res)
             {

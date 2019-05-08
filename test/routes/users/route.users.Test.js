@@ -20,7 +20,7 @@ const createUserUnit = rlequire("dendro", "test/units/users/createUsers.Unit.js"
 
 describe("/users", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         createUserUnit.init(function (err, results)
@@ -32,7 +32,7 @@ describe("/users", function ()
 
     it("[HTML] should list all users when logged in as demouser1.username", function (done)
     {
-        const app = global.tests.app;
+        const app = Config.tests.app;
         const agent = chai.request.agent(app);
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
         {
@@ -47,7 +47,7 @@ describe("/users", function ()
 
     it("[JSON]  should list all users when logged in as demouser1.username", function (done)
     {
-        const app = global.tests.app;
+        const app = Config.tests.app;
         const agent = chai.request.agent(app);
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
         {
@@ -62,7 +62,7 @@ describe("/users", function ()
 
     it("[HTML] should list all users when logged in as demouser2.username", function (done)
     {
-        const app = global.tests.app;
+        const app = Config.tests.app;
         const agent = chai.request.agent(app);
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
         {
@@ -79,7 +79,7 @@ describe("/users", function ()
 
     it("[JSON]  should list all users when logged in as demouser2.username", function (done)
     {
-        const app = global.tests.app;
+        const app = Config.tests.app;
         const agent = chai.request.agent(app);
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
         {
@@ -96,7 +96,7 @@ describe("/users", function ()
 
     it("[HTML] should list all users when NOT logged in", function (done)
     {
-        const app = global.tests.app;
+        const app = Config.tests.app;
         const agent = chai.request.agent(app);
         userUtils.listAllUsers(false, agent, function (err, res)
         {
@@ -110,7 +110,7 @@ describe("/users", function ()
 
     it("[JSON] should list all users when NOT logged in", function (done)
     {
-        const app = global.tests.app;
+        const app = Config.tests.app;
         const agent = chai.request.agent(app);
         userUtils.listAllUsers(true, agent, function (err, res)
         {

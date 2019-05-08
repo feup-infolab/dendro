@@ -25,7 +25,7 @@ const db = rlequire("dendro", "test/utils/db/db.Test.js");
 
 describe("Private project level metadata_recommendations", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         addMetadataToFoldersUnit.setup(function (err, results)
@@ -55,7 +55,7 @@ describe("Private project level metadata_recommendations", function ()
 
         it("[JSON] should forbid requests for recommendations in project " + privateProject.handle + " if no user is authenticated.", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
 
             projectUtils.getMetadataRecomendationsForProject(true, agent, privateProject.handle, function (err, res)
@@ -123,7 +123,7 @@ describe("Private project level metadata_recommendations", function ()
 
         it("[JSON] should forbid requests for recommendations in project " + invalidProject.handle + " if no user is authenticated.", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
 
             projectUtils.getMetadataRecomendationsForProject(true, agent, invalidProject.handle, function (err, res)

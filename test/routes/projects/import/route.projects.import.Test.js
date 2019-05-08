@@ -32,7 +32,7 @@ const projectsData = createProjectsUnit.projectsData;
 
 describe("Import projects", function (done)
 {
-    this.timeout(5 * Config.testsTimeout);
+    this.timeout(5 * Config.tests.timeout);
 
     before(function (done)
     {
@@ -71,7 +71,7 @@ describe("Import projects", function (done)
 
         it("Should get an error when trying to access the html page to import a project when unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.importProjectHTMLPage(false, agent, function (err, res)
             {
@@ -181,7 +181,7 @@ describe("Import projects", function (done)
 
         it("Should give an error when the user is not authenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.importProject(true, agent, privateProject, function (err, res)
             {
@@ -192,7 +192,7 @@ describe("Import projects", function (done)
 
         it("Should give an error with a status code of 400 if no proposed handle was specified for the imported project", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -212,7 +212,7 @@ describe("Import projects", function (done)
 
         it("Should give an error with a status code of 400 if the proposed handle specified for the imported project is INVALID", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -232,7 +232,7 @@ describe("Import projects", function (done)
 
         it("Should give an error with a status code of 500 when the zip file used to import the project is not in a correct BagIt Format, even though the user is logged in", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {

@@ -54,7 +54,7 @@ checkFileExistsInGridFs = function (fileUri, callback)
 
 describe("Administration list orphan resources tests ( /admin/list_orphan_resources )", function (done)
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         const CreateFoldersPublicProject = rlequire("dendro", "test/units/folders/createFoldersPublicProject.Unit.js");
@@ -90,7 +90,7 @@ describe("Administration list orphan resources tests ( /admin/list_orphan_resour
     {
         it("Should not allow listing orphan resources without being logged in", function (done)
         {
-            app = global.tests.app;
+            app = Config.tests.app;
             agent = chai.request.agent(app);
             administerUtils.listOrphanResources(agent,
                 function (err, res)

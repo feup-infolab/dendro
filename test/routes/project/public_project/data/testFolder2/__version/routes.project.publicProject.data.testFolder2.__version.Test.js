@@ -26,7 +26,7 @@ const db = rlequire("dendro", "test/utils/db/db.Test.js");
 
 describe("Public project testFolder2 level ?version", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
 
     before(function (done)
     {
@@ -54,7 +54,7 @@ describe("Public project testFolder2 level ?version", function ()
 
         it("Should the version information if the user is unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
 
             itemUtils.getItemVersion(true, agent, publicProject.handle, testFolder2.name, testFolder2.version, function (err, res)

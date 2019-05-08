@@ -61,7 +61,7 @@ let acceptDescriptorFromQuickListInteractionObj = null;
 
 describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] reject_ontology_from_quick_list", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     // TODO save an interaction of type accept_descriptor_from_quick_list first
     // TODO THEN try the reject_ontology_from_quick_list interaction
     before(function (done)
@@ -195,7 +195,7 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] reject_ontology
     {
         it("Should give an error and not accept and register an interaction when an ontology is rejected from the quick list when unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             let agent = chai.request.agent(app);
             interactionsUtils.rejectOntologyFromQuickList(true, agent, demouser1InteractionObj, function (err, res)
             {

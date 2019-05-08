@@ -27,7 +27,7 @@ const db = rlequire("dendro", "test/utils/db/db.Test.js");
 
 describe("Public project testFolder1 level hard delete tests", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         createFoldersUnit.init(function (err, results)
@@ -86,7 +86,7 @@ describe("Public project testFolder1 level hard delete tests", function ()
 
         it("Should give an error when the user is not authenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             // jsonOnly, agent, projectHandle, itemPath, cb
             itemUtils.deleteItem(true, agent, publicProject.handle, testFolder1.name, function (err, res)

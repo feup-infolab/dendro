@@ -35,7 +35,7 @@ let demouser1PostURIsArray;
 
 describe("Comment a specific post tests", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         createSocialDendroTimelineWithPostsAndSharesUnit.init(function (err, results)
@@ -57,7 +57,7 @@ describe("Comment a specific post tests", function ()
                     res.body.length.should.equal(30);
                     demouser1PostURIsArray = res.body;
                     // Force logout
-                    const app = global.tests.app;
+                    const app = Config.tests.app;
                     agent = chai.request.agent(app);
                     socialDendroUtils.commentAPost(true, agent, demouser1PostURIsArray[0].uri, commentMock.commentMsg, function (err, res)
                     {

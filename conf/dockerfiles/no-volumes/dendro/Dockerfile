@@ -152,7 +152,7 @@ FROM app_libs_installed AS dendro_installed
 
 # COPY dendro into install dir
 COPY . "$DENDRO_INSTALL_DIR"
-RUN ls -la "$DENDRO_INSTALL_DIR"
+# RUN ls -la "$DENDRO_INSTALL_DIR"
 
 # Checkout specified DENDRO_GIT_BRANCH
 # WORKDIR $DENDRO_INSTALL_DIR

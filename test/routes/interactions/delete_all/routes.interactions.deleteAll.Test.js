@@ -58,7 +58,7 @@ let demouser2InteractionObj = null;
 
 describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] delete_all", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         createFilesUnit.init(function (err, results)
@@ -186,7 +186,7 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] delete_all", fu
     {
         it("Should give an error and not delete all interactions when unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             let agent = chai.request.agent(app);
             interactionsUtils.deleteAll(true, agent, function (err, res)
             {

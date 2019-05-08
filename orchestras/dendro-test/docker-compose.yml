@@ -13,7 +13,7 @@ services:
 #      - "transport.host=127.0.0.1"
 #      - "TAKE_FILE_OWNERSHIP=1"
 #    networks:
-#      - dendro
+#      - dendro-docker-test
 
   solr:
     container_name: solr-dendro-test
@@ -24,6 +24,8 @@ services:
       - bash
       - "-c"
       - "precreate-core dendro_graph; precreate-core social_dendro; precreate-core notifications_dendro; precreate-core dryad; precreate-core freebase; precreate-core dbpedia;  exec solr -f"
+    networks:
+      - dendro-docker-test
 
   virtuoso:
     container_name: virtuoso-dendro-test
@@ -44,6 +46,8 @@ services:
       - "VIRT_Parameters_CheckpointInterval=1"
       - "VIRT_Parameters_MinAutoCheckpointSize=1"
       - "DBA_PASSWORD=dba"
+    networks:
+      - dendro-docker-test
 
   mariadb:
     container_name: mariadb-dendro-test
@@ -55,6 +59,8 @@ services:
       - "MYSQL_DATABASE=dendro_data"
       - "MYSQL_USER=dendro"
       - "MYSQL_PASSWORD=dendr0_p4ssw0rd"
+    networks:
+      - dendro-docker-test
 
   mongodb:
     container_name: mongodb-dendro-test
@@ -65,3 +71,8 @@ services:
       - "MONGO_INITDB_ROOT_USERNAME=admin"
       - "MONGO_INITDB_ROOT_PASSWORD=34857q98efhlajwehrlaeroiu2yq3948q2uweoiqwherluqywioerqhw0p92874983724rhqwelrhqweiuryoiqwerhlqwhjeflkawejrp9023475823y4rjhelkjrheiouryi"
     command: mongod --smallfiles --bind_ip_all
+    networks:
+      - dendro-docker-test
+
+networks:
+  dendro-docker-test: {}

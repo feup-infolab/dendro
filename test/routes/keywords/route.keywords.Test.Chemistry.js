@@ -42,7 +42,7 @@ const doc16 = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywords/d
 // Dendro Keywords
 describe("Searches DBpedia for important terms", function (done)
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         createFoldersUnitKeywords.setup(function (err, results)

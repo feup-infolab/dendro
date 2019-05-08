@@ -28,13 +28,13 @@ let app;
 
 describe("Metadata Only Project delete", function (done)
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         createFilesUnit.init(function (err, results)
         {
             should.equal(err, null);
-            app = global.tests.app;
+            app = Config.tests.app;
             agent = chai.request.agent(app);
             done();
         });

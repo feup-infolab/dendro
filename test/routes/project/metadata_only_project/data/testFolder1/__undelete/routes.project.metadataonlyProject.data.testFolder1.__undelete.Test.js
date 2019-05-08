@@ -26,7 +26,7 @@ const db = rlequire("dendro", "test/utils/db/db.Test.js");
 
 describe("Metadata only project testFolder1 level undelete tests", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         deleteFoldersUnit.setup(function (err, results)
@@ -83,7 +83,7 @@ describe("Metadata only project testFolder1 level undelete tests", function ()
 
         it("Should give an error when the user is not authenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
 
             itemUtils.undeleteItem(true, agent, metadataProject.handle, testFolder1.name, function (err, res)

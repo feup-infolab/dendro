@@ -27,7 +27,7 @@ const db = rlequire("dendro", "test/utils/db/db.Test.js");
 
 describe("Public project recent changes", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         appUtils.newTestRouteLog(path.basename(__filename));
@@ -57,7 +57,7 @@ describe("Public project recent changes", function ()
 
         it("Should give the recent project changes if the user is unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
 
             projectUtils.getProjectRecentChanges(true, agent, publicProject.handle, function (err, res)

@@ -27,7 +27,7 @@ const db = rlequire("dendro", "test/utils/db/db.Test.js");
 
 describe("Public project testFolder2 level update_metadata", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         createFoldersUnit.init(function (err, results)
@@ -89,7 +89,7 @@ describe("Public project testFolder2 level update_metadata", function ()
 
         it("Should give an error when the user is not authenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             itemUtils.updateItemMetadata(true, agent, publicProject.handle, testFolder2.name, testFolder2.metadata, function (err, res)
             {

@@ -15,7 +15,7 @@ const addBootUpUnit = rlequire("dendro", "test/units/bootup.Unit.js");
 
 describe("/ontologies/public", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");
     const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2.js");
     const demouser3 = rlequire("dendro", "test/mockdata/users/demouser3.js");
@@ -31,7 +31,7 @@ describe("/ontologies/public", function ()
 
     it("[JSON] should return public ontologies logged in as demouser1.username", function (done)
     {
-        const app = global.tests.app;
+        const app = Config.tests.app;
         const agent = chai.request.agent(app);
 
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
@@ -48,7 +48,7 @@ describe("/ontologies/public", function ()
 
     it("[HTML] should return public ontologies logged in as demouser1.username", function (done)
     {
-        const app = global.tests.app;
+        const app = Config.tests.app;
         const agent = chai.request.agent(app);
 
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
@@ -63,7 +63,7 @@ describe("/ontologies/public", function ()
     });
     it("[JSON] should return public ontologies logged in as demouser2.username", function (done)
     {
-        const app = global.tests.app;
+        const app = Config.tests.app;
         const agent = chai.request.agent(app);
 
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
@@ -79,7 +79,7 @@ describe("/ontologies/public", function ()
     });
     it("[HTML] should return public ontologies logged in as demouser2.username", function (done)
     {
-        const app = global.tests.app;
+        const app = Config.tests.app;
         const agent = chai.request.agent(app);
 
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
@@ -95,7 +95,7 @@ describe("/ontologies/public", function ()
 
     it("[JSON] should return public ontologies logged in as demouser3.username", function (done)
     {
-        const app = global.tests.app;
+        const app = Config.tests.app;
         const agent = chai.request.agent(app);
 
         userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
@@ -111,7 +111,7 @@ describe("/ontologies/public", function ()
     });
     it("[HTML] should return public ontologies logged in as demouser3.username", function (done)
     {
-        const app = global.tests.app;
+        const app = Config.tests.app;
         const agent = chai.request.agent(app);
 
         userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent)
@@ -127,7 +127,7 @@ describe("/ontologies/public", function ()
 
     it("[JSON] should return public ontologies not logged in", function (done)
     {
-        const app = global.tests.app;
+        const app = Config.tests.app;
         const agent = chai.request.agent(app);
 
         ontologiesUtils.publicDisplay(true, agent, function (err, res)
@@ -141,7 +141,7 @@ describe("/ontologies/public", function ()
 
     it("[HTML] should return public ontologies not logged in", function (done)
     {
-        const app = global.tests.app;
+        const app = Config.tests.app;
         const agent = chai.request.agent(app);
 
         ontologiesUtils.publicDisplay(false, agent, function (err, res)

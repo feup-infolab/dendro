@@ -9,10 +9,6 @@ const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 console.log("Running in test mode with Node Version " + process.version + " and the app directory is : " + rlequire.absPathInApp("dendro", "."));
 
-global.Config = Config;
-
-global.tests = {};
-
 // test file moving
 rlequire("dendro", "test/routes/project/private_project/data/testFolder1/a_filename/__cut/routes.project.privateProject.data.testFolder1.a_filename.__cut.Test.js");
 

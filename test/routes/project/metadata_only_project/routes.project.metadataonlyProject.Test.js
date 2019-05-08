@@ -25,7 +25,7 @@ const db = rlequire("dendro", "test/utils/db/db.Test.js");
 
 describe("Metadata only project root tests", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         addMetadataToFoldersUnit.init(function (err, results)
@@ -39,7 +39,7 @@ describe("Metadata only project root tests", function ()
     {
         it("[HTML] should give the project page html [WITHOUT EDIT MODE] if the user is unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.viewProject(false, agent, metadataProject.handle, function (err, res)
             {
@@ -94,7 +94,7 @@ describe("Metadata only project root tests", function ()
 
         it("[JSON] Should give the project root data if the user is unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.viewProject(true, agent, metadataProject.handle, function (err, res)
             {
@@ -152,7 +152,7 @@ describe("Metadata only project root tests", function ()
     {
         it("[HTML] should give the project page html with an error", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.viewProject(false, agent, invalidProject.handle, function (err, res)
             {

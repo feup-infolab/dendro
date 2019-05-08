@@ -28,7 +28,7 @@ const createFilesUnit = rlequire("dendro", "test/units/files/createFiles.Unit.js
 
 describe("Backup Public project", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         createFilesUnit.init(function (err, results)

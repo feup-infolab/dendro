@@ -940,8 +940,9 @@ Config.docker = getConfigParameter("docker");
 Config.keywords_extraction = getConfigParameter("keywords_extraction");
 
 // 30 min TIMEOUT!!!!
-Config.testsTimeout = 1800000;
-
+Config.tests = {
+    timeout: 1800000
+};
 
 if (process.env.NODE_ENV === "production")
 {

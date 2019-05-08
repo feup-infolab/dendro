@@ -21,7 +21,7 @@ const db = appUtilsrequireUncached(rlequire.absPathInApp("dendro", "test/utils/d
 // THIS TEST SHOULD BE DELETED BECAUSE THIS FEATURE DOES NOT EXIST
 describe("Public project ?version tests", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         addMetadataToFoldersUnit.setup(function (err, results)
@@ -83,7 +83,7 @@ describe("Public project ?version tests", function ()
         db.deleteGraphs(function (err, data)
         {
             should.equal(err, null);
-            global.tests.server.close();
+            Config.tests.server.close();
             done();
         });
     });

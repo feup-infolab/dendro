@@ -14,7 +14,7 @@ const createUserUnit = rlequire("dendro", "test/units/users/createUsers.Unit.js"
 
 describe("/user/demouser2", function (done)
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2.js");
     const falseUser = "demouser404";
 
@@ -29,7 +29,7 @@ describe("/user/demouser2", function (done)
 
     it("[JSON] should NOT access demouser2.username profile when given demouser2.username and NOT logged in", function (done)
     {
-        const app = global.tests.app;
+        const app = Config.tests.app;
         const agent = chai.request.agent(app);
         userUtils.getUserInfo(demouser2.username, true, agent, function (err, res)
         {
@@ -41,7 +41,7 @@ describe("/user/demouser2", function (done)
 
     it("[HTML] should NOT access demouser2.username profile when given demouser2.username and  NOT logged in", function (done)
     {
-        const app = global.tests.app;
+        const app = Config.tests.app;
         const agent = chai.request.agent(app);
         userUtils.getUserInfo(demouser2.username, false, agent, function (err, res)
         {
@@ -53,7 +53,7 @@ describe("/user/demouser2", function (done)
     // review agent immediatly
     it("[JSON] should access demouser2.username profile when given demouser2.username and logged in", function (done)
     {
-        const app = global.tests.app;
+        const app = Config.tests.app;
         const agent = chai.request.agent(app);
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
         {
@@ -68,7 +68,7 @@ describe("/user/demouser2", function (done)
 
     it("[HTML] should access demouser2.username profile when given demouser2.username and logged in", function (done)
     {
-        const app = global.tests.app;
+        const app = Config.tests.app;
         const agent = chai.request.agent(app);
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
         {
@@ -83,7 +83,7 @@ describe("/user/demouser2", function (done)
 
     it("[JSON] should NOT access demouser2.username profile when given non-existent username and logged in", function (done)
     {
-        const app = global.tests.app;
+        const app = Config.tests.app;
         const agent = chai.request.agent(app);
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
         {
@@ -98,7 +98,7 @@ describe("/user/demouser2", function (done)
 
     it("[HTML] should NOT access demouser2.username profile when given non-existent username and logged in", function (done)
     {
-        const app = global.tests.app;
+        const app = Config.tests.app;
         const agent = chai.request.agent(app);
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
         {
@@ -113,7 +113,7 @@ describe("/user/demouser2", function (done)
 
     it("[JSON] should NOT access demouser2.username profile when given non-existent username and NOT logged in", function (done)
     {
-        const app = global.tests.app;
+        const app = Config.tests.app;
         const agent = chai.request.agent(app);
         userUtils.getUserInfo(falseUser, true, agent, function (err, res)
         {
@@ -125,7 +125,7 @@ describe("/user/demouser2", function (done)
 
     it("[HTML] should NOT access demouser2.username profile when given non-existent username and NOT logged in", function (done)
     {
-        const app = global.tests.app;
+        const app = Config.tests.app;
         const agent = chai.request.agent(app);
         userUtils.getUserInfo(falseUser, false, agent, function (err, res)
         {

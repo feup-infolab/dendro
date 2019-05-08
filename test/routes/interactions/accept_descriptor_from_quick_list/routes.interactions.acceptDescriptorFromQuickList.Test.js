@@ -58,7 +58,7 @@ let demouser2InteractionObj = null;
 
 describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] accept_descriptor_from_quick_list", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         createFilesUnit.init(function (err, results)
@@ -107,7 +107,7 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] accept_descript
     {
         it("Should give an error and not accept and register an interaction when a descriptor is added from the quick list when unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             let agent = chai.request.agent(app);
             interactionsUtils.acceptDescriptorFromQuickList(true, agent, demouser1InteractionObj, function (err, res)
             {

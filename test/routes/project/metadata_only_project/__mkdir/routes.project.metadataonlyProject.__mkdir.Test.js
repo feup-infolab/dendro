@@ -26,7 +26,7 @@ const db = rlequire("dendro", "test/utils/db/db.Test.js");
 
 describe("Metadata Project mkdir", function (done)
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         addContributorsToProjectsUnit.init(function (err, results)
@@ -65,7 +65,7 @@ describe("Metadata Project mkdir", function (done)
 
         it("Should give an error when the user is unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.createFolderInProjectRoot(true, agent, metadataProject.handle, folder.name, function (err, res)
             {

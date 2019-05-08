@@ -19,7 +19,7 @@ const createFoldersB2DropUnit = rlequire("dendro", "test/units/folders/createFol
 
 describe("Backup B2Drop-backed project", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         createFoldersB2DropUnit.setup(function (err, results)

@@ -36,7 +36,7 @@ let notificationsDemouser1;
 
 describe("Get a specific notification information tests", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         // creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
@@ -59,7 +59,7 @@ describe("Get a specific notification information tests", function ()
                     notificationsDemouser1 = res.body;
                     notificationsDemouser1.length.should.equal(3);
                     // Force logout
-                    const app = global.tests.app;
+                    const app = Config.tests.app;
                     agent = chai.request.agent(app);
                     socialDendroUtils.getANotificationInfo(true, agent, notificationsDemouser1[0].uri, function (err, res)
                     {

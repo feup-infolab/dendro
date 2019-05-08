@@ -45,7 +45,7 @@ const emptyCSVMD5 = md5(fs.readFileSync(rlequire.absPathInApp("dendro", "test/mo
 
 describe("Upload files into testFolder1 of Private project", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         createFoldersUnit.init(function (err, results)
@@ -101,7 +101,7 @@ describe("Upload files into testFolder1 of Private project", function ()
 
         it("Should give an error when the user is not authenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
 
             fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, zipMockFile, function (err, res)

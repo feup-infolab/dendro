@@ -26,7 +26,7 @@ const db = rlequire("dendro", "test/utils/db/db.Test.js");
 
 describe("Metadata only project testFolder1 level restore_metadata_version", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         addMetadataToFoldersUnit.init(function (err, results)
@@ -53,7 +53,7 @@ describe("Metadata only project testFolder1 level restore_metadata_version", fun
 
         it("Should give an error if the user is unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
 
             itemUtils.itemRestoreMetadataVersion(true, agent, metadataProject.handle, testFolder1.name, 0, function (err, res)

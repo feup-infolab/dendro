@@ -33,7 +33,7 @@ const User = rlequire("dendro", "src/models/user.js").User;
 
 describe("Administer projects", function (done)
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         createProjectsUnit.init(function (err, res)
@@ -48,7 +48,7 @@ describe("Administer projects", function (done)
     {
         it("[HTML] should not access project without logging in GET", function (done)
         {
-            var app = global.tests.app;
+            var app = Config.tests.app;
             var agent = chai.request.agent(app);
             projectUtils.administer(agent, false, {}, publicProject.handle, function (err, res)
             {
@@ -128,7 +128,7 @@ describe("Administer projects", function (done)
 
         it("[HTML] should not modify project without logging in POST", function (done)
         {
-            var app = global.tests.app;
+            var app = Config.tests.app;
             var agent = chai.request.agent(app);
             projectUtils.administer(agent, true, {}, publicProject.handle, function (err, res)
             {

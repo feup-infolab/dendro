@@ -30,7 +30,7 @@ const db = rlequire("dendro", "test/utils/db/db.Test.js");
 
 describe("Descriptors from dcterms ontology", function (done)
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         addContributorsToProjectsUnit.setup(function (err, results)
@@ -137,7 +137,7 @@ describe("Descriptors from dcterms ontology", function (done)
         it("[JSON] It should not get descriptors from dcterms ontology (when unauthenticated and accessing Public project " + publicProject.handle + ")", function (done)
         {
             let ontologyPrefix = "dcterms";
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, publicProject.handle, function (err, res)
             {
@@ -210,7 +210,7 @@ describe("Descriptors from dcterms ontology", function (done)
         it("[JSON] It should not get descriptors from dcterms ontology (when unauthenticated and inside of the Metadata Only project " + metadataOnlyProject.handle + ")", function (done)
         {
             let ontologyPrefix = "dcterms";
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res)
             {
@@ -281,7 +281,7 @@ describe("Descriptors from dcterms ontology", function (done)
         it("[JSON] It should not get descriptors from dcterms ontology (when unauthenticated and inside of the Private project " + privateProject.handle + ")", function (done)
         {
             let ontologyPrefix = "dcterms";
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, privateProject.handle, function (err, res)
             {

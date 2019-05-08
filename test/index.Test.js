@@ -8,10 +8,6 @@ const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 console.log("Running in test mode with Node Version " + process.version + " and the app directory is : " + rlequire.absPathInApp("dendro", "."));
 
-global.Config = Config;
-
-global.tests = {};
-
 // TODO
 // // THESE TESTS NEED TO BE REVISITED AFTER FIXING TEST ASSERTIONS WITH TRY CATCH
 // // PUBLIC PROJECT FOLDER LEVEL CALCULATE CKAN REPOSITORY DIFFS
@@ -147,7 +143,6 @@ rlequire("dendro", "test/routes/interactions/delete_all/routes.interactions.dele
 // nuke orphan resources tests /admin/nuke_orphan_resources
 // rlequire("dendro", "test/routes/admin/nuke_orphan_resources/routes.admin.nukeOrphanResources.Test.js");
 
-
 // test ls_by_name
 rlequire("dendro", "test/routes/project/public_project/data/testFolder1/__ls_by_name/routes.project.publicProject.data.testFolder1.__ls_by_name.Test.js");
 rlequire("dendro", "test/routes/project/private_project/data/testFolder1/__ls_by_name/routes.project.privateProject.data.testFolder1.__ls_by_name.Test.js");
@@ -166,7 +161,7 @@ rlequire("dendro", "test/routes/project/public_project/data/testFolder1/__restor
 rlequire("dendro", "test/routes/project/public_project/__administer/routes.project.publicProject.__administerTest.js");
 
 // USERS
-//TODO EMPTY TEST FILE PLEASE VERIFY
+// TODO EMPTY TEST FILE PLEASE VERIFY
 rlequire("dendro", "test/routes/users/loggedUser/route.users.loggedUser.Test.js");
 rlequire("dendro", "test/routes/users/route.users.Test.js");
 

@@ -16,7 +16,7 @@ var createUserUnit = rlequire("dendro", "test/units/users/createUsers.Unit.js");
 
 describe("[POST] /user/edit", function (done)
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");
     const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2.js");
     const demouser3 = rlequire("dendro", "test/mockdata/users/demouser3.js");
@@ -72,7 +72,7 @@ describe("[POST] /user/edit", function (done)
 
     it("[HTML] should give an unauthorized error if the current user is not authenticated", function (done)
     {
-        var app = global.tests.app;
+        var app = Config.tests.app;
         var agent = chai.request.agent(app);
 
         userUtils.editUser(true, agent, correctDataToEdit, function (err, res)

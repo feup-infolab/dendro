@@ -8,7 +8,7 @@ chai.use(chaiHttp);
 
 describe("/", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         rlequire("dendro", "test/bootup.Unit.js");

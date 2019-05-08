@@ -28,7 +28,7 @@ const addContributorsToProjectsUnit = rlequire("dendro", "test/units/projects/ad
 
 describe("My Projects", function (done)
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         addContributorsToProjectsUnit.init(function (err, results)
@@ -82,7 +82,7 @@ describe("My Projects", function (done)
 
         it("[HTML] Should give error when the user is not authenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.listAllMyProjects(false, agent, function (err, res)
             {
@@ -154,7 +154,7 @@ describe("My Projects", function (done)
 
         it("[JSON] Should give error when the user is not authenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.listAllMyProjects(true, agent, function (err, res)
             {

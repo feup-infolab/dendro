@@ -31,7 +31,7 @@ let numberOfPostsForDemouser1Timeline;
 
 describe("Get the number of posts of a specific user timeline tests", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         // creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
@@ -46,7 +46,7 @@ describe("Get the number of posts of a specific user timeline tests", function (
     {
         it("[For an unauthenticated user] Should give an unauthorized error", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             agent = chai.request.agent(app);
             socialDendroUtils.getTotalPostsForAUsersSocialDendroTimeline(true, agent, function (err, res)
             {

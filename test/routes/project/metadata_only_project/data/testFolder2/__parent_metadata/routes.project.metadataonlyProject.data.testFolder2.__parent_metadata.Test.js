@@ -27,7 +27,7 @@ const db = rlequire("dendro", "test/utils/db/db.Test.js");
 
 describe("Metadata only project testFolder2 level parent_metadata tests", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         addMetadataToFoldersUnit.init(function (err, results)
@@ -61,7 +61,7 @@ describe("Metadata only project testFolder2 level parent_metadata tests", functi
          */
         it("[JSON] should refuse to fetch the parent_metadata of the " + metadataProject.handle + "/data/" + testFolder2.name + " resource without authenticating", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             itemUtils.getItemParentMetadata(true, agent, metadataProject.handle, testFolder2.name, function (err, res)
             {

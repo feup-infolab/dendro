@@ -33,7 +33,7 @@ let demouser1PostURIsArray;
 
 describe("Gives the like information of a post tests", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         // creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
@@ -56,7 +56,7 @@ describe("Gives the like information of a post tests", function ()
                     res.body.length.should.equal(30);
                     demouser1PostURIsArray = res.body;
                     // Force logout
-                    const app = global.tests.app;
+                    const app = Config.tests.app;
                     agent = chai.request.agent(app);
                     socialDendroUtils.getAPostLikesInfo(true, agent, demouser1PostURIsArray[0].uri, function (err, res)
                     {

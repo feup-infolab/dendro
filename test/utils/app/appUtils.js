@@ -1,6 +1,7 @@
 const rlequire = require("rlequire");
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const fs = require("fs");
 const async = require("async");
@@ -54,19 +55,19 @@ exports.requireUncached = function (module)
 
 exports.clearAppState = function (cb)
 {
-    if (!global.tests.server)
+    if (!Config.tests.server)
     {
         return cb(1, "Server did not start successfully");
     }
 
     exports.saveRouteLogsToFile(function (err, info)
     {
-        const dendroInstance = global.tests.dendroInstance;
+        const dendroInstance = Config.tests.dendroInstance;
         dendroInstance.freeResources(function (err, results)
         {
-            delete global.tests.app;
-            delete global.tests.server;
-            delete global.tests.dendroInstance;
+            delete Config.tests.app;
+            delete Config.tests.server;
+            delete Config.tests.dendroInstance;
             runPeriodicFunctionsEveryXTests(function (err)
             {
                 if (err)

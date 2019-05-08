@@ -23,13 +23,13 @@ let agent;
 
 describe("Resource re-indexing page ( /admin/reindex )", function (done)
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         AddMetadataToFoldersPublicProject.init(function (err, res)
         {
             should.equal(err, null);
-            app = global.tests.app;
+            app = Config.tests.app;
             agent = chai.request.agent(app);
             done();
         });

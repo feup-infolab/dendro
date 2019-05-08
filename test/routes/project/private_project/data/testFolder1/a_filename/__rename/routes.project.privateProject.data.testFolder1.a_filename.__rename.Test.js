@@ -30,7 +30,7 @@ const allFiles = createFilesUnit.allFiles;
 
 describe("Private project testFolder1 ?rename", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     describe("[POST] [FOLDER] [PRIVATE PROJECT] [Invalid Cases] /project/" + privateProject.handle + "/data/:foldername?rename", function ()
     {
         before(function (done)

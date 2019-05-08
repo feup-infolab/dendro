@@ -29,7 +29,7 @@ const db = rlequire("dendro", "test/utils/db/db.Test.js");
 // LIST ALL PROJECTS
 describe("List all projects tests", function (done)
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         addContributorsToProjectsUnit.init(function (err, results)
@@ -43,7 +43,7 @@ describe("List all projects tests", function (done)
     {
         it("[HTML] Should only get public and metadata_only projects when unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
 
             projectUtils.listAllProjects(false, agent, function (err, res)

@@ -29,10 +29,10 @@ const filesToMove = JSON.parse(JSON.stringify(allFiles)).pop();
 
 describe("[File Cut / Move] [B2Drop project] cutFiles ?paste", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     describe("[Invalid Cases] /project/" + b2dropProject.handle + "/data/cutFiles?cut", function ()
     {
-        this.timeout(Config.testsTimeout);
+        this.timeout(Config.tests.timeout);
         beforeEach(function (done)
         {
             createFilesB2dropUnit.setup(function (err, results)

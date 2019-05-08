@@ -27,7 +27,7 @@ const db = rlequire("dendro", "test/utils/db/db.Test.js");
 
 describe("Public project testFolder2 level ?mkdir", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         createFoldersUnit.init(function (err, results)
@@ -54,7 +54,7 @@ describe("Public project testFolder2 level ?mkdir", function ()
 
         it("Should give an error when the user is unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             itemUtils.createFolder(true, agent, publicProject.handle, testFolder2.name, folder.name, function (err, res)
             {

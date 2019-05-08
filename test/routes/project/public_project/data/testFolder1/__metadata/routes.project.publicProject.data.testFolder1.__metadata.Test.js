@@ -27,7 +27,7 @@ const db = rlequire("dendro", "test/utils/db/db.Test.js");
 
 describe("Public project testFolder1 level metadata tests", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         addMetadataToFoldersUnit.init(function (err, results)
@@ -62,7 +62,7 @@ describe("Public project testFolder1 level metadata tests", function ()
          */
         it("[JSON] should fetch metadata of the " + publicProject.handle + "/data/" + testFolder1.name + " folder without authenticating", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             itemUtils.getItemMetadata(true, agent, publicProject.handle, testFolder1.name, function (err, res)
             {

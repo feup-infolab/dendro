@@ -26,7 +26,7 @@ let createUsersUnit = rlequire("dendro", "test/units/users/createUsers.Unit.js")
 
 describe("New project tests", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         createUsersUnit.init(function (err, res)
@@ -55,7 +55,7 @@ describe("New project tests", function ()
 
         it("[HTML] Should not show the new project Html page when unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
 
             projectUtils.getNewProjectPage(false, agent, function (err, res)
@@ -86,7 +86,7 @@ describe("New project tests", function ()
     {
         it("[JSON] Should show an error when trying to create a project unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.createNewProject(true, agent, publicProject, function (err, res)
             {
@@ -113,7 +113,7 @@ describe("New project tests", function ()
 
         it("[HTML] Should show an error when trying to create a project unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.createNewProject(false, agent, publicProjectHTMLTests, function (err, res)
             {
@@ -143,7 +143,7 @@ describe("New project tests", function ()
     {
         it("[JSON] Should show an error when trying to create a project unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.createNewProject(true, agent, metadataOnlyProject, function (err, res)
             {
@@ -169,7 +169,7 @@ describe("New project tests", function ()
 
         it("[HTML] Should show an error when trying to create a project unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.createNewProject(false, agent, metadataOnlyHTMLTests, function (err, res)
             {
@@ -199,7 +199,7 @@ describe("New project tests", function ()
     {
         it("[JSON] Should show an error when trying to create a project unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.createNewProject(true, agent, privateProject, function (err, res)
             {
@@ -227,7 +227,7 @@ describe("New project tests", function ()
 
         it("[HTML] Should show an error when trying to create a project unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.createNewProject(false, agent, privateProjectHTMLTests, function (err, res)
             {
@@ -258,7 +258,7 @@ describe("New project tests", function ()
     {
         it("[JSON] Should show an error when trying to create the b2share-backed project unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.createNewProject(true, agent, b2dropProject, function (err, res)
             {

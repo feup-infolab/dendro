@@ -34,7 +34,7 @@ const db = rlequire("dendro", "test/utils/db/db.Test.js");
 
 describe("Creation of archived versions", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         createFoldersUnit.init(function (err, results)

@@ -27,7 +27,7 @@ const db = rlequire("dendro", "test/utils/db/db.Test.js");
 
 describe("Public project testFolder2 level (default case) tests", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         addMetadataToFoldersUnit.setup(function (err, results)
@@ -41,7 +41,7 @@ describe("Public project testFolder2 level (default case) tests", function ()
     {
         it("[HTML] should give the project page html [WITHOUT EDIT MODE] if the user is unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             itemUtils.viewItem(false, agent, publicProject.handle, testFolder2.name, function (err, res)
             {
@@ -100,7 +100,7 @@ describe("Public project testFolder2 level (default case) tests", function ()
 
         it("[JSON] should give the project root data if the user is unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             itemUtils.viewItem(true, agent, publicProject.handle, testFolder2.name, function (err, res)
             {
@@ -182,7 +182,7 @@ describe("Public project testFolder2 level (default case) tests", function ()
     {
         it("[HTML] should give the project page html with an error if the user is unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             itemUtils.viewItem(false, agent, invalidProject.handle, testFolder2.name, function (err, res)
             {
@@ -237,7 +237,7 @@ describe("Public project testFolder2 level (default case) tests", function ()
 
         it("[JSON] should give a 404 error if the user is unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             itemUtils.viewItem(true, agent, invalidProject.handle, testFolder2.name, function (err, res)
             {

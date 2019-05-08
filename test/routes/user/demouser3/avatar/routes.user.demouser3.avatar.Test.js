@@ -16,7 +16,7 @@ const md5 = require("md5");
 
 describe("[GET] /user/demouser3?avatar", function (done)
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         createAvatarsForUsersUnit.init(function (err, results)
@@ -32,7 +32,7 @@ describe("[GET] /user/demouser3?avatar", function (done)
 
     it("[HTML] should provide the avatar even if the current user is not authenticated", function (done)
     {
-        var app = global.tests.app;
+        var app = Config.tests.app;
         var agent = chai.request.agent(app);
 
         userUtils.getAvatar(false, demouser3.username, agent, function (err, res)

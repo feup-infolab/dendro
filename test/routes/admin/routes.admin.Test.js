@@ -24,13 +24,13 @@ let agent;
 
 describe("Administration panel tests ( /admin )", function (done)
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         createUsersUnit.init(function (err, res)
         {
             should.equal(err, null);
-            app = global.tests.app;
+            app = Config.tests.app;
             agent = chai.request.agent(app);
             done();
         });

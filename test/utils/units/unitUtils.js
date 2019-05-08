@@ -516,10 +516,10 @@ exports.runAllLoadFunctionsUpUnitChain = function (targetUnit, callback)
 exports.shutdown = function (callback)
 {
     Logger.log("debug", "Starting server shutdown.");
-    const dendroInstance = global.tests.dendroInstance;
+    const dendroInstance = Config.tests.dendroInstance;
     dendroInstance.freeResources(function (err, result)
     {
-        global.tests.app = null;
+        Config.tests.app = null;
         Logger.log("debug", "Server shutdown complete.");
         callback(err);
     });
@@ -538,9 +538,9 @@ exports.init = function (callback)
                 .get("/")
                 .end((err, res) =>
                 {
-                    global.tests.app = appInfo.app;
-                    global.tests.dendroInstance = dendroInstance;
-                    global.tests.server = appInfo.server;
+                    Config.tests.app = appInfo.app;
+                    Config.tests.dendroInstance = dendroInstance;
+                    Config.tests.server = appInfo.server;
                     callback(err, res);
                 });
         }

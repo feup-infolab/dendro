@@ -27,7 +27,7 @@ const db = rlequire("dendro", "test/utils/db/db.Test.js");
 
 describe("Private project testFolder2 level recent changes", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         appUtils.newTestRouteLog(path.basename(__filename));
@@ -56,7 +56,7 @@ describe("Private project testFolder2 level recent changes", function ()
 
         it("Should give an error if the user is unauthenticated", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             agent = chai.request.agent(app);
 
             itemUtils.getItemRecentChanges(true, agent, privateProject.handle, testFolder2.name, function (err, res)

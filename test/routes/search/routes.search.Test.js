@@ -37,7 +37,7 @@ const administerUtils = rlequire("dendro", "test/utils/administer/administerUtil
 
 describe("/search", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         AddMetadataToFoldersUnit.init(function (err, results)

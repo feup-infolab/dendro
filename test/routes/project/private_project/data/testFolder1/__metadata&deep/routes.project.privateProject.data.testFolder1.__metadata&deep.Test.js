@@ -27,7 +27,7 @@ const db = rlequire("dendro", "test/utils/db/db.Test.js");
 
 describe("Private project testFolder1 level metadata&deep tests", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         addMetadataToFoldersUnit.init(function (err, results)
@@ -61,7 +61,7 @@ describe("Private project testFolder1 level metadata&deep tests", function ()
          */
         it("[JSON] should refuse to fetch metadata recursively of the " + privateProject.handle + "/data/" + testFolder1.name + " resource without authenticating", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             itemUtils.getItemMetadataDeep(true, agent, privateProject.handle, testFolder1.name, function (err, res)
             {

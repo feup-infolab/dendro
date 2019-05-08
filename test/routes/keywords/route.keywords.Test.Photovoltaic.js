@@ -29,7 +29,7 @@ const electrical = require(Pathfinder.absPathInTestsFolder("mockdata/files/keywo
 // Dendro Keywords
 describe("Searches DBpedia for important terms", function (done)
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         createFoldersUnitKeywords.setup(function (err, results)

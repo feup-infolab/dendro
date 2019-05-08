@@ -31,7 +31,7 @@ const allFiles = createFilesUnit.allFiles;
 
 describe("B2Drop project testFolder1 ?rename", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     describe("[POST] [FOLDER] [B2Drop PROJECT] [Invalid Cases] /project/" + b2dropProject.handle + "/data/:foldername?rename", function ()
     {
         before(function (done)

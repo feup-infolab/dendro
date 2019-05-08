@@ -22,7 +22,7 @@ const db = rlequire("dendro", "test/utils/db/db.Test.js");
 
 describe("List all external repository tests", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         createExportToRepositoriesConfigsUnit.setup(function (err, results)
@@ -48,7 +48,7 @@ describe("List all external repository tests", function ()
 
         it("[HTML] should refuse the request if the Accept: 'application/json' header is not present with unauthenticated user", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             repositoryUtils.getAllExternalRepositories(false, agent, function (err, res)
             {
@@ -59,7 +59,7 @@ describe("List all external repository tests", function ()
 
         it("[JSON] should refuse the request if the user is unauthenticated.", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             repositoryUtils.getAllExternalRepositories(true, agent, function (err, res)
             {

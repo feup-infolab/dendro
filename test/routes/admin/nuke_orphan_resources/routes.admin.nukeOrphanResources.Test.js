@@ -54,7 +54,7 @@ checkFileExistsInGridFs = function (fileUri, callback)
 
 describe("Administration nuke orphan resources tests ( /admin/nuke_orphan_resources )", function (done)
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         let CreateFoldersPublicProject = rlequire("dendro", "test/units/folders/createFoldersPublicProject.Unit.js");
@@ -88,7 +88,7 @@ describe("Administration nuke orphan resources tests ( /admin/nuke_orphan_resour
     {
         it("Should not allow nuking orphan resources without being logged in", function (done)
         {
-            app = global.tests.app;
+            app = Config.tests.app;
             agent = chai.request.agent(app);
             administerUtils.nukeOrphanResources(agent,
                 function (err, res)

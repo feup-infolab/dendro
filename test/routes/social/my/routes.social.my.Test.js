@@ -24,7 +24,7 @@ const db = rlequire("dendro", "test/utils/db/db.Test.js");
 
 describe("Social Dendro user timeline tests", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         // creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
@@ -39,7 +39,7 @@ describe("Social Dendro user timeline tests", function ()
     {
         it("[For an unauthenticated user] Should give an unauthorized error", function (done)
         {
-            const app = global.tests.app;
+            const app = Config.tests.app;
             const agent = chai.request.agent(app);
             socialDendroUtils.getMySocialDendroTimeline(true, agent, function (err, res)
             {

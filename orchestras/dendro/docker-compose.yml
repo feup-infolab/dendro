@@ -14,6 +14,8 @@ services:
       - "TAKE_FILE_OWNERSHIP=1"
     volumes:
       - ./volumes/elasticsearch:/usr/share/elasticsearch/data:consistent
+    networks:
+      - dendro-docker-dev
 
   solr:
     container_name: solr-dendro-dev
@@ -26,6 +28,8 @@ services:
       - bash
       - "-c"
       - "precreate-core dendro_graph; precreate-core social_dendro; precreate-core notifications_dendro; precreate-core dryad; precreate-core freebase; precreate-core dbpedia;  exec solr -f"
+    networks:
+      - dendro-docker-dev
 
   virtuoso:
     container_name: virtuoso-dendro-dev
@@ -43,6 +47,8 @@ services:
       - "VIRT_Parameters_CheckpointInterval=1"
       - "VIRT_Parameters_MinAutoCheckpointSize=1"
       - "DBA_PASSWORD=dba"
+    networks:
+      - dendro-docker-dev
 
   mariadb:
     container_name: mariadb-dendro-dev
@@ -56,6 +62,8 @@ services:
       - "MYSQL_PASSWORD=dendr0_p4ssw0rd"
     volumes:
       - ./volumes/mariadb:/var/lib/mariadb
+    networks:
+      - dendro-docker-dev
 
   mongodb:
     container_name: mongodb-dendro-dev
@@ -68,4 +76,10 @@ services:
     volumes:
       - ./volumes/mongo:/data/db
     command: mongod --smallfiles --bind_ip_all
+    networks:
+      - dendro-docker-dev
+
+networks:
+  dendro-docker-dev: {}
+
 

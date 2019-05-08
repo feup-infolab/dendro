@@ -7,7 +7,7 @@ const loadOntologiesUnit = rlequire("dendro", "test/units/ontologies/loadOntolog
 
 describe("Loading ontologies cache only once...", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     it("Should load all ontologies into cache.", function (done)
     {
         loadOntologiesUnit.setup(done);

@@ -60,7 +60,7 @@ angular.module("dendroApp.services")
 
                 if (key != null)
                 {
-                    if (!!namespace === true)
+                    if (Boolean(namespace) === true)
                     {
                         self.$storage[namespace][key] = value;
                     }

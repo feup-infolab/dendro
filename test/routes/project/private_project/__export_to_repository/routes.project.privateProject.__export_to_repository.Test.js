@@ -30,7 +30,7 @@ let b2shareData, ckanData, zenodoData, dspaceData, eprintsData, figshareData;
 
 describe("Export private project to repositories tests", function ()
 {
-    this.timeout(Config.testsTimeout);
+    this.timeout(Config.tests.timeout);
     before(function (done)
     {
         createExportToRepositoriesConfig.init(function (err, results)
