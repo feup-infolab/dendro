@@ -18,10 +18,10 @@ HOME="/root"
 
 echo "Dendro starting up at $DENDRO_RUNNING_DIR, installation dir $DENDRO_INSTALL_DIR and user $(whoami)"
 
-echo "Contents of install dir.................."
-ls -la "$DENDRO_INSTALL_DIR"
-echo "Contents of running dir.................."
-ls -la "$DENDRO_RUNNING_DIR"
+# echo "Contents of install dir.................."
+#ls -la "$DENDRO_INSTALL_DIR"
+#echo "Contents of running dir.................."
+#ls -la "$DENDRO_RUNNING_DIR"
 
 MAIN_SOURCE_FILE="$DENDRO_RUNNING_DIR/src/app.js"
 if [ ! -f "$MAIN_SOURCE_FILE" ]; then
@@ -32,8 +32,8 @@ else
 	echo "Dendro main source file ($MAIN_SOURCE_FILE) exists, assuming it is already installed."
 fi
 
-echo "Contents of running dir $DENDRO_RUNNING_DIR"
-ls -la $DENDRO_RUNNING_DIR
+# echo "Contents of running dir $DENDRO_RUNNING_DIR"
+# ls -la $DENDRO_RUNNING_DIR
 
 cd "$DENDRO_RUNNING_DIR" && echo "Switched to folder $(pwd) to start Dendro..." \
   || ( echo "Unable to find directory $DENDRO_RUNNING_DIR" && exit 1 )
