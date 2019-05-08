@@ -4,9 +4,7 @@ global.app_startup_time = new Date();
 
 const rlequire = require("rlequire");
 
-const Config = rlequire("dendro", "src/models/meta/config.js").Config;
-
-console.log("Running in test mode with Node Version " + process.version + " and the app directory is : " + rlequire.absPathInApp("dendro", "."));
+console.log("Running in test mode with Node Version " + process.version + " and the app directory is : " + rlequire.absPathInApp("dendro", ".", true));
 
 // TODO
 // // THESE TESTS NEED TO BE REVISITED AFTER FIXING TEST ASSERTIONS WITH TRY CATCH

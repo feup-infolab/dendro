@@ -4,12 +4,11 @@ const chai = require("chai");
 const chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 
-const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const rlequire = require("rlequire");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const should = chai.should();
 const async = require("async");
-const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
 
 const administerUtils = rlequire("dendro", "test/utils/administer/administerUtils.js");
 const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");

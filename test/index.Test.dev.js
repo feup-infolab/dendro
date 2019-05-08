@@ -2,12 +2,9 @@ process.env.NODE_ENV = "test";
 
 global.app_startup_time = new Date();
 
-const path = require("path");
 const rlequire = require("rlequire");
 
-const Config = rlequire("dendro", "src/models/meta/config.js").Config;
-
-console.log("Running in test mode with Node Version " + process.version + " and the app directory is : " + rlequire.absPathInApp("dendro", "."));
+console.log("Running in test mode with Node Version " + process.version + " and the app directory is : " + rlequire.absPathInApp("dendro", ".", true));
 
 // test file moving
 rlequire("dendro", "test/routes/project/private_project/data/testFolder1/a_filename/__cut/routes.project.privateProject.data.testFolder1.a_filename.__cut.Test.js");

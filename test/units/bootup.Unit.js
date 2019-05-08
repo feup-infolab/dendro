@@ -10,6 +10,7 @@ const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
 const TestUnit = rlequire("dendro", "test/units/testUnit.js");
 const unitUtils = rlequire("dendro", "test/utils/units/unitUtils.js");
+const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 class BootupUnit extends TestUnit
 {

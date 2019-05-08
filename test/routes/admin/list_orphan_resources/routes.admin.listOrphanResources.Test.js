@@ -8,11 +8,9 @@ const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const should = chai.should();
 const async = require("async");
-const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
 
 const administerUtils = rlequire("dendro", "test/utils/administer/administerUtils.js");
 const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
-const itemUtils = rlequire("dendro", "test//utils/item/itemUtils");
 const fileUtils = rlequire("dendro", "test/utils/file/fileUtils.js");
 
 const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1");

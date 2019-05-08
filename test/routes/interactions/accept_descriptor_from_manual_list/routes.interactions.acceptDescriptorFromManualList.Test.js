@@ -2,18 +2,13 @@ const chai = require("chai");
 const chaiHttp = require("chai-http");
 const should = chai.should();
 const _ = require("underscore");
-const md5 = require("md5");
-const fs = require("fs");
-const path = require("path");
 chai.use(chaiHttp);
 
 const rlequire = require("rlequire");
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
-const fileUtils = rlequire("dendro", "test/utils/file/fileUtils.js");
 const projectUtils = rlequire("dendro", "test/utils/project/projectUtils.js");
-const itemUtils = rlequire("dendro", "test/utils/item/itemUtils.js");
 const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
 const descriptorUtils = rlequire("dendro", "test/utils/descriptor/descriptorUtils.js");
 const interactionsUtils = rlequire("dendro", "test/utils/interactions/interactionsUtils.js");
