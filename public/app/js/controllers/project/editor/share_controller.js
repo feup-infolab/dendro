@@ -269,9 +269,20 @@ angular.module("dendroApp.controllers")
                 return false;
             };
 
-            $scope.setUseraffiliation = function (userAffiliation)
+            $scope.initValues = function (userAffiliation, descriptionOfDeposit)
+            {
+                $scope.setUserAffiliation(userAffiliation);
+                $scope.setDescription(descriptionOfDeposit);
+            };
+
+            $scope.setUserAffiliation = function (userAffiliation)
             {
                 $scope.userAffiliation = userAffiliation;
+            };
+
+            $scope.setDescription = function (description)
+            {
+                $scope.descriptionOfDeposit = description;
             };
 
             $scope.disable_send_bookmark_dendro = function (title, obj, date, userAffiliation)
@@ -301,18 +312,18 @@ angular.module("dendroApp.controllers")
                 if (index === "1" && one && date)
                 {
                     const dateNow = new Date();
-                    if (dateNow > date)
+                    /* if (dateNow > date)
                     {
                         return true;
                     }
-                    return false;
+                    return false;*/
                 }
 
                 if (index !== "1" && one)
                 {
                     return false;
                 }
-                return true;
+                return false;
             };
 
             $scope.disable_save_bookmark_b2share = function (newRepository)
@@ -524,7 +535,7 @@ angular.module("dendroApp.controllers")
          * Project stats
          * @param uri
          */
-            $scope.upload_to_repository = function (targetRepository, publicDeposit, titleOfDeposit, embargoedDate, accessTerms, userAffiliation, overwrite, deleteChangesOriginatedFromCkan, propagateDendroChangesIntoCkan)
+            $scope.upload_to_repository = function (targetRepository, publicDeposit, titleOfDeposit, embargoedDate, accessTerms, userAffiliation, descriptionOfDeposit, overwrite, deleteChangesOriginatedFromCkan, propagateDendroChangesIntoCkan)
             {
                 var payload = {
                     repository: targetRepository,
@@ -576,7 +587,10 @@ angular.module("dendroApp.controllers")
                 {
                     payload.userAffiliation = userAffiliation;
                 }
-
+                if (descriptionOfDeposit)
+                {
+                    payload.descriptionOfDeposit = descriptionOfDeposit;
+                }
                 if (overwrite)
                 {
                     payload.overwrite = overwrite;
