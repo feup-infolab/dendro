@@ -1,14 +1,17 @@
 <h1 class="page-header">Share current folder to Dendro</h1>
 <div class="col-lg-12">
-    <div class="row form-group" ng-init="setUseraffiliation(loggedUser.foaf.affiliation)">
+    <div class="row form-group" ng-init="initValues(loggedUser.foaf.affiliation, shared.selected_file.dcterms.description)">
             <label for="recalled_b2share_repository_label">Label</label>
         <input type="text" ng-model="recalled_repository.dcterms.title" class="form-control" id="recalled_b2share_repository_label" placeholder="Label" disabled>
 
         <label for="titleOfDeposit">Title of deposit:</label>
         <input type="text" ng-model="titleOfDeposit" class="form-control" ng-value="title_of_file_selected" id="titleOfDeposit" placeholder="Title of deposit">
         <br>
+        <label for="titleOfDeposit">Description of deposit:</label>
+        <input type="text" ng-model="descriptionOfDeposit" class="form-control" ng-value="shared.selected_file.dcterms.description" id="descriptionOfDeposit" placeholder="Description of deposit">
+        <br>
         <label for="userAffiliation">User affiliation:</label>
-        <input type="text"  ng-model="userAffiliation" class="form-control" id="userAffiliation" placeholder="User Affiliation">
+        <input type="text"  ng-model="userAffiliation"  class="form-control" id="userAffiliation" placeholder="User Affiliation">
 
         <br>
         <div class="row col-lg-12 col-md-12">
@@ -46,7 +49,7 @@
                 <button type="button" ng-click="delete_bookmark(recalled_repository, true)" class="btn btn-danger btn-large"><span class="glyphicon glyphicon-remove "></span>Delete this bookmark</button>
 
                 <button type="cancel"
-                        ng-click="upload_to_repository(recalled_repository, publicDeposit, titleOfDeposit, embargoed, accessTerms, userAffiliation)"
+                        ng-click="upload_to_repository(recalled_repository, publicDeposit, titleOfDeposit, embargoed, accessTerms, userAffiliation, descriptionOfDeposit)"
                         ng-disabled="disable_send_bookmark_dendro(titleOfDeposit, publicDeposit, embargoed, userAffiliation)"
                         class="btn btn-success pull-right"><span class="glyphicon glyphicon-upload"></span>Send</button>
             </div>

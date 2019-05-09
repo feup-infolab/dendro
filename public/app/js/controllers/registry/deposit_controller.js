@@ -138,7 +138,7 @@ angular.module("dendroApp.controllers", [])
             descriptorTag: {
                 type: "dropdown",
                 list: true,
-                label: "Descriptor value",
+                label: "Descriptor Value",
                 key: "descriptorTag",
                 selected: "Any",
                 value: [

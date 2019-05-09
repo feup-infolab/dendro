@@ -1131,14 +1131,15 @@ const exportToDendro = function (req, res)
     const titleOfDeposit = req.body.titleOfDeposit;
     const accessTerms = req.body.accessTerms;
     let embargoedDate;
+    const descriptionOfDeposit = req.body.descriptionOfDeposit;
     req.user.foaf.affiliation = req.body.userAffiliation;
-    const createDepositAux = function (exportedFromProject, exportedFromFolder, file, description, language, callback)
+    const createDepositAux = function (exportedFromProject, exportedFromFolder, file, language, callback)
     {
         const registryData = {
             dcterms: {
                 title: titleOfDeposit,
                 creator: req.user.uri,
-                description: description,
+                description: descriptionOfDeposit,
                 language: language
             },
             ddr: {
@@ -1181,9 +1182,8 @@ const exportToDendro = function (req, res)
                 {
                     if (isNull(err))
                     {
-                        const description = project.dcterms.description;
                         const language = project.dcterms.language;
-                        createDepositAux(project.uri, file.uri, file, description, language, function (err, registry)
+                        createDepositAux(project.uri, file.uri, file, language, function (err, registry)
                         {
                             if (isNull(err))
                             {
@@ -1229,9 +1229,8 @@ const exportToDendro = function (req, res)
                             {
                                 if (isNull(err))
                                 {
-                                    const description = project.dcterms.description;
                                     const language = project.dcterms.language;
-                                    createDepositAux(project.uri, folder.uri, folder, description, language, function (err, registry)
+                                    createDepositAux(project.uri, folder.uri, folder, language, function (err, registry)
                                     {
                                         if (isNull(err))
                                         {

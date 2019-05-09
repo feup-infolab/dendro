@@ -259,7 +259,7 @@ Deposit.createDeposit = function (data, callback)
 Deposit.createQuery = function (params, callback)
 {
     let query =
-        "SELECT DISTINCT ?label ?user ?date ?platformsUsed  ?privacy ?uri ?folder ?folderName ?repository \n" +
+        "SELECT DISTINCT ?label ?user ?date ?platformsUsed ?privacy ?uri ?folder ?folderName ?repository ?description \n" +
         "FROM [0] \n" +
         "WHERE " +
         "{ \n" +
@@ -268,6 +268,7 @@ Deposit.createQuery = function (params, callback)
         "   ?uri dcterms:creator ?user . \n" +
         "   ?uri dcterms:title ?label . \n" +
         "   ?uri dcterms:date ?date . \n" +
+        "   ?uri dcterms:description ?description . \n" +
         "   ?uri ddr:exportedFromFolder ?folder . \n" +
         "   ?uri ddr:privacyStatus ?privacy . \n" +
         "   ?uri ddr:exportedToRepository ?repository . \n" +
@@ -282,69 +283,56 @@ Deposit.createQuery = function (params, callback)
             value: db.graphUri
         }];
 
-    // if (params.self)
-    // {
-    var addUnion = false;
-    for (let j = 0; j < params.private.length; j++)
+    if (params.platforms)
     {
-        var object = JSON.parse(params.private[j]);
+        query +=
+            "   VALUES ?privacy {";
 
-        if (j === 0)
+        for (let j = 0; j < params.private.length; j++)
         {
-            query += "   { \n";
-        }
-        if (object.value === true)
-        {
-            if (addUnion)
-            {
-                query += "       UNION \n";
-            }
-            query +=
-              "       { \n" +
-              "         ?uri ddr:privacyStatus [" + i++ + "] . \n" +
-              "       } \n";
+            var object = JSON.parse(params.private[j]);
 
-            switch (object.name)
+            if (object.value === true)
             {
-            case "Metadata only":
-                variables.push(
-                    {
-                        type: Elements.ontologies.ddr.privacyStatus.type,
-                        value: "metadata_only"
-                    });
-                addUnion = true;
-                break;
-            case "Embargoed deposit":
-                variables.push(
-                    {
-                        type: Elements.ontologies.ddr.privacyStatus.type,
-                        value: "embargoed"
-                    });
-                addUnion = true;
-                break;
-            case "Private deposit":
-                variables.push(
-                    {
-                        type: Elements.ontologies.ddr.privacyStatus.type,
-                        value: "private"
-                    });
-                addUnion = true;
-                break;
-            default: {
-                variables.push(
-                    {
-                        type: Elements.ontologies.ddr.privacyStatus.type,
-                        value: "public"
-                    });
-                addUnion = true;
-            }
+                query += "[" + i++ + "] ";
+
+                switch (object.name)
+                {
+                case "Metadata only":
+                    variables.push(
+                        {
+                            type: Elements.ontologies.ddr.privacyStatus.type,
+                            value: "metadata_only"
+                        });
+                    break;
+                case "Embargoed":
+                    variables.push(
+                        {
+                            type: Elements.ontologies.ddr.privacyStatus.type,
+                            value: "embargoed"
+                        });
+                    break;
+                case "Private":
+                    variables.push(
+                        {
+                            type: Elements.ontologies.ddr.privacyStatus.type,
+                            value: "private"
+                        });
+                    break;
+                default:
+                    variables.push(
+                        {
+                            type: Elements.ontologies.ddr.privacyStatus.type,
+                            value: "public"
+                        });
+                }
             }
         }
-        if (j === params.private.length - 1)
-        {
-            query += "   } \n";
-        }
+        query +=
+          "} . \n" +
+          "   ?uri ddr:privacyStatus ?privacy . \n";
     }
+
     let ending =
         "} \n" +
         "ORDER BY " + params.order + "(?" + params.labelToSort + ") \n" +
