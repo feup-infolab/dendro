@@ -23,11 +23,13 @@ describe("/users", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        createUserUnit.init(function (err, results)
-        {
-            should.equal(err, null);
-            done();
-        });
+        // createUserUnit.init(function (err, results)
+        // {
+        //     should.equal(err, null);
+        //     done();
+        // });
+
+        done();
     });
 
     it("[HTML] should list all users when logged in as demouser1.username", function (done)
