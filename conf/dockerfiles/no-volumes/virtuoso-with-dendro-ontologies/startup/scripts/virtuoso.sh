@@ -52,12 +52,18 @@ function block_ports_except_for_loopback()
 
   iptables -A INPUT -i eth0 -p tcp --destination-port $VIRTUOSO_ISQL_PORT -j DROP
   iptables -A INPUT -i eth0 -p tcp --destination-port $VIRTUOSO_CONDUCTOR_PORT -j DROP
+
+  echo "BLOCKING HERE"
+  iptables --list
 }
 
 function restore_network_access()
 {
   echo "Restoring network access..."
   iptables-restore < "$IPTABLES_FILE"
+
+  echo "RESTORING HERE"
+  iptables --list
 }
 
 function server_is_online()

@@ -47,6 +47,8 @@ services:
       - "VIRT_Parameters_CheckpointInterval=1"
       - "VIRT_Parameters_MinAutoCheckpointSize=1"
       - "DBA_PASSWORD=dba"
+    cap_add:
+      - NET_ADMIN
     networks:
       dendro-docker-deployment:
         aliases:
