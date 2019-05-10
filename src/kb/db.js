@@ -885,6 +885,7 @@ DbConnection.prototype.create = function (callback)
             {
                 const msg = "Unable to establish a connection to Virtuoso in time. This is a fatal error.";
                 Logger.log("error", msg);
+                Logger.log("debug", `Configuration of Dendro -> Virtuoso connection: ${self.host}:${self.port}`);
                 throw new Error(msg);
             }
         });
