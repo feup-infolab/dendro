@@ -199,9 +199,4 @@ class CreateUsers extends LoadOntologies
     }
 }
 
-
-(async () => {await require("@feup-infolab/docker-mocha").runSetup(CreateUsers);})();
-
-console.log("DEPOIS DO CREATE USERS");
-
 module.exports = CreateUsers;

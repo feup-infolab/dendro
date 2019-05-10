@@ -38,7 +38,7 @@
     "fix-tests": "eslint --fix ./test/** --config ./test/.eslintrc.json --quiet",
     "fix-client": "eslint --fix ./public/app/** --config ./public/app/.eslintrc.json",
     "remote_debug": "node app.js --debug=5858",
-    "postinstall": "npm i -g gladstone && npm install -g istanbul && npm i -g nyc && npm i -g coveralls",
+    "postinstall": "npm i -g gladstone && npm install -g istanbul && npm i -g nyc && npm i -g coveralls && npm install -g git+https://github.com/feup-infolab/docker-mocha.git",
     "update-docker-installation": "docker-compose stop; docker-compose rm; docker-compose pull; docker-compose up",
     "generate-docs": "grunt jsdoc --force"
   },

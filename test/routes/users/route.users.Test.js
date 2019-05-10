@@ -11,10 +11,8 @@ const userUtils = rlequire("dendro", "test/utils/user/userUtils.js");
 
 const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");
 const demouser2 = rlequire("dendro", "test/mockdata/users/demouser2.js");
-const demouser3 = rlequire("dendro", "test/mockdata/users/demouser3.js");
 
 const appUtils = rlequire("dendro", "test/utils/app/appUtils.js");
-const createUserUnit = rlequire("dendro", "test/units/users/createUsers.Unit.js");
 
 // to review naming before mergin to master
 
