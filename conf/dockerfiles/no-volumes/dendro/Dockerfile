@@ -134,7 +134,7 @@ RUN mkdir -p "$NPM_TMP_DIR"
 # when we change our application's nodejs dependencies:
 COPY ./package.json "$NPM_TMP_DIR"
 WORKDIR "$NPM_TMP_DIR"
-RUN cd "$NPM_TMP_DIR" && npm install
+RUN cd "$NPM_TMP_DIR" && npm install --unsafe-perm
 RUN echo "contents of $NPM_TMP_DIR"
 RUN ls -la
 
@@ -192,5 +192,7 @@ EXPOSE "$DENDRO_PORT"
 #Chaning work dir
 WORKDIR "$DENDRO_RUNNING_DIR"
 
-# Start Dendro
-CMD [ "/bin/bash", "/tmp/dendro/dendro.sh" ]
+# Start Container, keep it running forever
+# CMD [ "/bin/bash", "/tmp/dendro/dendro.sh" ]
+CMD ["sh", "-c", "tail -f /dev/null"]
+
