@@ -35,7 +35,7 @@ services:
 
   virtuoso:
     container_name: ${ENVIRONMENT}.virtuoso-dendro
-    image: feupinfolab/virtuoso-with-dendro-ontologies-no-volumes:latest${STATE}
+    image: feupinfolab/mariadb-no-volumes:latest${STATE} #mariadb:5.5.62
     expose:
       - "8890"
       - "1111"
