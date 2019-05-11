@@ -179,7 +179,7 @@ RUN cp -R "$BOWER_TMP_DIR/bower_components" "$DENDRO_INSTALL_DIR/public"
 RUN mkdir "$DENDRO_RUNNING_DIR"
 
 # Copying files
-RUN cp -R "$DENDRO_INSTALL_DIR" "$DENDRO_RUNNING_DIR"
+RUN cp -R "$DENDRO_INSTALL_DIR"/* "$DENDRO_RUNNING_DIR"
 
 # Show contents of folders
 RUN echo "Contents of Dendro install dir are:"
