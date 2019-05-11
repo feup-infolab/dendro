@@ -3,7 +3,6 @@ const isNull = rlequire("dendro", "src/utils/null").isNull;
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const DockerManager = rlequire("dendro", "src/utils/docker/docker_manager.js").DockerManager;
-const _ = require("underscore");
 const async = require("async");
 const chai = require("chai");
 
