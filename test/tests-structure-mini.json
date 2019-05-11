@@ -1,0 +1,34 @@
+{
+  "states":
+  {
+    "BootupUnit": {"depends_on": null, "path":  "test/units/bootup.Unit.js"},
+    "LoadOntologies": {"depends_on": "BootupUnit", "path": "test/units/ontologies/loadOntologies.Unit.js"},
+    "CreateUsersUnit": {"depends_on":  "LoadOntologies", "path":  "test/units/users/createUsers.Unit.js"},
+    "CreateProjectsUnit": {"depends_on": "CreateUsersUnit", "path": "test/units/projects/createProjects.Unit.js"},
+    "AddContributorsToProjectsUnit": {"depends_on": "CreateProjectsUnit", "path": "test/units/projects/addContributorsToProjects.Unit.js"},
+    "CreateFoldersUnit": {"depends_on": "AddContributorsToProjectsUnit", "path": "test/units/folders/createFolders.Unit.js"},
+
+    "CreateFilesUnit": {"depends_on": "CreateFoldersUnit", "path": "test/units/files/createFiles.Unit.js"},
+    "CreateFoldersForLsByName": {"depends_on": "CreateFoldersUnit", "path": "test/units/folders/createFoldersForLsByName.Unit.js"},
+
+    "CreateFoldersPublicProject": {"depends_on":  "AddContributorsToProjectsUnit", "path":  "test/units/folders/createFoldersPublicProject.Unit.js"},
+    "AddMetadataToFoldersPublicProject": {"depends_on": "CreateFoldersPublicProject", "path": "test/units/metadata/addMetadataToFoldersPublicProject.Unit.js"},
+
+    "AddMetadataToFoldersUnit": {"depends_on": "CreateFoldersUnit", "path": "test/units/metadata/addMetadataToFolders.Unit.js"},
+
+    "CreateAvatarsForUsersUnit": {"depends_on": "CreateUsersUnit", "path": "test/units/users/createAvatarsForUsers.Unit.js"},
+
+    "DeleteFoldersUnit": {"depends_on": "CreateFoldersUnit", "path": "test/units/folders/deleteFolders.Unit.js"},
+
+    "UploadFilesAndAddMetadataUnit": {"depends_on": "AddMetadataToFoldersUnit", "path": "test/units/social/uploadFilesAndAddMetadata.Unit.js"},
+    "CreateManualPostForAllProjectTypesUnit": {"depends_on": "UploadFilesAndAddMetadataUnit", "path": "test/units/social/createManualPostForAllProjectTypes.Unit.js"},
+    "ShareSomePostsUnit": {"depends_on": "CreateManualPostForAllProjectTypesUnit", "path": "test/units/social/shareSomePosts.Unit.js"},
+    "LikeSomePostsUnit": {"depends_on": "ShareSomePostsUnit", "path": "test/units/social/likeSomePosts.Unit.js"},
+    "CommentSomePostsUnit": {"depends_on": "LikeSomePostsUnit", "path": "test/units/social/commentSomePosts.Unit.js"},
+    "CreateSocialDendroTimelineWithPostsAndSharesUnit": {"depends_on": "CommentSomePostsUnit", "path": "test/units/social/createSocialDendroTimelineWithPostsAndShares.Unit.js"}
+  },
+  "tests":
+  {
+    "users" : {"state":  "CreateUsersUnit","path": "test/routes/users/route.users.Test.js"}
+  }
+}

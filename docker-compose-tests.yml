@@ -35,7 +35,7 @@ services:
 
   virtuoso:
     container_name: ${ENVIRONMENT}.virtuoso-dendro
-    image: feupinfolab/virtuoso-with-dendro-ontologies-no-volumes:latest${STATE}
+    image: feupinfolab/virtuoso-with-dendro-ontologies-no-volumes:latest${STATE} #mariadb:5.5.62
     expose:
       - "8890"
       - "1111"
@@ -47,26 +47,12 @@ services:
       - "VIRT_Parameters_CheckpointInterval=1"
       - "VIRT_Parameters_MinAutoCheckpointSize=1"
       - "DBA_PASSWORD=dba"
+    cap_add:
+      - NET_ADMIN
     networks:
       dendro-docker-deployment:
         aliases:
           - virtuoso-dendro
-    restart: on-failure
-
-  mariadb:
-    container_name: ${ENVIRONMENT}.mariadb-dendro
-    image: feupinfolab/mariadb-no-volumes:latest${STATE} #mariadb:5.5.62
-    expose:
-      - "3306"
-    environment:
-      - "MYSQL_ROOT_PASSWORD=r00t_p4ssw0rd"
-      - "MYSQL_DATABASE=dendro_data"
-      - "MYSQL_USER=dendro"
-      - "MYSQL_PASSWORD=dendr0_p4ssw0rd"
-    networks:
-      dendro-docker-deployment:
-        aliases:
-          - mariadb-dendro
     restart: on-failure
 
   mongodb:
@@ -82,6 +68,25 @@ services:
         aliases:
           - mongodb-dendro
     command: mongod --smallfiles --bind_ip_all
+    restart: on-failure
+
+
+  mariadb:
+    container_name: ${ENVIRONMENT}.mariadb-dendro
+    image: feupinfolab/mariadb-no-volumes:latest${STATE} #mariadb:5.5.62
+    expose:
+      - "3306"
+    environment:
+      - "MYSQL_ROOT_PASSWORD=r00t_p4ssw0rd"
+      - "MYSQL_DATABASE=dendro_data"
+      - "MYSQL_USER=dendro"
+      - "MYSQL_PASSWORD=dendr0_p4ssw0rd"
+      - "MYSQL_ROOT_HOST: '%'"
+      - "TZ=Europe/Lisbon"
+    networks:
+      dendro-docker-deployment:
+        aliases:
+          - mariadb-dendro
     restart: on-failure
 
   dendro:
@@ -101,6 +106,8 @@ services:
         aliases:
           - dendro
     restart: on-failure
+
+
 
 networks:
   dendro-docker-deployment:

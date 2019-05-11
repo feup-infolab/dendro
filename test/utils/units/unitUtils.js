@@ -225,13 +225,13 @@ exports.getTopCallerUnitFile = function ()
 exports.startLoad = function (unit)
 {
     const checkpointIdentifier = unit.name;
-    exports.start(checkpointIdentifier, "Seeding database...");
+    exports.start(checkpointIdentifier, "Starting load of" + checkpointIdentifier + " ...");
 };
 
 exports.endLoad = function (unit, callback)
 {
     const checkpointIdentifier = unit.name;
-    exports.end(checkpointIdentifier, "Ended database seeding.");
+    exports.end(checkpointIdentifier, "Finished load of unit " + checkpointIdentifier + ".");
     callback(null);
 };
 
