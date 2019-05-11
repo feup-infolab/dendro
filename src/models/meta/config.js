@@ -29,7 +29,6 @@ if (argv.config)
 {
     Logger.log("info", "Deployment configuration overriden by --conf argument. Configuration is " + argv.config);
     activeConfigKey = argv.config;
-    Config.configWasOverriden = true;
 }
 else
 {

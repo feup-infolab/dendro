@@ -5,7 +5,7 @@ docker_mocha:
     secret: >-
       THF4A9JfsMbTaHYefVtquzFbrdNUMSbTHF4A9JfsMbTaHYefVtquzFbrdNUMSbpHeRjKE24Tyk2LqxVa3ERyGAAaP8j7gXArZsJk4bjKj8F4YZnCqAyaw9auPn6ahDwc4scLCrayLX9BsYwqXaMKrfW82WdqD5pYApFaQ9JNCqQ25qb75GKfAZSgvNuzFXKT6mGGw6qk63HqjgGwty4qx4QkYXxNCsbez4jwzeRc58AfSvzXZfEf8asSNWhhfEBWCvCeAJs3BGZFFFuwZ7EAVhmyu7NqqzHpHeRjKE24Tyk2LqxVa3ERyGAAaP8j7gXArZsJk4bjKj8F4YZnCqAyaw9auPn6ahDwc4scLCrayLX9BsYwqXaMKrfW82WdqD5pYApFaQ9JNCqQ25qb75GKfAZSgvNuzFXKT6mGGw6qk63HqjgGwty4qx4QkYXxNCsbez4jwzeRc58AfSvzXZfEf8asSNWhhfEBWCvCeAJs3BGZFFFuwZ7EAVhmyu7NqqzAIAIMARIA
   baseUri: 'http://127.0.0.1:3001'
-  environment: development
+  environment: test
   skipDescriptorValuesValidation: false
   eudatBaseUrl: 'https://trng-b2share.eudat.eu'
   eudatToken: '901'
@@ -186,10 +186,10 @@ docker_mocha:
     memory:
       dump_snapshots: false
   startup:
-    load_databases: true
-    reload_administrators_on_startup: true
-    reload_demo_users_on_startup: true
-    reload_ontologies_on_startup: true
+    load_databases: false
+    reload_administrators_on_startup: false
+    reload_demo_users_on_startup: false
+    reload_ontologies_on_startup: false
     clear_session_store: false
     log_bootup_actions: true
     destroy_all_graphs: false
@@ -199,7 +199,7 @@ docker_mocha:
     destroy_mysql_database: false
   baselines: {}
   logging:
-    level: error
+    level: debug
     app_logs_folder: logs/app
     log_all_requests: true
     do_not_log_requests_to_public_assets: true

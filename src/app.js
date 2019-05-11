@@ -81,8 +81,9 @@ if (process.env.NODE_ENV === "production")
         }
     }
 }
-// App has to be manually started by units in Test mode.
-else if (process.env.NODE_ENV !== "test" || Config.configWasOverriden)
+// App has to be manually started by units in Test mode!
+// If we are not in a test environment, proceed with the bootup
+else if (process.env.NODE_ENV !== "test")
 {
     dendroInstance.killPM2InstancesIfRunning(function (err)
     {

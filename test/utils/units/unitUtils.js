@@ -537,6 +537,7 @@ exports.init = function (callback)
                 .get("/")
                 .end((err, res) =>
                 {
+                    Logger.log("debug", "Init started Dendro App and made a request to / ...");
                     Config.tests.app = appInfo.app;
                     Config.tests.dendroInstance = dendroInstance;
                     Config.tests.server = appInfo.server;

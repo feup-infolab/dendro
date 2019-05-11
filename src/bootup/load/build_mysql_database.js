@@ -22,7 +22,7 @@ const buildMySQLDatabase = function (app, callback)
             .authenticate()
             .then(() =>
             {
-                Logger.log_boot_message("Connected to MySQL!");
+                Logger.log_boot_message("Connected to MySQL for building database!");
 
                 const destroyDatabase = function ()
                 {
