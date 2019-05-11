@@ -1,8 +1,7 @@
 {
   "states":
   {
-    "TestUnit": {"depends_on": null, "path":  "test/units/testUnit.js"},
-    "BootupUnit": {"depends_on": "TestUnit", "path":  "test/units/bootup.Unit.js"},
+    "BootupUnit": {"depends_on": null, "path":  "test/units/bootup.Unit.js"},
     "LoadOntologies": {"depends_on": "BootupUnit", "path": "test/units/ontologies/loadOntologies.Unit.js"},
     "CreateUsersUnit": {"depends_on":  "LoadOntologies", "path":  "test/units/users/createUsers.Unit.js"},
     "CreateProjectsUnit": {"depends_on": "CreateUsersUnit", "path": "test/units/projects/createProjects.Unit.js"},
