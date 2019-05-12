@@ -57,5 +57,4 @@ class CreateAvatarsForUsers extends createUsersUnit
     }
 }
 
-
 module.exports = CreateAvatarsForUsers;

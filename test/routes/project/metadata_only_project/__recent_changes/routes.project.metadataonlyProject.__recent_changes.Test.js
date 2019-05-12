@@ -31,8 +31,8 @@ describe("metadata project recent changes", function ()
     before(function (done)
     {
         appUtils.newTestRouteLog(path.basename(__filename));
-            should.equal(err, null);
-            done();
+        should.equal(err, null);
+        done();
     });
 
     describe("[GET] /project/:handle?recent_changes", function ()

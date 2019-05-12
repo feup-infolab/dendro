@@ -48,18 +48,18 @@ describe("Upload files into testFolder1 of Private project", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-            should.equal(err, null);
+        should.equal(err, null);
 
-            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
+        {
+            folderUtils.getFolderContents(true, agent, privateProject.handle, testFolder1.name, function (err, res)
             {
-                folderUtils.getFolderContents(true, agent, privateProject.handle, testFolder1.name, function (err, res)
-                {
-                    res.statusCode.should.equal(200);
-                    should.equal(err, null);
-                    JSON.parse(res.text).should.be.instanceof(Array);
-                    done();
-                });
+                res.statusCode.should.equal(200);
+                should.equal(err, null);
+                JSON.parse(res.text).should.be.instanceof(Array);
+                done();
             });
+        });
     });
 
     describe("[POST] [PRIVATE PROJECT] [Invalid Cases] /project/" + privateProject.handle + "/data/:foldername?upload", function ()

@@ -55,5 +55,4 @@ class AddMetadataToFoldersPublicProject extends CreateFoldersPublicProject
     }
 }
 
-
 module.exports = AddMetadataToFoldersPublicProject;

@@ -29,8 +29,8 @@ describe("Private project testFolder2 level ?change_log", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-            should.equal(err, null);
-            done();
+        should.equal(err, null);
+        done();
     });
 
     describe("[GET] [PRIVATE PROJECT] /project/" + privateProject.handle + "/data/foldername?change_log", function ()

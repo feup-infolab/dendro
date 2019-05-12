@@ -44,8 +44,8 @@ describe("Create a new manual post tests", function ()
     before(function (done)
     {
         // creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
-            should.equal(err, null);
-            done();
+        should.equal(err, null);
+        done();
     });
 
     describe("[POST] [Public Project] create a new Manual Post /posts/new", function ()

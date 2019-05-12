@@ -32,8 +32,8 @@ describe("Metadata only project testFolder2 level recent changes", function ()
     {
         appUtils.newTestRouteLog(path.basename(__filename));
 
-            should.equal(err, null);
-            done();
+        should.equal(err, null);
+        done();
     });
 
     // GET ITEM RECENT CHANGES TESTS

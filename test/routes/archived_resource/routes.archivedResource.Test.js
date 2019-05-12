@@ -37,8 +37,8 @@ describe("Creation of archived versions", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-            should.equal(err, null);
-            done();
+        should.equal(err, null);
+        done();
     });
 
     // describe("[POST] [PRIVATE PROJECT] [Invalid Cases] /r/archived_resource/{uuid}", function()

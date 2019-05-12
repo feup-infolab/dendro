@@ -28,8 +28,8 @@ describe("Metadata only project level metadata tests", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-            should.equal(err, null);
-            done();
+        should.equal(err, null);
+        done();
     });
 
     describe(metadataProject.handle + "?metadata (metadata only project)", function ()

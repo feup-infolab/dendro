@@ -59,8 +59,10 @@ class CreateFoldersForLsByName extends CreateFolders
                             res.body.result.should.equal("ok");
                             res.body.new_folder.nie.title.should.equal("folderC");
                             res.body.new_folder.nie.isLogicalPartOf.should.match(appUtils.resource_id_uuid_regex("folder"));
-                            unitUtils.endLoad(CreateFoldersForLsByName);
-                            cb(err, res);
+                            unitUtils.endLoad(CreateFoldersForLsByName, function ()
+                            {
+                                cb(err, res);
+                            });
                         });
                     });
                 });
@@ -81,6 +83,5 @@ class CreateFoldersForLsByName extends CreateFolders
         super.setup(callback, forceLoad);
     }
 }
-
 
 module.exports = CreateFoldersForLsByName;

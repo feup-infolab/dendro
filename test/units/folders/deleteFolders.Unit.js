@@ -61,5 +61,4 @@ class DeleteFolders extends CreateFoldersUnit
     }
 }
 
-
 module.exports = DeleteFolders;

@@ -43,41 +43,41 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] select_ontology
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
+        should.equal(err, null);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+        {
             should.equal(err, null);
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            projectUtils.getProjectRootContent(true, agent, publicProject.handle, function (err, res)
             {
                 should.equal(err, null);
-                projectUtils.getProjectRootContent(true, agent, publicProject.handle, function (err, res)
+                should.exist(res);
+                projectRootData = res.body;
+                should.exist(projectRootData);
+                demouser1InteractionObj.interactionType = "select_ontology_manually";
+                demouser1InteractionObj.recommendedFor = projectRootData[0].uri;
+                demouser1InteractionObj.rankingPosition = 0;
+                demouser2InteractionObj.interactionType = "select_ontology_manually";
+                demouser2InteractionObj.recommendedFor = projectRootData[0].uri;
+                demouser2InteractionObj.rankingPosition = 0;
+                descriptorUtils.getDescriptorsFromOntology(true, agent, dctermsPrefix, function (err, res)
                 {
                     should.equal(err, null);
                     should.exist(res);
-                    projectRootData = res.body;
-                    should.exist(projectRootData);
-                    demouser1InteractionObj.interactionType = "select_ontology_manually";
-                    demouser1InteractionObj.recommendedFor = projectRootData[0].uri;
-                    demouser1InteractionObj.rankingPosition = 0;
-                    demouser2InteractionObj.interactionType = "select_ontology_manually";
-                    demouser2InteractionObj.recommendedFor = projectRootData[0].uri;
-                    demouser2InteractionObj.rankingPosition = 0;
-                    descriptorUtils.getDescriptorsFromOntology(true, agent, dctermsPrefix, function (err, res)
+                    should.exist(res.body.descriptors);
+                    should.exist(res.body.descriptors[0].ontology);
+                    demouser1InteractionObj.uri = res.body.descriptors[0].ontology;
+                    descriptorUtils.getDescriptorsFromOntology(true, agent, foafPrefix, function (err, res)
                     {
                         should.equal(err, null);
                         should.exist(res);
                         should.exist(res.body.descriptors);
                         should.exist(res.body.descriptors[0].ontology);
-                        demouser1InteractionObj.uri = res.body.descriptors[0].ontology;
-                        descriptorUtils.getDescriptorsFromOntology(true, agent, foafPrefix, function (err, res)
-                        {
-                            should.equal(err, null);
-                            should.exist(res);
-                            should.exist(res.body.descriptors);
-                            should.exist(res.body.descriptors[0].ontology);
-                            demouser2InteractionObj.uri = res.body.descriptors[0].ontology;
-                            done();
-                        });
+                        demouser2InteractionObj.uri = res.body.descriptors[0].ontology;
+                        done();
                     });
                 });
             });
+        });
     });
 
     describe("[POST] [Invalid Cases] /interactions/select_ontology_manually", function ()

@@ -31,8 +31,8 @@ describe("Backup Metadata Only project", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-            should.equal(err, null);
-            done();
+        should.equal(err, null);
+        done();
     });
 
     describe("[METADATA ONLY PROJECT] [Invalid Cases] /project/" + project.handle + "?bagit", function ()

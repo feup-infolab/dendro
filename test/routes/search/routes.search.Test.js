@@ -40,23 +40,23 @@ describe("/search", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-            should.not.exist(err);
+        should.not.exist(err);
 
-            userUtils.loginUser(admin.username, admin.password, function (err, agent)
-            {
-                administerUtils.reindexGraphs(
-                    agent,
-                    {
-                        graphs_to_reindex: ["dendro_graph", "social_dendro", "notifications_dendro"],
-                        graphs_to_delete: ["dendro_graph", "social_dendro", "notifications_dendro"]
-                    },
-                    function (err, res)
-                    {
-                        res.should.have.status(200);
-                        res.text.should.contain("System administration page");
-                        done(err);
-                    });
-            });
+        userUtils.loginUser(admin.username, admin.password, function (err, agent)
+        {
+            administerUtils.reindexGraphs(
+                agent,
+                {
+                    graphs_to_reindex: ["dendro_graph", "social_dendro", "notifications_dendro"],
+                    graphs_to_delete: ["dendro_graph", "social_dendro", "notifications_dendro"]
+                },
+                function (err, res)
+                {
+                    res.should.have.status(200);
+                    res.text.should.contain("System administration page");
+                    done(err);
+                });
+        });
     });
 
     describe("Generic search inside public projects", function ()

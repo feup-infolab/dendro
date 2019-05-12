@@ -28,8 +28,8 @@ describe("Public project root tests", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-            should.equal(err, null);
-            done();
+        should.equal(err, null);
+        done();
     });
 
     describe("/project/" + publicProject.handle + " (default case where the root of the project is shown, without any query)", function ()

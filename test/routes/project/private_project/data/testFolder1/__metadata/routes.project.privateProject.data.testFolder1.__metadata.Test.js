@@ -30,8 +30,8 @@ describe("Private project testFolder1 level metadata tests", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-            should.equal(err, null);
-            done();
+        should.equal(err, null);
+        done();
     });
 
     describe(privateProject.handle + "/data/" + testFolder1.name + "?metadata (private project)", function ()

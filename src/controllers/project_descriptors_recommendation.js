@@ -320,7 +320,12 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                                 {
                                     return _.find(results, function (userFavoriteDescriptor)
                                     {
-                                        return userFavoriteDescriptor.uri === descriptor.uri;
+                                        if (userFavoriteDescriptor)
+                                        {
+                                            return userFavoriteDescriptor.uri === descriptor.uri;
+                                        }
+
+                                        return false;
                                     });
                                 };
 

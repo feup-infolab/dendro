@@ -28,8 +28,8 @@ describe("Metadata only project level metadata&deep tests", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-            should.equal(err, null);
-            done();
+        should.equal(err, null);
+        done();
     });
 
     describe("/project/" + metadataProject.handle + "?metadata&deep (public project)", function ()

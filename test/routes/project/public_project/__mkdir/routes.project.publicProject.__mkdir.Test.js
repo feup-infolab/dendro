@@ -29,8 +29,8 @@ describe("Public Project mkdir", function (done)
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-            should.equal(err, null);
-            done();
+        should.equal(err, null);
+        done();
     });
 
     describe("[POST] /project/:handle?mkdir " + publicProject.handle, function ()

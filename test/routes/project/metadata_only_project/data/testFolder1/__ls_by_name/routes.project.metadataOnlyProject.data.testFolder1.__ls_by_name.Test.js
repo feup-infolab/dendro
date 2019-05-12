@@ -29,20 +29,20 @@ describe("Metadata only project testFolder1 level ls_by_name tests", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+        {
+            projectUtils.getProjectRootContent(true, agent, metadataProject.handle, function (err, info)
             {
-                projectUtils.getProjectRootContent(true, agent, metadataProject.handle, function (err, info)
+                let rootsFoldersForProject = info.body;
+                should.exist(rootsFoldersForProject);
+                testFolder1Data = _.find(rootsFoldersForProject, function (folder)
                 {
-                    let rootsFoldersForProject = info.body;
-                    should.exist(rootsFoldersForProject);
-                    testFolder1Data = _.find(rootsFoldersForProject, function (folder)
-                    {
-                        return folder.nie.title === testFolder1.name;
-                    });
-                    should.exist(testFolder1Data);
-                    done(err);
+                    return folder.nie.title === testFolder1.name;
                 });
+                should.exist(testFolder1Data);
+                done(err);
             });
+        });
     });
 
     describe("[GET] [FOLDER LEVEL] [METADATA ONLY PROJECT] /project/" + metadataProject.handle + "/data/:foldername?ls&title='folderA'", function ()

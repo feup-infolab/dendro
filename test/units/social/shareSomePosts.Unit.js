@@ -72,5 +72,4 @@ class ShareSomePosts extends CreateManualPostForAllProjectTypesUnit
     }
 }
 
-
 module.exports = ShareSomePosts;

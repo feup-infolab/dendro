@@ -115,5 +115,4 @@ class CreateProjects extends CreateUsersUnit
 
 CreateProjects.projectsData = projectsData;
 
-
 module.exports = CreateProjects;

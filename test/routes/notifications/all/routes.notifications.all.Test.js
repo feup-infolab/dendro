@@ -61,31 +61,31 @@ describe("Get all notifications URIs for a user tests", function ()
     before(function (done)
     {
         // creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
-            should.equal(err, null);
-            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
+        should.equal(err, null);
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
+        {
+            projectUtils.getProjectUriFromHandle(agent, publicProject.handle, function (err, res)
             {
-                projectUtils.getProjectUriFromHandle(agent, publicProject.handle, function (err, res)
+                publicProjectUri = res;
+                socialDendroUtils.createManualPostInProject(true, agent, publicProjectUri, manualPostMockData, function (err, res)
                 {
-                    publicProjectUri = res;
-                    socialDendroUtils.createManualPostInProject(true, agent, publicProjectUri, manualPostMockData, function (err, res)
+                    res.statusCode.should.equal(200);
+                    socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
                     {
                         res.statusCode.should.equal(200);
-                        socialDendroUtils.getPostsURIsForUser(true, agent, pageNumber, useRank, function (err, res)
+                        demouser2PostURIsArray = res.body;
+                        res.body.length.should.equal(30);
+                        socialDendroUtils.getPostUriPage(true, agent, demouser2PostURIsArray[0].uri, function (err, res)
                         {
-                            res.statusCode.should.equal(200);
-                            demouser2PostURIsArray = res.body;
-                            res.body.length.should.equal(30);
-                            socialDendroUtils.getPostUriPage(true, agent, demouser2PostURIsArray[0].uri, function (err, res)
-                            {
-                                res.statusCode.should.equal(200);// index 0 tem de ser o manual post que foi criado
-                                expect(res.body.rdf.type).to.include("http://dendro.fe.up.pt/ontology/0.1/ManualPost");
-                                manualPostCreatedByDemouser2 = demouser2PostURIsArray[0].uri;
-                                done();
-                            });
+                            res.statusCode.should.equal(200);// index 0 tem de ser o manual post que foi criado
+                            expect(res.body.rdf.type).to.include("http://dendro.fe.up.pt/ontology/0.1/ManualPost");
+                            manualPostCreatedByDemouser2 = demouser2PostURIsArray[0].uri;
+                            done();
                         });
                     });
                 });
             });
+        });
     });
 
     describe("[GET] Get all notifications URIs for a user /notifications/all", function ()

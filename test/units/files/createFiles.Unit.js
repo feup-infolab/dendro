@@ -72,7 +72,6 @@ class CreateFiles extends CreateFoldersUnit
     }
 }
 
-
 CreateFiles.allFiles = filesData;
 
 module.exports = CreateFiles;

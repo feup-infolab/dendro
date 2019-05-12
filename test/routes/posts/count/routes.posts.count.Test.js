@@ -35,8 +35,8 @@ describe("Get the number of posts of a specific user timeline tests", function (
     before(function (done)
     {
         // creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
-            should.equal(err, null);
-            done();
+        should.equal(err, null);
+        done();
     });
 
     describe("[GET] Get the number of posts of a specific user timeline /posts/count", function ()

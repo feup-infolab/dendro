@@ -61,5 +61,4 @@ class LikeSomePosts extends ShareSomePostsUnit
     }
 }
 
-
 module.exports = LikeSomePosts;

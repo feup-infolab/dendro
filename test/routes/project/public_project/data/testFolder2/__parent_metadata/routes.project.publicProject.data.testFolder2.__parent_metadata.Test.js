@@ -30,8 +30,8 @@ describe("Public project testFolder2 level parent_metadata tests", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-            should.equal(err, null);
-            done();
+        should.equal(err, null);
+        done();
     });
 
     describe("/project/" + publicProject.handle + "/data/" + testFolder2.name + "?parent_metadata (public project)", function ()

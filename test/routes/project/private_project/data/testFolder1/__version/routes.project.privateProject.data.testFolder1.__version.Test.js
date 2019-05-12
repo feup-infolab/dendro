@@ -29,8 +29,8 @@ describe("Private project testFolder1 level ?version", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-            should.equal(err, null);
-            done();
+        should.equal(err, null);
+        done();
     });
 
     describe("[GET] [PRIVATE PROJECT] /project/" + privateProject.handle + "/data/foldername?version", function ()

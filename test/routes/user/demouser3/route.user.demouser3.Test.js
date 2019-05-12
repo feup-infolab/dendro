@@ -20,9 +20,8 @@ describe("/user/demouser3", function (done)
 
     before(function (done)
     {
-
-            should.equal(err, null);
-            done();
+        should.equal(err, null);
+        done();
     });
 
     it("[JSON] should NOT access demouser3.username profile when given demouser3.username and NOT logged in", function (done)

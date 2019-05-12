@@ -61,41 +61,41 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] favorite_descri
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
+        should.equal(err, null);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+        {
             should.equal(err, null);
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            projectUtils.getProjectRootContent(true, agent, publicProject.handle, function (err, res)
             {
                 should.equal(err, null);
-                projectUtils.getProjectRootContent(true, agent, publicProject.handle, function (err, res)
+                should.exist(res);
+                projectRootData = res.body;
+                should.exist(projectRootData);
+                descriptorUtils.getDescriptorsFromOntology(true, agent, dctermsPrefix, function (err, res)
                 {
                     should.equal(err, null);
                     should.exist(res);
-                    projectRootData = res.body;
-                    should.exist(projectRootData);
-                    descriptorUtils.getDescriptorsFromOntology(true, agent, dctermsPrefix, function (err, res)
-                    {
-                        should.equal(err, null);
-                        should.exist(res);
-                        dctermsDescriptors = res.body.descriptors;
-                        should.exist(dctermsDescriptors);
-                        demouser1InteractionObj = dctermsDescriptors[0];
-                        demouser1InteractionObj.just_added = true;
-                        // demouser1InteractionObj.rankingPosition = index;
-                        demouser1InteractionObj.rankingPosition = 0;
-                        // demouser1InteractionObj.pageNumber = $scope.recommendations_page;
-                        demouser1InteractionObj.pageNumber = 2;
-                        demouser1InteractionObj.interactionType = "favorite_descriptor_from_manual_list_for_project";
-                        demouser1InteractionObj.recommendedFor = projectRootData[0].uri;
+                    dctermsDescriptors = res.body.descriptors;
+                    should.exist(dctermsDescriptors);
+                    demouser1InteractionObj = dctermsDescriptors[0];
+                    demouser1InteractionObj.just_added = true;
+                    // demouser1InteractionObj.rankingPosition = index;
+                    demouser1InteractionObj.rankingPosition = 0;
+                    // demouser1InteractionObj.pageNumber = $scope.recommendations_page;
+                    demouser1InteractionObj.pageNumber = 2;
+                    demouser1InteractionObj.interactionType = "favorite_descriptor_from_manual_list_for_project";
+                    demouser1InteractionObj.recommendedFor = projectRootData[0].uri;
 
-                        demouser2InteractionObj = dctermsDescriptors[1];
-                        demouser2InteractionObj.just_added = true;
-                        demouser2InteractionObj.rankingPosition = 0;
-                        demouser2InteractionObj.pageNumber = 2;
-                        demouser2InteractionObj.interactionType = "favorite_descriptor_from_manual_list_for_project";
-                        demouser2InteractionObj.recommendedFor = projectRootData[0].uri;
-                        done();
-                    });
+                    demouser2InteractionObj = dctermsDescriptors[1];
+                    demouser2InteractionObj.just_added = true;
+                    demouser2InteractionObj.rankingPosition = 0;
+                    demouser2InteractionObj.pageNumber = 2;
+                    demouser2InteractionObj.interactionType = "favorite_descriptor_from_manual_list_for_project";
+                    demouser2InteractionObj.recommendedFor = projectRootData[0].uri;
+                    done();
                 });
             });
+        });
     });
 
     describe("[POST] [Invalid Cases] /interactions/favorite_descriptor_from_manual_list_for_project", function ()

@@ -31,8 +31,8 @@ describe("Public project testFolder1 level recent changes", function ()
     before(function (done)
     {
         appUtils.newTestRouteLog(path.basename(__filename));
-            should.equal(err, null);
-            done();
+        should.equal(err, null);
+        done();
     });
 
     // GET ITEM RECENT CHANGES TESTS

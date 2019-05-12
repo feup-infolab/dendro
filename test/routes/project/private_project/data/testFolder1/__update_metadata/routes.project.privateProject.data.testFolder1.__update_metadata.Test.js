@@ -30,9 +30,8 @@ describe("Private project testFolder1 level update_metadata", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-
-            should.equal(err, null);
-            done();
+        should.equal(err, null);
+        done();
     });
 
     describe("[POST] [PRIVATE PROJECT] /project/" + privateProject.handle + "/data/:foldername?update_metadata", function ()

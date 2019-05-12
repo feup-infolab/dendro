@@ -35,17 +35,17 @@ describe("Private project testFolder1 ?rename", function ()
     {
         before(function (done)
         {
-                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                folderUtils.getFolderContents(true, agent, privateProject.handle, testFolder1.name, function (err, res)
                 {
-                    folderUtils.getFolderContents(true, agent, privateProject.handle, testFolder1.name, function (err, res)
-                    {
-                        res.statusCode.should.equal(200);
-                        should.equal(err, null);
-                        JSON.parse(res.text).should.be.instanceof(Array);
-                        should.equal(err, null);
-                        done();
-                    });
+                    res.statusCode.should.equal(200);
+                    should.equal(err, null);
+                    JSON.parse(res.text).should.be.instanceof(Array);
+                    should.equal(err, null);
+                    done();
                 });
+            });
         });
 
         it("Should give an error when the user is unauthenticated", function (done)

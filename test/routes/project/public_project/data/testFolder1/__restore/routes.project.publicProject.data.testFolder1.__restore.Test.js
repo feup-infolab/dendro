@@ -86,31 +86,31 @@ describe("Public project testFolder1 level restore folder tests", function ()
     let folderDebug3Uri;
     before(function (done)
     {
-            try
+        try
+        {
+            const app = Config.tests.app;
+            const agent = chai.request.agent(app);
+            projectUtils.getProjectRootContent(true, agent, publicProject.handle, function (err, res)
             {
-                const app = Config.tests.app;
-                const agent = chai.request.agent(app);
-                projectUtils.getProjectRootContent(true, agent, publicProject.handle, function (err, res)
+                should.equal(err, null);
+                // set here the testFolder1Data
+                testFolder1Data = _.find(res.body, function (folder)
                 {
-                    should.equal(err, null);
-                    // set here the testFolder1Data
-                    testFolder1Data = _.find(res.body, function (folder)
-                    {
-                        return folder.nie.title === testFolder1.name;
-                    });
-                    should.exist(testFolder1Data);
-                    restoredFolderData = _.find(res.body, function (folder)
-                    {
-                        return folder.nie.title === restoredFolderName;
-                    });
-                    should.not.exist(restoredFolderData);
-                    done();
+                    return folder.nie.title === testFolder1.name;
                 });
-            }
-            catch (error)
-            {
-                done(error);
-            }
+                should.exist(testFolder1Data);
+                restoredFolderData = _.find(res.body, function (folder)
+                {
+                    return folder.nie.title === restoredFolderName;
+                });
+                should.not.exist(restoredFolderData);
+                done();
+            });
+        }
+        catch (error)
+        {
+            done(error);
+        }
     });
 
     describe("[POST] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/testFolder1?restore", function ()

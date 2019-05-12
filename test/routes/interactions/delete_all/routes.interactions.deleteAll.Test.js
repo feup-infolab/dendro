@@ -61,110 +61,109 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] delete_all", fu
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
+        should.equal(err, null);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+        {
             should.equal(err, null);
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            projectUtils.getProjectRootContent(true, agent, publicProject.handle, function (err, res)
             {
                 should.equal(err, null);
-                projectUtils.getProjectRootContent(true, agent, publicProject.handle, function (err, res)
+                should.exist(res);
+                projectRootData = res.body;
+                should.exist(projectRootData);
+                descriptorUtils.getDescriptorsFromOntology(true, agent, dctermsPrefix, function (err, res)
                 {
                     should.equal(err, null);
                     should.exist(res);
-                    projectRootData = res.body;
-                    should.exist(projectRootData);
-                    descriptorUtils.getDescriptorsFromOntology(true, agent, dctermsPrefix, function (err, res)
+                    dctermsDescriptors = res.body.descriptors;
+                    should.exist(dctermsDescriptors);
+                    demouser1InteractionObj = dctermsDescriptors[0];
+                    demouser1InteractionObj.just_added = true;
+                    demouser1InteractionObj.added_from_quick_list = true;
+                    // demouser1InteractionObj.rankingPosition = index;
+                    demouser1InteractionObj.rankingPosition = 0;
+                    // demouser1InteractionObj.pageNumber = $scope.recommendations_page;
+                    demouser1InteractionObj.pageNumber = 2;
+                    demouser1InteractionObj.interactionType = "accept_descriptor_from_quick_list";
+                    demouser1InteractionObj.recommendedFor = projectRootData[0].uri;
+
+                    demouser2InteractionObj = dctermsDescriptors[1];
+                    demouser2InteractionObj.just_added = true;
+                    demouser2InteractionObj.added_from_quick_list = true;
+                    demouser2InteractionObj.rankingPosition = 0;
+                    demouser2InteractionObj.pageNumber = 2;
+                    demouser2InteractionObj.interactionType = "accept_descriptor_from_quick_list";
+                    demouser2InteractionObj.recommendedFor = projectRootData[0].uri;
+
+                    userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                     {
-                        should.equal(err, null);
-                        should.exist(res);
-                        dctermsDescriptors = res.body.descriptors;
-                        should.exist(dctermsDescriptors);
-                        demouser1InteractionObj = dctermsDescriptors[0];
-                        demouser1InteractionObj.just_added = true;
-                        demouser1InteractionObj.added_from_quick_list = true;
-                        // demouser1InteractionObj.rankingPosition = index;
-                        demouser1InteractionObj.rankingPosition = 0;
-                        // demouser1InteractionObj.pageNumber = $scope.recommendations_page;
-                        demouser1InteractionObj.pageNumber = 2;
-                        demouser1InteractionObj.interactionType = "accept_descriptor_from_quick_list";
-                        demouser1InteractionObj.recommendedFor = projectRootData[0].uri;
-
-                        demouser2InteractionObj = dctermsDescriptors[1];
-                        demouser2InteractionObj.just_added = true;
-                        demouser2InteractionObj.added_from_quick_list = true;
-                        demouser2InteractionObj.rankingPosition = 0;
-                        demouser2InteractionObj.pageNumber = 2;
-                        demouser2InteractionObj.interactionType = "accept_descriptor_from_quick_list";
-                        demouser2InteractionObj.recommendedFor = projectRootData[0].uri;
-
-                        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+                        userUtils.getUserInfo(demouser1.username, true, agent, function (err, res)
                         {
-                            userUtils.getUserInfo(demouser1.username, true, agent, function (err, res)
+                            should.equal(err, null);
+                            should.exist(res);
+                            should.exist(res.body);
+                            should.exist(res.body.uri);
+                            let demouser1Uri = res.body.uri;
+                            interactionsUtils.acceptDescriptorFromQuickList(true, agent, demouser1InteractionObj, function (err, res)
                             {
                                 should.equal(err, null);
-                                should.exist(res);
-                                should.exist(res.body);
-                                should.exist(res.body.uri);
-                                let demouser1Uri = res.body.uri;
-                                interactionsUtils.acceptDescriptorFromQuickList(true, agent, demouser1InteractionObj, function (err, res)
+                                res.statusCode.should.equal(200);
+                                // SHOULD ALSO BE IN THE MYSQL DATABASE
+                                interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
                                 {
                                     should.equal(err, null);
-                                    res.statusCode.should.equal(200);
-                                    // SHOULD ALSO BE IN THE MYSQL DATABASE
-                                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                                    should.exist(info);
+                                    info[0].nInteractions.should.equal(1);
+                                    interactionsUtils.getLatestInteractionInDB(function (err, info)
                                     {
                                         should.equal(err, null);
                                         should.exist(info);
-                                        info[0].nInteractions.should.equal(1);
-                                        interactionsUtils.getLatestInteractionInDB(function (err, info)
+                                        info.length.should.equal(1);
+                                        demouser1InteractionObj.uri.should.not.equal(demouser2InteractionObj.uri);
+                                        info[0].executedOver.should.equal(demouser1InteractionObj.uri);
+                                        info[0].interactionType.should.equal(demouser1InteractionObj.interactionType);
+                                        info[0].originallyRecommendedFor.should.equal(demouser1InteractionObj.recommendedFor);
+                                        info[0].pageNumber.should.equal(demouser1InteractionObj.pageNumber);
+                                        info[0].performedBy.should.equal(demouser1Uri);
+                                        info[0].rankingPosition.should.equal(demouser1InteractionObj.rankingPosition);
+                                        info[0].recommendationCallId.should.equal(demouser1InteractionObj.recommendationCallId);
+                                        should.exist(info[0].uri);
+                                        info[0].uri.should.contain("interaction");
+                                        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
                                         {
-                                            should.equal(err, null);
-                                            should.exist(info);
-                                            info.length.should.equal(1);
-                                            demouser1InteractionObj.uri.should.not.equal(demouser2InteractionObj.uri);
-                                            info[0].executedOver.should.equal(demouser1InteractionObj.uri);
-                                            info[0].interactionType.should.equal(demouser1InteractionObj.interactionType);
-                                            info[0].originallyRecommendedFor.should.equal(demouser1InteractionObj.recommendedFor);
-                                            info[0].pageNumber.should.equal(demouser1InteractionObj.pageNumber);
-                                            info[0].performedBy.should.equal(demouser1Uri);
-                                            info[0].rankingPosition.should.equal(demouser1InteractionObj.rankingPosition);
-                                            info[0].recommendationCallId.should.equal(demouser1InteractionObj.recommendationCallId);
-                                            should.exist(info[0].uri);
-                                            info[0].uri.should.contain("interaction");
-                                            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
+                                            userUtils.getUserInfo(demouser2.username, true, agent, function (err, res)
                                             {
-                                                userUtils.getUserInfo(demouser2.username, true, agent, function (err, res)
+                                                should.equal(err, null);
+                                                should.exist(res);
+                                                should.exist(res.body);
+                                                should.exist(res.body.uri);
+                                                let demouser2Uri = res.body.uri;
+                                                interactionsUtils.acceptDescriptorFromQuickList(true, agent, demouser2InteractionObj, function (err, res)
                                                 {
                                                     should.equal(err, null);
-                                                    should.exist(res);
-                                                    should.exist(res.body);
-                                                    should.exist(res.body.uri);
-                                                    let demouser2Uri = res.body.uri;
-                                                    interactionsUtils.acceptDescriptorFromQuickList(true, agent, demouser2InteractionObj, function (err, res)
+                                                    res.statusCode.should.equal(200);
+                                                    // SHOULD ALSO BE IN THE MYSQL DATABASE
+                                                    interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
                                                     {
                                                         should.equal(err, null);
-                                                        res.statusCode.should.equal(200);
-                                                        // SHOULD ALSO BE IN THE MYSQL DATABASE
-                                                        interactionsUtils.getNumberOfInteractionsInDB(function (err, info)
+                                                        should.exist(info);
+                                                        info[0].nInteractions.should.equal(2);
+                                                        interactionsUtils.getLatestInteractionInDB(function (err, info)
                                                         {
                                                             should.equal(err, null);
                                                             should.exist(info);
-                                                            info[0].nInteractions.should.equal(2);
-                                                            interactionsUtils.getLatestInteractionInDB(function (err, info)
-                                                            {
-                                                                should.equal(err, null);
-                                                                should.exist(info);
-                                                                info.length.should.equal(1);
-                                                                demouser1InteractionObj.uri.should.not.equal(demouser2InteractionObj.uri);
-                                                                info[0].executedOver.should.equal(demouser2InteractionObj.uri);
-                                                                info[0].interactionType.should.equal(demouser2InteractionObj.interactionType);
-                                                                info[0].originallyRecommendedFor.should.equal(demouser2InteractionObj.recommendedFor);
-                                                                info[0].pageNumber.should.equal(demouser2InteractionObj.pageNumber);
-                                                                info[0].performedBy.should.equal(demouser2Uri);
-                                                                info[0].rankingPosition.should.equal(demouser2InteractionObj.rankingPosition);
-                                                                info[0].recommendationCallId.should.equal(demouser2InteractionObj.recommendationCallId);
-                                                                should.exist(info[0].uri);
-                                                                info[0].uri.should.contain("interaction");
-                                                                done();
-                                                            });
+                                                            info.length.should.equal(1);
+                                                            demouser1InteractionObj.uri.should.not.equal(demouser2InteractionObj.uri);
+                                                            info[0].executedOver.should.equal(demouser2InteractionObj.uri);
+                                                            info[0].interactionType.should.equal(demouser2InteractionObj.interactionType);
+                                                            info[0].originallyRecommendedFor.should.equal(demouser2InteractionObj.recommendedFor);
+                                                            info[0].pageNumber.should.equal(demouser2InteractionObj.pageNumber);
+                                                            info[0].performedBy.should.equal(demouser2Uri);
+                                                            info[0].rankingPosition.should.equal(demouser2InteractionObj.rankingPosition);
+                                                            info[0].recommendationCallId.should.equal(demouser2InteractionObj.recommendationCallId);
+                                                            should.exist(info[0].uri);
+                                                            info[0].uri.should.contain("interaction");
+                                                            done();
                                                         });
                                                     });
                                                 });
@@ -177,6 +176,7 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] delete_all", fu
                     });
                 });
             });
+        });
     });
 
     describe("[POST] [Invalid Cases] /interactions/delete_all", function ()

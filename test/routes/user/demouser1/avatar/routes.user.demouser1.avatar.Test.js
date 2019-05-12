@@ -19,9 +19,8 @@ describe("[GET] /user/demouser1?avatar", function (done)
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-
-            should.equal(err, null);
-            done();
+        should.equal(err, null);
+        done();
     });
 
     const demouser1 = rlequire("dendro", "test/mockdata/users/demouser1.js");

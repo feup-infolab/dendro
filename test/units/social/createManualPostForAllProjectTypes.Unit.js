@@ -74,5 +74,4 @@ class CreateManuaLPostForAllProjectTypes extends UploadFilesAndAddMetadataUnit
     }
 }
 
-
 module.exports = CreateManuaLPostForAllProjectTypes;

@@ -103,5 +103,4 @@ class CreateFolders extends AddContributorsToProjectsUnit
 
 CreateFolders.foldersData = foldersData;
 
-
 module.exports = CreateFolders;

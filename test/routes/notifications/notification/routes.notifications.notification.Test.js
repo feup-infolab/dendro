@@ -41,8 +41,8 @@ describe("Get a specific notification information tests", function ()
     {
         // creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
 
-            should.equal(err, null);
-            done();
+        should.equal(err, null);
+        done();
     });
 
     describe("[GET] Get a specific notification information /notifications/notification", function ()

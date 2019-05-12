@@ -29,8 +29,8 @@ describe("Metadata only project testFolder2 level restore_metadata_version", fun
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-            should.equal(err, null);
-            done();
+        should.equal(err, null);
+        done();
     });
 
     describe("[POST] [METADATA ONLY PROJECT] /project/" + metadataProject.handle + "/data/foldername?restore_metadata_version", function ()

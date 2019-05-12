@@ -29,9 +29,8 @@ describe("Metadata only project testFolder2 level soft delete tests", function (
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-
-            should.equal(err, null);
-            done();
+        should.equal(err, null);
+        done();
     });
 
     describe("[DELETE] [DELETE FOLDER LEVEL] [METADATA ONLY PROJECT] /project/" + metadataProject.handle + "/data/:foldername?delete", function ()

@@ -61,43 +61,43 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] fill_in_descrip
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
+        should.equal(err, null);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+        {
             should.equal(err, null);
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            projectUtils.getProjectRootContent(true, agent, publicProject.handle, function (err, res)
             {
                 should.equal(err, null);
-                projectUtils.getProjectRootContent(true, agent, publicProject.handle, function (err, res)
+                should.exist(res);
+                projectRootData = res.body;
+                should.exist(projectRootData);
+                descriptorUtils.getDescriptorsFromOntology(true, agent, dctermsPrefix, function (err, res)
                 {
                     should.equal(err, null);
                     should.exist(res);
-                    projectRootData = res.body;
-                    should.exist(projectRootData);
-                    descriptorUtils.getDescriptorsFromOntology(true, agent, dctermsPrefix, function (err, res)
-                    {
-                        should.equal(err, null);
-                        should.exist(res);
-                        dctermsDescriptors = res.body.descriptors;
-                        should.exist(dctermsDescriptors);
-                        demouser1InteractionObj = dctermsDescriptors[0];
-                        demouser1InteractionObj.just_added = true;
-                        demouser1InteractionObj.added_from_quick_list = true;
-                        // demouser1InteractionObj.rankingPosition = index;
-                        demouser1InteractionObj.rankingPosition = 0;
-                        // demouser1InteractionObj.pageNumber = $scope.recommendations_page;
-                        demouser1InteractionObj.pageNumber = 2;
-                        demouser1InteractionObj.interactionType = "fill_in_descriptor_from_manual_list_in_metadata_editor";
-                        demouser1InteractionObj.recommendedFor = projectRootData[0].uri;
+                    dctermsDescriptors = res.body.descriptors;
+                    should.exist(dctermsDescriptors);
+                    demouser1InteractionObj = dctermsDescriptors[0];
+                    demouser1InteractionObj.just_added = true;
+                    demouser1InteractionObj.added_from_quick_list = true;
+                    // demouser1InteractionObj.rankingPosition = index;
+                    demouser1InteractionObj.rankingPosition = 0;
+                    // demouser1InteractionObj.pageNumber = $scope.recommendations_page;
+                    demouser1InteractionObj.pageNumber = 2;
+                    demouser1InteractionObj.interactionType = "fill_in_descriptor_from_manual_list_in_metadata_editor";
+                    demouser1InteractionObj.recommendedFor = projectRootData[0].uri;
 
-                        demouser2InteractionObj = dctermsDescriptors[1];
-                        demouser2InteractionObj.just_added = true;
-                        demouser2InteractionObj.added_from_quick_list = true;
-                        demouser2InteractionObj.rankingPosition = 0;
-                        demouser2InteractionObj.pageNumber = 2;
-                        demouser2InteractionObj.interactionType = "fill_in_descriptor_from_manual_list_in_metadata_editor";
-                        demouser2InteractionObj.recommendedFor = projectRootData[0].uri;
-                        done();
-                    });
+                    demouser2InteractionObj = dctermsDescriptors[1];
+                    demouser2InteractionObj.just_added = true;
+                    demouser2InteractionObj.added_from_quick_list = true;
+                    demouser2InteractionObj.rankingPosition = 0;
+                    demouser2InteractionObj.pageNumber = 2;
+                    demouser2InteractionObj.interactionType = "fill_in_descriptor_from_manual_list_in_metadata_editor";
+                    demouser2InteractionObj.recommendedFor = projectRootData[0].uri;
+                    done();
                 });
             });
+        });
     });
 
     describe("[POST] [Invalid Cases] /interactions/fill_in_descriptor_from_manual_list_in_metadata_editor", function ()

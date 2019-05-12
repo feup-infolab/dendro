@@ -76,5 +76,4 @@ class CreateFoldersSingleProject extends AddContributorsToProjectsUnit
 
 CreateFoldersSingleProject.foldersData = foldersData;
 
-
 module.exports = CreateFoldersSingleProject;

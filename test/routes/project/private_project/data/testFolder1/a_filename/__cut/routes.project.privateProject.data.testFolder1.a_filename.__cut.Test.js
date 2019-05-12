@@ -36,20 +36,20 @@ describe("[File Cut / Move] [Private project] cutFiles ?paste", function ()
     {
         beforeEach(function (done)
         {
-                should.equal(err, null);
+            should.equal(err, null);
 
-                userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
+            {
+                folderUtils.getFolderContents(true, agent, privateProject.handle, testFolder1.name, function (err, res)
                 {
-                    folderUtils.getFolderContents(true, agent, privateProject.handle, testFolder1.name, function (err, res)
-                    {
-                        res.statusCode.should.equal(200);
-                        should.equal(err, null);
-                        JSON.parse(res.text).should.be.instanceof(Array);
-                        JSON.parse(res.text).length.should.equal(allFiles.length);
-                        should.equal(folderUtils.responseContainsAllMockFiles(res, allFiles), true);
-                        done();
-                    });
+                    res.statusCode.should.equal(200);
+                    should.equal(err, null);
+                    JSON.parse(res.text).should.be.instanceof(Array);
+                    JSON.parse(res.text).length.should.equal(allFiles.length);
+                    should.equal(folderUtils.responseContainsAllMockFiles(res, allFiles), true);
+                    done();
                 });
+            });
         });
 
         it("Should give an error if the request is of type HTML even if the user is logged in as demouser1 (the creator of the project)", function (done)

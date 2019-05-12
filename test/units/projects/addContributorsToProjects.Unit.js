@@ -79,5 +79,4 @@ class AddContributorsToProjects extends CreateProjectsUnit
     }
 }
 
-
 module.exports = AddContributorsToProjects;

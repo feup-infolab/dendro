@@ -90,5 +90,4 @@ class UploadFilesAndAddMetadata extends AddMetadataToFoldersUnit
     }
 }
 
-
 module.exports = UploadFilesAndAddMetadata;

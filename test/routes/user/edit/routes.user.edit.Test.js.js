@@ -63,9 +63,8 @@ describe("[POST] /user/edit", function (done)
 
     before(function (done)
     {
-
-            should.equal(err, null);
-            done();
+        should.equal(err, null);
+        done();
     });
 
     it("[HTML] should give an unauthorized error if the current user is not authenticated", function (done)

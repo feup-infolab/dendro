@@ -32,9 +32,8 @@ describe("Public project recent changes", function ()
     {
         appUtils.newTestRouteLog(path.basename(__filename));
 
-            should.equal(err, null);
-            done();
-
+        should.equal(err, null);
+        done();
     });
 
     describe("[GET] /project/:handle?recent_changes", function ()
