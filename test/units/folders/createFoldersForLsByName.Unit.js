@@ -30,7 +30,7 @@ class CreateFoldersForLsByName extends CreateFolders
     static load (callback)
     {
         const self = this;
-        unitUtils.startLoad(self);
+        unitUtils.startLoad(CreateFoldersForLsByName);
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
         {
             should.equal(err, null);
@@ -59,6 +59,7 @@ class CreateFoldersForLsByName extends CreateFolders
                             res.body.result.should.equal("ok");
                             res.body.new_folder.nie.title.should.equal("folderC");
                             res.body.new_folder.nie.isLogicalPartOf.should.match(appUtils.resource_id_uuid_regex("folder"));
+                            unitUtils.endLoad(CreateFoldersForLsByName);
                             cb(err, res);
                         });
                     });

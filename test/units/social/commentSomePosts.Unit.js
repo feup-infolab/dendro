@@ -21,7 +21,7 @@ class CommentSomePosts extends LikeSomePostsUnit
     static load (callback)
     {
         const self = this;
-        unitUtils.startLoad(self);
+        unitUtils.startLoad(CommentSomePosts);
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
         {
             if (err)
@@ -42,7 +42,7 @@ class CommentSomePosts extends LikeSomePostsUnit
                         {
                             if (!err)
                             {
-                                unitUtils.endLoad(self, function (err)
+                                unitUtils.endLoad(CommentSomePosts, function (err)
                                 {
                                     callback(err, res);
                                 });
@@ -76,6 +76,5 @@ class CommentSomePosts extends LikeSomePostsUnit
         super.setup(callback, forceLoad);
     }
 }
-
 
 module.exports = CommentSomePosts;

@@ -23,7 +23,7 @@ const initMySQL = function (app, callback)
             .authenticate()
             .then(() =>
             {
-                Logger.log_boot_message("Connected to MySQL!");
+                Logger.log_boot_message("Connected to MySQL during initialization of database!");
                 return callback(null);
             })
             .catch(err =>

@@ -16,10 +16,10 @@ class LoadOntologies extends BootupUnit
     static load (callback)
     {
         const self = this;
-        unitUtils.startLoad(self);
+        unitUtils.startLoad(LoadOntologies);
         loadOntologies(null, function (err, result)
         {
-            unitUtils.endLoad(self, callback);
+            unitUtils.endLoad(LoadOntologies, callback);
         }, true);
     }
 

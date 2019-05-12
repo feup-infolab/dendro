@@ -30,7 +30,7 @@ class CreateAllFoldersAndAllFilesInsideThemWithMetadata extends AddMetadataToFol
     static load (callback)
     {
         const self = this;
-        unitUtils.startLoad(self);
+        unitUtils.startLoad(CreateAllFoldersAndAllFilesInsideThemWithMetadata);
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
         {
             if (err)
@@ -70,7 +70,7 @@ class CreateAllFoldersAndAllFilesInsideThemWithMetadata extends AddMetadataToFol
                     });
                 }, function (err, results)
                 {
-                    unitUtils.endLoad(self, callback);
+                    unitUtils.endLoad(CreateAllFoldersAndAllFilesInsideThemWithMetadata, callback);
                 });
             }
         });

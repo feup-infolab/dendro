@@ -16,7 +16,7 @@ class ClearCkanOrganizationState extends UploadFileToProjectFoldersUnit
     static load (callback)
     {
         const self = this;
-        unitUtils.startLoad(self);
+        unitUtils.startLoad(ClearCkanOrganizationState);
         console.log("---------- RUNNING UNIT clearCkanOrganizationState for: " + publicProject.handle + " ----------");
 
         ckanTestUtils.deleteAllPackagesFromOrganization(true, agent, ckan, ckanOrganizationData, function (err, data)
@@ -48,7 +48,7 @@ class ClearCkanOrganizationState extends UploadFileToProjectFoldersUnit
                     {
                         if (data.error.name[0] === "Group name already exists in database")
                         {
-                            unitUtils.endLoad(self, callback);
+                            unitUtils.endLoad(ClearCkanOrganizationState, callback);
                         }
                         else
                         {
@@ -57,7 +57,7 @@ class ClearCkanOrganizationState extends UploadFileToProjectFoldersUnit
                     }
                     else
                     {
-                        unitUtils.endLoad(self, callback);
+                        unitUtils.endLoad(ClearCkanOrganizationState, callback);
                     }
                 });
             }

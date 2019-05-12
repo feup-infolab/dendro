@@ -16,14 +16,13 @@ class BootupUnit extends TestUnit
 {
     static load (callback)
     {
-        const self = this;
-        unitUtils.startLoad(self);
-        const dendroInstance = Config.tests.dendroInstance;
+        unitUtils.startLoad(BootupUnit);
+        const dendroInstance = rlequire("dendro", "src/app.js").getDendroInstance();
         dendroInstance.seedDatabases(function (err, result)
         {
             if (isNull(err))
             {
-                unitUtils.endLoad(self, function (err, results)
+                unitUtils.endLoad(BootupUnit, function (err, results)
                 {
                     callback(err, dendroInstance.app);
                 });

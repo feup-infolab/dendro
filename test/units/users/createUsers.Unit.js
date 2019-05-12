@@ -17,8 +17,7 @@ class CreateUsers extends LoadOntologies
 {
     static load (callback)
     {
-        const self = this;
-        unitUtils.startLoad(self);
+        unitUtils.startLoad(CreateUsers);
         const createUser = function (user, callback)
         {
             User.findByUsername(user.username, function (err, existingUser)
@@ -172,7 +171,7 @@ class CreateUsers extends LoadOntologies
         {
             if (!err)
             {
-                unitUtils.endLoad(self, function (err, results)
+                unitUtils.endLoad(CreateUsers, function (err, results)
                 {
                     callback(err, results);
                 });

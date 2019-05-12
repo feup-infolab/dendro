@@ -24,7 +24,7 @@ class ExportFoldersToCkanRepository extends createExportToRepositoriesConfig
     static load (callback)
     {
         const self = this;
-        unitUtils.startLoad(self);
+        unitUtils.startLoad(ExportFoldersToCkanRepository);
         console.log("---------- RUNNING UNIT exportFoldersToCkanRepository for: " + project.handle + " ----------");
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
         {
@@ -75,12 +75,12 @@ class ExportFoldersToCkanRepository extends createExportToRepositoriesConfig
                                 {
                                     repositoryUtils.exportFolderByUriToRepository(true, folder.uri, agent, {repository: ckanData}, function (err, res)
                                     {
-                                        Logger.log("exportFolderByUriToRepository res is: " + JSON.stringify(res);
+                                        Logger.log("exportFolderByUriToRepository res is: " + JSON.stringify(res));
                                         cb(err, res);
                                     });
                                 }, function (err, results)
                                 {
-                                    unitUtils.endLoad(self, callback);
+                                    unitUtils.endLoad(ExportFoldersToCkanRepository, callback);
                                 });
                             });
                         }

@@ -23,7 +23,7 @@ class CreateProjectB2Drop extends CreateUsersUnit
     static load (callback)
     {
         const self = this;
-        unitUtils.startLoad(self);
+        unitUtils.startLoad(CreateProjectB2Drop);
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
         {
             if (err)
@@ -52,7 +52,7 @@ class CreateProjectB2Drop extends CreateUsersUnit
                         });
                     }, function (err, results)
                     {
-                        unitUtils.endLoad(self, callback);
+                        unitUtils.endLoad(CreateProjectB2Drop, callback);
                     });
                 });
             }

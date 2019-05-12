@@ -1359,9 +1359,9 @@ DbConnection.prototype.close = function (callback)
 
     const sendCheckpointCommand = function (callback)
     {
-        Logger.log("Committing pending transactions via checkpoint; command before shutting down virtuoso....");
         if (Config.docker.active && Config.docker.virtuoso_container_name)
         {
+            Logger.log("Committing pending transactions via checkpoint; command before shutting down virtuoso....");
             const checkpointCommand = `isql 1111 -U ${self.username} -P ${self.password} 'EXEC=checkpoint;'`;
             DockerManager.runCommandOnContainer(Config.docker.virtuoso_container_name, checkpointCommand, function (err, result)
             {
@@ -1377,6 +1377,10 @@ DbConnection.prototype.close = function (callback)
                     callback(null, result);
                 }
             });
+        }
+        else
+        {
+            callback(null);
         }
     };
 
@@ -1454,7 +1458,11 @@ DbConnection.prototype.close = function (callback)
     {
         if (self.forceShutdownOnConnectionClose)
         {
-            if (Config.docker.active && Config.docker.virtuoso_container_name)
+            if (!Config.docker.active)
+            {
+                callback(null);
+            }
+            else if (Config.docker.active && Config.docker.virtuoso_container_name)
             {
                 Logger.log("Shutting down virtuoso in Docker container " + Config.docker.virtuoso_container_name + "....!");
 

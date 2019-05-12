@@ -29,7 +29,7 @@ class AddMetadataToFolders extends CreateFoldersUnit
     static load (callback)
     {
         const self = this;
-        unitUtils.startLoad(self);
+        unitUtils.startLoad(AddMetadataToFolders);
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
         {
             if (err)
@@ -54,7 +54,7 @@ class AddMetadataToFolders extends CreateFoldersUnit
                 {
                     if (isNull(err))
                     {
-                        unitUtils.endLoad(self, function (err, results)
+                        unitUtils.endLoad(AddMetadataToFolders, function (err, results)
                         {
                             callback(err, results);
                         });

@@ -5,6 +5,7 @@ const npid = require("npid");
 const mkdirp = require("mkdirp");
 const _ = require("underscore");
 const rlequire = require("rlequire");
+const request = require("request");
 const Job = rlequire("dendro", "src/models/jobs/Job.js").Job;
 
 let appDir;
@@ -413,21 +414,31 @@ class App
                 {
                     self.server = server;
 
-                    if (process.env.NODE_ENV !== "test")
-                    {
-                        // dont start server twice (for testing)
-                        // http://www.marcusoft.net/2015/10/eaddrinuse-when-watching-tests-with-mocha-and-supertest.html
+                    // dont start server twice (for testing)
+                    // http://www.marcusoft.net/2015/10/eaddrinuse-when-watching-tests-with-mocha-and-supertest.html
 
-                        rlequire("dendro", "src/bootup/init/start_server.js").startServer(app, server, function (err, result)
-                        {
-                            return callback(err);
-                        });
-                    }
-                    else
+                    rlequire("dendro", "src/bootup/init/start_server.js").startServer(app, server, function (err, result)
                     {
-                        Logger.log("Completed initialization in test mode... Units should start to load now.");
-                        return callback(null);
-                    }
+                        if (process.env.NODE_ENV === "test")
+                        {
+                            Logger.log("Completed initialization in test mode... Units should start to load now.");
+                            return callback(null);
+                        }
+
+                        return callback(err);
+                    });
+                },
+                function (callback)
+                {
+                    App.checkConnectivity(function (err, res)
+                    {
+                        if (isNull(err))
+                        {
+                            Logger.log("debug", "Dendro App connectivity verified via request to http://localhost:" + Config.port);
+                        }
+
+                        callback(err, res);
+                    });
                 }
             ], function (err, result)
             {
@@ -676,6 +687,7 @@ class App
 
         const closeAgenda = function (cb)
         {
+            Logger.log("debug", "Stopping Job agenda...");
             Job.stopAgenda(cb);
         };
 
@@ -922,6 +934,91 @@ class App
             // }
 
             callback(err, results);
+        });
+    }
+
+    static checkConnectivity (callback, wantServerToBeDown)
+    {
+        const host = "localhost";
+
+        let fullUrl = "http://" + host;
+
+        if (Config.port)
+        {
+            fullUrl = fullUrl + ":" + Config.port;
+        }
+
+        // TODO change later
+        const textToExpectOnSuccess = null;
+
+        const tryToConnect = function (callback)
+        {
+            Logger.log("debug", "Checking server connectivity via HTTP on Server " + fullUrl + "...");
+
+            request.get({
+                url: fullUrl
+            },
+            function (e, r, data)
+            {
+                if (!e)
+                {
+                    if (wantServerToBeDown)
+                    {
+                        callback(1, "Server Still online on " + fullUrl);
+                    }
+                    else if (!textToExpectOnSuccess)
+                    {
+                        callback(null);
+                    }
+                    else if (textToExpectOnSuccess && data.indexOf(textToExpectOnSuccess) > -1)
+                    {
+                        callback(null);
+                    }
+                    else
+                    {
+                        callback(1, "Response not matched when checking for connectivity on " + fullUrl);
+                    }
+                }
+                else
+                {
+                    if (wantServerToBeDown)
+                    {
+                        callback(null);
+                    }
+                    else if (e.code === "ECONNRESET" && textToExpectOnSuccess === "")
+                    {
+                        callback(null);
+                    }
+                    else
+                    {
+                        callback(1, "Unable to contact Server at " + fullUrl);
+                    }
+                }
+            });
+        };
+
+            // try calling apiMethod 10 times with linear backoff
+            // (i.e. intervals of 100, 200, 400, 800, 1600, ... milliseconds)
+        async.retry({
+            times: 240,
+            interval: function (retryCount)
+            {
+                const msecs = 1000;
+                Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to server at " + fullUrl);
+                return msecs;
+            }
+        }, tryToConnect, function (err)
+        {
+            if (!err)
+            {
+                callback(null);
+            }
+            else
+            {
+                const msg = `Unable to establish a connection to server in time on: ${fullUrl}.`;
+                Logger.log("debug", msg);
+                throw new Error(msg);
+            }
         });
     }
 }

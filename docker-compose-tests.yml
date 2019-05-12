@@ -92,6 +92,9 @@ services:
   dendro:
     container_name: ${ENVIRONMENT}.dendro
     image: feupinfolab/dendro-no-volumes:latest${STATE}
+    build:
+      context: .
+      dockerfile: ./conf/dockerfiles/no-volumes/dendro/Dockerfile
     expose:
       - "3001"
     depends_on:
@@ -111,5 +114,5 @@ services:
 
 networks:
   dendro-docker-deployment:
-    name: ${ENVIRONMENT}
+    name: ${ENVIRONMENT:-bridge}
     driver: bridge

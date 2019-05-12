@@ -26,7 +26,7 @@ class CreateFiles extends CreateFoldersUnit
     static load (callback)
     {
         const self = this;
-        unitUtils.startLoad(self);
+        unitUtils.startLoad(CreateFiles);
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
         {
             if (err)
@@ -55,7 +55,7 @@ class CreateFiles extends CreateFoldersUnit
                     });
                 }, function (err, results)
                 {
-                    unitUtils.endLoad(self, callback);
+                    unitUtils.endLoad(CreateFiles, callback);
                 });
             }
         });

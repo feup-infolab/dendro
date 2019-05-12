@@ -3,9 +3,10 @@ const isNull = rlequire("dendro", "src/utils/null").isNull;
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const DockerManager = rlequire("dendro", "src/utils/docker/docker_manager.js").DockerManager;
-const _ = require("underscore");
 const async = require("async");
 const chai = require("chai");
+const App = rlequire("dendro", "src/bootup/app.js").App;
+const appInstance = rlequire("dendro", "src/app.js");
 
 exports.start = function (unitName, customMessage)
 {
@@ -516,12 +517,19 @@ exports.runAllLoadFunctionsUpUnitChain = function (targetUnit, callback)
 exports.shutdown = function (callback)
 {
     Logger.log("debug", "Starting server shutdown.");
-    const dendroInstance = Config.tests.dendroInstance;
-    dendroInstance.freeResources(function (err, result)
+    rlequire("dendro", "src/app.js").getDendroInstance().freeResources(function (err, result)
     {
         Config.tests.app = null;
         Logger.log("debug", "Server shutdown complete.");
-        callback(err);
+        App.checkConnectivity(function (err)
+        {
+            if (err)
+            {
+                Logger.log("debug", "Dendro server still online after shutdown attempt!");
+            }
+
+            callback(err);
+        }, true);
     });
 };
 
@@ -529,6 +537,7 @@ exports.init = function (callback)
 {
     const App = rlequire("dendro", "src/bootup/app.js").App;
     const dendroInstance = new App();
+    rlequire("dendro", "src/app.js").setDendroInstance(dendroInstance);
 
     dendroInstance.startApp(function (err, appInfo)
     {
@@ -538,8 +547,8 @@ exports.init = function (callback)
                 .get("/")
                 .end((err, res) =>
                 {
+                    Logger.log("debug", "Init started Dendro App and made a request to / ...");
                     Config.tests.app = appInfo.app;
-                    Config.tests.dendroInstance = dendroInstance;
                     Config.tests.server = appInfo.server;
                     callback(err, res);
                 });

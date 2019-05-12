@@ -62,12 +62,11 @@ exports.clearAppState = function (cb)
 
     exports.saveRouteLogsToFile(function (err, info)
     {
-        const dendroInstance = Config.tests.dendroInstance;
+        const dendroInstance = rlequire("dendro", "src/app.js").getDendroInstance();
         dendroInstance.freeResources(function (err, results)
         {
             delete Config.tests.app;
             delete Config.tests.server;
-            delete Config.tests.dendroInstance;
             runPeriodicFunctionsEveryXTests(function (err)
             {
                 if (err)
