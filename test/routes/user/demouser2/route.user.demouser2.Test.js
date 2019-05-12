@@ -20,11 +20,8 @@ describe("/user/demouser2", function (done)
 
     before(function (done)
     {
-        createUserUnit.init(function (err, results)
-        {
             should.equal(err, null);
             done();
-        });
     });
 
     it("[JSON] should NOT access demouser2.username profile when given demouser2.username and NOT logged in", function (done)

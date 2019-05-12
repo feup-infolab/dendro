@@ -40,8 +40,6 @@ describe("/search", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        AddMetadataToFoldersUnit.init(function (err, results)
-        {
             should.not.exist(err);
 
             userUtils.loginUser(admin.username, admin.password, function (err, agent)
@@ -59,7 +57,6 @@ describe("/search", function ()
                         done(err);
                     });
             });
-        });
     });
 
     describe("Generic search inside public projects", function ()

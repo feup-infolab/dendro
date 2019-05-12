@@ -29,11 +29,8 @@ describe("Public project testFolder2 level soft delete tests", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        createFoldersUnit.init(function (err, results)
-        {
             should.equal(err, null);
             done();
-        });
     });
 
     describe("[DELETE] [DELETE FOLDER LEVEL] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/:foldername?delete", function ()

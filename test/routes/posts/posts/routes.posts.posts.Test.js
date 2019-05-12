@@ -39,11 +39,8 @@ describe("Get information on an array of posts(given an array of post URIs) test
     before(function (done)
     {
         // creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
-        createSocialDendroTimelineWithPostsAndSharesUnit.init(function (err, results)
-        {
             should.equal(err, null);
             done();
-        });
     });
 
     describe("[GET] Gets information on an array of posts (given an array of post URIs) /posts/posts", function ()

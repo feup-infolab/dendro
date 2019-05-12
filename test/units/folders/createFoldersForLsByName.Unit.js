@@ -81,6 +81,5 @@ class CreateFoldersForLsByName extends CreateFolders
     }
 }
 
-(async () => {await require("@feup-infolab/docker-mocha").runSetup(CreateFoldersForLsByName);})();
 
 module.exports = CreateFoldersForLsByName;

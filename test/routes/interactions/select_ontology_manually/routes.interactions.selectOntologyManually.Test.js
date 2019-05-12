@@ -43,8 +43,6 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] select_ontology
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        createFilesUnit.init(function (err, results)
-        {
             should.equal(err, null);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -80,7 +78,6 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] select_ontology
                     });
                 });
             });
-        });
     });
 
     describe("[POST] [Invalid Cases] /interactions/select_ontology_manually", function ()

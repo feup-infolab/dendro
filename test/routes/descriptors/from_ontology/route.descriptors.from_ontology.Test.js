@@ -33,11 +33,8 @@ describe("Descriptors from invalid ontology", function (done)
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        addContributorsToProjectsUnit.init(function (err, results)
-        {
             should.equal(err, null);
             done();
-        });
     });
 
     describe("[GET] /descriptors/from_ontology/xy", function ()

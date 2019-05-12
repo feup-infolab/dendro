@@ -31,13 +31,10 @@ describe("Public Project delete", function (done)
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        createFilesUnit.init(function (err, results)
-        {
             should.equal(err, null);
             app = Config.tests.app;
             agent = chai.request.agent(app);
             done();
-        });
     });
 
     describe("[Invalid Cases] /project/:handle?delete " + publicProject.handle, function ()

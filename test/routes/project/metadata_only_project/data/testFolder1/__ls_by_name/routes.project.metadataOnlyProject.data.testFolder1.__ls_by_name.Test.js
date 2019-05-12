@@ -29,8 +29,6 @@ describe("Metadata only project testFolder1 level ls_by_name tests", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        createFoldersForLsByName.init(function (err, results)
-        {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 projectUtils.getProjectRootContent(true, agent, metadataProject.handle, function (err, info)
@@ -45,7 +43,6 @@ describe("Metadata only project testFolder1 level ls_by_name tests", function ()
                     done(err);
                 });
             });
-        });
     });
 
     describe("[GET] [FOLDER LEVEL] [METADATA ONLY PROJECT] /project/" + metadataProject.handle + "/data/:foldername?ls&title='folderA'", function ()

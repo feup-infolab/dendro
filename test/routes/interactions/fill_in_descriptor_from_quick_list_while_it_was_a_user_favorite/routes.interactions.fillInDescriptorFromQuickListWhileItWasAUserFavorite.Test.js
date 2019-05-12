@@ -61,8 +61,6 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] fill_in_descrip
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        createFilesUnit.init(function (err, results)
-        {
             should.equal(err, null);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -100,7 +98,6 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] fill_in_descrip
                     });
                 });
             });
-        });
     });
 
     describe("[POST] [Invalid Cases] /interactions/fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite", function ()

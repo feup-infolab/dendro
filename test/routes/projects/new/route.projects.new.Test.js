@@ -29,11 +29,9 @@ describe("New project tests", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        createUsersUnit.init(function (err, res)
-        {
+
             should.equal(err, null);
             done();
-        });
     });
 
     describe("[GET] /projects/new", function ()

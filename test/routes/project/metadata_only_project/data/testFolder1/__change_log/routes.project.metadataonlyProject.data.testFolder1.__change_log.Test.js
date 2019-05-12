@@ -29,11 +29,8 @@ describe("Metadata only project testFolder1 level ?change_log", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        addMetadataToFoldersUnit.init(function (err, results)
-        {
             should.equal(err, null);
             done();
-        });
     });
 
     describe("[GET] [METADATA ONLY PROJECT] /project/" + metadataProject.handle + "/data/foldername?change_log", function ()

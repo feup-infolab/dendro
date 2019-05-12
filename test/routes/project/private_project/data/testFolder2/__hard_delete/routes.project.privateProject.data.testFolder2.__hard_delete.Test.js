@@ -30,11 +30,8 @@ describe("Private project testFolder2 level hard delete tests", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        createFoldersUnit.init(function (err, results)
-        {
             should.equal(err, null);
             done();
-        });
     });
 
     describe("[DELETE] [PRIVATE PROJECT] HARD DELETE /project/" + privateProject.handle + "/data/:foldername", function ()

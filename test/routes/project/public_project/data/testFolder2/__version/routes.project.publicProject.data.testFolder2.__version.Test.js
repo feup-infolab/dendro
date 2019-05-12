@@ -30,11 +30,9 @@ describe("Public project testFolder2 level ?version", function ()
 
     before(function (done)
     {
-        addMetadataToFoldersUnit.init(function (err, results)
-        {
+
             should.equal(err, null);
             done();
-        });
     });
 
     describe("[GET] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/foldername?version", function ()

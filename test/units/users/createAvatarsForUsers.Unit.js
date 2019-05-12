@@ -57,6 +57,5 @@ class CreateAvatarsForUsers extends createUsersUnit
     }
 }
 
-(async () => {await require("@feup-infolab/docker-mocha").runSetup(CreateAvatarsForUsers);})();
 
 module.exports = CreateAvatarsForUsers;

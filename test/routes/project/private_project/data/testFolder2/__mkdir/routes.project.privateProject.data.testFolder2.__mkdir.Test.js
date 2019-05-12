@@ -30,11 +30,8 @@ describe("Private project testFolder2 level ?mkdir", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        createFoldersUnit.init(function (err, results)
-        {
             should.equal(err, null);
             done();
-        });
     });
 
     describe("[POST] [FOLDER LEVEL] [PRIVATE PROJECT] /project/" + privateProject.handle + "/data/:foldername?mkdir", function ()

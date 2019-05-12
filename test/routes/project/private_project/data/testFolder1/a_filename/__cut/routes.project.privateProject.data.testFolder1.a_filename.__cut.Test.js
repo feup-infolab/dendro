@@ -36,8 +36,6 @@ describe("[File Cut / Move] [Private project] cutFiles ?paste", function ()
     {
         beforeEach(function (done)
         {
-            createFilesUnit.init(function (err, results)
-            {
                 should.equal(err, null);
 
                 userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
@@ -52,7 +50,6 @@ describe("[File Cut / Move] [Private project] cutFiles ?paste", function ()
                         done();
                     });
                 });
-            });
         });
 
         it("Should give an error if the request is of type HTML even if the user is logged in as demouser1 (the creator of the project)", function (done)

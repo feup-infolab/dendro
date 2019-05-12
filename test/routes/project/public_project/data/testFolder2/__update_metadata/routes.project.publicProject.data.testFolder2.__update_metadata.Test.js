@@ -30,11 +30,9 @@ describe("Public project testFolder2 level update_metadata", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        createFoldersUnit.init(function (err, results)
-        {
+
             should.equal(err, null);
             done();
-        });
     });
 
     describe("[POST] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/:foldername?update_metadata", function ()

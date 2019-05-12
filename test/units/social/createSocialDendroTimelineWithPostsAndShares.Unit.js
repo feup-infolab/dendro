@@ -45,6 +45,4 @@ class CreateSocialDendroTimelineWithPostsAndShares extends CommentSomePostsUnit
     }
 }
 
-(async () => {await require("@feup-infolab/docker-mocha").runSetup(CreateSocialDendroTimelineWithPostsAndShares);})();
-
 module.exports = CreateSocialDendroTimelineWithPostsAndShares;

@@ -38,11 +38,8 @@ describe("Comment a specific post tests", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        createSocialDendroTimelineWithPostsAndSharesUnit.init(function (err, results)
-        {
             should.equal(err, null);
             done();
-        });
     });
 
     describe("[POST] Comment a specific post /posts/comment", function ()

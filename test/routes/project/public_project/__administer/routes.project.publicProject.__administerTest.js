@@ -36,13 +36,10 @@ describe("Administer projects", function (done)
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        createProjectsUnit.init(function (err, res)
-        {
             chai.check(done, function ()
             {
                 should.equal(err, null);
             });
-        });
     });
     describe("project/" + publicProject.handle + "?administer", function ()
     {

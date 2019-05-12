@@ -48,8 +48,6 @@ describe("Upload files into testFolder1 of Private project", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        createFoldersUnit.init(function (err, results)
-        {
             should.equal(err, null);
 
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
@@ -62,7 +60,6 @@ describe("Upload files into testFolder1 of Private project", function ()
                     done();
                 });
             });
-        });
     });
 
     describe("[POST] [PRIVATE PROJECT] [Invalid Cases] /project/" + privateProject.handle + "/data/:foldername?upload", function ()

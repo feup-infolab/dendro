@@ -86,8 +86,6 @@ describe("Public project testFolder1 level restore folder tests", function ()
     let folderDebug3Uri;
     before(function (done)
     {
-        addMetadataToFoldersInPublicProjectUnit.init(function (err, results)
-        {
             try
             {
                 const app = Config.tests.app;
@@ -113,7 +111,6 @@ describe("Public project testFolder1 level restore folder tests", function ()
             {
                 done(error);
             }
-        });
     });
 
     describe("[POST] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/testFolder1?restore", function ()

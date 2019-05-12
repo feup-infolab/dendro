@@ -90,6 +90,5 @@ class AddMetadataToFolders extends CreateFoldersUnit
 AddMetadataToFolders.foldersData = foldersData;
 AddMetadataToFolders.projectsData = projectsData;
 
-(async () => {await require("@feup-infolab/docker-mocha").runSetup(AddMetadataToFolders);})();
 
 module.exports = AddMetadataToFolders;

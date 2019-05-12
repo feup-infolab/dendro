@@ -62,8 +62,6 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] unhide_descript
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        createFilesUnit.init(function (err, results)
-        {
             should.equal(err, null);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -101,7 +99,6 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] unhide_descript
                     });
                 });
             });
-        });
     });
 
     describe("[POST] [Invalid Cases] /interactions/unhide_descriptor_from_quick_list_for_project", function ()

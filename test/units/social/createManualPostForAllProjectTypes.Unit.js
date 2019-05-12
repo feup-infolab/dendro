@@ -74,6 +74,5 @@ class CreateManuaLPostForAllProjectTypes extends UploadFilesAndAddMetadataUnit
     }
 }
 
-(async () => {await require("@feup-infolab/docker-mocha").runSetup(CreateManuaLPostForAllProjectTypes);})();
 
 module.exports = CreateManuaLPostForAllProjectTypes;

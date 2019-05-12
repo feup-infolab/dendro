@@ -30,11 +30,8 @@ describe("Metadata only project testFolder2 level hard delete tests", function (
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        createFoldersUnit.init(function (err, results)
-        {
             should.equal(err, null);
             done();
-        });
     });
 
     describe("[DELETE] [METADATA ONLY PROJECT] HARD DELETE /project/" + metadataProject.handle + "/data/:foldername", function ()

@@ -28,11 +28,9 @@ describe("Public project level metadata tests", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        addMetadataToFoldersUnit.init(function (err, results)
-        {
+
             should.equal(err, null);
             done();
-        });
     });
 
     describe(publicProject.handle + "?metadata (public project)", function ()

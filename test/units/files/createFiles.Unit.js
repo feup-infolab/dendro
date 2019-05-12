@@ -72,7 +72,6 @@ class CreateFiles extends CreateFoldersUnit
     }
 }
 
-(async () => {await require("@feup-infolab/docker-mocha").runSetup(CreateFiles);})();
 
 CreateFiles.allFiles = filesData;
 

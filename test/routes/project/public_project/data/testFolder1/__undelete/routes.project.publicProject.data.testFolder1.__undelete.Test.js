@@ -29,11 +29,8 @@ describe("Public project testFolder1 level undelete tests", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        deleteFoldersUnit.init(function (err, results)
-        {
             should.equal(err, null);
             done();
-        });
     });
 
     describe("[POST] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/:foldername?undelete", function ()

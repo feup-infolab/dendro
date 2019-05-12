@@ -29,11 +29,8 @@ describe("Private project testFolder2 level ?version", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        addMetadataToFoldersUnit.init(function (err, results)
-        {
             should.equal(err, null);
             done();
-        });
     });
 
     describe("[GET] [PRIVATE PROJECT] /project/" + privateProject.handle + "/data/foldername?version", function ()

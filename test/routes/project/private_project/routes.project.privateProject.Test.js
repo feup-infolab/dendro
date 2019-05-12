@@ -28,11 +28,8 @@ describe("Private project root tests", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        addMetadataToFoldersUnit.init(function (err, results)
-        {
             should.equal(err, null);
             done();
-        });
     });
 
     describe("/project/" + privateProject.handle + " (default case where the root of the project is shown, without any query)", function ()

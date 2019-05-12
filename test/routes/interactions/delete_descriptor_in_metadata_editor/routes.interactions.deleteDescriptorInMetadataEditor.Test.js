@@ -61,8 +61,6 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] delete_descript
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        createFilesUnit.init(function (err, results)
-        {
             should.equal(err, null);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -100,7 +98,6 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] delete_descript
                     });
                 });
             });
-        });
     });
 
     describe("[POST] [Invalid Cases] /interactions/delete_descriptor_in_metadata_editor", function ()

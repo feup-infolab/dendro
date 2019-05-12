@@ -37,11 +37,8 @@ describe("Social Dendro like a post tests", function ()
     before(function (done)
     {
         // creates the 3 type of posts for the 3 types of projects(public, private, metadataOnly)
-        createSocialDendroTimelineWithPostsAndSharesUnit.init(function (err, results)
-        {
             should.equal(err, null);
             done();
-        });
     });
 
     describe("[POST] [Public Project] remove or add like to a Post /posts/like", function ()

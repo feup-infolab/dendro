@@ -30,11 +30,8 @@ describe("Metadata only project testFolder2 level parent_metadata tests", functi
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        addMetadataToFoldersUnit.init(function (err, results)
-        {
             should.equal(err, null);
             done();
-        });
     });
 
     describe("/project/" + metadataProject.handle + "/data/" + testFolder2.name + "?parent_metadata (metadata only project)", function ()

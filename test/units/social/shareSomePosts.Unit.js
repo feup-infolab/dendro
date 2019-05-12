@@ -72,6 +72,5 @@ class ShareSomePosts extends CreateManualPostForAllProjectTypesUnit
     }
 }
 
-(async () => {await require("@feup-infolab/docker-mocha").runSetup(ShareSomePosts);})();
 
 module.exports = ShareSomePosts;

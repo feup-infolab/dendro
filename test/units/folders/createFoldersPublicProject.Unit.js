@@ -76,6 +76,5 @@ class CreateFoldersSingleProject extends AddContributorsToProjectsUnit
 
 CreateFoldersSingleProject.foldersData = foldersData;
 
-(async () => {await require("@feup-infolab/docker-mocha").runSetup(CreateFoldersSingleProject);})();
 
 module.exports = CreateFoldersSingleProject;

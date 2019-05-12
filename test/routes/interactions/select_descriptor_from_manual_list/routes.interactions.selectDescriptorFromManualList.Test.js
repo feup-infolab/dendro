@@ -61,8 +61,6 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] select_descript
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        createFilesUnit.init(function (err, results)
-        {
             should.equal(err, null);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -100,7 +98,6 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] select_descript
                     });
                 });
             });
-        });
     });
 
     describe("[POST] [Invalid Cases] /interactions/select_descriptor_from_manual_list", function ()

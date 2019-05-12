@@ -30,11 +30,8 @@ describe("Private project testFolder2 level parent_metadata tests", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        addMetadataToFoldersUnit.init(function (err, results)
-        {
             should.equal(err, null);
             done();
-        });
     });
 
     describe("/project/" + privateProject.handle + "/data/" + testFolder2.name + "?parent_metadata (private project)", function ()

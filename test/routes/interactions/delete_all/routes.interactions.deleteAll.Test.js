@@ -61,8 +61,6 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] delete_all", fu
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        createFilesUnit.init(function (err, results)
-        {
             should.equal(err, null);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -179,7 +177,6 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] delete_all", fu
                     });
                 });
             });
-        });
     });
 
     describe("[POST] [Invalid Cases] /interactions/delete_all", function ()

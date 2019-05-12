@@ -26,13 +26,10 @@ describe("Resource re-indexing page ( /admin/reindex )", function (done)
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        AddMetadataToFoldersPublicProject.init(function (err, res)
-        {
             should.equal(err, null);
             app = Config.tests.app;
             agent = chai.request.agent(app);
             done();
-        });
     });
     describe("Invalid cases", function ()
     {

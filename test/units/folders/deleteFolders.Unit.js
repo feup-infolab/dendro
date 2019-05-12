@@ -61,6 +61,5 @@ class DeleteFolders extends CreateFoldersUnit
     }
 }
 
-(async () => {await require("@feup-infolab/docker-mocha").runSetup(DeleteFolders);})();
 
 module.exports = DeleteFolders;

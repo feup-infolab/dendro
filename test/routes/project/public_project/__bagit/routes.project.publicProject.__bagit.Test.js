@@ -31,11 +31,8 @@ describe("Backup Public project", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        createFilesUnit.init(function (err, results)
-        {
             should.equal(err, null);
             done();
-        });
     });
 
     describe("[PUBLIC PROJECT] [Invalid Cases] /project/" + project.handle + "?bagit", function ()

@@ -77,6 +77,5 @@ class CommentSomePosts extends LikeSomePostsUnit
     }
 }
 
-(async () => {await require("@feup-infolab/docker-mocha").runSetup(CommentSomePosts);})();
 
 module.exports = CommentSomePosts;

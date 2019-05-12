@@ -61,6 +61,5 @@ class LikeSomePosts extends ShareSomePostsUnit
     }
 }
 
-(async () => {await require("@feup-infolab/docker-mocha").runSetup(LikeSomePosts);})();
 
 module.exports = LikeSomePosts;

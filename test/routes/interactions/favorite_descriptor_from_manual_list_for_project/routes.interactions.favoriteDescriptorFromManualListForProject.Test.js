@@ -61,8 +61,6 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] favorite_descri
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        createFilesUnit.init(function (err, results)
-        {
             should.equal(err, null);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
@@ -98,7 +96,6 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] favorite_descri
                     });
                 });
             });
-        });
     });
 
     describe("[POST] [Invalid Cases] /interactions/favorite_descriptor_from_manual_list_for_project", function ()

@@ -35,8 +35,6 @@ describe("Private project testFolder1 ?rename", function ()
     {
         before(function (done)
         {
-            createFilesUnit.init(function (err, results)
-            {
                 userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
                 {
                     folderUtils.getFolderContents(true, agent, privateProject.handle, testFolder1.name, function (err, res)
@@ -48,7 +46,6 @@ describe("Private project testFolder1 ?rename", function ()
                         done();
                     });
                 });
-            });
         });
 
         it("Should give an error when the user is unauthenticated", function (done)

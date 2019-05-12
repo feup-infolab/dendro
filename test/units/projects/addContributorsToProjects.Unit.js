@@ -79,6 +79,5 @@ class AddContributorsToProjects extends CreateProjectsUnit
     }
 }
 
-(async () => {await require("@feup-infolab/docker-mocha").runSetup(AddContributorsToProjects);})();
 
 module.exports = AddContributorsToProjects;
