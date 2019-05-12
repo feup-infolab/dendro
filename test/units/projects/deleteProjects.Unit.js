@@ -20,7 +20,7 @@ class DeleteProjects extends CreateProjectsUnit
     static load (callback)
     {
         const self = this;
-        unitUtils.startLoad(self);
+        unitUtils.startLoad(DeleteProjects);
         async.mapSeries(projectsData, function (projectData, cb)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
@@ -39,7 +39,7 @@ class DeleteProjects extends CreateProjectsUnit
             });
         }, function (err, results)
         {
-            unitUtils.endLoad(self, callback);
+            unitUtils.endLoad(DeleteProjects, callback);
         });
     }
     static init (callback)

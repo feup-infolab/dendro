@@ -30,7 +30,7 @@ class CreateFoldersB2Drop extends CreateProjectB2DropUnit
     static load (callback)
     {
         const self = this;
-        unitUtils.startLoad(self, callback);
+        unitUtils.startLoad(CreateFoldersB2Drop, callback);
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
         {
             if (err)
@@ -53,7 +53,7 @@ class CreateFoldersB2Drop extends CreateProjectB2DropUnit
                     });
                 }, function (err, results)
                 {
-                    unitUtils.endLoad(self, callback);
+                    unitUtils.endLoad(CreateFoldersB2Drop, callback);
                 });
             }
         });

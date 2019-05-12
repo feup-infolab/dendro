@@ -16,7 +16,7 @@ class LikeSomePosts extends ShareSomePostsUnit
     static load (callback)
     {
         const self = this;
-        unitUtils.startLoad(self);
+        unitUtils.startLoad(LikeSomePosts);
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
         {
             if (err)
@@ -36,7 +36,7 @@ class LikeSomePosts extends ShareSomePostsUnit
                         let postURI = res.body[1].uri;
                         socialDendroUtils.likeAPost(true, agent, postURI, function (err, res)
                         {
-                            unitUtils.endLoad(self, function (err)
+                            unitUtils.endLoad(LikeSomePosts, function (err)
                             {
                                 callback(err, res);
                             });

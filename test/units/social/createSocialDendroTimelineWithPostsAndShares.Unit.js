@@ -14,8 +14,8 @@ class CreateSocialDendroTimelineWithPostsAndShares extends CommentSomePostsUnit
     static load (callback)
     {
         const self = this;
-        unitUtils.startLoad(self);
-        unitUtils.endLoad(self, callback);
+        unitUtils.startLoad(CreateSocialDendroTimelineWithPostsAndShares);
+        unitUtils.CreateSocialDendroTimelineWithPostsAndShares(self, callback);
 
         // createTimelineInMySQL.setup(function (err, results)
         // {
@@ -25,7 +25,7 @@ class CreateSocialDendroTimelineWithPostsAndShares extends CommentSomePostsUnit
         //     }
         //     else
         //     {
-        //         unitUtils.endLoad(self, callback);
+        //         unitUtils.endLoad(CreateSocialDendroTimelineWithPostsAndShares, callback);
         //     }
         // });
     }

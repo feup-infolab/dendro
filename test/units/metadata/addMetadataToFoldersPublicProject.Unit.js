@@ -22,7 +22,7 @@ class AddMetadataToFoldersPublicProject extends CreateFoldersPublicProject
     static load (callback)
     {
         const self = this;
-        unitUtils.startLoad(self);
+        unitUtils.startLoad(AddMetadataToFoldersPublicProject);
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
         {
             if (err)
@@ -39,7 +39,7 @@ class AddMetadataToFoldersPublicProject extends CreateFoldersPublicProject
                     });
                 }, function (err, results)
                 {
-                    unitUtils.endLoad(self, callback);
+                    unitUtils.endLoad(AddMetadataToFoldersPublicProject, callback);
                 });
             }
         });

@@ -26,7 +26,7 @@ class CreateExportToRepositoriesConfigs extends ClearCkanOrganizationStateUnit
     static load (callback)
     {
         const self = this;
-        unitUtils.startLoad(self);
+        unitUtils.startLoad(CreateExportToRepositoriesConfigs);
         async.mapSeries(dataToCreateExportConfigs, function (dataConfig, cb)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
@@ -45,7 +45,7 @@ class CreateExportToRepositoriesConfigs extends ClearCkanOrganizationStateUnit
             });
         }, function (err, results)
         {
-            unitUtils.endLoad(self, callback);
+            unitUtils.endLoad(CreateExportToRepositoriesConfigs, callback);
         });
     }
     static init (callback)

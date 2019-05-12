@@ -20,7 +20,7 @@ class ShareSomePosts extends CreateManualPostForAllProjectTypesUnit
     static load (callback)
     {
         const self = this;
-        unitUtils.startLoad(self);
+        unitUtils.startLoad(ShareSomePosts);
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
         {
             if (err)
@@ -42,7 +42,7 @@ class ShareSomePosts extends CreateManualPostForAllProjectTypesUnit
 
                         socialDendroUtils.shareAPost(true, agent, postURI, shareMock.shareMsg, function (err, res)
                         {
-                            unitUtils.endLoad(self, function (err)
+                            unitUtils.endLoad(ShareSomePosts, function (err)
                             {
                                 callback(err, res);
                             });

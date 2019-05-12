@@ -23,7 +23,7 @@ class DeleteFolders extends CreateFoldersUnit
     static load (callback)
     {
         const self = this;
-        unitUtils.startLoad(self);
+        unitUtils.startLoad(CreateFoldersUnit);
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
         {
             if (err)
@@ -46,7 +46,7 @@ class DeleteFolders extends CreateFoldersUnit
                     });
                 }, function (err, results)
                 {
-                    unitUtils.endLoad(self, callback);
+                    unitUtils.endLoad(CreateFoldersUnit, callback);
                 });
             }
         });

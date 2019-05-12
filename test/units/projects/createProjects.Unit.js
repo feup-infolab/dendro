@@ -32,7 +32,7 @@ class CreateProjects extends CreateUsersUnit
     static load (callback)
     {
         const self = this;
-        unitUtils.startLoad(self);
+        unitUtils.startLoad(CreateProjects);
         async.series([
             function (cb1)
             {
@@ -87,7 +87,7 @@ class CreateProjects extends CreateUsersUnit
         {
             if (isNull(err))
             {
-                unitUtils.endLoad(self, function (err, results)
+                unitUtils.endLoad(CreateProjects, function (err, results)
                 {
                     callback(err, results);
                 });

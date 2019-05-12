@@ -20,7 +20,7 @@ class CreateAvatarsForUsers extends createUsersUnit
     static load (callback)
     {
         const self = this;
-        unitUtils.startLoad(self);
+        unitUtils.startLoad(CreateAvatarsForUsers);
         const usersData = [demouser1, demouser2, demouser3];
         async.mapSeries(usersData, function (userData, cb)
         {
@@ -42,7 +42,7 @@ class CreateAvatarsForUsers extends createUsersUnit
                 return callback(null);
             }
 
-            unitUtils.endLoad(self, callback);
+            unitUtils.endLoad(CreateAvatarsForUsers, callback);
         });
     }
 

@@ -35,7 +35,7 @@ class CreateFolders extends AddContributorsToProjectsUnit
     static load (callback)
     {
         const self = this;
-        unitUtils.startLoad(self);
+        unitUtils.startLoad(CreateFolders);
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
         {
             if (err)
@@ -74,7 +74,7 @@ class CreateFolders extends AddContributorsToProjectsUnit
                 {
                     if (isNull(err))
                     {
-                        unitUtils.endLoad(self, function (err, results)
+                        unitUtils.endLoad(CreateFolders, function (err, results)
                         {
                             callback(err, results);
                         });

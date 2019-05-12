@@ -30,7 +30,7 @@ class UploadFilesAndAddMetadata extends AddMetadataToFoldersUnit
     static load (callback)
     {
         const self = this;
-        unitUtils.startLoad(self);
+        unitUtils.startLoad(UploadFilesAndAddMetadata);
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
         {
             if (err)
@@ -69,7 +69,7 @@ class UploadFilesAndAddMetadata extends AddMetadataToFoldersUnit
                     });
                 }, function (err, results)
                 {
-                    unitUtils.endLoad(self, callback);
+                    unitUtils.endLoad(UploadFilesAndAddMetadata, callback);
                 });
             }
         });

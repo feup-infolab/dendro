@@ -22,7 +22,7 @@ class AddContributorsToProjects extends CreateProjectsUnit
     static load (callback)
     {
         const self = this;
-        unitUtils.startLoad(self);
+        unitUtils.startLoad(AddContributorsToProjects);
         async.mapSeries(projectsData, function (projectData, cb)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
@@ -52,7 +52,7 @@ class AddContributorsToProjects extends CreateProjectsUnit
 
             if (isNull(err))
             {
-                unitUtils.endLoad(self, function (err, results)
+                unitUtils.endLoad(AddContributorsToProjects, function (err, results)
                 {
                     callback(err, results);
                 });

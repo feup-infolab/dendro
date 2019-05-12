@@ -1378,6 +1378,10 @@ DbConnection.prototype.close = function (callback)
                 }
             });
         }
+        else
+        {
+            callback(null);
+        }
     };
 
     const flushVirtuosoBuffers = function (callback)
@@ -1454,7 +1458,11 @@ DbConnection.prototype.close = function (callback)
     {
         if (self.forceShutdownOnConnectionClose)
         {
-            if (Config.docker.active && Config.docker.virtuoso_container_name)
+            if (!Config.docker.active)
+            {
+                callback(null);
+            }
+            else if (Config.docker.active && Config.docker.virtuoso_container_name)
             {
                 Logger.log("Shutting down virtuoso in Docker container " + Config.docker.virtuoso_container_name + "....!");
 

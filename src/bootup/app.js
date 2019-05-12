@@ -687,6 +687,7 @@ class App
 
         const closeAgenda = function (cb)
         {
+            Logger.log("debug", "Stopping Job agenda...");
             Job.stopAgenda(cb);
         };
 
@@ -936,7 +937,7 @@ class App
         });
     }
 
-    static checkConnectivity (callback)
+    static checkConnectivity (callback, wantServerToBeDown)
     {
         const host = "localhost";
 
@@ -961,7 +962,11 @@ class App
             {
                 if (!e)
                 {
-                    if (!textToExpectOnSuccess)
+                    if (wantServerToBeDown)
+                    {
+                        callback(1, "Server Still online on " + fullUrl);
+                    }
+                    else if (!textToExpectOnSuccess)
                     {
                         callback(null);
                     }
@@ -976,7 +981,11 @@ class App
                 }
                 else
                 {
-                    if (e.code === "ECONNRESET" && textToExpectOnSuccess === "")
+                    if (wantServerToBeDown)
+                    {
+                        callback(null);
+                    }
+                    else if (e.code === "ECONNRESET" && textToExpectOnSuccess === "")
                     {
                         callback(null);
                     }
@@ -1006,7 +1015,7 @@ class App
             }
             else
             {
-                const msg = `Unable to establish a connection to server in time on: ${fullUrl}. This is a fatal error.`;
+                const msg = `Unable to establish a connection to server in time on: ${fullUrl}.`;
                 Logger.log("debug", msg);
                 throw new Error(msg);
             }

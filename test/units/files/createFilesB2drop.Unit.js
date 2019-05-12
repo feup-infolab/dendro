@@ -29,7 +29,7 @@ class CreateFilesB2drop extends CreateFoldersB2DropUnit
     static load (callback)
     {
         const self = this;
-        unitUtils.startLoad(self);
+        unitUtils.startLoad(CreateFilesB2drop);
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
         {
             if (err)
@@ -58,7 +58,7 @@ class CreateFilesB2drop extends CreateFoldersB2DropUnit
                     });
                 }, function (err, results)
                 {
-                    unitUtils.endLoad(self, callback);
+                    unitUtils.endLoad(CreateFilesB2drop, callback);
                 });
             }
         });

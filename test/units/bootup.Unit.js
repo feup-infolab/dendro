@@ -17,7 +17,7 @@ class BootupUnit extends TestUnit
     static load (callback)
     {
         unitUtils.startLoad(BootupUnit);
-        const dendroInstance = Config.tests.dendroInstance;
+        const dendroInstance = rlequire("dendro", "src/app.js").getDendroInstance();
         dendroInstance.seedDatabases(function (err, result)
         {
             if (isNull(err))

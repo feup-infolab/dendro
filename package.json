@@ -20,6 +20,7 @@
     "docker-mocha-no-delete": "docker-mocha -f ./test/tests-structure-mini.json -t 1 -c docker-compose-tests.yml -e dendro -p 3001 --config='docker_mocha' --no-delete",
     "docker-mocha-no-caching": "docker-mocha -f ./test/tests-structure.json -t 1 -c docker-compose-tests.yml -e dendro -p 3001 --config='docker_mocha_no_caching' --no-delete --no-checkpoint",
     "docker-mocha-rebuild-dendro-image": "docker rmi feupinfolab/dendro-no-volumes:latest -f; docker build -t feupinfolab/dendro-no-volumes:latest -f ./conf/dockerfiles/no-volumes/dendro/Dockerfile .",
+    "docker-mocha-rebuild-dendro-image-nc": "docker rmi feupinfolab/dendro-no-volumes:latest -f; docker build -t feupinfolab/dendro-no-volumes:latest --no-cache -f ./conf/dockerfiles/no-volumes/dendro/Dockerfile .",
     "test": "cross-env NODE_ENV=test node node_modules/.bin/_mocha ./test/index.Test.js --ui bdd --exit",
     "test-legacy": "cross-env NODE_ENV=test node node_modules/.bin/_mocha ./test/index.Test.js --ui bdd --exit",
     "test-dev": "cross-env NODE_ENV=test node node_modules/.bin/_mocha ./test/index.Test.dev.js --ui bdd --exit",

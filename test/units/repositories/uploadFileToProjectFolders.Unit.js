@@ -20,7 +20,7 @@ class UploadFileToProjectFolders extends AddMetadataToFoldersSingleProjectUnit
     static load (callback)
     {
         const self = this;
-        unitUtils.startLoad(self);
+        unitUtils.startLoad(UploadFileToProjectFolders);
         // procurar para todos os projetos as pastas da root e fazer upload de um ficheiro
         /* async.mapSeries(projects, function (project, cb) { */
         console.log("---------- RUNNING UNIT uploadFileToProjectFolders.Unit for: " + project.handle + " ----------");
@@ -46,7 +46,7 @@ class UploadFileToProjectFolders extends AddMetadataToFoldersSingleProjectUnit
                         });
                     }, function (err, results)
                     {
-                        unitUtils.endLoad(self, callback);
+                        unitUtils.endLoad(UploadFileToProjectFolders, callback);
                     });
                 });
             }
