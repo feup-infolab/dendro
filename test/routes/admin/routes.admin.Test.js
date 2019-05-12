@@ -25,7 +25,6 @@ describe("Administration panel tests ( /admin )", function (done)
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        should.equal(err, null);
         app = Config.tests.app;
         agent = chai.request.agent(app);
         done();

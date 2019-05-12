@@ -48,8 +48,6 @@ describe("Upload files into testFolder1 of Private project", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        should.equal(err, null);
-
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
         {
             folderUtils.getFolderContents(true, agent, privateProject.handle, testFolder1.name, function (err, res)

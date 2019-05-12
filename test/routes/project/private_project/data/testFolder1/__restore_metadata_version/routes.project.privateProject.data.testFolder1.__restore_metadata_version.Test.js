@@ -29,7 +29,6 @@ describe("Private project testFolder1 level restore_metadata_version", function 
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        should.equal(err, null);
         done();
     });
 

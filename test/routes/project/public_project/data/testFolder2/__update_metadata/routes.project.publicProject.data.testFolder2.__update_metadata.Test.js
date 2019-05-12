@@ -30,7 +30,6 @@ describe("Public project testFolder2 level update_metadata", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        should.equal(err, null);
         done();
     });
 

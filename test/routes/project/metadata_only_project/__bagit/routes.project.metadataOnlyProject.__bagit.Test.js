@@ -31,7 +31,6 @@ describe("Backup Metadata Only project", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        should.equal(err, null);
         done();
     });
 

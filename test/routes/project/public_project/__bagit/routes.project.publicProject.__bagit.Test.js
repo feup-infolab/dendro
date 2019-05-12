@@ -31,7 +31,6 @@ describe("Backup Public project", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        should.equal(err, null);
         done();
     });
 

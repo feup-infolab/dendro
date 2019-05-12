@@ -28,7 +28,6 @@ describe("Private project root tests", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        should.equal(err, null);
         done();
     });
 

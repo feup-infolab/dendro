@@ -32,7 +32,6 @@ describe("List all projects tests", function (done)
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        should.equal(err, null);
         done();
     });
 

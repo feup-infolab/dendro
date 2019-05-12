@@ -19,7 +19,6 @@ describe("[GET] /user/demouser1?avatar", function (done)
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        should.equal(err, null);
         done();
     });
 

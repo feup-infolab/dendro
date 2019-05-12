@@ -29,7 +29,6 @@ describe("Private project testFolder2 level undelete tests", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        should.equal(err, null);
         done();
     });
 

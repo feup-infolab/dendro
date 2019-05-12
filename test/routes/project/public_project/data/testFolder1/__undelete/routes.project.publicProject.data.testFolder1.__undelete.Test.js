@@ -29,7 +29,6 @@ describe("Public project testFolder1 level undelete tests", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        should.equal(err, null);
         done();
     });
 

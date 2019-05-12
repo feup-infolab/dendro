@@ -27,7 +27,6 @@ describe("Private project testFolder1 level ?change_log", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        should.equal(err, null);
         done();
     });
 

@@ -38,7 +38,6 @@ describe("Comment a specific post tests", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        should.equal(err, null);
         done();
     });
 

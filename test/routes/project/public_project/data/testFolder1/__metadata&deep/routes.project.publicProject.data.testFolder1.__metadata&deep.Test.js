@@ -30,7 +30,6 @@ describe("Public project testFolder1 level metadata&deep tests", function ()
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        should.equal(err, null);
         done();
     });
 

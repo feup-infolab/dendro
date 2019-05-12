@@ -30,7 +30,6 @@ describe("Metadata only project testFolder1 level ?version", function ()
 
     before(function (done)
     {
-        should.equal(err, null);
         done();
     });
 

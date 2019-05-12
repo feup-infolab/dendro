@@ -30,7 +30,6 @@ describe("Public project testFolder2 level ?version", function ()
 
     before(function (done)
     {
-        should.equal(err, null);
         done();
     });
 

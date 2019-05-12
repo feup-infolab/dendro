@@ -36,7 +36,6 @@ describe("Import projects", function (done)
 
     before(function (done)
     {
-        should.equal(err, null);
         done();
     });
 

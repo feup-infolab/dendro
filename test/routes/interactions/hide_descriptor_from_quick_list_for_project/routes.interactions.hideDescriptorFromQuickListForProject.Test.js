@@ -62,7 +62,6 @@ describe("[" + publicProject.handle + "]" + "[INTERACTION TESTS] hide_descriptor
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        should.equal(err, null);
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
         {
             should.equal(err, null);

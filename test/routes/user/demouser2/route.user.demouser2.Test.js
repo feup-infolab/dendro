@@ -20,7 +20,6 @@ describe("/user/demouser2", function (done)
 
     before(function (done)
     {
-        should.equal(err, null);
         done();
     });
 

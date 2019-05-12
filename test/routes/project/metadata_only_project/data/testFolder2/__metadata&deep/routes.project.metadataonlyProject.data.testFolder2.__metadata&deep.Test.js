@@ -30,7 +30,6 @@ describe("Metadata only project project testFolder2 level metadata&deep tests", 
     this.timeout(Config.tests.timeout);
     before(function (done)
     {
-        should.equal(err, null);
         done();
     });
 

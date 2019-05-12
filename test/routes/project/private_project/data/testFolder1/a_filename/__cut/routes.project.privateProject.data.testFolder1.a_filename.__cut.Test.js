@@ -36,8 +36,6 @@ describe("[File Cut / Move] [Private project] cutFiles ?paste", function ()
     {
         beforeEach(function (done)
         {
-            should.equal(err, null);
-
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent)
             {
                 folderUtils.getFolderContents(true, agent, privateProject.handle, testFolder1.name, function (err, res)
