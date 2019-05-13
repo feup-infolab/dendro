@@ -16,3 +16,5 @@ for i in 24 12 8 4 2 1
 do
    runTest "$i"
 done
+
+touch "DONE.pif"
