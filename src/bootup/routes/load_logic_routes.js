@@ -752,9 +752,6 @@ const loadRoutes = function (app, callback)
         {
             req.params.requestedResourceUri = resourceUri;
 
-            const defaultPermissionsForDeposits = [
-                Permissions.settings.privacy.of_deposit.public
-            ];
             const adminPermissions = [
                 Permissions.settings.role.in_system.admin
             ];

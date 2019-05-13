@@ -479,7 +479,6 @@ exports.my = function (req, res)
 
 exports.search = function (req, res)
 {
-    const user = req.user;
     const acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
     let display;
@@ -557,99 +556,114 @@ exports.show = function (req, res)
     const isDepositRoot = req.params.is_project_root;
     const isAdmin = req.session.isAdmin;
 
-    function sendResponse (viewVars, requestedResource)
+    function sendResponse (errorValue, viewVars, requestedResource)
     {
-        const sendResponseInRequestedFormat = function (callback)
+        const sendResponseInRequestedFormat = function (errorValue, callback)
         {
-            const accept = req.header("Accept");
-            let serializer = null;
-            let contentType = null;
-            if (accept in Config.metadataSerializers)
+            if (errorValue)
             {
-                serializer = Config.metadataSerializers[accept];
-                contentType = Config.metadataContentTypes[accept];
-
-                requestedResource.findMetadata(function (err, result)
-                {
-                    if (isNull(err))
-                    {
-                        result.is_project_root = true;
-                        result.is_admin = isAdmin;
-                        res.set("Content-Type", contentType);
-                        res.send(serializer(result));
-                        callback(null, true);
-                    }
-                    else
-                    {
-                        res.status(500).json({
-                            error_messages: "Error finding metadata from " + requestedResource.uri + "\n" + result
-                        });
-                        callback(1, false);
-                    }
-                }, [Elements.access_types.locked, Elements.access_types.locked_for_projects, Elements.access_types.private],
-                [Elements.access_types.api_readable]);
+                callback(1, false);
             }
             else
             {
-                callback(null, false);
+                const accept = req.header("Accept");
+                let serializer = null;
+                let contentType = null;
+                if (accept in Config.metadataSerializers)
+                {
+                    serializer = Config.metadataSerializers[accept];
+                    contentType = Config.metadataContentTypes[accept];
+
+                    requestedResource.findMetadata(function (err, result)
+                    {
+                        if (isNull(err))
+                        {
+                            result.is_project_root = true;
+                            result.is_admin = isAdmin;
+                            res.set("Content-Type", contentType);
+                            res.send(serializer(result));
+                            callback(null, true);
+                        }
+                        else
+                        {
+                            res.status(500).json({
+                                error_messages: "Error finding metadata from " + requestedResource.uri + "\n" + result
+                            });
+                            callback(1, false);
+                        }
+                    }, [Elements.access_types.locked, Elements.access_types.locked_for_projects, Elements.access_types.private],
+                    [Elements.access_types.api_readable]);
+                }
+                else
+                {
+                    callback(null, false);
+                }
             }
         };
         const _ = require("underscore");
 
         // client requested JSON, RDF, TXT, etc...
-        sendResponseInRequestedFormat(function (error, alreadySent)
+        sendResponseInRequestedFormat(errorValue, function (error, alreadySent)
         {
-            if (!isNull(error))
+            if (!isNull(errorValue))
             {
-                req.flash("error", "There is no valid serializer available for the requested format " + req.header("Accept") + " " + requestedResource.uri);
+                req.flash("error", errorValue);
                 res.redirect("/");
             }
             else
             {
-                if (!alreadySent)
+                if (!isNull(error))
                 {
-                    if (isAdmin)
+                    req.flash("error", "There is no valid serializer available for the requested format " + req.header("Accept") + " " + requestedResource.uri);
+                    res.redirect("/");
+                }
+                else
+                {
+                    if (!alreadySent)
                     {
-                        res.render("registry/show",
-                            viewVars
-                        );
-                    }
-                    else
-                    {
-                        if (viewVars.owner === true)
+                        if (isAdmin)
                         {
                             res.render("registry/show",
                                 viewVars
                             );
                         }
-                        else if (viewVars.deposit.ddr.privacyStatus === "private" || viewVars.deposit.ddr.privacyStatus === "embargoed" || (viewVars.deposit.ddr.privacyStatus === "public" && viewVars.deposit.ddr.accessTerms))
+                        else
                         {
-                            if (viewVars.acceptingUser === true)
+                            if (viewVars.owner === true)
                             {
-                                if (viewVars.userAccepted === true)
+                                res.render("registry/show",
+                                    viewVars
+                                );
+                            }
+                            else if (viewVars.deposit.ddr.privacyStatus === "private" || viewVars.deposit.ddr.privacyStatus === "embargoed" || (viewVars.deposit.ddr.privacyStatus === "public" && viewVars.deposit.ddr.accessTerms))
+                            {
+                                if (viewVars.acceptingUser === true)
                                 {
-                                    res.render("registry/show_readonly",
-                                        viewVars
-                                    );
+                                    if (viewVars.userAccepted === true)
+                                    {
+                                        res.render("registry/show_readonly",
+                                            viewVars
+                                        );
+                                    }
+                                    else
+                                    {
+                                        res.render("registry/deposit_for_acceptance",
+                                            viewVars
+                                        );
+                                    }
                                 }
                                 else
                                 {
-                                    res.render("registry/deposit_for_acceptance",
-                                        viewVars
+                                    res.redirect(resourceURI + "?request_access"
                                     );
                                 }
                             }
                             else
                             {
-                                res.redirect(resourceURI + "?request_access"
+                                res.render("registry/show_readonly",
+                                    viewVars
                                 );
                             }
-                        }
-                        else
-                        {
-                            res.render("registry/show_readonly",
-                                viewVars
-                            );
                         }
                     }
                 }
@@ -678,7 +692,7 @@ exports.show = function (req, res)
 
     if (isDepositRoot)
     {
-        const appendPlatformUrl = function ({ ddr: {exportedToPlatform: platform, exportedToRepository: url}})
+        const appendPlatformUrl = function ({ ddr: { exportedToPlatform: platform, exportedToRepository: url } })
         {
             const https = "https://";
             switch (platform)
@@ -699,101 +713,148 @@ exports.show = function (req, res)
                 return "";
             }
         };
+
         Deposit.findByUri(resourceURI, function (err, deposit)
         {
             if (isNull(err))
             {
-                viewVars.is_project_root = true;
-                viewVars.is_admin = isAdmin;
-                viewVars.title = "Deposit information";
-
-                Deposit.validatePlatformUri(deposit, function (deposit)
+                if (deposit.ddr.privacyStatus === "public" && isNull(deposit.ddr.accessTerms) && !req.user)
                 {
-                    viewVars.go_up_options =
-                    {
-                        uri: resourceURI,
-                        title: deposit.dcterms.title,
-                        icons: [
-                            "/images/icons/folders.png",
-                            "/images/icons/bullet_user.png"
-                        ]
-                    };
+                    viewVars.is_project_root = true;
+                    viewVars.is_admin = isAdmin;
+                    viewVars.title = "Deposit information";
 
-                    async.series([
-                        function (callback)
+                    Deposit.validatePlatformUri(deposit, function (deposit)
+                    {
+                        viewVars.go_up_options =
+                              {
+                                  uri: resourceURI,
+                                  title: deposit.dcterms.title,
+                                  icons: [
+                                      "/images/icons/folders.png",
+                                      "/images/icons/bullet_user.png"
+                                  ]
+                              };
+
+                        deposit.dcterms.date = moment(deposit.dcterms.date).format("LLLL");
+                        deposit.externalUri = appendPlatformUrl(deposit) + deposit.dcterms.identifier;
+                        viewVars.deposit = deposit;
+                        viewVars.owner = false;
+                        viewVars.userAccepted = true;
+                        viewVars.acceptingUser = true;
+
+                        const depositDescriptors = deposit.getDescriptors(
+                            [Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_readable], [Elements.access_types.locked_for_projects, Elements.access_types.locked]
+                        );
+
+                        if (!isNull(depositDescriptors) && depositDescriptors instanceof Array)
                         {
-                            deposit.dcterms.date = moment(deposit.dcterms.date).format("LLLL");
-                            deposit.externalUri = appendPlatformUrl(deposit) + deposit.dcterms.identifier;
-                            viewVars.deposit = deposit;
-                            if (req.user.uri === deposit.dcterms.creator)
+                            viewVars.descriptors = depositDescriptors;
+
+                            sendResponse(null, viewVars, deposit);
+                        }
+                    });
+                }
+                else if (req.user)
+                {
+                    viewVars.is_project_root = true;
+                    viewVars.is_admin = isAdmin;
+                    viewVars.title = "Deposit information";
+
+                    Deposit.validatePlatformUri(deposit, function (deposit)
+                    {
+                        viewVars.go_up_options =
+                              {
+                                  uri: resourceURI,
+                                  title: deposit.dcterms.title,
+                                  icons: [
+                                      "/images/icons/folders.png",
+                                      "/images/icons/bullet_user.png"
+                                  ]
+                              };
+
+                        async.series([
+                            function (callback)
                             {
-                                viewVars.owner = true;
+                                deposit.dcterms.date = moment(deposit.dcterms.date).format("LLLL");
+                                deposit.externalUri = appendPlatformUrl(deposit) + deposit.dcterms.identifier;
+                                viewVars.deposit = deposit;
+                                if (req.user.uri === deposit.dcterms.creator)
+                                {
+                                    viewVars.owner = true;
+                                }
+                                else
+                                {
+                                    viewVars.owner = false;
+                                }
+                                callback(null);
+                            },
+                            function (callback)
+                            {
+                                ConditionsAcceptance.getUserConditionOnTheDeposit(req.user.uri, resourceURI, function (err, result)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        if (result.length > 0)
+                                        {
+                                            if (result[0].userAccepted === "true")
+                                            {
+                                                viewVars.userAccepted = true;
+                                                viewVars.acceptingUser = true;
+                                            }
+                                            else
+                                            {
+                                                viewVars.userAccepted = false;
+                                                viewVars.acceptingUser = true;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (viewVars.deposit.ddr.accessTerms || viewVars.deposit.ddr.privacyStatus !== "public")
+                                            {
+                                                viewVars.userAccepted = false;
+                                                viewVars.acceptingUser = false;
+                                            }
+                                            else
+                                            {
+                                                viewVars.userAccepted = true;
+                                                viewVars.acceptingUser = true;
+                                            }
+                                        }
+                                    }
+                                    callback(err, result);
+                                });
+                            }
+                        ], function (err, result)
+                        {
+                            if (isNull(err))
+                            {
+                                const depositDescriptors = deposit.getDescriptors(
+                                    [Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_readable], [Elements.access_types.locked_for_projects, Elements.access_types.locked]
+                                );
+
+                                if (!isNull(depositDescriptors) && depositDescriptors instanceof Array)
+                                {
+                                    viewVars.descriptors = depositDescriptors;
+
+                                    sendResponse(null, viewVars, deposit);
+                                }
                             }
                             else
                             {
-                                viewVars.owner = false;
+                                Logger.log("error", "Unable to retrieve deposit information");
+                                Logger.log("error", JSON.stringify(result));
+                                sendResponse("error", err, result);
                             }
-                            callback(null);
-                        },
-                        function (callback)
-                        {
-                            ConditionsAcceptance.getUserConditionOnTheDeposit(req.user.uri, resourceURI, function (err, result)
-                            {
-                                if (isNull(err))
-                                {
-                                    if (result.length > 0)
-                                    {
-                                        if (result[0].userAccepted === "true")
-                                        {
-                                            viewVars.userAccepted = true;
-                                            viewVars.acceptingUser = true;
-                                        }
-                                        else
-                                        {
-                                            viewVars.userAccepted = false;
-                                            viewVars.acceptingUser = true;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (viewVars.deposit.ddr.accessTerms || viewVars.deposit.ddr.privacyStatus !== "public")
-                                        {
-                                            viewVars.userAccepted = false;
-                                            viewVars.acceptingUser = false;
-                                        }
-                                        else
-                                        {
-                                            viewVars.userAccepted = true;
-                                            viewVars.acceptingUser = true;
-                                        }
-                                    }
-                                }
-                                callback(err, result);
-                            });
-                        }
-                    ], function (err, result)
-                    {
-                        if (isNull(err))
-                        {
-                            const depositDescriptors = deposit.getDescriptors(
-                                [Elements.access_types.private, Elements.access_types.locked], [Elements.access_types.api_readable], [Elements.access_types.locked_for_projects, Elements.access_types.locked]
-                            );
-
-                            if (!isNull(depositDescriptors) && depositDescriptors instanceof Array)
-                            {
-                                viewVars.descriptors = depositDescriptors;
-
-                                sendResponse(viewVars, deposit);
-                            }
-                        }
-                        else
-                        {
-                            Logger.log("error", "Unable to retrieve deposit information");
-                            Logger.log("error", JSON.stringify(result));
-                            sendResponse(err, result);
-                        }
+                        });
                     });
-                });
+                }
+                else
+                {
+                    let error = "Error detected. You are not authorized to perform this operation. You must be signed into Dendro.";
+                    Logger.log("error", error);
+                    sendResponse(error, null, null);
+                }
             }
         });
     }
@@ -934,7 +995,7 @@ exports.show = function (req, res)
                                             if (isNull(err))
                                             {
                                                 viewVars.versions = fullVersions;
-                                                sendResponse(viewVars, resourceBeingAccessed);
+                                                sendResponse(null, viewVars, resourceBeingAccessed);
                                                 return callback(null);
                                             }
                                             return callback(err, "Unable to fetch descriptors. Reported Error: " + fullVersions);
@@ -953,7 +1014,7 @@ exports.show = function (req, res)
                                 );
 
                                 viewVars.descriptors = descriptors;
-                                sendResponse(viewVars, resourceBeingAccessed);
+                                sendResponse(null, viewVars, resourceBeingAccessed);
                             }
                         }
                         else
