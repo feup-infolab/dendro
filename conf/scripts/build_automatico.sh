@@ -9,6 +9,9 @@ function runTest()
   kill -INT "$GLANCES_PID"
 }
 
+docker-compose -f docker-compose-tests.yml pull
+npm run docker-mocha-rebuild-dendro-image-nc
+
 for i in 24 12 8 4 2 1
 do
    runTest "$i"
