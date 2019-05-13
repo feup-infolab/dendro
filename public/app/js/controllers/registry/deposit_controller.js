@@ -75,35 +75,42 @@ angular.module("dendroApp.controllers", [])
             system: {
                 type: "checkbox",
                 list: true,
-                label: "Platform Used",
+                label: "Repository Used",
                 key: "platforms",
                 value: [
                     {
                         name: "CKAN",
+                        count: "0",
                         value: true
                     },
                     {
                         name: "Dendro",
+                        count: "0",
                         value: true
                     },
                     {
                         name: "DSpace",
+                        count: "0",
                         value: true
                     },
                     {
                         name: "EPrints",
+                        count: "0",
                         value: true
                     },
                     {
                         name: "Figshare",
+                        count: "0",
                         value: true
                     },
                     {
                         name: "Zenodo",
+                        count: "0",
                         value: true
                     },
                     {
                         name: "EUDAT B2Share",
+                        count: "0",
                         value: true
                     }
                 ]
@@ -184,9 +191,20 @@ angular.module("dendroApp.controllers", [])
         $scope.updateDeposits = function (data, change)
         {
             $scope.deposits = data.deposits;
-
         };
 
+        $scope.getEmbargoedDate = function (uri)
+        {
+            depositsService.get_embargoed_date(uri)
+                .then(function (response)
+                {
+                    return response;
+                })
+                .catch(function (error)
+                {
+                    $scope.show_popup("error", "Error occurred", JSON.stringify(error));
+                });
+        };
 
         $scope.getRegistry = function (change)
         {
@@ -201,38 +219,27 @@ angular.module("dendroApp.controllers", [])
                 if (change && data.repositories instanceof Array && data.repositories.length > 0)
                 {
                     const repository = data.repositories;
-                    $scope.search.repositories = {
-                        type: "checkbox",
-                        list: true,
-                        label: "Repository Used",
-                        key: "repositories",
-                        change: false,
-                        value: []
-                    };
                     let depositCount = 0;
                     for (let repo of repository)
                     {
-                        $scope.search.repositories.value.push({
-                            name: repo.repository,
-                            count: repo.count,
-                            value: true
-                        });
+                        for (let repoInSystem of $scope.search.system.value)
+                        {
+                            if (repo.repository === repoInSystem.name)
+                            {
+                                repoInSystem.count = repo.count;
+                            }
+                        }
                         depositCount += parseInt(repo.count);
                     }
                     $scope.search_settings.totalDeposits = Math.ceil(depositCount / $scope.search_settings.page);
                 }
-                else if ($scope.search.repositories)
+                else if (change && data.repositories instanceof Array && data.repositories.length === 0)
                 {
-                    let depositCount = 0;
-
-                    for (let repo of $scope.search.repositories.value)
+                    for (let repo of $scope.search.system.value)
                     {
-                        if (repo.value === true)
-                        {
-                            depositCount += parseInt(repo.count);
-                        }
+                        repo.count = "0";
                     }
-                    $scope.search_settings.totalDeposits = Math.ceil(depositCount / $scope.search_settings.page);
+                    $scope.search_settings.totalDeposits = 0;
                 }
             };
 

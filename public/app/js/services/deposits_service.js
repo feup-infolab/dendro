@@ -33,6 +33,35 @@ angular.module("dendroApp.services")
 
                     return deferred.promise;
                 };
+                this.get_embargoed_date = function (uri)
+                {
+                    var deferred = $q.defer();
+
+                    var payload = JSON.stringify({uri: uri});
+
+                    var URL = "getEmbargoedDate";
+
+                    $http({
+                        method: "POST",
+                        url: URL,
+                        data: payload,
+                        contentType: "application/json",
+                        headers: {Accept: "application/json"}
+                    }).then(function (response)
+                    {
+                        deferred.resolve(response.embargoedDate);
+                        // deferred.resolve(response.data);
+                    }
+                    ).catch(function (error)
+                    {
+                        return error;
+                        // var serverResponse = error.data;
+                        // deferred.reject(serverResponse);
+                    }
+                    );
+
+                    // return deferred.promise;
+                };
                 this.change_user_access = function (condition, value, forDelete)
                 {
                     var deferred = $q.defer();

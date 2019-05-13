@@ -510,6 +510,46 @@ exports.search = function (req, res)
 
     exports.allowed(req, verification);
 };
+exports.embargoedDate = function (req, res)
+{
+    Deposit.findByUri(req.body.uri, function (err, deposit)
+    {
+        if (isNull(err) && deposit instanceof Deposit)
+        {
+            async.series([
+                function (callback)
+                {
+                    Deposit.getEmbargoedDate(req.body.uri, function (err, embargoedDate)
+                    {
+                        if (isNull(err))
+                        {
+                            return callback(err, embargoedDate);
+                        }
+                        return callback(1, err);
+                    });
+                }
+            ],
+            function (err, result)
+            {
+                if (err)
+                {
+                    res.status(500).json(result);
+                }
+                else
+                {
+                    res.json({
+                        embargoedDate: result[0].embargoedDate
+                    });
+                }
+            });
+        }
+        else
+        {
+            req.flash("error", "Deposit " + req.params.requestedResourceUri + " not found.");
+            res.redirect("/");
+        }
+    });
+};
 
 exports.show = function (req, res)
 {
