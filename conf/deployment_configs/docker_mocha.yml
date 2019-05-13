@@ -199,7 +199,7 @@ docker_mocha:
     destroy_mysql_database: false
   baselines: {}
   logging:
-    level: debug
+    level: error
     app_logs_folder: logs/app
     log_all_requests: true
     do_not_log_requests_to_public_assets: true

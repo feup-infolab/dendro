@@ -9,7 +9,7 @@ function runTest()
   kill -INT "$GLANCES_PID"
 }
 
-for i in 1 2 4 8 12 24
+for i in 24 12 8 4 2 1
 do
    runTest "$i"
 done
