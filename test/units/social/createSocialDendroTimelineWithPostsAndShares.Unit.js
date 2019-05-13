@@ -17,6 +17,8 @@ class CreateSocialDendroTimelineWithPostsAndShares extends CommentSomePostsUnit
         unitUtils.startLoad(CreateSocialDendroTimelineWithPostsAndShares);
         unitUtils.endLoad(CreateSocialDendroTimelineWithPostsAndShares, callback);
 
+        callback(null);
+
         // createTimelineInMySQL.setup(function (err, results)
         // {
         //     if (err)
