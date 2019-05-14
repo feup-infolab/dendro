@@ -21,6 +21,8 @@ saveToPDF <- function(plot, pdfFile)
 }
 
 instances_factor <- factor(c(1,2,4,8,12,24));
+instances_no_caching_factor <- factor(c("No Caching", 1,2,4,8,12,24), levels = c("No Caching", 1,2,4,8,12,24))
+
 instances_labels <- c(
     `1` = "1 Instance", 
     `2` = "2 Instances",
@@ -34,6 +36,7 @@ instances_labeller <- function(variable,value){
   return(instances_labels[value])
 }
 
+dstat_no_caching <- getDataSeries("../run1_mac_parsed_no_checkpoint/dstat_1_thread.csv", "no_caching")
 dstat_threads1 <- getDataSeries("./dados/dstat_no_timeouts/dstat_1_thread.csv", "1")
 dstat_threads2 <- getDataSeries("./dados/dstat_no_timeouts/dstat_2_thread.csv", "2")
 dstat_threads4 <- getDataSeries("./dados/dstat_no_timeouts/dstat_4_thread.csv", "4")
@@ -49,8 +52,9 @@ all_data$disk_read <- all_data$disk_read / 10^6
 
 # Calculate build times
 build_times <- data.frame(
-  Instances = instances_factor,
+  Instances = instances_no_caching_factor,
   Build_time = c(
+      dstat_no_caching$Second[length(dstat_no_caching$Second)],
       dstat_threads1$Second[length(dstat_threads1$Second)],
       dstat_threads2$Second[length(dstat_threads2$Second)],
       dstat_threads4$Second[length(dstat_threads4$Second)],
@@ -60,6 +64,7 @@ build_times <- data.frame(
     ),
     Percent = c(
       '',
+      paste("-",round(100-dstat_threads1$Second[length(dstat_threads1$Second)] / dstat_no_caching$Second[length(dstat_no_caching$Second)]*100, digits = 2), "%", sep=''),
       paste("-",round(100-dstat_threads2$Second[length(dstat_threads2$Second)] / dstat_threads1$Second[length(dstat_threads1$Second)]*100, digits = 2), "%", sep=''),
       paste("-",round(100-dstat_threads4$Second[length(dstat_threads4$Second)] / dstat_threads1$Second[length(dstat_threads2$Second)]*100, digits = 2), "%", sep=''),
       paste("-",round(100-dstat_threads8$Second[length(dstat_threads8$Second)] / dstat_threads1$Second[length(dstat_threads4$Second)]*100, digits = 2), "%", sep=''),
@@ -74,7 +79,7 @@ build_times <- data.frame(
 build_time_vs_instances<-
   ggplot(data=build_times, aes(x=Instances, y=Build_time, fill=Instances)) +
   geom_bar(stat="identity") + 
-  geom_text(aes(x=Instances, y=Build_time, label=Percent, vjust=3.5), position = position_dodge(width=0.9)) +
+  geom_text(aes(x=Instances, y=Build_time, label=Percent, vjust=-0.5), position = position_dodge(width=0.9)) +
   theme(legend.position = "none") +
   xlab("Number of instances") + 
   ylab("Build time (seconds)")
