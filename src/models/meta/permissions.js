@@ -517,7 +517,7 @@ const checkUsersPermissionOnDeposit = function (req, user, role, depositUri, cal
     else
     {
         predicateRoles = role.predicates;
-        if (!isNull(user) && !isNull(depositUri))
+        if (!isNull(depositUri))
         {
             if (req.session.isAdmin === true)
             {
@@ -527,27 +527,37 @@ const checkUsersPermissionOnDeposit = function (req, user, role, depositUri, cal
             {
                 if (isNull(err))
                 {
-                    if (deposit.dcterms.creator === user.uri)
+                    if (!isNull(user))
                     {
-                        return callback(null, true);
-                    }
-                    if (deposit.ddr.privacyStatus === "public" && isNull(deposit.ddr.accessTerms))
-                    {
-                        return callback(null, true);
-                    }
-                    getCondition(user.uri, depositUri, function (err, condition)
-                    {
-                        if (isNull(err) && condition !== null)
+                        if (deposit.dcterms.creator === user.uri)
                         {
-                            if (condition.userAccepted === "true")
-                            {
-                                return callback(null, true);
-                            }
-                            return callback(null, false);
+                            return callback(null, true);
                         }
+                        if (deposit.ddr.privacyStatus === "public" && isNull(deposit.ddr.accessTerms))
+                        {
+                            return callback(null, true);
+                        }
+                        getCondition(user.uri, depositUri, function (err, condition)
+                        {
+                            if (isNull(err) && condition !== null)
+                            {
+                                if (condition.userAccepted === "true")
+                                {
+                                    return callback(null, true);
+                                }
+                                return callback(null, false);
+                            }
 
-                        return callback(null, false);
-                    });
+                            return callback(null, false);
+                        });
+                    }
+                    else
+                    {
+                        if (deposit.ddr.privacyStatus === "public" && !deposit.ddr.accessTerms)
+                        {
+                            return callback(null, true);
+                        } return callback(null, false);
+                    }
                 }
                 else callback(err, false);
             });
