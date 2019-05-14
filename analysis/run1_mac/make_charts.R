@@ -17,7 +17,7 @@ getDataSeries <- function (sourceFile, num_instances)
 
 saveToPDF <- function(plot, pdfFile)
 {
-  ggsave(pdfFile,plot, width=16, height=10, units="cm", scale=1)
+  ggsave(pdfFile,plot, width=30, height=15, units="cm", scale=1)
 }
 
 instances_factor <- factor(c(1,2,4,8,12,24));
@@ -34,32 +34,48 @@ instances_labeller <- function(variable,value){
   return(instances_labels[value])
 }
 
-dstat_threads1 <- getDataSeries("./dados/dstat/dstat_1_thread.csv", "1")
-dstat_threads2 <- getDataSeries("./dados/dstat/dstat_2_thread.csv", "2")
-dstat_threads4 <- getDataSeries("./dados/dstat/dstat_4_thread.csv", "4")
-dstat_threads8 <- getDataSeries("./dados/dstat/dstat_8_thread.csv", "8")
-dstat_threads12 <- getDataSeries("./dados/dstat/dstat_12_thread.csv", "12")
-dstat_threads24 <- getDataSeries("./dados/dstat/dstat_24_thread.csv", "24")
+dstat_threads1 <- getDataSeries("./dados/dstat_no_timeouts/dstat_1_thread.csv", "1")
+dstat_threads2 <- getDataSeries("./dados/dstat_no_timeouts/dstat_2_thread.csv", "2")
+dstat_threads4 <- getDataSeries("./dados/dstat_no_timeouts/dstat_4_thread.csv", "4")
+dstat_threads8 <- getDataSeries("./dados/dstat_no_timeouts/dstat_8_thread.csv", "8")
+dstat_threads12 <- getDataSeries("./dados/dstat_no_timeouts/dstat_12_thread.csv", "12")
+dstat_threads24 <- getDataSeries("./dados/dstat_no_timeouts/dstat_24_thread.csv", "24")
 
 all_data <- rbind.fill(dstat_threads1, dstat_threads2, dstat_threads4, dstat_threads8, dstat_threads12, dstat_threads24)
 all_data$mem_used <- all_data$mem_used / 10^9
+all_data$disk_writ <- all_data$disk_writ / 10^6
+all_data$disk_read <- all_data$disk_read / 10^6
+
 
 # Calculate build times
 build_times <- data.frame(
   Instances = instances_factor,
   Build_time = c(
-    dstat_threads1$Second[length(dstat_threads1$Second)],
-    dstat_threads2$Second[length(dstat_threads2$Second)],
-    dstat_threads4$Second[length(dstat_threads4$Second)],
-    dstat_threads8$Second[length(dstat_threads8$Second)],
-    dstat_threads12$Second[length(dstat_threads12$Second)],
-    dstat_threads24$Second[length(dstat_threads24$Second)]
-  ))
+      dstat_threads1$Second[length(dstat_threads1$Second)],
+      dstat_threads2$Second[length(dstat_threads2$Second)],
+      dstat_threads4$Second[length(dstat_threads4$Second)],
+      dstat_threads8$Second[length(dstat_threads8$Second)],
+      dstat_threads12$Second[length(dstat_threads12$Second)],
+      dstat_threads24$Second[length(dstat_threads24$Second)]
+    ),
+    Percent = c(
+      '',
+      paste("-",round(100-dstat_threads2$Second[length(dstat_threads2$Second)] / dstat_threads1$Second[length(dstat_threads1$Second)]*100, digits = 2), "%", sep=''),
+      paste("-",round(100-dstat_threads4$Second[length(dstat_threads4$Second)] / dstat_threads1$Second[length(dstat_threads2$Second)]*100, digits = 2), "%", sep=''),
+      paste("-",round(100-dstat_threads8$Second[length(dstat_threads8$Second)] / dstat_threads1$Second[length(dstat_threads4$Second)]*100, digits = 2), "%", sep=''),
+      paste("-",round(100-dstat_threads12$Second[length(dstat_threads12$Second)] / dstat_threads1$Second[length(dstat_threads8$Second)]*100, digits = 2), "%", sep=''),
+      paste("-",round(100-dstat_threads24$Second[length(dstat_threads24$Second)] / dstat_threads1$Second[length(dstat_threads12$Second)]*100, digits = 2), "%", sep='')
+    )
+  )
+
+  
 
 # Plot build time
 build_time_vs_instances<-
   ggplot(data=build_times, aes(x=Instances, y=Build_time, fill=Instances)) +
   geom_bar(stat="identity") + 
+  geom_text(aes(x=Instances, y=Build_time, label=Percent, vjust=3.5), position = position_dodge(width=0.9)) +
+  theme(legend.position = "none") +
   xlab("Number of instances") + 
   ylab("Build time (seconds)")
 
@@ -83,14 +99,14 @@ plotFacetedChart <- function (all_data, chartParameters)
     ylab(ylabel) + 
     geom_smooth(method="lm")
   
-  saveToPDF(chart, paste("./charts/",column,".pdf"))
+  saveToPDF(chart, paste("./charts/",column,".pdf", sep =''))
 }
 
 charts <- list(
-  c("cpu_total", "Build time (seconds)", "CPUs Usage (percent)"),
-  c("disk_writ", "Build time (seconds)", "Disk I/O Write (bytes/s)"),
-  c("disk_read", "Build time (seconds)", "Disk I/O Read (bytes/s)"),
-  c("mem_used", "Build time (seconds)", "Memory (GB)")
+  c("cpu_total", "Build time (seconds)", "CPU Usage, All Cores (%)"),
+  c("disk_writ", "Build time (seconds)", "Disk I/O Write (MB/s)"),
+  c("disk_read", "Build time (seconds)", "Disk I/O Read (MB/s)"),
+  c("mem_used", "Build time (seconds)", "Used Memory (GB)")
 )
 
 
