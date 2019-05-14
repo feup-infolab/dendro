@@ -24,7 +24,7 @@ instances_factor <- factor(c(1,2,4,8,12,24));
 instances_labels <- c(
     `1` = "1 Instance", 
     `2` = "2 Instances",
-    `4` = "4 Instance",
+    `4` = "4 Instances",
     `8` = "8 Instances", 
     `12` = "12 Instances", 
     `24` = "24 Instances"
