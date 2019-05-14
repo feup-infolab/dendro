@@ -21,7 +21,9 @@
             </label>
         </td>
         <td>
-            <input class="margin-bottom-4" style="width: 174px" ng-if="!item.list" ng-model="item.value" ng-change="$eval(update(item.change))" ng-model-options="{debounce : 500}" type="{{item.type}}">
+            <input class="margin-bottom-4" style="width: 174px" ng-if="!item.list && item.hidden!== true" ng-model="item.value" ng-change="$eval(update(item.change))" ng-model-options="{debounce : 500}" type="{{item.type}}">
+            <input class="margin-bottom-4" style="width: 174px" disabled="disabled" ng-if="!item.list && item.hidden== true" ng-model="item.value" ng-change="$eval(update(item.change))" ng-model-options="{debounce : 500}" type="{{item.type}}">
+
         </td>
     </tr>
     <tr class="form-group sidebar-item" >

@@ -29,7 +29,8 @@ angular.module("dendroApp.controllers", [])
                 type: "text",
                 label: "Username",
                 key: "creator",
-                value: ""
+                value: "",
+                hidden: false
             },
             project: {
                 type: "text",
@@ -188,6 +189,20 @@ angular.module("dendroApp.controllers", [])
         {
             $scope.getRegistry(true);
         };
+
+        $scope.myInit = function ()
+        {
+            usersService.get_logged_user()
+                .then(function (user)
+                {
+                    $scope.loggedUser = user;
+                    $scope.getMyRegistry(true);
+                })
+                .catch(function (error)
+                {
+                    $scope.show_popup("error", error, "Error fetching user", 20000);
+                });
+        };
         $scope.updateDeposits = function (data, change)
         {
             $scope.deposits = data.deposits;
@@ -246,6 +261,69 @@ angular.module("dendroApp.controllers", [])
             let url = $scope.get_current_url();
             url += "deposits/search";
             listings.getListing($scope, url, $scope.search_settings.page, $scope.search_settings.offset - 1, $scope.search, change, handle);
+        };
+
+        $scope.getMyRegistry = function (change)
+        {
+            const handle = function (data, change)
+            {
+                $scope.deposits = data.deposits;
+
+                $scope.offset = 1;
+                $scope.totalDeposits = 0;
+
+                if (change && data.repositories instanceof Array && data.repositories.length > 0)
+                {
+                    const repository = data.repositories;
+                    let depositCount = 0;
+                    for (let repo of repository)
+                    {
+                        for (let repoInSystem of $scope.search.system.value)
+                        {
+                            if (repo.repository === repoInSystem.name)
+                            {
+                                repoInSystem.count = repo.count;
+                            }
+                        }
+                        depositCount += parseInt(repo.count);
+                    }
+                    $scope.search_settings.totalDeposits = Math.ceil(depositCount / $scope.search_settings.page);
+                }
+                else if (change && data.repositories instanceof Array && data.repositories.length === 0)
+                {
+                    for (let repo of $scope.search.system.value)
+                    {
+                        repo.count = "0";
+                    }
+                    $scope.search_settings.totalDeposits = 0;
+                }
+            };
+            $scope.search.creator.value = $scope.loggedUser.ddr.username;
+            $scope.search.creator.hidden = true;
+            let url = windowService.get_protocol_and_host();
+            url += "/deposits/search";
+            listings.getListing($scope, url, $scope.search_settings.page, $scope.search_settings.offset - 1, $scope.search, change, handle);
+        };
+
+        $scope.changeMyPage = function (pageNumber)
+        {
+            let url = windowService.get_protocol_and_host();
+            url += "/deposits/search";
+            listings.getListing($scope, url, $scope.search_settings.page, pageNumber - 1, $scope.search, false, $scope.updateDeposits);
+            $scope.search_settings.offset = pageNumber;
+        };
+
+        $scope.nextMyPage = function ()
+        {
+            let url = windowService.get_protocol_and_host();
+            url += "/deposits/search";
+            listings.getListing($scope, url, $scope.search_settings.page, ++$scope.search_settings.offset - 1, $scope.search, false, $scope.updateDeposits);
+        };
+        $scope.previousMyPage = function ()
+        {
+            let url = windowService.get_protocol_and_host();
+            url += "/deposits/search";
+            listings.getListing($scope, url, $scope.search_settings.page, --$scope.search_settings.offset - 1, $scope.search, false, $scope.updateDeposits);
         };
 
         $scope.changePage = function (pageNumber)

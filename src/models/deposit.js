@@ -380,6 +380,11 @@ Deposit.createQuery = function (params, callback)
           "} . \n" +
           "    ?uri ddr:exportedToPlatform ?platformsUsed . \n";
     }
+    let ending =
+      "} \n" +
+      "ORDER BY " + params.order + "(?" + params.labelToSort + ") \n" +
+      "OFFSET [" + i++ + "] \n" +
+      "LIMIT [" + i++ + "]";
 
     if (params.offset)
     {
@@ -444,11 +449,7 @@ Deposit.createQuery = function (params, callback)
         });
     }
 
-    let ending =
-          "} \n" +
-          "ORDER BY " + params.order + "(?" + params.labelToSort + ") \n" +
-          "OFFSET [" + i++ + "] \n" +
-          "LIMIT [" + i++ + "]";
+
 
     query += ending;
     db.connection.executeViaJDBC(query, variables, function (err, regs)

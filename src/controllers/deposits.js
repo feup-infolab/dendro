@@ -435,46 +435,7 @@ exports.getDepositConditions = function (req, res)
 
 exports.my = function (req, res)
 {
-    let viewVars = {
-        // title: "My projects"
-    };
-
-    Deposit.findByCreator(req.user.uri, function (err, deposits)
-    {
-        if (isNull(err) && !isNull(deposits))
-        {
-            let acceptsHTML = req.accepts("html");
-            const acceptsJSON = req.accepts("json");
-
-            if (acceptsJSON && !acceptsHTML) // will be null if the client does not accept html
-            {
-                res.json(
-                    {
-                        deposits: deposits
-                    }
-                );
-            }
-            else
-            {
-                viewVars = DbConnection.paginate(req,
-                    viewVars
-                );
-
-                viewVars.deposits = deposits;
-                res.render("deposits/my",
-                    viewVars
-                );
-            }
-        }
-        else
-        {
-            viewVars.depoists = [];
-            viewVars.info_messages = ["You have not created any deposits"];
-            res.render("deposits/my",
-                viewVars
-            );
-        }
-    });
+    res.render("registry/my", {});
 };
 
 exports.search = function (req, res)

@@ -851,7 +851,6 @@ const loadRoutes = function (app, callback)
     }
     );
 
-    // TODO William
     app.get("/deposits/search", deposits.search);
     app.post("/getEmbargoedDate", deposits.embargoedDate);
 
