@@ -2,7 +2,7 @@ const rlequire = require("rlequire");
 const async = require("async");
 const _ = require("underscore");
 const Notebook = rlequire("dendro", "src/models/directory_structure/notebook.js").Notebook;
-
+const slug = rlequire("dendro", "src/utils/slugifier.js");
 //
 // Create a proxy server with custom application logic
 //
@@ -32,7 +32,7 @@ module.exports.pipe_to_instance = function (req, res)
             // Stream the content
             // proxyReq.write(bodyData);
 
-            proxyReq.setHeader("Host", "whoami2.local");
+            proxyReq.setHeader("Host", `${req.params["guid"]}jupyter-dendro`);
             proxyReq.path = req.url;
         }
     });
@@ -45,10 +45,8 @@ module.exports.pipe_to_instance = function (req, res)
 module.exports.new = function (req, res)
 {
     const newNotebook = new Notebook();
-    newNotebook.spinUp(function (err, result)
-    {
-        res.json({
-            result: "Spin up complete"
-        });
+    newNotebook.spinUp(function (err, result) {
+        res.redirect(`/notebook_runner/${newNotebook.id}`);
     });
 };
+

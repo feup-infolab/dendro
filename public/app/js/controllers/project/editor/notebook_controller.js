@@ -61,21 +61,20 @@ angular.module("dendroApp.controllers")
 
             var uri = $scope.get_last_section_of_url($scope.get_calling_uri());
 
-                var requestUri = $scope.get_host() + "/r/notebook/" + uri;
-                var url = $scope.get_host();
-                console.log(url);
-                window.open(url);
-                return $http({
-                    method: "GET",
-                    url: requestUri,
-                    data: JSON.stringify({}),
-                    contentType: "application/json",
-                    headers: {Accept: "application/json"}
-                }).then(function (response)
-                {
-                    console.log("Returned");
-                    return response;
-                });
+                var requestUri = $scope.get_host() + "/notebooks/new/";
+                 window.open(requestUri);
+
+                // return $http({
+                //     method: "GET",
+                //     url: requestUri,
+                //     data: JSON.stringify({}),
+                //     contentType: "application/json",
+                //     headers: {Accept: "application/json"}
+                // }).then(function (response)
+                // {
+                //     console.log("Returned");
+                //     return response;
+                // });
         };
     });
 

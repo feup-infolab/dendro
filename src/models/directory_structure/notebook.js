@@ -15,6 +15,8 @@ const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const Notification = rlequire("dendro", "src/models/notifications/notification.js").Notification;
 const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
 
+const slug = rlequire("dendro", "src/utils/slugifier.js");
+
 const gfs = Config.getGFSByID();
 
 const async = require("async");
@@ -50,12 +52,11 @@ class Notebook
         }
 
         const uuid = require("uuid");
-        self.id = uuid.v4();
+        self.id = slug(uuid.v4());
         self.runningPath = rlequire.absPathInApp("dendro", path.join("temp", "jupyter-notebooks", self.id));
 
         return self;
     }
-
     spinUp (callback)
     {
         const self = this;
