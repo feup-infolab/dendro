@@ -77,6 +77,7 @@ class Notebook
                 callback(err, result);
             }, null, self.runningPath, {
                 DENDRO_NOTEBOOK_GUID: self.id,
+                DENDRO_NOTEBOOK_VIRTUAL_HOST: self.id,
                 NB_UID: process.geteuid()
             });
         });

@@ -32,20 +32,25 @@ module.exports.pipe_to_instance = function (req, res)
             // Stream the content
             // proxyReq.write(bodyData);
 
-            proxyReq.setHeader("Host", `${req.params["guid"]}jupyter-dendro`);
-            proxyReq.path = req.url;
+            proxyReq.setHeader("Host", `${req.params.guid}jupyter-dendro`);
+            proxyReq.path = proxyReq.path.substr(req.url.length);
+            if (proxyReq.path.length === 0)
+            {
+                proxyReq.path = "/";
+            }
         }
     });
 
     proxy.web(req, res, {
-        target: "http://127.0.0.1:8888"
+        target: "http://127.0.0.1:15005"
     });
 };
 
 module.exports.new = function (req, res)
 {
     const newNotebook = new Notebook();
-    newNotebook.spinUp(function (err, result) {
+    newNotebook.spinUp(function (err, result)
+    {
         res.redirect(`/notebook_runner/${newNotebook.id}`);
     });
 };
