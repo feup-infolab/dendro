@@ -108,7 +108,7 @@ exports.allowed = function (req, callback)
         params.labelToSort = "user";
         break;
     default:
-        params.labelToSort = "projectTitle";
+        params.labelToSort = "label";
         break;
     }
 

@@ -34,7 +34,7 @@ angular.module("dendroApp.controllers", [])
             },
             project: {
                 type: "text",
-                label: "Project",
+                label: "Deposit title",
                 key: "project",
                 value: ""
             },
@@ -136,10 +136,10 @@ angular.module("dendroApp.controllers", [])
                         name: "username descending"
                     },
                     {
-                        name: "project ascending"
+                        name: "deposits ascending"
                     },
                     {
-                        name: "project descending"
+                        name: "deposits descending"
                     }
                 ]
             },

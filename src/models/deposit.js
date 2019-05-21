@@ -285,7 +285,7 @@ Deposit.getEmbargoedDate = function (url, callback)
 Deposit.createQuery = function (params, callback)
 {
     let query =
-        "SELECT DISTINCT ?label ?user ?date ?platformsUsed ?privacy ?uri ?folder ?folderName ?repository ?description \n" +
+        "SELECT DISTINCT ?label ?user ?date ?platformsUsed ?privacy ?uri ?folder ?folderName ?repository ?doi ?description \n" +
         "FROM [0] \n" +
         "WHERE " +
         "{ \n" +
@@ -299,6 +299,7 @@ Deposit.createQuery = function (params, callback)
         "   ?uri ddr:privacyStatus ?privacy . \n" +
         "   ?uri ddr:exportedToRepository ?repository . \n" +
         "   ?uri ddr:exportedToPlatform ?platformsUsed . \n" +
+        "   ?uri ddr:DOI ?doi .\n" +
         "   ?folder nie:title ?folderName . \n";
 
     let i = 1;
@@ -359,7 +360,7 @@ Deposit.createQuery = function (params, callback)
           "   ?uri ddr:privacyStatus ?privacy . \n";
 
         query +=
-        "    VALUES ?platformsUsed {";
+        "   VALUES ?platformsUsed {";
 
         for (let j = 0; j < params.platforms.length; j++)
         {
@@ -371,15 +372,34 @@ Deposit.createQuery = function (params, callback)
         }
         query +=
       "} . \n" +
-        "    ?uri ddr:exportedToPlatform ?platformsUsed . \n";
+        "   ?uri ddr:exportedToPlatform ?platformsUsed . \n";
     }
     else
     {
         query +=
-          "    VALUES ?platformsUsed { \n" +
+          "   VALUES ?platformsUsed { \n" +
           "} . \n" +
-          "    ?uri ddr:exportedToPlatform ?platformsUsed . \n";
+          "   ?uri ddr:exportedToPlatform ?platformsUsed . \n";
     }
+
+    if (params.description)
+    {
+        query += " FILTER contains(?description, [" + i++ + "]). \n";
+        variables.push({
+            type: Elements.types.string,
+            value: params.description
+        });
+    }
+
+    if (params.identifier)
+    {
+        query += " FILTER contains(?doi, [" + i++ + "]). \n";
+        variables.push({
+            type: Elements.types.string,
+            value: params.identifier
+        });
+    }
+
     let ending =
       "} \n" +
       "ORDER BY " + params.order + "(?" + params.labelToSort + ") \n" +
@@ -418,7 +438,7 @@ Deposit.createQuery = function (params, callback)
 
     if (params.project)
     {
-        query += "  ?projused dcterms:title [" + i++ + "] \n";
+        query += " FILTER contains(?label, [" + i++ + "]). \n";
         variables.push({
             type: Elements.ontologies.dcterms.title.type,
             value: params.project
@@ -448,8 +468,6 @@ Deposit.createQuery = function (params, callback)
             value: params.dateTo
         });
     }
-
-
 
     query += ending;
     db.connection.executeViaJDBC(query, variables, function (err, regs)
@@ -561,7 +579,10 @@ Deposit.getAllRepositories = function (params, callback)
       "WHERE \n" +
       "{ \n" +
       "   ?uri rdf:type ddr:Registry . \n" +
+      "   ?uri dcterms:title ?label . \n" +
       "   ?uri ddr:exportedToRepository ?repository . \n" +
+      "   ?uri ddr:DOI ?doi .\n" +
+      "   ?uri dcterms:description ?description . \n" +
       "   ?uri ddr:exportedFromProject ?projused . \n";
     const ending = "} \n" +
       "GROUP BY ?repository";
@@ -624,7 +645,7 @@ Deposit.getAllRepositories = function (params, callback)
           "   ?uri ddr:privacyStatus ?privacy . \n";
 
         query +=
-          "    VALUES ?platformsUsed {";
+          "   VALUES ?platformsUsed {";
 
         for (let j = 0; j < params.platforms.length; j++)
         {
@@ -636,19 +657,19 @@ Deposit.getAllRepositories = function (params, callback)
         }
         query +=
           "} . \n" +
-          "    ?uri ddr:exportedToPlatform ?platformsUsed . \n";
+          "   ?uri ddr:exportedToPlatform ?platformsUsed . \n";
     }
     else
     {
         query +=
-          "    VALUES ?platformsUsed { \n" +
+          "   VALUES ?platformsUsed { \n" +
           "} . \n" +
           "    ?uri ddr:exportedToPlatform ?platformsUsed . \n";
     }
 
     if (params.project)
     {
-        query += "  ?projused dcterms:title [" + i++ + "] \n";
+        query += " FILTER contains(?label, [" + i++ + "]). \n";
         variables.push({
             type: Elements.ontologies.dcterms.title.type,
             value: params.project
@@ -676,6 +697,24 @@ Deposit.getAllRepositories = function (params, callback)
         variables.push({
             type: Elements.types.string,
             value: params.dateTo
+        });
+    }
+
+    if (params.description)
+    {
+        query += " FILTER contains(?description, [" + i++ + "]). \n";
+        variables.push({
+            type: Elements.types.string,
+            value: params.description
+        });
+    }
+
+    if (params.identifier)
+    {
+        query += " FILTER contains(?doi, [" + i++ + "]). \n";
+        variables.push({
+            type: Elements.types.string,
+            value: params.identifier
         });
     }
 
