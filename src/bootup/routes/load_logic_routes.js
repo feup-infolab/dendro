@@ -806,7 +806,7 @@ const loadRoutes = function (app, callback)
                 ],
                 delete: [
                     {
-                        queryKeys: [],
+                        queryKeys: ["resource"],
                         handler: files.rm,
                         permissions: creatorPermissions,
                         authentication_error: "Permission denied : cannot delete resource because you do not have permissions to edit resources inside this deposit."

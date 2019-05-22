@@ -1637,7 +1637,7 @@ exports.rm = function (req, res)
         let resourceToDelete;
         if (req.params.resource === "deposit")
         {
-            resourceToDelete = "a";
+            resourceToDelete = req.query.resource;
         }
         else
         {
