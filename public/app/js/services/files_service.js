@@ -142,6 +142,19 @@ angular.module("dendroApp.services")
                     {
                         uri = uri + "?really_delete=true";
                     }
+                    var resource = windowService.get_resource_from_URL();
+                    var isDeposit = resource.includes("deposit");
+
+                    if (isDeposit)
+                    {
+                        return $http({
+                            method: "DELETE",
+                            url: "/r/deposit/b12218b2-dd19-40f6-b37c-f2dd8f25b340",
+                            data: JSON.stringify({uri: uri}),
+                            contentType: "application/json",
+                            headers: {Accept: "application/json"}
+                        });
+                    }
 
                     return $http({
                         method: "DELETE",

@@ -1634,7 +1634,15 @@ exports.rm = function (req, res)
 
     if (acceptsJSON && !acceptsHTML)
     {
-        const resourceToDelete = req.params.requestedResourceUri;
+        let resourceToDelete;
+        if (req.params.resource === "deposit")
+        {
+            resourceToDelete = "a";
+        }
+        else
+        {
+            resourceToDelete = req.params.requestedResourceUri;
+        }
 
         let reallyDelete;
 

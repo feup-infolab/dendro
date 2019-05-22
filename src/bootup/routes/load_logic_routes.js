@@ -731,7 +731,7 @@ const loadRoutes = function (app, callback)
     // view a deposit's root
     app.all([
         getNonHumanReadableRouteRegex("deposit"),
-        /\/deposit\/([^\/]+)(\/data)?\/?$/
+          /\/deposit\/([^\/]+)(\/data)?\/?$/
     ],
     extractUriFromRequest,
     function (req, res, next)
@@ -802,6 +802,14 @@ const loadRoutes = function (app, callback)
                         queryKeys: [],
                         handler: deposits.show,
                         authentication_error: "Permission denied : cannot show the deposit because you do not have permissions to access it."
+                    }
+                ],
+                delete: [
+                    {
+                        queryKeys: [],
+                        handler: files.rm,
+                        permissions: creatorPermissions,
+                        authentication_error: "Permission denied : cannot delete resource because you do not have permissions to edit resources inside this deposit."
                     }
                 ],
                 all:

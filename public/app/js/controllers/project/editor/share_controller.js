@@ -285,7 +285,7 @@ angular.module("dendroApp.controllers")
                 $scope.descriptionOfDeposit = description;
             };
 
-            $scope.disable_send_bookmark_dendro = function (title, obj, date, userAffiliation)
+            $scope.disable_send_bookmark_dendro = function (title, description, obj, date, userAffiliation)
             {
                 let one = false;
                 let index;
@@ -300,6 +300,11 @@ angular.module("dendroApp.controllers")
                     return true;
                 }
 
+                if (!description || description === "")
+                {
+                    return true;
+                }
+
                 for (let key in obj)
                 {
                     if (obj[key] === true)
@@ -309,14 +314,18 @@ angular.module("dendroApp.controllers")
                     }
                 }
 
-                if (index === "1" && one && date)
+                if (index === "1" && one)
                 {
-                    const dateNow = new Date();
-                    /* if (dateNow > date)
+                    if (!date)
                     {
                         return true;
                     }
-                    return false;*/
+                    const dateNow = new Date();
+                    if (dateNow > date)
+                    {
+                        return true;
+                    }
+                    return false;
                 }
 
                 if (index !== "1" && one)

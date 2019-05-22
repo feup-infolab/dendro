@@ -151,7 +151,7 @@ angular.module("dendroApp.controllers")
                 }
                 else
                 {
-                    /* items.push({
+                    items.push({
                         click: function ($itemScope, $event, modelValue, text, $li)
                         {
                             $scope.delete_file_or_folder();
@@ -161,7 +161,7 @@ angular.module("dendroApp.controllers")
                             return "<a href=\"#\"><img class=\"icon16\" data-loading-text=\"Deleting...\" src=\"/images/icons/cross.png\">&nbsp;Delete</a>";
                         },
                         children: null
-                    });*/
+                    });
                 }
             }
 
