@@ -42,7 +42,7 @@ module.exports.pipe_to_instance = function (req, res)
     });
 
     proxy.web(req, res, {
-        target: "http://127.0.0.1:15005"
+        target: "http://127.0.0.1:8000"
     });
 };
 
@@ -53,5 +53,7 @@ module.exports.new = function (req, res)
     {
         res.redirect(`/notebook_runner/${newNotebook.id}`);
     });
+
+
 };
 

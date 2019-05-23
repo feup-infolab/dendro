@@ -1,13 +1,15 @@
-version: '3'
+version: '3.5'
 
 services:
   nginx_proxy:
     container_name: nginx-proxy
     image:  jwilder/nginx-proxy:latest
     ports:
-      - 15005:80
+      - 8000:80
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
+    networks:
+      net : {}
 
 #  whoami:
 #    container_name: whoami
@@ -16,6 +18,9 @@ services:
 #      - VIRTUAL_HOST=whoami.local
 #    expose:
 #      - 8000
+#  networks:
+#    net: {}
+
 #  whoami2:
 #    container_name: whoami2
 #    image: jwilder/whoami
@@ -23,4 +28,8 @@ services:
 #      - VIRTUAL_HOST=whoami2.local
 #    expose:
 #      - 8000
-
+#
+networks:
+  net:
+    name: notebooknet
+    driver: bridge

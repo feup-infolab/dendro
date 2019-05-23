@@ -1,4 +1,4 @@
-version: '3'
+version: '3.5'
 
 services:
   jupyter_notebook:
@@ -10,5 +10,13 @@ services:
       #- JAVA_XMX=3g
     volumes:
       - ./data:/home/jovyam/work
+
+    networks:
+        net: {}
     expose:
       - 8888
+
+networks:
+      net:
+        name: notebooknet
+        driver: bridge

@@ -82,6 +82,10 @@ class Notebook
             });
         });
     }
+
+    save_notebook (callback) {
+
+    }
 }
 
 Notebook = Class.extend(Notebook, File, "ddr:Notebook");
