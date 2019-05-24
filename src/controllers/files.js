@@ -1490,6 +1490,26 @@ exports.rm = function (req, res)
         });
     };
 
+    let getDepositFromResource = function (resource, callback)
+    {
+        resource.getOwnerDeposit(function (err, deposit)
+        {
+            if (isNull(err))
+            {
+                callback(err, resource, deposit);
+            }
+            else
+            {
+                const msg = "Unable to retrieve owner deposit of resource with uri : " + req.params.requestedResourceUri + ". Error retrieved : " + deposit;
+                const newError = {
+                    statusCode: 500,
+                    message: msg
+                };
+                callback(newError, deposit);
+            }
+        });
+    };
+
     let buildFileSystemPostFromDeleteFileOperation = function (userUri, project, file, callback)
     {
         FileSystemPost.buildFromDeleteFile(userUri, project.uri, file, function (error, fileSystemPost)
@@ -1780,42 +1800,84 @@ exports.rm = function (req, res)
                                 {
                                     if (!isNull(file))
                                     {
-                                        getProjectFromResource(file, function (err, resource, project)
+                                        if (req.params.resource === "deposit")
                                         {
-                                            if (isNull(err))
+                                            getDepositFromResource(file, function (err, resource, deposit)
                                             {
-                                                if (!isNull(project))
+                                                if (isNull(err))
                                                 {
-                                                    deleteFile(function (err, result)
+                                                    if (!isNull(deposit))
                                                     {
-                                                        buildFileSystemPostFromDeleteFileOperation(req.user.uri, project, file, function (err, postResult)
+                                                        deleteFile(function (err, result)
                                                         {
-                                                            sendResponse(err, result);
+                                                            buildFileSystemPostFromDeleteFileOperation(req.user.uri, deposit, file, function (err, postResult)
+                                                            {
+                                                                sendResponse(err, result);
+                                                            });
                                                         });
-                                                    });
+                                                    }
+                                                    else
+                                                    {
+                                                        const msg = "Could not find a deposit associated to " + resourceToDelete + ". Error reported : " + JSON.stringify(deposit);
+                                                        res.status(404).json(
+                                                            {
+                                                                result: "error",
+                                                                message: msg
+                                                            }
+                                                        );
+                                                    }
                                                 }
                                                 else
                                                 {
-                                                    const msg = "Could not find a project associated to " + resourceToDelete + ". Error reported : " + JSON.stringify(project);
-                                                    res.status(404).json(
+                                                    const msg = "Error finding deposit associated to " + resourceToDelete + ". Error reported : " + JSON.stringify(deposit);
+                                                    res.status(500).json(
                                                         {
                                                             result: "error",
                                                             message: msg
                                                         }
                                                     );
                                                 }
-                                            }
-                                            else
+                                            });
+                                        }
+                                        else
+                                        {
+                                            getProjectFromResource(file, function (err, resource, project)
                                             {
-                                                const msg = "Error finding project associated to " + resourceToDelete + ". Error reported : " + JSON.stringify(project);
-                                                res.status(500).json(
+                                                if (isNull(err))
+                                                {
+                                                    if (!isNull(project))
                                                     {
-                                                        result: "error",
-                                                        message: msg
+                                                        deleteFile(function (err, result)
+                                                        {
+                                                            buildFileSystemPostFromDeleteFileOperation(req.user.uri, project, file, function (err, postResult)
+                                                            {
+                                                                sendResponse(err, result);
+                                                            });
+                                                        });
                                                     }
-                                                );
-                                            }
-                                        });
+                                                    else
+                                                    {
+                                                        const msg = "Could not find a project associated to " + resourceToDelete + ". Error reported : " + JSON.stringify(project);
+                                                        res.status(404).json(
+                                                            {
+                                                                result: "error",
+                                                                message: msg
+                                                            }
+                                                        );
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    const msg = "Error finding project associated to " + resourceToDelete + ". Error reported : " + JSON.stringify(project);
+                                                    res.status(500).json(
+                                                        {
+                                                            result: "error",
+                                                            message: msg
+                                                        }
+                                                    );
+                                                }
+                                            });
+                                        }
                                     }
                                     else
                                     {
@@ -1848,42 +1910,84 @@ exports.rm = function (req, res)
                                 {
                                     if (!isNull(folder))
                                     {
-                                        getProjectFromResource(folder, function (err, resource, project)
+                                        if (req.params.resource === "deposit")
                                         {
-                                            if (isNull(err))
+                                            getDepositFromResource(folder, function (err, resource, deposit)
                                             {
-                                                if (!isNull(project))
+                                                if (isNull(err))
                                                 {
-                                                    deleteFolder(function (err, result)
+                                                    if (!isNull(deposit))
                                                     {
-                                                        buildFileSystemPostFromRmdirOperation(req.user.uri, project, folder, reallyDelete, function (error, postResult)
+                                                        deleteFolder(function (err, result)
                                                         {
-                                                            sendResponse(err, result);
+                                                            buildFileSystemPostFromRmdirOperation(req.user.uri, deposit, folder, reallyDelete, function (error, postResult)
+                                                            {
+                                                                sendResponse(err, result);
+                                                            });
                                                         });
-                                                    });
+                                                    }
+                                                    else
+                                                    {
+                                                        const msg = "Could not find a deposit associated to " + resourceToDelete + ". Error reported : " + JSON.stringify(deposit);
+                                                        res.status(404).json(
+                                                            {
+                                                                result: "error",
+                                                                message: msg
+                                                            }
+                                                        );
+                                                    }
                                                 }
                                                 else
                                                 {
-                                                    const msg = "Could not find a project associated to " + resourceToDelete + ". Error reported : " + JSON.stringify(project);
-                                                    res.status(404).json(
+                                                    const msg = "Error finding deposit associated to " + resourceToDelete + ". Error reported : " + JSON.stringify(deposit);
+                                                    res.status(500).json(
                                                         {
                                                             result: "error",
                                                             message: msg
                                                         }
                                                     );
                                                 }
-                                            }
-                                            else
+                                            });
+                                        }
+                                        else
+                                        {
+                                            getProjectFromResource(folder, function (err, resource, project)
                                             {
-                                                const msg = "Error finding project associated to " + resourceToDelete + ". Error reported : " + JSON.stringify(project);
-                                                res.status(500).json(
+                                                if (isNull(err))
+                                                {
+                                                    if (!isNull(project))
                                                     {
-                                                        result: "error",
-                                                        message: msg
+                                                        deleteFolder(function (err, result)
+                                                        {
+                                                            buildFileSystemPostFromRmdirOperation(req.user.uri, project, folder, reallyDelete, function (error, postResult)
+                                                            {
+                                                                sendResponse(err, result);
+                                                            });
+                                                        });
                                                     }
-                                                );
-                                            }
-                                        });
+                                                    else
+                                                    {
+                                                        const msg = "Could not find a project associated to " + resourceToDelete + ". Error reported : " + JSON.stringify(project);
+                                                        res.status(404).json(
+                                                            {
+                                                                result: "error",
+                                                                message: msg
+                                                            }
+                                                        );
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    const msg = "Error finding project associated to " + resourceToDelete + ". Error reported : " + JSON.stringify(project);
+                                                    res.status(500).json(
+                                                        {
+                                                            result: "error",
+                                                            message: msg
+                                                        }
+                                                    );
+                                                }
+                                            });
+                                        }
                                     }
                                     else
                                     {

@@ -5,13 +5,13 @@ angular.module("dendroApp.services")
         ["$q", "$http", "windowService", "$location",
             function ($q, $http, windowService, $location)
             {
-                this.get_deposit_conditions = function ()
+                this.get_deposit_conditions = function (depositUri)
                 {
                     var deferred = $q.defer();
 
                     var payload = JSON.stringify({});
 
-                    var URL = windowService.get_current_url();
+                    var URL = depositUri;
                     URL += "?get_deposit_conditions";
 
                     $http({

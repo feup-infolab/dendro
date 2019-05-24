@@ -32,13 +32,34 @@
                 <br>
                 <%- include show/file_explorer.ejs %>
             </div>
-            <div class="col-xs-6 col-sm-9" ng-controller="metadataEditorCtrl" ng-init="init()">
-                <div ng-if="shared.is_a_file">
-                    <%- include show/file_preview.ejs %>
-                </div>
-                <br/>
-                <%- include show/metadata_viewer.ejs %>
+            <div ng-class="{'col-md-6 col-xs-12 col-sm-9': showing_descriptor_selection_area(), 'col-md-9 col-sm-9 col-xs-9': !showing_descriptor_selection_area()}"
+                 ng-controller="metadataEditorCtrl" ng-init="init()">
+                <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
+                    <li class="active">
+                        <a href="#metadata-editor" data-toggle="tab" ng-click="load_metadata(true)">
+                            Information
+                        </a>
+                    </li>
+                </ul>
             </div>
+            <div class="col-xs-6 col-sm-9" ng-controller="metadataEditorCtrl" ng-init="init()">
+
+
+                <!-- tab panes -->
+                <div class="tab-content" ng-hide="shared.multiple_selection_active && file_explorer_selected_something()">
+                    <div class="tab-pane active" id="metadata-editor" ng-init="init()">
+                        <div ng-if="shared.is_a_file">
+                            <%- include show/file_preview.ejs %>
+                        </div>
+                        <br/>
+                        <div ng-show="showing_project_root()">
+                            <div ng-show="shared.metadata != null">
+                                <%- include show/metadata_viewer.ejs %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div>
         </div>
     <% } else {
           if(deposit.ddr.privacyStatus == "metadata_only") {

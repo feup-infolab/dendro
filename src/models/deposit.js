@@ -21,6 +21,9 @@ const Storage = rlequire("dendro", "src/kb/storage/storage.js").Storage;
 const uuidv1 = require("uuid/v1");
 const superRequest = require("superagent");
 const ConditionsAcceptance = rlequire("dendro", "src/models/conditionsAcceptance.js").ConditionsAcceptance;
+const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
+
+const dbMySQL = rlequire("dendro", "src/mysql_models");
 
 const B2ShareClient = require("@feup-infolab/node-b2share-v2");
 
@@ -564,6 +567,138 @@ Deposit.createAndInsertFromObject = function (object, callback)
 
         }
     });
+};
+Deposit.prototype.getFavoriteDescriptors = function (maxResults, callback, allowedOntologies)
+{
+    const self = this;
+    const mysql = Config.getMySQLByID();
+    const targetTable = Config.recommendation.getTargetTable();
+    let projectFavoriteDescriptorsList = [];
+
+    let queryProjectDescriptorFavorites = "call " + Config.mySQLDBName + ".getDepositFavoriteDescriptors(:uri);";
+
+    dbMySQL.sequelize
+        .query(queryProjectDescriptorFavorites,
+            {replacements: { uri: self.uri }})
+        .then(result =>
+        {
+            if (isNull(result))
+            {
+                return callback(null, []);
+            }
+
+            async.mapSeries(result, function (row, callback)
+            {
+                Descriptor.findByUri(row.executedOver, function (err, descriptor)
+                {
+                    if (isNull(err))
+                    {
+                        if (!isNull(descriptor))
+                        {
+                            if (descriptor.recommendation_types !== null)
+                            {
+                                descriptor.recommendation_types.project_favorite = true;
+                            }
+                            else
+                            {
+                                descriptor.recommendation_types = {};
+                                descriptor.recommendation_types.project_favorite = true;
+                            }
+                            projectFavoriteDescriptorsList.push(descriptor);
+                            callback(null, null);
+                        }
+                        else
+                        {
+                            const errorMsg = "Descriptor with uri: " + row.executedOver + " does not exist!";
+                            Logger.log("error", errorMsg);
+                            callback(true, errorMsg);
+                        }
+                    }
+                    else
+                    {
+                        Logger.log("error", JSON.stringify(descriptor));
+                        callback(true, JSON.stringify(descriptor));
+                    }
+                });
+            }, function (err, results)
+            {
+                if (isNull(err))
+                {
+                    return callback(err, projectFavoriteDescriptorsList);
+                }
+
+                return callback(err, results);
+            });
+        })
+        .catch(err =>
+            callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database."));
+};
+
+
+Deposit.prototype.getHiddenDescriptors = function (maxResults, callback, allowedOntologies)
+{
+    const self = this;
+    const mysql = Config.getMySQLByID();
+    const targetTable = Config.recommendation.getTargetTable();
+    let projectHiddenDescriptorsList = [];
+
+    let queryProjectHiddenDescriptors = "call " + Config.mySQLDBName + ".getDepositHiddenDescriptors(:uri);";
+
+    dbMySQL.sequelize
+        .query(queryProjectHiddenDescriptors,
+            {replacements: { uri: self.uri }})
+        .then(result =>
+        {
+            if (isNull(result))
+            {
+                return callback(null, []);
+            }
+
+            async.mapSeries(result, function (row, callback)
+            {
+                Descriptor.findByUri(row.executedOver, function (err, descriptor)
+                {
+                    if (isNull(err))
+                    {
+                        if (!isNull(descriptor))
+                        {
+                            if (descriptor.recommendation_types !== null)
+                            {
+                                descriptor.recommendation_types.project_hidden = true;
+                            }
+                            else
+                            {
+                                descriptor.recommendation_types = {};
+                                descriptor.recommendation_types.project_hidden = true;
+                            }
+                            projectHiddenDescriptorsList.push(descriptor);
+                            callback(null, null);
+                        }
+                        else
+                        {
+                            const errorMsg = "Descriptor with uri: " + row.executedOver + " does not exist!";
+                            Logger.log("error", errorMsg);
+                            callback(true, errorMsg);
+                        }
+                    }
+                    else
+                    {
+                        Logger.log("error", JSON.stringify(descriptor));
+                        callback(true, JSON.stringify(descriptor));
+                    }
+                });
+            }, function (err, results)
+            {
+                if (isNull(err))
+                {
+                    return callback(err, projectHiddenDescriptorsList);
+                }
+
+                return callback(err, results);
+            });
+        })
+        .catch(err =>
+            callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database."));
 };
 
 /**

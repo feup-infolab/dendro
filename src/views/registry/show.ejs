@@ -3,11 +3,11 @@
 <!--&nbsp;-->
 <div class="container-fluid" ng-controller="projectEditorCtrl" ng-init="init()">
         <div ng-controller="depositCtrl"
-             ng-init="initSingleDeposit('<%= locals.deposit.nie.hasLogicalPart %>', <%= is_project_root %>)">
+             ng-init="initSingleDeposit('<%= deposit.nie.hasLogicalPart %>', '<%= is_project_root %>', '<%= deposit.uri %>')">
             <div class="row">
-                <div class="col-xs-12">
-                    <%- include show/breadcrumbs.ejs %>
-                </div>
+                <!--<div class="col-xs-12">-->
+                    <!--<%- include show/breadcrumbs.ejs %>-->
+                <!--</div>-->
             </div>
                 <div class="row">
                     <div class="col-xs-6 col-sm-3" ng-controller="fileExplorerCtrl" ng-init="init()">
@@ -91,14 +91,15 @@
                         </ul>
                     </div>
                     <div class="col-xs-6 col-sm-9" ng-controller="metadataEditorCtrl" ng-init="init()">
-                        <div ng-if="shared.is_a_file">
-                            <%- include show/file_preview.ejs %>
-                        </div>
-                        <br/>
+
 
                         <!-- tab panes -->
                         <div class="tab-content" ng-hide="shared.multiple_selection_active && file_explorer_selected_something()">
                             <div class="tab-pane active" id="metadata-editor" ng-init="init()">
+                                <div ng-if="shared.is_a_file">
+                                    <%- include show/file_preview.ejs %>
+                                </div>
+                                <br/>
                                 <div ng-show="showing_project_root()">
                                     <div ng-show="shared.metadata != null">
                                         <%- include show/metadata_viewer.ejs %>

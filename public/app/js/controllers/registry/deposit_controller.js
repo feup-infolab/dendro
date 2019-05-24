@@ -179,10 +179,11 @@ angular.module("dendroApp.controllers", [])
 
         $scope.hostUrl = window.location.protocol + "//" + window.location.host + "/user/";
 
-        $scope.initSingleDeposit = function (rootDepositUri, isRoot)
+        $scope.initSingleDeposit = function (rootDepositUri, isRoot, depositUri)
         {
             $scope.rootDepositUri = rootDepositUri;
             $scope.isDepositRoot = isRoot;
+            $scope.depositUri = depositUri;
         };
 
         $scope.init = function ()
@@ -355,7 +356,7 @@ angular.module("dendroApp.controllers", [])
 
         $scope.getDepositConditions = function ()
         {
-            depositsService.get_deposit_conditions()
+            depositsService.get_deposit_conditions($scope.depositUri)
                 .then(function (response)
                 {
                     $scope.conditionsAccepted = response.conditionsAccepted;
