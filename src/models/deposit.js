@@ -894,7 +894,6 @@ Deposit.saveContents = function (params, callback)
                         // TODO check if file or folder
                         content.copyPaste({includeMetadata: true, destinationFolder: rootFolder, user: params.user}, function (err, msg)
                         {
-                            console.log(newDeposit);
                             callback(err, newDeposit);
                         });
                         // pass contents here

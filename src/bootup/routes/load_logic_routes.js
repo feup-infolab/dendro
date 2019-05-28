@@ -25,8 +25,8 @@ const interactions = rlequire("dendro", "src/controllers/interactions");
 const descriptors = rlequire("dendro", "src/controllers/descriptors");
 const evaluation = rlequire("dendro", "src/controllers/evaluation");
 const ontologies = rlequire("dendro", "src/controllers/ontologies");
-const research_domains = rlequire("dendro", "src/controllers/research_domains");
-const repo_bookmarks = rlequire("dendro", "src/controllers/repo_bookmarks");
+const researchDomains = rlequire("dendro", "src/controllers/researchDomains");
+const repoBookmarks = rlequire("dendro", "src/controllers/repoBookmarks");
 const datasets = rlequire("dendro", "src/controllers/datasets");
 const posts = rlequire("dendro", "src/controllers/posts");
 const timeline = rlequire("dendro", "src/controllers/timeline");
@@ -37,28 +37,28 @@ const resources = rlequire("dendro", "src/controllers/resources.js");
 
 let recommendation;
 
-const recommendation_mode = RecommendationUtils.getActiveRecommender();
+const recommendationMode = RecommendationUtils.getActiveRecommender();
 
-if (recommendation_mode === "dendro_recommender")
+if (recommendationMode === "dendro_recommender")
 {
     recommendation = rlequire("dendro", "src/controllers/dr_recommendation");
 }
-else if (recommendation_mode === "standalone")
+else if (recommendationMode === "standalone")
 {
     recommendation = rlequire("dendro", "src/controllers/standalone_recommendation");
 }
-else if (recommendation_mode === "project_descriptors")
+else if (recommendationMode === "project_descriptors")
 {
     // TODO apply in this controller the favorites and hidden flags
     recommendation = rlequire("dendro", "src/controllers/project_descriptors_recommendation");
 }
-else if (recommendation_mode === "none")
+else if (recommendationMode === "none")
 {
     recommendation = rlequire("dendro", "src/controllers/no_recommendation");
 }
 
 const auth = rlequire("dendro", "src/controllers/auth");
-const auth_orcid = rlequire("dendro", "src/controllers/auth_orcid");
+const authOrcid = rlequire("dendro", "src/controllers/authOrcid");
 
 const express = require("express"),
     domain = require("domain"),
@@ -78,7 +78,7 @@ let mkdirp = require("mkdirp");
 const getNonHumanReadableRouteRegex = function (resourceType)
 {
     /* const regex = "^/r/"+resourceType+"/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
-  return new RegExp(regex); */
+return new RegExp(regex); */
     return Resource.getResourceRegex(resourceType);
 };
 
@@ -230,7 +230,7 @@ const loadRoutes = function (app, callback)
         app.get("/auth/orcid", passport.authenticate("orcid"));
         app.get("/auth/orcid/callback", csrfProtection, function (req, res, next)
         {
-            req.passport.authenticate("orcid", auth_orcid.login(req, res, next));
+            req.passport.authenticate("orcid", authOrcid.login(req, res, next));
         });
     }
 
@@ -328,16 +328,16 @@ const loadRoutes = function (app, callback)
 
     // research domains
 
-    app.get("/research_domains/autocomplete", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), research_domains.autocomplete);
-    app.get("/research_domains", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), research_domains.all);
-    app.post("/research_domains", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), research_domains.edit);
+    app.get("/researchDomains/autocomplete", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), researchDomains.autocomplete);
+    app.get("/researchDomains", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), researchDomains.all);
+    app.post("/researchDomains", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), researchDomains.edit);
 
     app.delete([
         getNonHumanReadableRouteRegex("research_domain"),
-        "/research_domains/:uri"
+        "/researchDomains/:uri"
     ],
     extractUriFromRequest,
-    async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), research_domains.delete);
+    async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), researchDomains.delete);
 
     //  registration and login
     app.get("/register", auth.register);
@@ -404,11 +404,11 @@ const loadRoutes = function (app, callback)
     app.get("/deposits/my", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), deposits.my);
 
     // external repository bookmarks
-    app.get("/external_repositories/types", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), repo_bookmarks.repository_types);
-    app.get("/external_repositories/my", async.apply(Permissions.require, [Permissions.settings.role.in_system.user ]), repo_bookmarks.my);
-    app.get("/external_repositories", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), repo_bookmarks.all);
+    app.get("/external_repositories/types", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), repoBookmarks.repository_types);
+    app.get("/external_repositories/my", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), repoBookmarks.my);
+    app.get("/external_repositories", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), repoBookmarks.all);
     app.post("/external_repositories/sword_collections", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), datasets.sword_collections);
-    app.post("/external_repositories/new", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), repo_bookmarks.new);
+    app.post("/external_repositories/new", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), repoBookmarks.new);
 
     app.get([
         getNonHumanReadableRouteRegex("archived_resource")
@@ -422,7 +422,7 @@ const loadRoutes = function (app, callback)
         "/external_repository/:username/:title"
     ],
     extractUriFromRequest,
-    async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), repo_bookmarks.delete);
+    async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), repoBookmarks.delete);
 
     // view a project's root
     app.all([
@@ -731,7 +731,7 @@ const loadRoutes = function (app, callback)
     // view a deposit's root
     app.all([
         getNonHumanReadableRouteRegex("deposit"),
-          /\/deposit\/([^\/]+)(\/data)?\/?$/
+        /\/deposit\/([^\/]+)(\/data)?\/?$/
     ],
     extractUriFromRequest,
     function (req, res, next)
@@ -813,15 +813,15 @@ const loadRoutes = function (app, callback)
                     }
                 ],
                 all:
-                  [
-                      // delete projects
-                      {
-                          queryKeys: ["delete"],
-                          handler: deposits.delete,
-                          permissions: adminPermissions,
-                          authentication_error: "Permission denied : cannot delete deposit because you do not have permissions to administer this deposit."
-                      }
-                  ],
+            [
+                // delete projects
+                {
+                    queryKeys: ["delete"],
+                    handler: deposits.delete,
+                    permissions: adminPermissions,
+                    authentication_error: "Permission denied : cannot delete deposit because you do not have permissions to administer this deposit."
+                }
+            ],
                 post: [
                     {
                         queryKeys: ["request_access"],
@@ -1239,7 +1239,6 @@ const loadRoutes = function (app, callback)
         async.waterfall([
             function (callback)
             {
-                console.log(req.params);
                 if (!isNull(req.params.requestedResourceUri))
                 {
                     callback(null, req.params.requestedResourceUri);

@@ -116,17 +116,18 @@ angular.module("dendroApp.controllers")
 
         $scope.get_calling_uri_thumbnail = function ()
         {
-            return $scope.get_thumbnail_uri($scope.get_calling_uri());
+            let calling_uri = $scope.get_calling_uri();
+            return $scope.get_thumbnail_uri(calling_uri);
         };
 
         $scope.get_current_filename = function ()
         {
-            if ($scope.shared.selected_file != null)
+            if ($scope.shared.selected_file !== null)
             {
                 return $scope.shared.selected_file.nie.title;
             }
             // TODO to fix later
-            if ($scope.shared.initial_metadata != null)
+            if ($scope.shared.initial_metadata !== null)
             {
                 for (var i = 0; i < $scope.shared.initial_metadata.length; i++)
                 {
@@ -172,7 +173,7 @@ angular.module("dendroApp.controllers")
         {
             for (var i = 0; i < $scope.shared.metadata.length; i++)
             {
-                if ($scope.get_descriptor(i) != null && $scope.get_descriptor(i) instanceof Object)
+                if ($scope.get_descriptor(i) !== null && $scope.get_descriptor(i) instanceof Object)
                 {
                     if (
                         $scope.get_descriptor(i).just_recommended ||
@@ -180,7 +181,7 @@ angular.module("dendroApp.controllers")
                         $scope.get_descriptor(i).user_favorite
                     )
                     {
-                        if ($scope.get_descriptor(i).value == null || removeValuesAlreadyFilledInByUser)
+                        if ($scope.get_descriptor(i).value === null || removeValuesAlreadyFilledInByUser)
                         {
                             $scope.remove_descriptor_at(i, true);
                             i--;
@@ -221,7 +222,7 @@ angular.module("dendroApp.controllers")
         {
             if (!$scope.shared.multiple_selection_active)
             {
-                if ($scope.shared.selected_file != null)
+                if ($scope.shared.selected_file !== null)
                 {
                     if ($scope.shared.selected_file.rdf.type instanceof Array && _.contains($scope.shared.selected_file.rdf.type, "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#FileDataObject"))
                     {
@@ -240,7 +241,7 @@ angular.module("dendroApp.controllers")
 
                 if (files.length === 1)
                 {
-                    if (files[0].ddr.fileExtension != "folder")
+                    if (files[0].ddr.fileExtension !== "folder")
                     {
                         return true;
                     }
@@ -537,7 +538,7 @@ angular.module("dendroApp.controllers")
 
         $scope.file_explorer_selected_something = function ()
         {
-            if ($scope.shared.folder_contents != null && $scope.shared.folder_contents instanceof Array)
+            if ($scope.shared.folder_contents !== null && $scope.shared.folder_contents instanceof Array)
             {
                 for (var i = 0; i < $scope.shared.folder_contents.length; i++)
                 {
@@ -557,7 +558,6 @@ angular.module("dendroApp.controllers")
 
         $scope.load_folder_contents = function (includingDeletedFiles)
         {
-            console.log($scope.shared);
             var loadFolderContentsPromise = $q.defer();
 
             filesService.get_folder_contents(windowService.get_current_url(), includingDeletedFiles)

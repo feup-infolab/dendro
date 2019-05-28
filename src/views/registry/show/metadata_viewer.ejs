@@ -3,7 +3,8 @@
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h3 class="panel-title">
-                    Information about <img height="16xp" ng-src="{{get_calling_uri_thumbnail() | trustAsResourceUrl}}"/> {{get_current_filename()}}
+                    Information about <img height="16xp" ng-src="{{get_calling_uri_thumbnail() | trustAsResourceUrl}}"/>
+                    {{get_current_filename()}}
                 </h3>
             </div>
             <div class="panel panel-body">
@@ -14,24 +15,28 @@
                 </div>
                 <div class="panel-footer">{{shared.proposedCitation.value}}</div>
             </div>
-            <div class="panel-body" ng-show="has_editable_metadata()" >
+            <div class="panel-body" ng-show="has_editable_metadata()">
                 <form id="metadataform" class="form-horizontal navbar-spacer" role="form">
-                    <div class="control-group" ng-repeat="descriptor in shared.metadata | filter:only_editable_metadata_descriptors track by $index">
+                    <div class="control-group"
+                         ng-repeat="descriptor in shared.metadata | filter:only_editable_metadata_descriptors track by $index">
                         <div ng-switch="descriptor.control">
                             <div ng-switch-when="url_box">
-                                <ng-include src="'/app/views/registry/show/controls_read_only/url_box.html'"></ng-include>
+                                <ng-include
+                                        src="'/app/views/registry/show/controls_read_only/url_box.html'"></ng-include>
                             </div>
                             <div ng-switch-when="markdown_box">
-                                <ng-include src="'/app/views/registry/show/controls_read_only/markdown_box.html'"></ng-include>
+                                <ng-include
+                                        src="'/app/views/registry/show/controls_read_only/markdown_box.html'"></ng-include>
                             </div>
                             <div ng-switch-default>
-                                <ng-include src="'/app/views/registry/show/controls_read_only/input_box.html'"></ng-include>
+                                <ng-include
+                                        src="'/app/views/registry/show/controls_read_only/input_box.html'"></ng-include>
                             </div>
                         </div>
                     </div>
                 </form>
             </div>
-            <div class="panel-body" ng-show="!has_editable_metadata()" >
+            <div class="panel-body" ng-show="!has_editable_metadata()">
                 There is no information available for this resource.
             </div>
         </div>

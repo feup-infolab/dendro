@@ -39,7 +39,7 @@ angular.module("dendroApp.services")
 
                     var payload = JSON.stringify({uri: uri});
 
-                    var URL = "getEmbargoedDate";
+                    var URL = "/getEmbargoedDate";
 
                     $http({
                         method: "POST",
@@ -49,7 +49,7 @@ angular.module("dendroApp.services")
                         headers: {Accept: "application/json"}
                     }).then(function (response)
                     {
-                        deferred.resolve(response.embargoedDate);
+                        deferred.resolve(response.data.embargoedDate);
                         // deferred.resolve(response.data);
                     }
                     ).catch(function (error)

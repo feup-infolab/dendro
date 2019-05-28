@@ -498,7 +498,7 @@ exports.embargoedDate = function (req, res)
                 else
                 {
                     res.json({
-                        embargoedDate: result[0].embargoedDate
+                        embargoedDate: result[0][0].embargoedDate
                     });
                 }
             });
