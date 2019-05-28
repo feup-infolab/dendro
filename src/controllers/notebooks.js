@@ -32,7 +32,7 @@ module.exports.pipe_to_instance = function (req, res)
             // Stream the content
             // proxyReq.write(bodyData);
 
-            proxyReq.setHeader("Host", `${req.params.guid}jupyter-dendro`);
+            proxyReq.setHeader("Host", `jupyter-notebook.${req.params.guid}`);
             proxyReq.path = proxyReq.path.substr(req.url.length);
             if (proxyReq.path.length === 0)
             {
@@ -42,7 +42,7 @@ module.exports.pipe_to_instance = function (req, res)
     });
 
     proxy.web(req, res, {
-        target: "http://127.0.0.1:8000"
+        target: "http://127.0.0.1:9000"
     });
 };
 

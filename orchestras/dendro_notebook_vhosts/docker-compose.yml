@@ -1,18 +1,33 @@
-version: '3.5'
+version: '3'
 
 services:
-  nginx_proxy:
-    container_name: nginx-proxy
-    image:  jwilder/nginx-proxy:latest
+  reverse-proxy:
+    image: traefik # The official Traefik docker image
+    command: --api --docker # Enables the web UI and tells Traefik to listen to docker
     ports:
-      - 8000:80
+      - "80:80"     # The HTTP port
+      - "8080:8080" # The Web UI (enabled by --api)
     volumes:
-      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to the Docker events
+      # ...
     networks:
-      net : {}
+      - traefikweb
+
+  whoami:
+    image: containous/whoami # A container that exposes an API to show its IP address
+    labels:
+      - "traefik.frontend.rule=Host:whoami.docker.localhost"
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_default"
+    networks:
+      - traefikweb
+
+
+networks:
+  traefikweb: {}
 
 #  whoami:
-#    container_name: whoami
+#    container_name: whoami2
 #    image: jwilder/whoami
 #    environment:
 #      - VIRTUAL_HOST=whoami.local
@@ -29,7 +44,7 @@ services:
 #    expose:
 #      - 8000
 #
-networks:
-  net:
-    name: notebooknet
-    driver: bridge
+#networks:
+#  net:
+#    name: notebooknet
+#    driver: bridge

@@ -1,4 +1,4 @@
-version: '3.5'
+version: '3'
 
 services:
   jupyter_notebook:
@@ -10,13 +10,22 @@ services:
       #- JAVA_XMX=3g
     volumes:
       - ./data:/home/jovyam/work
-
+#
     networks:
-        net: {}
+      - traefikweb
     expose:
       - 8888
 
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_default"
+
 networks:
-      net:
-        name: notebooknet
-        driver: bridge
+  traefikweb:
+    external:
+      name: dendro_notebook_vhosts_traefikweb
+
+#networks:
+#      net:
+#        name: notebooknet
+#        driver: bridge
