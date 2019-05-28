@@ -218,13 +218,15 @@ angular.module("dendroApp.controllers")
 
                             var extension = selectedFile.ddr.fileExtension;
 
+                            var successMessage;
+
                             if (extension === "folder")
                             {
-                                var successMessage = "Folder " + selectedFile.nie.title + " deleted successfully";
+                                successMessage = "Folder " + selectedFile.nie.title + " deleted successfully";
                             }
                             else
                             {
-                                var successMessage = "File " + selectedFile.nie.title + " deleted successfully";
+                                successMessage = "File " + selectedFile.nie.title + " deleted successfully";
                             }
 
                             filesService.rm(selectedFile,
