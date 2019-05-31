@@ -40,18 +40,18 @@ module.exports.pipe_to_instance = function (req, res)
 
             if (targetUrl === jupyterProxyUrl)
             {
-                proxyReq.path = "/";
+                proxyReq.forward = "/";
             }
             else
             {
-                proxyReq.path = targetUrl;
+                proxyReq.forward = targetUrl;
             }
 
         }
     });
 
     proxy.web(req, res, {
-        target: jupyterProxyUrl,
+        target: `${jupyterProxyUrl}/login`,
         followRedirects: true
     });
 };
