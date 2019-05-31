@@ -8,6 +8,7 @@ const slug = rlequire("dendro", "src/utils/slugifier.js");
 //
 const httpProxy = require("http-proxy");
 const proxy = httpProxy.createProxyServer({});
+const jupyterProxyUrl = "http://127.0.0.1:15017";
 
 module.exports.show = function (req, res)
 {
@@ -37,7 +38,7 @@ module.exports.pipe_to_instance = function (req, res)
             let targetUrl = proxyReq._currentUrl;
             targetUrl = targetUrl.replace(req.url, "");
 
-            if (targetUrl === 0)
+            if (targetUrl === jupyterProxyUrl)
             {
                 proxyReq.path = "/";
             }
@@ -50,7 +51,7 @@ module.exports.pipe_to_instance = function (req, res)
     });
 
     proxy.web(req, res, {
-        target: "http://127.0.0.1:15017",
+        target: jupyterProxyUrl,
         followRedirects: true
     });
 };
