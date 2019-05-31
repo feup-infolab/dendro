@@ -33,12 +33,19 @@ module.exports.pipe_to_instance = function (req, res)
             // proxyReq.write(bodyData);
 
             proxyReq.setHeader("Host", `jupyter-notebook.${req.params.guid}`);
-            proxyReq.path = "/";//proxy.path.substr(req.url.length);
 
-            if (proxyReq.path.length === 0)
+            let targetUrl = proxyReq._currentUrl;
+            targetUrl = targetUrl.replace(req.url, "");
+
+            if (targetUrl === 0)
             {
                 proxyReq.path = "/";
             }
+            else
+            {
+                proxyReq.path = targetUrl;
+            }
+
         }
     });
 
