@@ -33,7 +33,8 @@ module.exports.pipe_to_instance = function (req, res)
             // proxyReq.write(bodyData);
 
             proxyReq.setHeader("Host", `jupyter-notebook.${req.params.guid}`);
-            proxyReq.path = proxyReq.path.substr(req.url.length);
+            proxyReq.path = "/";//proxy.path.substr(req.url.length);
+
             if (proxyReq.path.length === 0)
             {
                 proxyReq.path = "/";
@@ -42,7 +43,8 @@ module.exports.pipe_to_instance = function (req, res)
     });
 
     proxy.web(req, res, {
-        target: "http://127.0.0.1:9000"
+        target: "http://127.0.0.1:15017",
+        followRedirects: true
     });
 };
 

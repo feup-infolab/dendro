@@ -258,6 +258,10 @@
                 <li>
                     <a href="#stats" data-toggle="tab" ng-controller="changeLogController" ng-click="get_project_stats()" ><span class="label label-info">Project</span> Stats</a>
                 </li>
+                <li ng-show="!has_notebook()">
+                    <a href="#notebookview" data-toggle="tab" ng-controller="notebookCtrl" ng-click="get_project_stats()" ><span class="label label-info">Notebook</span> View</a>
+                </li>
+
             </ul>
 
             <!-- tab panes -->
@@ -308,6 +312,13 @@
                     <div class="row">
                         <div class="col-lg-12">
                             <%- include show/stats_modal.ejs %>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane" id="notebookview" ng-controller="notebookCtrl">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <%- include show/notebook_view.ejs %>
                         </div>
                     </div>
                 </div>
