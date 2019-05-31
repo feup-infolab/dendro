@@ -227,6 +227,11 @@ footer .container-fluid {
   text-align: right;
   width: 174px;
 }
+.input-search {
+  margin-bottom: 4px;
+  margin-top: 4px;
+  width: 174px;
+}
 .label-search {
   margin-left: 20px;
 }

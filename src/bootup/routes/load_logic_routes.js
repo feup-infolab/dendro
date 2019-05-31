@@ -797,6 +797,7 @@ const loadRoutes = function (app, callback)
                         authentication_error: "Permission denied : cannot request access to this resource."
                     },
 
+
                     // default case
                     {
                         queryKeys: [],
@@ -860,6 +861,9 @@ const loadRoutes = function (app, callback)
     );
 
     app.get("/deposits/search", deposits.search);
+    app.get("/descriptor_autocomplete", descriptors.descriptors_autocomplete);
+
+
     app.post("/getEmbargoedDate", deposits.embargoedDate);
 
     app.get([

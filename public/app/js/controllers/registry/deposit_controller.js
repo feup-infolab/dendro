@@ -156,13 +156,13 @@ angular.module("dendroApp.controllers", [])
                     {
                         name: "All"
                     }
-                ]
+                ], descriptors: {
+                    key: "descriptors",
+                    value: [
+                    ]}
+
             },
-            descriptorValue: {
-                type: "text",
-                key: "descriptorValue",
-                value: ""
-            },
+
             identifier: {
                 type: "text",
                 label: "Identifier",
@@ -176,6 +176,16 @@ angular.module("dendroApp.controllers", [])
                 value: ""
             }
         };
+        $scope.select_descriptor_from_autocomplete_webpage = function (suggestion, model, label)
+        {
+            if (suggestion !== null && suggestion instanceof Object)
+            {
+                var autocompletedDescriptor = JSON.parse(JSON.stringify(suggestion));
+                var value = {name: autocompletedDescriptor.label};
+                $scope.search.descriptorTag.descriptors.value.push(value);
+                delete $scope.asyncSelected;
+            }
+        };
 
         $scope.hostUrl = window.location.protocol + "//" + window.location.host + "/user/";
 
@@ -184,12 +194,20 @@ angular.module("dendroApp.controllers", [])
             $scope.rootDepositUri = rootDepositUri;
             $scope.isDepositRoot = isRoot;
             $scope.depositUri = depositUri;
+
         };
 
         $scope.init = function ()
         {
             $scope.getRegistry(true);
+            $scope.asyncSelected = "";
+
         };
+
+        $scope.$watch("asyncSelected", function ()
+        {
+            console.log("asasasasas");
+        });
 
         $scope.myInit = function ()
         {

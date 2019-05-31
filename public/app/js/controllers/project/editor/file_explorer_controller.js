@@ -731,21 +731,22 @@ angular.module("dendroApp.controllers")
 
                     $scope.get_folder_contents()
                         .then(
-                            function (folderContents) {
+                            function (folderContents)
+                            {
                                 var newSelectedFile = folderContents[index];
 
                                 $scope.set_selected_file(index);
-                                if (isProject) {
-
-                                recommendationService.get_recommendations(
-                                    $scope.get_calling_uri(),
-                                    $scope.descriptor_filter,
-                                    $scope.shared.metadata,
-                                    $scope.recommend_already_filled_in,
-                                    $scope.recommendations_page,
-                                    $scope.recommendations_page_size
-                                );
-                            }
+                                if (isProject)
+                                {
+                                    recommendationService.get_recommendations(
+                                        $scope.get_calling_uri(),
+                                        $scope.descriptor_filter,
+                                        $scope.shared.metadata,
+                                        $scope.recommend_already_filled_in,
+                                        $scope.recommendations_page,
+                                        $scope.recommendations_page_size
+                                    );
+                                }
 
                                 metadataService.load_metadata($scope.get_calling_uri())
                                     .then(function (metadata)
