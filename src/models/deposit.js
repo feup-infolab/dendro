@@ -288,22 +288,19 @@ Deposit.getEmbargoedDate = function (url, callback)
 Deposit.createQuery = function (params, callback)
 {
     let query =
-        "SELECT DISTINCT ?label ?user ?date ?platformsUsed ?privacy ?uri ?folder ?folderName ?repository ?doi ?description \n" +
+        "SELECT DISTINCT  ?title ?user ?date ?platformsUsed ?privacy ?uri  ?doi ?description  ?embargoedDate \n" +
         "FROM [0] \n" +
         "WHERE " +
         "{ \n" +
         "   ?uri rdf:type ddr:Registry . \n" +
-        "   ?uri ddr:exportedFromProject ?projused . \n" +
         "   ?uri dcterms:creator ?user . \n" +
-        "   ?uri dcterms:title ?label . \n" +
+        "   ?uri dcterms:title ?title . \n" +
         "   ?uri dcterms:date ?date . \n" +
         "   ?uri dcterms:description ?description . \n" +
-        "   ?uri ddr:exportedFromFolder ?folder . \n" +
         "   ?uri ddr:privacyStatus ?privacy . \n" +
-        "   ?uri ddr:exportedToRepository ?repository . \n" +
         "   ?uri ddr:exportedToPlatform ?platformsUsed . \n" +
         "   ?uri ddr:DOI ?doi .\n" +
-        "   ?folder nie:title ?folderName . \n";
+        "   OPTIONAL { ?uri ddr:embargoedDate ?embargoedDate  }. \n";
 
     let i = 1;
 
@@ -313,14 +310,14 @@ Deposit.createQuery = function (params, callback)
             value: db.graphUri
         }];
 
-    if (params.platforms)
+    if (params.privacy)
     {
         query +=
-            "   VALUES ?privacy {";
+          "   VALUES ?privacy {";
 
-        for (let j = 0; j < params.private.length; j++)
+        for (let j = 0; j < params.privacy.length; j++)
         {
-            var object = JSON.parse(params.private[j]);
+            var object = JSON.parse(params.privacy[j]);
 
             if (object.value === true)
             {
@@ -361,7 +358,10 @@ Deposit.createQuery = function (params, callback)
         query +=
           "} . \n" +
           "   ?uri ddr:privacyStatus ?privacy . \n";
+    }
 
+    if (params.platforms)
+    {
         query +=
         "   VALUES ?platformsUsed {";
 
@@ -376,13 +376,6 @@ Deposit.createQuery = function (params, callback)
         query +=
       "} . \n" +
         "   ?uri ddr:exportedToPlatform ?platformsUsed . \n";
-    }
-    else
-    {
-        query +=
-          "   VALUES ?platformsUsed { \n" +
-          "} . \n" +
-          "   ?uri ddr:exportedToPlatform ?platformsUsed . \n";
     }
 
     if (params.description)
@@ -568,138 +561,6 @@ Deposit.createAndInsertFromObject = function (object, callback)
         }
     });
 };
-Deposit.prototype.getFavoriteDescriptors = function (maxResults, callback, allowedOntologies)
-{
-    const self = this;
-    const mysql = Config.getMySQLByID();
-    const targetTable = Config.recommendation.getTargetTable();
-    let projectFavoriteDescriptorsList = [];
-
-    let queryProjectDescriptorFavorites = "call " + Config.mySQLDBName + ".getDepositFavoriteDescriptors(:uri);";
-
-    dbMySQL.sequelize
-        .query(queryProjectDescriptorFavorites,
-            {replacements: { uri: self.uri }})
-        .then(result =>
-        {
-            if (isNull(result))
-            {
-                return callback(null, []);
-            }
-
-            async.mapSeries(result, function (row, callback)
-            {
-                Descriptor.findByUri(row.executedOver, function (err, descriptor)
-                {
-                    if (isNull(err))
-                    {
-                        if (!isNull(descriptor))
-                        {
-                            if (descriptor.recommendation_types !== null)
-                            {
-                                descriptor.recommendation_types.project_favorite = true;
-                            }
-                            else
-                            {
-                                descriptor.recommendation_types = {};
-                                descriptor.recommendation_types.project_favorite = true;
-                            }
-                            projectFavoriteDescriptorsList.push(descriptor);
-                            callback(null, null);
-                        }
-                        else
-                        {
-                            const errorMsg = "Descriptor with uri: " + row.executedOver + " does not exist!";
-                            Logger.log("error", errorMsg);
-                            callback(true, errorMsg);
-                        }
-                    }
-                    else
-                    {
-                        Logger.log("error", JSON.stringify(descriptor));
-                        callback(true, JSON.stringify(descriptor));
-                    }
-                });
-            }, function (err, results)
-            {
-                if (isNull(err))
-                {
-                    return callback(err, projectFavoriteDescriptorsList);
-                }
-
-                return callback(err, results);
-            });
-        })
-        .catch(err =>
-            callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database."));
-};
-
-
-Deposit.prototype.getHiddenDescriptors = function (maxResults, callback, allowedOntologies)
-{
-    const self = this;
-    const mysql = Config.getMySQLByID();
-    const targetTable = Config.recommendation.getTargetTable();
-    let projectHiddenDescriptorsList = [];
-
-    let queryProjectHiddenDescriptors = "call " + Config.mySQLDBName + ".getDepositHiddenDescriptors(:uri);";
-
-    dbMySQL.sequelize
-        .query(queryProjectHiddenDescriptors,
-            {replacements: { uri: self.uri }})
-        .then(result =>
-        {
-            if (isNull(result))
-            {
-                return callback(null, []);
-            }
-
-            async.mapSeries(result, function (row, callback)
-            {
-                Descriptor.findByUri(row.executedOver, function (err, descriptor)
-                {
-                    if (isNull(err))
-                    {
-                        if (!isNull(descriptor))
-                        {
-                            if (descriptor.recommendation_types !== null)
-                            {
-                                descriptor.recommendation_types.project_hidden = true;
-                            }
-                            else
-                            {
-                                descriptor.recommendation_types = {};
-                                descriptor.recommendation_types.project_hidden = true;
-                            }
-                            projectHiddenDescriptorsList.push(descriptor);
-                            callback(null, null);
-                        }
-                        else
-                        {
-                            const errorMsg = "Descriptor with uri: " + row.executedOver + " does not exist!";
-                            Logger.log("error", errorMsg);
-                            callback(true, errorMsg);
-                        }
-                    }
-                    else
-                    {
-                        Logger.log("error", JSON.stringify(descriptor));
-                        callback(true, JSON.stringify(descriptor));
-                    }
-                });
-            }, function (err, results)
-            {
-                if (isNull(err))
-                {
-                    return callback(err, projectHiddenDescriptorsList);
-                }
-
-                return callback(err, results);
-            });
-        })
-        .catch(err =>
-            callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database."));
-};
 
 /**
  * Gets a list of all the repositories used for all the existing deposits
@@ -717,8 +578,7 @@ Deposit.getAllRepositories = function (params, callback)
       "   ?uri dcterms:title ?label . \n" +
       "   ?uri ddr:exportedToRepository ?repository . \n" +
       "   ?uri ddr:DOI ?doi .\n" +
-      "   ?uri dcterms:description ?description . \n" +
-      "   ?uri ddr:exportedFromProject ?projused . \n";
+      "   ?uri dcterms:description ?description . \n";
     const ending = "} \n" +
       "GROUP BY ?repository";
 
@@ -735,9 +595,9 @@ Deposit.getAllRepositories = function (params, callback)
         query +=
           "   VALUES ?privacy {";
 
-        for (let j = 0; j < params.private.length; j++)
+        for (let j = 0; j < params.privacy.length; j++)
         {
-            var object = JSON.parse(params.private[j]);
+            var object = JSON.parse(params.privacy[j]);
 
             if (object.value === true)
             {

@@ -54,7 +54,7 @@ angular.module("dendroApp.controllers", [])
                 type: "checkbox",
                 list: true,
                 label: "Privacy",
-                key: "private",
+                key: "privacy",
                 value: [
                     {
                         name: "Public",
@@ -207,19 +207,6 @@ angular.module("dendroApp.controllers", [])
         $scope.updateDeposits = function (data, change)
         {
             $scope.deposits = data.deposits;
-        };
-
-        $scope.getEmbargoedDate = function (uri)
-        {
-            depositsService.get_embargoed_date(uri)
-                .then(function (response)
-                {
-                    return response;
-                })
-                .catch(function (error)
-                {
-                    $scope.show_popup("error", "Error occurred", JSON.stringify(error));
-                });
         };
 
         $scope.getRegistry = function (change)

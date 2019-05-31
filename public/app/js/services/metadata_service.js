@@ -99,7 +99,7 @@ angular.module("dendroApp.factories")
                     }).then(
                         function (response)
                         {
-                            if (response.data != null && response.data instanceof Object)
+                            if (response.data !== null && response.data instanceof Object)
                             {
                                 deserialize.resolve({
                                     descriptors: self.deserialize_metadata(response.data.descriptors),

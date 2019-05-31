@@ -57,7 +57,7 @@ angular.module("dendroApp.services")
                 {
                     for (var filter in self.descriptor_filters)
                     {
-                        if (filter.key == descriptor_filter)
+                        if (filter.key === descriptor_filter)
                         {
                             return filter;
                         }

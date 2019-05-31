@@ -4,29 +4,41 @@
             <b>{{item.label}}</b>
         </td>
 
-        <td  ng-if="item.type === 'dropdown'">
-            <button  style="text-align: right" type="button" class="button-search  btn btn-default dropdown-toggle " data-toggle="dropdown">
+        <td ng-if="item.type === 'dropdown'">
+            <button style="text-align: right" type="button" class="button-search  btn btn-default dropdown-toggle "
+                    data-toggle="dropdown">
                 {{item.selected}} <span class="caret"></span>
             </button>
             <ul class="dropdown-menu" role="menu">
-                <li ng-repeat="iterator in item.value track by $index"><a href="#" ng-click="item.selected = iterator.name; $eval(update(item.change))">{{iterator.name}}</a></li>
+                <li ng-repeat="iterator in item.value track by $index"><a href="#"
+                                                                          ng-click="item.selected = iterator.name; $eval(update(item.change))">{{iterator.name}}</a>
+                </li>
             </ul>
         </td>
 
-        <td ng-if="item.list && item.type !== 'dropdown'" class="{{item.type}}" ng-repeat="iterator in item.value track by $index">
+        <td ng-if="item.list && item.type !== 'dropdown'" class="{{item.type}}"
+            ng-repeat="iterator in item.value track by $index">
             <label class="label-search" ng-if="item.type !== 'dropdown'">
-                <input ng-model="iterator.value" ng-change="$eval(update(item.change))" ng-model-options="{debounce : 500}" type="{{item.type}}">
+                <input ng-model="iterator.value" ng-change="$eval(update(item.change))"
+                       ng-model-options="{debounce : 500}" type="{{item.type}}">
                 {{iterator.name}}
                 <b ng-if="iterator.count">({{iterator.count}})</b>
             </label>
         </td>
         <td>
-            <input class="margin-bottom-4" style="width: 174px" ng-if="!item.list && item.hidden!== true" ng-model="item.value" ng-change="$eval(update(item.change))" ng-model-options="{debounce : 500}" type="{{item.type}}">
-            <input class="margin-bottom-4" style="width: 174px" disabled="disabled" ng-if="!item.list && item.hidden== true" ng-model="item.value" ng-change="$eval(update(item.change))" ng-model-options="{debounce : 500}" type="{{item.type}}">
+            <input class="margin-bottom-4" style="width: 174px" ng-if="!item.list && item.hidden!== true"
+                   ng-model="item.value" ng-change="$eval(update(item.change))" ng-model-options="{debounce : 500}"
+                   type="{{item.type}}">
+            <input class="margin-bottom-4" style="width: 174px" disabled="disabled"
+                   ng-if="!item.list && item.hidden== true" ng-model="item.value" ng-change="$eval(update(item.change))"
+                   ng-model-options="{debounce : 500}" type="{{item.type}}">
 
         </td>
     </tr>
-    <tr class="form-group sidebar-item" >
+    <!--<%- include ../../../../src/views/projects/show/descriptor_autocomplete.ejs %>-->
+    <!--public/app/views/search-->
+
+    <tr class="form-group sidebar-item">
         <td>
             <b>Deposits per page</b>
         </td>

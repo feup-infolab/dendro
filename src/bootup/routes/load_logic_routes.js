@@ -25,8 +25,8 @@ const interactions = rlequire("dendro", "src/controllers/interactions");
 const descriptors = rlequire("dendro", "src/controllers/descriptors");
 const evaluation = rlequire("dendro", "src/controllers/evaluation");
 const ontologies = rlequire("dendro", "src/controllers/ontologies");
-const researchDomains = rlequire("dendro", "src/controllers/researchDomains");
-const repoBookmarks = rlequire("dendro", "src/controllers/repoBookmarks");
+const researchDomains = rlequire("dendro", "src/controllers/research_domains");
+const repoBookmarks = rlequire("dendro", "src/controllers/repo_bookmarks");
 const datasets = rlequire("dendro", "src/controllers/datasets");
 const posts = rlequire("dendro", "src/controllers/posts");
 const timeline = rlequire("dendro", "src/controllers/timeline");
@@ -58,7 +58,7 @@ else if (recommendationMode === "none")
 }
 
 const auth = rlequire("dendro", "src/controllers/auth");
-const authOrcid = rlequire("dendro", "src/controllers/authOrcid");
+const authOrcid = rlequire("dendro", "src/controllers/auth_orcid");
 
 const express = require("express"),
     domain = require("domain"),
@@ -328,13 +328,13 @@ const loadRoutes = function (app, callback)
 
     // research domains
 
-    app.get("/researchDomains/autocomplete", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), researchDomains.autocomplete);
-    app.get("/researchDomains", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), researchDomains.all);
-    app.post("/researchDomains", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), researchDomains.edit);
+    app.get("/research_domains/autocomplete", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), researchDomains.autocomplete);
+    app.get("/research_domains", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), researchDomains.all);
+    app.post("/research_domains", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), researchDomains.edit);
 
     app.delete([
         getNonHumanReadableRouteRegex("research_domain"),
-        "/researchDomains/:uri"
+        "/research_domains/:uri"
     ],
     extractUriFromRequest,
     async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), researchDomains.delete);

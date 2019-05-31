@@ -1133,6 +1133,7 @@ const exportToDendro = function (req, res)
     let embargoedDate;
     const descriptionOfDeposit = req.body.descriptionOfDeposit;
     req.user.foaf.affiliation = req.body.userAffiliation;
+
     const createDepositAux = function (exportedFromProject, exportedFromFolder, file, language, callback)
     {
         const registryData = {
@@ -1169,7 +1170,11 @@ const exportToDendro = function (req, res)
 
     if (req.body.embargoed_date)
     {
-        embargoedDate = req.body.embargoed_date;
+        let date = new Date(req.body.embargoed_date);
+        let dateNow = new Date();
+        let currentTimeZoneOffsetInHours = dateNow.getTimezoneOffset() / 60;
+        date.setHours(date.getHours() - currentTimeZoneOffsetInHours);
+        embargoedDate = date.toJSON();
     }
 
     File.findByUri(requestedResourceUri, function (err, file)

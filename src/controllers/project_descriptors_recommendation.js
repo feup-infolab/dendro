@@ -89,7 +89,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
         });
     }
 
-    const getOwnerResourceUri = function (callback)
+    const getOwnerProjectUri = function (callback)
     {
         Project.findByUri(resourceUri, function (err, projectData)
         {
@@ -116,19 +116,9 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
 
                                     else
                                     {
-                                        ie.getOwnerDeposit(function (err, result)
-                                        {
-                                            if (isNull(err) && result instanceof Deposit)
-                                            {
-                                                callback(err, result);
-                                            }
-                                            else
-                                            {
-                                                const msg = "Result is not a project/deposit while getting parent project/deposit of information element with uri " + resourceUri + " when fetching recommend_descriptors.";
-                                                Logger.log("error", msg);
-                                                callback(1, msg);
-                                            }
-                                        });
+                                        const msg = "Result is not a project/deposit while getting parent project/deposit of information element with uri " + resourceUri + " when fetching recommend_descriptors.";
+                                        Logger.log("error", msg);
+                                        callback(1, msg);
                                     }
                                 });
                             }
@@ -183,18 +173,11 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
              * Get Project's favorite descriptors
              * @param callback
              */
-            const getResourceFavoriteDescriptors = function (resource, callback)
+            const getProjectFavoriteDescriptors = function (project, callback)
             {
-                if (resource instanceof Project)
+                if (project instanceof Project)
                 {
-                    resource.getFavoriteDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites)
-                    {
-                        return callback(error, favorites);
-                    }, allowedOntologies);
-                }
-                else if (resource instanceof Deposit)
-                {
-                    resource.getFavoriteDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites)
+                    project.getFavoriteDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites)
                     {
                         return callback(error, favorites);
                     }, allowedOntologies);
@@ -230,18 +213,11 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                 });
             };
 
-            const getResourcestsHiddenDescriptors = function (resource, callback)
+            const getProjectsHiddenDescriptors = function (project, callback)
             {
-                if (resource instanceof Project)
+                if (project instanceof Project)
                 {
-                    resource.getHiddenDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, hidden)
-                    {
-                        return callback(error, hidden);
-                    }, allowedOntologies);
-                }
-                else if (resource instanceof Deposit)
-                {
-                    resource.getHiddenDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, hidden)
+                    project.getHiddenDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, hidden)
                     {
                         return callback(error, hidden);
                     }, allowedOntologies);
@@ -267,7 +243,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                 });
             };
 
-            getOwnerResourceUri(function (err, resource)
+            getOwnerProjectUri(function (err, project)
             {
                 if (isNull(err))
                 {
@@ -283,11 +259,11 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                             },
                             function (callback)
                             {
-                                if (typeof resource === "undefined")
+                                if (typeof project === "undefined")
                                 {
                                     return callback(null, []);
                                 }
-                                getResourceFavoriteDescriptors(resource, callback);
+                                getProjectFavoriteDescriptors(project, callback);
                             },
                             function (callback)
                             {
@@ -299,11 +275,11 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                             },
                             function (callback)
                             {
-                                if (typeof resource === "undefined")
+                                if (typeof project === "undefined")
                                 {
                                     return callback(null, []);
                                 }
-                                getResourcestsHiddenDescriptors(resource, callback);
+                                getProjectsHiddenDescriptors(project, callback);
                             },
                             function (callback)
                             {
@@ -404,13 +380,13 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                             }
                             else
                             {
-                                return callback(err, resource);
+                                return callback(err, project);
                             }
                         });
                 }
                 else
                 {
-                    return callback(err, resource);
+                    return callback(err, project);
                 }
             });
         }
