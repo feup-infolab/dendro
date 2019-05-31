@@ -235,6 +235,10 @@ footer .container-fluid {
 .label-search {
   margin-left: 20px;
 }
+.width-130 {
+  style: width 130px;
+  width: 130px;
+}
 textarea {
   width: 300px;
   height: 150px;

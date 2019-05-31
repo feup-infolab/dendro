@@ -39,7 +39,7 @@ angular.module("dendroApp.factories")
                 let search = {};
                 for (item in params)
                 {
-                    if (params[item].value !== null && params[item].value !== "" && !params[item].descriptors)
+                    if (params[item].value !== null && params[item].value !== "" && params[item].key !== "descriptors")
                     {
                         if (params[item].type === "dropdown")
                         {
@@ -50,15 +50,11 @@ angular.module("dendroApp.factories")
                             search[params[item].key] = params[item].value;
                         }
                     }
-                    else if (params[item].descriptors)
+                    else if (params[item].key === "descriptors")
                     {
-                        search[params[item].key] = params[item].selected;
                         let array = [];
-                        let descriptors = params[item].descriptors.value;
-                        for (var descriptor in descriptors) {
-                            array.push(descriptors[descriptor].name);
-                        }
-                        search[params[item].descriptors.key] = array;
+                        let descriptors = params[item].array;
+                        search[params[item].key] = descriptors;
                     }
                 }
                 return search;

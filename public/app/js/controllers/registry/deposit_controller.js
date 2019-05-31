@@ -156,13 +156,26 @@ angular.module("dendroApp.controllers", [])
                     {
                         name: "All"
                     }
-                ], descriptors: {
-                    key: "descriptors",
-                    value: [
-                    ]}
-
+                ]
             },
-
+            descriptors: {
+                key: "descriptors",
+                type: "dropdown",
+                array: [
+                    {
+                        descriptor: "descri",
+                        name: "name",
+                        uri: "asas"
+                    },
+                    {
+                        descriptor: "descri",
+                        name: "asasas",
+                        uri: "asas"
+                    }
+                ]},
+            descriptor_autocomplete: {
+                key: "descriptor_autocomplete"
+            },
             identifier: {
                 type: "text",
                 label: "Identifier",
@@ -181,9 +194,8 @@ angular.module("dendroApp.controllers", [])
             if (suggestion !== null && suggestion instanceof Object)
             {
                 var autocompletedDescriptor = JSON.parse(JSON.stringify(suggestion));
-                var value = {name: autocompletedDescriptor.label};
-                $scope.search.descriptorTag.descriptors.value.push(value);
-                delete $scope.asyncSelected;
+                var value = {descriptor: autocompletedDescriptor.label, uri: autocompletedDescriptor.uri, name: ""};
+                $scope.search.descriptors.array.push(value);
             }
         };
 
@@ -194,14 +206,12 @@ angular.module("dendroApp.controllers", [])
             $scope.rootDepositUri = rootDepositUri;
             $scope.isDepositRoot = isRoot;
             $scope.depositUri = depositUri;
-
         };
 
         $scope.init = function ()
         {
             $scope.getRegistry(true);
             $scope.asyncSelected = "";
-
         };
 
         $scope.$watch("asyncSelected", function ()

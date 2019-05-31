@@ -300,6 +300,7 @@ Deposit.createQuery = function (params, callback)
         "   ?uri ddr:privacyStatus ?privacy . \n" +
         "   ?uri ddr:exportedToPlatform ?platformsUsed . \n" +
         "   ?uri ddr:DOI ?doi .\n" +
+        // ?uri http://purl.org/dc/terms/abstract asasasas
         "   OPTIONAL { ?uri ddr:embargoedDate ?embargoedDate  }. \n";
 
     let i = 1;
