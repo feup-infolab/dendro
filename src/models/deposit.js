@@ -1,4 +1,3 @@
-
 // follows the DC Terms ontology :
 // @see http://bloody-byte.net/rdf/dc_owl2dl/dc.ttl
 // creator is an URI to the author : http://dendro.fe.up.pt/user/<username>
@@ -74,59 +73,59 @@ Deposit.createDeposit = function (data, callback)
             .send({
                 data: {
                     attributes:
-                    {
-                        doi: DOI,
-                        confirmDoi: null,
-                        url: newDeposit.ddr.absoluteUri,
-                        types: {
-                            resourceTypeGeneral: "Dataset"
-                        },
-                        creators:
-                          [{
-                              name: user.foaf.firstName + " " + user.foaf.surname,
-                              givenName: user.foaf.firstName,
-                              familyName: user.foaf.surname,
-                              nameType: "Personal",
-                              affiliation: user.foaf.affiliation,
-                              nameIdentifiers:
-                                [{
-                                    nameIdentifier: user.ddr.absoluteUri,
-                                    nameIdentifierScheme: null,
-                                    schemeUri: null
-                                }]
-                          }],
-                        titles:
-                          [{
-                              title: newDeposit.dcterms.title,
-                              titleType: null,
-                              lang: newDeposit.dcterms.language
-                          }],
-                        publisher: null,
-                        publicationYear: new Date().getFullYear(),
-                        descriptions:
-                          [{
-                              description: newDeposit.dcterms.description,
-                              descriptionType: "Abstract",
-                              lang: newDeposit.dcterms.language
-                          }],
-                        xml: null,
-                        source: "fabricaForm",
-                        state: "draft",
-                        reason: null,
-                        event: null,
-                        mode: "new"
-                    },
+            {
+                doi: DOI,
+                confirmDoi: null,
+                url: newDeposit.ddr.absoluteUri,
+                types: {
+                    resourceTypeGeneral: "Dataset"
+                },
+                creators:
+                [{
+                    name: user.foaf.firstName + " " + user.foaf.surname,
+                    givenName: user.foaf.firstName,
+                    familyName: user.foaf.surname,
+                    nameType: "Personal",
+                    affiliation: user.foaf.affiliation,
+                    nameIdentifiers:
+                    [{
+                        nameIdentifier: user.ddr.absoluteUri,
+                        nameIdentifierScheme: null,
+                        schemeUri: null
+                    }]
+                }],
+                titles:
+                [{
+                    title: newDeposit.dcterms.title,
+                    titleType: null,
+                    lang: newDeposit.dcterms.language
+                }],
+                publisher: null,
+                publicationYear: new Date().getFullYear(),
+                descriptions:
+                [{
+                    description: newDeposit.dcterms.description,
+                    descriptionType: "Abstract",
+                    lang: newDeposit.dcterms.language
+                }],
+                xml: null,
+                source: "fabricaForm",
+                state: "draft",
+                reason: null,
+                event: null,
+                mode: "new"
+            },
                     relationships:
+            {
+                client:
+                {
+                    data:
                     {
-                        client:
-                          {
-                              data:
-                                {
-                                    type: "clients",
-                                    id: "dev.infolab"
-                                }
-                          }
-                    },
+                        type: "clients",
+                        id: "dev.infolab"
+                    }
+                }
+            },
                     type: "dois"
                 }
             })
@@ -200,9 +199,9 @@ Deposit.createDeposit = function (data, callback)
             {
                 newDeposit.ddr.hasStorageConfig = savedConfiguration.uri;
                 // save deposited contents to dendro
-                Deposit.saveContents({newDeposit: newDeposit, content: content, user: user}, function (err, msg)
+                Deposit.saveContents({ newDeposit: newDeposit, content: content, user: user }, function (err, msg)
                 {
-                    async.waterfall([ function (callback)
+                    async.waterfall([function (callback)
                     {
                         generateDoi(function (err, result)
                         {
@@ -257,13 +256,13 @@ Deposit.createDeposit = function (data, callback)
 Deposit.getEmbargoedDate = function (url, callback)
 {
     let query =
-      "SELECT DISTINCT ?embargoedDate \n" +
-      "FROM [0] \n" +
-      "WHERE " +
-      "{ \n" +
-      "   [1] rdf:type ddr:Registry . \n" +
-      "   [1] ddr:embargoedDate ?embargoedDate . \n" +
-      "}";
+    "SELECT DISTINCT ?embargoedDate \n" +
+    "FROM [0] \n" +
+    "WHERE " +
+    "{ \n" +
+    "   [1] rdf:type ddr:Registry . \n" +
+    "   [1] ddr:embargoedDate ?embargoedDate . \n" +
+    "}";
 
     let variables = [
         {
@@ -288,20 +287,20 @@ Deposit.getEmbargoedDate = function (url, callback)
 Deposit.createQuery = function (params, callback)
 {
     let query =
-        "SELECT DISTINCT  ?title ?user ?date ?platformsUsed ?privacy ?uri  ?doi ?description  ?embargoedDate \n" +
-        "FROM [0] \n" +
-        "WHERE " +
-        "{ \n" +
-        "   ?uri rdf:type ddr:Registry . \n" +
-        "   ?uri dcterms:creator ?user . \n" +
-        "   ?uri dcterms:title ?title . \n" +
-        "   ?uri dcterms:date ?date . \n" +
-        "   ?uri dcterms:description ?description . \n" +
-        "   ?uri ddr:privacyStatus ?privacy . \n" +
-        "   ?uri ddr:exportedToPlatform ?platformsUsed . \n" +
-        "   ?uri ddr:DOI ?doi .\n" +
-        // ?uri http://purl.org/dc/terms/abstract asasasas
-        "   OPTIONAL { ?uri ddr:embargoedDate ?embargoedDate  }. \n";
+    "SELECT DISTINCT  ?title ?user ?date ?platformsUsed ?privacy ?uri  ?doi ?description  ?embargoedDate \n" +
+    "FROM [0] \n" +
+    "WHERE " +
+    "{ \n" +
+    "   ?uri rdf:type ddr:Registry . \n" +
+    "   ?uri dcterms:creator ?user . \n" +
+    "   ?uri dcterms:title ?title . \n" +
+    "   ?uri dcterms:date ?date . \n" +
+    "   ?uri dcterms:description ?description . \n" +
+    "   ?uri ddr:privacyStatus ?privacy . \n" +
+    "   ?uri ddr:exportedToPlatform ?platformsUsed . \n" +
+    "   ?uri ddr:DOI ?doi .\n" +
+    // ?uri http://purl.org/dc/terms/abstract asasasas
+    "   OPTIONAL { ?uri ddr:embargoedDate ?embargoedDate  }. \n";
 
     let i = 1;
 
@@ -314,7 +313,7 @@ Deposit.createQuery = function (params, callback)
     if (params.privacy)
     {
         query +=
-          "   VALUES ?privacy {";
+      "   VALUES ?privacy {";
 
         for (let j = 0; j < params.privacy.length; j++)
         {
@@ -357,14 +356,14 @@ Deposit.createQuery = function (params, callback)
             }
         }
         query +=
-          "} . \n" +
-          "   ?uri ddr:privacyStatus ?privacy . \n";
+      "} . \n" +
+      "   ?uri ddr:privacyStatus ?privacy . \n";
     }
 
     if (params.platforms)
     {
         query +=
-        "   VALUES ?platformsUsed {";
+      "   VALUES ?platformsUsed {";
 
         for (let j = 0; j < params.platforms.length; j++)
         {
@@ -376,7 +375,68 @@ Deposit.createQuery = function (params, callback)
         }
         query +=
       "} . \n" +
-        "   ?uri ddr:exportedToPlatform ?platformsUsed . \n";
+      "   ?uri ddr:exportedToPlatform ?platformsUsed . \n";
+    }
+
+    if (params.descriptors && params.descriptors.length > 0)
+    {
+        if (typeof params.descriptors === "object")
+        {
+            var first = true;
+            var k = 1;
+
+            Object.keys(params.descriptors).forEach(function (key)
+            {
+                let descriptor = JSON.parse(params.descriptors[key]);
+
+                if (params.descriptorTag === "All")
+                {
+                    query += "?uri [" + i++ + "] [" + i++ + "]. \n";
+                    variables.push({
+                        type: Elements.types.resource,
+                        value: descriptor.uri
+                    }, {
+                        type: Elements.types.string,
+                        value: descriptor.name
+                    });
+                }
+                else if (params.descriptorTag === "Any")
+                {
+                    if (first)
+                    {
+                        first = false;
+                        query += "?uri ?descriptor ?value. \n" +
+                        "VALUES (?descriptor ?value) \n{";
+                    }
+                    query += "( [" + i++ + "] [" + i++ + "] )";
+                    variables.push({
+                        type: Elements.types.resource,
+                        value: descriptor.uri
+                    }, {
+                        type: Elements.types.string,
+                        value: descriptor.name
+                    });
+
+                    if (Object.keys(params.descriptors).length === k)
+                    {
+                        query += "}";
+                    }
+                    k++;
+                }
+            });
+        }
+        else if (typeof params.descriptors === "string")
+        {
+            var descriptor = JSON.parse(params.descriptors);
+            query += "?uri [" + i++ + "] [" + i++ + "]. \n";
+            variables.push({
+                type: Elements.types.resource,
+                value: descriptor.uri
+            }, {
+                type: Elements.types.string,
+                value: descriptor.name
+            });
+        }
     }
 
     if (params.description)
@@ -398,10 +458,10 @@ Deposit.createQuery = function (params, callback)
     }
 
     let ending =
-      "} \n" +
-      "ORDER BY " + params.order + "(?" + params.labelToSort + ") \n" +
-      "OFFSET [" + i++ + "] \n" +
-      "LIMIT [" + i++ + "]";
+    "} \n" +
+    "ORDER BY " + params.order + "(?" + params.labelToSort + ") \n" +
+    "OFFSET [" + i++ + "] \n" +
+    "LIMIT [" + i++ + "]";
 
     if (params.offset)
     {
@@ -435,7 +495,7 @@ Deposit.createQuery = function (params, callback)
 
     if (params.project)
     {
-        query += " FILTER contains(?label, [" + i++ + "]). \n";
+        query += " FILTER contains(?title, [" + i++ + "]). \n";
         variables.push({
             type: Elements.ontologies.dcterms.title.type,
             value: params.project
@@ -480,7 +540,7 @@ Deposit.createQuery = function (params, callback)
  */
 Deposit.validatePlatformUri = function (deposit, callback)
 {
-    const appendPlatformUrl = function ({ddr: {exportedToPlatform: platform, exportedToRepository: url}})
+    const appendPlatformUrl = function ({ ddr: { exportedToPlatform: platform, exportedToRepository: url } })
     {
         const https = "https://";
         switch (platform)
@@ -571,17 +631,17 @@ Deposit.createAndInsertFromObject = function (object, callback)
 Deposit.getAllRepositories = function (params, callback)
 {
     let query =
-      "SELECT ?repository COUNT(?repository) as ?count\n" +
-      "FROM [0] \n" +
-      "WHERE \n" +
-      "{ \n" +
-      "   ?uri rdf:type ddr:Registry . \n" +
-      "   ?uri dcterms:title ?label . \n" +
-      "   ?uri ddr:exportedToRepository ?repository . \n" +
-      "   ?uri ddr:DOI ?doi .\n" +
-      "   ?uri dcterms:description ?description . \n";
+    "SELECT ?repository COUNT(?repository) as ?count\n" +
+    "FROM [0] \n" +
+    "WHERE \n" +
+    "{ \n" +
+    "   ?uri rdf:type ddr:Registry . \n" +
+    "   ?uri dcterms:title ?title . \n" +
+    "   ?uri ddr:exportedToRepository ?repository . \n" +
+    "   ?uri ddr:DOI ?doi .\n" +
+    "   ?uri dcterms:description ?description . \n";
     const ending = "} \n" +
-      "GROUP BY ?repository";
+    "GROUP BY ?repository";
 
     let variables = [
         {
@@ -594,7 +654,7 @@ Deposit.getAllRepositories = function (params, callback)
     if (params.platforms)
     {
         query +=
-          "   VALUES ?privacy {";
+      "   VALUES ?privacy {";
 
         for (let j = 0; j < params.privacy.length; j++)
         {
@@ -637,11 +697,11 @@ Deposit.getAllRepositories = function (params, callback)
             }
         }
         query +=
-          "} . \n" +
-          "   ?uri ddr:privacyStatus ?privacy . \n";
+      "} . \n" +
+      "   ?uri ddr:privacyStatus ?privacy . \n";
 
         query +=
-          "   VALUES ?platformsUsed {";
+      "   VALUES ?platformsUsed {";
 
         for (let j = 0; j < params.platforms.length; j++)
         {
@@ -652,20 +712,20 @@ Deposit.getAllRepositories = function (params, callback)
             });
         }
         query +=
-          "} . \n" +
-          "   ?uri ddr:exportedToPlatform ?platformsUsed . \n";
+      "} . \n" +
+      "   ?uri ddr:exportedToPlatform ?platformsUsed . \n";
     }
     else
     {
         query +=
-          "   VALUES ?platformsUsed { \n" +
-          "} . \n" +
-          "    ?uri ddr:exportedToPlatform ?platformsUsed . \n";
+      "   VALUES ?platformsUsed { \n" +
+      "} . \n" +
+      "    ?uri ddr:exportedToPlatform ?platformsUsed . \n";
     }
 
     if (params.project)
     {
-        query += " FILTER contains(?label, [" + i++ + "]). \n";
+        query += " FILTER contains(?title, [" + i++ + "]). \n";
         variables.push({
             type: Elements.ontologies.dcterms.title.type,
             value: params.project
@@ -713,6 +773,66 @@ Deposit.getAllRepositories = function (params, callback)
             value: params.identifier
         });
     }
+    if (params.descriptors && params.descriptors.length > 0)
+    {
+        if (typeof params.descriptors === "object")
+        {
+            var first = true;
+            var k = 1;
+
+            Object.keys(params.descriptors).forEach(function (key)
+            {
+                let descriptor = JSON.parse(params.descriptors[key]);
+
+                if (params.descriptorTag === "All")
+                {
+                    query += "?uri [" + i++ + "] [" + i++ + "]. \n";
+                    variables.push({
+                        type: Elements.types.resource,
+                        value: descriptor.uri
+                    }, {
+                        type: Elements.types.string,
+                        value: descriptor.name
+                    });
+                }
+                else if (params.descriptorTag === "Any")
+                {
+                    if (first)
+                    {
+                        first = false;
+                        query += "?uri ?descriptor ?value. \n" +
+                          "VALUES (?descriptor ?value) \n{";
+                    }
+                    query += "( [" + i++ + "] [" + i++ + "] )";
+                    variables.push({
+                        type: Elements.types.resource,
+                        value: descriptor.uri
+                    }, {
+                        type: Elements.types.string,
+                        value: descriptor.name
+                    });
+
+                    if (Object.keys(params.descriptors).length === k)
+                    {
+                        query += "}";
+                    }
+                    k++;
+                }
+            });
+        }
+        else if (typeof params.descriptors === "string")
+        {
+            var descriptor = JSON.parse(params.descriptors);
+            query += "?uri [" + i++ + "] [" + i++ + "]. \n";
+            variables.push({
+                type: Elements.types.resource,
+                value: descriptor.uri
+            }, {
+                type: Elements.types.string,
+                value: descriptor.name
+            });
+        }
+    }
 
     query += ending;
 
@@ -753,7 +873,11 @@ Deposit.saveContents = function (params, callback)
                     {
                         let content = params.content;
                         // TODO check if file or folder
-                        content.copyPaste({includeMetadata: true, destinationFolder: rootFolder, user: params.user}, function (err, msg)
+                        content.copyPaste({
+                            includeMetadata: true,
+                            destinationFolder: rootFolder,
+                            user: params.user
+                        }, function (err, msg)
                         {
                             callback(err, newDeposit);
                         });
@@ -842,14 +966,14 @@ Deposit.getDepositsEmbargoed = function (callback)
     let dateNow = date.toISOString();
     let i = 1;
     let query =
-      "SELECT DISTINCT * \n" +
-      "FROM [0] \n" +
-      "WHERE " +
-      "{ \n" +
-      "   ?uri rdf:type ddr:Registry . \n" +
-      "   ?uri ddr:embargoedDate ?embargoedDate . \n" +
-      "   ?uri  ddr:privacyStatus [" + i++ + "]. \n" +
-      "    FILTER ( xsd:dateTime(?embargoedDate) < xsd:dateTime([" + i++ + "])). \n" +
+    "SELECT DISTINCT * \n" +
+    "FROM [0] \n" +
+    "WHERE " +
+    "{ \n" +
+    "   ?uri rdf:type ddr:Registry . \n" +
+    "   ?uri ddr:embargoedDate ?embargoedDate . \n" +
+    "   ?uri  ddr:privacyStatus [" + i++ + "]. \n" +
+    "    FILTER ( xsd:dateTime(?embargoedDate) < xsd:dateTime([" + i++ + "])). \n" +
     "} \n";
 
     let variables = [
@@ -882,7 +1006,7 @@ Deposit.prototype.delete = function (callback, customGraphUri)
     {
         const deleteQuery =
       "DELETE FROM [0]\n" +
-        "{\n" +
+      "{\n" +
       " ?resource ?p ?o \n" +
       "} \n" +
       "WHERE \n" +
@@ -989,16 +1113,16 @@ Deposit.prototype.delete = function (callback, customGraphUri)
 Deposit.findByCreator = function (creator, callback)
 {
     const query =
-      "SELECT * " +
-      "FROM [0] " +
-      "WHERE " +
-      "{ " +
-      " ?uri rdf:type ddr:Deposit . " +
-      " ?uri dcterms:creator [1] ." +
-      " ?uri dcterms:title ?title ." +
-      " ?uri dcterms:description ?description . " +
-      " ?uri ddr:privacyStatus ?privacyStatus . " +
-      "} ";
+    "SELECT * " +
+    "FROM [0] " +
+    "WHERE " +
+    "{ " +
+    " ?uri rdf:type ddr:Deposit . " +
+    " ?uri dcterms:creator [1] ." +
+    " ?uri dcterms:title ?title ." +
+    " ?uri dcterms:description ?description . " +
+    " ?uri ddr:privacyStatus ?privacyStatus . " +
+    "} ";
 
     db.connection.executeViaJDBC(query,
         [

@@ -20,11 +20,11 @@ angular.module("dendroApp.controllers", [])
         $scope.search_settings = {
             offset: 1,
             page: 5,
-            totalDeposits: 0
+            totalDeposits: 0,
+            descriptors: []
         };
 
         $scope.search = {
-
             creator: {
                 type: "text",
                 label: "Username",
@@ -36,6 +36,18 @@ angular.module("dendroApp.controllers", [])
                 type: "text",
                 label: "Deposit title",
                 key: "project",
+                value: ""
+            },
+            description: {
+                type: "text",
+                label: "Description",
+                key: "description",
+                value: ""
+            },
+            identifier: {
+                type: "text",
+                label: "Identifier",
+                key: "identifier",
                 value: ""
             },
             dateFrom: {
@@ -148,7 +160,7 @@ angular.module("dendroApp.controllers", [])
                 list: true,
                 label: "Descriptor Value",
                 key: "descriptorTag",
-                selected: "Any",
+                selected: "All",
                 value: [
                     {
                         name: "Any"
@@ -157,47 +169,52 @@ angular.module("dendroApp.controllers", [])
                         name: "All"
                     }
                 ]
-            },
-            descriptors: {
-                key: "descriptors",
-                type: "dropdown",
-                array: [
-                    {
-                        descriptor: "descri",
-                        name: "name",
-                        uri: "asas"
-                    },
-                    {
-                        descriptor: "descri",
-                        name: "asasas",
-                        uri: "asas"
-                    }
-                ]},
-            descriptor_autocomplete: {
-                key: "descriptor_autocomplete"
-            },
-            identifier: {
-                type: "text",
-                label: "Identifier",
-                key: "identifier",
-                value: ""
-            },
-            description: {
-                type: "text",
-                label: "Description",
-                key: "description",
-                value: ""
             }
+            // },
+            // descriptor: {
+            //     key: "descriptor",
+            //     type: "dropdown",
+            //     name: "name",
+            //     uri: "asa",
+            //     descriptor: "descriptor",
+            //     id: "wewewe"
+            // },
+            // descripddaor: {
+            //     key: "descriptor",
+            //     type: "dropdown",
+            //     name: "name",
+            //     uri: "asa",
+            //     descriptor: "descriptor",
+            //     id: "asas"
+            // }
         };
         $scope.select_descriptor_from_autocomplete_webpage = function (suggestion, model, label)
         {
             if (suggestion !== null && suggestion instanceof Object)
             {
                 var autocompletedDescriptor = JSON.parse(JSON.stringify(suggestion));
-                var value = {descriptor: autocompletedDescriptor.label, uri: autocompletedDescriptor.uri, name: ""};
-                $scope.search.descriptors.array.push(value);
+                let y = Math.random() * 10;
+                var value = {id: y, key: "descriptor", type: "dropdown", descriptor: autocompletedDescriptor.label, uri: autocompletedDescriptor.uri, name: ""};
+                $scope.search[y.toString()] = value;
+                $scope.search_settings.descriptors.push(value);
             }
         };
+
+        $scope.$watch("search_settings.descriptors", function ()
+        {
+            let x = true;
+            $scope.search_settings.descriptors.forEach(function (descriptor)
+            {
+                if (descriptor.name === "" || descriptor.uri === null)
+                {
+                    x = false;
+                }
+            });
+            if (x)
+            {
+                $scope.getRegistry(true);
+            }
+        }, true);
 
         $scope.hostUrl = window.location.protocol + "//" + window.location.host + "/user/";
 
@@ -208,17 +225,21 @@ angular.module("dendroApp.controllers", [])
             $scope.depositUri = depositUri;
         };
 
+        $scope.myfunction = function (id)
+        {
+            var elements = document.getElementsByClassName(id);
+
+            for (j = 0; j !== elements.length;)
+            {
+                elements[j].remove();
+            }
+        };
+
         $scope.init = function ()
         {
             $scope.getRegistry(true);
             $scope.asyncSelected = "";
         };
-
-        $scope.$watch("asyncSelected", function ()
-        {
-            console.log("asasasasas");
-        });
-
         $scope.myInit = function ()
         {
             usersService.get_logged_user()

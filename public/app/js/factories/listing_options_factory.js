@@ -27,7 +27,7 @@ angular.module("dendroApp.factories")
                         }
                     }).catch(function (error)
                     {
-                        if (error != null)
+                        if (error !== null)
                         {
                             $scope.show_popup("error", "Error", error.message);
                         }
@@ -37,9 +37,10 @@ angular.module("dendroApp.factories")
             parseParams: function (params)
             {
                 let search = {};
+                var descriptors = [];
                 for (item in params)
                 {
-                    if (params[item].value !== null && params[item].value !== "" && params[item].key !== "descriptors")
+                    if (params[item].value !== null && params[item].value !== "" && params[item].key !== "descriptor")
                     {
                         if (params[item].type === "dropdown")
                         {
@@ -50,13 +51,12 @@ angular.module("dendroApp.factories")
                             search[params[item].key] = params[item].value;
                         }
                     }
-                    else if (params[item].key === "descriptors")
+                    else if (params[item].key === "descriptor")
                     {
-                        let array = [];
-                        let descriptors = params[item].array;
-                        search[params[item].key] = descriptors;
+                        descriptors.push(params[item]);
                     }
                 }
+                search.descriptors = descriptors;
                 return search;
             }
         };

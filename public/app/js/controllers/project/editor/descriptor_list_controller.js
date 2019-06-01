@@ -51,7 +51,7 @@ angular.module("dendroApp.controllers")
         $scope.get_descriptors_by_text_search = function (typed)
         {
             var current_url = $scope.get_calling_uri();
-            return descriptorsService.get_descriptors_by_text_search(current_url, typed);
+            return descriptorsService.get_descriptors_by_text_search_resource(current_url, typed);
         };
         $scope.get_descriptors_by_text_search_webpage = function (typed)
         {

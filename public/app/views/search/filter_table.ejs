@@ -13,36 +13,19 @@
         <!--ng-model="descriptor.name" ng-model-options="{debounce : 500}"></td>-->
         <!--</tr>-->
 
-        <td ng-repeat="descriptor in item.array track by $index">
+        <td class="{{item.id}}" ng-if="item.type === 'dropdown' && item.key == 'descriptor'">
             <input disabled style="width: 150px"
-                   ng-model="descriptor.descriptor" ng-model-options="{debounce : 500}">
-
+                   ng-model="item.descriptor" ng-model-options="{debounce : 500}">
             <input style="width: 150px"
-                   ng-model="descriptor.name" ng-model-options="{debounce : 500}">
+                   ng-model="item.name" ng-model-options="{debounce : 500}">
+            <button
+                    class="btn btn-sm fa fa-trash"
+                    ng-click="myfunction(item.id)"></button>
         </td>
 
 
-        <td ng-if="item.key === 'descriptor_autocomplete'">
-            <input type="text" class="input-search"
-                   ng-model="asyncSelected"
-                   placeholder="Search for descriptor..."
-                   uib-typeahead="result.label for result in get_descriptors_by_text_search_webpage($viewValue)"
-                   typeahead-show-hint="true"
-                   typeahead-min-length="2"
-                   typeahead-loading="loadingDescriptors"
-                   typeahead-wait-ms="400"
-                   typeahead-no-results="noResults"
-                   typeahead-on-select="select_descriptor_from_autocomplete_webpage($item, $model, $label); asyncSelected ='';"
-                   class="form-control autocomplete-width">
 
-            <i ng-show="loadingDescriptors" class="glyphicon glyphicon-refresh">Searching descriptors...</i>
-            <div ng-show="noResults">
-                <i class="glyphicon glyphicon-remove"></i> No Results Found
-            </div>
-
-        </td>
-
-        <td ng-if="item.type === 'dropdown' && item.key !== 'descriptors' && item.key !== 'descriptor_autocomplete'">
+        <td ng-if="item.type === 'dropdown' && item.key !== 'descriptor'">
             <button style="text-align: right" type="button" class="button-search  btn btn-default dropdown-toggle "
                     data-toggle="dropdown">
                 {{item.selected}} <span class="caret"></span>
@@ -63,18 +46,42 @@
                 <b ng-if="iterator.count">({{iterator.count}})</b>
             </label>
         </td>
-        <td ng-if=" item.key !== 'descriptor_autocomplete'">
+        <td>
             <input class="margin-bottom-4" style="width: 174px"
-                   ng-if="!item.list && item.hidden!== true && item.key !== 'descriptors'"
+                   ng-if="!item.list && item.hidden!== true && item.key !== 'descriptor'"
                    ng-model="item.value" ng-change="$eval(update(item.change))" ng-model-options="{debounce : 500}"
                    type="{{item.type}}">
             <input class="margin-bottom-4" style="width: 174px" disabled="disabled"
                    ng-if="!item.list && item.hidden== true" ng-model="item.value" ng-change="$eval(update(item.change))"
                    ng-model-options="{debounce : 500}" type="{{item.type}}">
-
         </td>
 
     </tr>
+    <tr class="form-group sidebar-item">
+        <td>
+        </td>
+        <td>
+
+            <input type="text" class="input-search"
+                   ng-model="asyncSelected"
+                   placeholder="Search for descriptor..."
+                   uib-typeahead="result.label for result in get_descriptors_by_text_search_webpage($viewValue)"
+                   typeahead-show-hint="true"
+                   typeahead-min-length="2"
+                   typeahead-loading="loadingDescriptors"
+                   typeahead-wait-ms="400"
+                   typeahead-no-results="noResults"
+                   typeahead-on-select="select_descriptor_from_autocomplete_webpage($item, $model, $label); asyncSelected ='';"
+                   class="form-control autocomplete-width">
+
+            <i ng-show="loadingDescriptors" class="glyphicon glyphicon-refresh">Searching descriptors...</i>
+            <div ng-show="noResults">
+                <i class="glyphicon glyphicon-remove"></i> No Results Found
+            </div>
+
+        </td>
+    </tr>
+
     <tr class="form-group sidebar-item">
 
         <td>
@@ -93,5 +100,4 @@
         </td>
 
     </tr>
-
 </table>

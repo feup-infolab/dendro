@@ -14,7 +14,7 @@ angular.module("dendroApp.services")
                 });
             };
 
-            this.get_descriptors_by_text_search = function (current_resource_uri, typed)
+            this.get_descriptors_by_text_search_resource = function (current_resource_uri, typed)
             {
                 if (typeof typed !== "undefined")
                 {
