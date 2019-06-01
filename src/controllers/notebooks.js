@@ -32,8 +32,7 @@ module.exports.pipe_to_instance = function (req, res)
             // proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
             // Stream the content
             // proxyReq.write(bodyData);
-
-            proxyReq.setHeader("Host", `jupyter-notebook.${req.params.guid}`);
+            proxyReq.setHeader("Host",`jupyter-notebook.${req.params.guid}`);
 
             let targetUrl = proxyReq._currentUrl;
             targetUrl = targetUrl.replace(req.url, "");
@@ -51,7 +50,7 @@ module.exports.pipe_to_instance = function (req, res)
     });
 
     proxy.web(req, res, {
-        target: `${jupyterProxyUrl}/login`,
+        target: `${jupyterProxyUrl}`,
         followRedirects: true
     });
 };
