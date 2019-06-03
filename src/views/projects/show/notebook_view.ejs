@@ -1,37 +1,38 @@
 
 <style type='text/css'>
-    div#instructions {
-        max-width: 960px;
-        font-size: 2em;
-        color: #aaa;
-        text-align: center;
-        padding-top: 10%;
-        margin: 0 auto;
-    }
-    div#instructions small {
-        font-size: .7em;
-    }
-    div#dropzone {
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        z-index: 1000;
-        background-color: #7d7;
-        opacity: 0;
-        transition: visibility 500ms, opacity 500ms;
-    }
-    select#file-selector {
-        display: none;
-        /*display: block;*/
-        font-size: 2em;
-        margin: 0 auto;
-    }
+        div#instructions {
+                max-width: 960px;
+                font-size: 2em;
+                color: #aaa;
+                text-align: center;
+                padding-top: 10%;
+                margin: 0 auto;
+        }
+        div#instructions small {
+                font-size: .7em;
+        }
+        div#dropzone {
+                position: fixed;
+                top: 0; left: 0;
+                width: 100%; height: 100%;
+                z-index: 1000;
+                background-color: #7d7;
+                opacity: 0;
+                transition: visibility 500ms, opacity 500ms;
+        }
+        select#file-selector {
+                display: none;
+                /*display: block;*/
+                font-size: 2em;
+                margin: 0 auto;
+        }
 </style>
+
+
 
 <div id="doc">
         <select id="file-selector"></select>
         <div id="instructions">Drag and drop Jupyter notebooks anywhere here</div>
-        <div id ="dropzone">  DROP HERE    </div>
 </div>
 
 
@@ -54,9 +55,8 @@
     dz.style.visibility = 'hidden'
     dz.setAttribute('id', 'dropzone')
     d.getElementsByTagName('body')[0].appendChild(dz)
-    // we need a separate listener for the windows,
-    // to enable the dropzone
-    // otherwise it'd 'hijack' all clicks and everything
+
+
     window.addEventListener('dragenter', function(e) {
         dz.style.opacity = .3;
         dz.style.visibility = ''
