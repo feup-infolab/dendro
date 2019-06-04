@@ -133,25 +133,33 @@ angular.module("dendroApp.controllers", [])
                 list: true,
                 label: "Order By",
                 key: "ordering",
+                ordering: "true",
                 selected: "date descending",
                 value: [
                     {
-                        name: "date ascending"
+                        name: "date ascending",
+                        key: "date ASC"
                     },
                     {
-                        name: "date descending"
+                        name: "date descending",
+                        key: "date DESC"
+
                     },
                     {
-                        name: "username ascending"
+                        name: "username ascending",
+                        key: "user ASC"
                     },
                     {
-                        name: "username descending"
+                        name: "username descending",
+                        key: "user DESC"
                     },
                     {
-                        name: "deposits ascending"
+                        name: "ascending deposit titles",
+                        key: "title ASC"
                     },
                     {
-                        name: "deposits descending"
+                        name: "descending deposit titles",
+                        key: "title DESC"
                     }
                 ]
             },
@@ -160,7 +168,7 @@ angular.module("dendroApp.controllers", [])
                 list: true,
                 label: "Descriptor Value",
                 key: "descriptorTag",
-                selected: "All",
+                selected: "Any",
                 value: [
                     {
                         name: "Any"
@@ -194,7 +202,14 @@ angular.module("dendroApp.controllers", [])
             {
                 var autocompletedDescriptor = JSON.parse(JSON.stringify(suggestion));
                 let y = Math.random() * 10;
-                var value = {id: y, key: "descriptor", type: "dropdown", descriptor: autocompletedDescriptor.label, uri: autocompletedDescriptor.uri, name: ""};
+                var value = {
+                    id: y,
+                    key: "descriptor",
+                    type: "dropdown",
+                    descriptor: autocompletedDescriptor.label,
+                    uri: autocompletedDescriptor.uri,
+                    name: ""
+                };
                 $scope.search[y.toString()] = value;
                 $scope.search_settings.descriptors.push(value);
             }
@@ -203,16 +218,34 @@ angular.module("dendroApp.controllers", [])
         $scope.$watch("search_settings.descriptors", function ()
         {
             let x = true;
-            $scope.search_settings.descriptors.forEach(function (descriptor)
+            let a = windowService.get_resource_from_URL();
+            if (a === "/")
             {
-                if (descriptor.name === "" || descriptor.uri === null)
+                $scope.search_settings.descriptors.forEach(function (descriptor)
                 {
-                    x = false;
+                    if (descriptor.name === "" || descriptor.uri === null)
+                    {
+                        x = false;
+                    }
+                });
+                if (x)
+                {
+                    $scope.getRegistry(true);
                 }
-            });
-            if (x)
+            }
+            else if (a === "/deposits/my")
             {
-                $scope.getRegistry(true);
+                $scope.search_settings.descriptors.forEach(function (descriptor)
+                {
+                    if (descriptor.name === "" || descriptor.uri === null)
+                    {
+                        x = false;
+                    }
+                });
+                if (x)
+                {
+                      $scope.getMyRegistry(true);
+                }
             }
         }, true);
 
@@ -241,6 +274,21 @@ angular.module("dendroApp.controllers", [])
             $scope.asyncSelected = "";
         };
         $scope.myInit = function ()
+        {
+            $scope.asyncSelected = "";
+
+            usersService.get_logged_user()
+                .then(function (user)
+                {
+                    $scope.loggedUser = user;
+                    $scope.getMyRegistry(true);
+                })
+                .catch(function (error)
+                {
+                    $scope.show_popup("error", error, "Error fetching user", 20000);
+                });
+        };
+        $scope.getLoggerUser = function ()
         {
             usersService.get_logged_user()
                 .then(function (user)
@@ -335,11 +383,18 @@ angular.module("dendroApp.controllers", [])
                     $scope.search_settings.totalDeposits = 0;
                 }
             };
-            $scope.search.creator.value = $scope.loggedUser.ddr.username;
-            $scope.search.creator.hidden = true;
-            let url = windowService.get_protocol_and_host();
-            url += "/deposits/search";
-            listings.getListing($scope, url, $scope.search_settings.page, $scope.search_settings.offset - 1, $scope.search, change, handle);
+            if (!$scope.loggedUser)
+            {
+                $scope.getLoggerUser();
+            }
+            else
+            {
+                $scope.search.creator.value = $scope.loggedUser.ddr.username;
+                $scope.search.creator.hidden = true;
+                let url = windowService.get_protocol_and_host();
+                url += "/deposits/search";
+                listings.getListing($scope, url, $scope.search_settings.page, $scope.search_settings.offset - 1, $scope.search, change, handle);
+            }
         };
 
         $scope.changeMyPage = function (pageNumber)

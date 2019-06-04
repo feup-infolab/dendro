@@ -21,7 +21,7 @@ angular.module("dendroApp.factories")
                         headers: {Accept: "application/json"}
                     }).then(function (response)
                     {
-                        if (response.data !== null && response.data !== undefined)
+                        if (response.data !== null && response.data)
                         {
                             callback(response.data, change);
                         }
@@ -38,11 +38,22 @@ angular.module("dendroApp.factories")
             {
                 let search = {};
                 var descriptors = [];
-                for (item in params)
+                for (var item in params)
                 {
                     if (params[item].value !== null && params[item].value !== "" && params[item].key !== "descriptor")
                     {
-                        if (params[item].type === "dropdown")
+                        if (params[item].type === "dropdown" && params[item].ordering === "true")
+                        {
+                            var array = params[item].value;
+                            array.forEach(function (value)
+                            {
+                                if (value.name === params[item].selected)
+                                {
+                                    search[params[item].key] = value.key;
+                                }
+                            });
+                        }
+                        else if (params[item].type === "dropdown")
                         {
                             search[params[item].key] = params[item].selected;
                         }

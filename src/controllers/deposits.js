@@ -99,27 +99,14 @@ exports.allowed = function (req, callback)
 
     let labels = params.ordering.split(" ");
 
-    switch (labels[0])
+    if (labels.length === 2)
     {
-    case "date":
-        params.labelToSort = "date";
-        break;
-    case "username":
-        params.labelToSort = "user";
-        break;
-    default:
-        params.labelToSort = "label";
-        break;
+        params.labelToSort = labels[0];
+        params.order = labels[1];
     }
-
-    switch (labels[1])
+    else
     {
-    case "ascending":
-        params.order = "ASC";
-        break;
-    default:
-        params.order = "DESC";
-        break;
+        callback("incomplete parameters", []);
     }
 
     async.series([
