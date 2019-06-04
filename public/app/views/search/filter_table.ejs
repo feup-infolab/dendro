@@ -13,14 +13,14 @@
         <!--ng-model="descriptor.name" ng-model-options="{debounce : 500}"></td>-->
         <!--</tr>-->
 
-        <td class="{{item.id}}" ng-if="item.type === 'dropdown' && item.key == 'descriptor'">
+        <td class="{{item.id}}" ng-if="item.type === 'dropdown' && item.key === 'descriptor'">
             <input disabled style="width: 150px"
                    ng-model="item.descriptor" ng-model-options="{debounce : 500}">
             <input style="width: 150px"
                    ng-model="item.name" ng-model-options="{debounce : 500}">
             <button
                     class="btn btn-sm fa fa-trash"
-                    ng-click="myfunction(item.id)"></button>
+                    ng-click="deleteElement(item.id)"></button>
         </td>
 
 

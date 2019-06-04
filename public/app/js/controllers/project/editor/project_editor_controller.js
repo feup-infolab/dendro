@@ -578,7 +578,7 @@ angular.module("dendroApp.controllers")
         {
             var getFolderContentsPromise = $q.defer();
 
-            if ($scope.shared.folder_contents == null || forceReloadFromServer)
+            if ($scope.shared.folder_contents === null || forceReloadFromServer)
             {
                 $scope.load_folder_contents($scope.shared.showing_deleted_files)
                     .then(function (folder_contents)

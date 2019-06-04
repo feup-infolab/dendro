@@ -269,10 +269,11 @@ angular.module("dendroApp.controllers")
                 return false;
             };
 
-            $scope.initValues = function (userAffiliation, descriptionOfDeposit)
+            $scope.initValues = function (userAffiliation, descriptionOfDeposit, titleDeposit)
             {
                 $scope.setUserAffiliation(userAffiliation);
                 $scope.setDescription(descriptionOfDeposit);
+                $scope.setTitleDeposit(titleDeposit);
             };
 
             $scope.setUserAffiliation = function (userAffiliation)
@@ -283,6 +284,11 @@ angular.module("dendroApp.controllers")
             $scope.setDescription = function (description)
             {
                 $scope.descriptionOfDeposit = description;
+            };
+
+            $scope.setTitleDeposit = function (title)
+            {
+                $scope.titleOfDeposit = title;
             };
 
             $scope.disable_send_bookmark_dendro = function (title, description, obj, date, userAffiliation)
@@ -301,6 +307,11 @@ angular.module("dendroApp.controllers")
                 }
 
                 if (!description || description === "")
+                {
+                    return true;
+                }
+
+                if (!obj)
                 {
                     return true;
                 }

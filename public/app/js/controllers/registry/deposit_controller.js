@@ -244,7 +244,7 @@ angular.module("dendroApp.controllers", [])
                 });
                 if (x)
                 {
-                      $scope.getMyRegistry(true);
+                    $scope.getMyRegistry(true);
                 }
             }
         }, true);
@@ -258,13 +258,21 @@ angular.module("dendroApp.controllers", [])
             $scope.depositUri = depositUri;
         };
 
-        $scope.myfunction = function (id)
+        $scope.deleteElement = function (id)
         {
             var elements = document.getElementsByClassName(id);
+            elements[0].remove();
 
-            for (j = 0; j !== elements.length;)
+            delete $scope.search[id];
+
+            let array = $scope.search_settings.descriptors;
+
+            for (let j = 0; j < array.length; j++)
             {
-                elements[j].remove();
+                if (array[j].id === id)
+                {
+                    array.splice(j, 1);
+                }
             }
         };
 
