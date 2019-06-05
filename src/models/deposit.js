@@ -253,33 +253,6 @@ Deposit.createDeposit = function (data, callback)
     }
 };
 
-Deposit.getEmbargoedDate = function (url, callback)
-{
-    let query =
-    "SELECT DISTINCT ?embargoedDate \n" +
-    "FROM [0] \n" +
-    "WHERE " +
-    "{ \n" +
-    "   [1] rdf:type ddr:Registry . \n" +
-    "   [1] ddr:embargoedDate ?embargoedDate . \n" +
-    "}";
-
-    let variables = [
-        {
-            type: Elements.types.resourceNoEscape,
-            value: db.graphUri
-        },
-        {
-            type: Elements.ontologies.nie.url.type,
-            value: url
-        }];
-
-    db.connection.executeViaJDBC(query, variables, function (err, regs)
-    {
-        callback(err, regs);
-    });
-};
-
 Deposit.createQueryAux = function (params, query, variables, i)
 {
     if (params.privacy)
@@ -478,6 +451,7 @@ Deposit.createQueryAux = function (params, query, variables, i)
 
     return result;
 };
+
 /**
  * Query to check a limited amount of deposits
  * @param params
@@ -556,6 +530,112 @@ Deposit.createQuery = function (params, callback)
 };
 
 /**
+ * Gets a list of all the repositories used for all the existing deposits
+ * @param params
+ * @param callback
+ */
+Deposit.getAllRepositories = function (params, callback)
+{
+    let query =
+      "SELECT ?repository COUNT(?repository) as ?count\n" +
+      "FROM [0] \n" +
+      "WHERE \n" +
+      "{ \n" +
+      "   ?uri rdf:type ddr:Registry . \n" +
+      "   ?uri dcterms:creator ?user . \n" +
+      "   ?uri dcterms:title ?title . \n" +
+      "   ?uri dcterms:date ?date . \n" +
+      "   ?uri dcterms:description ?description . \n" +
+      "   ?uri ddr:exportedToRepository ?repository . \n" +
+      "   ?uri ddr:DOI ?doi .\n" +
+      "   OPTIONAL { ?uri ddr:embargoedDate ?embargoedDate  }. \n" +
+      "   ?uri ddr:privacyStatus ?privacy . \n";
+    const ending = "} \n" +
+      "GROUP BY ?repository";
+    let i = 1;
+
+    let variables = [
+        {
+            type: Elements.types.resourceNoEscape,
+            value: db.graphUri
+        }];
+
+    let result = Deposit.createQueryAux(params, query, variables, i);
+    query = result.query;
+    variables = result.variables;
+
+    query += ending;
+
+    db.connection.executeViaJDBC(query, variables, function (err, regs)
+    {
+        callback(err, regs);
+    });
+};
+
+Deposit.getEmbargoedDate = function (url, callback)
+{
+    let query =
+      "SELECT DISTINCT ?embargoedDate \n" +
+      "FROM [0] \n" +
+      "WHERE " +
+      "{ \n" +
+      "   [1] rdf:type ddr:Registry . \n" +
+      "   [1] ddr:embargoedDate ?embargoedDate . \n" +
+      "}";
+
+    let variables = [
+        {
+            type: Elements.types.resourceNoEscape,
+            value: db.graphUri
+        },
+        {
+            type: Elements.ontologies.nie.url.type,
+            value: url
+        }];
+
+    db.connection.executeViaJDBC(query, variables, function (err, regs)
+    {
+        callback(err, regs);
+    });
+};
+
+Deposit.getDepositsEmbargoed = function (callback)
+{
+    let date = new Date();
+    let dateNow = date.toISOString();
+    let i = 1;
+    let query =
+    "SELECT DISTINCT * \n" +
+    "FROM [0] \n" +
+    "WHERE " +
+    "{ \n" +
+    "   ?uri rdf:type ddr:Registry . \n" +
+    "   ?uri ddr:embargoedDate ?embargoedDate . \n" +
+    "   ?uri  ddr:privacyStatus [" + i++ + "]. \n" +
+    "    FILTER ( xsd:dateTime(?embargoedDate) < xsd:dateTime([" + i++ + "])). \n" +
+    "} \n";
+
+    let variables = [
+        {
+            type: Elements.types.resourceNoEscape,
+            value: db.graphUri
+        },
+        {
+            type: Elements.ontologies.ddr.privacyStatus.type,
+            value: "embargoed"
+        },
+        {
+            type: Elements.ontologies.dcterms.date.type,
+            value: dateNow
+        }];
+
+    db.connection.executeViaJDBC(query, variables, function (err, regs)
+    {
+        callback(err, regs);
+    });
+};
+
+/**
  *  Check if deposit still exists in outside repository
  * @param deposit metadata to check
  * @param callback function to call after the operation terminates
@@ -624,49 +704,6 @@ Deposit.validatePlatformUri = function (deposit, callback)
 };
 
 /**
- * Gets a list of all the repositories used for all the existing deposits
- * @param params
- * @param callback
- */
-Deposit.getAllRepositories = function (params, callback)
-{
-    let query =
-    "SELECT ?repository COUNT(?repository) as ?count\n" +
-    "FROM [0] \n" +
-    "WHERE \n" +
-    "{ \n" +
-      "   ?uri rdf:type ddr:Registry . \n" +
-      "   ?uri dcterms:creator ?user . \n" +
-      "   ?uri dcterms:title ?title . \n" +
-      "   ?uri dcterms:date ?date . \n" +
-      "   ?uri dcterms:description ?description . \n" +
-      "   ?uri ddr:exportedToRepository ?repository . \n" +
-      "   ?uri ddr:DOI ?doi .\n" +
-      "   OPTIONAL { ?uri ddr:embargoedDate ?embargoedDate  }. \n" +
-      "   ?uri ddr:privacyStatus ?privacy . \n";
-    const ending = "} \n" +
-    "GROUP BY ?repository";
-    let i = 1;
-
-    let variables = [
-        {
-            type: Elements.types.resourceNoEscape,
-            value: db.graphUri
-        }];
-
-    let result = Deposit.createQueryAux(params, query, variables, i);
-    query = result.query;
-    variables = result.variables;
-
-    query += ending;
-
-    db.connection.executeViaJDBC(query, variables, function (err, regs)
-    {
-        callback(err, regs);
-    });
-};
-
-/**
  * Saves the exported contents to dendro
  * @param params
  * @param callback
@@ -721,6 +758,57 @@ Deposit.saveContents = function (params, callback)
             }
         });
     });
+};
+
+Deposit.findByCreator = function (creator, callback)
+{
+    const query =
+      "SELECT * " +
+      "FROM [0] " +
+      "WHERE " +
+      "{ " +
+      " ?uri rdf:type ddr:Deposit . " +
+      " ?uri dcterms:creator [1] ." +
+      " ?uri dcterms:title ?title ." +
+      " ?uri dcterms:description ?description . " +
+      " ?uri ddr:privacyStatus ?privacyStatus . " +
+      "} ";
+
+    db.connection.executeViaJDBC(query,
+        [
+            {
+                type: Elements.types.resourceNoEscape,
+                value: db.graphUri
+            },
+            {
+                type: Elements.ontologies.dcterms.creator.type,
+                value: creator
+            }
+        ],
+        function (err, deposits)
+        {
+            if (isNull(err))
+            {
+                if (deposits instanceof Array)
+                {
+                    const depositsToReturn = [];
+                    for (let i = 0; i < deposits.length; i++)
+                    {
+                        const aDeposit = new Deposit(deposits[i]);
+
+                        aDeposit.creator = creator;
+                        depositsToReturn.push(aDeposit);
+                    }
+
+                    return callback(null, depositsToReturn);
+                }
+                // project does not exist, return null
+                return callback(null, null);
+            }
+            // project var will contain an error message instead of a single-element
+            // array containing project data.
+            return callback(err, [deposits]);
+        });
 };
 
 Deposit.prototype.findMetadata = function (callback, typeConfigsToRetain)
@@ -781,42 +869,6 @@ Deposit.prototype.getProject = function (callback)
     Project.findByUri(projectUri, function (err, project)
     {
         callback(err, project);
-    });
-};
-
-Deposit.getDepositsEmbargoed = function (callback)
-{
-    let date = new Date();
-    let dateNow = date.toISOString();
-    let i = 1;
-    let query =
-    "SELECT DISTINCT * \n" +
-    "FROM [0] \n" +
-    "WHERE " +
-    "{ \n" +
-    "   ?uri rdf:type ddr:Registry . \n" +
-    "   ?uri ddr:embargoedDate ?embargoedDate . \n" +
-    "   ?uri  ddr:privacyStatus [" + i++ + "]. \n" +
-    "    FILTER ( xsd:dateTime(?embargoedDate) < xsd:dateTime([" + i++ + "])). \n" +
-    "} \n";
-
-    let variables = [
-        {
-            type: Elements.types.resourceNoEscape,
-            value: db.graphUri
-        },
-        {
-            type: Elements.ontologies.ddr.privacyStatus.type,
-            value: "embargoed"
-        },
-        {
-            type: Elements.ontologies.dcterms.date.type,
-            value: dateNow
-        }];
-
-    db.connection.executeViaJDBC(query, variables, function (err, regs)
-    {
-        callback(err, regs);
     });
 };
 
@@ -932,57 +984,6 @@ Deposit.prototype.delete = function (callback, customGraphUri)
     {
         callback(err, results);
     });
-};
-
-Deposit.findByCreator = function (creator, callback)
-{
-    const query =
-    "SELECT * " +
-    "FROM [0] " +
-    "WHERE " +
-    "{ " +
-    " ?uri rdf:type ddr:Deposit . " +
-    " ?uri dcterms:creator [1] ." +
-    " ?uri dcterms:title ?title ." +
-    " ?uri dcterms:description ?description . " +
-    " ?uri ddr:privacyStatus ?privacyStatus . " +
-    "} ";
-
-    db.connection.executeViaJDBC(query,
-        [
-            {
-                type: Elements.types.resourceNoEscape,
-                value: db.graphUri
-            },
-            {
-                type: Elements.ontologies.dcterms.creator.type,
-                value: creator
-            }
-        ],
-        function (err, deposits)
-        {
-            if (isNull(err))
-            {
-                if (deposits instanceof Array)
-                {
-                    const depositsToReturn = [];
-                    for (let i = 0; i < deposits.length; i++)
-                    {
-                        const aDeposit = new Deposit(deposits[i]);
-
-                        aDeposit.creator = creator;
-                        depositsToReturn.push(aDeposit);
-                    }
-
-                    return callback(null, depositsToReturn);
-                }
-                // project does not exist, return null
-                return callback(null, null);
-            }
-            // project var will contain an error message instead of a single-element
-            // array containing project data.
-            return callback(err, [deposits]);
-        });
 };
 
 Deposit = Class.extend(Deposit, Resource, "ddr:Registry");
