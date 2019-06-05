@@ -56,6 +56,14 @@ class Notebook
         return `jupyter-notebook.${self.id}`;
     }
 
+    cypherPassword(plainTextPassword)
+    {
+        // Yes i know i should not store passwords as plain text in the config.yml file.
+        // That is a default password that SHOULD be changed by the jupyter user.
+        const sha1 = require('sha1');
+        return `sha1:${sha1(plainTextPassword)}`;
+    }
+
     spinUp (callback)
     {
         const self = this;
@@ -81,7 +89,7 @@ class Notebook
                 DENDRO_NOTEBOOK_GUID: self.id,
                 DENDRO_NOTEBOOK_VIRTUAL_HOST: self.getHost(),
                 DENDRO_NOTEBOOK_FULL_URL: self.getFullNotebookUri(),
-                DENDRO_NOTEBOOK_DEFAULT_PASSWORD: Config.notebooks.jupyter.default_password,
+                DENDRO_NOTEBOOK_DEFAULT_PASSWORD: self.cypherPassword(Config.notebooks.jupyter.default_password),
                 NB_UID: process.geteuid()
             });
         });

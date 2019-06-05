@@ -19,7 +19,8 @@ services:
       - /usr/local/bin/start-notebook.sh
       - --
       - --NotebookApp.base_url=${DENDRO_NOTEBOOK_FULL_URL}
-      - --NotebookApp.password=${DENDRO_NOTEBOOK_DEFAULT_PASSWORD}
+      # - --NotebookApp.password=${DENDRO_NOTEBOOK_DEFAULT_PASSWORD}
+      - --NotebookApp.token=''
       # - --NotebookApp.custom_display_url=${DENDRO_NOTEBOOK_FULL_URL}
     networks:
       - traefikweb

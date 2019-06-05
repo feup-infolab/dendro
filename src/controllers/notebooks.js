@@ -4,6 +4,7 @@ const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const _ = require("underscore");
 const Notebook = rlequire("dendro", "src/models/directory_structure/notebook.js").Notebook;
 const bodyParser = require("body-parser");
+const streamify = require("stream-array");
 //
 // Create a proxy server with custom application logic
 //
@@ -28,11 +29,29 @@ module.exports.pipe_to_instance = function (req, res, next)
             async.series([
                 function (callback)
                 {
-                    bodyParser.urlencoded({limit: "5mb", extended: true})(req, res, callback);
-                },
-                function (callback)
-                {
-                    bodyParser.json({limit: "5mb"})(req, res, callback);
+                    const bufferRequest = function (req, res)
+                    {
+                        let data = "";
+                        req.setEncoding("utf8");
+                        req.on("data", function (chunk)
+                        {
+                            data += chunk;
+                        });
+                        req.on("end", function ()
+                        {
+                            req.rawBody = data;
+                            callback();
+                        });
+                    };
+
+                    if(req.method === "POST" || req.method === "PUT")
+                    {
+                        bufferRequest(req, res);
+                    }
+                    else
+                    {
+                        callback();
+                    }
                 }
             ], callback);
         },
@@ -42,34 +61,29 @@ module.exports.pipe_to_instance = function (req, res, next)
             proxy.on("proxyReq", function (proxyReq, req, res, options)
             {
                 const guid = req.params[0];
-                // const targetUrl = req.originalUrl;
-
                 const targetNotebook = new Notebook({id: guid});
-
                 const rewrittenHost = targetNotebook.getHost(guid);
-                // const rewrittenUrl = targetNotebook.rewriteUrl(targetUrl);
 
                 proxyReq.setHeader("Host", rewrittenHost);
                 proxyReq.forward = req.originalUrl;
-
-                if (req.method === "POST")
-                {
-                    if (req.body)
-                    {
-                        let bodyData = JSON.stringify(req.body);
-                        // In case if content-type is application/x-www-form-urlencoded -> w    e need to change to application/json
-                        // proxyReq.setHeader("Content-Type", "application/json");
-                        proxyReq.setHeader("Content-Length", Buffer.byteLength(bodyData));
-                        // Stream the content
-                        proxyReq.write(bodyData);
-                        callback();
-                    }
-                }
             });
 
-            proxy.web(req, res, {
-                target: `${jupyterProxyUrl}`
+            proxy.on("close", function (proxyReq, req, res, options)
+            {
+                callback();
             });
+
+            const options = {
+                target: `${jupyterProxyUrl}`,
+                followRedirects: true
+            };
+
+            if (req.rawBody)
+            {
+                options.buffer = streamify(Array.from(req.rawBody));
+            }
+
+            proxy.web(req, res, options);
         }
     ], function (err, results)
     {
