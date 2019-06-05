@@ -790,7 +790,7 @@ const exportToRepositoryB2share = function (req, res)
 {
     const requestedResourceUri = req.params.requestedResourceUri;
     const targetRepository = req.body.repository;
-    const privacy = req.body.publicDeposit;
+    // const privacy = req.body.publicDeposit;
     // targetRepository.ddr.hasExternalUri -> the b2share host url
 
     Folder.findByUri(requestedResourceUri, function (err, folder)
@@ -1425,7 +1425,7 @@ exports.sword_collections = function (req, res)
     });
 };
 
-prepareFilesForUploadToB2share = function (files, fileBucketID, b2shareClient, cb)
+const prepareFilesForUploadToB2share = function (files, fileBucketID, b2shareClient, cb)
 {
     async.each(files, function (file, callback)
     {

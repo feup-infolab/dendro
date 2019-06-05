@@ -336,7 +336,6 @@ exports.download = function (req, res)
             {
                 if (!isNull(ie))
                 {
-                    const path = require("path");
                     if (ie.isA(File))
                     {
                         downloadFile(requestedResourceURI, res);
@@ -1448,7 +1447,6 @@ exports.copy_paste = function (req, res)
     {
         if (isNull(err))
         {
-            const path = require("path");
             if (ie.isA(File))
             {
                 downloadFile(requestedResourceURI, folderDestination);
@@ -3397,7 +3395,7 @@ const getTargetFolder = function (req, callback)
 const checkIfUserHasPermissionsOverFiles = function (req, permissions, files, callback)
 {
     const user = req.user;
-    if (req.session.isAdmin) // admin is GOD
+    if (req.session.isAdmin)
     {
         callback(null);
     }
@@ -3504,7 +3502,7 @@ const checkIfDestinationIsNotContainedByAnySource = function (filesToMove, targe
             }
             else
             {
-                return callback(3, "Resource " + fileUri + " does not exist.");
+                return callback(3, "Resource " + fileToMove.uri + " does not exist.");
             }
         });
     }, function (err, results)

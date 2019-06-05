@@ -342,7 +342,7 @@ angular.module("dendroApp.controllers")
 
         $scope.add_all_descriptors = function (descriptor_array)
         {
-            if ($scope.shared.metadata == null || !($scope.shared.metadata instanceof Array))
+            if ($scope.shared.metadata === null || !($scope.shared.metadata instanceof Array))
             {
                 $scope.shared.metadata = [];
             }
@@ -388,7 +388,7 @@ angular.module("dendroApp.controllers")
         };
         $scope.remove_descriptor_at = function (index, forceDelete)
         {
-            if ($scope.shared.metadata != null && $scope.shared.metadata instanceof Array)
+            if ($scope.shared.metadata !== null && $scope.shared.metadata instanceof Array)
             {
                 if ($scope.shared.metadata[index].just_deleted)
                 {
@@ -416,7 +416,7 @@ angular.module("dendroApp.controllers")
 
         $scope.get_descriptor = function (descriptor_index)
         {
-            if ($scope.shared.metadata == null || !($scope.shared.metadata instanceof Array))
+            if ($scope.shared.metadata === null || !($scope.shared.metadata instanceof Array))
             {
                 $scope.shared.metadata = [];
             }
@@ -426,7 +426,7 @@ angular.module("dendroApp.controllers")
 
         $scope.select_file_at_index_for_multiple_selection = function (index)
         {
-            if ($scope.shared.folder_contents == null || !($scope.shared.folder_contents instanceof Array))
+            if ($scope.shared.folder_contents === null || !($scope.shared.folder_contents instanceof Array))
             {
                 $scope.shared.folder_contents = [];
             }
@@ -492,7 +492,7 @@ angular.module("dendroApp.controllers")
 
         $scope.select_all_files = function (selected)
         {
-            if ($scope.shared.folder_contents != null && $scope.shared.folder_contents instanceof Array)
+            if ($scope.shared.folder_contents !== null && $scope.shared.folder_contents instanceof Array)
             {
                 for (var i = 0; i < $scope.shared.folder_contents.length; i++)
                 {
@@ -810,16 +810,6 @@ angular.module("dendroApp.controllers")
                     console.log(error);
                 });
 
-            // monitor a change in the selected file on the file explorer
-            // and propagate to child controllers
-            // eventsService.register_handler_for_event(
-            //    $scope,
-            //    eventsService.events.selected_file_changed,
-            //    function(oldSelectedFile, newSelectedFile)
-            //    {
-            //       eventsService.send_event_to_children($scope, eventsService.events.selected_file_changed, newSelectedFile);
-            //    }
-            // );
         };
 
         // initialization

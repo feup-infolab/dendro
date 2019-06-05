@@ -7,13 +7,8 @@ const async = require("async");
 const moment = require("moment");
 const dateFormat = require("dateformat");
 const rlequire = require("rlequire");
-const path = require("path");
-const _ = require("underscore");
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const User = rlequire("dendro", "src/models/user.js").User;
-const nodemailer = require("nodemailer");
-
-const Administrator = rlequire("dendro", "src/models/administrator.js").Administrator;
 
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
@@ -22,9 +17,7 @@ const InformationElement = rlequire("dendro", "src/models/directory_structure/in
 const Deposit = rlequire("dendro", "src/models/deposit.js").Deposit;
 const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
 const Ontology = rlequire("dendro", "src/models/meta/ontology.js").Ontology;
-const Permissions = rlequire("dendro", "src/models/meta/permissions.js").Permissions;
 const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
-const DbConnection = rlequire("dendro", "src/kb/db.js").DbConnection;
 const Notification = rlequire("dendro", "src/models/notifications/notification.js").Notification;
 
 const ConditionsAcceptance = rlequire("dendro", "src/models/conditionsAcceptance.js").ConditionsAcceptance;
@@ -548,7 +541,6 @@ exports.show = function (req, res)
                 }
             }
         };
-        const _ = require("underscore");
 
         // client requested JSON, RDF, TXT, etc...
         sendResponseInRequestedFormat(errorValue, function (error, alreadySent)
