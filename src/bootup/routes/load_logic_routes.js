@@ -68,7 +68,7 @@ const express = require("express"),
     morgan = require("morgan"),
     favicon = require("serve-favicon"),
     csrf = require("csurf"),
-    csrfProtection = csrf({ cookie: true });
+    csrfProtection = csrf({cookie: true});
 
 let async = require("async");
 let util = require("util");
@@ -401,7 +401,7 @@ const loadRoutes = function (app, callback)
 
     // external repository bookmarks
     app.get("/external_repositories/types", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), repo_bookmarks.repository_types);
-    app.get("/external_repositories/my", async.apply(Permissions.require, [Permissions.settings.role.in_system.user ]), repo_bookmarks.my);
+    app.get("/external_repositories/my", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), repo_bookmarks.my);
     app.get("/external_repositories", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), repo_bookmarks.all);
     app.post("/external_repositories/sword_collections", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), datasets.sword_collections);
     app.post("/external_repositories/new", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), repo_bookmarks.new);
@@ -676,30 +676,30 @@ const loadRoutes = function (app, callback)
                     }
                 ],
                 all:
-              [
-                  // restore operation
-                  {
-                      queryKeys: ["restore"],
-                      handler: files.restore,
-                      permissions: modificationPermissions,
-                      authentication_error: "Permission denied : cannot restore a past version of the root of this project because you do not have permissions to modify it."
-                  },
-                  // uploads
-                  {
-                      queryKeys: ["upload"],
-                      handler: files.upload,
-                      permissions: modificationPermissions,
-                      authentication_error: "Permission denied : cannot upload to this project because you do not have permissions to modify it."
-                  },
-                  // delete projects
-                  {
-                      queryKeys: ["delete"],
-                      handler: projects.delete,
-                      permissions: administrationPermissions,
-                      authentication_error: "Permission denied : cannot delete project because you do not have permissions to administer this project."
-                  }
+                        [
+                            // restore operation
+                            {
+                                queryKeys: ["restore"],
+                                handler: files.restore,
+                                permissions: modificationPermissions,
+                                authentication_error: "Permission denied : cannot restore a past version of the root of this project because you do not have permissions to modify it."
+                            },
+                            // uploads
+                            {
+                                queryKeys: ["upload"],
+                                handler: files.upload,
+                                permissions: modificationPermissions,
+                                authentication_error: "Permission denied : cannot upload to this project because you do not have permissions to modify it."
+                            },
+                            // delete projects
+                            {
+                                queryKeys: ["delete"],
+                                handler: projects.delete,
+                                permissions: administrationPermissions,
+                                authentication_error: "Permission denied : cannot delete project because you do not have permissions to administer this project."
+                            }
 
-              ]
+                        ]
             };
 
             QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next, true);
@@ -1450,7 +1450,7 @@ const loadRoutes = function (app, callback)
             notebooks.new);
 
         // TODO fix this activate
-        app.get(`/notebook_runner/:guid`,
+        app.all(/\/notebook_runner\/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})(.*)?/,
             async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
             async.apply(DockerManager.requireOrchestras, ["dendro_notebook_vhosts"]),
             notebooks.pipe_to_instance);
@@ -1523,7 +1523,7 @@ const loadRoutes = function (app, callback)
                         if (isNull(err))
                         {
                             const ejs = require("ejs");
-                            res.send(ejs.render(data, { Config: Config }));
+                            res.send(ejs.render(data, {Config: Config}));
                         }
                         else
                         {

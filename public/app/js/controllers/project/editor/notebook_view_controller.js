@@ -33,7 +33,7 @@ angular.module("dendroApp.controllers")
 
         };
 
-       $scope.start_listener = function ()
+        $scope.start_listener = function ()
         {
 
         };

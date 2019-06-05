@@ -1986,7 +1986,7 @@ exports.post = function (req, res)
     const acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
     const currentUser = req.user;
-    // const postUri = "http://" + Config.host + req.url;
+    // const postUri = "http://" + Config.hostAndPort + req.url;
     const postUri = req.url;
 
     const getCommentsForAPost = function (post, cb)

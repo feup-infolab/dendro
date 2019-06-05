@@ -3,7 +3,7 @@ const rlequire = require("rlequire");
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const projectData = {
-    creator: "http://" + Config.host + "/user/demouser1",
+    creator: "http://" + Config.hostAndPort + "/user/demouser1",
     title: "This is a simple project for testing restore operations, with handle " + simpleProjectHandle + " and created by demouser1",
     description: "A Simple Project with a single folder and a file inside it",
     publisher: "Universidade do Porto",
@@ -19,7 +19,7 @@ const projectData = {
     storageConfig: {
         hasStorageType: "local"
     },
-    uri: "http://" + Config.host + "/" + simpleProjectHandle
+    uri: "http://" + Config.hostAndPort + "/" + simpleProjectHandle
 };
 
 module.exports = projectData;

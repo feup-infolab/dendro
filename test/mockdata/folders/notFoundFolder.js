@@ -38,7 +38,7 @@ let folderData = {
             rankingPosition: 12,
             pageNumber: 0,
             interactionType: "accept_descriptor_from_manual_list",
-            recommendedFor: "http://" + Config.host + "/project/" + projectsArray[activeProjectIndex].handle + "/data/" + folderName,
+            recommendedFor: "http://" + Config.hostAndPort + "/project/" + projectsArray[activeProjectIndex].handle + "/data/" + folderName,
             value: "demouser1"
         },
         {
@@ -60,7 +60,7 @@ let folderData = {
             rankingPosition: 50,
             pageNumber: 0,
             interactionType: "accept_descriptor_from_manual_list",
-            recommendedFor: "http://" + Config.host + "/project/" + projectsArray[activeProjectIndex].handle + "/data/" + folderName,
+            recommendedFor: "http://" + Config.hostAndPort + "/project/" + projectsArray[activeProjectIndex].handle + "/data/" + folderName,
             value: folderName + " title"
         }
     ],

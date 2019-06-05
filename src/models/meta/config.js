@@ -96,6 +96,20 @@ const getConfigParameter = function (parameter, defaultValue)
 // hostname for the machine in which this is running, configure when running on a production machine
 Config.port = getConfigParameter("port");
 Config.host = getConfigParameter("host");
+
+Config.hostAndPort = (
+    function ()
+    {
+        const host = getConfigParameter("host");
+        const port = getConfigParameter("port");
+        if (isNull(port))
+        {
+            return host;
+        }
+        return host + ":" + port;
+    }
+)();
+
 Config.baseUri = getConfigParameter("baseUri");
 Config.environment = getConfigParameter("environment");
 
@@ -360,27 +374,27 @@ Config.gfs_by_id = {};
 
 Config.db = {
     default: {
-        baseURI: "http://" + Config.host,
+        baseURI: "http://" + Config.hostAndPort,
         graphHandle: "dendro_graph",
-        graphUri: "http://" + Config.host + "/dendro_graph",
+        graphUri: "http://" + Config.hostAndPort + "/dendro_graph",
         cache: {
             id: "default",
             type: NeDBCache.type
         }
     },
     social: {
-        baseURI: "http://" + Config.host,
+        baseURI: "http://" + Config.hostAndPort,
         graphHandle: "social_dendro",
-        graphUri: "http://" + Config.host + "/social_dendro",
+        graphUri: "http://" + Config.hostAndPort + "/social_dendro",
         cache: {
             id: "social",
             type: NeDBCache.type
         }
     },
     notifications: {
-        baseURI: "http://" + Config.host,
+        baseURI: "http://" + Config.hostAndPort,
         graphHandle: "notifications_dendro",
-        graphUri: "http://" + Config.host + "/notifications_dendro",
+        graphUri: "http://" + Config.hostAndPort + "/notifications_dendro",
         cache: {
             id: "notifications",
             type: NeDBCache.type

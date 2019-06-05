@@ -331,6 +331,11 @@ class App
             });
         };
 
+        const setupProxifiedLogicRoutes = function (callback)
+        {
+            rlequire("dendro", "src/bootup/routes/load_proxy_logic_routes.js").loadRoutes(self.app, callback);
+        };
+
         const setupMiddlewares = function (callback)
         {
             async.waterfall([
@@ -439,6 +444,10 @@ class App
             function (cb)
             {
                 prepareEnvironment(cb);
+            },
+            function (cb)
+            {
+                setupProxifiedLogicRoutes(cb);
             },
             function (cb)
             {

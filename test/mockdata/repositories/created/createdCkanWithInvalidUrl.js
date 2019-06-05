@@ -4,12 +4,12 @@ const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const newExportRepoData =
   {
       // uri: "http://127.0.0.1:3001/external_repository/demouser1/ckan-config-invalid-token",
-      uri: "http://" + Config.host + "/external_repository/demouser1/ckan-config-invalid-token",
+      uri: "http://" + Config.hostAndPort + "/external_repository/demouser1/ckan-config-invalid-token",
       dcterms: {
           modified: "2017-03-15T13:33:36.551Z",
           title: "ckan config invalid token",
           // creator: "http://127.0.0.1:3001/user/demouser1"
-          creator: "http://" + Config.host + "/user/demouser1"
+          creator: "http://" + Config.hostAndPort + "/user/demouser1"
       },
       rdf: {
           type: "http://dendro.fe.up.pt/ontology/0.1/ExternalRepository"
@@ -17,7 +17,7 @@ const newExportRepoData =
       ddr: {
           hasPlatform: {
               // uri: "http://127.0.0.1:3001/repository_platform/ckan",
-              uri: "http://" + Config.host + "/repository_platform/ckan",
+              uri: "http://" + Config.hostAndPort + "/repository_platform/ckan",
               dcterms: {
                   title: "ckan config invalid token",
                   description: "ckan config invalid token"

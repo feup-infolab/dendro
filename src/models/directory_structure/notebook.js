@@ -15,8 +15,6 @@ const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const Notification = rlequire("dendro", "src/models/notifications/notification.js").Notification;
 const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
 
-const slug = rlequire("dendro", "src/utils/slugifier.js");
-
 const gfs = Config.getGFSByID();
 
 const async = require("async");
@@ -37,33 +35,34 @@ class Notebook
             self.nie.title = object.nie.title;
         }
 
-        const re = /(?:\.([^.]+))?$/;
-        let ext = re.exec(self.nie.title)[1]; // "txt"
-
-        if (isNull(ext)) // todo
+        if (!isNull(object.id))
         {
-            self.ddr.fileExtension = "default";
+            self.id = object.id;
         }
         else
         {
-            let getClassNameForExtension = require("font-awesome-filetypes").getClassNameForExtension;
-            self.ddr.fileExtension = ext;
-            self.ddr.hasFontAwesomeClass = getClassNameForExtension(ext);
+            const uuid = require("uuid");
+            self.id = uuid.v4();
         }
 
-        const uuid = require("uuid");
-        self.id = slug(uuid.v4());
         self.runningPath = rlequire.absPathInApp("dendro", path.join("temp", "jupyter-notebooks", self.id));
 
         return self;
     }
+
+    getHost ()
+    {
+        const self = this;
+        return `jupyter-notebook.${self.id}`;
+    }
+
     spinUp (callback)
     {
         const self = this;
         const DockerManager = Object.create(rlequire("dendro", "src/utils/docker/docker_manager.js").DockerManager);
         mkdirp.sync(self.runningPath);
 
-        const baseOrchestraFile = rlequire.absPathInApp("dendro","orchestras/dendro_notebook/docker-compose.yml");
+        const baseOrchestraFile = rlequire.absPathInApp("dendro", "orchestras/dendro_notebook/docker-compose.yml");
         const cloneOrchestraFile = path.join(self.runningPath, "docker-compose.yml");
 
         // Async with callbacks:
@@ -72,19 +71,43 @@ class Notebook
             if (err) return console.error(err);
             console.log("success!");
 
+            console.log("Starting notebook");
+            // console.log(`tini -g -- /usr/local/bin/start-notebook.sh --NotebookApp.base_url=\\"${self.getFullNotebookUri()}\\" --NotebookApp.password=\\"${Config.notebooks.jupyter.default_password}\\" --NotebookApp.custom_display_url=\\"${self.getFullNotebookUri()}\\"`);
+
             DockerManager.startOrchestra("dendro_notebook", function (err, result)
             {
                 callback(err, result);
             }, null, self.runningPath, {
                 DENDRO_NOTEBOOK_GUID: self.id,
-                DENDRO_NOTEBOOK_VIRTUAL_HOST: self.id,
+                DENDRO_NOTEBOOK_VIRTUAL_HOST: self.getHost(),
+                DENDRO_NOTEBOOK_FULL_URL: self.getFullNotebookUri(),
+                DENDRO_NOTEBOOK_DEFAULT_PASSWORD: Config.notebooks.jupyter.default_password,
                 NB_UID: process.geteuid()
             });
         });
     }
 
-    save_notebook (callback) {
+    saveNotebook (callback)
+    {
 
+    }
+
+    getFullNotebookUri ()
+    {
+        const self = this;
+        return "/notebook_runner/" + self.id;
+    }
+
+    rewriteUrl (relativeUrl)
+    {
+        const self = this;
+        const url = self.getFullNotebookUri();
+
+        if (isNull(relativeUrl))
+        {
+            return url;
+        }
+        return url + relativeUrl;
     }
 }
 

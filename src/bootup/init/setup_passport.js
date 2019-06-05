@@ -7,7 +7,7 @@ const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const MongoClient = require("mongodb").MongoClient;
 
-let session_key = "dendro_" + slug(Config.host) + "_sessionKey",
+let session_key = "dendro_" + slug(Config.hostAndPort) + "_sessionKey",
     csrf = require("csurf"),
     csrfProtection = csrf({cookie: true}),
     cookieParser = require("cookie-parser"),

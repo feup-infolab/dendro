@@ -62,23 +62,22 @@ angular.module("dendroApp.controllers")
 
         $scope.start_notebook = function ()
         {
-
             var uri = $scope.get_last_section_of_url($scope.get_calling_uri());
 
             var requestUri = $scope.get_host() + "/notebooks/new/";
-             window.open(requestUri);
+            window.open(requestUri);
 
-                // return $http({
-                //     method: "GET",
-                //     url: requestUri,
-                //     data: JSON.stringify({}),
-                //     contentType: "application/json",
-                //     headers: {Accept: "application/json"}
-                // }).then(function (response)
-                // {
-                //     console.log("Returned");
-                //     return response;
-                // });
+            // return $http({
+            //     method: "GET",
+            //     url: requestUri,
+            //     data: JSON.stringify({}),
+            //     contentType: "application/json",
+            //     headers: {Accept: "application/json"}
+            // }).then(function (response)
+            // {
+            //     console.log("Returned");
+            //     return response;
+            // });
         };
     });
 

@@ -1953,7 +1953,7 @@ Project.prototype.getActiveStorageConnection = function (callback)
                 const newStorageLocal = new StorageGridFs(
                     Config.defaultStorageConfig.username,
                     Config.defaultStorageConfig.password,
-                    Config.defaultStorageConfig.host,
+                    Config.defaultStorageConfig.hostAndPort,
                     Config.defaultStorageConfig.port,
                     Config.defaultStorageConfig.collectionName
                 );
