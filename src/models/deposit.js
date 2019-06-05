@@ -279,41 +279,13 @@ Deposit.getEmbargoedDate = function (url, callback)
         callback(err, regs);
     });
 };
-/**
- * Query to check a limited amount of deposits
- * @param params
- * @param callback
- */
-Deposit.createQuery = function (params, callback)
+
+Deposit.createQueryAux = function (params, query, variables, i)
 {
-    let query =
-    "SELECT DISTINCT  ?title ?user ?date ?platformsUsed ?privacy ?uri  ?doi ?description  ?embargoedDate \n" +
-    "FROM [0] \n" +
-    "WHERE " +
-    "{ \n" +
-    "   ?uri rdf:type ddr:Registry . \n" +
-    "   ?uri dcterms:creator ?user . \n" +
-    "   ?uri dcterms:title ?title . \n" +
-    "   ?uri dcterms:date ?date . \n" +
-    "   ?uri dcterms:description ?description . \n" +
-    "   ?uri ddr:privacyStatus ?privacy . \n" +
-    "   ?uri ddr:exportedToPlatform ?platformsUsed . \n" +
-    "   ?uri ddr:DOI ?doi .\n" +
-    // ?uri http://purl.org/dc/terms/abstract asasasas
-    "   OPTIONAL { ?uri ddr:embargoedDate ?embargoedDate  }. \n";
-
-    let i = 1;
-
-    let variables = [
-        {
-            type: Elements.types.resourceNoEscape,
-            value: db.graphUri
-        }];
-
     if (params.privacy)
     {
         query +=
-      "   VALUES ?privacy {";
+          "   VALUES ?privacy {";
 
         for (let j = 0; j < params.privacy.length; j++)
         {
@@ -356,14 +328,14 @@ Deposit.createQuery = function (params, callback)
             }
         }
         query +=
-      "} . \n" +
-      "   ?uri ddr:privacyStatus ?privacy . \n";
+          "} . \n" +
+          "   ?uri ddr:privacyStatus ?privacy . \n";
     }
 
     if (params.platforms)
     {
         query +=
-      "   VALUES ?platformsUsed {";
+          "   VALUES ?platformsUsed {";
 
         for (let j = 0; j < params.platforms.length; j++)
         {
@@ -374,8 +346,15 @@ Deposit.createQuery = function (params, callback)
             });
         }
         query +=
-      "} . \n" +
-      "   ?uri ddr:exportedToPlatform ?platformsUsed . \n";
+          "} . \n" +
+          "   ?uri ddr:exportedToPlatform ?platformsUsed . \n";
+    }
+    else
+    {
+        query +=
+          "   VALUES ?platformsUsed { \n" +
+          "} . \n" +
+          "    ?uri ddr:exportedToPlatform ?platformsUsed . \n";
     }
 
     if (params.descriptors && params.descriptors.length > 0)
@@ -406,7 +385,7 @@ Deposit.createQuery = function (params, callback)
                     {
                         first = false;
                         query += "?uri ?descriptor ?value. \n" +
-                        "VALUES (?descriptor ?value) \n{";
+                          "VALUES (?descriptor ?value) \n{";
                     }
                     query += "( [" + i++ + "] [" + i++ + "] )";
                     variables.push({
@@ -457,11 +436,87 @@ Deposit.createQuery = function (params, callback)
         });
     }
 
+    if (params.project)
+    {
+        query += " FILTER contains(?title, [" + i++ + "]). \n";
+        variables.push({
+            type: Elements.ontologies.dcterms.title.type,
+            value: params.project
+        });
+    }
+
+    if (params.creator)
+    {
+        query += "  ?uri dcterms:creator [" + i++ + "] \n";
+        variables.push({
+            type: Elements.ontologies.dcterms.creator.type,
+            value: params.creator
+        });
+    }
+
+    if (params.dateFrom)
+    {
+        query += "  FILTER (?date > [" + i++ + "]^^xsd:dateTime )\n";
+        variables.push({
+            type: Elements.types.string,
+            value: params.dateFrom
+        });
+    }
+
+    if (params.dateTo)
+    {
+        query += "   FILTER ([" + i++ + "]^^xsd:dateTime > ?date )\n";
+        variables.push({
+            type: Elements.types.string,
+            value: params.dateTo
+        });
+    }
+    let result = {};
+    result.i = i;
+    result.variables = variables;
+    result.query = query;
+
+    return result;
+};
+/**
+ * Query to check a limited amount of deposits
+ * @param params
+ * @param callback
+ */
+Deposit.createQuery = function (params, callback)
+{
+    let query =
+    "SELECT DISTINCT  ?title ?user ?date ?platformsUsed ?privacy ?uri  ?doi ?description  ?embargoedDate \n" +
+    "FROM [0] \n" +
+    "WHERE " +
+    "{ \n" +
+    "   ?uri rdf:type ddr:Registry . \n" +
+    "   ?uri dcterms:creator ?user . \n" +
+    "   ?uri dcterms:title ?title . \n" +
+    "   ?uri dcterms:date ?date . \n" +
+    "   ?uri dcterms:description ?description . \n" +
+    "   ?uri ddr:DOI ?doi .\n" +
+    "   OPTIONAL { ?uri ddr:embargoedDate ?embargoedDate  }. \n" +
+    "   ?uri ddr:privacyStatus ?privacy . \n";
+
+    let i = 1;
+
+    let variables = [
+        {
+            type: Elements.types.resourceNoEscape,
+            value: db.graphUri
+        }];
+
+    let result = Deposit.createQueryAux(params, query, variables, i);
+    query = result.query;
+    variables = result.variables;
+    i = result.i;
+
     let ending =
-    "} \n" +
-    "ORDER BY " + params.order + "(?" + params.labelToSort + ") \n" +
-    "OFFSET [" + i++ + "] \n" +
-    "LIMIT [" + i++ + "]";
+      "} \n" +
+      "ORDER BY " + params.order + "(?" + params.labelToSort + ") \n" +
+      "OFFSET [" + i++ + "] \n" +
+      "LIMIT [" + i++ + "]";
 
     if (params.offset)
     {
@@ -490,39 +545,6 @@ Deposit.createQuery = function (params, callback)
         variables.push({
             type: Elements.types.string,
             value: "10"
-        });
-    }
-
-    if (params.project)
-    {
-        query += " FILTER contains(?title, [" + i++ + "]). \n";
-        variables.push({
-            type: Elements.ontologies.dcterms.title.type,
-            value: params.project
-        });
-    }
-    if (params.creator)
-    {
-        query += "  ?uri dcterms:creator [" + i++ + "] \n";
-        variables.push({
-            type: Elements.ontologies.dcterms.creator.type,
-            value: params.creator
-        });
-    }
-    if (params.dateFrom)
-    {
-        query += "  FILTER (?date > [" + i++ + "]^^xsd:dateTime )\n";
-        variables.push({
-            type: Elements.types.string,
-            value: params.dateFrom
-        });
-    }
-    if (params.dateTo)
-    {
-        query += "  FILTER ([" + i++ + "]^^xsd:dateTime > ?date )\n";
-        variables.push({
-            type: Elements.types.string,
-            value: params.dateTo
         });
     }
 
@@ -602,28 +624,6 @@ Deposit.validatePlatformUri = function (deposit, callback)
 };
 
 /**
- * Creates a deposit
- * @param object with metadata to be saved
- * @param callback when function finishes
- */
-Deposit.createAndInsertFromObject = function (object, callback)
-{
-    const self = Object.create(this.prototype);
-    self.constructor(object);
-    self.save(function (err, newRegistry)
-    {
-        if (isNull(err))
-        {
-
-        }
-        else
-        {
-
-        }
-    });
-};
-
-/**
  * Gets a list of all the repositories used for all the existing deposits
  * @param params
  * @param callback
@@ -635,13 +635,18 @@ Deposit.getAllRepositories = function (params, callback)
     "FROM [0] \n" +
     "WHERE \n" +
     "{ \n" +
-    "   ?uri rdf:type ddr:Registry . \n" +
-    "   ?uri dcterms:title ?title . \n" +
-    "   ?uri ddr:exportedToRepository ?repository . \n" +
-    "   ?uri ddr:DOI ?doi .\n" +
-    "   ?uri dcterms:description ?description . \n";
+      "   ?uri rdf:type ddr:Registry . \n" +
+      "   ?uri dcterms:creator ?user . \n" +
+      "   ?uri dcterms:title ?title . \n" +
+      "   ?uri dcterms:date ?date . \n" +
+      "   ?uri dcterms:description ?description . \n" +
+      "   ?uri ddr:exportedToRepository ?repository . \n" +
+      "   ?uri ddr:DOI ?doi .\n" +
+      "   OPTIONAL { ?uri ddr:embargoedDate ?embargoedDate  }. \n" +
+      "   ?uri ddr:privacyStatus ?privacy . \n";
     const ending = "} \n" +
     "GROUP BY ?repository";
+    let i = 1;
 
     let variables = [
         {
@@ -649,190 +654,9 @@ Deposit.getAllRepositories = function (params, callback)
             value: db.graphUri
         }];
 
-    let i = 1;
-
-    if (params.platforms)
-    {
-        query +=
-      "   VALUES ?privacy {";
-
-        for (let j = 0; j < params.privacy.length; j++)
-        {
-            var object = JSON.parse(params.privacy[j]);
-
-            if (object.value === true)
-            {
-                query += "[" + i++ + "] ";
-
-                switch (object.name)
-                {
-                case "Metadata only":
-                    variables.push(
-                        {
-                            type: Elements.ontologies.ddr.privacyStatus.type,
-                            value: "metadata_only"
-                        });
-                    break;
-                case "Embargoed":
-                    variables.push(
-                        {
-                            type: Elements.ontologies.ddr.privacyStatus.type,
-                            value: "embargoed"
-                        });
-                    break;
-                case "Private":
-                    variables.push(
-                        {
-                            type: Elements.ontologies.ddr.privacyStatus.type,
-                            value: "private"
-                        });
-                    break;
-                default:
-                    variables.push(
-                        {
-                            type: Elements.ontologies.ddr.privacyStatus.type,
-                            value: "public"
-                        });
-                }
-            }
-        }
-        query +=
-      "} . \n" +
-      "   ?uri ddr:privacyStatus ?privacy . \n";
-
-        query +=
-      "   VALUES ?platformsUsed {";
-
-        for (let j = 0; j < params.platforms.length; j++)
-        {
-            query += "[" + i++ + "] ";
-            variables.push({
-                type: Elements.types.string,
-                value: params.platforms[j]
-            });
-        }
-        query +=
-      "} . \n" +
-      "   ?uri ddr:exportedToPlatform ?platformsUsed . \n";
-    }
-    else
-    {
-        query +=
-      "   VALUES ?platformsUsed { \n" +
-      "} . \n" +
-      "    ?uri ddr:exportedToPlatform ?platformsUsed . \n";
-    }
-
-    if (params.project)
-    {
-        query += " FILTER contains(?title, [" + i++ + "]). \n";
-        variables.push({
-            type: Elements.ontologies.dcterms.title.type,
-            value: params.project
-        });
-    }
-    if (params.creator)
-    {
-        query += "  ?uri dcterms:creator [" + i++ + "] \n";
-        variables.push({
-            type: Elements.ontologies.dcterms.creator.type,
-            value: params.creator
-        });
-    }
-    if (params.dateFrom)
-    {
-        query += "  FILTER (?date > [" + i++ + "]^^xsd:dateTime )\n";
-        variables.push({
-            type: Elements.types.string,
-            value: params.dateFrom
-        });
-    }
-    if (params.dateTo)
-    {
-        query += "  FILTER ([" + i++ + "]^^xsd:dateTime > ?date )\n";
-        variables.push({
-            type: Elements.types.string,
-            value: params.dateTo
-        });
-    }
-
-    if (params.description)
-    {
-        query += " FILTER contains(?description, [" + i++ + "]). \n";
-        variables.push({
-            type: Elements.types.string,
-            value: params.description
-        });
-    }
-
-    if (params.identifier)
-    {
-        query += " FILTER contains(?doi, [" + i++ + "]). \n";
-        variables.push({
-            type: Elements.types.string,
-            value: params.identifier
-        });
-    }
-    if (params.descriptors && params.descriptors.length > 0)
-    {
-        if (typeof params.descriptors === "object")
-        {
-            var first = true;
-            var k = 1;
-
-            Object.keys(params.descriptors).forEach(function (key)
-            {
-                let descriptor = JSON.parse(params.descriptors[key]);
-
-                if (params.descriptorTag === "All")
-                {
-                    query += "?uri [" + i++ + "] [" + i++ + "]. \n";
-                    variables.push({
-                        type: Elements.types.resource,
-                        value: descriptor.uri
-                    }, {
-                        type: Elements.types.string,
-                        value: descriptor.name
-                    });
-                }
-                else if (params.descriptorTag === "Any")
-                {
-                    if (first)
-                    {
-                        first = false;
-                        query += "?uri ?descriptor ?value. \n" +
-                          "VALUES (?descriptor ?value) \n{";
-                    }
-                    query += "( [" + i++ + "] [" + i++ + "] )";
-                    variables.push({
-                        type: Elements.types.resource,
-                        value: descriptor.uri
-                    }, {
-                        type: Elements.types.string,
-                        value: descriptor.name
-                    });
-
-                    if (Object.keys(params.descriptors).length === k)
-                    {
-                        query += "}";
-                    }
-                    k++;
-                }
-            });
-        }
-        else if (typeof params.descriptors === "string")
-        {
-            var descriptor = JSON.parse(params.descriptors);
-            query += "?uri [" + i++ + "] [" + i++ + "]. \n";
-            variables.push({
-                type: Elements.types.resource,
-                value: descriptor.uri
-            }, {
-                type: Elements.types.string,
-                value: descriptor.name
-            });
-        }
-    }
+    let result = Deposit.createQueryAux(params, query, variables, i);
+    query = result.query;
+    variables = result.variables;
 
     query += ending;
 
