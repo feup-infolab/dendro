@@ -378,6 +378,7 @@ dev:
     jupyter:
       active: true
       server_address: 'http://localhost:8888'
+      proxy_address: 'http://127.0.0.1:15017'
       default_password: 'jupyter'
     nginx:
       active: true

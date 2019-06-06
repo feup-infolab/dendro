@@ -1449,12 +1449,6 @@ const loadRoutes = function (app, callback)
             async.apply(DockerManager.requireOrchestras, ["dendro_notebook_vhosts"]),
             notebooks.new);
 
-        // TODO fix this activate
-        app.all(/\/notebook_runner\/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})(.*)?/,
-            async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
-            async.apply(DockerManager.requireOrchestras, ["dendro_notebook_vhosts"]),
-            notebooks.pipe_to_instance);
-
         var notebookregex = getNonHumanReadableRouteRegex("notebook");
         // TODO so far only creator will have access must change
         app.get(notebookregex,
