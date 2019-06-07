@@ -18,13 +18,28 @@ const loadRoutes = function (app, callback)
     // notebook
     if (Config.notebooks.active)
     {
-        const httpProxyOptions = {
-            target: Config.notebooks.jupyter.proxy_address,
+        const proxyOptions = {
+            target: "http://" + Config.notebooks.jupyter.proxy_address,
             logLevel: "debug",
-            changeOrigin: true
+            changeOrigin: true,
+            ws: true
         };
 
-        httpProxyOptions.onProxyReq = (proxyReq, req, res) =>
+        proxyOptions.onProxyReqWs = function (proxyReq, req, socket, options, head)
+        {
+            const match = req.url.match(/\/notebook_runner\/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/);
+            if(!isNull(match) && match instanceof Array)
+            {
+                const guid = req.url.match(/\/notebook_runner\/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/)[1];
+                const targetNotebook = new Notebook({id: guid});
+                const rewrittenHost = targetNotebook.getHost(guid);
+
+                proxyReq.setHeader("Host", rewrittenHost);
+                proxyReq.path = req.url;
+            }
+        };
+
+        proxyOptions.onProxyReq = (proxyReq, req, res) =>
         {
             const guid = req.params[0];
             const targetNotebook = new Notebook({id: guid});
@@ -56,7 +71,7 @@ const loadRoutes = function (app, callback)
             }
         };
 
-        httpProxyOptions.onErr = (proxyReq, req, res) =>
+        proxyOptions.onErr = (proxyReq, req, res) =>
         {
             res.writeHead(500, {
                 "Content-Type": "text/plain"
@@ -69,34 +84,11 @@ const loadRoutes = function (app, callback)
         app.all(/\/notebook_runner\/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})(.*)?/,
             async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
             async.apply(DockerManager.requireOrchestras, ["dendro_notebook_vhosts"]),
+
             proxy(
                 "",
-                httpProxyOptions
+                proxyOptions
             ));
-
-        const wsProxyOptions = {
-            target: Config.notebooks.jupyter.proxy_address,
-            changeOrigin: true,
-            ws: true
-        };
-
-        wsProxyOptions.onProxyReq = (proxyReq, req, res) =>
-        {
-            const guid = req.params[0];
-            const targetNotebook = new Notebook({id: guid});
-            const rewrittenHost = targetNotebook.getHost(guid);
-
-            proxyReq.setHeader("Host", rewrittenHost);
-            proxyReq.path = req.originalUrl;
-        };
-
-        const wsProxy = proxy("/notebook_runner/**)", wsProxyOptions);
-
-        app.on("upgrade", wsProxy.upgrade);
-
-        app.use(/\/notebook_runner\/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})(.*)/,
-            wsProxy
-        );
     }
 
     callback(null);

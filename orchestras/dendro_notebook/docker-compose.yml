@@ -29,7 +29,12 @@ services:
       - 8888
     labels:
       - "traefik.enable=true"
+      - "traefik.backend=machine-ws"
       - "traefik.docker.network=traefik_default"
+      - "traefik.frontend.entryPoints=http,https"
+      - "traefik.ws.protocol=http"
+      - "traefik.wss.protocol=http"
+      - "traefik.frontend.passHostHeader=true"
 
 networks:
   traefikweb:

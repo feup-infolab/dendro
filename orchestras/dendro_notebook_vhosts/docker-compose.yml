@@ -3,22 +3,13 @@ version: '3'
 services:
   reverse-proxy:
     image: traefik # The official Traefik docker image
-    command: --api --docker # Enables the web UI and tells Traefik to listen to docker
+    command: -c /traefik.toml
     ports:
       - "15017:80"     # The HTTP port
       - "8080:8080" # The Web UI (enabled by --api)
     volumes:
+      - ./traefik.toml:/traefik.toml:ro
       - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to the Docker events
-      # ...
-    networks:
-      - traefikweb
-
-  whoami:
-    image: containous/whoami # A container that exposes an API to show its IP address
-    labels:
-      - "traefik.frontend.rule=Host:whoami.docker.localhost"
-      - "traefik.enable=true"
-      - "traefik.docker.network=traefik_default"
     networks:
       - traefikweb
 
