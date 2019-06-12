@@ -46,6 +46,7 @@ class Notebook
         }
 
         self.runningPath = rlequire.absPathInApp("dendro", path.join("temp", "jupyter-notebooks", self.id));
+        self.dataFolderPath = path.join(self.runningPath, "data");
 
         return self;
     }
@@ -56,11 +57,11 @@ class Notebook
         return `jupyter-notebook.${self.id}`;
     }
 
-    cypherPassword(plainTextPassword)
+    cypherPassword (plainTextPassword)
     {
         // Yes i know i should not store passwords as plain text in the config.yml file.
         // That is a default password that SHOULD be changed by the jupyter user.
-        const sha1 = require('sha1');
+        const sha1 = require("sha1");
         return `sha1:${sha1(plainTextPassword)}`;
     }
 
@@ -69,6 +70,7 @@ class Notebook
         const self = this;
         const DockerManager = Object.create(rlequire("dendro", "src/utils/docker/docker_manager.js").DockerManager);
         mkdirp.sync(self.runningPath);
+        mkdirp.sync(self.dataFolderPath);
 
         const baseOrchestraFile = rlequire.absPathInApp("dendro", "orchestras/dendro_notebook/docker-compose.yml");
         const cloneOrchestraFile = path.join(self.runningPath, "docker-compose.yml");
@@ -90,7 +92,7 @@ class Notebook
                 DENDRO_NOTEBOOK_VIRTUAL_HOST: self.getHost(),
                 DENDRO_NOTEBOOK_FULL_URL: self.getFullNotebookUri(),
                 DENDRO_NOTEBOOK_DEFAULT_PASSWORD: self.cypherPassword(Config.notebooks.jupyter.default_password),
-                NB_UID: process.geteuid()
+                DENDRO_NOTEBOOK_USER_ID: process.geteuid()
             });
         });
     }
