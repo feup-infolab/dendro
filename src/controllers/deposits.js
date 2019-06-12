@@ -415,7 +415,9 @@ exports.getDepositConditions = function (req, res)
 
 exports.my = function (req, res)
 {
-    res.render("registry/my", {});
+    res.render("index", {
+        searching_in_user_s_deposits_only: true
+    });
 };
 
 exports.search = function (req, res)

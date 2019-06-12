@@ -351,8 +351,7 @@ angular.module("dendroApp.controllers", [])
                 }
             };
 
-            let url = $scope.get_current_url();
-            url += "deposits/search";
+            const url = "/deposits/search";
             listings.getListing($scope, url, $scope.search_settings.page, $scope.search_settings.offset - 1, $scope.search, change, handle);
         };
 
@@ -399,51 +398,44 @@ angular.module("dendroApp.controllers", [])
             {
                 $scope.search.creator.value = $scope.loggedUser.ddr.username;
                 $scope.search.creator.hidden = true;
-                let url = windowService.get_protocol_and_host();
-                url += "/deposits/search";
+                let url = "/deposits/search";
                 listings.getListing($scope, url, $scope.search_settings.page, $scope.search_settings.offset - 1, $scope.search, change, handle);
             }
         };
 
         $scope.changeMyPage = function (pageNumber)
         {
-            let url = windowService.get_protocol_and_host();
-            url += "/deposits/search";
+            let url = "/deposits/search";
             listings.getListing($scope, url, $scope.search_settings.page, pageNumber - 1, $scope.search, false, $scope.updateDeposits);
             $scope.search_settings.offset = pageNumber;
         };
 
         $scope.nextMyPage = function ()
         {
-            let url = windowService.get_protocol_and_host();
-            url += "/deposits/search";
+            let url = "/deposits/search";
             listings.getListing($scope, url, $scope.search_settings.page, ++$scope.search_settings.offset - 1, $scope.search, false, $scope.updateDeposits);
         };
         $scope.previousMyPage = function ()
         {
-            let url = windowService.get_protocol_and_host();
-            url += "/deposits/search";
+            let url = "/deposits/search";
             listings.getListing($scope, url, $scope.search_settings.page, --$scope.search_settings.offset - 1, $scope.search, false, $scope.updateDeposits);
         };
 
         $scope.changePage = function (pageNumber)
         {
-            let url = $scope.get_current_url();
-            url += "deposits/search";
+            const url = "/deposits/search";
             listings.getListing($scope, url, $scope.search_settings.page, pageNumber - 1, $scope.search, false, $scope.updateDeposits);
             $scope.search_settings.offset = pageNumber;
         };
 
         $scope.nextPage = function ()
         {
-            let url = $scope.get_current_url();
-            url += "deposits/search";
+            const url = "/deposits/search";
             listings.getListing($scope, url, $scope.search_settings.page, ++$scope.search_settings.offset - 1, $scope.search, false, $scope.updateDeposits);
         };
         $scope.previousPage = function ()
         {
-            let url = $scope.get_current_url();
-            url += "deposits/search";
+            const url = "/deposits/search";
             listings.getListing($scope, url, $scope.search_settings.page, --$scope.search_settings.offset - 1, $scope.search, false, $scope.updateDeposits);
         };
 
