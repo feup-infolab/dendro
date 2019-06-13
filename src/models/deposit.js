@@ -348,8 +348,30 @@ Deposit.createQueryAux = function (params, query, variables, i)
 
                 if (params.descriptorTag === "All")
                 {
-                    query += "?uri [" + i++ + "] [" + i++ + "]. \n";
+                    query += "{{ \n " +
+                    " ?uri [" + i++ + "] [" + i++ + "]. \n" +
+                    "} \n " +
+                    "UNION \n" +
+                    "{ \n" +
+                    "?uri nie:hasLogicalPart+ ?child.\n" +
+                    " ?child [" + i++ + "] [" + i++ + "] \n" +
+                    "}}";
+
+                    if (h + 1 !== keys.length)
+                    {
+                        query += ". \n";
+                    }
+                    else
+                    {
+                        query += "\n";
+                    }
                     variables.push({
+                        type: Elements.types.resource,
+                        value: descriptor.uri
+                    }, {
+                        type: Elements.types.string,
+                        value: descriptor.name
+                    }, {
                         type: Elements.types.resource,
                         value: descriptor.uri
                     }, {
@@ -383,7 +405,7 @@ Deposit.createQueryAux = function (params, query, variables, i)
               "VALUES (?descriptor ?value) \n{";
                 query += body;
                 query += "} }\n " +
-                  "UNION \n" ;
+                  "UNION \n";
 
                 query += "{?uri nie:hasLogicalPart+ ?child. \n" +
                   "?child ?descriptorchild ?valuechild. \n" +
@@ -1018,3 +1040,4 @@ Deposit.prototype.delete = function (callback, customGraphUri)
 Deposit = Class.extend(Deposit, Resource, "ddr:Registry");
 
 module.exports.Deposit = Deposit;
+
