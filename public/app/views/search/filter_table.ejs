@@ -1,8 +1,8 @@
-<table style="width:100%">
-    <tr class="form-group sidebar-item" ng-repeat="item in $eval(attr()) track by $index">
-        <td>
+<div>
+    <div class="form-group" ng-repeat="item in $eval(attr()) track by $index">
+        <div>
             <b>{{item.label}}</b>
-        </td>
+        </div>
 
 
         <!--<tr ng-repeat="descriptor in item.array track by $index" >-->
@@ -13,7 +13,7 @@
         <!--ng-model="descriptor.name" ng-model-options="{debounce : 500}"></td>-->
         <!--</tr>-->
 
-        <td class="{{item.id}}" ng-if="item.type === 'dropdown' && item.key === 'descriptor'">
+        <div class="{{item.id}} form-item" ng-if="item.type === 'dropdown' && item.key === 'descriptor'">
             <input disabled style="width: 150px"
                    ng-model="item.descriptor" ng-model-options="{debounce : 500}">
             <input style="width: 150px"
@@ -21,23 +21,25 @@
             <button
                     class="btn btn-sm fa fa-trash"
                     ng-click="deleteElement(item.id)"></button>
-        </td>
+        </div>
 
 
 
-        <td ng-if="item.type === 'dropdown' && item.key !== 'descriptor'">
-            <button style="text-align: right" type="button" class="button-search  btn btn-default dropdown-toggle "
-                    data-toggle="dropdown">
-                {{item.selected}} <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu" role="menu">
-                <li ng-repeat="iterator in item.value track by $index"><a href="#"
-                                                                          ng-click="item.selected = iterator.name; $eval(update(item.change))">{{iterator.name}}</a>
-                </li>
-            </ul>
-        </td>
+        <div class="form-item" ng-if="item.type === 'dropdown' && item.key !== 'descriptor'">
+            <div class="dropdown">
+                <button style="text-align: right" type="button" class="button-search btn btn-primary dropdown-toggle"
+                        data-toggle="dropdown">
+                    {{item.selected}} <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li ng-repeat="iterator in item.value track by $index"><a href="#"
+                                                                              ng-click="item.selected = iterator.name; $eval(update(item.change))">{{iterator.name}}</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
 
-        <td ng-if="item.list && item.type !== 'dropdown' " class="{{item.type}}"
+        <div class="form-item" ng-if="item.list && item.type !== 'dropdown' " class="{{item.type}}"
             ng-repeat="iterator in item.value track by $index">
             <label class="label-search" ng-if="item.type !== 'dropdown'">
                 <input ng-model="iterator.value" ng-change="$eval(update(item.change))"
@@ -45,8 +47,9 @@
                 {{iterator.name}}
                 <b ng-if="iterator.count">({{iterator.count}})</b>
             </label>
-        </td>
-        <td>
+        </div>
+
+        <div class="form-item" >
             <input class="margin-bottom-4" style="width: 174px"
                    ng-if="!item.list && item.hidden!== true && item.key !== 'descriptor'"
                    ng-model="item.value" ng-change="$eval(update(item.change))" ng-model-options="{debounce : 500}"
@@ -54,13 +57,11 @@
             <input class="margin-bottom-4" style="width: 174px" disabled="disabled"
                    ng-if="!item.list && item.hidden== true" ng-model="item.value" ng-change="$eval(update(item.change))"
                    ng-model-options="{debounce : 500}" type="{{item.type}}">
-        </td>
+        </div>
 
-    </tr>
-    <tr class="form-group sidebar-item">
-        <td>
-        </td>
-        <td>
+    </div>
+    <div class="form-group sidebar-item">
+        <div class="form-item">
 
             <input type="text" class="input-search"
                    ng-model="asyncSelected"
@@ -79,25 +80,27 @@
                 <i class="glyphicon glyphicon-remove"></i> No Results Found
             </div>
 
-        </td>
-    </tr>
+        </div>
+    </div>
 
-    <tr class="form-group sidebar-item">
+    <div class="form-group sidebar-item">
 
-        <td>
+        <div class="form-item">
             <b>Deposits per page</b>
-        </td>
-        <td>
-            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                {{search_settings.page}} <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu" role="menu">
-                <li><a href="#" ng-click="search_settings.page = 5; $eval(update())">5</a></li>
-                <li><a href="#" ng-click="search_settings.page = 10; $eval(update())">10</a></li>
-                <li><a href="#" ng-click="search_settings.page = 20; $eval(update())">20</a></li>
-                <li><a href="#" ng-click="search_settings.page = 50; $eval(update())">50</a></li>
-            </ul>
-        </td>
+        </div>
+        <div class="form-item">
+            <div class="dropdown">
+                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                    {{search_settings.page}} <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="#" ng-click="search_settings.page = 5; $eval(update())">5</a></li>
+                    <li><a href="#" ng-click="search_settings.page = 10; $eval(update())">10</a></li>
+                    <li><a href="#" ng-click="search_settings.page = 20; $eval(update())">20</a></li>
+                    <li><a href="#" ng-click="search_settings.page = 50; $eval(update())">50</a></li>
+                </ul>
+            </div>
+        </div>
 
-    </tr>
-</table>
+    </div>
+</div>

@@ -7,6 +7,7 @@ angular.module("dendroApp.factories")
         return {
             getListing: function ($scope, uri, limit, page, filters, change, callback)
             {
+                $scope.fetching_data = true;
                 if (filters)
                 {
                     let params = this.parseParams(filters);
@@ -23,10 +24,12 @@ angular.module("dendroApp.factories")
                     {
                         if (response.data !== null && response.data)
                         {
+                            $scope.fetching_data = false;
                             callback(response.data, change);
                         }
                     }).catch(function (error)
                     {
+                        $scope.fetching_data = false;
                         if (error !== null)
                         {
                             $scope.show_popup("error", "Error", error.message);
