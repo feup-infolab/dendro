@@ -142,14 +142,14 @@ Deposit.createDeposit = function (data, callback)
     {
         const auth = "Basic " + new Buffer("DEV.INFOLAB" + ":" + "8yD5qChSbUSK").toString("base64");
 
-        var headers = {
+        let headers = {
             accept: "application/x-bibtex",
             Referer: Config.deposits.pids.datacite + "%2F" + uuid,
             Origin: "https://doi.test.datacite.org",
             Authorization: auth
         };
 
-        var options = {
+        let options = {
             url: Config.deposits.pids.datacite + "/" + uuid,
             headers: headers
         };
@@ -262,7 +262,7 @@ Deposit.createQueryAux = function (params, query, variables, i)
 
         for (let j = 0; j < params.privacy.length; j++)
         {
-            var object = JSON.parse(params.privacy[j]);
+            let object = JSON.parse(params.privacy[j]);
 
             if (object.value === true)
             {
@@ -334,15 +334,13 @@ Deposit.createQueryAux = function (params, query, variables, i)
     {
         if (typeof params.descriptors === "object")
         {
-            var first = true;
-            var k = 1;
             query += "{\n";
 
-            var keys = Object.keys(params.descriptors);
-            var body = "";
-            var body2 = "";
+            let keys = Object.keys(params.descriptors);
+            let body = "";
+            let body2 = "";
 
-            for (h = 0; h < keys.length; h++)
+            for (let h = 0; h < keys.length; h++)
             {
                 let descriptor = JSON.parse(params.descriptors[h]);
 
@@ -417,7 +415,7 @@ Deposit.createQueryAux = function (params, query, variables, i)
         }
         else if (typeof params.descriptors === "string")
         {
-            var descriptor = JSON.parse(params.descriptors);
+            let descriptor = JSON.parse(params.descriptors);
             query += "{ \n " +
               "{?uri [" + i++ + "] [" + i++ + "]}\n" +
               "UNION \n" +
