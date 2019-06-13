@@ -336,10 +336,15 @@ Deposit.createQueryAux = function (params, query, variables, i)
         {
             var first = true;
             var k = 1;
+            query += "{\n";
 
-            Object.keys(params.descriptors).forEach(function (key)
+            var keys = Object.keys(params.descriptors);
+            var body = "";
+            var body2 = "";
+
+            for (h = 0; h < keys.length; h++)
             {
-                let descriptor = JSON.parse(params.descriptors[key]);
+                let descriptor = JSON.parse(params.descriptors[h]);
 
                 if (params.descriptorTag === "All")
                 {
@@ -354,34 +359,58 @@ Deposit.createQueryAux = function (params, query, variables, i)
                 }
                 else if (params.descriptorTag === "Any")
                 {
-                    if (first)
-                    {
-                        first = false;
-                        query += "?uri ?descriptor ?value. \n" +
-                          "VALUES (?descriptor ?value) \n{";
-                    }
-                    query += "( [" + i++ + "] [" + i++ + "] )";
+                    body += "( [" + i++ + "] [" + i++ + "] )";
+                    body2 += "( [" + i++ + "] [" + i++ + "] )";
                     variables.push({
                         type: Elements.types.resource,
                         value: descriptor.uri
                     }, {
                         type: Elements.types.string,
                         value: descriptor.name
+                    }, {
+                        type: Elements.types.resource,
+                        value: descriptor.uri
+                    }, {
+                        type: Elements.types.string,
+                        value: descriptor.name
                     });
-
-                    if (Object.keys(params.descriptors).length === k)
-                    {
-                        query += "}";
-                    }
-                    k++;
                 }
-            });
+            }
+            if (params.descriptorTag === "Any")
+            {
+                query += "{ \n" +
+                  "?uri ?descriptor ?value. \n" +
+              "VALUES (?descriptor ?value) \n{";
+                query += body;
+                query += "} }\n " +
+                  "UNION \n" ;
+
+                query += "{?uri nie:hasLogicalPart+ ?child. \n" +
+                  "?child ?descriptorchild ?valuechild. \n" +
+                  "VALUES (?descriptorchild ?valuechild) \n{";
+                query += body2;
+                query += "}}\n";
+            }
+            query += "}\n";
         }
         else if (typeof params.descriptors === "string")
         {
             var descriptor = JSON.parse(params.descriptors);
-            query += "?uri [" + i++ + "] [" + i++ + "]. \n";
+            query += "{ \n " +
+              "{?uri [" + i++ + "] [" + i++ + "]}\n" +
+              "UNION \n" +
+              "{ \n" +
+              "?uri nie:hasLogicalPart+ ?child.\n" +
+              " ?child [" + i++ + "] [" + i++ + "] \n" +
+              "}\n" +
+              "}";
             variables.push({
+                type: Elements.types.resource,
+                value: descriptor.uri
+            }, {
+                type: Elements.types.string,
+                value: descriptor.name
+            }, {
                 type: Elements.types.resource,
                 value: descriptor.uri
             }, {
