@@ -123,22 +123,37 @@ exports.allowed = function (req, callback)
         },
         function (callback)
         {
-            Deposit.createQuery(params, callback);
-        },
-        function (callback)
-        {
-            if (!isNull(params.new_listing) && params.new_listing === "true")
+            Deposit.createQuery(params, function (err, result)
             {
-                Deposit.getAllRepositories(params, callback);
-            }
-            else
-            {
-                callback(null);
-            }
+                if (isNull(err) && result)
+                {
+                    let repositoriesCount = {};
+                    for (let j = 0; j < result.length; j++)
+                    {
+                        let object = result[j];
+                        if (repositoriesCount[object.repository])
+                        {
+                            repositoriesCount[object.repository].count = repositoriesCount[object.repository].count + 1;
+                        }
+                        else
+                        {
+                            let repo = {};
+                            repo.name = object.repository;
+                            repo.count = 1;
+                            repositoriesCount[object.repository] = repo;
+                        }
+                    }
+                    let finalResult = {};
+                    finalResult.repositories = repositoriesCount;
+                    finalResult.result = result;
+                    callback(err, finalResult);
+                }
+                else callback("erro", null);
+            });
         }
-    ], function (err, results)
+    ], function (err, result)
     {
-        callback(err, results);
+        callback(err, result[1]);
     });
 };
 
@@ -432,11 +447,22 @@ exports.search = function (req, res)
         {
             if (display === "json")
             {
-                res.json({deposits: results[1], repositories: results[2]});
+                res.json({deposits: results.result, repositories: results.repositories});
             }
             else
             {
-                res.render("", {deposits: results[1], repositories: results[2]});
+                res.render("", {deposits: results.result, repositories: results.repositories });
+            }
+        }
+        else
+        {
+            if (display === "json")
+            {
+                res.json({deposits: {}, repositories: {}});
+            }
+            else
+            {
+                res.render("", {deposits: {}, repositories: {} });
             }
         }
     };

@@ -346,14 +346,14 @@ Deposit.createQueryAux = function (params, query, variables, i)
 
                 if (params.descriptorTag === "All")
                 {
-                    query += "{{ \n " +
-                    " ?uri [" + i++ + "] [" + i++ + "]. \n" +
-                    "} \n " +
-                    "UNION \n" +
+                    query += "{ \n" +
+                      "{  ?uri [" + i++ + "] [" + i++ + "] } \n " +
+                      "UNION \n" +
                     "{ \n" +
-                    "?uri nie:hasLogicalPart+ ?child.\n" +
-                    " ?child [" + i++ + "] [" + i++ + "] \n" +
-                    "}}";
+                    "  ?uri nie:hasLogicalPart ?child.\n" +
+                    "  ?child [" + i++ + "] [" + i++ + "] \n" +
+                    "  } \n " +
+                    "}";
 
                     if (h + 1 !== keys.length)
                     {
@@ -405,7 +405,7 @@ Deposit.createQueryAux = function (params, query, variables, i)
                 query += "} }\n " +
                   "UNION \n";
 
-                query += "{?uri nie:hasLogicalPart+ ?child. \n" +
+                query += "{?uri nie:hasLogicalPart ?child. \n" +
                   "?child ?descriptorchild ?valuechild. \n" +
                   "VALUES (?descriptorchild ?valuechild) \n{";
                 query += body2;
@@ -420,7 +420,7 @@ Deposit.createQueryAux = function (params, query, variables, i)
               "{?uri [" + i++ + "] [" + i++ + "]}\n" +
               "UNION \n" +
               "{ \n" +
-              "?uri nie:hasLogicalPart+ ?child.\n" +
+              "?uri nie:hasLogicalPart ?child.\n" +
               " ?child [" + i++ + "] [" + i++ + "] \n" +
               "}\n" +
               "}";
@@ -509,7 +509,7 @@ Deposit.createQueryAux = function (params, query, variables, i)
 Deposit.createQuery = function (params, callback)
 {
     let query =
-    "SELECT DISTINCT  ?title ?user ?date ?platformsUsed ?privacy ?uri  ?doi ?description  ?embargoedDate \n" +
+    "SELECT DISTINCT  ?title ?user ?date ?platformsUsed ?privacy ?uri  ?doi ?description  ?embargoedDate ?repository \n" +
     "FROM [0] \n" +
     "WHERE " +
     "{ \n" +
@@ -517,6 +517,7 @@ Deposit.createQuery = function (params, callback)
     "   ?uri dcterms:creator ?user . \n" +
     "   ?uri dcterms:title ?title . \n" +
     "   ?uri dcterms:date ?date . \n" +
+    "   ?uri ddr:exportedToRepository ?repository . \n" +
     "   ?uri dcterms:description ?description . \n" +
     "   ?uri ddr:DOI ?doi .\n" +
     "   OPTIONAL { ?uri ddr:embargoedDate ?embargoedDate  }. \n" +
@@ -572,49 +573,6 @@ Deposit.createQuery = function (params, callback)
     }
 
     query += ending;
-    db.connection.executeViaJDBC(query, variables, function (err, regs)
-    {
-        callback(err, regs);
-    });
-};
-
-/**
- * Gets a list of all the repositories used for all the existing deposits
- * @param params
- * @param callback
- */
-Deposit.getAllRepositories = function (params, callback)
-{
-    let query =
-      "SELECT ?repository COUNT(?repository) as ?count\n" +
-      "FROM [0] \n" +
-      "WHERE \n" +
-      "{ \n" +
-      "   ?uri rdf:type ddr:Registry . \n" +
-      "   ?uri dcterms:creator ?user . \n" +
-      "   ?uri dcterms:title ?title . \n" +
-      "   ?uri dcterms:date ?date . \n" +
-      "   ?uri dcterms:description ?description . \n" +
-      "   ?uri ddr:exportedToRepository ?repository . \n" +
-      "   ?uri ddr:DOI ?doi .\n" +
-      "   OPTIONAL { ?uri ddr:embargoedDate ?embargoedDate  }. \n" +
-      "   ?uri ddr:privacyStatus ?privacy . \n";
-    const ending = "} \n" +
-      "GROUP BY ?repository";
-    let i = 1;
-
-    let variables = [
-        {
-            type: Elements.types.resourceNoEscape,
-            value: db.graphUri
-        }];
-
-    let result = Deposit.createQueryAux(params, query, variables, i);
-    query = result.query;
-    variables = result.variables;
-
-    query += ending;
-
     db.connection.executeViaJDBC(query, variables, function (err, regs)
     {
         callback(err, regs);

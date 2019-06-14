@@ -323,25 +323,26 @@ angular.module("dendroApp.controllers", [])
                 $scope.offset = 1;
                 // $scope.updateDeposits(data);
                 $scope.totalDeposits = 0;
+                let repositoriesKeys = Object.keys(data.repositories);
 
-                if (change && data.repositories instanceof Array && data.repositories.length > 0)
+                if (change && repositoriesKeys.length > 0)
                 {
-                    const repository = data.repositories;
                     let depositCount = 0;
-                    for (let repo of repository)
+                    for (let j = 0; j < repositoriesKeys.length; j++)
                     {
+                        const repository = data.repositories[repositoriesKeys[j]];
                         for (let repoInSystem of $scope.search.system.value)
                         {
-                            if (repo.repository === repoInSystem.name)
+                            if (repository.name === repoInSystem.name)
                             {
-                                repoInSystem.count = repo.count;
+                                repoInSystem.count = repository.count;
                             }
                         }
-                        depositCount += parseInt(repo.count);
+                        depositCount += parseInt(repository.count);
                     }
                     $scope.search_settings.totalDeposits = Math.ceil(depositCount / $scope.search_settings.page);
                 }
-                else if (change && data.repositories instanceof Array && data.repositories.length === 0)
+                else if (change && repositoriesKeys.length === 0)
                 {
                     for (let repo of $scope.search.system.value)
                     {
