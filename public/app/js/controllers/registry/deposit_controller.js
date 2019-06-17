@@ -133,32 +133,32 @@ angular.module("dendroApp.controllers", [])
                 list: true,
                 label: "Order By",
                 key: "ordering",
-                ordering: "true",
-                selected: "date descending",
+                hasKey: true,
+                selected: "Date descending",
                 value: [
                     {
-                        name: "date ascending",
+                        name: "Date ascending",
                         key: "date ASC"
                     },
                     {
-                        name: "date descending",
+                        name: "Date descending",
                         key: "date DESC"
 
                     },
                     {
-                        name: "username ascending",
+                        name: "Username ascending",
                         key: "user ASC"
                     },
                     {
-                        name: "username descending",
+                        name: "Username descending",
                         key: "user DESC"
                     },
                     {
-                        name: "ascending deposit titles",
+                        name: "Ascending deposit titles",
                         key: "title ASC"
                     },
                     {
-                        name: "descending deposit titles",
+                        name: "Descending deposit titles",
                         key: "title DESC"
                     }
                 ]
@@ -175,6 +175,24 @@ angular.module("dendroApp.controllers", [])
                     },
                     {
                         name: "All"
+                    }
+                ]
+            }, searchDepth: {
+                type: "dropdown",
+                list: true,
+                label: "Depth of search in the deposit",
+                key: "searchDepth",
+                selected: "Only on children's nodes",
+                hasKey: true,
+                value: [
+                    {
+                        name: "Only on root",
+                        key: "onlyRoot"
+                    },
+                    {
+                        name: "Only on children's nodes",
+                        key: "onlyNodes"
+
                     }
                 ]
             }

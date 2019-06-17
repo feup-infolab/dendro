@@ -45,7 +45,7 @@ angular.module("dendroApp.factories")
                 {
                     if (params[item].value !== null && params[item].value !== "" && params[item].key !== "descriptor")
                     {
-                        if (params[item].type === "dropdown" && params[item].ordering === "true")
+                        if (params[item].type === "dropdown" && params[item].hasKey === true)
                         {
                             var array = params[item].value;
                             array.forEach(function (value)

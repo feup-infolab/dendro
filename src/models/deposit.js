@@ -334,42 +334,27 @@ Deposit.createQueryAux = function (params, query, variables, i)
     {
         if (typeof params.descriptors === "object")
         {
-            query += "{\n";
-
             let keys = Object.keys(params.descriptors);
             let body = "";
-            let body2 = "";
 
             for (let h = 0; h < keys.length; h++)
             {
                 let descriptor = JSON.parse(params.descriptors[h]);
+                let child = "child";
 
                 if (params.descriptorTag === "All")
                 {
-                    query += "{ \n" +
-                      "{  ?uri [" + i++ + "] [" + i++ + "] } \n " +
-                      "UNION \n" +
-                    "{ \n" +
-                    "  ?uri nie:hasLogicalPart ?child.\n" +
-                    "  ?child [" + i++ + "] [" + i++ + "] \n" +
-                    "  } \n " +
-                    "}";
-
-                    if (h + 1 !== keys.length)
+                    if (params.searchDepth === "onlyRoot")
                     {
-                        query += ". \n";
+                        query += "   ?uri [" + i++ + "] [" + i++ + "].  \n";
                     }
-                    else
+                    else if (params.searchDepth === "onlyNodes")
                     {
-                        query += "\n";
+                        let newChild = child + h;
+                        query += "   ?uri nie:hasLogicalPart ?" + newChild + ".\n" +
+                                 "   ?" + newChild + " [" + i++ + "] [" + i++ + "]. \n";
                     }
                     variables.push({
-                        type: Elements.types.resource,
-                        value: descriptor.uri
-                    }, {
-                        type: Elements.types.string,
-                        value: descriptor.name
-                    }, {
                         type: Elements.types.resource,
                         value: descriptor.uri
                     }, {
@@ -380,14 +365,7 @@ Deposit.createQueryAux = function (params, query, variables, i)
                 else if (params.descriptorTag === "Any")
                 {
                     body += "( [" + i++ + "] [" + i++ + "] )";
-                    body2 += "( [" + i++ + "] [" + i++ + "] )";
                     variables.push({
-                        type: Elements.types.resource,
-                        value: descriptor.uri
-                    }, {
-                        type: Elements.types.string,
-                        value: descriptor.name
-                    }, {
                         type: Elements.types.resource,
                         value: descriptor.uri
                     }, {
@@ -398,39 +376,36 @@ Deposit.createQueryAux = function (params, query, variables, i)
             }
             if (params.descriptorTag === "Any")
             {
-                query += "{ \n" +
-                  "?uri ?descriptor ?value. \n" +
-              "VALUES (?descriptor ?value) \n{";
-                query += body;
-                query += "} }\n " +
-                  "UNION \n";
-
-                query += "{?uri nie:hasLogicalPart ?child. \n" +
-                  "?child ?descriptorchild ?valuechild. \n" +
-                  "VALUES (?descriptorchild ?valuechild) \n{";
-                query += body2;
-                query += "}}\n";
+                if (params.searchDepth === "onlyRoot")
+                {
+                    query += "   ?uri ?descriptor ?value. \n" +
+                             "   VALUES (?descriptor ?value) \n" +
+                             "   {" + body + "}\n";
+                }
+                else if (params.searchDepth === "onlyNodes")
+                {
+                    query += "   ?uri nie:hasLogicalPart ?child. \n" +
+                             "   ?child ?descriptorchild ?valuechild. \n" +
+                             "   VALUES (?descriptorchild ?valuechild) \n" +
+                             "   {" + body + "}\n";
+                }
             }
-            query += "}\n";
         }
         else if (typeof params.descriptors === "string")
         {
             let descriptor = JSON.parse(params.descriptors);
-            query += "{ \n " +
-              "{?uri [" + i++ + "] [" + i++ + "]}\n" +
-              "UNION \n" +
-              "{ \n" +
-              "?uri nie:hasLogicalPart ?child.\n" +
-              " ?child [" + i++ + "] [" + i++ + "] \n" +
-              "}\n" +
-              "}";
+
+            if (params.searchDepth === "onlyRoot")
+            {
+                query += "   ?uri [" + i++ + "] [" + i++ + "].  \n ";
+            }
+            else if (params.searchDepth === "onlyNodes")
+            {
+                query += "   ?uri nie:hasLogicalPart ?child.\n" +
+                         "   ?child [" + i++ + "] [" + i++ + "]. \n";
+            }
+
             variables.push({
-                type: Elements.types.resource,
-                value: descriptor.uri
-            }, {
-                type: Elements.types.string,
-                value: descriptor.name
-            }, {
                 type: Elements.types.resource,
                 value: descriptor.uri
             }, {
