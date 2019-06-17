@@ -6,41 +6,31 @@ services:
   - docker
 
 node_js:
-  - "8.10.0"
+  - "11.12.0"
 
 env:
   global:
-    - NVM_DIR="${TRAVIS_BUILD_DIR}"
-    - RUNNING_IN_TRAVIS=true
+    - DOCKER_COMPOSE_VERSION=1.24.0
+    - NUM_THREADS=4
 
 cache:
   directories:
     - node_modules
-    - public/bower_components
 
 before_script:
 
-  # Disable services enabled by default
-  # http://docs.travis-ci.com/user/database-setup/#MySQL
-  - sudo /etc/init.d/mysql stop
-  - sudo /etc/init.d/postgresql stop
-  # The following did not work reliable
-  # - sudo service mysql stop
-  # - sudo service postgresql stop
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+  - sudo apt-get update
+  - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
 
 install:
-  - docker-compose build
+  - ./conf/scripts/install.sh
 
 script:
-  - docker-compose up -d
-  - chmod +x ${TRAVIS_BUILD_DIR}/conf/scripts/check_if_dendro_boots.sh
-  - ${TRAVIS_BUILD_DIR}/conf/scripts/check_if_dendro_boots.sh 3001
-
-# after_success:
-#   - nvm use 8.10.0
-#   - npm run report-coverage
-
-# after_script:
-#  - docker stop $(docker ps -a -q) || true
-#  - docker rm -f $(docker ps -a -q) || true
-#  - docker rmi -f $(docker ps -a -q) || true
+  - npm run docker-mocha-rebuild-dendro-image-nc
+  - docker-mocha -f ./test/tests-structure-passing.json -t "${NUM_THREADS}" -c docker-compose-tests.yml -e dendro -p 3001 --config='docker_mocha' --stats-file="output_${NUM_THREADS}_thread.csv"
