@@ -17,7 +17,7 @@ cache:
     - node_modules
 
 before_script:
-
+  - npm i -g npm@6.7.0
   - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
   - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
   - sudo apt-get update
@@ -27,6 +27,8 @@ before_script:
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
 
+install:
+  - npm install
 
 script:
   - docker-mocha -f ./test/tests-structure-passing.json -t 4 -c docker-compose-tests.yml -e dendro -p 3001 --config='docker_mocha' --stats-file="output_4_thread.csv"
