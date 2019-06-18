@@ -81,7 +81,7 @@ services:
       - "MYSQL_DATABASE=dendro_data"
       - "MYSQL_USER=dendro"
       - "MYSQL_PASSWORD=dendr0_p4ssw0rd"
-      - "MYSQL_ROOT_HOST='%'"
+      - "MYSQL_ROOT_HOST=%"
       - "TZ=Europe/Lisbon"
     networks:
       dendro-docker-deployment:
