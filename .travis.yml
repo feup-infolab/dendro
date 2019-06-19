@@ -32,4 +32,4 @@ install:
   - export STATE=""; docker-compose --file docker-compose-tests.yml pull
 
 script:
-  - docker-mocha -f ./test/tests-structure-passing.json -t 4 -c docker-compose-tests.yml -e dendro -p 3001 --config='docker_mocha' --stats-file="output_4_thread.csv"
+  - docker-mocha -f ./test/tests-structure-passing.json -t 1 -c docker-compose-tests.yml -e dendro -p 3001 --config='docker_mocha' --stats-file="output_1_thread.csv"
