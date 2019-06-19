@@ -938,6 +938,9 @@ Config.testing = getConfigParameter("testing");
 Config.docker = getConfigParameter("docker");
 Config.keywords_extraction = getConfigParameter("keywords_extraction");
 
+Config.jobs = getConfigParameter("jobs");
+Config.deposits = getConfigParameter("deposits");
+
 // 30 min TIMEOUT!!!!
 Config.tests = {
     timeout: 1800000

@@ -20,7 +20,7 @@ angular.module("dendroApp.services")
                     }).then(
                         function (response)
                         {
-                            if (response.data != null)
+                            if (response.data !== null)
                             {
                                 getUserPromise.resolve(response.data);
                             }

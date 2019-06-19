@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>public/app/js/services/interactions_service.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <li class="nav-link nav-home-link"><a href="index.html">Home</a></li><li class="nav-heading"><a href="global.html">Globals</a></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#arrayContainsArray">arrayContainsArray</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#buildCkanFileIDsFromDendroFileNames">buildCkanFileIDsFromDendroFileNames</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#buildExtrasJSONArray">buildExtrasJSONArray</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#buildPackageForCkanExport">buildPackageForCkanExport</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#buildPermissionsToBeCheck">buildPermissionsToBeCheck</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#calculateCkanRepositoryDiffs">calculateCkanRepositoryDiffs</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#calculateDendroDiffs">calculateDendroDiffs</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#checkIfFolderAndTargetRepositoryHaveRequiredMetadata">checkIfFolderAndTargetRepositoryHaveRequiredMetadata</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#checkIfResourceHasTheRequiredMetadataForExport">checkIfResourceHasTheRequiredMetadataForExport</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#checkPrivacyOfProject">checkPrivacyOfProject</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#checkResourceTypeAndChildren">checkResourceTypeAndChildren</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#checkRoleInSystem">checkRoleInSystem</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#Config">Config</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#createCkanFileIdBasedOnDendroFileName">createCkanFileIdBasedOnDendroFileName</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#createOrUpdateFilesInPackage">createOrUpdateFilesInPackage</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#createPackageID">createPackageID</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#createPackageInCkan">createPackageInCkan</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#deleteResourceInCkan">deleteResourceInCkan</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#exportPackageToCkan">exportPackageToCkan</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#get_recommendations">get_recommendations</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getAllPosts">getAllPosts</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getBothDendroDiffsAndCkanDiffs">getBothDendroDiffsAndCkanDiffs</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getExportedAtByDendroForCkanDataset">getExportedAtByDendroForCkanDataset</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#isObject">isObject</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#jarPath">jarPath</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#mergeDeep">mergeDeep</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#purgeCkanDataset">purgeCkanDataset</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#register_interaction">register_interaction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#repository_types">repository_types</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#request">request</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#updateOrInsertExportedAtByDendroForCkanDataset">updateOrInsertExportedAtByDendroForCkanDataset</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#updatePackageInCkan">updatePackageInCkan</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#validateChangesPermissions">validateChangesPermissions</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#verifyIfCkanFileWasCreatedInDendro">verifyIfCkanFileWasCreatedInDendro</a></span></li>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">public/app/js/services/interactions_service.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// TODO make this a single call for every array instead of for every element of arrays......
+
+angular.module("dendroApp.services")
+    .service("interactionsService",
+        ["$http", "$q",
+            function ($http, $q)
+            {
+                /**
+                 * Give notice to server
+                 */
+
+                this.register_interaction = function (url, objectOfInteraction, interactionType, rankingPosition, recommendedFor, pageNumber)
+                {
+                    if (objectOfInteraction !== null &amp;&amp; objectOfInteraction instanceof Object)
+                    {
+                        objectOfInteraction.interactionType = interactionType;
+
+                        if (rankingPosition === null)
+                        {
+                            rankingPosition = -1;
+                        }
+
+                        if (objectOfInteraction.rankingPosition === null &amp;&amp; rankingPosition !== null)
+                        {
+                            objectOfInteraction.rankingPosition = rankingPosition;
+                        }
+
+                        if (objectOfInteraction.recommendedFor === null &amp;&amp; recommendedFor !== null)
+                        {
+                            objectOfInteraction.recommendedFor = recommendedFor;
+                        }
+
+                        if (objectOfInteraction.pageNumber === null &amp;&amp; pageNumber !== null)
+                        {
+                            objectOfInteraction.pageNumber = pageNumber;
+                        }
+
+                        // serialize for sending
+                        var objectOfInteractionString = JSON.stringify(objectOfInteraction);
+
+                        return $http({
+                            method: "POST",
+                            url: url,
+                            data: objectOfInteractionString,
+                            contentType: "application/json",
+                            headers: {Accept: "application/json"}
+                        });
+                    }
+                    throw "Cannot register an interaction without an object of interaction.";
+                };
+
+                this.register_accepted = function (descriptors_accepted)
+                {
+                    var self = this;
+                    return $q.all(descriptors_accepted.map(function (descriptor)
+                    {
+                        if (descriptor.recommendation_types !== null)
+                        {
+                            if (descriptor.recommendation_types.just_recommended)
+                            {
+                                return self.accept_descriptor_in_metadata_editor(descriptor);
+                            }
+                            else if (descriptor.recommendation_types.favorite)
+                            {
+                                return self.accept_favorite_descriptor_in_metadata_editor(descriptor);
+                            }
+                        }
+                        else
+                        {
+                            return self.accept_descriptor_in_metadata_editor(descriptor);
+                        }
+                    })
+                    )
+                        .catch(function (error)
+                        {
+                            console.log("error", "Unable to record the acceptance of recommended descriptors in the metadata editor. " +
+                            "Please contact your system administrator. Error reported: " + JSON.stringify(error));
+                        });
+                };
+
+                this.register_filled_in = function (descriptors_filled_in)
+                {
+                    var self = this;
+                    return $q.all(descriptors_filled_in.map(function (descriptor)
+                    {
+                        if (descriptor.added_from_manual_list)
+                        {
+                            return self.fill_in_descriptor_from_manual_list_in_metadata_editor(descriptor);
+                        }
+                        else if (descriptor.added_from_quick_list)
+                        {
+                            return self.fill_in_descriptor_from_quick_list_in_metadata_editor(descriptor);
+                        }
+                    })
+                    )
+                        .catch(function (error)
+                        {
+                            console.log("error", "Unable to record the filling in of descriptors in the metadata editor. Please contact your system administrator. Error reported: " + JSON.stringify(error));
+                        });
+                };
+
+                this.register_deleted = function (descriptors_deleted)
+                {
+                    var self = this;
+                    return $q.all(descriptors_deleted.map(function (descriptor)
+                    {
+                        return self.delete_descriptor_in_metadata_editor(descriptor);
+                    })
+                    )
+                        .catch(function (error)
+                        {
+                            console.log("error", "Unable to record the deletion of descriptors in the metadata editor. Please contact your system administrator. Error reported: " + JSON.stringify(error));
+                        });
+                };
+
+                this.register_inherited = function (descriptors_inherited)
+                {
+                    var self = this;
+                    return $q.all(descriptors_inherited.map(function (descriptor)
+                    {
+                        return self.fill_in_inherited_descriptor(descriptor);
+                    })
+                    )
+                        .catch(function (error)
+                        {
+                            console.log("error", "Unable to record the inheritance of descriptors in the metadata editor. Please contact your system administrator. Error reported: " + JSON.stringify(error));
+                        });
+                };
+
+                this.fill_in_descriptor_from_manual_list_in_metadata_editor = function (descriptor)
+                {
+                    var self = this;
+                    var url;
+                    var interactionType;
+
+                    if (descriptor.recommendation_types !== null)
+                    {
+                        if (
+                            descriptor.recommendation_types.user_favorite &amp;&amp;
+                            descriptor.recommendation_types.project_favorite
+                        )
+                        {
+                            url = "/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite";
+                            interactionType = "fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite";
+                        }
+                        else if (descriptor.recommendation_types.project_favorite)
+                        {
+                            url = "/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite";
+                            interactionType = "fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite";
+                        }
+                        else if (descriptor.recommendation_types.user_favorite)
+                        {
+                            url = "/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite";
+                            interactionType = "fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite";
+                        }
+                        else
+                        {
+                            url = "/interactions/fill_in_descriptor_from_manual_list_in_metadata_editor";
+                            interactionType = "fill_in_descriptor_from_manual_list_in_metadata_editor";
+                        }
+                    }
+                    else
+                    {
+                        url = "/interactions/fill_in_descriptor_from_manual_list_in_metadata_editor";
+                        interactionType = "fill_in_descriptor_from_manual_list_in_metadata_editor";
+                    }
+
+                    return self.register_interaction(
+                        url,
+                        descriptor,
+                        interactionType,
+                        descriptor.rankingPosition, // previously saved at the time of selection from the list
+                        null,
+                        null,
+                        null,
+                        null
+                    );
+                };
+
+                this.fill_in_inherited_descriptor = function (descriptor)
+                {
+                    var self = this;
+
+                    return self.register_interaction(
+                        "/interactions/fill_in_inherited_descriptor",
+                        descriptor,
+                        "fill_in_inherited_descriptor",
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                    );
+                };
+
+                this.send_interaction_over_quick_list_descriptor = function (descriptor, index, url, interactionType)
+                {
+                    var self = this;
+
+                    if (index == null)
+                    {
+                        index = -1;
+                    }
+
+                    if (descriptor != null &amp;&amp; descriptor instanceof Object)
+                    {
+                        return self.register_interaction(
+                            url,
+                            descriptor,
+                            interactionType,
+                            index);
+                    }
+                };
+
+                this.favorite_descriptor_from_quick_list_for_user = function (descriptor, index)
+                {
+                    var self = this;
+
+                    return self.register_interaction(
+                        descriptor,
+                        index,
+                        "/interactions/favorite_descriptor_from_quick_list_for_user",
+                        "favorite_descriptor_from_quick_list_for_user",
+                        null,
+                        null,
+                        "Unable to register interaction",
+                        "Unable to register favoriting of descriptor " + descriptor.label + " for user."
+                    );
+                };
+
+                this.favorite_descriptor_from_quick_list_for_project = function (descriptor, index)
+                {
+                    var self = this;
+
+                    return self.register_interaction(
+                        descriptor,
+                        index,
+                        "/interactions/favorite_descriptor_from_quick_list_for_project",
+                        "favorite_descriptor_from_quick_list_for_project",
+                        null,
+                        null,
+                        "Unable to register interaction",
+                        "Unable to register favoriting of descriptor " + descriptor.label + " for project.",
+                        true
+                    );
+                };
+
+                this.unfavorite_descriptor_from_quick_list_for_user = function (descriptor, index)
+                {
+                    var self = this;
+
+                    return self.register_interaction(
+                        descriptor,
+                        index,
+                        "/interactions/unfavorite_descriptor_from_quick_list_for_user",
+                        "unfavorite_descriptor_from_quick_list_for_user",
+                        null,
+                        null,
+                        "Unable to register interaction",
+                        "Unable to register unfavoriting of descriptor " + descriptor.label + " for user.",
+                        true
+                    );
+                };
+
+                this.unfavorite_descriptor_from_quick_list_for_project = function (descriptor, index)
+                {
+                    var self = this;
+
+                    return self.register_interaction(
+                        descriptor,
+                        index,
+                        "/interactions/unfavorite_descriptor_from_quick_list_for_project",
+                        "unfavorite_descriptor_from_quick_list_for_project",
+                        null,
+                        null,
+                        "Unable to register interaction",
+                        "Unable to register unfavoriting of descriptor " + descriptor.label + " for project.",
+                        true
+                    );
+                };
+
+                this.hide_descriptor_from_quick_list_for_user = function (descriptor, index)
+                {
+                    var self = this;
+
+                    return self.register_interaction(
+                        descriptor,
+                        index,
+                        "/interactions/hide_descriptor_from_quick_list_for_user",
+                        "hide_descriptor_from_quick_list_for_user",
+                        null,
+                        null,
+                        "Unable to register interaction",
+                        "Unable to register hiding of descriptor " + descriptor.label + " for user.",
+                        true
+                    );
+                };
+
+                this.hide_descriptor_from_quick_list_for_project = function (descriptor, index)
+                {
+                    var self = this;
+
+                    return self.register_interaction(
+                        descriptor,
+                        index,
+                        "/interactions/hide_descriptor_from_quick_list_for_project",
+                        "hide_descriptor_from_quick_list_for_project",
+                        null,
+                        null,
+                        "Unable to register interaction",
+                        "Unable to register hiding of descriptor " + descriptor.label + " for project.",
+                        true
+                    );
+                };
+
+                this.unhide_descriptor_from_quick_list_for_user = function (descriptor, index)
+                {
+                    var self = this;
+
+                    return self.register_interaction(
+                        descriptor,
+                        index,
+                        "/interactions/unhide_descriptor_from_quick_list_for_user",
+                        "unhide_descriptor_from_quick_list_for_user",
+                        null,
+                        null,
+                        "Unable to register interaction",
+                        "Unable to register unhiding of descriptor " + descriptor.label + " for user.",
+                        true
+                    );
+                };
+
+                this.unhide_descriptor_from_quick_list_for_project = function (descriptor, index)
+                {
+                    var self = this;
+
+                    return self.register_interaction(
+                        descriptor,
+                        index,
+                        "/interactions/unhide_descriptor_from_quick_list_for_project",
+                        "unhide_descriptor_from_quick_list_for_project",
+                        null,
+                        null,
+                        "Unable to register interaction",
+                        "Unable to register unhiding of descriptor " + descriptor.label + " for project.",
+                        true
+                    );
+                };
+
+                this.accept_descriptor_from_autocomplete = function (descriptor)
+                {
+                    var self = this;
+
+                    return self.register_interaction(
+                        "/interactions/accept_descriptor_from_autocomplete",
+                        descriptor,
+                        "accept_descriptor_from_autocomplete",
+                        descriptor.index,
+                        null,
+                        null,
+                        "Unable to register interaction",
+                        "Unable to register descriptor acceptance from autocomplete box: " + descriptor.label + "!",
+                        true
+                    );
+                };
+
+                this.remove_recommendation_ontology = function (ontology, index)
+                {
+                    var self = this;
+
+                    return self.register_interaction(
+                        "/interactions/reject_ontology_from_quick_list",
+                        ontology,
+                        "reject_ontology_from_quick_list",
+                        index,
+                        null,
+                        null,
+                        "Unable to register interaction",
+                        "Unable to register rejection of ontologies in the interface: " + suggestion.label + "!");
+                };
+
+                this.accept_descriptor_in_metadata_editor = function (descriptor)
+                {
+                    var self = this;
+
+                    return self.register_interaction(
+                        "/interactions/accept_smart_descriptor_in_metadata_editor",
+                        descriptor,
+                        "accept_smart_descriptor_in_metadata_editor",
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                    );
+                };
+
+                this.accept_favorite_descriptor_in_metadata_editor = function (descriptor)
+                {
+                    var self = this;
+
+                    return self.register_interaction(
+                        "/interactions/accept_favorite_descriptor_in_metadata_editor",
+                        descriptor,
+                        "accept_favorite_descriptor_in_metadata_editor",
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                    );
+                };
+
+                this.delete_descriptor_in_metadata_editor = function (descriptor)
+                {
+                    var self = this;
+
+                    return self.register_interaction(
+                        "/interactions/delete_descriptor_in_metadata_editor",
+                        descriptor,
+                        "delete_descriptor_in_metadata_editor",
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                    );
+                };
+
+                this.fill_in_descriptor_from_quick_list_in_metadata_editor = function (descriptor)
+                {
+                    var self = this;
+
+                    if (descriptor.recommendation_types !== null)
+                    {
+                        if (
+                            descriptor.recommendation_types.user_favorite &amp;&amp;
+                            descriptor.recommendation_types.project_favorite
+                        )
+                        {
+                            var url = "/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite";
+                            var interactionType = "fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite";
+                        }
+                        else if (descriptor.recommendation_types.project_favorite)
+                        {
+                            var url = "/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite";
+                            var interactionType = "fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite";
+                        }
+                        else if (descriptor.recommendation_types.user_favorite)
+                        {
+                            var url = "/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite";
+                            var interactionType = "fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite";
+                        }
+                        else
+                        {
+                            var url = "/interactions/fill_in_descriptor_from_quick_list_in_metadata_editor";
+                            var interactionType = "fill_in_descriptor_from_quick_list_in_metadata_editor";
+                        }
+                    }
+                    else
+                    {
+                        var url = "/interactions/fill_in_descriptor_from_quick_list_in_metadata_editor";
+                        var interactionType = "fill_in_descriptor_from_quick_list_in_metadata_editor";
+                    }
+
+                    return self.register_interaction(
+                        url,
+                        descriptor,
+                        interactionType,
+                        descriptor.rankingPosition, // previously saved at the time of selection from the list
+                        null,
+                        null,
+                        null,
+                        null
+                    );
+                };
+            }]);
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Apr 24 2019 17:25:52 GMT+0100 (WEST) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

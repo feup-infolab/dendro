@@ -11,26 +11,26 @@ angular.module("dendroApp.services")
 
                 this.register_interaction = function (url, objectOfInteraction, interactionType, rankingPosition, recommendedFor, pageNumber)
                 {
-                    if (objectOfInteraction != null && objectOfInteraction instanceof Object)
+                    if (objectOfInteraction !== null && objectOfInteraction instanceof Object)
                     {
                         objectOfInteraction.interactionType = interactionType;
 
-                        if (rankingPosition == null)
+                        if (rankingPosition === null)
                         {
                             rankingPosition = -1;
                         }
 
-                        if (objectOfInteraction.rankingPosition == null && rankingPosition != null)
+                        if (objectOfInteraction.rankingPosition === null && rankingPosition !== null)
                         {
                             objectOfInteraction.rankingPosition = rankingPosition;
                         }
 
-                        if (objectOfInteraction.recommendedFor == null && recommendedFor != null)
+                        if (objectOfInteraction.recommendedFor === null && recommendedFor !== null)
                         {
                             objectOfInteraction.recommendedFor = recommendedFor;
                         }
 
-                        if (objectOfInteraction.pageNumber == null && pageNumber != null)
+                        if (objectOfInteraction.pageNumber === null && pageNumber !== null)
                         {
                             objectOfInteraction.pageNumber = pageNumber;
                         }
@@ -54,7 +54,7 @@ angular.module("dendroApp.services")
                     var self = this;
                     return $q.all(descriptors_accepted.map(function (descriptor)
                     {
-                        if (descriptor.recommendation_types != null)
+                        if (descriptor.recommendation_types !== null)
                         {
                             if (descriptor.recommendation_types.just_recommended)
                             {
@@ -133,7 +133,7 @@ angular.module("dendroApp.services")
                     var url;
                     var interactionType;
 
-                    if (descriptor.recommendation_types != null)
+                    if (descriptor.recommendation_types !== null)
                     {
                         if (
                             descriptor.recommendation_types.user_favorite &&
@@ -431,7 +431,7 @@ angular.module("dendroApp.services")
                 {
                     var self = this;
 
-                    if (descriptor.recommendation_types != null)
+                    if (descriptor.recommendation_types !== null)
                     {
                         if (
                             descriptor.recommendation_types.user_favorite &&

@@ -28,7 +28,6 @@ angular.module("dendroApp.controllers")
         $scope.concepts = null;
         $scope.properties = null;
         $scope.clusters;
-
         $scope.filelist = null;
         $scope.keywordlist = null;
         $scope.termList = null;

@@ -450,7 +450,6 @@ const calculateCkanRepositoryDiffs = function (requestedResourceUri, targetRepos
         }
         else
         {
-            let message = "";
             if (!isNull(diffs.error) && !isNull(diffs.error.message) && diffs.error.message === "Not found")
             {
                 // There are no diffs because the package was not exported previously

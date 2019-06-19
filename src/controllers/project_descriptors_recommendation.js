@@ -10,7 +10,6 @@ const Ontology = rlequire("dendro", "src/models/meta/ontology.js").Ontology;
 const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
 const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
-const Project = rlequire("dendro", "src/models//project.js").Project;
 const User = rlequire("dendro", "src/models/user.js").User;
 
 exports.recommend_descriptors = function (req, res)
@@ -78,6 +77,10 @@ exports.shared.recommendation_options = {
 
 exports.shared.recommend_descriptors = function (resourceUri, userUri, page, allowedOntologies, indexConnection, callback, options)
 {
+    const InformationElement = rlequire("dendro", "src//models/directory_structure/information_element.js").InformationElement;
+    const Project = rlequire("dendro", "src//models/project.js").Project;
+    const Deposit = rlequire("dendro", "src//models/deposit.js").Deposit;
+
     if (isNull(allowedOntologies))
     {
         allowedOntologies = _.map(Config.public_ontologies, function (prefix)
@@ -88,9 +91,6 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
 
     const getOwnerProjectUri = function (callback)
     {
-        const InformationElement = rlequire("dendro", "src//models/directory_structure/information_element.js").InformationElement;
-        const Project = rlequire("dendro", "src//models/project.js").Project;
-
         Project.findByUri(resourceUri, function (err, projectData)
         {
             if (isNull(err))
@@ -109,22 +109,14 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                             {
                                 ie.getOwnerProject(function (err, result)
                                 {
-                                    if (isNull(err))
+                                    if (isNull(err) && result instanceof Project)
                                     {
-                                        if (result instanceof Project)
-                                        {
-                                            callback(err, result.uri);
-                                        }
-                                        else
-                                        {
-                                            const msg = "Result is not a project while getting parent project of information element with uri " + resourceUri + " when fetching recommend_descriptors.";
-                                            Logger.log("error", msg);
-                                            callback(1, msg);
-                                        }
+                                        callback(err, result);
                                     }
+
                                     else
                                     {
-                                        const msg = "Error while getting parent project of information element with uri " + resourceUri + " when fetching recommend_descriptors.";
+                                        const msg = "Result is not a project/deposit while getting parent project/deposit of information element with uri " + resourceUri + " when fetching recommend_descriptors.";
                                         Logger.log("error", msg);
                                         callback(1, msg);
                                     }
@@ -145,12 +137,6 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                         }
                     });
                 }
-            }
-            else
-            {
-                const msg = "Error while retrieving Project with uri " + resourceUri + " when fetching recommend_descriptors.";
-                Logger.log("error", msg);
-                callback(1, msg);
             }
         });
     };
@@ -187,24 +173,20 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
              * Get Project's favorite descriptors
              * @param callback
              */
-            const getProjectsFavoriteDescriptors = function (projectUri, callback)
+            const getProjectFavoriteDescriptors = function (project, callback)
             {
-                Project.findByUri(projectUri, function (err, project)
+                if (project instanceof Project)
                 {
-                    if (isNull(err) && !isNull(project))
+                    project.getFavoriteDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites)
                     {
-                        project.getFavoriteDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites)
-                        {
-                            return callback(error, favorites);
-                        }, allowedOntologies);
-                    }
-                    else
-                    {
-                        const error = "Error fetching project : " + project + " : " + err;
-                        Logger.log("error", error);
-                        return callback(1, error);
-                    }
-                });
+                        return callback(error, favorites);
+                    }, allowedOntologies);
+                }
+                else
+                {
+                    Logger.log("error", "error");
+                    return callback(1, "error");
+                }
             };
 
             /**
@@ -231,24 +213,20 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                 });
             };
 
-            const getProjectsHiddenDescriptors = function (projectUri, callback)
+            const getProjectsHiddenDescriptors = function (project, callback)
             {
-                Project.findByUri(projectUri, function (err, project)
+                if (project instanceof Project)
                 {
-                    if (isNull(err))
+                    project.getHiddenDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, hidden)
                     {
-                        project.getHiddenDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, hidden)
-                        {
-                            return callback(error, hidden);
-                        }, allowedOntologies);
-                    }
-                    else
-                    {
-                        const error = "Error fetching project : " + project + " : " + err;
-                        Logger.log("error", error);
-                        return callback(1, error);
-                    }
-                });
+                        return callback(error, hidden);
+                    }, allowedOntologies);
+                }
+                else
+                {
+                    Logger.log("error", "error");
+                    return callback(1, "error");
+                }
             };
 
             const getDCTermsDescriptors = function (callback)
@@ -265,7 +243,7 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                 });
             };
 
-            getOwnerProjectUri(function (err, projectUri)
+            getOwnerProjectUri(function (err, project)
             {
                 if (isNull(err))
                 {
@@ -281,11 +259,11 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                             },
                             function (callback)
                             {
-                                if (typeof resourceUri === "undefined")
+                                if (typeof project === "undefined")
                                 {
                                     return callback(null, []);
                                 }
-                                getProjectsFavoriteDescriptors(projectUri, callback);
+                                getProjectFavoriteDescriptors(project, callback);
                             },
                             function (callback)
                             {
@@ -297,11 +275,11 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                             },
                             function (callback)
                             {
-                                if (typeof resourceUri === "undefined")
+                                if (typeof project === "undefined")
                                 {
                                     return callback(null, []);
                                 }
-                                getProjectsHiddenDescriptors(projectUri, callback);
+                                getProjectsHiddenDescriptors(project, callback);
                             },
                             function (callback)
                             {
@@ -407,13 +385,13 @@ exports.shared.recommend_descriptors = function (resourceUri, userUri, page, all
                             }
                             else
                             {
-                                return callback(err, projectUri);
+                                return callback(err, project);
                             }
                         });
                 }
                 else
                 {
-                    return callback(err, projectUri);
+                    return callback(err, project);
                 }
             });
         }

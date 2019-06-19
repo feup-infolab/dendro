@@ -1,5 +1,5 @@
 /*
- {"dcterms":{"title":"ckan export config 1"},"ddr":{"hasExternalUrl":"http://demo.ckan.org","username":"nelsonpereira1991","hasOrganization":"infolab-devs","hasAPIKey":"b193a37e-de06-4b08-90db-a3cdc7ffad0f","hasPlatform":{"uri":"http://127.0.0.1:3001/repository_platform/ckan","dcterms":{"title":"CKAN"},"foaf":{"nick":"ckan","homepage":"http://ckan.org"},"$$hashKey":"object:143"}}}
+ {"dcterms":{"title":"ckan export config 1"},"ddr":{"hasExternalUri":"http://demo.ckan.org","username":"nelsonpereira1991","hasOrganization":"infolab-devs","hasAPIKey":"b193a37e-de06-4b08-90db-a3cdc7ffad0f","hasPlatform":{"uri":"http://127.0.0.1:3001/repository_platform/ckan","dcterms":{"title":"CKAN"},"foaf":{"nick":"ckan","homepage":"http://ckan.org"},"$$hashKey":"object:143"}}}
  */
 
 const rlequire = require("rlequire");
@@ -12,7 +12,7 @@ const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 /* const newExportRepoData = {
     dcterms: {title: "ckan2"},
     ddr: {
-        hasExternalUrl: "http://192.168.33.60:5000",
+        hasExternalUri: "http://192.168.33.60:5000",
         username: "nelsonpereira1991",
         hasOrganization: "organization-test1",
         hasAPIKey: "6a50a8d3-44ce-4825-b3c7-9bca1c57165f",
@@ -31,7 +31,7 @@ const Config = rlequire("dendro", "src/models/meta/config.js").Config;
         title:"ckan2"
     },
     ddr:{
-        hasExternalUrl:"http://192.168.33.60:5000",
+        hasExternalUri:"http://192.168.33.60:5000",
         username:"nelsonpereira1991",
         hasOrganization:"organization-test1",
         hasAPIKey:"6a50a8d3-44ce-4825-b3c7-9bca1c57165f",
@@ -117,8 +117,8 @@ const newExportRepoData = {
         title: "ckan2"
     },
     ddr: {
-        hasExternalUrl: "http://dendro-prd.fe.up.pt",
-        username: "nelsonpereira1991",
+        hasExternalUri: "http://dendro-prd.fe.up.pt",
+        hasUsername: "nelsonpereira1991",
         hasOrganization: "organization-test1",
         hasAPIKey: "15f8dac8-6f95-4318-ae5d-9b390088484c",
         hasPlatform: {

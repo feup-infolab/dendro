@@ -1,11 +1,12 @@
-const path = require("path");
 const rlequire = require("rlequire");
+const Deposit = rlequire("dendro", "src/models/deposit.js").Deposit;
 const B2ShareClient = require("@feup-infolab/node-b2share-v2");
 
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
 const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder;
+const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
 const RepositoryPlatform = rlequire("dendro", "src/models/harvesting/repo_platform").RepositoryPlatform;
 const swordConnection = rlequire("dendro", "src/export_libs/sword-connection/index.js");
 const Figshare = rlequire("dendro", "src/export_libs/figshare/figshare.js");
@@ -16,6 +17,7 @@ const generalDatasetUtils = rlequire("dendro", "src/utils/datasets/generalDatase
 
 const async = require("async");
 const _ = require("underscore");
+const fs = require("fs");
 
 let exportToRepositorySword = function (req, res)
 {
@@ -203,12 +205,13 @@ exports.calculate_ckan_repository_diffs = function (req, res)
     }
 };
 
-export_to_repository_ckan = function (req, res)
+const exportToRepositoryCkan = function (req, res)
 {
     try
     {
         const requestedResourceUri = req.params.requestedResourceUri;
         const targetRepository = req.body.repository;
+        const privacy = req.body.publicDeposit;
 
         let overwrite = false;
         let deleteChangesOriginatedFromCkan = false;
@@ -300,11 +303,38 @@ export_to_repository_ckan = function (req, res)
                     const CKAN = require("ckan");
                     const client = new CKAN.Client(targetRepository.ddr.hasExternalUri, targetRepository.ddr.hasAPIKey);
                     let packageId = CkanUtils.createPackageID(requestedResourceUri);
+
+                    const user = req.user;
+                    let registryData = {
+                        dcterms: {
+                            title: targetRepository.dcterms.title,
+                            creator: user,
+                            identifier: result
+                        },
+                        ddr: {
+                            // exportedFromProject: project.uri,
+                            exportedFromFolder: requestedResourceUri,
+                            privacyStatus: isNull(privacy) || privacy === false ? "private" : "public",
+                            hasOrganization: organization,
+                            exportedToRepository: targetRepository.ddr.hasExternalUri,
+                            exportedToPlatform: "CKAN"
+                        }
+                    };
                     CkanUtils.updateOrInsertExportedAtByDendroForCkanDataset(packageId, client, function (err, result)
                     {
-                        res.json({
-                            result: resultInfo.result,
-                            message: resultInfo.message
+                        Folder.findByUri(requestedResourceUri, function (err, folder)
+                        {
+                            folder.getOwnerProject(function (err, project)
+                            {
+                                registryData.ddr.exportedFromProject = project.uri;
+                                Deposit.createDeposit(registryData, function (err, deposit)
+                                {
+                                    res.json({
+                                        result: resultInfo.result,
+                                        message: resultInfo.message
+                                    });
+                                });
+                            });
                         });
                     });
                 }
@@ -335,7 +365,7 @@ export_to_repository_ckan = function (req, res)
     }
 };
 
-export_to_repository_figshare = function (req, res)
+const exportToRepositoryFigshare = function (req, res)
 {
     const requestedResourceUri = req.params.requestedResourceUri;
     const targetRepository = req.body.repository;
@@ -528,7 +558,7 @@ export_to_repository_figshare = function (req, res)
     }
 };
 
-const export_to_repository_zenodo = function (req, res)
+const exportToRepositoryZenodo = function (req, res)
 {
     const requestedResourceUri = req.params.requestedResourceUri;
     const targetRepository = req.body.repository;
@@ -756,10 +786,11 @@ const export_to_repository_zenodo = function (req, res)
     }
 };
 
-export_to_repository_b2share = function (req, res)
+const exportToRepositoryB2share = function (req, res)
 {
     const requestedResourceUri = req.params.requestedResourceUri;
     const targetRepository = req.body.repository;
+    // const privacy = req.body.publicDeposit;
     // targetRepository.ddr.hasExternalUri -> the b2share host url
 
     Folder.findByUri(requestedResourceUri, function (err, folder)
@@ -1093,6 +1124,185 @@ export_to_repository_b2share = function (req, res)
     });
 };
 
+const exportToDendro = function (req, res)
+{
+    const requestedResourceUri = req.params.requestedResourceUri;
+    const publicDeposit = req.body.publicDeposit;
+    const titleOfDeposit = req.body.titleOfDeposit;
+    const accessTerms = req.body.accessTerms;
+    let embargoedDate;
+    const descriptionOfDeposit = req.body.descriptionOfDeposit;
+    req.user.foaf.affiliation = req.body.userAffiliation;
+
+    const createDepositAux = function (exportedFromProject, exportedFromFolder, file, language, callback)
+    {
+        const registryData = {
+            dcterms: {
+                title: titleOfDeposit,
+                creator: req.user.uri,
+                description: descriptionOfDeposit,
+                language: language
+            },
+            ddr: {
+                exportedFromProject: exportedFromProject,
+                exportedFromFolder: exportedFromFolder,
+                privacyStatus: publicDeposit,
+                exportedToRepository: "Dendro",
+                exportedToPlatform: "Dendro",
+                accessTerms: isNull(accessTerms) ? null : accessTerms,
+                embargoedDate: isNull(embargoedDate) ? null : embargoedDate
+
+            }
+
+        };
+        Deposit.createDeposit({registryData: registryData, requestedResource: file, user: req.user}, function (err, newDeposit)
+        {
+            if (isNull(err))
+            {
+                callback(null, newDeposit);
+            }
+            else
+            {
+                callback(1, true);
+            }
+        });
+    };
+
+    if (req.body.embargoed_date)
+    {
+        let date = new Date(req.body.embargoed_date);
+        let dateNow = new Date();
+        let currentTimeZoneOffsetInHours = dateNow.getTimezoneOffset() / 60;
+        date.setHours(date.getHours() - currentTimeZoneOffsetInHours);
+        embargoedDate = date.toJSON();
+    }
+
+    File.findByUri(requestedResourceUri, function (err, file)
+    {
+        if (isNull(err))
+        {
+            if (!isNull(file))
+            {
+                file.getOwnerProject(function (err, project)
+                {
+                    if (isNull(err))
+                    {
+                        const language = project.dcterms.language;
+                        createDepositAux(project.uri, file.uri, file, language, function (err, registry)
+                        {
+                            if (isNull(err))
+                            {
+                                let msg = "Deposited successfully to Dendro. Check deposit <a href='" + registry.uri + "'>here</a>";
+                                res.json(
+                                    {
+                                        result: "OK",
+                                        message: msg
+                                    }
+                                );
+                            }
+                            else
+                            {
+                                res.json(
+                                    {
+                                        result: "ERROR",
+                                        message: "<br/><br/>Deposit not deposited"
+                                    }
+                                );
+                            }
+                        });
+                    }
+                    else
+                    {
+                        res.status(500).json(
+                            {
+                                result: "error",
+                                message: "Error finding" + file
+                            }
+                        );
+                    }
+                });
+            }
+            else
+            {
+                Folder.findByUri(requestedResourceUri, function (err, folder)
+                {
+                    if (isNull(err))
+                    {
+                        if (!isNull(folder))
+                        {
+                            folder.getOwnerProject(function (err, project)
+                            {
+                                if (isNull(err))
+                                {
+                                    const language = project.dcterms.language;
+                                    createDepositAux(project.uri, folder.uri, folder, language, function (err, registry)
+                                    {
+                                        if (isNull(err))
+                                        {
+                                            let msg = "Deposited successfully to Dendro. Check deposit <a href='" + registry.uri + "'>here</a>";
+                                            res.json(
+                                                {
+                                                    result: "OK",
+                                                    message: msg
+                                                }
+                                            );
+                                        }
+                                        else
+                                        {
+                                            res.status(500).json(
+                                                {
+                                                    result: "error",
+                                                    message: "Error " + err
+                                                }
+                                            );
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    res.status(500).json(
+                                        {
+                                            result: "error",
+                                            message: "Error finding" + folder
+                                        }
+                                    );
+                                }
+                            });
+                        }
+                        else
+                        {
+                            res.status(500).json(
+                                {
+                                    result: "error",
+                                    message: "Error finding" + folder
+                                }
+                            );
+                        }
+                    }
+                    else
+                    {
+                        res.status(500).json(
+                            {
+                                result: "error",
+                                message: "Error " + err
+                            }
+                        );
+                    }
+                });
+            }
+        }
+        else
+        {
+            res.status(500).json(
+                {
+                    result: "error",
+                    message: "Error finding" + requestedResourceUri
+                }
+            );
+        }
+    });
+};
+
 exports.export_to_repository = function (req, res)
 {
     let nick;
@@ -1126,11 +1336,11 @@ exports.export_to_repository = function (req, res)
                     callback(null, nick);
                 }
             }
-        ], function (err, results)
+        ], function ()
         {
             if (nick === "ckan")
             {
-                export_to_repository_ckan(req, res);
+                exportToRepositoryCkan(req, res);
             }
             else if (nick === "dspace" || nick === "eprints")
             {
@@ -1138,15 +1348,19 @@ exports.export_to_repository = function (req, res)
             }
             else if (nick === "figshare")
             {
-                export_to_repository_figshare(req, res);
+                exportToRepositoryFigshare(req, res);
             }
             else if (nick === "zenodo")
             {
-                export_to_repository_zenodo(req, res);
+                exportToRepositoryZenodo(req, res);
             }
             else if (nick === "b2share")
             {
-                export_to_repository_b2share(req, res);
+                exportToRepositoryB2share(req, res);
+            }
+            else if (nick === "local")
+            {
+                exportToDendro(req, res);
             }
             else
             {
@@ -1180,11 +1394,11 @@ exports.sword_collections = function (req, res)
     let serviceDocumentRef = null;
     if (targetRepository.ddr.hasPlatform.foaf.nick === "dspace")
     {
-        serviceDocumentRef = targetRepository.ddr.hasExternalUrl + Config.swordConnection.DSpaceServiceDocument;
+        serviceDocumentRef = targetRepository.ddr.hasExternalUri + Config.swordConnection.DSpaceServiceDocument;
     }
     else if (targetRepository.ddr.hasPlatform.foaf.nick === "eprints")
     {
-        serviceDocumentRef = targetRepository.ddr.hasExternalUrl + Config.swordConnection.EprintsServiceDocument;
+        serviceDocumentRef = targetRepository.ddr.hasExternalUri + Config.swordConnection.EprintsServiceDocument;
     }
     const options = {
         user: targetRepository.ddr.username,
@@ -1211,55 +1425,25 @@ exports.sword_collections = function (req, res)
     });
 };
 
-/*
-prepareFilesForUploadToB2share = function (files, fileBucketID, b2shareClient, cb)
+const prepareFilesForUploadToB2share = function (files, fileBucketID, b2shareClient, cb)
 {
-    async.map(files, function (file, callback)
+    async.each(files, function (file, callback)
     {
         const info = {fileBucketID: fileBucketID, fileNameWithExt: file.split("/").pop()};
         fs.readFile(file, function (err, buffer)
         {
-            if (!isNull(err))
+            if (err)
             {
-                Logger.log("error", "Error at prepareFilesForUploadToB2share: " + err.message);
                 const msg = "There was an error reading a file";
-                return cb(err, msg);
+                return callback(err, msg);
             }
-            else
+            b2shareClient.uploadFileIntoDraftRecord(info, buffer, function (err, data)
             {
-                b2shareClient.uploadFileIntoDraftRecord(info, buffer, function (err, data)
-                {
-                    callback(err, data);
-                });
-            }
+                return callback(err, data);
+            });
         });
     }, function (error, data)
     {
-        return cb(error, data);
-    });
-};
-*/
-
-prepareFilesForUploadToB2share = function (files, fileBucketID, b2shareClient, cb)
-{
-    async.mapSeries(files, function (file, callback)
-    {
-        const fileNameWithExt = path.basename(file);
-        const info = {fileBucketID: fileBucketID, absFilePath: file};
-        b2shareClient.uploadFileIntoDraftRecord(info, function (err, data)
-        {
-            if (isNull(err))
-            {
-                callback(err, data);
-            }
-            else
-            {
-                Logger.log("error", "Error at prepareFilesForUploadToB2share: " + JSON.stringify(data));
-                return cb(err, data);
-            }
-        });
-    }, function (error, data)
-    {
-        return cb(error, data);
+        cb(error, data);
     });
 };

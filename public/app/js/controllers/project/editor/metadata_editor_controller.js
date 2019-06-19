@@ -53,7 +53,6 @@ angular.module("dendroApp.controllers")
                     !descriptor.locked &&
                     !(descriptor.locked_for_project && $scope.shared.showing_project_root);
             };
-
             for (var i = 0; i < $scope.shared.metadata.length; i++)
             {
                 var descriptor = $scope.shared.metadata[i];

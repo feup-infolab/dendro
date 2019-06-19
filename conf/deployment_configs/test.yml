@@ -153,6 +153,7 @@ test:
     password: adminteste123
     firstname: Dendro
     surname: Administrator
+    affiliation: Inesc Tec
     mbox: admin@dendro.fe.up.pt
   demo_mode:
     active: true
@@ -161,26 +162,31 @@ test:
       password: demouserpassword2015
       firstname: Dendro 1
       surname: Demo User 1
+      affiliation: Inesc Tec
       mbox: demouser1@dendro.fe.up.pt
     - username: demouser2
       password: demouserpassword2015
       firstname: Dendro 2
       surname: Demo User 2
+      affiliation: Inesc Tec
       mbox: demouser2@dendro.fe.up.pt
     - username: demouser3
       password: demouserpassword2015
       firstname: Dendro 3
       surname: Demo User 3
+      affiliation: Inesc Tec
       mbox: demouser3@dendro.fe.up.pt
     - username: demouser4
       password: demouserpassword2015
       firstname: Dendro 4
       surname: Demo User 4
+      affiliation: Inesc Tec
       mbox: demouser4@dendro.fe.up.pt
     - username: demouser5
       password: demouserpassword2015
       firstname: Dendro 5
       surname: Demo User 5
+      affiliation: Inesc Tec
       mbox: demouser5@dendro.fe.up.pt
   systemOrHiddenFilesRegexes:
   - __MACOSX
@@ -364,3 +370,6 @@ test:
       max_ngram_size: 3
       number_of_keywords: 30
       language: en
+  jobs:
+    embargoed:
+      disembargo_cron_expression: "0 0 * * *"

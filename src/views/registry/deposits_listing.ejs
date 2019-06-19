@@ -1,0 +1,126 @@
+<div ng-controller="projectEditorCtrl" class="container " ng-init="myInit()">
+    <div ng-controller="descriptorListCtrl" class="container " ng-init="init()">
+        <div ng-controller="depositCtrl" class="container " ng-init="init()">
+            <div class="row">
+                <section class="content">
+                    <h3>Latest deposits</h3>
+                    <div class="row ">
+                        <div class="col-md-2">
+                            <% include deposits_sidebar.ejs %>
+                        </div>
+                        <div ng-if="fetching_data" class="col-md-10">
+                            <div class=" container">
+                                <h1 class="display-3">
+                                    <i class="fa fa-spinner faa animated faa-spin" aria-hidden="true"></i>
+                                    Please wait...
+                                </h1>
+                                <p class="lead">Fetching data...</p>
+                            </div>
+                        </div>
+                        <div ng-if="!fetching_data && search_settings.totalDeposits === 0" class="col-md-10">
+                            <div class=" container">
+                                <h1 class="display-3">No deposits returned. </h1>
+                                <p class="lead">Dendro was unable to match any deposits.</p>
+                            </div>
+                        </div>
+                        <div ng-if="search_settings.totalDeposits !== 0" class="col-md-10">
+
+                            <%if (locals.searching_in_user_s_deposits_only) {%>
+                                <div page-navigation maximum="search_settings.totalDeposits" current="search_settings.offset" searchfunction="getMyRegistry" changepage="changeMyPage" nextpage="nextMyPage" previouspage="previousMyPage"></div>
+                            <% } else {%>
+                                <div page-navigation maximum="search_settings.totalDeposits" current="search_settings.offset"
+                                     searchfunction="getRegistry" changepage="changePage" nextpage="nextPage"
+                                     previouspage="previousPage"></div>
+                            <% } %>
+
+                            <div class="table-container deposits-table">
+                                <table class="table table-responsive table-striped table-bordered">
+                                    <tbody>
+                                    <tr ng-repeat="deposit in deposits track by $index" buffer-size="20">
+                                        <td>
+                                            <div class="media">
+                                                <div class="media-body">
+                                                    <article>
+                                                    <span class="media-meta pull-right"><b>{{deposit.date | amUtc | amLocal | amDateFormat:'DD.MM.YYYY HH:mm:ss'}}</b>
+                                                        <img src="/images/icons/calendar.png"
+                                                             class="margin-left-4 pull-right" height="20px" width="20px"
+                                                             alt="calendar_icon">
+                                                    </span>
+
+                                                        <header>
+                                                            <a class="deposit-result-title" href="{{deposit.uri}}">
+                                                                {{deposit.title}}</a>
+                                                        </header>
+
+
+                                                        <p class="deposit-result-description">{{deposit.description}} </p>
+
+                                                        <p>
+                                                            <!--privacy icon-->
+                                                            <img ng-if="deposit.privacy === 'private'"
+                                                                 src="/images/icons/lock.png" class="pull-left" height="20px"
+                                                                 width="20px" alt="private_icon">
+                                                            <img ng-if="deposit.privacy === 'public'"
+                                                                 src="/images/icons/world.png" class="pull-left"
+                                                                 height="20px" width="20px" alt="public_icon">
+                                                        <div ng-if="deposit.privacy === 'embargoed'" class="pull-left">
+                                                            <img src="/images/icons/hourglass.png" height="20px" width="20px"
+                                                                 alt="embargoed_icon">
+                                                            {{deposit.embargoedDate | amUtc | amLocal |
+                                                            amDateFormat:'MM.DD.YYYY'}}
+                                                        </div>
+                                                        <img ng-if="deposit.privacy === 'metadata_only'"
+                                                             src="/images/icons/lock_open.png" class="pull-left"
+                                                             height="20px" width="20px" alt="metadata_only_icon">
+
+                                                        <!--platform icon-->
+                                                        <img ng-if="deposit.platformsUsed === 'CKAN'"
+                                                             src="http://www.edawax.de/wp-content/uploads/2013/09/250_logo-ckan.jpg"
+                                                             class="pull-right" height="20px" width="20px" alt="ckan">
+                                                        <img ng-if="deposit.platformsUsed === 'Dendro'"
+                                                             src="/images/logos/Dendro_Logo.png" class="pull-right"
+                                                             height="20px" width="20px" alt="dendro">
+                                                        <img ng-if="deposit.platformsUsed === 'DSpace'"
+                                                             src="http://www.edawax.de/wp-content/uploads/2013/09/250_logo-ckan.jpg"
+                                                             class="pull-right" height="20px" width="20px" alt="dspace">
+                                                        <img ng-if="deposit.platformsUsed === 'EPrints'"
+                                                             src="http://www.edawax.de/wp-content/uploads/2013/09/250_logo-ckan.jpg"
+                                                             class="pull-right" height="20px" width="20px" alt="eprints">
+                                                        <img ng-if="deposit.platformsUsed === 'Figshare'"
+                                                             src="http://www.edawax.de/wp-content/uploads/2013/09/250_logo-ckan.jpg"
+                                                             class="pull-right" height="20px" width="20px" alt="figshare">
+                                                        <img ng-if="deposit.platformsUsed === 'Zenodo'"
+                                                             src="http://www.edawax.de/wp-content/uploads/2013/09/250_logo-ckan.jpg"
+                                                             class="pull-right" height="20px" width="20px" alt="zenodo">
+                                                        <img ng-if="deposit.platformsUsed === 'EUDAT B2Share'"
+                                                             src="http://www.edawax.de/wp-content/uploads/2013/09/250_logo-ckan.jpg"
+                                                             class="pull-right" height="20px" width="20px"
+                                                             alt="eudatB2share">
+
+
+                                                        <a href="{{deposit.uri}}" class="pull-right deposit-list-info">See
+                                                            more </a>
+                                                        </p>
+                                                    </article>
+
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+
+
+
+                        </div>
+                    </div>
+
+                </section>
+
+            </div>
+        </div>
+    </div>
+</div>

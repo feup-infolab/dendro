@@ -11,6 +11,8 @@ const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
 const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder;
 const User = rlequire("dendro", "src/models/user.js").User;
 const Project = rlequire("dendro", "src/models/project.js").Project;
+const Deposit = rlequire("dendro", "src/models/deposit.js").Deposit;
+const ConditionsAcceptance = rlequire("dendro", "src/models/conditionsAcceptance.js").ConditionsAcceptance;
 const Post = rlequire("dendro", "src/models/social/post.js").Post;
 const Notification = rlequire("dendro", "src/models/notifications/notification.js").Notification;
 
@@ -156,7 +158,7 @@ const getOwnerProject = function (requestedResource, callback)
                         }
                         else
                         {
-                            callback(err, project);
+                            callback(null, project);
                         }
                     });
                 }
@@ -177,6 +179,62 @@ const getOwnerProject = function (requestedResource, callback)
     });
 };
 
+const getDeposit = function (requestedResource, callback)
+{
+    InformationElement.findByUri(requestedResource, function (err, resource)
+    {
+        if (isNull(err))
+        {
+            if (!isNull(resource))
+            {
+                if (resource instanceof InformationElement)
+                {
+                    resource.getOwnerDeposit(function (err, deposit)
+                    {
+                        callback(err, deposit);
+                    });
+                }
+                else
+                {
+                    callback("Resource " + requestedResource + " is of invalid type!", null);
+                }
+            }
+            else
+            {
+                Deposit.findByUri(requestedResource, function (err, deposit)
+                {
+                    callback(err, deposit);
+                });
+            }
+        }
+        else
+        {
+            callback(err, resource);
+        }
+    });
+};
+
+const getCondition = function (user, dataset, callback)
+{
+    ConditionsAcceptance.getUserConditionOnTheDeposit(user, dataset, function (err, condition)
+    {
+        if (isNull(err))
+        {
+            if (condition.length)
+            {
+                callback(err, condition[0]);
+            }
+            else
+            {
+                callback(err, null);
+            }
+        }
+        else
+        {
+            callback(1, err);
+        }
+    });
+};
 /** Role-based validation **/
 
 const checkRoleInSystem = Permissions.checkRoleInSystem = function (req, user, role, callback)
@@ -448,6 +506,134 @@ const checkUsersRoleInParentProject = Permissions.checkUsersRoleInParentProject 
     }
 };
 
+const checkUsersPermissionOnDeposit = function (req, user, role, depositUri, callback)
+{
+    let predicateRoles = null;
+    if (isNull(role) || isNull(role.predicates) || !(role.predicates instanceof Array))
+    {
+        Logger.log("error", "Error at checkUsersPermissionOnDeposit, 'role' object should exist and 'role.predicates' and arrayOfPostsUris must be an array!");
+        callback(null, false);
+    }
+    else
+    {
+        predicateRoles = role.predicates;
+        if (!isNull(depositUri))
+        {
+            if (req.session.isAdmin === true)
+            {
+                return callback(null, true);
+            }
+            getDeposit(depositUri, function (err, deposit)
+            {
+                if (isNull(err))
+                {
+                    if (!isNull(user))
+                    {
+                        if (deposit.dcterms.creator === user.uri)
+                        {
+                            return callback(null, true);
+                        }
+                        if (deposit.ddr.privacyStatus === "public" && isNull(deposit.ddr.accessTerms))
+                        {
+                            return callback(null, true);
+                        }
+                        getCondition(user.uri, depositUri, function (err, condition)
+                        {
+                            if (isNull(err) && condition !== null)
+                            {
+                                if (condition.userAccepted === "true")
+                                {
+                                    return callback(null, true);
+                                }
+                                return callback(null, false);
+                            }
+
+                            return callback(null, false);
+                        });
+                    }
+                    else
+                    {
+                        if (deposit.ddr.privacyStatus === "public" && !deposit.ddr.accessTerms)
+                        {
+                            return callback(null, true);
+                        } return callback(null, false);
+                    }
+                }
+                else callback(err, false);
+            });
+        }
+        else
+        {
+            return callback(null, false);
+        }
+    }
+};
+
+const checkOwnerDeposit = function (req, user, role, depositUri, callback)
+{
+    let predicateRoles = null;
+    if (isNull(role) || isNull(role.predicates) || !(role.predicates instanceof Array))
+    {
+        Logger.log("error", "Error at checkUsersRoleInDeposit, 'role' object should exist and 'role.predicates' and arrayOfPostsUris must be an array!");
+        callback(null, false);
+    }
+    else
+    {
+        predicateRoles = role.predicates;
+        if (!isNull(user) && !isNull(depositUri))
+        {
+            getDeposit(depositUri, function (err, deposit)
+            {
+                if (isNull(err) && deposit instanceof Deposit)
+                {
+                    async.waterfall([
+                        function (callback)
+                        {
+                            deposit.checkIfHasPredicateValue(role.predicates[0], user.uri, function (err, result)
+                            {
+                                return callback(err, result);
+                            });
+                        },
+                        function (result, callback)
+                        {
+                            if (result === true)
+                            {
+                                return callback(null, result);
+                            }
+
+                            user.checkIfHasPredicateValue(role.predicates[1], role.object, function (err, result)
+                            {
+                                return callback(err, result);
+                            });
+                        }], function (err, result)
+                    {
+                        if (!isNull(err))
+                        {
+                            callback(null, false);
+                        }
+                        result.forEach(function (value)
+                        {
+                            if (value === true)
+                            {
+                                callback(null, value);
+                            }
+                        });
+                        callback(null, false);
+                    });
+                }
+                else
+                {
+                    return callback(null, false);
+                }
+            });
+        }
+        else
+        {
+            return callback(null, false);
+        }
+    }
+};
+
 /** "Privacy status"-based validation **/
 
 const checkPrivacyOfProject = function (req, permission, callback)
@@ -494,6 +680,63 @@ const checkPrivacyOfOwnerProject = function (req, user, role, resource, callback
     });
 };
 
+const checkUsersRoleInDeposit = function (req, user, role, depositUri, callback)
+{
+    if (!isNull(user) && !isNull(depositUri))
+    {
+        if (!isNull(user))
+        {
+            user.checkIfHasPredicateValue(role.predicates[0], role.object, function (err, result)
+            {
+                if (result === true)
+                {
+                    return callback(err, result);
+                }
+                getDeposit(depositUri, function (err, deposit)
+                {
+                    if (isNull(err) && deposit instanceof Deposit)
+                    {
+                        deposit.checkIfHasPredicateValue(role.predicates[1], user.uri, function (err, result)
+                        {
+                            return callback(err, result);
+                        });
+                    }
+                    else
+                    {
+                        return callback(null, false);
+                    }
+                });
+            });
+        }
+    }
+    else
+    {
+        return callback(null, false);
+    }
+};
+
+const checkPrivacyOfDeposit = function (req, user, role, resource, callback)
+{
+    getDeposit(resource, function (err, deposit)
+    {
+        if (isNull(err))
+        {
+            if (!isNull(deposit) && deposit instanceof Deposit)
+            {
+                const privacy = deposit.ddr.privacyStatus;
+
+                if (!isNull(role.object) && privacy === role.object)
+                {
+                    return callback(null, true);
+                }
+                return callback(null, false);
+            }
+            return callback(null, false);
+        }
+        return callback(err, null);
+    });
+};
+
 /** Permission types **/
 
 Permissions.types = {
@@ -515,11 +758,23 @@ Permissions.types = {
     role_in_notification_s_resource: {
         validator: checkUsersRoleInNotification
     },
+    role_in_deposit: {
+        validator: checkUsersRoleInDeposit
+    },
+    permission_on_deposit: {
+        validator: checkUsersPermissionOnDeposit
+    },
     privacy_of_project: {
         validator: checkPrivacyOfProject
     },
     privacy_of_owner_project: {
         validator: checkPrivacyOfOwnerProject
+    },
+    privacy_of_deposit: {
+        validator: checkPrivacyOfDeposit
+    },
+    owner_deposit: {
+        validator: checkOwnerDeposit
     }
 };
 
@@ -596,11 +851,30 @@ Permissions.settings = {
         user_role_in_array_of_posts_project: {
             type: Permissions.types.user_role_in_array_of_posts_project,
             predicates: [
-                "dcterms:contributor",
                 "dcterms:creator"
             ],
             error_message_user: "You are not a contributor or creator of all the projects to which these posts belongs to.",
             error_message_api: "Unauthorized access. Must be signed on as a contributor or creator of all the projects these posts belong to."
+        },
+        users_role_in_deposit: {
+            type: Permissions.types.role_in_deposit,
+            predicates: [
+                "rdf:type",
+                "dcterms:creator"
+            ],
+            object: "ddr:Administrator",
+            error_message_user: "You are not a contributor or creator of project to which this deposit belongs to.",
+            error_message_api: "Unauthorized access. Must be signed on as a contributor or creator of the project this deposit belong to."
+        },
+        in_deposit: {
+            type: Permissions.types.owner_deposit,
+            predicates: [
+                "rdf:type",
+                "dcterms:creator"
+            ],
+            object: "ddr:Administrator",
+            error_message_user: "Error trying to access a deposit or a file / folder within a deposit that you have not created.",
+            error_message_api: "Unauthorized access. Must be signed on as a creator of this deposit."
         }
     },
     privacy: {
@@ -649,6 +923,41 @@ Permissions.settings = {
                 error_message_user: "This is a resource that belongs to a project with only metadata access. Data metadata cannot be accessed.",
                 error_message_api: "Unauthorized Access. This is a resource that belongs to a project with only metadata access. Data metadata cannot be accessed."
             }
+        },
+        of_deposit: {
+            public: {
+                type: Permissions.types.privacy_of_deposit,
+                predicate: "ddr:privacyStatus",
+                object: "public",
+                error_message_user: "This is a resource that belongs to a public deposit",
+                error_message_api: "This is a resource that belongs to a public deposit"
+            },
+            private: {
+                type: Permissions.types.privacy_of_deposit,
+                predicate: "ddr:privacyStatus",
+                object: "private",
+                error_message_user: "This is a resource that belongs to a private deposit, and neither data nor metadata can be accessed.",
+                error_message_api: "Unauthorized Access. This is a resource that belongs to a private deposit, and neither data nor metadata can be accessed."
+            },
+            metadata_only: {
+                type: Permissions.types.privacy_of_deposit,
+                predicate: "ddr:privacyStatus",
+                object: "metadata_only",
+                error_message_user: "This is a resource that belongs to a deposit with only metadata access. Data metadata cannot be accessed.",
+                error_message_api: "Unauthorized Access. This is a resource that belongs to a project with only metadata access. Data metadata cannot be accessed."
+            }
+        }
+    },
+    permission: {
+        on_deposit: {
+            type: Permissions.types.permission_on_deposit,
+            predicates: [
+                "ddr:acceptingUser",
+                "ddr:dataset",
+                "ddr:userAccepted"
+            ],
+            error_message_user: "Error trying to access the resources that do not have access",
+            error_message_api: "Unauthorized access. You must have permission to visualize this deposit."
         }
     }
 };
@@ -736,6 +1045,35 @@ Permissions.check = function (permissionsRequired, req, callback)
             else if (permission.type === Permissions.types.role_in_notification_s_resource)
             {
                 Permissions.types.role_in_notification_s_resource.validator(req, user, permission, resource, function (err, result)
+                {
+                    cb(err, {authorized: result, role: permission});
+                });
+            }
+            else if (permission.type === Permissions.types.privacy_of_deposit)
+            {
+                /* Permissions.types.role_in_system.validator(req, user, permission, resource, function (err, result)
+                {
+                    cb(err, {authorized: result, role: permission});
+                });*/
+                cb(null, {authorized: true, role: "permission"});
+            }
+            else if (permission.type === Permissions.types.role_in_deposit)
+            {
+                Permissions.types.role_in_deposit.validator(req, user, permission, resource, function (err, result)
+                {
+                    cb(err, {authorized: result, role: permission});
+                });
+            }
+            else if (permission.type === Permissions.types.permission_on_deposit)
+            {
+                Permissions.types.permission_on_deposit.validator(req, user, permission, resource, function (err, result)
+                {
+                    cb(err, {authorized: result, role: permission});
+                });
+            }
+            else if (permission.type === Permissions.types.owner_deposit)
+            {
+                Permissions.types.owner_deposit.validator(req, user, permission, resource, function (err, result)
                 {
                     cb(err, {authorized: result, role: permission});
                 });

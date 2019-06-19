@@ -4,9 +4,7 @@ angular.module("dendroApp.controllers")
      * new project controller
      */
     .controller("projCtrl",
-
         function (
-
             $scope,
             $http,
             $q,
