@@ -1917,7 +1917,7 @@ Project.prototype.clearCacheRecords = function (callback, customGraphUri)
     );
 };
 
-Project.prototype.getActiveStorageConfig = function (callback, customGraphUri)
+/* Project.prototype.getActiveStorageConfig = function (callback, customGraphUri)
 {
     const self = this;
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
@@ -2020,7 +2020,7 @@ Project.prototype.deleteAllStorageConfigs = function (callback, customGraphUri)
             callback(err, configs);
         }
     });
-};
+};*/
 
 Project.prototype.delete = function (callback, customGraphUri)
 {
@@ -2030,16 +2030,15 @@ Project.prototype.delete = function (callback, customGraphUri)
     const deleteProjectTriples = function (callback)
     {
         const deleteQuery =
-            "DELETE FROM [0]\n" +
-            "{\n" +
-            "    ?resource ?p ?o \n" +
-            "} \n" +
-            "WHERE \n" +
-            "{ \n" +
-            "    ?resource ?p ?o .\n" +
-            "    [1] nie:hasLogicalPart* ?resource\n" +
-            "} \n";
-
+      "DELETE FROM [0]\n" +
+        "{\n" +
+      "    ?resource ?p ?o \n" +
+      "} \n" +
+      "WHERE \n" +
+      "{ \n" +
+      "    ?resource ?p ?o .\n" +
+      "    [1] nie:hasLogicalPart* ?resource\n" +
+      "} \n";
         db.connection.executeViaJDBC(deleteQuery,
             [
                 {

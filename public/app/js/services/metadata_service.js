@@ -9,7 +9,7 @@ angular.module("dendroApp.factories")
                 {
                     var deserialized = [];
 
-                    if (descriptorsArray == null)
+                    if (descriptorsArray === null)
                     {
                         return [];
                     }
@@ -49,17 +49,17 @@ angular.module("dendroApp.factories")
 
                 this.dirty_metadata = function (initial_metadata, current_metadata)
                 {
-                    if (initial_metadata == null && current_metadata == null)
+                    if (initial_metadata === null && current_metadata === null)
                     {
                         return false;
                     }
-                    else if (initial_metadata == null && current_metadata != null)
+                    else if (initial_metadata === null && current_metadata !== null)
                     {
                         return true;
                     }
                     else if (
-                        initial_metadata != null &&
-                current_metadata != null &&
+                        initial_metadata !== null &&
+                current_metadata !== null &&
 
                 initial_metadata instanceof Array &&
                 current_metadata instanceof Array)
@@ -81,7 +81,7 @@ angular.module("dendroApp.factories")
                 {
                     var self = this;
 
-                    if (uri == null)
+                    if (uri === null)
                     {
                         uri = windowService.get_current_url();
                     }
@@ -99,7 +99,7 @@ angular.module("dendroApp.factories")
                     }).then(
                         function (response)
                         {
-                            if (response.data != null && response.data instanceof Object)
+                            if (response.data !== null && response.data instanceof Object)
                             {
                                 deserialize.resolve({
                                     descriptors: self.deserialize_metadata(response.data.descriptors),
@@ -111,7 +111,7 @@ angular.module("dendroApp.factories")
                             }
                             else
                             {
-                                deserialize.reject([]);
+                                deserialize.reject(response);
                             }
                         });
 
@@ -177,7 +177,7 @@ angular.module("dendroApp.factories")
                     };
 
                     var mt = mimeTypes[format];
-                    if (mt != null)
+                    if (mt !== null)
                     {
                         return $http({
                             method: "GET",
@@ -187,11 +187,11 @@ angular.module("dendroApp.factories")
                         }).then(function (response)
                         {
                             var data = response.data;
-                            if (format == "json")
+                            if (format === "json")
                             {
                                 data = vkbeautify.json(data);
                             }
-                            else if (format == "rdf")
+                            else if (format === "rdf")
                             {
                                 data = vkbeautify.xml(data);
                             }
@@ -240,14 +240,14 @@ angular.module("dendroApp.factories")
 
                 this.descriptor_is_filled_in = function (descriptor, metadata)
                 {
-                    if (metadata != null && metadata instanceof Array)
+                    if (metadata !== null && metadata instanceof Array)
                     {
                         for (var i = 0; i < metadata.length; i++)
                         {
                             var descriptorUri = metadata[i].uri;
 
                             if (
-                                descriptorUri == descriptor.uri &&
+                                descriptorUri === descriptor.uri &&
                         metadata[i].value != null &&
                         (
                             metadata[i].value.length > 0 ||
@@ -265,7 +265,7 @@ angular.module("dendroApp.factories")
 
                 this.descriptor_is_present = function (descriptor, metadata_array)
                 {
-                    if (metadata_array != null && metadata_array instanceof Array)
+                    if (metadata_array !== null && metadata_array instanceof Array)
                     {
                         for (var i = 0; i < metadata_array.length; i++)
                         {
@@ -282,7 +282,7 @@ angular.module("dendroApp.factories")
 
                 this.get_recent_changes_of_project = function (resource_uri)
                 {
-                    if (resource_uri != null)
+                    if (resource_uri !== null)
                     {
                         var requestUri = resource_uri + "?recent_changes&limit=5";
 
@@ -301,7 +301,7 @@ angular.module("dendroApp.factories")
 
                 this.get_recent_changes_of_resource = function (resourceUri)
                 {
-                    if (resourceUri != null)
+                    if (resourceUri !== null)
                     {
                         var requestUri = resourceUri + "?change_log";
 

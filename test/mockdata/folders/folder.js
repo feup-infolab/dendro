@@ -1,5 +1,4 @@
 const rlequire = require("rlequire");
-const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 let folderData = {
     name: "pastinhaLinda",

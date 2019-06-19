@@ -13,29 +13,29 @@ const _ = require("underscore");
 
 exports.descriptors_autocomplete = function (req, res)
 {
-    if (!isNull(req.params.requestedResourceUri))
-    {
-        Descriptor.findByLabelOrComment(
-            req.query.descriptor_autocomplete,
-            Config.recommendation.max_autocomplete_results,
-            function (err, descriptors)
+    // if (!isNull(req.params.requestedResourceUri))
+    // {
+    Descriptor.findByLabelOrComment(
+        req.query.descriptor_autocomplete,
+        Config.recommendation.max_autocomplete_results,
+        function (err, descriptors)
+        {
+            if (isNull(err))
             {
-                if (isNull(err))
-                {
-                    res.json(
-                        descriptors
-                    );
-                }
-                else
-                {
-                    res.status(500).json(
-                        {
-                            error_messages: [descriptors]
-                        }
-                    );
-                }
-            });
-    }
+                res.json(
+                    descriptors
+                );
+            }
+            else
+            {
+                res.status(500).json(
+                    {
+                        error_messages: [descriptors]
+                    }
+                );
+            }
+        });
+    // }
 };
 
 exports.from_ontology = function (req, res)

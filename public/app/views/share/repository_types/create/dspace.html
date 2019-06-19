@@ -7,13 +7,13 @@
     <span ng-show="!new_repository.dcterms.title" class="glyphicon glyphicon-remove form-control-feedback"></span>
 </div>
 
-<div class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.hasExternalUrl && valid_url(new_repository.ddr.hasExternalUrl), 'has-warning' : new_repository.ddr.hasExternalUrl && !valid_url(new_repository.ddr.hasExternalUrl)}">
+<div class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.hasExternalUri && valid_url(new_repository.ddr.hasExternalUri), 'has-warning' : new_repository.ddr.hasExternalUri && !valid_url(new_repository.ddr.hasExternalUri)}">
     <label for="new_dspace_repository_url">External repository address</label>
-    <input type="text" ng-model="new_repository.ddr.hasExternalUrl" class="form-control" id="new_dspace_repository_url" placeholder="Title" required>
+    <input type="text" ng-model="new_repository.ddr.hasExternalUri" class="form-control" id="new_dspace_repository_url" placeholder="Title" required>
     <p class="help-block">The base address of the repository you wish to upload to. Example: <a href="http://demo.dspace.org">http://demo.dspace.org</a> .</p>
-    <span ng-show="new_repository.ddr.hasExternalUrl && valid_url(new_repository.ddr.hasExternalUrl)" class="glyphicon glyphicon-ok form-control-feedback"></span>
-    <span ng-show="!new_repository.ddr.hasExternalUrl" class="glyphicon glyphicon-remove form-control-feedback"></span>
-    <span ng-show="new_repository.ddr.hasExternalUrl && !valid_url(new_repository.ddr.hasExternalUrl)" class="glyphicon glyphicon-warning-sign form-control-feedback"></span>
+    <span ng-show="new_repository.ddr.hasExternalUri && valid_url(new_repository.ddr.hasExternalUri)" class="glyphicon glyphicon-ok form-control-feedback"></span>
+    <span ng-show="!new_repository.ddr.hasExternalUri" class="glyphicon glyphicon-remove form-control-feedback"></span>
+    <span ng-show="new_repository.ddr.hasExternalUri && !valid_url(new_repository.ddr.hasExternalUri)" class="glyphicon glyphicon-warning-sign form-control-feedback"></span>
 </div>
 
 <div class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.username}">
@@ -27,16 +27,13 @@
 <div class="form-group">
     <label for="dspace_repository_password">Password</label>
     <input type="password" ng-model="new_repository.ddr.password" class="form-control" id="dspace_repository_password" placeholder="DSpace Password">
-    <p class="help-block">Your password for the DSpace repository (we will not store this password, we will just pass it on to DSpace for request collections).</p>
-</div>
+    <p class="help-block">Your password for the DSpace repository (we will not store this password, we will just pass it on to DSpace for request collections.</p>
 <div class="form-group">
+</div>
     <div><label>Collection</label></div>
     <div class="row">
         <div class="col-lg-8">
             <button type="button" class="btn btn-primary"
-                    ng-disabled = "new_repository.ddr.password == null || new_repository.ddr.password == '' ||
-                    new_repository.ddr.username == null || new_repository.ddr.username == '' ||
-                    new_repository.ddr.hasExternalUrl == null || !valid_url(new_repository.ddr.hasExternalUrl)"
                     ng-click="get_sword_workspaces(new_repository)" >
                 <span class="glyphicon glyphicon-refresh"></span>
             </button>
@@ -78,5 +75,14 @@
 
 </div>
 
+
+<div class="control-group has-feedback">
+    <input type="checkbox" id="privacyStatus" ng-class="new_repository.ddr.privacyStatus" ng-model="new_repository.ddr.privacyStatus">
+    <label for="privacyStatus">I want to make this registry public</label>
+</div>
+
 <button type="cancel" ng-click="clear_repository_type()" class="btn">Cancel</button>
-<button type="submit" ng-click="create_new_repository_bookmark(new_repository)" class="btn btn-primary pull-right"><i class="fa fa-bookmark fa-lg"></i>Save new bookmark</button>
+<button type="submit"
+        ng-disabled="disable_save_bookmark_dspace(new_repository)"
+        ng-click="create_new_repository_bookmark(new_repository)"
+        class="btn btn-primary pull-right"><i class="fa fa-bookmark fa-lg pad-right-4"></i>Save new bookmark</button>

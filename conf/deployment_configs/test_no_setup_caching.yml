@@ -356,3 +356,6 @@ test_no_setup_caching:
     yake:
       active: true
       commmand: docker run yake-dendro-dev -it '${texttoprocess}'
+  jobs:
+    embargoed:
+      disembargo_cron_expression: "0 0 * * *"
