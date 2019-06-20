@@ -20,6 +20,8 @@ const gfs = Config.getGFSByID();
 const async = require("async");
 const mkdirp = require("mkdirp");
 const fs = require("fs-extra");
+const chokidar = require('chokidar');
+
 
 class Notebook
 {
@@ -92,7 +94,8 @@ class Notebook
                 DENDRO_NOTEBOOK_VIRTUAL_HOST: self.getHost(),
                 DENDRO_NOTEBOOK_FULL_URL: self.getFullNotebookUri(),
                 DENDRO_NOTEBOOK_DEFAULT_PASSWORD: self.cypherPassword(Config.notebooks.jupyter.default_password),
-                DENDRO_NOTEBOOK_USER_ID: process.geteuid()
+                DENDRO_NOTEBOOK_USER_ID: process.geteuid(),
+                DENDRO_NOTEBOOK_FILE_CHANGES: self.trackChanges()
             });
         });
     }
@@ -118,6 +121,25 @@ class Notebook
             return url;
         }
         return url + relativeUrl;
+    }
+
+    trackChanges(){
+        console.log("tracking");
+        const self = this;
+        const watcher = chokidar.watch(`~/temp/jupyter-notebooks/${self.id}`, {
+            ignored: /(^|[\/\\])\../,
+            persistent: true
+        });
+
+        // Something to use when events are received.
+        const log = console.log.bind(console);
+// Add event listeners.
+        watcher
+            .on('add', path => log(`File ${path} has been added`))
+            .on('change', path => log(`File ${path} has been changed`))
+            .on('unlink', path => log(`File ${path} has been removed`));
+        console.log(watcher.getWatched());
+        return watcher.getWatched();
     }
 }
 
