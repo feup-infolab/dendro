@@ -1,4 +1,7 @@
-var Utils = {};
+var Utils;
+
+Utils = function ()
+{};
 
 Utils.get_current_url = function ()
 {
@@ -12,7 +15,7 @@ Utils.getCurrentProject = function ()
 
     var leadingPart = currentUrl.match(new RegExp("http://[\/]*.*/project\/"));
     var ownerProject = currentUrl.replace(leadingPart, "");
-    if (ownerProject != null && leadingPart != null)
+    if (!Utils.isNull(ownerProject) && !Utils.isNull(leadingPart))
     {
         ownerProject = ownerProject.replace(new RegExp("\/.*"), "");
         ownerProject = leadingPart + ownerProject;
@@ -29,21 +32,6 @@ Utils.getCurrentProjectHandle = function ()
     return projectHandle;
 };
 
-/**
- * Bootstrap parametrization!
- * @type {{dir1: string, dir2: string, push: string}}
- */
-// this HAS TO BE A global.VAR https://github.com/sciactive/pnotify/issues/23
-var stack_topright = {dir1: "down", dir2: "left", push: "top"};
-// $.pnotify.defaults.styling = "bootstrap3";
-// $.pnotify.defaults.history = false;
-
-/**
- * End of Bootstrap parametrization
- */
-
-Utils.currentProgresses = {};
-
 Utils.endTask = function (taskID)
 {
     if (Utils.currentProgresses[taskID])
@@ -56,6 +44,11 @@ Utils.endTask = function (taskID)
 
 Utils.show_progress = function (title, message, taskID)
 {
+    if(!Utils.currentProgresses)
+    {
+        Utils.currentProgresses = {};
+    }
+
     if (Utils.currentProgresses[taskID])
     {
         Utils.currentProgresses[taskID].update({
@@ -272,11 +265,6 @@ Utils.fade_messages = function ()
     }, timeout);
 };
 
-if (typeof exports !== "undefined")
-{
-    exports.Utils = Utils;
-}
-
 Utils.anyToString = function (value)
 {
     if (typeof value === "number")
@@ -307,4 +295,29 @@ Utils.isNull = function (object)
     }
     return false;
 };
+
+if (typeof exports !== "undefined")
+{
+    exports.Utils = Utils;
+}
+
+if (typeof angular !== "undefined")
+{
+    /**
+     * Bootstrap parametrization!
+     * @type {{dir1: string, dir2: string, push: string}}
+     */
+
+    // this HAS TO BE A global.VAR https://github.com/sciactive/pnotify/issues/23
+    var stack_topright = {dir1: "down", dir2: "left", push: "top"};
+    // $.pnotify.defaults.styling = "bootstrap3";
+    // $.pnotify.defaults.history = false;
+
+    /**
+     * End of Bootstrap parametrization
+     */
+
+    // Create a new module
+    Utils = angular.module("Utils", []).constant("Utils", Utils);
+}
 

@@ -13,7 +13,8 @@ angular.module("dendroApp.controllers", [])
         metadataService,
         windowService,
         usersService,
-        depositsService
+        depositsService,
+        Utils
     )
     {
         $scope.active_tab = null;

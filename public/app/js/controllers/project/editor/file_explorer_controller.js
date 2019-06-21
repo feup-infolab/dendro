@@ -24,7 +24,8 @@ angular.module("dendroApp.controllers")
         storageService,
         recommendationService,
         usersService,
-        ContextMenuEvents
+        ContextMenuEvents,
+        Utils
     )
     {
         $scope.menuOptions = function (item)

@@ -22,7 +22,8 @@ angular.module("dendroApp.controllers")
         storageService,
         recommendationService,
         projectsService,
-        moment
+        moment,
+        Utils
     )
     {
         $scope.shared = {

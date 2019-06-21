@@ -15,6 +15,7 @@ angular.module("dendroApp.controllers")
             "windowService",
             "projectsService",
             "jsonPath",
+            "Utils",
             function (
                 $scope,
                 $http,
@@ -26,7 +27,8 @@ angular.module("dendroApp.controllers")
                 uploadsService,
                 windowService,
                 projectsService,
-                jsonPath
+                jsonPath,
+                Utils
             )
             {
                 $scope.upload_completed = function (err, result)

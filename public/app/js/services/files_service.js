@@ -2,8 +2,8 @@
 
 angular.module("dendroApp.services")
     .service("filesService",
-        ["$http", "$rootScope", "windowService",
-            function ($http, $rootScope, windowService)
+        ["$http", "$rootScope", "windowService", "Utils",
+            function ($http, $rootScope, windowService, Utils)
             {
                 this.get_folder_contents = function (uri, including_deleted_files)
                 {

@@ -1,6 +1,6 @@
 angular.module("dendroApp.services")
-    .service("descriptorsService", ["$http",
-        function ($http)
+    .service("descriptorsService", ["$http", "Utils",
+        function ($http, Utils)
         {
             const injectMissingCommentMessage = function (descriptors)
             {

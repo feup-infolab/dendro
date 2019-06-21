@@ -2,8 +2,8 @@
 
 angular.module("dendroApp.factories")
     .service("metadataService",
-        ["$q", "$http", "filesService", "interactionsService", "windowService", "descriptorsService",
-            function ($q, $http, filesService, interactionsService, windowService, descriptorsService)
+        ["$q", "$http", "filesService", "interactionsService", "windowService", "descriptorsService", "Utils",
+            function ($q, $http, filesService, interactionsService, windowService, descriptorsService, Utils)
             {
                 this.deserialize_metadata = function (descriptorsArray)
                 {

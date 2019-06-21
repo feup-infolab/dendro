@@ -2,9 +2,14 @@
 
 angular.module("dendroApp.services")
     .service("windowService",
-        ["$http",
-            function ($http)
+        ["$http", "Utils",
+            function ($http, Utils)
             {
+                this.init = function()
+                {
+                    Utils.fade_messages();
+                };
+
                 this.show_popup = function (type, title, message, delay)
                 {
                     if (!delay)

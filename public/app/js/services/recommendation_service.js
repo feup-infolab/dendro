@@ -1,8 +1,8 @@
 "use strict";
 
 angular.module("dendroApp.services")
-    .service("recommendationService", ["$http", "filesService",
-        function ($http, filesService)
+    .service("recommendationService", ["$http", "filesService", "Utils",
+        function ($http, filesService, Utils)
         {
             this.editor_recommendation_modes = {
                 smart: "smart",

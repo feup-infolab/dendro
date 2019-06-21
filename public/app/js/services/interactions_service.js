@@ -2,8 +2,8 @@
 
 angular.module("dendroApp.services")
     .service("interactionsService",
-        ["$http", "$q",
-            function ($http, $q)
+        ["$http", "$q", "Utils",
+            function ($http, $q, Utils)
             {
                 /**
                  * Give notice to server

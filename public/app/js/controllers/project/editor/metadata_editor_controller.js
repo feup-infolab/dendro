@@ -21,7 +21,8 @@ angular.module("dendroApp.controllers")
         storageService,
         recommendationService,
         descriptorsService,
-        usSpinnerService
+        usSpinnerService,
+        Utils
     )
     {
         $scope.recover_metadata = function ()

@@ -2,7 +2,7 @@
  * Created by Filipe on 01/09/2014.
  */
 angular.module("dendroApp.factories")
-    .factory("listings", function ($http)
+    .factory("listings", ["$http", "Utils", function ($http, Utils)
     {
         return {
             getListing: function ($scope, uri, limit, page, filters, change, callback)
@@ -74,4 +74,4 @@ angular.module("dendroApp.factories")
                 return search;
             }
         };
-    });
+    }]);

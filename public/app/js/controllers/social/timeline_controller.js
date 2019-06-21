@@ -12,7 +12,8 @@ angular.module("dendroApp.controllers")
             projectsService,
             $window,
             $element,
-            usSpinnerService
+            usSpinnerService,
+            Utils
         )
         {
             $scope.myTab = $element;

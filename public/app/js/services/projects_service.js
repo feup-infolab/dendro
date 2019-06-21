@@ -2,8 +2,8 @@
 
 angular.module("dendroApp.services")
     .service("projectsService",
-        ["$q", "$http", "windowService", "$location",
-            function ($q, $http, windowService, $location)
+        ["$q", "$http", "windowService", "$location", "Utils",
+            function ($q, $http, windowService, $location, Utils)
             {
                 this.create_new_project = function (new_project)
                 {

@@ -15,6 +15,7 @@ angular.module("dendroApp.controllers")
             "usersService",
             "windowService",
             "uploadsService",
+            "Utils",
             function (
                 $scope,
                 $http,
@@ -26,7 +27,8 @@ angular.module("dendroApp.controllers")
                 Upload,
                 usersService,
                 windowService,
-                uploadsService
+                uploadsService,
+                Utils
             )
             {
                 $scope.usingFlash = FileAPI && FileAPI.upload != null;

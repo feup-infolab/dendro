@@ -19,7 +19,8 @@ angular.module("dendroApp.controllers")
         filesService,
         windowService,
         projectsService,
-        usersService
+        usersService,
+        Utils
     )
     {
         $scope.button = "Cluster";

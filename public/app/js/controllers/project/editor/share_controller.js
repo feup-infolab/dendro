@@ -9,7 +9,8 @@ angular.module("dendroApp.controllers")
             $http,
             $filter,
             windowService,
-            usersService
+            usersService,
+            Utils
         )
         {
             $scope.init = function ()

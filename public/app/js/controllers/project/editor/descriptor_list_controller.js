@@ -21,7 +21,8 @@ angular.module("dendroApp.controllers")
         ontologiesService,
         storageService,
         recommendationService,
-        descriptorsService
+        descriptorsService,
+        Utils
     )
     {
         $scope.get_recommendations = function ()
