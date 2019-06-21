@@ -22,7 +22,7 @@ angular.module("dendroApp.factories")
                         headers: {Accept: "application/json"}
                     }).then(function (response)
                     {
-                        if (response.data !== null && response.data)
+                        if (!Utils.isNull(response.data))
                         {
                             $scope.fetching_data = false;
                             callback(response.data, change);
@@ -30,7 +30,7 @@ angular.module("dendroApp.factories")
                     }).catch(function (error)
                     {
                         $scope.fetching_data = false;
-                        if (error !== null)
+                        if (!Utils.isNull(error))
                         {
                             $scope.show_popup("error", "Error", error.message);
                         }
@@ -43,7 +43,7 @@ angular.module("dendroApp.factories")
                 var descriptors = [];
                 for (var item in params)
                 {
-                    if (params[item].value !== null && params[item].value !== "" && params[item].key !== "descriptor")
+                    if (!Utils.isNull(params[item].value) && params[item].value !== "" && params[item].key !== "descriptor")
                     {
                         if (params[item].type === "dropdown" && params[item].hasKey === true)
                         {

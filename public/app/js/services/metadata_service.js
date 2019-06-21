@@ -9,7 +9,7 @@ angular.module("dendroApp.factories")
                 {
                     var deserialized = [];
 
-                    if (descriptorsArray === null)
+                    if (Utils.isNull(descriptorsArray))
                     {
                         return [];
                     }
@@ -49,20 +49,20 @@ angular.module("dendroApp.factories")
 
                 this.dirty_metadata = function (initial_metadata, current_metadata)
                 {
-                    if (initial_metadata === null && current_metadata === null)
+                    if (Utils.isNull(initial_metadata) && Utils.isNull(current_metadata))
                     {
                         return false;
                     }
-                    else if (initial_metadata === null && current_metadata !== null)
+                    else if (Utils.isNull(initial_metadata) && !Utils.isNull(current_metadata))
                     {
                         return true;
                     }
                     else if (
-                        initial_metadata !== null &&
-                current_metadata !== null &&
+                        !Utils.isNull(initial_metadata) &&
+                        !Utils.isNull(current_metadata) &&
 
-                initial_metadata instanceof Array &&
-                current_metadata instanceof Array)
+                        initial_metadata instanceof Array &&
+                        current_metadata instanceof Array)
                     {
                         for (var i = 0; i < current_metadata.length; i++)
                         {
@@ -81,7 +81,7 @@ angular.module("dendroApp.factories")
                 {
                     var self = this;
 
-                    if (uri === null)
+                    if (Utils.isNull(uri))
                     {
                         uri = windowService.get_current_url();
                     }
@@ -99,7 +99,7 @@ angular.module("dendroApp.factories")
                     }).then(
                         function (response)
                         {
-                            if (response.data !== null && response.data instanceof Object)
+                            if (!Utils.isNull(response.data) && response.data instanceof Object)
                             {
                                 deserialize.resolve({
                                     descriptors: self.deserialize_metadata(response.data.descriptors),
@@ -177,7 +177,7 @@ angular.module("dendroApp.factories")
                     };
 
                     var mt = mimeTypes[format];
-                    if (mt !== null)
+                    if (!Utils.isNull(mt))
                     {
                         return $http({
                             method: "GET",
@@ -240,7 +240,7 @@ angular.module("dendroApp.factories")
 
                 this.descriptor_is_filled_in = function (descriptor, metadata)
                 {
-                    if (metadata !== null && metadata instanceof Array)
+                    if (!Utils.isNull(metadata) && metadata instanceof Array)
                     {
                         for (var i = 0; i < metadata.length; i++)
                         {
@@ -265,7 +265,7 @@ angular.module("dendroApp.factories")
 
                 this.descriptor_is_present = function (descriptor, metadata_array)
                 {
-                    if (metadata_array !== null && metadata_array instanceof Array)
+                    if (!Utils.isNull(metadata_array) && metadata_array instanceof Array)
                     {
                         for (var i = 0; i < metadata_array.length; i++)
                         {
@@ -282,7 +282,7 @@ angular.module("dendroApp.factories")
 
                 this.get_recent_changes_of_project = function (resource_uri)
                 {
-                    if (resource_uri !== null)
+                    if (!Utils.isNull(resource_uri))
                     {
                         var requestUri = resource_uri + "?recent_changes&limit=5";
 
@@ -301,7 +301,7 @@ angular.module("dendroApp.factories")
 
                 this.get_recent_changes_of_resource = function (resourceUri)
                 {
-                    if (resourceUri !== null)
+                    if (!Utils.isNull(resourceUri))
                     {
                         var requestUri = resourceUri + "?change_log";
 

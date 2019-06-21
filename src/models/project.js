@@ -1484,7 +1484,12 @@ Project.prototype.getFavoriteDescriptors = function (maxResults, callback, allow
             });
         })
         .catch(err =>
-            callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database."));
+        {
+            const msg = "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database when checking favorite descriptors";
+            Logger.log("error", msg);
+            Logger.log("error", err);
+            callback(1, msg);
+        });
 };
 
 Project.prototype.getHiddenDescriptors = function (maxResults, callback, allowedOntologies)
@@ -1550,7 +1555,12 @@ Project.prototype.getHiddenDescriptors = function (maxResults, callback, allowed
             });
         })
         .catch(err =>
-            callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database."));
+        {
+            const msg = "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database when getting hidden descriptors.";
+            Logger.log("error", msg);
+            Logger.log("error", err);
+            callback(1, msg);
+        });
 };
 
 Project.prototype.findMetadata = function (callback, typeConfigsToRetain)
@@ -1903,7 +1913,7 @@ Project.prototype.clearCacheRecords = function (callback, customGraphUri)
                     }
                     else
                     {
-                        callback(err, result);
+                        callback(err, members);
                     }
                 }
             });

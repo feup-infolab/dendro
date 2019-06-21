@@ -4082,7 +4082,7 @@ Elements.setAllElements = function (loadedElements)
             {
                 if (loadedElement.hasOwnProperty(k))
                 {
-                    if (existingElement[k] === null || typeof existingElement[k] === "undefined")
+                    if (isNull(existingElement[k]))
                     {
                         Elements.ontologies[prefix][shortName][k] = loadedElement[k];
                     }

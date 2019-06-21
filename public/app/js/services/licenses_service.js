@@ -12,7 +12,7 @@ angular.module("dendroApp.services")
                         url: "/bower_components/okfn-licenses/licenses/groups/ckan.json"
                     }).then(function (response)
                     {
-                        if (response.data !== null && response.data instanceof Object)
+                        if (!Utils.isNull(response.data) && response.data instanceof Object)
                         {
                             return response.data;
                         }

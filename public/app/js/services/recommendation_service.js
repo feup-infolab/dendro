@@ -82,11 +82,11 @@ angular.module("dendroApp.services")
                         params.recommendations_mode = self.descriptor_filter;
                     }
                 }
-                else if (descriptor_filter !== null && typeof descriptor_filter === "string")
+                else if (!Utils.isNull(descriptor_filter) && typeof descriptor_filter === "string")
                 {
                     var filterObject = get_descriptor_filter_object(descriptor_filter);
 
-                    if (filterObject !== null)
+                    if (!Utils.isNull(filterObject))
                     {
                         params.recommendations_mode = filterObject.key;
                     }

@@ -293,10 +293,10 @@ angular.module("dendroApp.controllers")
                 try
                 {
                     metadataAsJSON = JSON.parse(data);
-                    if (metadataAsJSON !== null && metadataAsJSON.descriptors !== null && metadataAsJSON.descriptors instanceof Array && metadataAsJSON.descriptors.length > 0)
+                    if (!Utils.isNull(metadataAsJSON) && !Utils.isNull(metadataAsJSON.descriptors) && metadataAsJSON.descriptors instanceof Array && metadataAsJSON.descriptors.length > 0)
                     {
                         var allowedDescriptorsToImport = removeImproperDescriptors(metadataAsJSON.descriptors);
-                        if (allowedDescriptorsToImport !== null && allowedDescriptorsToImport instanceof Array && allowedDescriptorsToImport.length > 0)
+                        if (!Utils.isNull(allowedDescriptorsToImport) && allowedDescriptorsToImport instanceof Array && allowedDescriptorsToImport.length > 0)
                         {
                             allowedDescriptorsToImport = markDescriptorsAsJustAdded(allowedDescriptorsToImport);
                             // load them into $scope.shared.metadata
@@ -544,13 +544,13 @@ angular.module("dendroApp.controllers")
         $scope.get_map_src = function (descriptor, key, descriptorValueIndex)
         {
             var mapSrc;
-            if (descriptor === null || descriptor.value === null)
+            if (Utils.isNull(descriptor))
             {
                 throw new Error("Map source is required!!!");
             }
             else if (descriptor.value instanceof Array)
             {
-                if (descriptorValueIndex !== null)
+                if (!Utils.isNull(descriptorValueIndex))
                 {
                     mapSrc = "https://www.google.com/maps/embed/v1/place?key=" + key + "&q=" + descriptor.value[descriptorValueIndex];
                 }

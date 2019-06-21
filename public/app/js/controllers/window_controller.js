@@ -72,7 +72,7 @@ angular.module("dendroApp.controllers")
 
         $scope.valid_date = function (descriptor)
         {
-            if (descriptor.value !== null && descriptor.value instanceof Object)
+            if (!Utils.isNull(descriptor.value) && descriptor.value instanceof Object)
             {
                 var numberOfDates = Object.keys(descriptor.value).length;
                 for (var i = 0; i !== numberOfDates; i++)

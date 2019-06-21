@@ -71,7 +71,7 @@ angular.module("dendroApp.services")
 
             this.get_descriptors_from_ontology = function (ontologyUri)
             {
-                if (ontologyUri !== null)
+                if (!Utils.isNull(ontologyUri))
                 {
                     return $http({
                         method: "GET",
@@ -95,9 +95,9 @@ angular.module("dendroApp.services")
 
             this.get_descriptors_from_ontology_annotated_for_a_resource = function (ontologyUri, resourceUri)
             {
-                if (ontologyUri !== null)
+                if (!Utils.isNull(ontologyUri))
                 {
-                    if (resourceUri !== null)
+                    if (!Utils.isNull(resourceUri))
                     {
                         return $http({
                             method: "GET",

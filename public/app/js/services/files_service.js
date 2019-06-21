@@ -7,7 +7,7 @@ angular.module("dendroApp.services")
             {
                 this.get_folder_contents = function (uri, including_deleted_files)
                 {
-                    if (uri === null)
+                    if (Utils.isNull(uri))
                     {
                         uri = windowService.get_current_url() + "?ls";
                     }
@@ -29,7 +29,7 @@ angular.module("dendroApp.services")
                         headers: {Accept: "application/json"}
                     }).then(function (response)
                     {
-                        if (response.data !== null && response.data instanceof Object)
+                        if (!Utils.isNull(response.data) && response.data instanceof Object)
                         {
                             return response.data;
                         }
@@ -40,7 +40,7 @@ angular.module("dendroApp.services")
 
                 this.get_stats = function (uri)
                 {
-                    if (uri === null)
+                    if (Utils.isNull(uri))
                     {
                         uri = windowService.get_current_url() + "?stats";
                     }
@@ -68,7 +68,7 @@ angular.module("dendroApp.services")
 
                 this.mkdir = function (newFolderName, parentFolderUri)
                 {
-                    if (newFolderName !== null)
+                    if (!Utils.isNull(newFolderName))
                     {
                         var mkdirUrl = parentFolderUri + "?mkdir=" + newFolderName;
 
@@ -84,7 +84,7 @@ angular.module("dendroApp.services")
 
                 this.rename = function (newName, resourceUri)
                 {
-                    if (newName !== null)
+                    if (!Utils.isNull(newName))
                     {
                         var renameUrl = resourceUri + "?rename=" + newName;
 
