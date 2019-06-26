@@ -484,7 +484,7 @@ angular.module("dendroApp.controllers", [])
             depositsService.change_user_access(condition, value, forDelete)
                 .then(function (response)
                 {
-                    depositsService.get_deposit_conditions()
+                    depositsService.get_deposit_conditions($scope.depositUri)
                         .then(function (response)
                         {
                             $scope.conditionsAccepted = response.conditionsAccepted;

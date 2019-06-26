@@ -1147,8 +1147,8 @@ const exportToDendro = function (req, res)
                 exportedFromProject: exportedFromProject,
                 exportedFromFolder: exportedFromFolder,
                 privacyStatus: publicDeposit,
-                exportedToRepository: "Dendro",
-                exportedToPlatform: "Dendro",
+                exportedToRepository: "Zenodo",
+                exportedToPlatform: "Zenodo",
                 accessTerms: isNull(accessTerms) ? null : accessTerms,
                 embargoedDate: isNull(embargoedDate) ? null : embargoedDate
 
