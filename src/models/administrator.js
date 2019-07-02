@@ -22,6 +22,8 @@ function Administrator (object = {})
 
     }
 
+    self.ddr.isAdmin = true;
+
     return self;
 }
 

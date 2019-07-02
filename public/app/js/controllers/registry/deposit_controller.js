@@ -296,8 +296,17 @@ angular.module("dendroApp.controllers", [])
 
         $scope.init = function ()
         {
-            $scope.getRegistry(true);
-            $scope.asyncSelected = "";
+            usersService.get_logged_user()
+                .then(function (user)
+                {
+                    $scope.loggedUser = user;
+                    $scope.getRegistry(true);
+                    $scope.asyncSelected = "";
+                })
+                .catch(function (error)
+                {
+                    $scope.show_popup("error", error, "Error fetching user", 20000);
+                });
         };
         $scope.myInit = function ()
         {
