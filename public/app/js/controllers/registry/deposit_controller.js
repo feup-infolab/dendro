@@ -305,7 +305,6 @@ angular.module("dendroApp.controllers", [])
                 })
                 .catch(function (error)
                 {
-                    $scope.show_popup("error", error, "Error fetching user", 20000);
                 });
         };
         $scope.myInit = function ()
@@ -320,7 +319,6 @@ angular.module("dendroApp.controllers", [])
                 })
                 .catch(function (error)
                 {
-                    $scope.show_popup("error", error, "Error fetching user", 20000);
                 });
         };
         $scope.getLoggerUser = function ()
@@ -333,7 +331,6 @@ angular.module("dendroApp.controllers", [])
                 })
                 .catch(function (error)
                 {
-                    $scope.show_popup("error", error, "Error fetching user", 20000);
                 });
         };
         $scope.updateDeposits = function (data, change)

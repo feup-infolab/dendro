@@ -67,7 +67,7 @@
                                                             <img src="/images/icons/hourglass.png" height="20px" width="20px"
                                                                  alt="embargoed_icon">
                                                             {{deposit.embargoedDate | amUtc | amLocal |
-                                                            amDateFormat:'MM.DD.YYYY'}}
+                                                            amDateFormat:'DD.MM.YYYY'}}
                                                         </div>
                                                         <img ng-if="deposit.privacy === 'metadata_only'"
                                                              src="/images/icons/lock_open.png" class="pull-left"

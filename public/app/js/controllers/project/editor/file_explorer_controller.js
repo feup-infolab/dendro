@@ -108,8 +108,7 @@ angular.module("dendroApp.controllers")
                 },
                 children: null
             });
-
-            /* items.push({
+            items.push({
                 click: function ($itemScope, $event, modelValue, text, $li)
                 {
                     $scope.copy();
@@ -119,7 +118,7 @@ angular.module("dendroApp.controllers")
                     return "<a href=\"#\"><img class=\"icon16\" src=\"/images/icons/page_copy.png\">&nbsp;Copy</a>";
                 },
                 children: null
-            });*/
+            });
 
             items.push({
                 click: function ($itemScope, $event, modelValue, text, $li)

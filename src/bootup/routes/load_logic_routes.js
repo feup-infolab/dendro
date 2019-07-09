@@ -669,7 +669,7 @@ const loadRoutes = function (app, callback)
                     },
                     {
                         queryKeys: ["copy"],
-                        handler: files.copy,
+                        handler: files.copy_paste,
                         permissions: modificationPermissions,
                         authentication_error: "Permission denied : cannot paste resources into this folder because you do not have permissions to edit resources inside this project."
                     },
@@ -1194,7 +1194,7 @@ const loadRoutes = function (app, callback)
                     },
                     {
                         queryKeys: ["copy"],
-                        handler: files.copy,
+                        handler: files.copy_paste,
                         permissions: modificationPermissionsBranch,
                         authentication_error: "Permission denied : cannot copy resources because you do not have permissions to edit resources inside this project."
                     },

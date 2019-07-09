@@ -923,7 +923,7 @@ Deposit.prototype.delete = function (callback, customGraphUri)
 
     const clearCacheRecords = function (callback)
     {
-        Project.prototype.clearCacheRecords.bind(this)(function (err, result)
+        Project.prototype.clearCacheRecords.bind(self)(function (err, result)
         {
             callback(err, result);
         });
