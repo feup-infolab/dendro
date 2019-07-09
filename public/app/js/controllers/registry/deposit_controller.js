@@ -274,6 +274,14 @@ angular.module("dendroApp.controllers", [])
             $scope.rootDepositUri = rootDepositUri;
             $scope.isDepositRoot = isRoot;
             $scope.depositUri = depositUri;
+            usersService.get_logged_user()
+                .then(function (user)
+                {
+                    $scope.loggedUser = user;
+                })
+                .catch(function (error)
+                {
+                });
         };
 
         $scope.deleteElement = function (id)

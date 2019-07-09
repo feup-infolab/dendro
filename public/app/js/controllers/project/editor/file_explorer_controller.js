@@ -254,74 +254,54 @@ angular.module("dendroApp.controllers")
                     }
                 ];
             }
-            //  TODO  alterar para isAdmin
-            if ($scope.loggedUser.ddr.isAdmin)
+            if ($scope.loggedUser)
             {
-                items.push({
-                    click: function ($itemScope, $event, modelValue, text, $li)
-                    {
-                        $scope.rename();
-                    },
-                    html: function ()
-                    {
-                        return "<a href=\"#\"><img class=\"icon16\" src=\"/images/icons/textfield_rename.png\">&nbsp;Rename</a>";
-                    },
-                    children: null
-                });
-
-                /* items.push({
-            click: function ($itemScope, $event, modelValue, text, $li)
-            {
-                $scope.copy();
-            },
-            html: function ()
-            {
-                return "<a href=\"#\"><img class=\"icon16\" src=\"/images/icons/page_copy.png\">&nbsp;Copy</a>";
-            },
-            children: null
-        });*/
-
-                // items.push({
-                //     click: function ($itemScope, $event, modelValue, text, $li)
-                //     {
-                //         $scope.cut();
-                //     },
-                //     html: function ()
-                //     {
-                //         return "<a href=\"#\"><img class=\"icon16\" src=\"/images/icons/cut.png\">&nbsp;Cut</a>";
-                //     },
-                //     children: null
-                // });
-
-                if ($scope.file_explorer_selected_something())
+                if ($scope.loggedUser.ddr.isAdmin)
                 {
-                    if ($scope.file_explorer_selected_contains_deleted())
+                    items.push({
+                        click: function ($itemScope, $event, modelValue, text, $li)
+                        {
+                            $scope.rename();
+                        },
+                        html: function ()
+                        {
+                            return "<a href=\"#\"><img class=\"icon16\" src=\"/images/icons/textfield_rename.png\">&nbsp;Rename</a>";
+                        },
+                        children: null
+                    });
+
+
+
+                    if ($scope.file_explorer_selected_something())
                     {
-                        items.push({
-                            click: function ($itemScope, $event, modelValue, text, $li)
-                            {
-                                $scope.delete_file_or_folder();
-                            },
-                            html: function ()
-                            {
-                                return "<a href=\"#\"><img class=\"icon16\" data-loading-text=\"Deleting...\" src=\"/images/icons/cross.png\">&nbsp;Delete (files already deleted will be lost forever!)</a>";
-                            },
-                            children: null
-                        });
-                    }
-                    else
-                    {
-                        items.push({
-                            click: function ($itemScope, $event, modelValue, text, $li)
-                            {
-                                $scope.delete_file_or_folder();
-                            },
-                            html: function ()
-                            {
-                                return "<a href=\"#\"><img class=\"icon16\" data-loading-text=\"Deleting...\" src=\"/images/icons/cross.png\">&nbsp;Delete</a>";
-                            },
-                            children: null
-                        });
+                        if ($scope.file_explorer_selected_contains_deleted())
+                        {
+                            items.push({
+                                click: function ($itemScope, $event, modelValue, text, $li)
+                                {
+                                    $scope.delete_file_or_folder();
+                                },
+                                html: function ()
+                                {
+                                    return "<a href=\"#\"><img class=\"icon16\" data-loading-text=\"Deleting...\" src=\"/images/icons/cross.png\">&nbsp;Delete (files already deleted will be lost forever!)</a>";
+                                },
+                                children: null
+                            });
+                        }
+                        else
+                        {
+                            items.push({
+                                click: function ($itemScope, $event, modelValue, text, $li)
+                                {
+                                    $scope.delete_file_or_folder();
+                                },
+                                html: function ()
+                                {
+                                    return "<a href=\"#\"><img class=\"icon16\" data-loading-text=\"Deleting...\" src=\"/images/icons/cross.png\">&nbsp;Delete</a>";
+                                },
+                                children: null
+                            });
+                        }
                     }
                 }
             }

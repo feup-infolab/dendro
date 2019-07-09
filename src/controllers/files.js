@@ -3666,8 +3666,16 @@ exports.copy_paste = function (req, res)
                                                         {
                                                             if (isNull(err))
                                                             {
-
+                                                                return res.json({
+                                                                    result: "ok",
+                                                                    message: "File copied successfully"
+                                                                });
                                                             }
+                                                            return res.status(500).json({
+                                                                result: "error",
+                                                                message: "An error occurred while copying file.",
+                                                                error: result
+                                                            });
                                                         });
                                                     }
                                                 });
@@ -3682,26 +3690,19 @@ exports.copy_paste = function (req, res)
                                                     {
                                                         if (isNull(err))
                                                         {
-
+                                                            return res.json({
+                                                                result: "ok",
+                                                                message: "Folder copied successfully"
+                                                            });
                                                         }
+                                                        return res.status(500).json({
+                                                            result: "error",
+                                                            message: "An error occurred while copying folder.",
+                                                            error: result
+                                                        });
                                                     });
                                                 });
                                             }
-                                            // checkIfDestinationIsNotContainedByAnySource(filesToBeMoved, targetFolder, function (err, result)
-                                            // {
-                                            //     if (isNull(err))
-                                            //     {
-                                            //
-                                            //     }
-                                            //     else
-                                            //     {
-                                            //         return res.status(400).json({
-                                            //             result: "error",
-                                            //             message: "Cannot move a resource to inside itself.",
-                                            //             error: result
-                                            //         });
-                                            //     }
-                                            // });
                                         }
                                         else
                                         {
