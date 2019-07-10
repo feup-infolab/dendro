@@ -3693,7 +3693,7 @@ exports.copy_paste = function (req, res)
 
                                             const rootFolder = new Folder({
                                                 nie: {
-                                                    isLogicalPartOf: filesToBeMoved[0].uri
+                                                    isLogicalPartOf: targetfolder.uri
                                                 }
                                             });
                                             rootFolder.autorename();
@@ -3703,8 +3703,8 @@ exports.copy_paste = function (req, res)
                                                 targetfolder.nie.hasLogicalPart = rootFolder.uri;
                                                 targetfolder.save(function (err, result)
                                                 {
-                                                    folder.copyPaste({
-                                                        includeMetadata: true,
+                                                    folder.copyPaste2({
+                                                        includeMetadata: false,
                                                         destinationFolder: rootFolder,
                                                         user: entityLoadingTheMetadataUri
                                                     }, function (err, msg)
