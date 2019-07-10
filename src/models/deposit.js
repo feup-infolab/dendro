@@ -715,7 +715,6 @@ Deposit.saveContents = function (params, callback)
                     if (isNull(err))
                     {
                         let content = params.content;
-                        // TODO check if file or folder
                         content.copyPaste({
                             includeMetadata: true,
                             destinationFolder: rootFolder,
@@ -724,7 +723,6 @@ Deposit.saveContents = function (params, callback)
                         {
                             callback(err, newDeposit);
                         });
-                        // pass contents here
                     }
                     else
                     {

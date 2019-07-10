@@ -3646,47 +3646,68 @@ exports.copy_paste = function (req, res)
                 {
                     if (!err)
                     {
+                        let targetfolder = targetFolder;
                         if (!isNull(targetFolder) && targetFolder instanceof Folder)
                         {
                             checkIfFilesExist(files, function (err, filesToBeMoved)
                             {
                                 if (isNull(err))
                                 {
-                                    checkIfDestinationIsNotTheSameAsMovedFilesParents(filesToBeMoved, targetFolder, function (err, result)
+                                    if (filesToBeMoved[0].isA(File))
                                     {
-                                        if (isNull(err))
+                                        File.findByUri(filesToBeMoved[0].uri, function (err, file)
                                         {
-                                            if (filesToBeMoved[0].isA(File))
+                                            if (isNull(err))
                                             {
-                                                File.findByUri(filesToBeMoved[0].uri, function (err, file)
+                                                file.copyPaste({ destinationFolder: targetFolder }, function (err, msg)
                                                 {
                                                     if (isNull(err))
                                                     {
-                                                        file.copyPaste({ destinationFolder: targetFolder }, function (err, msg)
-                                                        {
-                                                            if (isNull(err))
-                                                            {
-                                                                return res.json({
-                                                                    result: "ok",
-                                                                    message: "File copied successfully"
-                                                                });
-                                                            }
-                                                            return res.status(500).json({
-                                                                result: "error",
-                                                                message: "An error occurred while copying file.",
-                                                                error: result
-                                                            });
+                                                        return res.json({
+                                                            result: "ok",
+                                                            message: "File copied successfully"
                                                         });
                                                     }
+                                                    return res.status(500).json({
+                                                        result: "error",
+                                                        message: "An error occurred while copying file.",
+                                                        error: msg
+                                                    });
                                                 });
                                             }
-                                            else if (filesToBeMoved[0].isA(Folder))
+                                            else
                                             {
-                                                Folder.findByUri(filesToBeMoved[0].uri, function (err, folder)
-                                                {
-                                                    let entityLoadingTheMetadataUri = User.anonymous.uri;
+                                                return res.status(500).json({
+                                                    result: "error",
+                                                    message: "An error occurred while copying file.",
+                                                    error: err
+                                                });
+                                            }
+                                        });
+                                    }
+                                    else if (filesToBeMoved[0].isA(Folder))
+                                    {
+                                        Folder.findByUri(filesToBeMoved[0].uri, function (err, folder)
+                                        {
+                                            let entityLoadingTheMetadataUri = User.anonymous.uri;
 
-                                                    folder.copyPaste({ includeMetadata: true, destinationFolder: targetFolder, user: entityLoadingTheMetadataUri }, function (err, msg)
+                                            const rootFolder = new Folder({
+                                                nie: {
+                                                    isLogicalPartOf: filesToBeMoved[0].uri
+                                                }
+                                            });
+                                            rootFolder.autorename();
+
+                                            rootFolder.save(function (err, result)
+                                            {
+                                                targetfolder.nie.hasLogicalPart = rootFolder.uri;
+                                                targetfolder.save(function (err, result)
+                                                {
+                                                    folder.copyPaste({
+                                                        includeMetadata: true,
+                                                        destinationFolder: rootFolder,
+                                                        user: entityLoadingTheMetadataUri
+                                                    }, function (err, msg)
                                                     {
                                                         if (isNull(err))
                                                         {
@@ -3698,21 +3719,13 @@ exports.copy_paste = function (req, res)
                                                         return res.status(500).json({
                                                             result: "error",
                                                             message: "An error occurred while copying folder.",
-                                                            error: result
+                                                            error: err
                                                         });
                                                     });
                                                 });
-                                            }
-                                        }
-                                        else
-                                        {
-                                            return res.status(400).json({
-                                                result: "error",
-                                                message: "Cannot move a resource to the same folder where it already is.",
-                                                error: result
                                             });
-                                        }
-                                    });
+                                        });
+                                    }
                                 }
                                 else
                                 {
@@ -3726,10 +3739,10 @@ exports.copy_paste = function (req, res)
                         }
                         else
                         {
-                            return res.status(404).json({
+                            return res.status(err).json({
                                 result: "error",
-                                error: err,
-                                message: "Unable to find target tolder!"
+                                message: "An error occurred while fetching the destination folder of the move operation.\n" + JSON.stringify(targetFolder),
+                                error: targetFolder
                             });
                         }
                     }
