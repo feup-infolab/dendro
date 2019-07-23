@@ -92,8 +92,8 @@ services:
     image: feupinfolab/dendro:latest
     build:
       dockerfile: Dockerfile
-      args:
-        - "SOURCE_BRANCH=dendrokeywords"
+#      args:
+#        - "SOURCE_BRANCH=dendrokeywords"
       context: .
     ports:
       - published: 3001
