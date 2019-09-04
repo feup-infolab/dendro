@@ -86,7 +86,7 @@ Deposit.createDeposit = function (data, callback)
                     givenName: user.foaf.firstName,
                     familyName: user.foaf.surname,
                     nameType: "Personal",
-                    affiliation: user.foaf.affiliation,
+                    affiliation: [],
                     nameIdentifiers:
                     [{
                         nameIdentifier: user.ddr.absoluteUri,
@@ -384,7 +384,7 @@ Deposit.createQueryAux = function (params, query, variables, i)
                 }
                 else if (params.searchDepth === "onlyNodes")
                 {
-                    query += "   ?uri nie:hasLogicalPart ?child. \n" +
+                    query += "   ?uri nie:hasLogicalPart* ?child. \n" +
                              "   ?child ?descriptorchild ?valuechild. \n" +
                              "   VALUES (?descriptorchild ?valuechild) \n" +
                              "   {" + body + "}\n";
@@ -401,7 +401,7 @@ Deposit.createQueryAux = function (params, query, variables, i)
             }
             else if (params.searchDepth === "onlyNodes")
             {
-                query += "   ?uri nie:hasLogicalPart ?child.\n" +
+                query += "   ?uri nie:hasLogicalPart* ?child.\n" +
                          "   ?child [" + i++ + "] [" + i++ + "]. \n";
             }
 

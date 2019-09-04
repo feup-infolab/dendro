@@ -1903,7 +1903,7 @@ Project.prototype.clearCacheRecords = function (callback, customGraphUri)
                     }
                     else
                     {
-                        callback(err, result);
+                        callback(err, "Error");
                     }
                 }
             });
