@@ -67,7 +67,7 @@
                    ng-model="asyncSelected"
                    placeholder="Search for descriptor..."
                    uib-typeahead="result.label for result in get_descriptors_by_text_search_webpage($viewValue)"
-                   typeahead-template-url="/app/views/projects/show/partials/ac_template.html
+                   typeahead-template-url="/app/views/projects/show/partials/ac_template.html"
                    typeahead-show-hint="true"
                    typeahead-min-length="2"
                    typeahead-loading="loadingDescriptors"
