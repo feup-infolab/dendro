@@ -1,4 +1,4 @@
-<a>
+<a ng-if="match.model.label!= undefined || match.model.comment != undefined ">
     <div class="autocomplete-width">
         <b>
             <span ng-bind-html="match.model.label | uibTypeaheadHighlight:query"></span>
