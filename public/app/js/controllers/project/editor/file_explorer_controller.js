@@ -24,7 +24,8 @@ angular.module("dendroApp.controllers")
         storageService,
         recommendationService,
         usersService,
-        ContextMenuEvents
+        ContextMenuEvents,
+        Utils
     )
     {
         $scope.menuOptions = function (item)
@@ -329,11 +330,11 @@ angular.module("dendroApp.controllers")
 
         $scope.thumbnailable = function (file)
         {
-            if ($rootScope.config !== null)
+            if (!Utils.isNull($rootScope.config))
             {
                 const thumbnailable = $rootScope.config.thumbnailable_file_extensions[file.ddr.fileExtension];
 
-                if (thumbnailable !== null)
+                if (!Utils.isNull(thumbnailable))
                 {
                     return true;
                 }
@@ -463,7 +464,7 @@ angular.module("dendroApp.controllers")
         {
             bootbox.prompt("Please enter the name of the new folder", function (newFolderName)
             {
-                if (newFolderName !== null)
+                if (!Utils.isNull(newFolderName))
                 {
                     if (!newFolderName.match(/^[^\\\/:*?"<>|]{1,}$/g))
                     {
@@ -473,7 +474,7 @@ angular.module("dendroApp.controllers")
                     }
                     else
                     {
-                        if (newFolderName !== null)
+                        if (!Utils.isNull(newFolderName))
                         {
                             filesService.mkdir(newFolderName,
                                 $scope.get_calling_uri()
@@ -498,7 +499,7 @@ angular.module("dendroApp.controllers")
             {
                 bootbox.prompt("Please enter the new name", function (newName)
                 {
-                    if (newName !== null)
+                    if (!Utils.isNull(newName))
                     {
                         if (!newName.match(/^[^\\\/:*?"<>|]{1,}$/g))
                         {
@@ -508,7 +509,7 @@ angular.module("dendroApp.controllers")
                         }
                         else
                         {
-                            if (newName !== null)
+                            if (!Utils.isNull(newName))
                             {
                                 filesService.rename(newName,
                                     selectedFiles[0].uri
@@ -565,7 +566,7 @@ angular.module("dendroApp.controllers")
         $scope.open_for_mobile_devices = function ()
         {
             var selectedFiles = $scope.get_selected_files();
-            if (selectedFiles !== null && selectedFiles instanceof Array && selectedFiles.length > 0)
+            if (!Utils.isNull(selectedFiles) && selectedFiles instanceof Array && selectedFiles.length > 0)
             {
                 var selectedFolder = $scope.get_selected_files()[0];
 
@@ -584,7 +585,7 @@ angular.module("dendroApp.controllers")
 
         $scope.get_clipboard_file_count = function ()
         {
-            if ($scope.copied_files !== null && $scope.copied_files instanceof Array)
+            if (!Utils.isNull($scope.copied_files) && $scope.copied_files instanceof Array)
             {
                 if ($scope.copied_files.length > 0)
                 {
@@ -689,7 +690,7 @@ angular.module("dendroApp.controllers")
 
         $scope.toggle_select_file_at_index_for_multiple_selection = function (index)
         {
-            if ($scope.shared.folder_contents !== null && $scope.shared.folder_contents instanceof Array)
+            if (!Utils.isNull($scope.shared.folder_contents) && $scope.shared.folder_contents instanceof Array)
             {
                 if ($scope.shared.folder_contents.length > index)
                 {
@@ -711,7 +712,7 @@ angular.module("dendroApp.controllers")
                     time_stamp: new Date()
                 };
 
-                if ($scope.lastClickInFileExplorer === null)
+                if (Utils.isNull($scope.lastClickInFileExplorer))
                 {
                     $scope.lastClickInFileExplorer = $scope.lastClickInFileExplorer = {
                         index: -1,
@@ -751,7 +752,7 @@ angular.module("dendroApp.controllers")
                         else
                         {
                             // over the previously selected item
-                            if ($scope.lastClickInFileExplorer && $scope.lastClickInFileExplorer.index === $scope.newClickInFileExplorer.index && $scope.shared.selected_file !== null)
+                            if ($scope.lastClickInFileExplorer && $scope.lastClickInFileExplorer.index === $scope.newClickInFileExplorer.index && !Utils.isNull($scope.shared.selected_file))
                             {
                                 $scope.deselect_item_in_folder_browser();
                                 // $scope.show_popup('info', "SINGLE click", "SINGLE click");
@@ -854,7 +855,7 @@ angular.module("dendroApp.controllers")
                     {
                         $scope.load_preview();
                     }
-                    if (windowService.showing_history !== null && windowService.showing_history)
+                    if (!Utils.isNull(windowService.showing_history) && windowService.showing_history)
                     {
                         windowService.get_change_log();
                     }
@@ -899,7 +900,7 @@ angular.module("dendroApp.controllers")
                                 {
                                     $scope.load_preview();
                                 }
-                                if ($scope.showing_history !== null && $scope.showing_history)
+                                if (!Utils.isNull($scope.showing_history) && $scope.showing_history)
                                 {
                                     $scope.get_change_log(newSelectedFile.uri);
                                 }
@@ -911,7 +912,7 @@ angular.module("dendroApp.controllers")
 
         $scope.toggle_show_deleted_files = function ()
         {
-            if ($scope.shared.showing_deleted_files === null || typeof $scope.shared.showing_deleted_files === "undefined")
+            if (Utils.isNull($scope.shared.showing_deleted_files))
             {
                 $scope.shared.showing_deleted_files = true;
             }

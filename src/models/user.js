@@ -452,9 +452,16 @@ User.prototype.hiddenDescriptors = function (maxResults, callback, allowedOntolo
 
                 return callback(err, results);
             });
+
+            return null;
         })
         .catch(err =>
-            callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database."));
+        {
+            const msg = "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database when fetching hidden descriptors";
+            Logger.log("error", msg);
+            Logger.log("error", err);
+            callback(1, msg);
+        });
 };
 
 User.prototype.favoriteDescriptors = function (maxResults, callback, allowedOntologies)
@@ -471,7 +478,7 @@ User.prototype.favoriteDescriptors = function (maxResults, callback, allowedOnto
 
     dbMySQL.sequelize
         .query(queryUserDescriptorFavorites,
-            {replacements: { uri: self.uri }})
+            {replacements: {uri: self.uri}})
         .then(result =>
         {
             if (isNull(result))
@@ -487,7 +494,7 @@ User.prototype.favoriteDescriptors = function (maxResults, callback, allowedOnto
                     {
                         if (!isNull(descriptor))
                         {
-                            if (descriptor.recommendation_types != null)
+                            if (!isNull(descriptor.recommendation_types))
                             {
                                 descriptor.recommendation_types.user_favorite = true;
                             }
@@ -521,9 +528,17 @@ User.prototype.favoriteDescriptors = function (maxResults, callback, allowedOnto
 
                 return callback(err, results);
             });
+
+            return null;
         })
         .catch(err =>
-            callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database."));
+        {
+            const msg = "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database when fetching favorite descriptors"
+            Logger.log("error", msg);
+            Logger.log("error", err);
+            callback(1, msg);
+            return null;
+        });
 };
 
 User.prototype.mostAcceptedFavoriteDescriptorsInMetadataEditor = function (maxResults, callback, allowedOntologies)

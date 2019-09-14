@@ -2,9 +2,14 @@
 
 angular.module("dendroApp.services")
     .service("windowService",
-        ["$http",
-            function ($http)
+        ["$http", "Utils",
+            function ($http, Utils)
             {
+                this.init = function()
+                {
+                    Utils.fade_messages();
+                };
+
                 this.show_popup = function (type, title, message, delay)
                 {
                     if (!delay)
@@ -91,7 +96,7 @@ angular.module("dendroApp.services")
 
                 this.download_url = function (url, parametersString)
                 {
-                    if (url !== null && parametersString !== null)
+                    if (!Utils.isNull(url) && !Utils.isNull(parametersString))
                     {
                         url = url + parametersString;
                     }
@@ -111,7 +116,7 @@ angular.module("dendroApp.services")
                     var hiddenIFrameID = "hiddenDownloader_" + guid();
                     var iframe = document.getElementById(hiddenIFrameID);
 
-                    if (iframe === null || typeof iframe === "undefined")
+                    if (Utils.isNull(iframe))
                     {
                         iframe = document.createElement("iframe");
                         iframe.id = hiddenIFrameID;
@@ -129,7 +134,7 @@ angular.module("dendroApp.services")
                         throw "No event name provided.";
                     }
 
-                    if (url === null)
+                    if (Utils.isNull(url))
                     {
                         url = "";
                     }

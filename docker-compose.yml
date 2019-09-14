@@ -93,7 +93,7 @@ services:
     build:
       dockerfile: Dockerfile
       args:
-        - "SOURCE_BRANCH=dendrokeywords"
+        - "SOURCE_BRANCH=master"
       context: .
     ports:
       - published: 3001

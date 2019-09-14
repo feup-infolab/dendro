@@ -13,7 +13,8 @@ angular.module("dendroApp.controllers", [])
         metadataService,
         windowService,
         usersService,
-        depositsService
+        depositsService,
+        Utils
     )
     {
         $scope.active_tab = null;
@@ -216,7 +217,7 @@ angular.module("dendroApp.controllers", [])
         };
         $scope.select_descriptor_from_autocomplete_webpage = function (suggestion, model, label)
         {
-            if (suggestion !== null && suggestion instanceof Object)
+            if (!Utils.isNull(suggestion) && suggestion instanceof Object)
             {
                 var autocompletedDescriptor = JSON.parse(JSON.stringify(suggestion));
                 let y = Math.random() * 10;
@@ -241,7 +242,7 @@ angular.module("dendroApp.controllers", [])
             {
                 $scope.search_settings.descriptors.forEach(function (descriptor)
                 {
-                    if (descriptor.name === "" || descriptor.uri === null)
+                    if (descriptor.name === "" || Utils.isNull(descriptor.uri))
                     {
                         x = false;
                     }
@@ -255,7 +256,7 @@ angular.module("dendroApp.controllers", [])
             {
                 $scope.search_settings.descriptors.forEach(function (descriptor)
                 {
-                    if (descriptor.name === "" || descriptor.uri === null)
+                    if (descriptor.name === "" || Utils.isNull(descriptor.uri))
                     {
                         x = false;
                     }

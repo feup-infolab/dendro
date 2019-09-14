@@ -7,7 +7,8 @@ angular.module("dendroApp.controllers")
             $scope,
             $http,
             $filter,
-            ontologiesService)
+            ontologiesService,
+            Utils)
         {
             $scope.get_ontologies = function ()
             {

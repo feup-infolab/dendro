@@ -2,8 +2,8 @@
 
 angular.module("dendroApp.services")
     .service("languagesService",
-        ["$http", "$rootScope", "windowService",
-            function ($http, $rootScope, windowService)
+        ["$http", "$rootScope", "windowService", "Utils",
+            function ($http, $rootScope, windowService, Utils)
             {
                 this.get_languages = function ()
                 {
@@ -12,7 +12,7 @@ angular.module("dendroApp.services")
                         url: "/shared/data/languages.json"
                     }).then(function (response)
                     {
-                        if (response.data !== null && response.data instanceof Object)
+                        if (!Utils.isNull(response.data) && response.data instanceof Object)
                         {
                             return response.data;
                         }

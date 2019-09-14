@@ -1044,7 +1044,7 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
         let header = 0, offset = 1;
         let hdr = [];
         let o = {};
-        if (sheet === null || sheet["!ref"] === null) return [];
+        if (isNull(sheet) || isNull(sheet["!ref"])) return [];
         let range = o.range !== undefined ? o.range : sheet["!ref"];
         let r;
         if (o.header === 1) header = 1;

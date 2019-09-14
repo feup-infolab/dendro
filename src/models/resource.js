@@ -1346,7 +1346,7 @@ Resource.prototype.updateDescriptors = function (descriptors, cannotChangeTheseD
         {
             if (descriptor.isAuthorized(cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes))
             {
-                if (descriptor.value === null)
+                if (isNull(descriptor.value))
                 {
                     delete self[descriptor.prefix][descriptor.shortName];
                 }

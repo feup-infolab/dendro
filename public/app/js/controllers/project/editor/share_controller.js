@@ -9,7 +9,8 @@ angular.module("dendroApp.controllers")
             $http,
             $filter,
             windowService,
-            usersService
+            usersService,
+            Utils
         )
         {
             $scope.init = function ()
@@ -94,7 +95,7 @@ angular.module("dendroApp.controllers")
                     }
                 }).catch(function (error)
                 {
-                    if (error.data !== null && error.data.message !== null)
+                    if (!Utils.isNull(error.data) && !Utils.isNull(error.data.message))
                     {
                         $scope.show_popup("error", error.data.title, error.data.message);
                     }
@@ -131,7 +132,7 @@ angular.module("dendroApp.controllers")
 
             $scope.setSpinner = function (spinnerName, value)
             {
-                if ($scope.spinners === null)
+                if (Utils.isNull($scope.spinners))
                 {
                     $scope.spinners = {};
                 }
@@ -152,12 +153,12 @@ angular.module("dendroApp.controllers")
 
             $scope.valid_base_address = function (baseAddress)
             {
-                return baseAddress !== null && $scope.valid_url(baseAddress) && !baseAddress.endsWith("/");
+                return !Utils.isNull(baseAddress) && $scope.valid_url(baseAddress) && !baseAddress.endsWith("/");
             };
 
             $scope.valid_api_key = function (key)
             {
-                if (key === null || !key)
+                if (Utils.isNull(key))
                 {
                     return false;
                 }
@@ -172,7 +173,7 @@ angular.module("dendroApp.controllers")
 
             $scope.valid_organization = function (organization)
             {
-                if (!organization || organization === null || organization.length === 0)
+                if (Utils.isNull(organization) || organization.length === 0)
                 {
                     return false;
                 }
@@ -182,7 +183,7 @@ angular.module("dendroApp.controllers")
 
             $scope.create_new_repository_bookmark = function (newRepository)
             {
-                if (newRepository.ddr === null)
+                if (Utils.isNull(newRepository.ddr))
                 {
                     newRepository.ddr = {};
                 }
@@ -227,7 +228,7 @@ angular.module("dendroApp.controllers")
 
             $scope.create_new_repository_bookmark_dendro_local = function (newRepository)
             {
-                if (newRepository.ddr === null || !newRepository.ddr)
+                if (Utils.isNull(newRepository.ddr))
                 {
                     newRepository.ddr = {};
                 }
@@ -645,11 +646,11 @@ angular.module("dendroApp.controllers")
                 {
                     var data = response.data;
 
-                    if (data !== null)
+                    if (!Utils.isNull(data))
                     {
                         if (data.result === "error")
                         {
-                            if (data.message !== null)
+                            if (!Utils.isNull(data.message))
                             {
                                 $scope.show_popup("error", "Error", data.message);
                             }
@@ -660,7 +661,7 @@ angular.module("dendroApp.controllers")
                         }
                         else
                         {
-                            if (data.message !== null)
+                            if (!Utils.isNull(data.message))
                             {
                                 $scope.show_popup("success", "Success", data.message);
                             }
@@ -679,7 +680,7 @@ angular.module("dendroApp.controllers")
                     $scope.clear_recalled_repository();
                 }).catch(function (error)
                 {
-                    if (error.data !== null && error.data.message !== null)
+                    if (!Utils.isNull(error.data) && !Utils.isNull(error.data.message))
                     {
                         if (error.data.message.indexOf("ckanDiffs") !== -1)
                         {
@@ -757,7 +758,7 @@ angular.module("dendroApp.controllers")
                 }).then(function (response)
                 {
                     var data = response.data;
-                    if (data.result === "error" && data.message !== null)
+                    if (data.result === "error" && !Utils.isNull(data.message))
                     {
                         $scope.show_popup("error", "Error", data.message);
                     }
@@ -766,7 +767,7 @@ angular.module("dendroApp.controllers")
                         var nCollections = 0;
                         for (var workspace in data)
                         {
-                            if (data[workspace].collections !== null)
+                            if (!Utils.isNull(data[workspace].collections))
                             {
                                 nCollections += data[workspace].collections.length;
                             }
@@ -783,7 +784,7 @@ angular.module("dendroApp.controllers")
                     }
                 }).catch(function (error)
                 {
-                    if (error.data !== null && error.data.message !== null)
+                    if (!Utils.isNull(error.data) && !Utils.isNull(error.data.message))
                     {
                         $scope.show_popup("error", error.data.title, error.data.message);
                     }

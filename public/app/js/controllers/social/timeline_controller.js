@@ -12,7 +12,8 @@ angular.module("dendroApp.controllers")
             projectsService,
             $window,
             $element,
-            usSpinnerService
+            usSpinnerService,
+            Utils
         )
         {
             $scope.myTab = $element;
@@ -234,7 +235,7 @@ angular.module("dendroApp.controllers")
                     .catch(function (error)
                     {
                         console.log("error", "Error at getPosts: " + JSON.stringify(error));
-                        if (error !== null && error.data !== null && error.data.message !== null)
+                        if (!Utils.isNull(error) && !Utils.isNull(error.data) && !Utils.isNull(error.data.message))
                         {
                             Utils.show_popup("error", "Error getting posts information", error.data.message);
                         }

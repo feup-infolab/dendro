@@ -21,7 +21,8 @@ angular.module("dendroApp.controllers")
         ontologiesService,
         storageService,
         recommendationService,
-        descriptorsService
+        descriptorsService,
+        Utils
     )
     {
         $scope.get_recommendations = function ()
@@ -35,7 +36,7 @@ angular.module("dendroApp.controllers")
                 $scope.recommendations_page_size
             ).then(function (recommendations)
             {
-                if (recommendations !== null)
+                if (!Utils.isNull(recommendations))
                 {
                     $scope.recommendations = recommendations;
                     $scope.shared.recommender_offline = false;
@@ -83,7 +84,7 @@ angular.module("dendroApp.controllers")
 
         $scope.manually_select_ontology = function (ontology)
         {
-            if (ontology !== null && ontology instanceof Object)
+            if (!Utils.isNull(ontology) && ontology instanceof Object)
             {
                 var autocompletedOntology = JSON.parse(JSON.stringify(ontology));
 
@@ -120,7 +121,7 @@ angular.module("dendroApp.controllers")
 
         $scope.select_descriptor_from_autocomplete = function (suggestion, model, label)
         {
-            if (suggestion !== null && suggestion instanceof Object)
+            if (!Utils.isNull(suggestion) && suggestion instanceof Object)
             {
                 var autocompletedDescriptor = JSON.parse(JSON.stringify(suggestion));
                 autocompletedDescriptor.just_added = true;
@@ -137,7 +138,7 @@ angular.module("dendroApp.controllers")
             // necessary because we want a clone, without this, when editing a box,
             // all other boxes of the same descriptor would change!
 
-            if (descriptor !== null && descriptor instanceof Object)
+            if (!Utils.isNull(descriptor) && descriptor instanceof Object)
             {
                 var newDescriptor = JSON.parse(JSON.stringify(descriptor));
                 var uri;
@@ -165,7 +166,7 @@ angular.module("dendroApp.controllers")
                     newDescriptor.rankingPosition = index;
                     newDescriptor.pageNumber = $scope.recommendations_page;
 
-                    if (descriptor.recommendation_types !== null)
+                    if (!Utils.isNull(descriptor.recommendation_types))
                     {
                         if (
                             descriptor.recommendation_types.user_favorite &&
@@ -236,7 +237,7 @@ angular.module("dendroApp.controllers")
             newDescriptor.rankingPosition = index;
             newDescriptor.pageNumber = $scope.recommendations_page;
 
-            if (newDescriptor.recommendation_types !== null)
+            if (!Utils.isNull(newDescriptor.recommendation_types))
             {
                 newDescriptor.recommendation_types.project_hidden = true;
             }
@@ -284,7 +285,7 @@ angular.module("dendroApp.controllers")
             newDescriptor.rankingPosition = index;
             newDescriptor.pageNumber = $scope.recommendations_page;
 
-            if (newDescriptor.recommendation_types !== null)
+            if (!Utils.isNull(newDescriptor.recommendation_types))
             {
                 newDescriptor.recommendation_types.project_hidden = false;
             }
@@ -332,7 +333,7 @@ angular.module("dendroApp.controllers")
             newDescriptor.rankingPosition = index;
             newDescriptor.pageNumber = $scope.recommendations_page;
 
-            if (newDescriptor.recommendation_types !== null)
+            if (!Utils.isNull(newDescriptor.recommendation_types))
             {
                 newDescriptor.recommendation_types.user_hidden = false;
             }
@@ -380,7 +381,7 @@ angular.module("dendroApp.controllers")
             newDescriptor.rankingPosition = index;
             newDescriptor.pageNumber = $scope.recommendations_page;
 
-            if (newDescriptor.recommendation_types !== null)
+            if (!Utils.isNull(newDescriptor.recommendation_types))
             {
                 newDescriptor.recommendation_types.user_hidden = true;
             }
@@ -430,7 +431,7 @@ angular.module("dendroApp.controllers")
             newDescriptor.rankingPosition = index;
             newDescriptor.pageNumber = $scope.recommendations_page;
 
-            if (newDescriptor.recommendation_types !== null)
+            if (!Utils.isNull(newDescriptor.recommendation_types))
             {
                 newDescriptor.recommendation_types.project_favorite = true;
             }
@@ -479,7 +480,7 @@ angular.module("dendroApp.controllers")
             // newDescriptor.added_from_quick_list = true;
             newDescriptor.rankingPosition = index;
             newDescriptor.pageNumber = $scope.recommendations_page;
-            if (newDescriptor.recommendation_types !== null)
+            if (!Utils.isNull(newDescriptor.recommendation_types))
             {
                 newDescriptor.recommendation_types.project_favorite = true;
             }
@@ -528,7 +529,7 @@ angular.module("dendroApp.controllers")
             // newDescriptor.added_from_quick_list = true;
             newDescriptor.rankingPosition = index;
             newDescriptor.pageNumber = $scope.recommendations_page;
-            if (newDescriptor.recommendation_types !== null)
+            if (!Utils.isNull(newDescriptor.recommendation_types))
             {
                 newDescriptor.recommendation_types.user_favorite = true;
             }
@@ -577,7 +578,7 @@ angular.module("dendroApp.controllers")
             // newDescriptor.added_from_quick_list = true;
             newDescriptor.rankingPosition = index;
             newDescriptor.pageNumber = $scope.recommendations_page;
-            if (newDescriptor.recommendation_types !== null)
+            if (!Utils.isNull(newDescriptor.recommendation_types))
             {
                 newDescriptor.recommendation_types.user_favorite = true;
             }
@@ -626,7 +627,7 @@ angular.module("dendroApp.controllers")
             // newDescriptor.added_from_quick_list = true;
             newDescriptor.rankingPosition = index;
             newDescriptor.pageNumber = $scope.recommendations_page;
-            if (newDescriptor.recommendation_types !== null)
+            if (!Utils.isNull(newDescriptor.recommendation_types))
             {
                 newDescriptor.recommendation_types.user_favorite = false;
             }
@@ -674,7 +675,7 @@ angular.module("dendroApp.controllers")
             // newDescriptor.added_from_quick_list = true;
             newDescriptor.rankingPosition = index;
             newDescriptor.pageNumber = $scope.recommendations_page;
-            if (newDescriptor.recommendation_types !== null)
+            if (!Utils.isNull(newDescriptor.recommendation_types))
             {
                 newDescriptor.recommendation_types.project_favorite = false;
             }
@@ -718,7 +719,7 @@ angular.module("dendroApp.controllers")
         {
             bootbox.prompt("Please enter the number of descriptors of type " + descriptor.label + " that you would like to add (a number from 1 to 15)", function (number_of_times)
             {
-                if (number_of_times === null || typeof number_of_times === "undefined")
+                if (Utils.isNull(number_of_times))
                 {
 
                 }
@@ -736,7 +737,7 @@ angular.module("dendroApp.controllers")
                             if ($scope.descriptor_selection_mode === recommendationService.descriptor_selection_modes.recommendation)
                             {
                                 if (
-                                    descriptor.recommendation_types !== null
+                                    !isNull(descriptor.recommendation_types)
                                 )
                                 {
                                     if (
@@ -772,7 +773,7 @@ angular.module("dendroApp.controllers")
                             else if ($scope.descriptor_selection_mode === recommendationService.descriptor_selection_modes.manual)
                             {
                                 if (
-                                    descriptor.recommendation_types !== null
+                                    !Utils.isNull(descriptor.recommendation_types)
                                 )
                                 {
                                     if (
@@ -806,7 +807,7 @@ angular.module("dendroApp.controllers")
                                 }
                             }
 
-                            if (descriptor !== null && descriptor instanceof Object)
+                            if (!Utils.isNull(descriptor) && descriptor instanceof Object)
                             {
                                 var newDescriptor = JSON.parse(JSON.stringify(descriptor));
                                 newDescriptor.just_added = true;
@@ -909,12 +910,16 @@ angular.module("dendroApp.controllers")
 
         $scope.get_previous_descriptor_recommendations = function ()
         {
-            if ($scope.recommendations_page === null)
+            if (!Utils.isNull($scope.recommendations_page))
             {
                 $scope.recommendations_page = 0;
             }
 
-            $scope.recommendations_page--;
+            if($scope.recommendations_page > 0)
+            {
+                $scope.recommendations_page--;
+            }
+
             storageService.save_to_local_storage("recommendations_page", $scope.recommendations_page);
 
             $scope.get_recommendations();
@@ -922,7 +927,7 @@ angular.module("dendroApp.controllers")
 
         $scope.get_next_descriptor_recommendations = function ()
         {
-            if ($scope.recommendations_page === null)
+            if (Utils.isNull($scope.recommendations_page))
             {
                 $scope.recommendations_page = 0;
             }
@@ -946,12 +951,12 @@ angular.module("dendroApp.controllers")
 
                 if (newMode === recommendationService.descriptor_selection_modes.manual)
                 {
-                    if (ontologiesService.public_ontologies === null)
+                    if (!ontologiesService.public_ontologies)
                     {
                         $scope.get_public_ontologies();
                     }
 
-                    if ($scope.manually_selected_ontology !== null && typeof $scope.manually_selected_ontology.uri === "string")
+                    if ($scope.manually_selected_ontology && typeof $scope.manually_selected_ontology.uri === "string")
                     {
                         descriptorsService.get_descriptors_from_ontology_annotated_for_a_resource($scope.manually_selected_ontology.uri, $scope.get_calling_uri());
                     }
@@ -1012,7 +1017,7 @@ angular.module("dendroApp.controllers")
                 $scope.get_recommendations();
             }
 
-            if ($scope.manually_selected_ontology === null)
+            if (Utils.isNull($scope.manually_selected_ontology))
             {
                 $scope.get_public_ontologies();
             }
@@ -1020,7 +1025,7 @@ angular.module("dendroApp.controllers")
             {
                 $scope.set_from_local_storage_and_then_from_value("manual_descriptors");
 
-                if ($scope.manual_descriptors === null)
+                if (Utils.isNull($scope.manual_descriptors))
                 {
                     $scope.get_manual_descriptors_from_ontology($scope.manually_selected_ontology.prefix);
                 }

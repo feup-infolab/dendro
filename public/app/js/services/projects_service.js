@@ -2,12 +2,12 @@
 
 angular.module("dendroApp.services")
     .service("projectsService",
-        ["$q", "$http", "windowService", "$location",
-            function ($q, $http, windowService, $location)
+        ["$q", "$http", "windowService", "$location", "Utils",
+            function ($q, $http, windowService, $location, Utils)
             {
                 this.create_new_project = function (new_project)
                 {
-                    if (new_project.ddr === null)
+                    if (Utils.isNull(new_project.ddr))
                     {
                         new_project.ddr = {};
                     }
@@ -107,7 +107,7 @@ angular.module("dendroApp.services")
 
                 this.get_owner_project_of_resource = function (uri)
                 {
-                    if (uri === null)
+                    if (Utils.isNull(uri))
                     {
                         uri = windowService.get_current_url();
                     }
@@ -125,7 +125,7 @@ angular.module("dendroApp.services")
                     }).then(
                         function (response)
                         {
-                            if (response.data !== null && response.data instanceof Object)
+                            if (!Utils.isNull(response.data) && response.data instanceof Object)
                             {
                                 deserialize.resolve(response.data);
                             }
