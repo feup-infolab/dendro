@@ -86,7 +86,7 @@ Deposit.createDeposit = function (data, callback)
                     givenName: user.foaf.firstName,
                     familyName: user.foaf.surname,
                     nameType: "Personal",
-                    affiliation: user.foaf.affiliation,
+                    affiliation: [],
                     nameIdentifiers:
                     [{
                         nameIdentifier: user.ddr.absoluteUri,
@@ -384,7 +384,7 @@ Deposit.createQueryAux = function (params, query, variables, i)
                 }
                 else if (params.searchDepth === "onlyNodes")
                 {
-                    query += "   ?uri nie:hasLogicalPart ?child. \n" +
+                    query += "   ?uri nie:hasLogicalPart* ?child. \n" +
                              "   ?child ?descriptorchild ?valuechild. \n" +
                              "   VALUES (?descriptorchild ?valuechild) \n" +
                              "   {" + body + "}\n";
@@ -401,7 +401,7 @@ Deposit.createQueryAux = function (params, query, variables, i)
             }
             else if (params.searchDepth === "onlyNodes")
             {
-                query += "   ?uri nie:hasLogicalPart ?child.\n" +
+                query += "   ?uri nie:hasLogicalPart* ?child.\n" +
                          "   ?child [" + i++ + "] [" + i++ + "]. \n";
             }
 
@@ -715,7 +715,6 @@ Deposit.saveContents = function (params, callback)
                     if (isNull(err))
                     {
                         let content = params.content;
-                        // TODO check if file or folder
                         content.copyPaste({
                             includeMetadata: true,
                             destinationFolder: rootFolder,
@@ -724,7 +723,6 @@ Deposit.saveContents = function (params, callback)
                         {
                             callback(err, newDeposit);
                         });
-                        // pass contents here
                     }
                     else
                     {
@@ -923,7 +921,7 @@ Deposit.prototype.delete = function (callback, customGraphUri)
 
     const clearCacheRecords = function (callback)
     {
-        Project.prototype.clearCacheRecords.bind(this)(function (err, result)
+        Project.prototype.clearCacheRecords.bind(self)(function (err, result)
         {
             callback(err, result);
         });

@@ -275,6 +275,14 @@ angular.module("dendroApp.controllers", [])
             $scope.rootDepositUri = rootDepositUri;
             $scope.isDepositRoot = isRoot;
             $scope.depositUri = depositUri;
+            usersService.get_logged_user()
+                .then(function (user)
+                {
+                    $scope.loggedUser = user;
+                })
+                .catch(function (error)
+                {
+                });
         };
 
         $scope.deleteElement = function (id)
@@ -297,8 +305,16 @@ angular.module("dendroApp.controllers", [])
 
         $scope.init = function ()
         {
-            $scope.getRegistry(true);
-            $scope.asyncSelected = "";
+            usersService.get_logged_user()
+                .then(function (user)
+                {
+                    $scope.loggedUser = user;
+                    $scope.getRegistry(true);
+                    $scope.asyncSelected = "";
+                })
+                .catch(function (error)
+                {
+                });
         };
         $scope.myInit = function ()
         {
@@ -312,7 +328,6 @@ angular.module("dendroApp.controllers", [])
                 })
                 .catch(function (error)
                 {
-                    $scope.show_popup("error", error, "Error fetching user", 20000);
                 });
         };
         $scope.getLoggerUser = function ()
@@ -325,7 +340,6 @@ angular.module("dendroApp.controllers", [])
                 })
                 .catch(function (error)
                 {
-                    $scope.show_popup("error", error, "Error fetching user", 20000);
                 });
         };
         $scope.updateDeposits = function (data, change)
@@ -485,7 +499,7 @@ angular.module("dendroApp.controllers", [])
             depositsService.change_user_access(condition, value, forDelete)
                 .then(function (response)
                 {
-                    depositsService.get_deposit_conditions()
+                    depositsService.get_deposit_conditions($scope.depositUri)
                         .then(function (response)
                         {
                             $scope.conditionsAccepted = response.conditionsAccepted;

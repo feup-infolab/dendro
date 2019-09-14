@@ -1913,7 +1913,7 @@ Project.prototype.clearCacheRecords = function (callback, customGraphUri)
                     }
                     else
                     {
-                        callback(err, members);
+                        callback(err, "Error retrieving the current members of the project");
                     }
                 }
             });

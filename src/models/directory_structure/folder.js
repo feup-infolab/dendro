@@ -460,7 +460,6 @@ Folder.prototype.copyPaste = function ({includeMetadata, user, destinationFolder
                         {
                             Folder.deleteOnLocalFileSystem(absolutePathOfFinishedFolder, function (err, result)
                             {
-                                // self.undelete(callback, userRestoringTheFolder.uri, true);
                                 callback(null, "copied folder successfully.");
                             });
                         }
@@ -469,6 +468,56 @@ Folder.prototype.copyPaste = function ({includeMetadata, user, destinationFolder
                             return callback(err, "Unable to copy folder " + self.uri + " to another folder.");
                         }
                     }, true);
+                }
+            });
+        }
+        else
+        {
+            callback(err, "error");
+        }
+    });
+};
+
+Folder.prototype.copyPaste2 = function ({includeMetadata, user, destinationFolder}, callback)
+{
+    const self = this;
+    self.createTempFolderWithContents(includeMetadata, false, false, function (err, parentFolderPath, absolutePathOfFinishedFolder, metadata)
+    {
+        if (isNull(err))
+        {
+            async.series([
+                function (cb)
+                {
+                    if (includeMetadata)
+                    {
+                        self.saveMetadata({absolutePathOfFinishedFolder, metadata}, function (err)
+                        {
+                            cb(err);
+                        });
+                    }
+                    else
+                    {
+                        cb(null);
+                    }
+                }], function (err)
+            {
+                if (isNull(err))
+                {
+                    Logger.log("Preparing to copy paste contents of folder : " + absolutePathOfFinishedFolder);
+                    destinationFolder.loadContentsOfFolderIntoThis(absolutePathOfFinishedFolder, true, function (err, result)
+                    {
+                        if (isNull(err))
+                        {
+                            Folder.deleteOnLocalFileSystem(absolutePathOfFinishedFolder, function (err, result)
+                            {
+                                callback(null, "copied folder successfully.");
+                            });
+                        }
+                        else
+                        {
+                            return callback(err, "Unable to copy folder " + self.uri + " to another folder.");
+                        }
+                    }, false, user);
                 }
             });
         }

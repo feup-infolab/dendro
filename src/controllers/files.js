@@ -497,7 +497,6 @@ exports.serve = function (req, res)
             {
                 if (isNull(err))
                 {
-                    const path = require("path");
                     if (ie.isA(File))
                     {
                         File.findByUri(requestedResourceURI, function (err, file)
@@ -599,6 +598,7 @@ exports.serve = function (req, res)
             });
     }
 };
+
 exports.serve_base64 = function (req, res)
 {
     const requestedResourceURI = req.params.requestedResourceUri;
@@ -615,8 +615,6 @@ exports.serve_base64 = function (req, res)
                     {
                         if (isNull(err))
                         {
-                            const mimeType = Config.mimeType(file.ddr.fileExtension);
-
                             file.writeToTempFile(function (err, writtenFilePath)
                             {
                                 if (isNull(err))
@@ -1417,50 +1415,6 @@ exports.restore = function (req, res)
             message: "Unable to determine the folder to be restored"
         });
     }
-};
-
-// TODO not done yet
-exports.copy_paste = function (req, res)
-{
-    const requestedResourceURI = req.params.requestedResourceUri;
-    const folderDestination = req.params.destination;
-
-    function downloadFile (srcFileLocation, destFolder)
-    {
-    // File.download
-        File.copyPaste({ destinationFolder: destFolder });
-    }
-
-    function downloadFolder (srcFolder, destFolder)
-    {
-        Folder.findByUri(srcFolder, function (err, folder)
-        {
-            if (isNull(err))
-            {
-
-            }
-        });
-    }
-
-    // create backup from selected folder
-    InformationElement.findByUri(requestedResourceURI, function (err, ie)
-    {
-        if (isNull(err))
-        {
-            if (ie.isA(File))
-            {
-                downloadFile(requestedResourceURI, folderDestination);
-            }
-            else if (ie.isA(Folder))
-            {
-                downloadFolder(requestedResourceURI, folderDestination);
-            }
-            else
-            {
-                // error warning
-            }
-        }
-    });
 };
 
 exports.rm = function (req, res)
@@ -3386,7 +3340,7 @@ const getTargetFolder = function (req, callback)
             }
             else
             {
-                res.status(500).json("Error occurred while fetching project with uri " + resourceUri);
+                callback(500, "Error occurred while fetching project with uri " + resourceUri);
             }
         });
     }
@@ -3625,6 +3579,170 @@ exports.cut = function (req, res)
                                 result: "error",
                                 error: err,
                                 message: "Unable to find target tolder!"
+                            });
+                        }
+                    }
+                    else
+                    {
+                        return res.status(err).json({
+                            result: "error",
+                            message: "An error occurred while fetching the destination folder of the move operation.\n" + JSON.stringify(targetFolder),
+                            error: targetFolder
+                        });
+                    }
+                });
+            }
+            else
+            {
+                const error = "The 'files' parameter is not a valid array of files and folders";
+                Logger.log("error", error);
+                return res.status(400).json({
+                    result: "error",
+                    message: error
+                });
+            }
+        }
+        else
+        {
+            const error = "Missing 'files' parameter; Unable to determine which files to move!";
+            Logger.log("error", error);
+            return res.status(400).json({
+                result: "error",
+                message: error
+            });
+        }
+    }
+    else
+    {
+        res.status(400).json({
+            result: "error",
+            message: "HTML Request not valid for this route."
+        });
+    }
+};
+
+exports.copy_paste = function (req, res)
+{
+    const requestedResourceURI = req.params.requestedResourceUri;
+
+    const acceptsHTML = req.accepts("html");
+    const acceptsJSON = req.accepts("json");
+
+    if (acceptsJSON && !acceptsHTML)
+    {
+        if (!isNull(req.body.files))
+        {
+            if (req.body.files instanceof Array)
+            {
+                let files = req.body.files;
+                const Permissions = Object.create(rlequire("dendro", "src/models/meta/permissions.js").Permissions);
+
+                const permissions = [
+                    Permissions.settings.role.in_owner_project.contributor,
+                    Permissions.settings.role.in_owner_project.creator
+                ];
+
+                getTargetFolder(req, function (err, targetFolder)
+                {
+                    if (!err)
+                    {
+                        let targetfolder = targetFolder;
+                        if (!isNull(targetFolder) && targetFolder instanceof Folder)
+                        {
+                            checkIfFilesExist(files, function (err, filesToBeMoved)
+                            {
+                                if (isNull(err))
+                                {
+                                    if (filesToBeMoved[0].isA(File))
+                                    {
+                                        File.findByUri(filesToBeMoved[0].uri, function (err, file)
+                                        {
+                                            if (isNull(err))
+                                            {
+                                                file.copyPaste({ destinationFolder: targetFolder }, function (err, msg)
+                                                {
+                                                    if (isNull(err))
+                                                    {
+                                                        return res.json({
+                                                            result: "ok",
+                                                            message: "File copied successfully"
+                                                        });
+                                                    }
+                                                    return res.status(500).json({
+                                                        result: "error",
+                                                        message: "An error occurred while copying file.",
+                                                        error: msg
+                                                    });
+                                                });
+                                            }
+                                            else
+                                            {
+                                                return res.status(500).json({
+                                                    result: "error",
+                                                    message: "An error occurred while copying file.",
+                                                    error: err
+                                                });
+                                            }
+                                        });
+                                    }
+                                    else if (filesToBeMoved[0].isA(Folder))
+                                    {
+                                        Folder.findByUri(filesToBeMoved[0].uri, function (err, folder)
+                                        {
+                                            let entityLoadingTheMetadataUri = User.anonymous.uri;
+
+                                            const rootFolder = new Folder({
+                                                nie: {
+                                                    isLogicalPartOf: targetfolder.uri
+                                                }
+                                            });
+                                            rootFolder.autorename();
+
+                                            rootFolder.save(function (err, result)
+                                            {
+                                                targetfolder.nie.hasLogicalPart = rootFolder.uri;
+                                                targetfolder.save(function (err, result)
+                                                {
+                                                    folder.copyPaste2({
+                                                        includeMetadata: false,
+                                                        destinationFolder: rootFolder,
+                                                        user: entityLoadingTheMetadataUri
+                                                    }, function (err, msg)
+                                                    {
+                                                        if (isNull(err))
+                                                        {
+                                                            return res.json({
+                                                                result: "ok",
+                                                                message: "Folder copied successfully"
+                                                            });
+                                                        }
+                                                        return res.status(500).json({
+                                                            result: "error",
+                                                            message: "An error occurred while copying folder.",
+                                                            error: err
+                                                        });
+                                                    });
+                                                });
+                                            });
+                                        });
+                                    }
+                                }
+                                else
+                                {
+                                    return res.status(404).json({
+                                        result: "error",
+                                        message: "Some of the files that were asked to be moved do not exist.",
+                                        error: filesToBeMoved
+                                    });
+                                }
+                            });
+                        }
+                        else
+                        {
+                            return res.status(err).json({
+                                result: "error",
+                                message: "An error occurred while fetching the destination folder of the move operation.\n" + JSON.stringify(targetFolder),
+                                error: targetFolder
                             });
                         }
                     }
