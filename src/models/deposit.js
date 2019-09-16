@@ -52,16 +52,16 @@ Deposit.createDeposit = function (data, callback)
     let content = data.requestedResource;
     let newDeposit = new Deposit(object);
     const uuid = uuidv1();
-    const DOI = "10.23673/" + uuid;
+    const DOI = Config.deposits.datacite.doi_prefix +"/"+ uuid;
     const user = data.user;
+    const auth = "Basic " + new Buffer(Config.deposits.datacite.username + ":" + Config.deposits.datacite.password).toString("base64");
+
     const generateDoi = function (callback)
     {
-        const auth = "Basic " + new Buffer("DEV.INFOLAB" + ":" + "8yD5qChSbUSK").toString("base64");
-
         superRequest
             .post("https://api.test.datacite.org/dois")
             .set("accept", "application/vnd.api+json")
-            .set("Referer", "https://doi.test.datacite.org/clients/dev.infolab/dois/new")
+            .set("Referer", `https://doi.test.datacite.org/clients/${Config.deposits.datacite.client_id}/dois/new`)
             .set("Origin", "https://doi.test.datacite.org")
             .set("Authorization", auth)
             .set("Content-Type", "application/vnd.api+json")
@@ -117,7 +117,7 @@ Deposit.createDeposit = function (data, callback)
                     data:
                     {
                         type: "clients",
-                        id: "dev.infolab"
+                        id: Config.deposits.datacite.client_id
                     }
                 }
             },
@@ -135,17 +135,15 @@ Deposit.createDeposit = function (data, callback)
     };
     const generateCitation = function (callback)
     {
-        const auth = "Basic " + new Buffer("DEV.INFOLAB" + ":" + "8yD5qChSbUSK").toString("base64");
-
         let headers = {
             accept: "application/x-bibtex",
-            Referer: Config.deposits.pids.datacite + "%2F" + uuid,
+            Referer: Config.deposits.datacite.organization + "%2F" + uuid,
             Origin: "https://doi.test.datacite.org",
             Authorization: auth
         };
 
         let options = {
-            url: Config.deposits.pids.datacite + "/" + uuid,
+            url: Config.deposits.datacite.organization + "/" + uuid,
             headers: headers
         };
 

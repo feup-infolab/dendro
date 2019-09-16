@@ -26,40 +26,40 @@ angular.module("dendroApp.controllers", [])
         };
 
         $scope.search = {
-            creator: {
-                type: "text",
-                label: "Username",
-                key: "creator",
-                value: "",
-                hidden: false
-            },
             project: {
                 type: "text",
                 label: "Deposit title",
                 key: "project",
                 value: ""
             },
+            creator: {
+                type: "text",
+                label: "Creator (username)",
+                key: "creator",
+                value: "",
+                hidden: false
+            },
             description: {
                 type: "text",
-                label: "Description",
+                label: "Dataset description",
                 key: "description",
                 value: ""
             },
             identifier: {
                 type: "text",
-                label: "Identifier",
+                label: "Dataset identifier (DOI)",
                 key: "identifier",
                 value: ""
             },
             dateFrom: {
                 type: "date",
-                label: "Date Start",
+                label: "Created from (date)",
                 key: "dateFrom",
                 value: ""
             },
             dateTo: {
                 type: "date",
-                label: "Date End",
+                label: "Deposited until (date)",
                 key: "dateTo",
                 value: ""
             },
