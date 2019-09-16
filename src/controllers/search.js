@@ -127,7 +127,7 @@ exports.search = function (req, res)
                         {
                             renderParameters.results = [];
 
-                            if(!isNull(query))
+                            if (!isNull(query))
                             {
                                 renderParameters.info_messages = ["No results found for query: \"" + query + "\"."];
                             }

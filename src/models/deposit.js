@@ -52,7 +52,7 @@ Deposit.createDeposit = function (data, callback)
     let content = data.requestedResource;
     let newDeposit = new Deposit(object);
     const uuid = uuidv1();
-    const DOI = Config.deposits.datacite.doi_prefix +"/"+ uuid;
+    const DOI = Config.deposits.datacite.doi_prefix + "/" + uuid;
     const user = data.user;
     const auth = "Basic " + new Buffer(Config.deposits.datacite.username + ":" + Config.deposits.datacite.password).toString("base64");
 
