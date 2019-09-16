@@ -19,7 +19,6 @@ angular.module("dendroApp.controllers")
                     .then(function (user)
                     {
                         $scope.loggedUser = user;
-
                     })
                     .catch(function (error)
                     {

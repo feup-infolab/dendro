@@ -3,7 +3,7 @@
 angular.module("dendroApp.services")
     .service("usersService",
         [ "$http",
-            "$q","Utils",
+            "$q", "Utils",
             function ($http, $q, Utils)
             {
                 this.get_logged_user = function ()

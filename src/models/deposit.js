@@ -20,11 +20,6 @@ const Storage = rlequire("dendro", "src/kb/storage/storage.js").Storage;
 const uuidv1 = require("uuid/v1");
 const superRequest = require("superagent");
 const ConditionsAcceptance = rlequire("dendro", "src/models/conditionsAcceptance.js").ConditionsAcceptance;
-const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
-
-const dbMySQL = rlequire("dendro", "src/mysql_models");
-
-const B2ShareClient = require("@feup-infolab/node-b2share-v2");
 
 const util = require("util");
 const async = require("async");
@@ -964,6 +959,156 @@ Deposit.prototype.delete = function (callback, customGraphUri)
     {
         callback(err, results);
     });
+};
+
+Deposit.prototype.getRootFolder = function (callback)
+{
+    const self = this;
+    const folderUri = self.ddr.rootFolder;
+
+    Folder.findByUri(folderUri, function (err, rootFolder)
+    {
+        if (isNull(err))
+        {
+            if (!isNull(rootFolder) && rootFolder instanceof Folder)
+            {
+                callback(err, rootFolder);
+            }
+        }
+        else
+        {
+            callback(err, rootFolder);
+        }
+    });
+};
+
+Deposit.prototype.reindex = function (callback, customGraphUri)
+{
+    const self = this;
+    let failed;
+
+    self.getRootFolder(function (err, rootFolder)
+    {
+        if (isNull(err))
+        {
+            async.parallel([
+                function (callback)
+                {
+                    if (self.ddr.privacyStatus === "public" || self.ddr.privacyStatus === "metadata_only")
+                    {
+                        // reindex the Deposit object itself.
+                        Deposit.baseConstructor.prototype.reindex.call(self, function (err, result)
+                        {
+                            callback(err, result);
+                        });
+                    }
+                    else
+                    {
+                        // unindex the Project object itself.
+                        Deposit.baseConstructor.prototype.unindex.call(self, function (err, result)
+                        {
+                            callback(err, result);
+                        });
+                    }
+                },
+                function (callback)
+                {
+                    // reindex the entire directory structure
+                    rootFolder.forAllChildren(
+                        function (err, resources)
+                        {
+                            if (isNull(err))
+                            {
+                                if (resources.length > 0)
+                                {
+                                    async.mapSeries(resources, function (resource, callback)
+                                    {
+                                        if (!isNull(resource))
+                                        {
+                                            if (self.ddr.privacyStatus === "public" || self.ddr.privacyStatus === "metadata_only")
+                                            {
+                                                Logger.log("silly", "Folder or File " + resource.uri + " now being REindexed.");
+                                                resource.reindex(function (err, resource)
+                                                {
+                                                    if (err)
+                                                    {
+                                                        Logger.log("error", "Error reindexing File or Folder " + resource.uri + " : " + JSON.stringify(err, null, 4) + "\n" + JSON.stringify(resource, null, 4));
+                                                        failed = true;
+                                                    }
+
+                                                    callback(failed, resource);
+                                                }, customGraphUri);
+                                            }
+                                            else
+                                            {
+                                                Logger.log("silly", "Folder or File " + resource.uri + " now being UNindexed.");
+                                                resource.unindex(function (err, results)
+                                                {
+                                                    if (err)
+                                                    {
+                                                        Logger.log("error", "Error unindexing File or folder " + resource.uri + " : " + results);
+                                                        failed = true;
+                                                    }
+
+                                                    callback(failed, results);
+                                                }, customGraphUri);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            callback(false, resource);
+                                        }
+                                    }, function (err, results)
+                                    {
+                                        if (err)
+                                        {
+                                            Logger.log("error", "Errors occurred indexing all children of " + self.uri + " for reindexing : " + resources);
+                                            failed = true;
+                                        }
+
+                                        return callback(failed, null);
+                                    });
+                                }
+                                else
+                                {
+                                    return callback(failed, null);
+                                }
+                            }
+                            else
+                            {
+                                failed = true;
+                                return callback(failed, "Error fetching children of " + self.uri + " for reindexing : " + resources);
+                            }
+                        },
+                        function ()
+                        {
+                            return failed;
+                        },
+                        function (err)
+                        {
+                            return callback(err, null);
+                        },
+                        true,
+                        customGraphUri
+                    );
+                }
+            ], function (err, result)
+            {
+                callback(err, self);
+            });
+        }
+        else
+        {
+            Logger.log("error", "Unable to fetch root folder of deposit " + self.uri + " while reindexing it.");
+            callback(err, rootFolder);
+        }
+    });
+};
+
+Deposit.prototype.getHumanReadableUri = function (callback)
+{
+    const self = this;
+    callback(null, self.uri);
 };
 
 Deposit = Class.extend(Deposit, Resource, "ddr:Registry");

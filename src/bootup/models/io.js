@@ -69,7 +69,7 @@ class IO
                 }
                 else
                 {
-                    Logger.log("error", "Could not identify user, data.userUri is missing!");
+                    Logger.log("debug", "Could not identify user, data.userUri is missing!");
                 }
             });
 

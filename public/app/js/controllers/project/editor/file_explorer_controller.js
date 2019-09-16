@@ -271,8 +271,6 @@ angular.module("dendroApp.controllers")
                         children: null
                     });
 
-
-
                     if ($scope.file_explorer_selected_something())
                     {
                         if ($scope.file_explorer_selected_contains_deleted())

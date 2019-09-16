@@ -5,7 +5,7 @@ angular.module("dendroApp.services")
         ["$http", "Utils",
             function ($http, Utils)
             {
-                this.init = function()
+                this.init = function ()
                 {
                     Utils.fade_messages();
                 };
