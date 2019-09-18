@@ -166,7 +166,7 @@ module.exports.reindex = function (req, res)
                 {
                     let failed;
 
-                    async.mapSeries(classesToReindex, function (classToReindex, callback)
+                    async.mapLimit(classesToReindex, 3, function (classToReindex, callback)
                     {
                         Logger.log("Reindexing all instances of " + classToReindex.leafClass + " ...");
                         const db = Config.getDBByHandle(graphShortName);

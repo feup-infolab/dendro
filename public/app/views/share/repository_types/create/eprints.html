@@ -27,7 +27,10 @@
 
 <div class="control-group has-feedback">
     <input type="checkbox" id="privacyStatus" ng-class="new_repository.ddr.privacyStatus" ng-model="new_repository.ddr.privacyStatus">
-    <label for="privacyStatus">I want to make this registry public</label>
+    <label for="privacyStatus">Advertise my deposits in the homepage</label>
+    <div class="help-block">
+        By default, a record will be added to the homepage of this website for every deposit you make in this repository, increasing visibility of those deposits. You can change this setting later when you perform each deposit.
+    </div>
 </div>
 
 <button type="cancel" ng-click="clear_repository_type()" class="btn">Cancel</button>
