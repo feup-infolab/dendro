@@ -19,29 +19,33 @@
             <div class=" pull-right col-lg-7 col-md-7">
                 <div class="checkbox">
                     <input type="checkbox" for ="publicDeposit0" id="publicDeposit0" ng-change="change_checkbox(publicDeposit, 4, 0)" ng-model="publicDeposit[0]">
-                    <label name="publicDeposit0">Make this deposit public</label>
+                    <label name="publicDeposit0"><b>Make this deposit public</b><br/><small>All data and metadata will be available to everyone immediately, without need for prior approval.</small></label>
                 </div>
                 <div class="checkbox">
                     <input type="checkbox" for ="publicDeposit1" id="publicDeposit1" ng-change="change_checkbox(publicDeposit, 4, 1)" ng-model="publicDeposit[1]">
-                    <label>Make this registry embargoed until</label>
-                    <input ng-disabled="!publicDeposit[1]" type="date" ng-model="embargoed" name="embargoed" >
+                    <label><b>Make this deposit embargoed until a specific date</b><br/><small>Data and metadata will be private until this date. Afterwards, every file and metadata will be automatically made publicly accessible.</small>
+                        <div ng-if="publicDeposit[1]">
+                            <br/>
+                            Specify date of embargo lifting: <input type="date" placeholder="yyyy-mm-dd" ng-model="embargoed" name="embargoed" >
+                        </div>
+                    </label>
                 </div>
                 <div class="checkbox">
                     <input type="checkbox" for ="publicDeposit2" id="publicDeposit2" ng-change="change_checkbox(publicDeposit, 4, 2)" ng-model="publicDeposit[2]">
-                    <label name="publicDeposit2">Make this deposit private</label>
+                    <label name="publicDeposit2"><b>Make this deposit private</b><br/><small>Only the title and description will be shown, all access needs to be manually approved by data creators.</small></label>
                 </div>
                 <div class="checkbox">
                     <input type="checkbox" for ="publicDeposit3" id="publicDeposit3" ng-change="change_checkbox(publicDeposit, 4, 3)" ng-model="publicDeposit[3]">
-                    <label name="publicDeposit3">Make public metadata only</label>
+                    <label name="publicDeposit3"><b>Make only metadata public</b><br/><small>Only the metadata of the dataset and its files will be published, but no data can be downloaded until data creators approve it.</small></label>
                 </div>
             </div>
         </div>
-        <div class="row col-lg-9 col-md-9 col-sm-7">
-                <label for="accessTerms" id="accessTerms">Access conditions:</label>
-            <div class="pull-right">
-                <textarea placeholder="Complete your conditions of access to the deposit" name="accessTerms" ng-model="accessTerms">
+        <div class="row col-lg-12 col-md-12">
+            <label for="accessTerms" id="accessTerms">Access conditions:</label>
+            <div class=" pull-right col-lg-7 col-md-7" >
+                <textarea placeholder="Complete your conditions of access to the deposit" name="accessTerms" ng-model="accessTerms" style="width:100%">
                 </textarea>
-                </div>
+            </div>
         </div>
 
         <div class="row col-md-12 col-sm-12">
