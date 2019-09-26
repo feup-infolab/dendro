@@ -99,6 +99,24 @@ class Notebook
         });
     }
 
+
+    fileWatcher () {
+        console.log(__dirname);
+        var fileLocation = path.join(__dirname.replace("src/models/directory_structure",'temp'),'/jupyter-notebooks/');
+        const watcher = chokidar.watch(["."], {
+            ignored: /(^|[\/\\])\../, // ignore dotfiles
+            persistent: true,
+            cwd: fileLocation
+        });
+        const log = console.log.bind(console);
+        watcher
+            .on('add', path => log(`File ${path} has been added`))
+            .on('change', path => log(`File ${path} has been changed`))
+            .on('unlink', path => log(`File ${path} has been removed`));
+
+    }
+
+
     saveNotebook (callback)
     {
 

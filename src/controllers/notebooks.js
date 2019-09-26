@@ -10,7 +10,6 @@ module.exports.show = function (req, res)
 
 module.exports.activate = function (req, res)
 {
-
 };
 
 module.exports.new = function (req, res)
@@ -20,20 +19,7 @@ module.exports.new = function (req, res)
     {
         res.redirect(`/notebook_runner/${newNotebook.id}`);
     });
-    fileWatcher();
+
+    newNotebook.fileWatcher();
 };
 
-fileWatcher = function () {
-
-    const watcher = chokidar.watch('../temp', {
-        ignored: /(^|[\/\\])\../, // ignore dotfiles
-        persistent: true
-    });
-
-    const log = console.log.bind(console);
-    watcher
-        .on('add', path => log(`File ${path} has been added`))
-        .on('change', path => log(`File ${path} has been changed`))
-        .on('unlink', path => log(`File ${path} has been removed`));
-
-};
