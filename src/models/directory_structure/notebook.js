@@ -100,9 +100,9 @@ class Notebook
     }
 
 
-    fileWatcher () {
+    fileWatcher (notebookID) {
         console.log(__dirname);
-        var fileLocation = path.join(__dirname.replace("src/models/directory_structure",'temp'),'/jupyter-notebooks/');
+        var fileLocation = path.join(__dirname.replace("src/models/directory_structure",'temp/jupyter-notebooks/'),`${notebookID}`);
         const watcher = chokidar.watch(["."], {
             ignored: /(^|[\/\\])\../, // ignore dotfiles
             persistent: true,
@@ -110,9 +110,9 @@ class Notebook
         });
         const log = console.log.bind(console);
         watcher
-            .on('add', path => log(`File ${path} has been added`))
-            .on('change', path => log(`File ${path} has been changed`))
-            .on('unlink', path => log(`File ${path} has been removed`));
+            .on('add', path => log(`${notebookID}: File ${path} has been added`))
+            .on('change', path => log(`${notebookID}: File ${path} has been changed`))
+            .on('unlink', path => log(`${notebookID}: File ${path} has been removed`));
 
     }
 

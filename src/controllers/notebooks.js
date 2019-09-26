@@ -20,6 +20,6 @@ module.exports.new = function (req, res)
         res.redirect(`/notebook_runner/${newNotebook.id}`);
     });
 
-    newNotebook.fileWatcher();
+    newNotebook.fileWatcher(newNotebook.id);
 };
 
