@@ -102,7 +102,6 @@ class Notebook
 
 
     fileWatcher (notebookID) {
-        console.log(__dirname);
         var fileLocation = path.join(__dirname.replace("src/models/directory_structure",'temp/jupyter-notebooks/'),`${notebookID}`);
         const watcher = chokidar.watch(["."], {
             ignored: /(^|[\/\\])\../, // ignore dotfiles
@@ -113,7 +112,7 @@ class Notebook
         watcher
             .on('add', path => {
                 log(`Notebook ${notebookID}: File ${path} has been added`);
-                Queue_manager.pushQueue("hello");
+               // Queue_manager.pushQueue("hello");
             })
             .on('change', path => log(`Notebook ${notebookID}: File ${path} has been changed`))
             .on('unlink', path => log(`Notebook ${notebookID}: File ${path} has been removed`));
