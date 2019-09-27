@@ -14,6 +14,7 @@ const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descripto
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const Notification = rlequire("dendro", "src/models/notifications/notification.js").Notification;
 const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
+const Queue_manager = rlequire("dendro", "src/models/uploads/queue_manager.js").Queue_manager;
 
 const gfs = Config.getGFSByID();
 
@@ -110,9 +111,12 @@ class Notebook
         });
         const log = console.log.bind(console);
         watcher
-            .on('add', path => log(`${notebookID}: File ${path} has been added`))
-            .on('change', path => log(`${notebookID}: File ${path} has been changed`))
-            .on('unlink', path => log(`${notebookID}: File ${path} has been removed`));
+            .on('add', path => {
+                log(`Notebook ${notebookID}: File ${path} has been added`);
+                Queue_manager.pushQueue("hello");
+            })
+            .on('change', path => log(`Notebook ${notebookID}: File ${path} has been changed`))
+            .on('unlink', path => log(`Notebook ${notebookID}: File ${path} has been removed`));
 
     }
 

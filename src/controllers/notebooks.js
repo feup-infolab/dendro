@@ -23,3 +23,6 @@ module.exports.new = function (req, res)
     newNotebook.fileWatcher(newNotebook.id);
 };
 
+module.exports.close= function (req,res)
+{
+};
