@@ -533,7 +533,7 @@ User.prototype.favoriteDescriptors = function (maxResults, callback, allowedOnto
         })
         .catch(err =>
         {
-            const msg = "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database when fetching favorite descriptors"
+            const msg = "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database when fetching favorite descriptors";
             Logger.log("error", msg);
             Logger.log("error", err);
             callback(1, msg);

@@ -804,6 +804,13 @@ Elements.ontologies.foaf =
  */
 
 Elements.ontologies.ddr = {
+    isAdmin: {
+        type: Elements.types.boolean,
+        control: Controls.input_box,
+        api_readable: true,
+        locked: true,
+        private: true
+    },
     userAccepted: {
         type: Elements.types.boolean,
         control: Controls.input_box,

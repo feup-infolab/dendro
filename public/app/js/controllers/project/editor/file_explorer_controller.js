@@ -109,18 +109,17 @@ angular.module("dendroApp.controllers")
                 },
                 children: null
             });
-
-            /* items.push({
-                click: function ($itemScope, $event, modelValue, text, $li)
-                {
-                    $scope.copy();
-                },
-                html: function ()
-                {
-                    return "<a href=\"#\"><img class=\"icon16\" src=\"/images/icons/page_copy.png\">&nbsp;Copy</a>";
-                },
-                children: null
-            });*/
+            // items.push({
+            //     click: function ($itemScope, $event, modelValue, text, $li)
+            //     {
+            //         $scope.copy();
+            //     },
+            //     html: function ()
+            //     {
+            //         return "<a href=\"#\"><img class=\"icon16\" src=\"/images/icons/page_copy.png\">&nbsp;Copy</a>";
+            //     },
+            //     children: null
+            // });
 
             items.push({
                 click: function ($itemScope, $event, modelValue, text, $li)
@@ -163,6 +162,146 @@ angular.module("dendroApp.controllers")
                         },
                         children: null
                     });
+                }
+            }
+
+            if (item.ddr)
+            {
+                if (item.ddr.deleted)
+                {
+                    items.push({
+                        click: function ($itemScope, $event, modelValue, text, $li)
+                        {
+                            $scope.undelete_file_or_folder();
+                        },
+                        html: function ()
+                        {
+                            return "<a href=\"#\"><img class=\"icon16\" data-loading-text=\"Deleting...\" src=\"/images/icons/redo.png\">&nbsp;Undelete</a>";
+                        },
+                        children: null
+                    });
+                }
+            }
+
+            return items;
+        };
+
+        $scope.menuOptionsDeposits = function (item)
+        {
+            if (!$scope.shared.multiple_selection_active)
+            {
+                $scope.clear_selected_files();
+            }
+            item.selected = true;
+            var items;
+
+            if (item && item.ddr.fileExtension === "folder")
+            {
+                items = [];
+
+                if ($scope.runningOnSmartphoneOrTablet())
+                {
+                    items.push(
+                        {
+                            click: function ($itemScope, $event, modelValue, text, $li)
+                            {
+                                $scope.open_for_mobile_devices();
+                            },
+                            html: function ()
+                            {
+                                return "<a href=\"#\"><img class=\"icon16\" id=\"open_folder_button\" src=\"/images/icons/folder_vertical_open.png\">Open</a></li>";
+                            },
+                            children: null
+                        });
+                }
+
+                items.push({
+                    click: function ($itemScope, $event, modelValue, text, $li)
+                    {
+                        $scope.download_selected_items();
+                    },
+                    html: function ()
+                    {
+                        return "<a href=\"#\"><img class=\"icon16\" data-loading-text=\"Downloading...\" src=\"/images/icons/arrow_down.png\">&nbsp;Download</a>";
+                    },
+                    children: null
+                });
+
+                items.push({
+                    click: function ($itemScope, $event, modelValue, text, $li)
+                    {
+                        $scope.backup_folder();
+                    },
+                    html: function ()
+                    {
+                        return "<a href=\"#\"><img class=\"icon16\" data-loading-text=\"Backup...\" src=\"/images/icons/folder_vertical_zipper.png\">&nbsp;Backup</a>";
+                    },
+                    children: null
+                });
+            }
+            else
+            {
+                items = [
+                    {
+                        click: function ($itemScope, $event, modelValue, text, $li)
+                        {
+                            $scope.download_selected_items();
+                        },
+                        html: function ()
+                        {
+                            return "<a href=\"#\"><img class=\"icon16\" data-loading-text=\"Downloading...\" src=\"/images/icons/arrow_down.png\">&nbsp;Download</a>";
+                        },
+                        children: null
+                    }
+                ];
+            }
+            if ($scope.loggedUser)
+            {
+                if ($scope.loggedUser.ddr.isAdmin)
+                {
+                    items.push({
+                        click: function ($itemScope, $event, modelValue, text, $li)
+                        {
+                            $scope.rename();
+                        },
+                        html: function ()
+                        {
+                            return "<a href=\"#\"><img class=\"icon16\" src=\"/images/icons/textfield_rename.png\">&nbsp;Rename</a>";
+                        },
+                        children: null
+                    });
+
+                    if ($scope.file_explorer_selected_something())
+                    {
+                        if ($scope.file_explorer_selected_contains_deleted())
+                        {
+                            items.push({
+                                click: function ($itemScope, $event, modelValue, text, $li)
+                                {
+                                    $scope.delete_file_or_folder();
+                                },
+                                html: function ()
+                                {
+                                    return "<a href=\"#\"><img class=\"icon16\" data-loading-text=\"Deleting...\" src=\"/images/icons/cross.png\">&nbsp;Delete (files already deleted will be lost forever!)</a>";
+                                },
+                                children: null
+                            });
+                        }
+                        else
+                        {
+                            items.push({
+                                click: function ($itemScope, $event, modelValue, text, $li)
+                                {
+                                    $scope.delete_file_or_folder();
+                                },
+                                html: function ()
+                                {
+                                    return "<a href=\"#\"><img class=\"icon16\" data-loading-text=\"Deleting...\" src=\"/images/icons/cross.png\">&nbsp;Delete</a>";
+                                },
+                                children: null
+                            });
+                        }
+                    }
                 }
             }
 

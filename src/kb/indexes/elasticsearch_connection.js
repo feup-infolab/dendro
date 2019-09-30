@@ -660,19 +660,23 @@ class ElasticSearchConnection extends IndexConnection
         let self = this;
 
         const queryObject = {
-            query: {
-                match: {
-                    "descriptors.object": {
-                        query: options.query
-                    }
-                }
-            },
             from: options.from,
             size: options.size,
             sort: [
                 "_score"
             ]
         };
+
+        if (!isNull(options.query))
+        {
+            queryObject.query = {
+                match: {
+                    "descriptors.object": {
+                        query: options.query
+                    }
+                }
+            };
+        }
 
         self.ensureIndexIsReady(function (err)
         {

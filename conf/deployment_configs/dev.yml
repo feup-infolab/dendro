@@ -241,7 +241,7 @@ dev:
       dump_snapshots: false
   startup:
     load_databases: true
-    reload_administrators_on_startup: true
+    reload_administrators_on_startup: false
     reload_demo_users_on_startup: true
     reload_ontologies_on_startup: true
     clear_session_store: true
@@ -383,6 +383,10 @@ dev:
     embargoed:
       disembargo_cron_expression: "0 0 * * *"
   deposits:
-    pids:
-      datacite: "https://api.test.datacite.org/dois/10.23673"
+    datacite:
+      client_id: "dev.infolab"
+      username: "DEV.INFOLAB"
+      password: "8yD5qChSbUSK"
+      doi_prefix: "10.23673"
+      organization: "https://api.test.datacite.org/dois/10.23673"
 

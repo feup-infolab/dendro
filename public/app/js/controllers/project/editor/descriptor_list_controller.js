@@ -915,7 +915,7 @@ angular.module("dendroApp.controllers")
                 $scope.recommendations_page = 0;
             }
 
-            if($scope.recommendations_page > 0)
+            if ($scope.recommendations_page > 0)
             {
                 $scope.recommendations_page--;
             }
