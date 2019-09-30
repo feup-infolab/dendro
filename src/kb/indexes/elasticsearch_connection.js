@@ -26,7 +26,8 @@ class ElasticSearchConnection extends IndexConnection
 
         self.clientOptions = {
             host: IndexConnection.getAddress(self.host, self.port),
-            keepAlive: true
+            keepAlive: true,
+            log: null
         };
 
         if (Config.index.elasticsearch.connection_log_type !== "undefined" && Config.index.elasticsearch.connection_log_type !== "")
@@ -129,6 +130,7 @@ class ElasticSearchConnection extends IndexConnection
                             if (result.acknowledged)
                             {
                                 self._indexIsOpen = true;
+                                self.client.log = [ "warn" ];
                                 callback(null, true);
                             }
                             else
