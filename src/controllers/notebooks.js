@@ -2,8 +2,6 @@ const rlequire = require("rlequire");
 const _ = require("underscore");
 const Notebook = rlequire("dendro", "src/models/directory_structure/notebook.js").Notebook;
 
-const chokidar = require('chokidar');
-
 module.exports.show = function (req, res)
 {
 };

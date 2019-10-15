@@ -14,7 +14,6 @@ const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descripto
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const Notification = rlequire("dendro", "src/models/notifications/notification.js").Notification;
 const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
-const Queue_manager = rlequire("dendro", "src/models/uploads/queue_manager.js").Queue_manager;
 
 const gfs = Config.getGFSByID();
 
@@ -22,6 +21,7 @@ const async = require("async");
 const mkdirp = require("mkdirp");
 const fs = require("fs-extra");
 const chokidar = require('chokidar');
+const qqueue = require("better-queue");
 
 
 class Notebook
@@ -68,7 +68,7 @@ class Notebook
         return `sha1:${sha1(plainTextPassword)}`;
     }
 
-    spinUp (callback)
+spinUp (callback)
     {
         const self = this;
         const DockerManager = Object.create(rlequire("dendro", "src/utils/docker/docker_manager.js").DockerManager);
@@ -97,32 +97,47 @@ class Notebook
                 DENDRO_NOTEBOOK_DEFAULT_PASSWORD: self.cypherPassword(Config.notebooks.jupyter.default_password),
                 DENDRO_NOTEBOOK_USER_ID: process.geteuid(),
             });
+            self.startQueue();
+
         });
     }
 
 
     fileWatcher (notebookID) {
         var fileLocation = path.join(__dirname.replace("src/models/directory_structure",'temp/jupyter-notebooks/'),`${notebookID}`);
+
         const watcher = chokidar.watch(["."], {
             ignored: /(^|[\/\\])\../, // ignore dotfiles
             persistent: true,
             cwd: fileLocation
         });
+
         const log = console.log.bind(console);
+        console.log(q);
         watcher
             .on('add', path => {
                 log(`Notebook ${notebookID}: File ${path} has been added`);
-               // Queue_manager.pushQueue("hello");
+                //Queue_manager.getQueue.pushQueue("hello");
+                //log(queue);
             })
             .on('change', path => log(`Notebook ${notebookID}: File ${path} has been changed`))
             .on('unlink', path => log(`Notebook ${notebookID}: File ${path} has been removed`));
-
     }
 
 
     saveNotebook (callback)
     {
 
+    }
+
+    startQueue ()
+    {
+        var q = new qqueue(function () {
+
+        });
+        q.push(1);
+        q.push({ x: 1, y: 2 });
+        q.push("hello");
     }
 
     getFullNotebookUri ()
