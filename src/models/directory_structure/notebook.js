@@ -21,8 +21,12 @@ const async = require("async");
 const mkdirp = require("mkdirp");
 const fs = require("fs-extra");
 const chokidar = require('chokidar');
-const qqueue = require("better-queue");
+const Queue = require("better-queue");
 
+let q = new Queue(function (input, cb) {
+    console.log(`${input} was added to the queue`);
+    cb(null, result);
+});
 
 class Notebook
 {
@@ -97,8 +101,6 @@ spinUp (callback)
                 DENDRO_NOTEBOOK_DEFAULT_PASSWORD: self.cypherPassword(Config.notebooks.jupyter.default_password),
                 DENDRO_NOTEBOOK_USER_ID: process.geteuid(),
             });
-            self.startQueue();
-
         });
     }
 
@@ -113,31 +115,38 @@ spinUp (callback)
         });
 
         const log = console.log.bind(console);
-        console.log(q);
+        let event = {};
         watcher
             .on('add', path => {
+                event.notebook = notebookID;
+                event.filepath = path;
+                event.type= 'add';
+
                 log(`Notebook ${notebookID}: File ${path} has been added`);
-                //Queue_manager.getQueue.pushQueue("hello");
-                //log(queue);
+                q.push(event);
             })
-            .on('change', path => log(`Notebook ${notebookID}: File ${path} has been changed`))
-            .on('unlink', path => log(`Notebook ${notebookID}: File ${path} has been removed`));
+            .on('change', path => {
+                event.notebook = notebookID;
+                event.filepath = path;
+                event.type= 'change';
+
+                log(`Notebook ${notebookID}: File ${path} has been changed`);
+                q.push(event);
+            })
+            .on('unlink', path => {
+                event.notebook = notebookID;
+                event.filepath = path;
+                event.type= 'delete';
+
+                log(`Notebook ${notebookID}: File ${path} has been removed`);
+                q.push(event);
+            });
     }
 
 
     saveNotebook (callback)
     {
 
-    }
-
-    startQueue ()
-    {
-        var q = new qqueue(function () {
-
-        });
-        q.push(1);
-        q.push({ x: 1, y: 2 });
-        q.push("hello");
     }
 
     getFullNotebookUri ()
