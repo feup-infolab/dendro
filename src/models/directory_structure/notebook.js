@@ -14,6 +14,7 @@ const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descripto
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const Notification = rlequire("dendro", "src/models/notifications/notification.js").Notification;
 const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
+const Upload = rlequire("dendro", "src/models/uploads/upload.js").Upload;
 
 const gfs = Config.getGFSByID();
 
@@ -23,31 +24,29 @@ const fs = require("fs-extra");
 const chokidar = require('chokidar');
 const Queue = require("better-queue");
 
-let q = new Queue(function (input, cb) {
-    console.log(`${input} was added to the queue`);
-    cb(null, result);
+
+const q = new Queue(function (event, cb) {
+    console.log("Added to Queue");
+    Upload.tester(event);
+    console.log("Finished adding");
+    cb();
 });
 
-class Notebook
-{
-    constructor (object = {})
-    {
+
+class Notebook {
+    constructor(object = {}) {
         const self = this;
         self.addURIAndRDFType(object, "notebook", Notebook);
         Notebook.baseConstructor.call(this, object);
 
-        if (!isNull(object.nie))
-        {
+        if (!isNull(object.nie)) {
             self.nie.isLogicalPartOf = object.nie.isLogicalPartOf;
             self.nie.title = object.nie.title;
         }
 
-        if (!isNull(object.id))
-        {
+        if (!isNull(object.id)) {
             self.id = object.id;
-        }
-        else
-        {
+        } else {
             const uuid = require("uuid");
             self.id = uuid.v4();
         }
@@ -58,22 +57,19 @@ class Notebook
         return self;
     }
 
-    getHost ()
-    {
+    getHost() {
         const self = this;
         return `jupyter-notebook.${self.id}`;
     }
 
-    cypherPassword (plainTextPassword)
-    {
+    cypherPassword(plainTextPassword) {
         // Yes i know i should not store passwords as plain text in the config.yml file.
         // That is a default password that SHOULD be changed by the jupyter user.
         const sha1 = require("sha1");
         return `sha1:${sha1(plainTextPassword)}`;
     }
 
-spinUp (callback)
-    {
+    spinUp(callback) {
         const self = this;
         const DockerManager = Object.create(rlequire("dendro", "src/utils/docker/docker_manager.js").DockerManager);
         mkdirp.sync(self.runningPath);
@@ -83,16 +79,14 @@ spinUp (callback)
         const cloneOrchestraFile = path.join(self.runningPath, "docker-compose.yml");
 
         // Async with callbacks:
-        fs.copy(baseOrchestraFile, cloneOrchestraFile, err =>
-        {
+        fs.copy(baseOrchestraFile, cloneOrchestraFile, err => {
             if (err) return console.error(err);
             console.log("success!");
 
             console.log("Starting notebook");
             // console.log(`tini -g -- /usr/local/bin/start-notebook.sh --NotebookApp.base_url=\\"${self.getFullNotebookUri()}\\" --NotebookApp.password=\\"${Config.notebooks.jupyter.default_password}\\" --NotebookApp.custom_display_url=\\"${self.getFullNotebookUri()}\\"`);
 
-            DockerManager.startOrchestra("dendro_notebook", function (err, result)
-            {
+            DockerManager.startOrchestra("dendro_notebook", function (err, result) {
                 callback(err, result);
             }, null, self.runningPath, {
                 DENDRO_NOTEBOOK_GUID: self.id,
@@ -105,8 +99,8 @@ spinUp (callback)
     }
 
 
-    fileWatcher (notebookID) {
-        var fileLocation = path.join(__dirname.replace("src/models/directory_structure",'temp/jupyter-notebooks/'),`${notebookID}`);
+    fileWatcher(notebookID) {
+        var fileLocation = path.join(__dirname.replace("src/models/directory_structure", 'temp/jupyter-notebooks/'), `${notebookID}`);
 
         const watcher = chokidar.watch(["."], {
             ignored: /(^|[\/\\])\../, // ignore dotfiles
@@ -120,15 +114,16 @@ spinUp (callback)
             .on('add', path => {
                 event.notebook = notebookID;
                 event.filepath = path;
-                event.type= 'add';
+                event.type = 'add';
 
                 log(`Notebook ${notebookID}: File ${path} has been added`);
                 q.push(event);
+                console.log(q.getStats());
             })
             .on('change', path => {
                 event.notebook = notebookID;
                 event.filepath = path;
-                event.type= 'change';
+                event.type = 'change';
 
                 log(`Notebook ${notebookID}: File ${path} has been changed`);
                 q.push(event);
@@ -136,32 +131,27 @@ spinUp (callback)
             .on('unlink', path => {
                 event.notebook = notebookID;
                 event.filepath = path;
-                event.type= 'delete';
+                event.type = 'delete';
 
                 log(`Notebook ${notebookID}: File ${path} has been removed`);
                 q.push(event);
             });
     }
 
-
-    saveNotebook (callback)
-    {
+    saveNotebook(callback) {
 
     }
 
-    getFullNotebookUri ()
-    {
+    getFullNotebookUri() {
         const self = this;
         return "/notebook_runner/" + self.id;
     }
 
-    rewriteUrl (relativeUrl)
-    {
+    rewriteUrl(relativeUrl) {
         const self = this;
         const url = self.getFullNotebookUri();
 
-        if (isNull(relativeUrl))
-        {
+        if (isNull(relativeUrl)) {
             return url;
         }
         return url + relativeUrl;
