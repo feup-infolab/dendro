@@ -28,7 +28,6 @@ const Queue = require("better-queue");
 const q = new Queue(function (event, cb) {
     console.log("Added to Queue");
     Upload.tester(event);
-    console.log("Finished adding");
     cb();
 });
 
