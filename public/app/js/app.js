@@ -12,6 +12,7 @@ var startTrackingWithGoogleAnalytics = function (app)
 
 // Declare app level module which depends on filters, and services
 var dendroApp = angular.module("dendroApp", [
+    "Utils",
     "ngRoute",
     "ngAnimate",
     "ngTagsInput",

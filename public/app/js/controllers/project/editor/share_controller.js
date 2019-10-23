@@ -7,19 +7,35 @@ angular.module("dendroApp.controllers")
         function (
             $scope,
             $http,
-            $filter
+            $filter,
+            windowService,
+            usersService,
+            Utils
         )
         {
+            $scope.init = function ()
+            {
+                usersService.get_logged_user()
+                    .then(function (user)
+                    {
+                        $scope.loggedUser = user;
+                    })
+                    .catch(function (error)
+                    {
+                        $scope.show_popup("error", error, "Error fetching user", 20000);
+                    });
+            };
+
             $scope.get_current_url = function ()
             {
                 var newURL = window.location.protocol + "//" + window.location.host + window.location.pathname;
                 return newURL;
             };
 
-            $scope.calculateCkanRepositoryDiffs = function (target_repository)
+            $scope.calculateCkanRepositoryDiffs = function (targetRepository)
             {
                 var payload = {
-                    repository: target_repository,
+                    repository: targetRepository,
                     new_dataset: $scope.new_dataset
                 };
 
@@ -78,7 +94,7 @@ angular.module("dendroApp.controllers")
                     }
                 }).catch(function (error)
                 {
-                    if (error.data != null && error.data.message != null)
+                    if (!Utils.isNull(error.data) && !Utils.isNull(error.data.message))
                     {
                         $scope.show_popup("error", error.data.title, error.data.message);
                     }
@@ -115,7 +131,7 @@ angular.module("dendroApp.controllers")
 
             $scope.setSpinner = function (spinnerName, value)
             {
-                if ($scope.spinners == null)
+                if (Utils.isNull($scope.spinners))
                 {
                     $scope.spinners = {};
                 }
@@ -136,18 +152,18 @@ angular.module("dendroApp.controllers")
 
             $scope.valid_base_address = function (baseAddress)
             {
-                return baseAddress != null && $scope.valid_url(baseAddress) && !baseAddress.endsWith("/");
+                return !Utils.isNull(baseAddress) && $scope.valid_url(baseAddress) && !baseAddress.endsWith("/");
             };
 
             $scope.valid_api_key = function (key)
             {
-                if (key == null)
+                if (Utils.isNull(key))
                 {
                     return false;
                 }
                 var regexp = /^[a-zA-Z0-9-_]+$/;
 
-                if (key.search(regexp) == -1)
+                if (key.search(regexp) === -1)
                 {
                     return false;
                 }
@@ -156,7 +172,7 @@ angular.module("dendroApp.controllers")
 
             $scope.valid_organization = function (organization)
             {
-                if (organization == null || organization.length == 0)
+                if (Utils.isNull(organization) || organization.length === 0)
                 {
                     return false;
                 }
@@ -164,15 +180,61 @@ angular.module("dendroApp.controllers")
                 return regexp.test(organization);
             };
 
-            $scope.create_new_repository_bookmark = function (new_repository)
+            $scope.create_new_repository_bookmark = function (newRepository)
             {
-                if (new_repository.ddr == null)
+                if (Utils.isNull(newRepository.ddr))
                 {
-                    new_repository.ddr = {};
+                    newRepository.ddr = {};
                 }
-                new_repository.ddr.hasPlatform = $scope.new_repository_type;
+                newRepository.ddr.hasPlatform = $scope.new_repository_type;
 
-                var requestPayload = JSON.stringify(new_repository);
+                var url = window.location.pathname;
+
+                let shared = $scope.shared;
+
+                let selectedUri = [];
+
+                for (index in shared.folder_contents)
+                {
+                    if (shared.folder_contents[index].selected) selectedUri.push(shared.folder_contents[index].uri);
+                }
+
+                if (selectedUri.length === 0) selectedUri.push(url);
+
+                newRepository.ddr.exportedResource = selectedUri;
+                newRepository.ddr.exportedFromFolder = url;
+
+                var requestPayload = JSON.stringify(newRepository);
+
+                $.ajax({
+                    type: "POST",
+                    url: "/external_repositories/new",
+                    data: requestPayload,
+                    contentType: "application/json",
+                    beforeSend: function (xhr)
+                    {
+                        xhr.setRequestHeader("Accept", "application/json");
+                    },
+                    success: function (e, data)
+                    {
+                        $scope.clear_repository_type();
+                        // $scope.get_my_repositories();
+                        $scope.show_popup("success", "Success", e.message);
+                    },
+                    statusCode: $scope.statusCodeDefaults
+                });
+            };
+
+            $scope.create_new_repository_bookmark_dendro_local = function (newRepository)
+            {
+                if (Utils.isNull(newRepository.ddr))
+                {
+                    newRepository.ddr = {};
+                }
+                newRepository.ddr.hasPlatform = $scope.new_repository_type;
+                var url = window.location.pathname;
+                newRepository.ddr.exportedFromFolder = url;
+                var requestPayload = JSON.stringify(newRepository);
 
                 $.ajax({
                     type: "POST",
@@ -199,22 +261,214 @@ angular.module("dendroApp.controllers")
                 $scope.clear_sword_data();
             };
 
+            $scope.disable_save_bookmark_dendro = function (newRepository)
+            {
+                if (!newRepository || !newRepository.dcterms || !newRepository.dcterms.title)
+                {
+                    return true;
+                }
+                return false;
+            };
+
+            $scope.initValues = function (userAffiliation, descriptionOfDeposit, titleDeposit)
+            {
+                $scope.setUserAffiliation(userAffiliation);
+                $scope.setDescription(descriptionOfDeposit);
+                $scope.setTitleDeposit(titleDeposit);
+            };
+
+            $scope.setUserAffiliation = function (userAffiliation)
+            {
+                $scope.userAffiliation = userAffiliation;
+            };
+
+            $scope.setDescription = function (description)
+            {
+                $scope.descriptionOfDeposit = description;
+            };
+
+            $scope.setTitleDeposit = function (title)
+            {
+                $scope.titleOfDeposit = title;
+            };
+
+            $scope.disable_send_bookmark_dendro = function (title, description, obj, date, userAffiliation)
+            {
+                let one = false;
+                let index;
+
+                if (!title)
+                {
+                    return true;
+                }
+
+                if (!userAffiliation || userAffiliation === "")
+                {
+                    return true;
+                }
+
+                if (!description || description === "")
+                {
+                    return true;
+                }
+
+                if (!obj)
+                {
+                    return true;
+                }
+
+                for (let key in obj)
+                {
+                    if (obj[key] === true)
+                    {
+                        one = true;
+                        index = key;
+                    }
+                }
+
+                if (index === "1" && one)
+                {
+                    if (!date)
+                    {
+                        return true;
+                    }
+                    const dateNow = new Date();
+                    if (dateNow > date)
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+
+                if (index !== "1" && one)
+                {
+                    return false;
+                }
+                return false;
+            };
+
+            $scope.disable_save_bookmark_b2share = function (newRepository)
+            {
+                if (!newRepository || !newRepository.dcterms || !newRepository.dcterms.title)
+                {
+                    return true;
+                }
+                if (newRepository.ddr.hasAccessToken === "" || !newRepository.ddr.hasAccessToken)
+                {
+                    return true;
+                }
+                return false;
+            };
+
+            $scope.disable_save_bookmark_zenodo = function (newRepository)
+            {
+                if (!newRepository || !newRepository.dcterms || !newRepository.dcterms.title)
+                {
+                    return true;
+                }
+                if (newRepository.ddr.hasAccessToken === "" || !newRepository.ddr.hasAccessToken)
+                {
+                    return true;
+                }
+                return false;
+            };
+
+            $scope.disable_save_bookmark_figshare = function (newRepository)
+            {
+                if (!newRepository || !newRepository.dcterms || !newRepository.dcterms.title)
+                {
+                    return true;
+                }
+                if (!newRepository.ddr.hasConsumerKey)
+                {
+                    return true;
+                }
+                if (newRepository.ddr.hasAccessToken === "" || !newRepository.ddr.hasAccessToken)
+                {
+                    return true;
+                }
+                if (newRepository.ddr.hasAccessTokenSecret === "" || !newRepository.ddr.hasAccessTokenSecret)
+                {
+                    return true;
+                }
+                return false;
+            };
+
+            $scope.disable_save_bookmark_eprints = function (newRepository)
+            {
+                if (!newRepository || !newRepository.dcterms || !newRepository.dcterms.title)
+                {
+                    return true;
+                }
+                if (!newRepository.ddr || !$scope.valid_url(newRepository.ddr.hasExternalUri))
+                {
+                    return true;
+                }
+                return false;
+            };
+
+            $scope.disable_save_bookmark_dspace = function (newRepository)
+            {
+                if (!newRepository || !newRepository.dcterms || !newRepository.dcterms.title)
+                {
+                    return true;
+                }
+                if (!newRepository.ddr || !$scope.valid_url(newRepository.ddr.hasExternalUri))
+                {
+                    return true;
+                }
+                if (!newRepository.ddr.username)
+                {
+                    return true;
+                }
+                if (!newRepository.ddr.password || newRepository.ddr.password === "")
+                {
+                    return true;
+                }
+                return false;
+            };
+
+            $scope.disable_save_bookmark_ckan = function (newRepository)
+            {
+                if (!newRepository || !newRepository.dcterms || !newRepository.dcterms.title)
+                {
+                    return true;
+                }
+                if (!newRepository.ddr || !$scope.valid_url(newRepository.ddr.hasExternalUri))
+                {
+                    return true;
+                }
+                if (!newRepository.ddr.username)
+                {
+                    return true;
+                }
+                if (!newRepository.ddr.hasOrganization)
+                {
+                    return true;
+                }
+                if (!newRepository.ddr.hasAPIKey)
+                {
+                    return true;
+                }
+                return false;
+            };
+
             $scope.clear_recalled_repository = function ()
             {
                 delete $scope.recalled_repository;
                 $scope.clear_sword_data();
             };
 
-            $scope.select_repository_type = function (new_repository_type)
+            $scope.select_repository_type = function (newRepositoryType)
             {
-                $scope.new_repository_type = new_repository_type;
+                $scope.new_repository_type = newRepositoryType;
                 delete $scope.recalled_repository;
                 $scope.clear_sword_data();
             };
 
-            $scope.recall_repository = function (my_repository)
+            $scope.recall_repository = function (myRepository)
             {
-                $scope.recalled_repository = my_repository;
+                $scope.recalled_repository = myRepository;
                 if ($scope.recalled_repository.ddr.hasPlatform.foaf.nick === "ckan")
                 {
                     $scope.calculateCkanRepositoryDiffs($scope.recalled_repository);
@@ -283,33 +537,96 @@ angular.module("dendroApp.controllers")
                     doDeletion(bookmark);
                 }
             };
+            $scope.change_checkbox = function (array, length, index)
+            {
+                for (let i = 0; i < length; i++)
+                {
+                    if (i !== index)
+                    {
+                        array[i] = false;
+                    }
+                    else
+                    {
+                        array[i] = true;
+                    }
+                }
+            };
 
             /**
          * Project stats
          * @param uri
          */
-
-            $scope.upload_to_repository = function (target_repository, overwrite, deleteChangesOriginatedFromCkan, propagateDendroChangesIntoCkan)
+            $scope.upload_to_repository = function (targetRepository, publicDeposit, titleOfDeposit, embargoedDate, accessTerms, userAffiliation, descriptionOfDeposit, overwrite, deleteChangesOriginatedFromCkan, propagateDendroChangesIntoCkan)
             {
                 var payload = {
-                    repository: target_repository,
-                    new_dataset: $scope.new_dataset
+                    repository: targetRepository,
+                    new_dataset: $scope.new_dataset,
+                    titleOfDeposit: titleOfDeposit
                 };
 
-                if (overwrite != null)
+                if (typeof publicDeposit === "object")
+                {
+                    for (let key in publicDeposit)
+                    {
+                        if (publicDeposit[key] === true)
+                        {
+                            switch (key)
+                            {
+                            case "0":
+                                payload.publicDeposit = "public";
+                                break;
+                            case "1":
+                                payload.publicDeposit = "embargoed";
+                                payload.embargoed_date = embargoedDate;
+                                break;
+                            case "2":
+                                payload.publicDeposit = "private";
+                                break;
+                            default:
+                                payload.publicDeposit = "metadata_only";
+                                break;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (!publicDeposit || publicDeposit === false)
+                    {
+                        payload.publicDeposit = "private";
+                    }
+                    else
+                    {
+                        payload.publicDeposit = "public";
+                    }
+                }
+                if (accessTerms)
+                {
+                    payload.accessTerms = accessTerms;
+                }
+                if (userAffiliation)
+                {
+                    payload.userAffiliation = userAffiliation;
+                }
+                if (descriptionOfDeposit)
+                {
+                    payload.descriptionOfDeposit = descriptionOfDeposit;
+                }
+                if (overwrite)
                 {
                     payload.overwrite = overwrite;
                 }
 
-                if (deleteChangesOriginatedFromCkan != null)
+                if (deleteChangesOriginatedFromCkan)
                 {
                     payload.deleteChangesOriginatedFromCkan = deleteChangesOriginatedFromCkan;
                 }
 
-                if (propagateDendroChangesIntoCkan != null)
+                if (propagateDendroChangesIntoCkan)
                 {
                     payload.propagateDendroChangesIntoCkan = propagateDendroChangesIntoCkan;
                 }
+                payload.protocolAndHost = windowService.get_protocol_and_host();
 
                 var requestString = JSON.stringify(payload);
 
@@ -328,11 +645,11 @@ angular.module("dendroApp.controllers")
                 {
                     var data = response.data;
 
-                    if (data != null)
+                    if (!Utils.isNull(data))
                     {
                         if (data.result === "error")
                         {
-                            if (data.message != null)
+                            if (!Utils.isNull(data.message))
                             {
                                 $scope.show_popup("error", "Error", data.message);
                             }
@@ -343,7 +660,7 @@ angular.module("dendroApp.controllers")
                         }
                         else
                         {
-                            if (data.message != null)
+                            if (!Utils.isNull(data.message))
                             {
                                 $scope.show_popup("success", "Success", data.message);
                             }
@@ -358,10 +675,11 @@ angular.module("dendroApp.controllers")
                         $scope.show_popup("error", "Connection lost", "Connection lost during dataset deposit. Please try again.");
                     }
                     $scope.is_sending_data = false;
+
                     $scope.clear_recalled_repository();
                 }).catch(function (error)
                 {
-                    if (error.data != null && error.data.message != null)
+                    if (!Utils.isNull(error.data) && !Utils.isNull(error.data.message))
                     {
                         if (error.data.message.indexOf("ckanDiffs") !== -1)
                         {
@@ -420,41 +738,41 @@ angular.module("dendroApp.controllers")
                 });
             };
 
-            $scope.get_sword_workspaces = function (nick, new_repository)
+            $scope.get_sword_workspaces = function (nick, newRepository)
             {
                 $scope.clear_sword_data();
-                new_repository.ddr.hasPlatform = {};
-                new_repository.ddr.hasPlatform.foaf = {nick: nick};
+                newRepository.ddr.hasPlatform = {};
+                newRepository.ddr.hasPlatform.foaf = {nick: nick};
 
                 var payload = {
-                    repository: new_repository
+                    repository: newRepository
                 };
 
                 var requestString = JSON.stringify(payload);
                 $scope.show_popup("info", "Notice", "Accessing workspaces and collections of target repository");
                 $http({
                     method: "POST",
-                    url: "/external_repositories/sword_collections",
+                    url: "/external_repositories/swordCollections",
                     data: requestString
                 }).then(function (response)
                 {
                     var data = response.data;
-                    if (data.result == "error" && data.message != null)
+                    if (data.result === "error" && !Utils.isNull(data.message))
                     {
                         $scope.show_popup("error", "Error", data.message);
                     }
                     else
                     {
-                        var n_collections = 0;
+                        var nCollections = 0;
                         for (var workspace in data)
                         {
-                            if (data[workspace].collections != null)
+                            if (!Utils.isNull(data[workspace].collections))
                             {
-                                n_collections += data[workspace].collections.length;
+                                nCollections += data[workspace].collections.length;
                             }
                         }
 
-                        if (n_collections == 0)
+                        if (nCollections === 0)
                         {
                             $scope.show_popup("info", "Notice", "There are no collections available in this repository");
                         }
@@ -465,7 +783,7 @@ angular.module("dendroApp.controllers")
                     }
                 }).catch(function (error)
                 {
-                    if (error.data != null && error.data.message != null)
+                    if (!Utils.isNull(error.data) && !Utils.isNull(error.data.message))
                     {
                         $scope.show_popup("error", error.data.title, error.data.message);
                     }
@@ -475,16 +793,32 @@ angular.module("dendroApp.controllers")
                     }
                 });
             };
-            $scope.set_sword_collections = function (sword_collections)
+            $scope.set_swordCollections = function (swordCollections)
             {
-                $scope.sword_collections = sword_collections;
+                $scope.swordCollections = swordCollections;
             };
             $scope.clear_sword_data = function ()
             {
-                delete $scope.sword_collections;
+                delete $scope.swordCollections;
                 delete $scope.sword_workspaces;
             };
 
+            $scope.get_title_of_file_selected = function ()
+            {
+                let title = $scope.shared.selected_file.dcterms.title;
+
+                if (title)
+                {
+                    $scope.title_of_file_selected_disabled = true;
+
+                    $scope.title_of_file_selected = title;
+                }
+                else
+                {
+                    $scope.title_of_file_selected_disabled = false;
+                    $scope.title_of_file_selected = null;
+                }
+            };
             $scope.get_my_repositories();
             $scope.get_repository_types();
             $scope.new_dataset = {};

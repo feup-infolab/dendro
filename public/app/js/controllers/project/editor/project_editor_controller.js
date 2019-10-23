@@ -22,7 +22,8 @@ angular.module("dendroApp.controllers")
         storageService,
         recommendationService,
         projectsService,
-        moment
+        moment,
+        Utils
     )
     {
         $scope.shared = {
@@ -75,15 +76,15 @@ angular.module("dendroApp.controllers")
 
         $scope.get_calling_uri = function (queryParametersString, uri)
         {
-            if (uri != null)
+            if (!Utils.isNull(uri))
             {
                 uri = uri + queryParametersString;
             }
             else
             {
-                if (queryParametersString != null)
+                if (!Utils.isNull(queryParametersString) && queryParametersString)
                 {
-                    if ($scope.shared.selected_file != null)
+                    if ($scope.shared.selected_file && !Utils.isNull($scope.shared.selected_file))
                     {
                         uri = $scope.shared.selected_file.uri + queryParametersString;
                     }
@@ -94,7 +95,7 @@ angular.module("dendroApp.controllers")
                 }
                 else
                 {
-                    if ($scope.shared.selected_file != null)
+                    if (!Utils.isNull($scope.shared.selected_file))
                     {
                         uri = $scope.shared.selected_file.uri;
                     }
@@ -107,20 +108,27 @@ angular.module("dendroApp.controllers")
 
             return uri;
         };
+        $scope.validateResource = function (url)
+        {
+            const regex = "^/r/(project|user|file)/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
+            let result = new RegExp(regex);
+            return result.test(url);
+        };
 
         $scope.get_calling_uri_thumbnail = function ()
         {
-            return $scope.get_thumbnail_uri($scope.get_calling_uri());
+            let calling_uri = $scope.get_calling_uri();
+            return $scope.get_thumbnail_uri(calling_uri);
         };
 
         $scope.get_current_filename = function ()
         {
-            if ($scope.shared.selected_file != null)
+            if (!Utils.isNull($scope.shared.selected_file))
             {
                 return $scope.shared.selected_file.nie.title;
             }
             // TODO to fix later
-            if ($scope.shared.initial_metadata != null)
+            if (!Utils.isNull($scope.shared.initial_metadata))
             {
                 for (var i = 0; i < $scope.shared.initial_metadata.length; i++)
                 {
@@ -166,7 +174,7 @@ angular.module("dendroApp.controllers")
         {
             for (var i = 0; i < $scope.shared.metadata.length; i++)
             {
-                if ($scope.get_descriptor(i) != null && $scope.get_descriptor(i) instanceof Object)
+                if (!Utils.isNull($scope.get_descriptor(i)) && $scope.get_descriptor(i) instanceof Object)
                 {
                     if (
                         $scope.get_descriptor(i).just_recommended ||
@@ -174,7 +182,7 @@ angular.module("dendroApp.controllers")
                         $scope.get_descriptor(i).user_favorite
                     )
                     {
-                        if ($scope.get_descriptor(i).value == null || removeValuesAlreadyFilledInByUser)
+                        if (Utils.isNull($scope.get_descriptor(i).value) || removeValuesAlreadyFilledInByUser)
                         {
                             $scope.remove_descriptor_at(i, true);
                             i--;
@@ -204,7 +212,7 @@ angular.module("dendroApp.controllers")
 
         $scope.showing_project_root = function ()
         {
-            if ($scope.shared.selected_file != null)
+            if (!Utils.isNull($scope.shared.selected_file))
             {
                 return false;
             }
@@ -215,7 +223,7 @@ angular.module("dendroApp.controllers")
         {
             if (!$scope.shared.multiple_selection_active)
             {
-                if ($scope.shared.selected_file != null)
+                if (!Utils.isNull($scope.shared.selected_file))
                 {
                     if ($scope.shared.selected_file.rdf.type instanceof Array && _.contains($scope.shared.selected_file.rdf.type, "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#FileDataObject"))
                     {
@@ -228,13 +236,13 @@ angular.module("dendroApp.controllers")
                 return $scope.shared.is_a_file;
             }
 
-            if ($scope.get_selected_files() != null)
+            if (!Utils.isNull($scope.get_selected_files()))
             {
                 var files = $scope.get_selected_files();
 
                 if (files.length === 1)
                 {
-                    if (files[0].ddr.fileExtension != "folder")
+                    if (files[0].ddr.fileExtension !== "folder")
                     {
                         return true;
                     }
@@ -257,7 +265,7 @@ angular.module("dendroApp.controllers")
         {
             if (!$scope.showing_project_root())
             {
-                if ($scope.shared.selected_file === null || typeof $scope.shared.selected_file === "undefined")
+                if (Utils.isNull($scope.shared.selected_file) || typeof $scope.shared.selected_file === "undefined")
                 {
                     preview.load($scope, $scope.shared.file_extension, $scope.get_calling_uri());
                 }
@@ -296,7 +304,7 @@ angular.module("dendroApp.controllers")
 
         $scope.add_descriptor = function (descriptor)
         {
-            if ($scope.shared.metadata == null || !($scope.shared.metadata instanceof Array))
+            if (Utils.isNull($scope.shared.metadata) || !($scope.shared.metadata instanceof Array))
             {
                 $scope.shared.metadata = [];
             }
@@ -335,7 +343,7 @@ angular.module("dendroApp.controllers")
 
         $scope.add_all_descriptors = function (descriptor_array)
         {
-            if ($scope.shared.metadata == null || !($scope.shared.metadata instanceof Array))
+            if (Utils.isNull($scope.shared.metadata) || !($scope.shared.metadata instanceof Array))
             {
                 $scope.shared.metadata = [];
             }
@@ -381,7 +389,7 @@ angular.module("dendroApp.controllers")
         };
         $scope.remove_descriptor_at = function (index, forceDelete)
         {
-            if ($scope.shared.metadata != null && $scope.shared.metadata instanceof Array)
+            if (!Utils.isNull($scope.shared.metadata) && $scope.shared.metadata instanceof Array)
             {
                 if ($scope.shared.metadata[index].just_deleted)
                 {
@@ -409,7 +417,7 @@ angular.module("dendroApp.controllers")
 
         $scope.get_descriptor = function (descriptor_index)
         {
-            if ($scope.shared.metadata == null || !($scope.shared.metadata instanceof Array))
+            if (Utils.isNull($scope.shared.metadata) || !($scope.shared.metadata instanceof Array))
             {
                 $scope.shared.metadata = [];
             }
@@ -419,7 +427,7 @@ angular.module("dendroApp.controllers")
 
         $scope.select_file_at_index_for_multiple_selection = function (index)
         {
-            if ($scope.shared.folder_contents == null || !($scope.shared.folder_contents instanceof Array))
+            if (Utils.isNull($scope.shared.folder_contents) || !($scope.shared.folder_contents instanceof Array))
             {
                 $scope.shared.folder_contents = [];
             }
@@ -460,7 +468,7 @@ angular.module("dendroApp.controllers")
         $scope.set_selected_file = function (index)
         {
             if (
-                $scope.shared.folder_contents != null &&
+                !Utils.isNull($scope.shared.folder_contents) &&
                 $scope.shared.folder_contents instanceof Array &&
                 index < $scope.shared.folder_contents.length
             )
@@ -472,7 +480,7 @@ angular.module("dendroApp.controllers")
 
         $scope.clear_selected_files = function ()
         {
-            if ($scope.shared.folder_contents != null && $scope.shared.folder_contents instanceof Array)
+            if (!Utils.isNull($scope.shared.folder_contents) && $scope.shared.folder_contents instanceof Array)
             {
                 for (var i = 0; i < $scope.shared.folder_contents.length; i++)
                 {
@@ -485,7 +493,7 @@ angular.module("dendroApp.controllers")
 
         $scope.select_all_files = function (selected)
         {
-            if ($scope.shared.folder_contents != null && $scope.shared.folder_contents instanceof Array)
+            if (!Utils.isNull($scope.shared.folder_contents) && $scope.shared.folder_contents instanceof Array)
             {
                 for (var i = 0; i < $scope.shared.folder_contents.length; i++)
                 {
@@ -531,7 +539,7 @@ angular.module("dendroApp.controllers")
 
         $scope.file_explorer_selected_something = function ()
         {
-            if ($scope.shared.folder_contents != null && $scope.shared.folder_contents instanceof Array)
+            if (!Utils.isNull($scope.shared.folder_contents) && $scope.shared.folder_contents instanceof Array)
             {
                 for (var i = 0; i < $scope.shared.folder_contents.length; i++)
                 {
@@ -570,7 +578,8 @@ angular.module("dendroApp.controllers")
         $scope.get_folder_contents = function (forceReloadFromServer)
         {
             var getFolderContentsPromise = $q.defer();
-            if ($scope.shared.folder_contents == null || forceReloadFromServer)
+
+            if (Utils.isNull($scope.shared.folder_contents) || forceReloadFromServer)
             {
                 $scope.load_folder_contents($scope.shared.showing_deleted_files)
                     .then(function (folder_contents)
@@ -630,6 +639,7 @@ angular.module("dendroApp.controllers")
         $scope.reset_metadata = function (metadata)
         {
             $scope.shared.metadata = metadataService.deserialize_metadata(metadata.descriptors);
+            $scope.shared.proposedCitation = $filter("filter")($scope.shared.metadata, $scope.only_proposed_citation)[0];
             $scope.shared.metadata = $filter("filter")($scope.shared.metadata, $scope.only_editable_metadata_descriptors);
             $scope.shared.initial_metadata = metadataService.deserialize_metadata(metadata.descriptors);
             $scope.shared.initial_metadata = $filter("filter")($scope.shared.initial_metadata, $scope.only_editable_metadata_descriptors);
@@ -664,10 +674,26 @@ angular.module("dendroApp.controllers")
 
         $scope.only_editable_metadata_descriptors = function (descriptor)
         {
-            if (!descriptor.locked)
+            if (!descriptor.locked || descriptor.shortName === "privacyStatus")
             {
                 return true;
             }
+        };
+
+        $scope.only_proposed_citation = function (descriptor)
+        {
+            if (descriptor.locked && descriptor.shortName === "proposedCitation")
+            {
+                return true;
+            }
+        };
+        $scope.is_descriptor_privateStatus = function (descriptor)
+        {
+            if (descriptor.shortName === "privacyStatus")
+            {
+                return true;
+            }
+            return false;
         };
 
         $scope.dirty_metadata = function ()
@@ -703,7 +729,7 @@ angular.module("dendroApp.controllers")
                     return true;
                 }
                 else if (
-                    isChromium !== null &&
+                    !Utils.isNull(isChromium) &&
                     typeof isChromium !== "undefined" &&
                     vendorName === "Google Inc." &&
                     isOpera === false &&
@@ -737,6 +763,11 @@ angular.module("dendroApp.controllers")
                 };
             }
 
+            $scope.request_access = function ()
+            {
+                window.location.href = $scope.get_calling_uri() + "?request_access";
+            };
+
             $scope.$on("$locationChangeStart", function (event, next, current)
             {
                 if ($scope.dirty_metadata())
@@ -759,29 +790,31 @@ angular.module("dendroApp.controllers")
                 }
             });
 
-            $scope.load_metadata().then(
-                function (metadata)
-                {
-                    if (!$scope.shared.is_a_file)
+            $scope.load_metadata()
+                .then(
+                    function (metadata)
                     {
-                        $scope.get_folder_contents(true);
+                        if (!$scope.shared.is_a_file)
+                        {
+                            $scope.get_folder_contents(true);
+                        }
+                        else if (!$scope.edit_mode)
+                        {
+                            $scope.load_preview();
+                        }
                     }
-                    else if (!$scope.edit_mode)
-                    {
-                        $scope.load_preview();
-                    }
-                }
-            );
 
-            // monitor a change in the selected file on the file explorer
-            // and propagate to child controllers
-            // eventsService.register_handler_for_event(
-            //    $scope,
-            //    eventsService.events.selected_file_changed,
-            //    function(oldSelectedFile, newSelectedFile)
-            //    {
-            //       eventsService.send_event_to_children($scope, eventsService.events.selected_file_changed, newSelectedFile);
-            //    }
-            // );
+                )
+                .catch(function (error)
+                {
+                    console.log("Error fetching metadata for project " + $scope.get_calling_uri());
+                    console.log(error);
+                });
+        };
+
+        // initialization
+        $scope.myInit = function ()
+        {
+            $scope.recommendationService = recommendationService;
         };
     });

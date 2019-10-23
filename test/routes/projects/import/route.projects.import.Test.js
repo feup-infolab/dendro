@@ -6,7 +6,6 @@ const rlequire = require("rlequire");
 const should = chai.should();
 chai.use(chaiHttp);
 
-const Pathfinder = global.Pathfinder;
 const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 
 const projectUtils = rlequire("dendro", "test/utils/project/projectUtils.js");

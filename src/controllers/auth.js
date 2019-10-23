@@ -300,7 +300,8 @@ module.exports.register = function (req, res)
                                     foaf: {
                                         mbox: req.body.email,
                                         firstName: req.body.firstname,
-                                        surname: req.body.surname
+                                        surname: req.body.surname,
+                                        affiliation: req.body.affiliation
                                     }
                                 };
 
@@ -333,7 +334,9 @@ module.exports.register = function (req, res)
                                     foaf: {
                                         mbox: req.body.email,
                                         firstName: req.body.firstname,
-                                        surname: req.body.surname
+                                        surname: req.body.surname,
+                                        affiliation: req.body.affiliation
+
                                     }
                                 };
 

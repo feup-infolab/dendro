@@ -4,14 +4,13 @@ angular.module("dendroApp.controllers")
      * new project controller
      */
     .controller("projCtrl",
-
         function (
-
             $scope,
             $http,
             $q,
             $location,
-            projectsService
+            projectsService,
+            Utils
         )
         {
             $scope.availableStorages = ["local", "b2drop"];

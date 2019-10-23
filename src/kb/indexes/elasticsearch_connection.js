@@ -26,7 +26,8 @@ class ElasticSearchConnection extends IndexConnection
 
         self.clientOptions = {
             host: IndexConnection.getAddress(self.host, self.port),
-            keepAlive: true
+            keepAlive: true,
+            log: null
         };
 
         if (Config.index.elasticsearch.connection_log_type !== "undefined" && Config.index.elasticsearch.connection_log_type !== "")
@@ -97,7 +98,7 @@ class ElasticSearchConnection extends IndexConnection
                 interval: function (retryCount)
                 {
                     const msecs = 1000;
-                    Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to determine ElasticSearch cluster health");
+                    Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to determine ElasticSearch cluster health at " + self.host + ":" + self.port);
                     return msecs;
                 }
             }, tryToConnect, function (err)
@@ -129,6 +130,7 @@ class ElasticSearchConnection extends IndexConnection
                             if (result.acknowledged)
                             {
                                 self._indexIsOpen = true;
+                                self.client.log = [ "warn" ];
                                 callback(null, true);
                             }
                             else
@@ -235,7 +237,7 @@ class ElasticSearchConnection extends IndexConnection
                 interval: function (retryCount)
                 {
                     const msecs = 1000;
-                    Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to ElasticSearch...");
+                    Logger.log("debug", "Waiting " + msecs / 1000 + " seconds to retry a connection to ElasticSearch at " + self.host + ":" + self.port + " ...");
                     return msecs;
                 }
             }, tryToConnect, function (err, newClient)
@@ -658,19 +660,23 @@ class ElasticSearchConnection extends IndexConnection
         let self = this;
 
         const queryObject = {
-            query: {
-                match: {
-                    "descriptors.object": {
-                        query: options.query
-                    }
-                }
-            },
             from: options.from,
             size: options.size,
             sort: [
                 "_score"
             ]
         };
+
+        if (!isNull(options.query))
+        {
+            queryObject.query = {
+                match: {
+                    "descriptors.object": {
+                        query: options.query
+                    }
+                }
+            };
+        }
 
         self.ensureIndexIsReady(function (err)
         {

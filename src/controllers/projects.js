@@ -20,6 +20,7 @@ const Elements = rlequire("dendro", "src/models/meta/elements.js").Elements;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const TestJob = rlequire("dendro", "src/models/jobs/subtypes/TestJob.js").TestJob;
 const ImportProjectJob = rlequire("dendro", "src/models/jobs/subtypes/ImportProjectJob.js").ImportProjectJob;
+const Deposit = rlequire("dendro", "src/models/deposit.js").Deposit;
 
 const nodemailer = require("nodemailer");
 const flash = require("connect-flash");

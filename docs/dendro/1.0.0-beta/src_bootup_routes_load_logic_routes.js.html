@@ -73,6 +73,8 @@ const posts = rlequire("dendro", "src/controllers/posts");
 const timeline = rlequire("dendro", "src/controllers/timeline");
 const notifications = rlequire("dendro", "src/controllers/notifications");
 const keywords = rlequire("dendro", "src/controllers/keywords");
+const deposits = rlequire("dendro", "src/controllers/deposits");
+const resources = rlequire("dendro", "src/controllers/resources.js");
 
 let recommendation;
 
@@ -501,6 +503,7 @@ const loadRoutes = function (app, callback)
             ];
 
             req.params.is_project_root = true;
+            req.params.resource = "project";
 
             const queryBasedRoutes = {
                 get: [
@@ -716,28 +719,28 @@ const loadRoutes = function (app, callback)
                     }
                 ],
                 all:
-              [
-                  // restore operation
-                  {
-                      queryKeys: ["restore"],
-                      handler: files.restore,
-                      permissions: modificationPermissions,
-                      authentication_error: "Permission denied : cannot restore a past version of the root of this project because you do not have permissions to modify it."
-                  },
-                  // uploads
-                  {
-                      queryKeys: ["upload"],
-                      handler: files.upload,
-                      permissions: modificationPermissions,
-                      authentication_error: "Permission denied : cannot upload to this project because you do not have permissions to modify it."
-                  },
-                  // delete projects
-                  {
-                      queryKeys: ["delete"],
-                      handler: projects.delete,
-                      permissions: administrationPermissions,
-                      authentication_error: "Permission denied : cannot delete project because you do not have permissions to administer this project."
-                  }
+            [
+                // restore operation
+                {
+                    queryKeys: ["restore"],
+                    handler: files.restore,
+                    permissions: modificationPermissions,
+                    authentication_error: "Permission denied : cannot restore a past version of the root of this project because you do not have permissions to modify it."
+                },
+                // uploads
+                {
+                    queryKeys: ["upload"],
+                    handler: files.upload,
+                    permissions: modificationPermissions,
+                    authentication_error: "Permission denied : cannot upload to this project because you do not have permissions to modify it."
+                },
+                // delete projects
+                {
+                    queryKeys: ["delete"],
+                    handler: projects.delete,
+                    permissions: administrationPermissions,
+                    authentication_error: "Permission denied : cannot delete project because you do not have permissions to administer this project."
+                }
 
               ]
             };
@@ -755,6 +758,132 @@ const loadRoutes = function (app, callback)
                 else
                 {
                     const requestedProjectUrl = "/project/" + req.params[0];
+                    getResourceUri(requestedProjectUrl, callback);
+                }
+            },
+            processRequest
+        ]);
+    }
+    );
+
+    // view a deposit's root
+    app.all([
+        getNonHumanReadableRouteRegex("deposit"),
+        /\/deposit\/([^\/]+)(\/data)?\/?$/
+    ],
+    extractUriFromRequest,
+    function (req, res, next)
+    {
+        const getResourceUri = function (requestedResource, callback)
+        {
+            getRequestedResourceUriFromHumanReadableUri(
+                requestedResource,
+                "Cannot fetch deposit " + requestedResource,
+                "index",
+                req,
+                res,
+                next,
+                callback);
+        };
+
+        const processRequest = function (resourceUri)
+        {
+            req.params.requestedResourceUri = resourceUri;
+
+            const defaultPermissionsForDeposits = [
+                Permissions.settings.privacy.of_deposit.public
+            ];
+            const adminPermissions = [
+                Permissions.settings.role.in_system.admin
+            ];
+            const userPermissions = [
+                Permissions.settings.role.in_system.user
+            ];
+            const creatorPermissions = [
+                Permissions.settings.role.in_deposit.creator
+            ];
+            const userAccepted = [
+                Permissions.settings.permission.on_deposit
+            ];
+
+            req.params.is_project_root = true;
+            req.params.resource = "deposit";
+
+            const queryBasedRoutes = {
+                get: [
+                    // downloads
+                    {
+                        queryKeys: ["download"],
+                        handler: files.download,
+                        permissions: userAccepted,
+                        authentication_error: "Permission denied : cannot download this deposit."
+                    },
+                    // list contents
+                    {
+                        queryKeys: ["ls"],
+                        handler: files.ls,
+                        permissions: userAccepted,
+                        authentication_error: "Permission denied : cannot list the contents of this deposit."
+                    },
+                    {
+                        queryKeys: ["request_access"],
+                        handler: deposits.requestAccess,
+                        permissions: userPermissions,
+                        authentication_error: "Permission denied : cannot request access to this resource."
+                    },
+                    {
+                        queryKeys: ["get_deposit_conditions"],
+                        handler: deposits.getDepositConditions,
+                        permissions: creatorPermissions,
+                        authentication_error: "Permission denied : cannot request access to this resource."
+                    },
+
+                    // default case
+                    {
+                        queryKeys: [],
+                        handler: deposits.show,
+                        authentication_error: "Permission denied : cannot show the deposit because you do not have permissions to access it."
+                    }
+                ],
+                all:
+                  [
+                      // delete projects
+                      {
+                          queryKeys: ["delete"],
+                          handler: deposits.delete,
+                          permissions: adminPermissions,
+                          authentication_error: "Permission denied : cannot delete deposit because you do not have permissions to administer this deposit."
+                      }
+                  ],
+                post: [
+                    {
+                        queryKeys: ["request_access"],
+                        handler: deposits.requestAccess,
+                        permissions: userPermissions,
+                        authentication_error: "Permission denied : cannot request access to this resource"
+                    },
+                    {
+                        queryKeys: ["change_user_access"],
+                        handler: deposits.changeUserAccess,
+                        permissions: creatorPermissions,
+                        authentication_error: "Permission denied : cannot request access to this resource."
+                    }
+                ]
+            };
+
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next, true);
+        };
+
+        async.waterfall([
+            function (callback)
+            {
+                if (!isNull(req.params.requestedResourceUri))
+                {
+                    callback(null, req.params.requestedResourceUri);
+                }
+                else
+                {
+                    const requestedProjectUrl = "/deposit/" + req.params[0];
                     getResourceUri(requestedProjectUrl, callback);
                 }
             },
@@ -1008,6 +1137,12 @@ const loadRoutes = function (app, callback)
                         handler: files.mkdir,
                         permissions: modificationPermissionsBranch,
                         authentication_error: "Permission denied : cannot create new folder because you do not have permissions to edit resources inside this project."
+                    },
+                    {
+                        queryKeys: ["copy_paste"],
+                        handler: files.copy_paste,
+                        permissions: modificationPermissionsBranch,
+                        authentication_error: "Permission denied : cannot create a copy because you do not have permissions to edit resources inside this project."
                     },
                     {
                         queryKeys: ["restore"],
@@ -1514,7 +1649,18 @@ const loadRoutes = function (app, callback)
             keywords.clustering);
     }
 
-    // app.get("/keywords/loadfiles", async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), keywords.loadfiles);
+    // TODO William
+    app.get("/deposits/search", deposits.search);
+
+    app.get([
+        getNonHumanReadableRouteRegex("deposit")
+    ],
+    extractUriFromRequest,
+    async.apply(Permissions.require, [Permissions.settings.privacy.of_deposit.public, Permissions.settings.role.users_role_in_deposit]), function (req, res)
+    {
+        req.params.is_project_root = true;
+        deposits.show(req, res);
+    });
 
     // serve angular JS ejs-generated html partials
     app.get(/\/images\/icons\/extensions\/file_extension_([a-z0-9]+)\.png$/, files.extension_icon);

@@ -2,9 +2,14 @@
 
 angular.module("dendroApp.services")
     .service("windowService",
-        ["$http",
-            function ($http)
+        ["$http", "Utils",
+            function ($http, Utils)
             {
+                this.init = function ()
+                {
+                    Utils.fade_messages();
+                };
+
                 this.show_popup = function (type, title, message, delay)
                 {
                     if (!delay)
@@ -12,7 +17,7 @@ angular.module("dendroApp.services")
                         delay = 2000;
                     }
 
-                    if (type == "success")
+                    if (type === "success")
                     {
                         new PNotify({
                             title: title,
@@ -25,7 +30,7 @@ angular.module("dendroApp.services")
                             stack: stack_topright
                         });
                     }
-                    if (type == "warning")
+                    if (type === "warning")
                     {
                         new PNotify({
                             title: title,
@@ -38,7 +43,7 @@ angular.module("dendroApp.services")
                             stack: stack_topright
                         });
                     }
-                    else if (type == "error")
+                    else if (type === "error")
                     {
                         new PNotify({
                             title: title,
@@ -51,7 +56,7 @@ angular.module("dendroApp.services")
                             stack: stack_topright
                         });
                     }
-                    else if (type == "info")
+                    else if (type === "info")
                     {
                         new PNotify({
                             title: title,
@@ -80,10 +85,18 @@ angular.module("dendroApp.services")
                     var newURL = window.location.protocol + "//" + window.location.host + window.location.pathname;
                     return newURL;
                 };
+                this.get_protocol_and_host = function ()
+                {
+                    return window.location.protocol + "//" + window.location.host;
+                };
+                this.get_resource_from_URL = function ()
+                {
+                    return window.location.pathname;
+                };
 
                 this.download_url = function (url, parametersString)
                 {
-                    if (url != null && parametersString != null)
+                    if (!Utils.isNull(url) && !Utils.isNull(parametersString))
                     {
                         url = url + parametersString;
                     }
@@ -103,7 +116,7 @@ angular.module("dendroApp.services")
                     var hiddenIFrameID = "hiddenDownloader_" + guid();
                     var iframe = document.getElementById(hiddenIFrameID);
 
-                    if (iframe === null || typeof iframe === "undefined")
+                    if (Utils.isNull(iframe))
                     {
                         iframe = document.createElement("iframe");
                         iframe.id = hiddenIFrameID;
@@ -121,7 +134,7 @@ angular.module("dendroApp.services")
                         throw "No event name provided.";
                     }
 
-                    if (url == null)
+                    if (Utils.isNull(url))
                     {
                         url = "";
                     }

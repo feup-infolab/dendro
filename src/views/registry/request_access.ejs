@@ -1,0 +1,79 @@
+<%- include ../layout/header.ejs %>
+<div ng-controller="shareCtrl">
+
+    <h1 class="page-header">
+        Request access to the deposit
+    </h1>
+
+    <form action="<%=deposit.uri + "?request_access" %>" method="POST">
+        <div class="panel panel-danger">
+            <div class="panel-heading"><strong>Really request access?</strong></div>
+            <div class="panel-body text-center" >
+                <h4 class="page-header">
+                    To REQUEST ACCESS to the deposit, you must accept the author's privacy terms in case they exist, in order to perform this operation!
+                </h4>
+                <h5>
+                    Identifier: <a href="<%=deposit.uri%>"><%=deposit.uri%></a>
+                </h5>
+                <h5>
+                    Title: <%=(deposit.dcterms.title)? deposit.dcterms.title: "No title available"%>
+                </h5>
+                <h5>
+                    Description: <%=(deposit.dcterms.description)? deposit.dcterms.description: "No description available"%>
+                </h5>
+                <h5>
+                    Access terms: <%=(deposit.ddr.accessTerms)? deposit.ddr.accessTerms: "No access terms available"%>
+                </h5>
+
+
+
+
+            </div>
+        </div>
+        <div class="text-center">
+
+                <div class="checkbox">
+                    <input  for ="decline" id="decline" type="checkbox" onchange="disableBtn(true)" ng-change="change_checkbox(accept, 2, 1)" ng-model="accept[1]">
+                    <label>I do not accept the terms.</label>
+                </div>
+            <div class="checkbox">
+                <input  for ="accept" id="accept" type="checkbox" onchange="disableBtn(false)" ng-change="change_checkbox(accept, 2, 0)" ng-model="accept[0]">
+                <label > I accept the terms.</label>
+            </div>
+            <button type="submit"
+                    class="btn btn-sm btn-danger"
+                    id="not_access_deposit_button"
+                    name="not_access_deposits"
+                    value="true"
+            >
+                Do not request access
+            </button>
+            <button type="submit"
+                    class="btn btn-sm btn-success"
+                    id="access_deposit_button"
+                    name="access_deposits"
+                    disabled
+                    value="true"
+            >
+                Request access
+            </button>
+
+
+        </div>
+
+
+    </form>
+</div>
+
+    <script type="text/javascript" >
+
+
+      function disableBtn (val)
+      {
+        $("#access_deposit_button").prop('disabled', val);
+      }
+
+    </script>
+
+    <%- include ../layout/footer.ejs %>
+</div>

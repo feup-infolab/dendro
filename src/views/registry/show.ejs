@@ -1,0 +1,125 @@
+<%- include ../layout/header.ejs %>
+
+<!--&nbsp;-->
+<div class="container-fluid" ng-controller="projectEditorCtrl" ng-init="init()">
+    <div ng-controller="depositCtrl"
+         ng-init="initSingleDeposit('<%= deposit.nie.hasLogicalPart %>', '<%= is_project_root %>', '<%= deposit.uri %>')">
+        <div class="row">
+            <!--<div class="col-xs-12">-->
+            <%- include show/breadcrumbs.ejs %>
+            <!--</div>-->
+        </div>
+        <div class="row">
+            <div class="col-xs-6 col-sm-3" ng-controller="fileExplorerCtrl" ng-init="init()">
+                <h4>Folder</h4>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <button id="download_folder_button" class="btn btn-sm fa fa-download"
+                                data-loading-text="Preparing Package..." ng-click="download_folder()"
+                                onmouseover="$(this).toggleClass('btn-primary');"
+                                onmouseout="$(this).toggleClass('btn-primary');"></button>
+                        <button id="backup_button" ng-hide="showing_project_root()" class="btn btn-sm fa fa-archive"
+                                data-loading-text="Preparing Package..." ng-click="backup_folder()"
+                                onmouseover="$(this).toggleClass('btn-primary');"
+                                onmouseout="$(this).toggleClass('btn-primary');"></button>
+                        <button id="toggle_multiple_selection"
+                                ng-class="{active: shared.multiple_selection_active, 'btn-success': shared.multiple_selection_active}"
+                                class="btn btn-sm fa fa-check-square-o" ng-click="toggle_multiple_selection()"
+                                onmouseover="$(this).addClass('btn-primary');"
+                                onmouseout="$(this).removeClass('btn-primary');"></button>
+                        <% if (is_admin) { %>
+                            <button type="submit"
+                                    class="btn btn-sm fa fa-bomb"
+                                    id="delete_deposit_button"
+                                    data-loading-text="Preparing Package..." ng-click="delete_deposit()"
+                                    onmouseover="$(this).toggleClass('btn-primary');"
+                                    onmouseout="$(this).toggleClass('btn-primary');"></button>
+                        <% } %>
+
+                    </div>
+                </div>
+
+                <script type="text/javascript">
+
+                  $('#delete_deposit_button').tooltip({
+                    title: '<h4>Delete</h4>Delete the current deposit',
+                    html: true
+                  })
+                  $('#download_folder_button').tooltip({
+                    title: '<h4>Download</h4>Download the current folder',
+                    html: true
+                  })
+                  $('#backup_button').tooltip({
+                    title: '<h4>Backup</h4>Download the current folder, including information',
+                    html: true
+                  })
+                  $('#toggle_multiple_selection').tooltip({
+                    title: '<h4>Select several</h4>Select several files',
+                    html: true
+                  })
+                  $('#clear_selection_button').tooltip({ title: '<h4>Deselect</h4>Deselect items', html: true })
+                  $('#download_selection_button').tooltip({
+                    title: '<h4>Download</h4>Download the selected items',
+                    html: true
+                  })
+                  $('#backup_selection_button').tooltip({
+                    title: '<h4>Backup</h4>Backup the selected items',
+                    html: true
+                  })
+                </script>
+
+                <br>
+                <%- include show/file_explorer.ejs %>
+            </div>
+            <div ng-class="{'col-md-6 col-xs-12 col-sm-9': showing_descriptor_selection_area(), 'col-md-9 col-sm-9 col-xs-9': !showing_descriptor_selection_area()}"
+                 ng-controller="metadataEditorCtrl" ng-init="init()">
+                <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
+                    <li class="active">
+                        <a href="#metadata-editor" data-toggle="tab" ng-click="load_metadata(true)">
+                            Information
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="#user_access"
+                           data-toggle="tab"
+                           ng-click="getDepositConditions()">
+                            <span class="label label-info">Management</span>
+                            User access
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-xs-6 col-sm-9" ng-controller="metadataEditorCtrl" ng-init="init()">
+
+
+                <!-- tab panes -->
+                <div class="tab-content"
+                     ng-hide="shared.multiple_selection_active && file_explorer_selected_something()">
+                    <div class="tab-pane active" id="metadata-editor" ng-init="init()">
+                        <div ng-if="shared.is_a_file">
+                            <%- include show/file_preview.ejs %>
+                        </div>
+                        <br/>
+                        <div ng-show="showing_project_root()">
+                            <div ng-show="shared.metadata != null">
+                                <%- include show/metadata_viewer.ejs %>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane" id="user_access" ng-controller="changeLogController">
+                        <div class="row">
+                            <div class="col-lg-12">
+
+                                <%- include show/userAccess.ejs %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include ../layout/footer.ejs %>

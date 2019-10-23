@@ -163,3 +163,84 @@ footer .container-fluid {
   top: 30px;
   left: 70px;
 }
+.deposit-sidebar {
+  -webkit-border-radius: 20pt;
+  -moz-border-radius: 20pt;
+  border-radius: 20pt;
+  border-width: 20pt;
+  border-color: #aaa;
+}
+.sidebar-item {
+  padding-left: 20;
+}
+.sidebar-title {
+  text-align: center;
+}
+.deposit-list-info {
+  margin-left: 20;
+  padding-right: 20pt;
+}
+.deposit-info {
+  border-width: 10pt;
+  border-radius: 20pt;
+  border-color: #0a9ab8;
+  -webkit-border-radius: 20pt;
+  -moz-border-radius: 20pt;
+  -moz-border-bottom-colors: #0a6ebd;
+}
+.pad-right-4 {
+  padding-right: 4px;
+}
+.pad-left-4 {
+  padding-left: 4px;
+}
+.pad-top-4 {
+  padding-top: 4px;
+}
+.pad-bottom-4 {
+  padding-bottom: 4px;
+}
+.margin-top-4 {
+  margin-top: 4px;
+}
+.margin-bottom-4 {
+  margin-bottom: 4px;
+}
+.margin-left-4 {
+  margin-left: 4px;
+}
+.margin-right-4 {
+  margin-right: 4px;
+}
+.margin-left-20 {
+  margin-left: 20px;
+}
+.deposit-result-title {
+  font-size: 1.8em;
+}
+.deposit-result-description {
+  font-style: italic;
+}
+.button-search {
+  margin-bottom: 4px;
+  margin-top: 4px;
+  text-align: right;
+  width: 174px;
+}
+.input-search {
+  margin-bottom: 4px;
+  margin-top: 4px;
+  width: 174px;
+}
+.label-search {
+  margin-left: 20px;
+}
+.width-130 {
+  style: width 130px;
+  width: 130px;
+}
+textarea {
+  width: 300px;
+  height: 150px;
+  resize: none;
+}

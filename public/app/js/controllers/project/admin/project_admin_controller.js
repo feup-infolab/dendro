@@ -19,7 +19,8 @@ angular.module("dendroApp.controllers")
         filesService,
         windowService,
         projectsService,
-        usersService
+        usersService,
+        Utils
     )
     {
         $scope.button = "Cluster";
@@ -28,7 +29,6 @@ angular.module("dendroApp.controllers")
         $scope.concepts = null;
         $scope.properties = null;
         $scope.clusters;
-
         $scope.filelist = null;
         $scope.keywordlist = null;
         $scope.termList = null;
@@ -381,7 +381,7 @@ angular.module("dendroApp.controllers")
                 $scope.storage = response.data.storageConfig;
             }).catch(function (error)
             {
-                if (error.data !== null && error.data.message !== null && error.data.title !== null)
+                if (!Utils.isNull(error.data) && !Utils.isNull(error.data) && !Utils.isNull(error.data.title))
                 {
                     Utils.show_popup("error", error.data.title, error.data.message);
                 }
@@ -408,7 +408,7 @@ angular.module("dendroApp.controllers")
                 $scope.get_storage();
             }).catch(function (error)
             {
-                if (error.data !== null && error.data.message !== null && error.data.title !== null)
+                if (!Utils.isNull(error.data) && !Utils.isNull(error.data.message) && !Utils.isNull(error.data.title))
                 {
                     Utils.show_popup("error", error.data.title, error.data.message);
                 }
@@ -453,7 +453,7 @@ angular.module("dendroApp.controllers")
                 $scope.termList = true;
             }).catch(function (error)
             {
-                if (Boolean(error.data) && error.data.message !== null && error.data.title !== null)
+                if (!Utils.isNull(error.data) && !Utils.isNull(error.data.message) && !Utils.isNull(error.data.title))
                 {
                     Utils.show_popup("error", error.data.title, error.data.message);
                 }
@@ -491,7 +491,7 @@ angular.module("dendroApp.controllers")
                         $scope.button = "Term List";
                     }).catch(function (error)
                     {
-                        if (error.data !== null && error.data.message !== null && error.data.title !== null)
+                        if (!Utils.isNull(error.data) && !Utils.isNull(error.data.message) && !Utils.isNull(error.data.title))
                         {
                             // Utils.show_popup("error", error.data.title, error.data.message);
                         }
@@ -567,7 +567,7 @@ angular.module("dendroApp.controllers")
                 $scope.conceptlist = true;
             }).catch(function (error)
             {
-                if (error.data !== null && error.data.message !== null && error.data.title !== null)
+                if (!Utils.isNull(error.data) && !Utils.isNull(error.data.message) && !Utils.isNull(error.data.title))
                 {
                     // Utils.show_popup("error", error.data.title, error.data.message);
                 }
@@ -600,7 +600,7 @@ angular.module("dendroApp.controllers")
                 $scope.descriptorlist = true;
             }).catch(function (error)
             {
-                if (error.data !== null && error.data.message !== null && error.data.title !== null)
+                if (!Utils.isNull(error.data) && !Utils.isNull(error.data.message) && !Utils.isNull(error.data.title))
                 {
                     // Utils.show_popup("error", error.data.title, error.data.message);
                 }
