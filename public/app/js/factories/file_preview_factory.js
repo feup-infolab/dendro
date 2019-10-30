@@ -2,7 +2,7 @@
  * Created by Filipe on 01/09/2014.
  */
 angular.module("dendroApp.factories")
-    .factory("preview", ["$http", "Utils", function ($http, Utils)
+    .factory("preview", function ($http)
     {
         return {
             available: function (fileExtension)
@@ -12,11 +12,10 @@ angular.module("dendroApp.factories")
                     return false;
                 }
                 fileExtension = fileExtension.toLowerCase();
-                if (!Utils.isNull(this.load_views()[fileExtension]))
+                if (this.load_views()[fileExtension] != null)
                 {
                     return true;
-                }
-                return false;
+                } return;
             },
             load: function ($scope, fileExtension, fileUri)
             {
@@ -295,4 +294,4 @@ angular.module("dendroApp.factories")
             }
 
         };
-    }]);
+    });

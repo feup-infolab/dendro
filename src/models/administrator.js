@@ -17,7 +17,10 @@ function Administrator (object = {})
 
     self.copyOrInitDescriptors(object);
 
-    self.ddr.isAdmin = true;
+    if (isNull(self.ddr.humanReadableURI))
+    {
+
+    }
 
     return self;
 }

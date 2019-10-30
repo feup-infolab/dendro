@@ -48,9 +48,7 @@
         function (
             $scope,
             $http,
-            $filter,
-            windowService
-
+            $filter
         )
         {
             $scope.get_current_url = function ()
@@ -59,10 +57,10 @@
                 return newURL;
             };
 
-            $scope.calculateCkanRepositoryDiffs = function (targetRepository)
+            $scope.calculateCkanRepositoryDiffs = function (target_repository)
             {
                 var payload = {
-                    repository: targetRepository,
+                    repository: target_repository,
                     new_dataset: $scope.new_dataset
                 };
 
@@ -121,7 +119,7 @@
                     }
                 }).catch(function (error)
                 {
-                    if (error.data !== null &amp;&amp; error.data.message !== null)
+                    if (error.data != null &amp;&amp; error.data.message != null)
                     {
                         $scope.show_popup("error", error.data.title, error.data.message);
                     }
@@ -158,7 +156,7 @@
 
             $scope.setSpinner = function (spinnerName, value)
             {
-                if ($scope.spinners === null)
+                if ($scope.spinners == null)
                 {
                     $scope.spinners = {};
                 }
@@ -179,18 +177,18 @@
 
             $scope.valid_base_address = function (baseAddress)
             {
-                return baseAddress !== null &amp;&amp; $scope.valid_url(baseAddress) &amp;&amp; !baseAddress.endsWith("/");
+                return baseAddress != null &amp;&amp; $scope.valid_url(baseAddress) &amp;&amp; !baseAddress.endsWith("/");
             };
 
             $scope.valid_api_key = function (key)
             {
-                if (key === null || !key)
+                if (key == null)
                 {
                     return false;
                 }
                 var regexp = /^[a-zA-Z0-9-_]+$/;
 
-                if (key.search(regexp) === -1)
+                if (key.search(regexp) == -1)
                 {
                     return false;
                 }
@@ -199,7 +197,7 @@
 
             $scope.valid_organization = function (organization)
             {
-                if (!organization || organization === null || organization.length === 0)
+                if (organization == null || organization.length == 0)
                 {
                     return false;
                 }
@@ -207,61 +205,15 @@
                 return regexp.test(organization);
             };
 
-            $scope.create_new_repository_bookmark = function (newRepository)
+            $scope.create_new_repository_bookmark = function (new_repository)
             {
-                if (newRepository.ddr === null)
+                if (new_repository.ddr == null)
                 {
-                    newRepository.ddr = {};
+                    new_repository.ddr = {};
                 }
-                newRepository.ddr.hasPlatform = $scope.new_repository_type;
+                new_repository.ddr.hasPlatform = $scope.new_repository_type;
 
-                var url = window.location.pathname;
-
-                let shared = $scope.shared;
-
-                let selectedUri = [];
-
-                for (index in shared.folder_contents)
-                {
-                    if (shared.folder_contents[index].selected) selectedUri.push(shared.folder_contents[index].uri);
-                }
-
-                if (selectedUri.length === 0) selectedUri.push(url);
-
-                newRepository.ddr.exportedResource = selectedUri;
-                newRepository.ddr.exportedFromFolder = url;
-
-                var requestPayload = JSON.stringify(newRepository);
-
-                $.ajax({
-                    type: "POST",
-                    url: "/external_repositories/new",
-                    data: requestPayload,
-                    contentType: "application/json",
-                    beforeSend: function (xhr)
-                    {
-                        xhr.setRequestHeader("Accept", "application/json");
-                    },
-                    success: function (e, data)
-                    {
-                        $scope.clear_repository_type();
-                        // $scope.get_my_repositories();
-                        $scope.show_popup("success", "Success", e.message);
-                    },
-                    statusCode: $scope.statusCodeDefaults
-                });
-            };
-
-            $scope.create_new_repository_bookmark_dendro_local = function (newRepository)
-            {
-                if (newRepository.ddr === null || !newRepository.ddr)
-                {
-                    newRepository.ddr = {};
-                }
-                newRepository.ddr.hasPlatform = $scope.new_repository_type;
-                var url = window.location.pathname;
-                newRepository.ddr.exportedFromFolder = url;
-                var requestPayload = JSON.stringify(newRepository);
+                var requestPayload = JSON.stringify(new_repository);
 
                 $.ajax({
                     type: "POST",
@@ -288,173 +240,22 @@
                 $scope.clear_sword_data();
             };
 
-            $scope.disable_save_bookmark_dendro = function (newRepository)
-            {
-                if (!newRepository || !newRepository.dcterms || !newRepository.dcterms.title)
-                {
-                    return true;
-                }
-                return false;
-            };
-
-            $scope.disable_send_bookmark_dendro = function (title, obj, date)
-            {
-                let one = false;
-                let index;
-
-                if (!title)
-                {
-                    return true;
-                }
-
-                for (let key in obj)
-                {
-                    if (obj[key] === true)
-                    {
-                        one = true;
-                        index = key;
-                    }
-                }
-
-                if (index === "1" &amp;&amp; one &amp;&amp; date)
-                {
-                    const dateNow = new Date();
-                    if (dateNow > date)
-                    {
-                        return true;
-                    }
-                    return false;
-                }
-
-                if (index !== "1" &amp;&amp; one)
-                {
-                    return false;
-                }
-                return true;
-            };
-
-            $scope.disable_save_bookmark_b2share = function (newRepository)
-            {
-                if (!newRepository || !newRepository.dcterms || !newRepository.dcterms.title)
-                {
-                    return true;
-                }
-                if (newRepository.ddr.hasAccessToken === "" || !newRepository.ddr.hasAccessToken)
-                {
-                    return true;
-                }
-                return false;
-            };
-
-            $scope.disable_save_bookmark_zenodo = function (newRepository)
-            {
-                if (!newRepository || !newRepository.dcterms || !newRepository.dcterms.title)
-                {
-                    return true;
-                }
-                if (newRepository.ddr.hasAccessToken === "" || !newRepository.ddr.hasAccessToken)
-                {
-                    return true;
-                }
-                return false;
-            };
-
-            $scope.disable_save_bookmark_figshare = function (newRepository)
-            {
-                if (!newRepository || !newRepository.dcterms || !newRepository.dcterms.title)
-                {
-                    return true;
-                }
-                if (!newRepository.ddr.hasConsumerKey)
-                {
-                    return true;
-                }
-                if (newRepository.ddr.hasAccessToken === "" || !newRepository.ddr.hasAccessToken)
-                {
-                    return true;
-                }
-                if (newRepository.ddr.hasAccessTokenSecret === "" || !newRepository.ddr.hasAccessTokenSecret)
-                {
-                    return true;
-                }
-                return false;
-            };
-
-            $scope.disable_save_bookmark_eprints = function (newRepository)
-            {
-                if (!newRepository || !newRepository.dcterms || !newRepository.dcterms.title)
-                {
-                    return true;
-                }
-                if (!newRepository.ddr || !$scope.valid_url(newRepository.ddr.hasExternalUri))
-                {
-                    return true;
-                }
-                return false;
-            };
-
-            $scope.disable_save_bookmark_dspace = function (newRepository)
-            {
-                if (!newRepository || !newRepository.dcterms || !newRepository.dcterms.title)
-                {
-                    return true;
-                }
-                if (!newRepository.ddr || !$scope.valid_url(newRepository.ddr.hasExternalUri))
-                {
-                    return true;
-                }
-                if (!newRepository.ddr.username)
-                {
-                    return true;
-                }
-                if (!newRepository.ddr.password || newRepository.ddr.password === "")
-                {
-                    return true;
-                }
-                return false;
-            };
-
-            $scope.disable_save_bookmark_ckan = function (newRepository)
-            {
-                if (!newRepository || !newRepository.dcterms || !newRepository.dcterms.title)
-                {
-                    return true;
-                }
-                if (!newRepository.ddr || !$scope.valid_url(newRepository.ddr.hasExternalUri))
-                {
-                    return true;
-                }
-                if (!newRepository.ddr.username)
-                {
-                    return true;
-                }
-                if (!newRepository.ddr.hasOrganization)
-                {
-                    return true;
-                }
-                if (!newRepository.ddr.hasAPIKey)
-                {
-                    return true;
-                }
-                return false;
-            };
-
             $scope.clear_recalled_repository = function ()
             {
                 delete $scope.recalled_repository;
                 $scope.clear_sword_data();
             };
 
-            $scope.select_repository_type = function (newRepositoryType)
+            $scope.select_repository_type = function (new_repository_type)
             {
-                $scope.new_repository_type = newRepositoryType;
+                $scope.new_repository_type = new_repository_type;
                 delete $scope.recalled_repository;
                 $scope.clear_sword_data();
             };
 
-            $scope.recall_repository = function (myRepository)
+            $scope.recall_repository = function (my_repository)
             {
-                $scope.recalled_repository = myRepository;
+                $scope.recalled_repository = my_repository;
                 if ($scope.recalled_repository.ddr.hasPlatform.foaf.nick === "ckan")
                 {
                     $scope.calculateCkanRepositoryDiffs($scope.recalled_repository);
@@ -523,90 +324,33 @@
                     doDeletion(bookmark);
                 }
             };
-            $scope.change_checkbox = function (array, length, index)
-            {
-                for (let i = 0; i &lt; length; i++)
-                {
-                    if (i !== index)
-                    {
-                        array[i] = false;
-                    }
-                    else
-                    {
-                        array[i] = true;
-                    }
-                }
-            };
 
             /**
          * Project stats
          * @param uri
          */
-            // TODO William add boolean of public deposit in 2nd
-            $scope.upload_to_repository = function (targetRepository, publicDeposit, titleOfDeposit, embargoedDate, accessTerms, overwrite, deleteChangesOriginatedFromCkan, propagateDendroChangesIntoCkan)
+
+            $scope.upload_to_repository = function (target_repository, overwrite, deleteChangesOriginatedFromCkan, propagateDendroChangesIntoCkan)
             {
                 var payload = {
-                    repository: targetRepository,
-                    new_dataset: $scope.new_dataset,
-                    titleOfDeposit: titleOfDeposit
+                    repository: target_repository,
+                    new_dataset: $scope.new_dataset
                 };
 
-                if (typeof publicDeposit === "object")
-                {
-                    for (let key in publicDeposit)
-                    {
-                        if (publicDeposit[key] === true)
-                        {
-                            switch (key)
-                            {
-                            case "0":
-                                payload.publicDeposit = "public";
-                                break;
-                            case "1":
-                                payload.publicDeposit = "embargoed";
-                                payload.embargoed_date = embargoedDate;
-                                break;
-                            case "2":
-                                payload.publicDeposit = "private";
-                                break;
-                            default:
-                                payload.publicDeposit = "metadata_only";
-                                break;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    if (!publicDeposit || publicDeposit === false)
-                    {
-                        payload.publicDeposit = "private";
-                    }
-                    else
-                    {
-                        payload.publicDeposit = "public";
-                    }
-                }
-                if (accessTerms)
-                {
-                    payload.accessTerms = accessTerms;
-                }
-
-                if (overwrite)
+                if (overwrite != null)
                 {
                     payload.overwrite = overwrite;
                 }
 
-                if (deleteChangesOriginatedFromCkan)
+                if (deleteChangesOriginatedFromCkan != null)
                 {
                     payload.deleteChangesOriginatedFromCkan = deleteChangesOriginatedFromCkan;
                 }
 
-                if (propagateDendroChangesIntoCkan)
+                if (propagateDendroChangesIntoCkan != null)
                 {
                     payload.propagateDendroChangesIntoCkan = propagateDendroChangesIntoCkan;
                 }
-                payload.protocolAndHost = windowService.get_protocol_and_host();
 
                 var requestString = JSON.stringify(payload);
 
@@ -625,11 +369,11 @@
                 {
                     var data = response.data;
 
-                    if (data !== null)
+                    if (data != null)
                     {
                         if (data.result === "error")
                         {
-                            if (data.message !== null)
+                            if (data.message != null)
                             {
                                 $scope.show_popup("error", "Error", data.message);
                             }
@@ -640,7 +384,7 @@
                         }
                         else
                         {
-                            if (data.message !== null)
+                            if (data.message != null)
                             {
                                 $scope.show_popup("success", "Success", data.message);
                             }
@@ -658,7 +402,7 @@
                     $scope.clear_recalled_repository();
                 }).catch(function (error)
                 {
-                    if (error.data !== null &amp;&amp; error.data.message !== null)
+                    if (error.data != null &amp;&amp; error.data.message != null)
                     {
                         if (error.data.message.indexOf("ckanDiffs") !== -1)
                         {
@@ -717,14 +461,14 @@
                 });
             };
 
-            $scope.get_sword_workspaces = function (nick, newRepository)
+            $scope.get_sword_workspaces = function (nick, new_repository)
             {
                 $scope.clear_sword_data();
-                newRepository.ddr.hasPlatform = {};
-                newRepository.ddr.hasPlatform.foaf = {nick: nick};
+                new_repository.ddr.hasPlatform = {};
+                new_repository.ddr.hasPlatform.foaf = {nick: nick};
 
                 var payload = {
-                    repository: newRepository
+                    repository: new_repository
                 };
 
                 var requestString = JSON.stringify(payload);
@@ -736,22 +480,22 @@
                 }).then(function (response)
                 {
                     var data = response.data;
-                    if (data.result === "error" &amp;&amp; data.message !== null)
+                    if (data.result == "error" &amp;&amp; data.message != null)
                     {
                         $scope.show_popup("error", "Error", data.message);
                     }
                     else
                     {
-                        var nCollections = 0;
+                        var n_collections = 0;
                         for (var workspace in data)
                         {
-                            if (data[workspace].collections !== null)
+                            if (data[workspace].collections != null)
                             {
-                                nCollections += data[workspace].collections.length;
+                                n_collections += data[workspace].collections.length;
                             }
                         }
 
-                        if (nCollections === 0)
+                        if (n_collections == 0)
                         {
                             $scope.show_popup("info", "Notice", "There are no collections available in this repository");
                         }
@@ -762,7 +506,7 @@
                     }
                 }).catch(function (error)
                 {
-                    if (error.data !== null &amp;&amp; error.data.message !== null)
+                    if (error.data != null &amp;&amp; error.data.message != null)
                     {
                         $scope.show_popup("error", error.data.title, error.data.message);
                     }
@@ -772,32 +516,16 @@
                     }
                 });
             };
-            $scope.set_swordCollections = function (swordCollections)
+            $scope.set_sword_collections = function (sword_collections)
             {
-                $scope.swordCollections = swordCollections;
+                $scope.sword_collections = sword_collections;
             };
             $scope.clear_sword_data = function ()
             {
-                delete $scope.swordCollections;
+                delete $scope.sword_collections;
                 delete $scope.sword_workspaces;
             };
 
-            $scope.get_title_of_file_selected = function ()
-            {
-                let title = $scope.shared.selected_file.dcterms.title;
-
-                if (title)
-                {
-                    $scope.title_of_file_selected_disabled = true;
-
-                    $scope.title_of_file_selected = title;
-                }
-                else
-                {
-                    $scope.title_of_file_selected_disabled = false;
-                    $scope.title_of_file_selected = null;
-                }
-            };
             $scope.get_my_repositories();
             $scope.get_repository_types();
             $scope.new_dataset = {};

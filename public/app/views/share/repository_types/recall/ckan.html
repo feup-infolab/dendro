@@ -48,17 +48,11 @@
             </div>
         </div>
 
-        <div class="col-lg-3">
-            <div class="checkbox">
-                <label><input type="checkbox" id="privacyStatus" ng-model="publicDeposit"><span class="label label-info"><span class="glyphicon glyphicon-warning-sign"></span> Make this registry public</span></label>
-            </div>
-        </div>
-
     </div>
 
     <div class="row">
         <div ng-if="!is_sending_data" class="col-lg-12">
-            <button type="cancel" ng-click="upload_to_repository(recalled_repository, publicDeposit, overwrite, deleteChangesOriginatedFromCkan, propagateDendroChangesIntoCkan)" class="btn btn-success pull-right"><span class="glyphicon glyphicon-upload"></span>Send</button>
+            <button type="cancel" ng-click="upload_to_repository(recalled_repository, overwrite, deleteChangesOriginatedFromCkan, propagateDendroChangesIntoCkan)" class="btn btn-success pull-right"><span class="glyphicon glyphicon-upload"></span>Send</button>
         </div>
         <div ng-if="is_sending_data" class="col-lg-12">
             <button type="cancel" class="btn btn-success pull-right" disabled="disabled"> <img src="/images/loading.gif">Sending</button>

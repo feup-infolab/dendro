@@ -332,25 +332,13 @@ class SolrIndexConnection extends IndexConnection
         // https://stackoverflow.com/questions/990904/remove-accents-diacritics-in-a-string-in-javascript
         const pattern = /([\!\*\+\-\=\<\>\&\|\(\)\[\]\{\}\^\~\?\:\\/"])/g;
 
-        let escapedQuery;
-        let strQuery;
+        let escapedQuery = options.query.replace(pattern, "\\$1");
+        escapedQuery = escapedQuery.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-        if (!isNull(options.query))
-        {
-            escapedQuery = options.query.replace(pattern, "\\$1");
-            escapedQuery = escapedQuery.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-
-            strQuery = `q={!parent which='uri:*'}object:${escapedQuery}'` +
-                `&fl=*, [parentFilter=uri:* child limit=10000]` +
-                `&wt=json` +
-                `&indent: true`;
-        }
-        else
-        {
-            strQuery = `q="*:*"` +
-                `&wt=json` +
-                `&indent: true`;
-        }
+        let strQuery = `q={!parent which='uri:*'}object:${escapedQuery}'` +
+                          `&fl=*, [parentFilter=uri:* child limit=10000]` +
+                          `&wt=json` +
+                          `&indent: true`;
 
         if (options.skip)
         {

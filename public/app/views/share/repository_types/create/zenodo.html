@@ -3,7 +3,7 @@
 <!-- Nav tabs -->
 <ul class="nav nav-tabs" role="tablist">
     <li class="active"><a href="#new_repository_zenodo_informations" role="tab" data-toggle="tab">Zenodo Information</a></li>
-    <li><a href="#new_repository_zenodo_tutorial" role="tab" data-toggle="tab">Tutorial</a></li>
+    <!--<li><a href="#new_repository_zenodo_tutorial" role="tab" data-toggle="tab">Tutorial</a></li>-->
 </ul>
 
 <!-- Tab panes -->
@@ -30,6 +30,19 @@
             <span ng-show="new_repository.ddr.hasExternalUrl == 'zenodo.org'" class="glyphicon glyphicon-ok form-control-feedback"></span>
         </div>
 
+        <!--
+        <div class="control-group has-feedback" ng-init="new_repository.ddr.hasExternalUrl = 'trng-b2share.eudat.eu'" ng-class="{'has-success' : new_repository.ddr.hasExternalUrl == 'trng-b2share.eudat.eu', 'has-warning' : new_repository.ddr.hasExternalUrl == 'b2share.eudat.eu'}">
+            <label for="new_b2share_repository_url">External repository address</label>
+            <select type="text" ng-model="new_repository.ddr.hasExternalUrl" class="form-control" id="new_b2share_repository_url" required >
+                <option value="trng-b2share.eudat.eu" SELECTED>trng-b2share.eudat.eu</option>
+                <option value="b2share.eudat.eu">b2share.eudat.eu</option>
+            </select>
+            <p ng-show="new_repository.ddr.hasExternalUrl == 'trng-b2share.eudat.eu'" class="help-block">The EUDAT Test deposit server. Use this to test your deposit prior to publishing. It will be deleted after a while, so do not use this for permanent data deposit.</p>
+            <p ng-show="new_repository.ddr.hasExternalUrl == 'b2share.eudat.eu'" class="help-block">The EUDAT long-term deposit server. Use this to publish your data for the long term. We advise you to test your deposit in the training server to make sure everything is correct before making the final deposit here. You cannot change the EUDAT record after you send it to this server!</p>
+            <span ng-show="new_repository.ddr.hasExternalUrl == 'b2share.eudat.eu'" class="glyphicon glyphicon-warning-sign form-control-feedback"></span>
+            <span ng-show="new_repository.ddr.hasExternalUrl == 'trng-b2share.eudat.eu'" class="glyphicon glyphicon-ok form-control-feedback"></span>
+        </div>-->
+
         <div class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.hasAccessToken}">
             <label for="zenodo_access_token">Access Token</label>
             <input type="text" ng-model="new_repository.ddr.hasAccessToken" class="form-control" id="zenodo_access_token" placeholder="Zenodo access token" required>
@@ -38,24 +51,11 @@
             <span ng-show="!new_repository.ddr.hasAccessToken" class="glyphicon glyphicon-remove form-control-feedback"></span>
         </div>
 
-
-        <div class="control-group has-feedback">
-            <input type="checkbox" id="privacyStatus" ng-class="new_repository.ddr.privacyStatus" ng-model="new_repository.ddr.privacyStatus">
-            <label for="privacyStatus">Advertise my deposits in the homepage</label>
-            <div class="help-block">
-                By default, a record will be added to the homepage of this website for every deposit you make in this repository, increasing visibility of those deposits. You can change this setting later when you perform each deposit.
-            </div>
-        </div>
-
         <button type="cancel" ng-click="clear_repository_type()" class="btn">Cancel</button>
-        <button type="submit"
-                ng-click="create_new_repository_bookmark(new_repository)"
-                ng-disabled="disable_save_bookmark_zenodo(new_repository)"
-                class="btn btn-primary pull-right"><i class="fa fa-bookmark fa-lg pad-right-4"></i>Save new bookmark</button>
+        <button type="submit" ng-click="create_new_repository_bookmark(new_repository)" class="btn btn-primary pull-right"><i class="fa fa-bookmark fa-lg"></i>Save new bookmark</button>
     </div>
-    <div class="tab-pane" id="new_repository_zenodo_tutorial">
+    <!--<div class="tab-pane" id="new_repository_zenodo_tutorial">
         <div id="carousel-tutorial" class="carousel slide" data-ride="carousel">
-            <!-- Indicators -->
             <ol class="carousel-indicators">
                 <li data-target="#carousel-tutorial" data-slide-to="0" class="active"></li>
                 <li data-target="#carousel-tutorial" data-slide-to="1"></li>
@@ -66,7 +66,6 @@
                 <li data-target="#carousel-tutorial" data-slide-to="6"></li>
             </ol>
 
-            <!-- Wrapper for slides -->
             <div class="carousel-inner">
                 <div class="item active">
                     <img alt="First slide" ng-src="{{getBaseURL()}}/images/share_tutorial/zenodo/1.jpg">
@@ -100,7 +99,6 @@
                 </div>
             </div>
 
-            <!-- Controls -->
             <a class="left carousel-control" href="#carousel-tutorial" role="button" data-slide="prev">
                 <span class="glyphicon glyphicon-chevron-left"></span>
             </a>
@@ -108,7 +106,7 @@
                 <span class="glyphicon glyphicon-chevron-right"></span>
             </a>
         </div>
-    </div>
+    </div>-->
 </div>
 
 

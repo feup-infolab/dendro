@@ -15,10 +15,9 @@ const Resource = rlequire("dendro", "src/models/resource.js").Resource;
 
 const User = rlequire("dendro", "src/models/user.js").User;
 const Project = rlequire("dendro", "src/models/project.js").Project;
-const Deposit = rlequire("dendro", "src/models/deposit.js").Deposit;
 const DendroMongoClient = rlequire("dendro", "src/kb/mongo.js").DendroMongoClient;
 
-let classesToReindex = [User, Project, Deposit];
+let classesToReindex = [User, Project];
 
 let indexingOperationRunning = false;
 let lastIndexingOK;
@@ -166,7 +165,7 @@ module.exports.reindex = function (req, res)
                 {
                     let failed;
 
-                    async.mapLimit(classesToReindex, 3, function (classToReindex, callback)
+                    async.mapSeries(classesToReindex, function (classToReindex, callback)
                     {
                         Logger.log("Reindexing all instances of " + classToReindex.leafClass + " ...");
                         const db = Config.getDBByHandle(graphShortName);

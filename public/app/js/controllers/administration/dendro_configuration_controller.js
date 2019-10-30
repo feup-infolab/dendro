@@ -2,7 +2,7 @@ angular.module("dendroApp.controllers")
 /**
  *  Avatar controller
  */
-    .controller("dendroConfigurationController", function ($scope, $http, $filter, $window, $element, storageService, dendroConfigurationService, Utils)
+    .controller("dendroConfigurationController", function ($scope, $http, $filter, $window, $element, storageService, dendroConfigurationService)
     {
         $scope.storageNamespace = "dendro_admin_controller";
 

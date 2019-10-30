@@ -27,8 +27,7 @@ const loadDemoUsers = function (app, callback)
                             foaf: {
                                 mbox: user.mbox,
                                 firstName: user.firstname,
-                                surname: user.surname,
-                                affiliation: user.affiliation
+                                surname: user.surname
                             },
                             ddr: {
                                 username: user.username,

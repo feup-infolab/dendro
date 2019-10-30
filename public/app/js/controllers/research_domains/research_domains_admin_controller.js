@@ -2,7 +2,7 @@ angular.module("dendroApp.controllers")
 /**
      *  Research Domains administration controller
      */
-    .controller("researchDomainsCtrl", function ($scope, $http, $filter, Utils)
+    .controller("researchDomainsCtrl", function ($scope, $http, $filter)
     {
         $scope.get_research_domains = function ()
         {

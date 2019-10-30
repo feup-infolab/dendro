@@ -3,8 +3,8 @@
 angular.module("dendroApp.services")
     .service("usersService",
         [ "$http",
-            "$q", "Utils",
-            function ($http, $q, Utils)
+            "$q",
+            function ($http, $q)
             {
                 this.get_logged_user = function ()
                 {
@@ -20,7 +20,7 @@ angular.module("dendroApp.services")
                     }).then(
                         function (response)
                         {
-                            if (!Utils.isNull(response.data))
+                            if (response.data != null)
                             {
                                 getUserPromise.resolve(response.data);
                             }
@@ -37,7 +37,7 @@ angular.module("dendroApp.services")
                     return getUserPromise.promise;
                 };
 
-                this.get_users_by_text_search = function (currentResourceUri, typed)
+                this.get_users_by_text_search = function (current_resource_uri, typed)
                 {
                     if (typeof typed !== "undefined")
                     {
@@ -46,7 +46,7 @@ angular.module("dendroApp.services")
                             params: {
                                 user_autocomplete: typed
                             },
-                            url: currentResourceUri,
+                            url: current_resource_uri,
                             responseType: "json"
                         })
                             .then(function (response)

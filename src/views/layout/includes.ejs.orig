@@ -129,12 +129,15 @@
     <script type="text/javascript" src="/app/js/services/events_service.js"></script>
     <script type="text/javascript" src="/app/js/services/social/timeline_service.js"></script>
     <script type="text/javascript" src="/app/js/services/uploads_service.js"></script>
+<<<<<<< HEAD
     <script type="text/javascript" src="/app/js/services/users_service.js"></script>
+=======
     <script type="text/javascript" src="/app/js/services/social/file_versions_service.js"></script>
     <script type="text/javascript" src="/app/js/services/notifications/notification_service.js"></script><!--NELSON-->
     <!--<script src="/bower_components/socket.io-client/socket.io.js"></script>--> <!--NELSON-->
     <script src="/bower_components/angular-utils-pagination/dirPagination.js"></script> <!--NELSON-->
     <script src="/bower_components/ng-alerts/dist/ng-alerts.js"></script>
+>>>>>>> 9a129b9fb8f00a7bb3e1f8a813f1d1b1b2f4bad5
 
 
     <!-- directives -->

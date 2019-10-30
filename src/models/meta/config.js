@@ -954,9 +954,6 @@ Config.docker = getConfigParameter("docker");
 Config.keywords_extraction = getConfigParameter("keywords_extraction");
 Config.notebooks = getConfigParameter("notebooks");
 
-Config.jobs = getConfigParameter("jobs");
-Config.deposits = getConfigParameter("deposits");
-
 if (process.env.NODE_ENV === "production")
 {
     // detect slave / master status for production environments using pm2

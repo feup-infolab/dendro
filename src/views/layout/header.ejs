@@ -24,7 +24,6 @@
         <link rel="shortcut icon" href="/images/logos/favicon.ico">
         <meta name="msapplication-config" content="/images/logos/browserconfig.xml">
         <meta name="theme-color" content="#ffffff">
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
 
         <% if (Config.analytics_tracking_code != null && Config.analytics_tracking_code != "GOOGLE_ANALYTICS_DEVELOPMENT_ANALYTICS_TRACKING_CODE") { %>
@@ -42,7 +41,7 @@
     </head>
     <body class="ng-cloak">
     <!--<div id="wrap" ng-controller="windowCtrl" ng-init="handleSocketSession()">-->
-    <div id="wrap" ng-controller="windowCtrl" ng-init="init()">
+    <div id="wrap" ng-controller="windowCtrl">
         <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
             <div class="container-fluid">
                 <!-- Brand and toggle get grouped for better mobile display -->
@@ -65,11 +64,11 @@
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">My <b class="caret"></b></a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="/deposits/my">Deposits</a></li>
                                     <li><a href="/projects/my">Projects</a></li>
-                                    <li><a href="/social/my">Timeline</a></li>
+                                    <li><a href="/social/my"> Social Dendro </a></li>
                                     <!--<li><a href="/datasets/my">Datasets</a></li>-->
                                     <!--<li><a href="/publications/my">Publications</a></li>-->
+                                    <!--<li><a href="/deposits/my">Deposits</a></li>-->
                                 </ul>
                             </li>
                         <%
@@ -78,10 +77,9 @@
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Find <b class="caret"></b></a>
                             <ul class="dropdown-menu">
-                                <li><a href="/">Deposits</a> </li>
                                 <li><a href="/users">People</a></li>
-                                <li><a href="/projects">Projects</a></li>
                                 <!--TODO  <li><a href="/datasets">Datasets</a></li>-->
+                                <li><a href="/projects">Projects</a></li>
                                 <!--TODO <li><a href="/publications">Publications</a></li>-->
                                 <!--TODO <li><a href="/ontologies/all">Descriptor Sets</a></li>-->
                                 <!--TODO <li><a href="/application_profiles">Application Profiles</a></li> -->

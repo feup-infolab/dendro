@@ -24,8 +24,7 @@ angular.module("dendroApp.controllers")
         storageService,
         recommendationService,
         usersService,
-        ContextMenuEvents,
-        Utils
+        ContextMenuEvents
     )
     {
         $scope.menuOptions = function (item)
@@ -109,17 +108,18 @@ angular.module("dendroApp.controllers")
                 },
                 children: null
             });
-            // items.push({
-            //     click: function ($itemScope, $event, modelValue, text, $li)
-            //     {
-            //         $scope.copy();
-            //     },
-            //     html: function ()
-            //     {
-            //         return "<a href=\"#\"><img class=\"icon16\" src=\"/images/icons/page_copy.png\">&nbsp;Copy</a>";
-            //     },
-            //     children: null
-            // });
+
+            /* items.push({
+                click: function ($itemScope, $event, modelValue, text, $li)
+                {
+                    $scope.copy();
+                },
+                html: function ()
+                {
+                    return "<a href=\"#\"><img class=\"icon16\" src=\"/images/icons/page_copy.png\">&nbsp;Copy</a>";
+                },
+                children: null
+            });*/
 
             items.push({
                 click: function ($itemScope, $event, modelValue, text, $li)
@@ -186,153 +186,13 @@ angular.module("dendroApp.controllers")
             return items;
         };
 
-        $scope.menuOptionsDeposits = function (item)
-        {
-            if (!$scope.shared.multiple_selection_active)
-            {
-                $scope.clear_selected_files();
-            }
-            item.selected = true;
-            var items;
-
-            if (item && item.ddr.fileExtension === "folder")
-            {
-                items = [];
-
-                if ($scope.runningOnSmartphoneOrTablet())
-                {
-                    items.push(
-                        {
-                            click: function ($itemScope, $event, modelValue, text, $li)
-                            {
-                                $scope.open_for_mobile_devices();
-                            },
-                            html: function ()
-                            {
-                                return "<a href=\"#\"><img class=\"icon16\" id=\"open_folder_button\" src=\"/images/icons/folder_vertical_open.png\">Open</a></li>";
-                            },
-                            children: null
-                        });
-                }
-
-                items.push({
-                    click: function ($itemScope, $event, modelValue, text, $li)
-                    {
-                        $scope.download_selected_items();
-                    },
-                    html: function ()
-                    {
-                        return "<a href=\"#\"><img class=\"icon16\" data-loading-text=\"Downloading...\" src=\"/images/icons/arrow_down.png\">&nbsp;Download</a>";
-                    },
-                    children: null
-                });
-
-                items.push({
-                    click: function ($itemScope, $event, modelValue, text, $li)
-                    {
-                        $scope.backup_folder();
-                    },
-                    html: function ()
-                    {
-                        return "<a href=\"#\"><img class=\"icon16\" data-loading-text=\"Backup...\" src=\"/images/icons/folder_vertical_zipper.png\">&nbsp;Backup</a>";
-                    },
-                    children: null
-                });
-            }
-            else
-            {
-                items = [
-                    {
-                        click: function ($itemScope, $event, modelValue, text, $li)
-                        {
-                            $scope.download_selected_items();
-                        },
-                        html: function ()
-                        {
-                            return "<a href=\"#\"><img class=\"icon16\" data-loading-text=\"Downloading...\" src=\"/images/icons/arrow_down.png\">&nbsp;Download</a>";
-                        },
-                        children: null
-                    }
-                ];
-            }
-            if ($scope.loggedUser)
-            {
-                if ($scope.loggedUser.ddr.isAdmin)
-                {
-                    items.push({
-                        click: function ($itemScope, $event, modelValue, text, $li)
-                        {
-                            $scope.rename();
-                        },
-                        html: function ()
-                        {
-                            return "<a href=\"#\"><img class=\"icon16\" src=\"/images/icons/textfield_rename.png\">&nbsp;Rename</a>";
-                        },
-                        children: null
-                    });
-
-                    if ($scope.file_explorer_selected_something())
-                    {
-                        if ($scope.file_explorer_selected_contains_deleted())
-                        {
-                            items.push({
-                                click: function ($itemScope, $event, modelValue, text, $li)
-                                {
-                                    $scope.delete_file_or_folder();
-                                },
-                                html: function ()
-                                {
-                                    return "<a href=\"#\"><img class=\"icon16\" data-loading-text=\"Deleting...\" src=\"/images/icons/cross.png\">&nbsp;Delete (files already deleted will be lost forever!)</a>";
-                                },
-                                children: null
-                            });
-                        }
-                        else
-                        {
-                            items.push({
-                                click: function ($itemScope, $event, modelValue, text, $li)
-                                {
-                                    $scope.delete_file_or_folder();
-                                },
-                                html: function ()
-                                {
-                                    return "<a href=\"#\"><img class=\"icon16\" data-loading-text=\"Deleting...\" src=\"/images/icons/cross.png\">&nbsp;Delete</a>";
-                                },
-                                children: null
-                            });
-                        }
-                    }
-                }
-            }
-
-            if (item.ddr)
-            {
-                if (item.ddr.deleted)
-                {
-                    items.push({
-                        click: function ($itemScope, $event, modelValue, text, $li)
-                        {
-                            $scope.undelete_file_or_folder();
-                        },
-                        html: function ()
-                        {
-                            return "<a href=\"#\"><img class=\"icon16\" data-loading-text=\"Deleting...\" src=\"/images/icons/redo.png\">&nbsp;Undelete</a>";
-                        },
-                        children: null
-                    });
-                }
-            }
-
-            return items;
-        };
-
         $scope.thumbnailable = function (file)
         {
-            if (!Utils.isNull($rootScope.config))
+            if ($rootScope.config != null)
             {
                 const thumbnailable = $rootScope.config.thumbnailable_file_extensions[file.ddr.fileExtension];
 
-                if (!Utils.isNull(thumbnailable))
+                if (thumbnailable != null)
                 {
                     return true;
                 }
@@ -355,16 +215,16 @@ angular.module("dendroApp.controllers")
                         async.mapSeries(selectedFiles, function (selectedFile, callback)
                         {
                             var forever = selectedFile.ddr.deleted;
-                            var successMessage;
 
                             var extension = selectedFile.ddr.fileExtension;
+
                             if (extension === "folder")
                             {
-                                successMessage = "Folder " + selectedFile.nie.title + " deleted successfully";
+                                var successMessage = "Folder " + selectedFile.nie.title + " deleted successfully";
                             }
                             else
                             {
-                                successMessage = "File " + selectedFile.nie.title + " deleted successfully";
+                                var successMessage = "File " + selectedFile.nie.title + " deleted successfully";
                             }
 
                             filesService.rm(selectedFile,
@@ -462,7 +322,7 @@ angular.module("dendroApp.controllers")
         {
             bootbox.prompt("Please enter the name of the new folder", function (newFolderName)
             {
-                if (!Utils.isNull(newFolderName))
+                if (newFolderName != null)
                 {
                     if (!newFolderName.match(/^[^\\\/:*?"<>|]{1,}$/g))
                     {
@@ -472,7 +332,7 @@ angular.module("dendroApp.controllers")
                     }
                     else
                     {
-                        if (!Utils.isNull(newFolderName))
+                        if (newFolderName != null)
                         {
                             filesService.mkdir(newFolderName,
                                 $scope.get_calling_uri()
@@ -497,7 +357,7 @@ angular.module("dendroApp.controllers")
             {
                 bootbox.prompt("Please enter the new name", function (newName)
                 {
-                    if (!Utils.isNull(newName))
+                    if (newName != null)
                     {
                         if (!newName.match(/^[^\\\/:*?"<>|]{1,}$/g))
                         {
@@ -507,7 +367,7 @@ angular.module("dendroApp.controllers")
                         }
                         else
                         {
-                            if (!Utils.isNull(newName))
+                            if (newName != null)
                             {
                                 filesService.rename(newName,
                                     selectedFiles[0].uri
@@ -564,7 +424,7 @@ angular.module("dendroApp.controllers")
         $scope.open_for_mobile_devices = function ()
         {
             var selectedFiles = $scope.get_selected_files();
-            if (!Utils.isNull(selectedFiles) && selectedFiles instanceof Array && selectedFiles.length > 0)
+            if (selectedFiles != null && selectedFiles instanceof Array && selectedFiles.length > 0)
             {
                 var selectedFolder = $scope.get_selected_files()[0];
 
@@ -583,16 +443,13 @@ angular.module("dendroApp.controllers")
 
         $scope.get_clipboard_file_count = function ()
         {
-            if (!Utils.isNull($scope.copied_files) && $scope.copied_files instanceof Array)
+            if ($scope.copied_files.length > 0)
             {
-                if ($scope.copied_files.length > 0)
-                {
-                    return $scope.copied_files.length;
-                }
-                else if ($scope.cut_files.length > 0)
-                {
-                    return $scope.cut_files.length;
-                }
+                return $scope.copied_files.length;
+            }
+            else if ($scope.cut_files.length > 0)
+            {
+                return $scope.cut_files.length;
             }
             return 0;
         };
@@ -688,7 +545,7 @@ angular.module("dendroApp.controllers")
 
         $scope.toggle_select_file_at_index_for_multiple_selection = function (index)
         {
-            if (!Utils.isNull($scope.shared.folder_contents) && $scope.shared.folder_contents instanceof Array)
+            if ($scope.shared.folder_contents != null && $scope.shared.folder_contents instanceof Array)
             {
                 if ($scope.shared.folder_contents.length > index)
                 {
@@ -697,7 +554,7 @@ angular.module("dendroApp.controllers")
             }
         };
 
-        $scope.clicked_file_explorer_node = function (index, isProject)
+        $scope.clicked_file_explorer_node = function (index)
         {
             if ($scope.shared.multiple_selection_active)
             {
@@ -710,7 +567,7 @@ angular.module("dendroApp.controllers")
                     time_stamp: new Date()
                 };
 
-                if (Utils.isNull($scope.lastClickInFileExplorer))
+                if ($scope.lastClickInFileExplorer == null)
                 {
                     $scope.lastClickInFileExplorer = $scope.lastClickInFileExplorer = {
                         index: -1,
@@ -744,13 +601,13 @@ angular.module("dendroApp.controllers")
                             }
                             // over a different item in the file browser
 
-                            $scope.select_item_in_folder_browser(index, isProject);
+                            $scope.select_item_in_folder_browser(index);
                         }
                         // SINGLE CLICK: Click registered after the second click waiting period
                         else
                         {
                             // over the previously selected item
-                            if ($scope.lastClickInFileExplorer && $scope.lastClickInFileExplorer.index === $scope.newClickInFileExplorer.index && !Utils.isNull($scope.shared.selected_file))
+                            if ($scope.lastClickInFileExplorer.index === $scope.newClickInFileExplorer.index && $scope.shared.selected_file != null)
                             {
                                 $scope.deselect_item_in_folder_browser();
                                 // $scope.show_popup('info', "SINGLE click", "SINGLE click");
@@ -758,7 +615,7 @@ angular.module("dendroApp.controllers")
                             // over a different item in the file browser
                             else
                             {
-                                $scope.select_item_in_folder_browser(index, isProject);
+                                $scope.select_item_in_folder_browser(index);
                                 // $scope.show_popup('info', "single click over a different item", "single click");
                             }
 
@@ -853,7 +710,7 @@ angular.module("dendroApp.controllers")
                     {
                         $scope.load_preview();
                     }
-                    if (!Utils.isNull(windowService.showing_history) && windowService.showing_history)
+                    if (windowService.showing_history != null && windowService.showing_history)
                     {
                         windowService.get_change_log();
                     }
@@ -861,7 +718,7 @@ angular.module("dendroApp.controllers")
             }, $scope.dirty_metadata());
         };
 
-        $scope.select_item_in_folder_browser = function (index, isProject)
+        $scope.select_item_in_folder_browser = function (index)
         {
             $scope.confirm_change_of_resource_being_edited(function (confirmed)
             {
@@ -876,17 +733,15 @@ angular.module("dendroApp.controllers")
                                 var newSelectedFile = folderContents[index];
 
                                 $scope.set_selected_file(index);
-                                if (isProject)
-                                {
-                                    recommendationService.get_recommendations(
-                                        $scope.get_calling_uri(),
-                                        $scope.descriptor_filter,
-                                        $scope.shared.metadata,
-                                        $scope.recommend_already_filled_in,
-                                        $scope.recommendations_page,
-                                        $scope.recommendations_page_size
-                                    );
-                                }
+
+                                recommendationService.get_recommendations(
+                                    $scope.get_calling_uri(),
+                                    $scope.descriptor_filter,
+                                    $scope.shared.metadata,
+                                    $scope.recommend_already_filled_in,
+                                    $scope.recommendations_page,
+                                    $scope.recommendations_page_size
+                                );
 
                                 metadataService.load_metadata($scope.get_calling_uri())
                                     .then(function (metadata)
@@ -898,7 +753,7 @@ angular.module("dendroApp.controllers")
                                 {
                                     $scope.load_preview();
                                 }
-                                if (!Utils.isNull($scope.showing_history) && $scope.showing_history)
+                                if ($scope.showing_history != null && $scope.showing_history)
                                 {
                                     $scope.get_change_log(newSelectedFile.uri);
                                 }
@@ -910,7 +765,7 @@ angular.module("dendroApp.controllers")
 
         $scope.toggle_show_deleted_files = function ()
         {
-            if (Utils.isNull($scope.shared.showing_deleted_files))
+            if ($scope.shared.showing_deleted_files === null || typeof $scope.shared.showing_deleted_files === "undefined")
             {
                 $scope.shared.showing_deleted_files = true;
             }
@@ -949,11 +804,6 @@ angular.module("dendroApp.controllers")
         $scope.download_folder = function ()
         {
             windowService.download_url($scope.get_current_url(), "?download");
-        };
-
-        $scope.delete_deposit = function ()
-        {
-            window.location.href = $scope.get_current_url() + "?delete";
         };
 
         $scope.backup_folder = function ()

@@ -1,5 +1,5 @@
 /**
- * {"ddr":{"hasExternalUri":"http://www.zenodo.org/","hasAccessToken":"dgOQrI0zzx5tZ1zSTSaBCtmik3SbJmxaJKW1GZV9ZUe7b7EV9Rr4XSTWMcTs","hasPlatform":{"uri":"http://127.0.0.1:3001/repository_platform/zenodo","dcterms":{"title":"Zenodo"},"foaf":{"nick":"zenodo","homepage":"http://www.zenodo.org/"},"$$hashKey":"object:149"}},"dcterms":{"title":"zenodo export config 1"}}
+ * {"ddr":{"hasExternalUrl":"http://www.zenodo.org/","hasAccessToken":"dgOQrI0zzx5tZ1zSTSaBCtmik3SbJmxaJKW1GZV9ZUe7b7EV9Rr4XSTWMcTs","hasPlatform":{"uri":"http://127.0.0.1:3001/repository_platform/zenodo","dcterms":{"title":"Zenodo"},"foaf":{"nick":"zenodo","homepage":"http://www.zenodo.org/"},"$$hashKey":"object:149"}},"dcterms":{"title":"zenodo export config 1"}}
  */
 
 /*
@@ -8,7 +8,7 @@
  */
 /* const newExportRepoData = {
     ddr: {
-        hasExternalUri: "http://www.zenodo.org/",
+        hasExternalUrl: "http://www.zenodo.org/",
         hasAccessToken: "dgOQrI0zzx5tZ1zSTSaBCtmik3SbJmxaJKW1GZV9ZUe7b7EV9Rr4XSTWMcTs",
         hasPlatform: {
             uri: "http://127.0.0.1:3001/repository_platform/zenodo",
@@ -28,7 +28,7 @@ const newExportRepoData = {
         title: "Zenodo"
     },
     ddr: {
-        hasExternalUri: "http://www.zenodo.org/",
+        hasExternalUrl: "http://www.zenodo.org/",
         hasAccessToken: "dgOQrI0zzx5tZ1zSTSaBCtmik3SbJmxaJKW1GZV9ZUe7b7EV9Rr4XSTWMcTs",
         hasPlatform: {
             uri: "/r/repo_platform/14a5d3e5-2654-4918-ba7e-d7230cf2a298",

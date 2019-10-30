@@ -118,8 +118,6 @@
 <script src="/bower_components/angular-utils-pagination/dirPagination.js"></script> <!--NELSON-->
 <script src="/bower_components/ng-alerts/dist/ng-alerts.js"></script>
 <script src="/bower_components/parsleyjs/dist/parsley.js"></script>
-<script src="/bower_components/angular-ui-scroll/dist/ui-scroll.min.js"></script>
-<script src="/bower_components/angular-ui-scroll/dist/ui-scroll-grid.min.js"></script>
 
 <script type="text/javascript" src="/bower_components/markdown-editpreview-ng.js/lib/codemwnci/Markdown.Converter.js"></script>
 <script type="text/javascript" src="/bower_components/markdown-editpreview-ng.js/lib/codemwnci/Markdown.Sanitizer.js"></script>
@@ -130,10 +128,6 @@
     <!-- controllers -->
 
     <script type="text/javascript" src="/app/js/controllers/controllers.js"></script>
-
-    <script type="text/javascript" src="/app/js/controllers/registry/deposit_controller.js"></script>
-    <script type="text/javascript" src="/app/js/controllers/registry/folder_editor_controller.js"></script>
-
     <script type="text/javascript" src="/app/js/controllers/ontologies/admin/ontologies_admin_controller.js"></script>
     <script type="text/javascript" src="/app/js/controllers/project/admin/project_admin_controller.js"></script>
     <script type="text/javascript" src="/app/js/controllers/project/admin/project_tree_viewer_controller.js"></script>
@@ -147,19 +141,18 @@
     <script type="text/javascript" src="/app/js/controllers/project/editor/change_log_controller.js"></script>
     <script type="text/javascript" src="/app/js/controllers/project/editor/share_controller.js"></script>
     <script type="text/javascript" src="/app/js/controllers/research_domains/research_domains_admin_controller.js"></script>
+    <script type="text/javascript" src="/app/js/controllers/window_controller.js"></script>
     <script type="text/javascript" src="/app/js/controllers/social/timeline_controller.js"></script>
     <script type="text/javascript" src="/app/js/controllers/social/projects_controller.js"></script>
     <script type="text/javascript" src="/app/js/controllers/notifications/notification_controller.js"></script>
     <script type="text/javascript" src="/app/js/controllers/project/new_project_controller.js"></script>
     <script type="text/javascript" src="/app/js/controllers/avatar/avatar_controller.js"></script>
     <script type="text/javascript" src="/app/js/controllers/administration/dendro_configuration_controller.js"></script>
-    <script type="text/javascript" src="/app/js/controllers/window_controller.js"></script>
 
  <!-- factories -->
 
     <script type="text/javascript" src="/app/js/factories/factories.js"></script>
     <script type="text/javascript" src="/app/js/factories/file_preview_factory.js"></script>
-    <script type="text/javascript" src="/app/js/factories/listing_options_factory.js"></script>
     <script type="text/javascript" src="/app/js/factories/focus_factory.js"></script>
 
     <!-- services -->
@@ -182,8 +175,6 @@
     <script type="text/javascript" src="/app/js/services/licenses_service.js"></script>
     <script type="text/javascript" src="/app/js/services/languages_service.js"></script>
     <script type="text/javascript" src="/app/js/services/administration/dendro_configuration_service.js"></script>
-    <script type="text/javascript" src="/app/js/services/deposits_service.js"></script>
-
 
     <script type="text/javascript" src="/app/js/services/projects_service.js"></script>
     <script type="text/javascript" src="/app/js/services/notebooks_service.js"></script>
@@ -198,12 +189,13 @@
 
     <!-- main app -->
 
-    <script type="text/javascript" src="/js/utils.js"></script>
-    <script type="text/javascript" src="/shared/id_mapper.js"></script>
     <script type="text/javascript" src="/app/js/app.js"></script>
 
 <!-- /angular App -->
 
+<!-- other javascripts -->
+<script type="text/javascript" src="/shared/id_mapper.js"></script>
+<script type="text/javascript" src="/js/utils.js"></script>
 
 
 <!-- notebook -->

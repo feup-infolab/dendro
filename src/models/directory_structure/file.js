@@ -224,49 +224,6 @@ File.prototype.autorename = function ()
     return self.nie.title;
 };
 
-File.prototype.copyPaste = function ({destinationFolder}, callback)
-{
-    const self = this;
-    self.writeToTempFile(function (err, writtenFilePath)
-    {
-        if (isNull(err))
-        {
-            const newFile = new File({
-                nie: {
-                    title: self.nie.title,
-                    isLogicalPartOf: destinationFolder.uri
-                }
-            });
-            newFile.saveWithFileAndContents(writtenFilePath, function (err, newFile)
-            {
-                if (isNull(err))
-                {
-                    destinationFolder.nie.hasLogicalPart = newFile.uri;
-                    return callback(null, {
-                        result: "success",
-                        message: "File copied successfully.",
-                        uri: newFile.uri
-                    });
-                }
-                const msg = "Error [" + err + "] reindexing file [" + newFile.uri + "]in GridFS :" + newFile;
-                return callback(500, {
-                    result: "error",
-                    message: "Unable to save files after buffering: " + JSON.stringify(newFile),
-                    errors: newFile
-                });
-            });
-        }
-        else
-        {
-            return callback(500, {
-                result: "error",
-                message: "Unable to save files after buffering: ",
-                errors: err
-            });
-        }
-    });
-};
-
 File.prototype.save = function (callback, rename, progressReporter)
 {
     const self = this;
@@ -641,37 +598,22 @@ File.prototype.saveIntoFolder = function (destinationFolderAbsPath, includeMetad
 
         const writeStream = fs.createWriteStream(tempFilePath);
 
-        const connect = function (err, connection)
-        {
-            connection.get(self, writeStream, function (err, result)
-            {
-                if (isNull(err))
-                {
-                    return callback(null, tempFilePath);
-                }
-                return callback(1, result);
-            });
-        };
-
         self.getProjectStorage(function (err, connection)
         {
             if (isNull(err))
             {
-                connect(err, connection);
-            }
-            else
-            {
-                self.getDepositStorage(function (err, connection)
+                connection.get(self, writeStream, function (err, result)
                 {
                     if (isNull(err))
                     {
-                        connect(err, connection);
+                        return callback(null, tempFilePath);
                     }
-                    else
-                    {
-                        return callback(err, "Error finding storage file " + self.uri + ". Error reported : " + connection);
-                    }
+                    return callback(1, result);
                 });
+            }
+            else
+            {
+                return callback(err, "Error finding storage file " + self.uri + ". Error reported : " + connection);
             }
         });
     });
@@ -742,37 +684,22 @@ File.prototype.writeToTempFile = function (callback)
                 const fs = require("fs");
                 const writeStream = fs.createWriteStream(tempFilePath);
 
-                const connectStorage = function (err, storageConnection)
-                {
-                    storageConnection.get(self, writeStream, function (err, result)
-                    {
-                        if (isNull(err))
-                        {
-                            return callback(null, tempFilePath);
-                        }
-                        return callback(1, result);
-                    });
-                };
-
                 self.getProjectStorage(function (err, storageConnection)
                 {
                     if (isNull(err))
                     {
-                        connectStorage(err, storageConnection);
-                    }
-                    else
-                    {
-                        self.getDepositStorage(function (err, storageConnection)
+                        storageConnection.get(self, writeStream, function (err, result)
                         {
                             if (isNull(err))
                             {
-                                connectStorage(err, storageConnection);
+                                return callback(null, tempFilePath);
                             }
-                            else
-                            {
-                                return callback(err, "Error finding storage file " + self.uri + ". Error reported : " + storageConnection);
-                            }
+                            return callback(1, result);
                         });
+                    }
+                    else
+                    {
+                        return callback(err, "Error finding storage file " + self.uri + ". Error reported : " + storageConnection);
                     }
                 });
             };
@@ -887,45 +814,7 @@ File.prototype.loadFromLocalFile = function (localFile, callback)
         }
         else
         {
-            self.getOwnerDeposit(function (err, ownerDeposit)
-            {
-                const Deposit = rlequire("dendro", "src/models/deposit.js").Deposit;
-                if (isNull && ownerDeposit instanceof Deposit)
-                {
-                    /** SAVE FILE**/
-                    self.getDepositStorage(function (err, storageConnection)
-                    {
-                        if (isNull(err))
-                        {
-                            storageConnection.put(self,
-                                fs.createReadStream(localFile),
-                                function (err, result)
-                                {
-                                    if (isNull(err))
-                                    {
-                                        return callback(null, self);
-                                    }
-
-                                    Logger.log("Error [" + err + "] saving file in GridFS :" + result);
-                                    return callback(err, result);
-                                },
-                                {
-                                    deposit: ownerDeposit,
-                                    type: "nie:File"
-                                }
-                            );
-                        }
-                        else
-                        {
-                            return callback(true, storageConnection);
-                        }
-                    });
-                }
-                else
-                {
-                    callback(err, ownerProject);
-                }
-            });
+            callback(err, ownerProject);
         }
     });
 };
@@ -1044,7 +933,7 @@ File.prototype.extractDataAndSaveIntoDataStore = function (tempFileLocation, cal
         let header = 0, offset = 1;
         let hdr = [];
         let o = {};
-        if (isNull(sheet) || isNull(sheet["!ref"])) return [];
+        if (sheet === null || sheet["!ref"] === null) return [];
         let range = o.range !== undefined ? o.range : sheet["!ref"];
         let r;
         if (o.header === 1) header = 1;
@@ -1726,34 +1615,6 @@ File.prototype.getProjectStorage = function (callback)
             else
             {
                 callback(err, ownerProject);
-            }
-        }
-        else
-        {
-            return callback(true, "file with no project");
-        }
-    });
-};
-
-File.prototype.getDepositStorage = function (callback)
-{
-    const self = this;
-
-    self.getOwnerDeposit(function (err, ownerDeposit)
-    {
-        if (isNull(err))
-        {
-            const Deposit = rlequire("dendro", "src/models/deposit.js").Deposit;
-            if (isNull && ownerDeposit instanceof Deposit)
-            {
-                ownerDeposit.getActiveStorageConnection(function (err, connection)
-                {
-                    callback(err, connection);
-                });
-            }
-            else
-            {
-                callback(err, ownerDeposit);
             }
         }
         else

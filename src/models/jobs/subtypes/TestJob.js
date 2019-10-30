@@ -99,7 +99,8 @@ class TestJob extends Job
         });
     }
 }
+
 // TestJob.isSingleton = true;
-// TestJob.cronExpression = Config.jobs.embargoed.disembargo_cron_expression;
+// TestJob.cronExpression = "2 seconds";
 
 module.exports.TestJob = TestJob;

@@ -2,7 +2,7 @@ angular.module("dendroApp.controllers")
 /**
  *  Project administration controller
  */
-    .controller("notificationCtrl", function ($scope, $http, $filter, usersService, notificationService, $window, $element, $interval, ngAlertsMngr, ngAlertsEvent, $sce, $q, Utils)
+    .controller("notificationCtrl", function ($scope, $http, $filter, usersService, notificationService, $window, $element, $interval, ngAlertsMngr, ngAlertsEvent, $sce, $q)
     {
         $scope.urisOfNotifsToLoadFromServer = [];
         $scope.loadedNotifsDataFromServer = [];

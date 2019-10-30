@@ -1,8 +1,8 @@
 "use strict";
 
 angular.module("dendroApp.services")
-    .service("recommendationService", ["$http", "filesService", "Utils",
-        function ($http, filesService, Utils)
+    .service("recommendationService", ["$http", "filesService",
+        function ($http, filesService)
         {
             this.editor_recommendation_modes = {
                 smart: "smart",
@@ -57,7 +57,7 @@ angular.module("dendroApp.services")
                 {
                     for (var filter in self.descriptor_filters)
                     {
-                        if (filter.key === descriptor_filter)
+                        if (filter.key == descriptor_filter)
                         {
                             return filter;
                         }
@@ -66,7 +66,7 @@ angular.module("dendroApp.services")
                     return null;
                 };
 
-                if (descriptor_filter instanceof Object && descriptor_filter.key !== self.descriptor_filters[0].key)
+                if (descriptor_filter instanceof Object && descriptor_filter.key != self.descriptor_filters[0].key)
                 {
                     // console.log("Getting recommendations with descriptor filter " + descriptor_filter.key);
                     params.recommendations_mode = descriptor_filter.key;
@@ -82,11 +82,11 @@ angular.module("dendroApp.services")
                         params.recommendations_mode = self.descriptor_filter;
                     }
                 }
-                else if (!Utils.isNull(descriptor_filter) && typeof descriptor_filter === "string")
+                else if (descriptor_filter != null && typeof descriptor_filter === "string")
                 {
                     var filterObject = get_descriptor_filter_object(descriptor_filter);
 
-                    if (!Utils.isNull(filterObject))
+                    if (filterObject != null)
                     {
                         params.recommendations_mode = filterObject.key;
                     }

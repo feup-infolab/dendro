@@ -768,14 +768,6 @@ exports.edit = function (req, res, next)
                     },
                     function (callback)
                     {
-                        if (!isNull(req.body.affiliation))
-                        {
-                            user.foaf.affiliation = req.body.affiliation;
-                        }
-                        callback(null, null);
-                    },
-                    function (callback)
-                    {
                         if (!isNull(req.body.password) && !isNull(req.body.repeat_password) && req.body.password.length > 0 && req.body.repeat_password.length > 0)
                         {
                             if (req.body.password === req.body.repeat_password && req.body.password.length >= 8)

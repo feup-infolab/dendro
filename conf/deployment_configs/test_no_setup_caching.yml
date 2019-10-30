@@ -356,13 +356,3 @@ test_no_setup_caching:
     yake:
       active: true
       commmand: docker run yake-dendro-dev -it '${texttoprocess}'
-  jobs:
-    embargoed:
-      disembargo_cron_expression: "0 0 * * *"
-  deposits:
-    datacite:
-      client_id: "dev.infolab"
-      username: "DEV.INFOLAB"
-      password: "8yD5qChSbUSK"
-      doi_prefix: "10.23673"
-      organization: "https://api.test.datacite.org/dois/10.23673"

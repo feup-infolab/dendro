@@ -1,21 +1,21 @@
 angular.module("dendroApp.services")
-    .service("storageService", ["$http", "$localStorage", "Utils",
-        function ($http, $localStorage, Utils)
+    .service("storageService", ["$http", "$localStorage",
+        function ($http, $localStorage)
         {
             this.$storage = $localStorage.$default({});
 
             this.load_from_local_storage = function (key, targetObject, namespace)
             {
                 var self = this;
-                if (!Utils.isNull(key))
+                if (key != null)
                 {
-                    if (!Utils.isNull(namespace) && !namespace)
+                    if (namespace != null)
                     {
-                        if (!Utils.isNull(targetObject))
+                        if (targetObject != null)
                         {
-                            if (!Utils.isNull(self.$storage[namespace]) && !self.$storage[namespace])
+                            if (self.$storage[namespace] != null)
                             {
-                                if (Utils.isNull(targetObject[namespace]))
+                                if (targetObject[namespace] == null)
                                 {
                                     targetObject[namespace] = {};
                                 }
@@ -23,21 +23,21 @@ angular.module("dendroApp.services")
                                 targetObject[namespace][key] = self.$storage[namespace][key];
                             }
 
-                            if (!Utils.isNull(self.$storage[namespace]) && !self.$storage[namespace])
+                            if (self.$storage[namespace] != null)
                             {
                                 return self.$storage[namespace][key];
                             }
                             return null;
                         }
 
-                        if (!Utils.isNull(self.$storage[namespace]) && !self.$storage[namespace] && !self.$storage[namespace][key])
+                        if (self.$storage[namespace] != null)
                         {
                             return self.$storage[namespace][key];
                         }
                         return null;
                     }
 
-                    if (!Utils.isNull(targetObject) && !self.$storage[key])
+                    if (targetObject != null)
                     {
                         targetObject[key] = self.$storage[key];
                         return self.$storage[key];
@@ -53,14 +53,14 @@ angular.module("dendroApp.services")
             {
                 var self = this;
 
-                if (Utils.isNull(self.$storage[namespace]))
+                if (self.$storage[namespace] == null)
                 {
                     self.$storage[namespace] = {};
                 }
 
                 if (key != null)
                 {
-                    if (!Utils.isNull(namespace))
+                    if (Boolean(namespace) === true)
                     {
                         self.$storage[namespace][key] = value;
                     }

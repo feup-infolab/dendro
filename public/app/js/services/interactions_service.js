@@ -2,8 +2,8 @@
 
 angular.module("dendroApp.services")
     .service("interactionsService",
-        ["$http", "$q", "Utils",
-            function ($http, $q, Utils)
+        ["$http", "$q",
+            function ($http, $q)
             {
                 /**
                  * Give notice to server
@@ -11,26 +11,26 @@ angular.module("dendroApp.services")
 
                 this.register_interaction = function (url, objectOfInteraction, interactionType, rankingPosition, recommendedFor, pageNumber)
                 {
-                    if (!Utils.isNull(objectOfInteraction) && objectOfInteraction instanceof Object)
+                    if (objectOfInteraction != null && objectOfInteraction instanceof Object)
                     {
                         objectOfInteraction.interactionType = interactionType;
 
-                        if (Utils.isNull(rankingPosition))
+                        if (rankingPosition == null)
                         {
                             rankingPosition = -1;
                         }
 
-                        if (Utils.isNull(objectOfInteraction.rankingPosition) && !Utils.isNull(rankingPosition))
+                        if (objectOfInteraction.rankingPosition == null && rankingPosition != null)
                         {
                             objectOfInteraction.rankingPosition = rankingPosition;
                         }
 
-                        if (Utils.isNull(objectOfInteraction.recommendedFor) && !Utils.isNull(recommendedFor))
+                        if (objectOfInteraction.recommendedFor == null && recommendedFor != null)
                         {
                             objectOfInteraction.recommendedFor = recommendedFor;
                         }
 
-                        if (Utils.isNull(objectOfInteraction.pageNumber) && !Utils.isNull(pageNumber))
+                        if (objectOfInteraction.pageNumber == null && pageNumber != null)
                         {
                             objectOfInteraction.pageNumber = pageNumber;
                         }
@@ -54,7 +54,7 @@ angular.module("dendroApp.services")
                     var self = this;
                     return $q.all(descriptors_accepted.map(function (descriptor)
                     {
-                        if (!Utils.isNull(descriptor.recommendation_types))
+                        if (descriptor.recommendation_types != null)
                         {
                             if (descriptor.recommendation_types.just_recommended)
                             {
@@ -133,7 +133,7 @@ angular.module("dendroApp.services")
                     var url;
                     var interactionType;
 
-                    if (!Utils.isNull(descriptor.recommendation_types))
+                    if (descriptor.recommendation_types != null)
                     {
                         if (
                             descriptor.recommendation_types.user_favorite &&
@@ -431,7 +431,7 @@ angular.module("dendroApp.services")
                 {
                     var self = this;
 
-                    if (!Utils.isNull(descriptor.recommendation_types))
+                    if (descriptor.recommendation_types != null)
                     {
                         if (
                             descriptor.recommendation_types.user_favorite &&

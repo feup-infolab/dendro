@@ -367,9 +367,25 @@ Folder.prototype.zipAndDownload = function (includeMetadata, callback, bagItOpti
                 {
                     if (includeMetadata)
                     {
-                        self.saveMetadata({absolutePathOfFinishedFolder, metadata}, function (err)
+                        const fs = require("fs");
+
+                        const outputFilename = path.join(absolutePathOfFinishedFolder, Config.packageMetadataFileName);
+
+                        Logger.log("FINAL METADATA : " + JSON.stringify(metadata));
+
+                        fs.writeFile(outputFilename, JSON.stringify(metadata, null, 4), "utf-8", function (err)
                         {
-                            cb(err);
+                            if (err)
+                            {
+                                Logger.log(err);
+                                cb(err);
+                            }
+                            else
+                            {
+                                const msg = "JSON saved to " + outputFilename;
+                                Logger.log(msg);
+                                cb(null);
+                            }
                         });
                     }
                     else
@@ -424,106 +440,6 @@ Folder.prototype.zipAndDownload = function (includeMetadata, callback, bagItOpti
         else
         {
             return callback(1, "Error producing folder structure for zipping" + absolutePathOfFinishedFolder);
-        }
-    });
-};
-
-Folder.prototype.copyPaste = function ({includeMetadata, user, destinationFolder}, callback)
-{
-    const self = this;
-    self.createTempFolderWithContents(includeMetadata, false, false, function (err, parentFolderPath, absolutePathOfFinishedFolder, metadata)
-    {
-        if (isNull(err))
-        {
-            async.series([
-                function (cb)
-                {
-                    if (includeMetadata)
-                    {
-                        self.saveMetadata({absolutePathOfFinishedFolder, metadata}, function (err)
-                        {
-                            cb(err);
-                        });
-                    }
-                    else
-                    {
-                        cb(null);
-                    }
-                }], function (err)
-            {
-                if (isNull(err))
-                {
-                    Logger.log("Preparing to copy paste contents of folder : " + absolutePathOfFinishedFolder);
-                    destinationFolder.restoreFromFolder(absolutePathOfFinishedFolder, user, true, false, function (err, result)
-                    {
-                        if (isNull(err))
-                        {
-                            Folder.deleteOnLocalFileSystem(absolutePathOfFinishedFolder, function (err, result)
-                            {
-                                callback(null, "copied folder successfully.");
-                            });
-                        }
-                        else
-                        {
-                            return callback(err, "Unable to copy folder " + self.uri + " to another folder.");
-                        }
-                    }, true);
-                }
-            });
-        }
-        else
-        {
-            callback(err, "error");
-        }
-    });
-};
-
-Folder.prototype.copyPaste2 = function ({includeMetadata, user, destinationFolder}, callback)
-{
-    const self = this;
-    self.createTempFolderWithContents(includeMetadata, false, false, function (err, parentFolderPath, absolutePathOfFinishedFolder, metadata)
-    {
-        if (isNull(err))
-        {
-            async.series([
-                function (cb)
-                {
-                    if (includeMetadata)
-                    {
-                        self.saveMetadata({absolutePathOfFinishedFolder, metadata}, function (err)
-                        {
-                            cb(err);
-                        });
-                    }
-                    else
-                    {
-                        cb(null);
-                    }
-                }], function (err)
-            {
-                if (isNull(err))
-                {
-                    Logger.log("Preparing to copy paste contents of folder : " + absolutePathOfFinishedFolder);
-                    destinationFolder.loadContentsOfFolderIntoThis(absolutePathOfFinishedFolder, true, function (err, result)
-                    {
-                        if (isNull(err))
-                        {
-                            Folder.deleteOnLocalFileSystem(absolutePathOfFinishedFolder, function (err, result)
-                            {
-                                callback(null, "copied folder successfully.");
-                            });
-                        }
-                        else
-                        {
-                            return callback(err, "Unable to copy folder " + self.uri + " to another folder.");
-                        }
-                    }, false, user);
-                }
-            });
-        }
-        else
-        {
-            callback(err, "error");
         }
     });
 };
@@ -2050,8 +1966,7 @@ Folder.prototype.getHumanReadableUri = function (callback)
                     if (!isNull(parentResource))
                     {
                         const Project = rlequire("dendro", "src/models/project.js").Project;
-                        const Deposit = rlequire("dendro", "src/models/deposit.js").Deposit;
-                        if (parentResource.isA(Project) || parentResource.isA(Deposit))
+                        if (parentResource.isA(Project))
                         {
                             callback(null, parentResource.ddr.humanReadableURI + "/data");
                         }

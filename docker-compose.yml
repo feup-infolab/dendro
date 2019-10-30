@@ -3,7 +3,7 @@ version: '3.3'
 services:
   elasticsearch:
     container_name: elasticsearch-dendro
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.8.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.2
     expose:
       - "9200"
       - "9300"
@@ -93,7 +93,7 @@ services:
     build:
       dockerfile: Dockerfile
       args:
-        - "SOURCE_BRANCH=master"
+        - "SOURCE_BRANCH=dendrokeywords"
       context: .
     ports:
       - published: 3001

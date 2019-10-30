@@ -30,7 +30,7 @@ rlequire("dendro", "test/routes/project/metadata_only_project/__delete/routes.pr
 rlequire("dendro", "test/routes/project/private_project/__delete/routes.project.privateProject.__delete.Test.js");
 
 // SOCIAL DENDRO TESTS
-/*
+
 rlequire("dendro", "test/routes/social/my/routes.social.my.Test.js");
 
 rlequire("dendro", "test/routes/posts/all/routes.posts.all.Test.js");
@@ -67,12 +67,8 @@ rlequire("dendro", "test/routes/notifications/all/routes.notifications.all.Test.
 rlequire("dendro", "test/routes/notifications/notification/routes.notifications.notification.Test.js");
 
 rlequire("dendro", "test/routes/notifications/notification/routes.notifications.notification[DELETE].Test.js");
-*/
+
 // END OF SOCIAL DENDRO TESTS
-
-// DENDRO COPY PASTE FUNCTION
-
-rlequire("dendro", "test/routes/project/public_project/__copy_paste/routes.project.publicProject.__copy_paste.Test.js");
 
 // PUBLIC PROJECT FOLDER LEVEL ?VERSION
 rlequire("dendro", "test/routes/project/public_project/data/testFolder1/__version/routes.project.publicProject.data.testFolder1.__version.Test.js");

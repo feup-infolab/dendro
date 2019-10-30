@@ -5,8 +5,7 @@ const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 function Elements ()
-{
-}
+{}
 
 /** Types of descriptors (manages visibility of certain types of triples to the outside world. Used in elements.js to parametrize the visibility of data in certain conditions) **/
 Elements.access_types = {
@@ -146,41 +145,41 @@ Elements.validationFunctions = {
 
 Elements.ontologies.schema = {
     sharedContent:
-        {
-            type: Elements.types.string,
-            control: Controls.input_box,
-            api_readable: true
-        },
+  {
+      type: Elements.types.string,
+      control: Controls.input_box,
+      api_readable: true
+  },
     provider:
-        {
-            type: Elements.types.string,
-            control: Controls.input_box,
-            api_readable: true
-        },
+  {
+      type: Elements.types.string,
+      control: Controls.input_box,
+      api_readable: true
+  },
     telephone:
-        {
-            type: Elements.types.string,
-            control: Controls.input_box,
-            api_readable: true
-        },
+  {
+      type: Elements.types.string,
+      control: Controls.input_box,
+      api_readable: true
+  },
     address:
-        {
-            type: Elements.types.string,
-            control: Controls.input_box,
-            api_readable: true
-        },
+  {
+      type: Elements.types.string,
+      control: Controls.input_box,
+      api_readable: true
+  },
     license:
-        {
-            type: Elements.types.string,
-            control: Controls.input_box,
-            api_readable: true
-        },
+  {
+      type: Elements.types.string,
+      control: Controls.input_box,
+      api_readable: true
+  },
     email:
-        {
-            type: Elements.types.string,
-            control: Controls.input_box,
-            api_readable: true
-        }
+    {
+        type: Elements.types.string,
+        control: Controls.input_box,
+        api_readable: true
+    }
 };
 
 /**
@@ -188,292 +187,292 @@ Elements.ontologies.schema = {
  */
 
 Elements.ontologies.dcterms =
-    {
-        abstract:
-            {
-                type: Elements.types.string,
-                control: Controls.markdown_box
-            },
-        accessRights:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
+{
+    abstract:
+  {
+      type: Elements.types.string,
+      control: Controls.markdown_box
+  },
+    accessRights:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
 
-            },
-        accrualMethod:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        accrualPeriodicity:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        accrualPolicy:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        alternative:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        audience:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        available:
-            {
-                type: Elements.types.date,
-                control: Controls.date_picker
-            },
-        bibliographicCitation:
-            {
-                type: Elements.types.string,
-                control: Controls.markdown_box
-            },
-        conformsTo:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        contributor:
-            {
-                type: Elements.types.string,
-                control: Controls.url_box,
-                locked_for_projects: true
-            },
-        coverage:
-            {
-                type: Elements.types.string,
-                control: Controls.map
-            },
-        created:
-            {
-                type: Elements.types.date,
-                control: Controls.date_picker
-            },
-        creator:
-            {
-                type: Elements.types.string,
-                validationFunction: Elements.validationFunctions.stringOrResourceNoEscape,
-                control: Controls.url_box,
-                locked_for_projects: true,
-                append_prefix_dendro_baseuri: true
-            },
-        date:
-            {
-                type: Elements.types.date,
-                control: Controls.date_picker
-            },
-        dateAccepted:
-            {
-                type: Elements.types.date,
-                control: Controls.date_picker
-            },
-        dateCopyrighted:
-            {
-                type: Elements.types.date,
-                control: Controls.date_picker
-            },
-        dateSubmitted:
-            {
-                type: Elements.types.date,
-                control: Controls.date_picker
-            },
-        description:
-            {
-                type: Elements.types.string,
-                control: Controls.markdown_box
-            },
-        educationLevel:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        extent:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        format:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        identifier:
-            {
-                type: Elements.types.string,
-                control: Controls.url_box
-            },
-        instructionalMethod:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        issued:
-            {
-                type: Elements.types.date,
-                control: Controls.date_picker
-            },
-        language:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        license:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        mediator:
-            {
-                type: Elements.types.resource,
-                control: Controls.url_box
-            },
-        medium:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        modified:
-            {
-                type: Elements.types.date,
-                control: Controls.date_picker
-            },
-        provenance:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        publisher:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        references:
-            {
-                type: Elements.types.resource,
-                control: Controls.url_box
-            },
-        relation:
-            {
-                type: Elements.types.string,
-                control: Controls.markdown_box
-            },
-        replaces:
-            {
-                type: Elements.types.resource,
-                control: Controls.url_box
-            },
-        requires:
-            {
-                type: Elements.types.resource,
-                control: Controls.url_box
-            },
-        rights:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        rightsHolder:
-            {
-                type: Elements.types.resource,
-                control: Controls.url_box
-            },
-        source:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        spatial:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        subject:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        SizeOrDuration:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        tableOfContents:
-            {
-                type: Elements.types.string,
-                control: Controls.markdown_box
-            },
-        temporal:
-            {
-                type: Elements.types.date,
-                control: Controls.input_box
-            },
-        type:
-            {
-                type: Elements.types.string,
-                control: Controls.markdown_box
-            },
-        title:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        hasVersion:
-            {
-                type: Elements.types.resource,
-                control: Controls.url_box
-            },
-        hasPart:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        isPartOf:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        hasFormat: {
-            type: Elements.types.string,
-            control: Controls.input_box
-        },
-        isFormatOf:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        isReferencedBy:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        isReplacedBy:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        isRequiredBy:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        isVersionOf:
-            {
-                type: Elements.types.string,
-                control: Controls.url_box
-            },
-        valid:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            }
-    };
+  },
+    accrualMethod:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    accrualPeriodicity:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    accrualPolicy:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    alternative:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    audience:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    available:
+  {
+      type: Elements.types.date,
+      control: Controls.date_picker
+  },
+    bibliographicCitation:
+  {
+      type: Elements.types.string,
+      control: Controls.markdown_box
+  },
+    conformsTo:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    contributor:
+  {
+      type: Elements.types.string,
+      control: Controls.url_box,
+      locked_for_projects: true
+  },
+    coverage:
+  {
+      type: Elements.types.string,
+      control: Controls.map
+  },
+    created:
+  {
+      type: Elements.types.date,
+      control: Controls.date_picker
+  },
+    creator:
+  {
+      type: Elements.types.string,
+      validationFunction: Elements.validationFunctions.stringOrResourceNoEscape,
+      control: Controls.url_box,
+      locked_for_projects: true,
+      append_prefix_dendro_baseuri: true
+  },
+    date:
+  {
+      type: Elements.types.date,
+      control: Controls.date_picker
+  },
+    dateAccepted:
+  {
+      type: Elements.types.date,
+      control: Controls.date_picker
+  },
+    dateCopyrighted:
+  {
+      type: Elements.types.date,
+      control: Controls.date_picker
+  },
+    dateSubmitted:
+  {
+      type: Elements.types.date,
+      control: Controls.date_picker
+  },
+    description:
+  {
+      type: Elements.types.string,
+      control: Controls.markdown_box
+  },
+    educationLevel:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    extent:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    format:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    identifier:
+  {
+      type: Elements.types.string,
+      control: Controls.url_box
+  },
+    instructionalMethod:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    issued:
+  {
+      type: Elements.types.date,
+      control: Controls.date_picker
+  },
+    language:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    license:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    mediator:
+  {
+      type: Elements.types.resource,
+      control: Controls.url_box
+  },
+    medium:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    modified:
+  {
+      type: Elements.types.date,
+      control: Controls.date_picker
+  },
+    provenance:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    publisher:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    references:
+  {
+      type: Elements.types.resource,
+      control: Controls.url_box
+  },
+    relation:
+  {
+      type: Elements.types.string,
+      control: Controls.markdown_box
+  },
+    replaces:
+  {
+      type: Elements.types.resource,
+      control: Controls.url_box
+  },
+    requires:
+  {
+      type: Elements.types.resource,
+      control: Controls.url_box
+  },
+    rights:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    rightsHolder:
+  {
+      type: Elements.types.resource,
+      control: Controls.url_box
+  },
+    source:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    spatial:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    subject:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    SizeOrDuration:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    tableOfContents:
+  {
+      type: Elements.types.string,
+      control: Controls.markdown_box
+  },
+    temporal:
+  {
+      type: Elements.types.date,
+      control: Controls.input_box
+  },
+    type:
+  {
+      type: Elements.types.string,
+      control: Controls.markdown_box
+  },
+    title:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    hasVersion:
+  {
+      type: Elements.types.resource,
+      control: Controls.url_box
+  },
+    hasPart:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    isPartOf:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    hasFormat: {
+        type: Elements.types.string,
+        control: Controls.input_box
+    },
+    isFormatOf:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    isReferencedBy:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    isReplacedBy:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    isRequiredBy:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  },
+    isVersionOf:
+  {
+      type: Elements.types.string,
+      control: Controls.url_box
+  },
+    valid:
+  {
+      type: Elements.types.string,
+      control: Controls.input_box
+  }
+};
 
 /**
  * Elements of the FOAF ontology
@@ -491,11 +490,6 @@ Elements.ontologies.foaf =
                 control: Controls.input_box
             },
         surname:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
-        affiliation:
             {
                 type: Elements.types.string,
                 control: Controls.input_box
@@ -804,68 +798,6 @@ Elements.ontologies.foaf =
  */
 
 Elements.ontologies.ddr = {
-    isAdmin: {
-        type: Elements.types.boolean,
-        control: Controls.input_box,
-        api_readable: true,
-        locked: true,
-        private: true
-    },
-    userAccepted: {
-        type: Elements.types.boolean,
-        control: Controls.input_box,
-        private: true,
-        locked: true
-    },
-    acceptingUser: {
-        type: Elements.types.resource,
-        control: Controls.input_box,
-        private: true,
-        locked: true
-    },
-    dataset: {
-        type: Elements.types.resource,
-        control: Controls.input_box,
-        private: true,
-        locked: true
-    },
-    dateOfAcceptance: {
-        type: Elements.types.date,
-        control: Controls.date_picker,
-        private: true,
-        locked: true
-    },
-    requestDate: {
-        type: Elements.types.date,
-        control: Controls.date_picker,
-        private: true,
-        locked: true
-    },
-    accessTerms: {
-        type: Elements.types.string,
-        control: Controls.markdown_box,
-        private: true,
-        locked: true
-    },
-    embargoedDate:
-        {
-            type: Elements.types.date,
-            control: Controls.date_picker,
-            private: true,
-            locked: true
-        },
-    proposedCitation:
-        {
-            type: Elements.types.string,
-            control: Controls.markdown_box,
-            locked: true
-
-        },
-    DOI:
-        {
-            type: Elements.types.string,
-            control: Controls.input_box
-        },
     taskID:
         {
             type: Elements.types.string,
@@ -1413,55 +1345,6 @@ Elements.ontologies.ddr = {
             control: Controls.input_box,
             locked: true,
             api_readable: true
-        },
-    exportedFromProject:
-        {
-            type: Elements.types.resource,
-            control: Controls.url_box,
-            locked_for_projects: true
-        },
-    exportedResource:
-        {
-            type: Elements.types.resource,
-            control: Controls.url_box,
-            locked_for_projects: true
-        },
-    exportedFromFolder:
-        {
-            type: Elements.types.resource,
-            control: Controls.url_box,
-            locked_for_projects: true
-        },
-    exportedToRepository:
-        {
-            type: Elements.types.string,
-            api_readable: true,
-            control: Controls.url_box
-        },
-    exportedToPlatform:
-        {
-            type: Elements.types.string,
-            locked: true,
-            control: Controls.input_box
-        },
-    isAvailable:
-        {
-            type: Elements.types.boolean,
-            locked: true,
-            control: Controls.input_box
-        },
-    lastVerifiedDate:
-        {
-            type: Elements.types.string,
-            locked: true,
-            control: Controls.input_box
-        },
-    absoluteUri:
-        {
-            type: Elements.types.string,
-            locked: true,
-            private: true,
-            control: Controls.input_box
         }
 };
 
@@ -2434,10 +2317,10 @@ Elements.ontologies.bdv = {
             control: Controls.date_picker
         },
     projectName:
-        {
-            type: Elements.types.string,
-            control: Controls.markdown_box
-        },
+  {
+      type: Elements.types.string,
+      control: Controls.markdown_box
+  },
     referenceSystemAuthority:
         {
             type: Elements.types.string,
@@ -4012,65 +3895,65 @@ Elements.ontologies.mibbiup =
                 control: Controls.input_box
             },
         Organism_Part:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
         Reagent:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
         Sample_Collection_Protocol:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
         Sample_Size:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
         Sample_Type:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
         Sex:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
         Software:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
         Study_Design:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
         Study_Domain:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
         Temperature:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
         Tissue:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            },
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
         Treatment_Protocol:
-            {
-                type: Elements.types.string,
-                control: Controls.input_box
-            }
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        }
     };
 
 Elements.setAllElements = function (loadedElements)
@@ -4089,7 +3972,7 @@ Elements.setAllElements = function (loadedElements)
             {
                 if (loadedElement.hasOwnProperty(k))
                 {
-                    if (isNull(existingElement[k]))
+                    if (existingElement[k] === null || typeof existingElement[k] === "undefined")
                     {
                         Elements.ontologies[prefix][shortName][k] = loadedElement[k];
                     }

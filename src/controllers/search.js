@@ -12,8 +12,9 @@ const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
 const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder;
 const User = rlequire("dendro", "src/models/user.js").User;
 const Project = rlequire("dendro", "src/models/project.js").Project;
-const Deposit = rlequire("dendro", "src/models/deposit.js").Deposit;
 const Administrator = rlequire("dendro", "src/models/administrator.js").Administrator;
+
+const db = Config.getDBByID();
 
 const async = require("async");
 
@@ -28,127 +29,125 @@ exports.search = function (req, res)
 {
     const acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
-    let query = req.query.q;
+    const query = req.query.q;
 
-    if (!req.query.currentPage)
+    if (!isNull(query) && query !== "")
     {
-        req.query.currentPage = 0;
-    }
-    if (!req.query.pageSize)
-    {
-        req.query.pageSize = 20;
-    }
-
-    const skip = req.query.pageSize * req.query.currentPage;
-
-    Resource.findResourcesByTextQuery(
-        IndexConnection.getDefault(),
-        query,
-        skip,
-        req.query.pageSize,
-        function (err, results)
+        if (!req.query.currentPage)
         {
-            if (isNull(err))
+            req.query.currentPage = 0;
+        }
+        if (!req.query.pageSize)
+        {
+            req.query.pageSize = 20;
+        }
+
+        const skip = req.query.pageSize * req.query.currentPage;
+
+        Resource.findResourcesByTextQuery(
+            IndexConnection.getDefault(),
+            query,
+            skip,
+            req.query.pageSize,
+            function (err, results)
             {
-                let getSimilarResources = function (resource, callback)
+                if (isNull(err))
                 {
-                    resource.getTextuallySimilarResources(function (err, similarResources)
+                    let getSimilarResources = function (resource, callback)
                     {
-                        if (isNull(resource.indexData))
+                        resource.getTextuallySimilarResources(function (err, similarResources)
                         {
-                            resource.indexData = {};
-                        }
+                            if (isNull(resource.indexData))
+                            {
+                                resource.indexData = {};
+                            }
 
-                        resource.indexData.recommendations = similarResources;
-                        return callback(err, resource);
-                    }, Config.limits.index.maxResults);
-                };
+                            resource.indexData.recommendations = similarResources;
+                            return callback(err, resource);
+                        }, Config.limits.index.maxResults);
+                    };
 
-                async.mapSeries(results, getSimilarResources, function (err, resultsWithSimilarOnes)
-                {
-                    // will be null if the client does not accept html
-                    if (acceptsJSON && !acceptsHTML)
+                    async.mapSeries(results, getSimilarResources, function (err, resultsWithSimilarOnes)
                     {
-                        res.json({
-                            result: "ok",
-                            hits: results
-                        });
-                    }
-                    else
-                    {
-                        let renderParameters = {
-                            title: "Search Results"
-                        };
-
-                        if (!isNull(results) && results.length > 0)
+                        // will be null if the client does not accept html
+                        if (acceptsJSON && !acceptsHTML)
                         {
-                            renderParameters.results = resultsWithSimilarOnes;
-
-                            renderParameters.metadata = _.map(resultsWithSimilarOnes, function (result)
-                            {
-                                return result.getDescriptors(
-                                    [Elements.access_types.private, Elements.access_types.private],
-                                    [Elements.access_types.api_readable]
-                                );
+                            res.json({
+                                result: "ok",
+                                hits: results
                             });
-
-                            renderParameters.types = _.map(resultsWithSimilarOnes, function (result)
-                            {
-                                if (result.isA(File))
-                                {
-                                    return "file";
-                                }
-                                else if (result.isA(Folder))
-                                {
-                                    return "folder";
-                                }
-                                else if (result.isA(User))
-                                {
-                                    return "user";
-                                }
-                                else if (result.isA(Administrator))
-                                {
-                                    return "user";
-                                }
-                                else if (result.isA(Project))
-                                {
-                                    return "project";
-                                }
-                                else if (result.isA(Deposit))
-                                {
-                                    return "deposit";
-                                }
-                            });
-
-                            renderParameters.currentPage = req.query.currentPage;
-                            renderParameters.pageSize = req.query.pageSize;
                         }
                         else
                         {
-                            renderParameters.results = [];
+                            let renderParameters = {
+                                title: "Search Results"
+                            };
 
-                            if (!isNull(query))
+                            if (!isNull(results) && results.length > 0)
                             {
-                                renderParameters.info_messages = ["No results found for query: \"" + query + "\"."];
+                                renderParameters.results = resultsWithSimilarOnes;
+
+                                renderParameters.metadata = _.map(resultsWithSimilarOnes, function (result)
+                                {
+                                    return result.getDescriptors(
+                                        [Elements.access_types.private, Elements.access_types.private],
+                                        [Elements.access_types.api_readable]
+                                    );
+                                });
+
+                                renderParameters.types = _.map(resultsWithSimilarOnes, function (result)
+                                {
+                                    if (result.isA(File))
+                                    {
+                                        return "file";
+                                    }
+                                    else if (result.isA(Folder))
+                                    {
+                                        return "folder";
+                                    }
+                                    else if (result.isA(User))
+                                    {
+                                        return "user";
+                                    }
+                                    else if (result.isA(Administrator))
+                                    {
+                                        return "user";
+                                    }
+                                    else if (result.isA(Project))
+                                    {
+                                        return "project";
+                                    }
+                                });
+
+                                renderParameters.currentPage = req.query.currentPage;
+                                renderParameters.pageSize = req.query.pageSize;
                             }
                             else
                             {
-                                renderParameters.info_messages = ["No results found for query."];
+                                renderParameters.results = [];
+                                renderParameters.info_messages = ["No results found for query: \"" + query + "\"."];
                             }
-                        }
 
-                        renderParameters.pageSizes = [20, 50, 200];
-                        res.render("search/search", renderParameters);
-                    }
-                });
-            }
-            else
-            {
-                res.status(500).render("search/search", {
-                    title: "Error occurred",
-                    error_messages: [err, results],
-                    results: []
-                });
-            }
+                            res.render("search/search", renderParameters);
+                        }
+                    });
+                }
+                else
+                {
+                    res.status(500).render("search/search", {
+                        title: "Error occurred",
+                        error_messages: [err, results],
+                        results: []
+                    });
+                }
+            });
+    }
+    else
+    {
+        res.render("search/search", {
+            title: "No query specified",
+            info_messages: ["No query specified"],
+            results: []
         });
+    }
 };

@@ -15,7 +15,6 @@ angular.module("dendroApp.controllers")
             "usersService",
             "windowService",
             "uploadsService",
-            "Utils",
             function (
                 $scope,
                 $http,
@@ -27,8 +26,7 @@ angular.module("dendroApp.controllers")
                 Upload,
                 usersService,
                 windowService,
-                uploadsService,
-                Utils
+                uploadsService
             )
             {
                 $scope.usingFlash = FileAPI && FileAPI.upload != null;
@@ -104,7 +102,7 @@ angular.module("dendroApp.controllers")
                         self.files = files;
 
                         $scope.formUpload = false;
-                        if (!Utils.isNull(self.files))
+                        if (self.files !== null)
                         {
                             // make files array for not multiple to be able to be used in ng-repeat in the ui
                             if (!angular.isArray(self.files))
@@ -239,7 +237,7 @@ angular.module("dendroApp.controllers")
                         .then(function (upload_id)
                         {
                             file.upload_id = upload_id;
-                            if (Utils.isNull(file.username))
+                            if (file.username === null || typeof file.username === "undefined")
                             {
                                 usersService.get_logged_user()
                                     .then(function (user)

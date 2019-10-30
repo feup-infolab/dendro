@@ -74,7 +74,7 @@ const queryObjectToString = function (query, argumentsArray, callback)
                 case Elements.types.double:
                     transformedQuery = transformedQuery.replace(pattern, currentArgument.value);
                     break;
-                case Elements.types.boolean: {
+                case Elements.types.boolean:
                     let booleanForm;
                     try
                     {
@@ -91,10 +91,9 @@ const queryObjectToString = function (query, argumentsArray, callback)
                     }
 
                     transformedQuery = transformedQuery.replace(pattern, "\"" + booleanForm.toString() + "\"");
-                }
 
                     break;
-                case Elements.types.prefixedResource: {
+                case Elements.types.prefixedResource:
                     const validator = require("validator");
                     if (validator.isURL(currentArgument.value))
                     {
@@ -151,7 +150,6 @@ const queryObjectToString = function (query, argumentsArray, callback)
                             return callback(1, error);
                         }
                     }
-                }
                     break;
                 case Elements.types.date:
                     transformedQuery = transformedQuery.replace(pattern, "\"" + currentArgument.value + "\"");

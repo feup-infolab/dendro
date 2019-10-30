@@ -1,6 +1,6 @@
 angular.module("dendroApp.services")
-    .service("descriptorsService", ["$http", "Utils",
-        function ($http, Utils)
+    .service("descriptorsService", ["$http",
+        function ($http)
         {
             const injectMissingCommentMessage = function (descriptors)
             {
@@ -14,7 +14,7 @@ angular.module("dendroApp.services")
                 });
             };
 
-            this.get_descriptors_by_text_search_resource = function (current_resource_uri, typed)
+            this.get_descriptors_by_text_search = function (current_resource_uri, typed)
             {
                 if (typeof typed !== "undefined")
                 {
@@ -41,37 +41,10 @@ angular.module("dendroApp.services")
                         });
                 }
             };
-            this.get_descriptors_by_text_search = function (typed)
-            {
-                if (typeof typed !== "undefined")
-                {
-                    return $http({
-                        method: "GET",
-                        params: {
-                            descriptor_autocomplete: typed
-                        },
-                        url: "/descriptor_autocomplete",
-                        responseType: "json",
-                        headers: {Accept: "application/json"}
-                    })
-                        .then(function (response)
-                        {
-                            return response.data.map(function (item)
-                            {
-                                return item;
-                            });
-                        })
-                        .catch(function (error)
-                        {
-                            console.log("error", error);
-                            throw error;
-                        });
-                }
-            };
 
             this.get_descriptors_from_ontology = function (ontologyUri)
             {
-                if (!Utils.isNull(ontologyUri))
+                if (ontologyUri != null)
                 {
                     return $http({
                         method: "GET",
@@ -95,9 +68,9 @@ angular.module("dendroApp.services")
 
             this.get_descriptors_from_ontology_annotated_for_a_resource = function (ontologyUri, resourceUri)
             {
-                if (!Utils.isNull(ontologyUri))
+                if (ontologyUri != null)
                 {
-                    if (!Utils.isNull(resourceUri))
+                    if (resourceUri != null)
                     {
                         return $http({
                             method: "GET",

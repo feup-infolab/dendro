@@ -452,16 +452,9 @@ User.prototype.hiddenDescriptors = function (maxResults, callback, allowedOntolo
 
                 return callback(err, results);
             });
-
-            return null;
         })
         .catch(err =>
-        {
-            const msg = "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database when fetching hidden descriptors";
-            Logger.log("error", msg);
-            Logger.log("error", err);
-            callback(1, msg);
-        });
+            callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database."));
 };
 
 User.prototype.favoriteDescriptors = function (maxResults, callback, allowedOntologies)
@@ -478,7 +471,7 @@ User.prototype.favoriteDescriptors = function (maxResults, callback, allowedOnto
 
     dbMySQL.sequelize
         .query(queryUserDescriptorFavorites,
-            {replacements: {uri: self.uri}})
+            {replacements: { uri: self.uri }})
         .then(result =>
         {
             if (isNull(result))
@@ -494,7 +487,7 @@ User.prototype.favoriteDescriptors = function (maxResults, callback, allowedOnto
                     {
                         if (!isNull(descriptor))
                         {
-                            if (!isNull(descriptor.recommendation_types))
+                            if (descriptor.recommendation_types != null)
                             {
                                 descriptor.recommendation_types.user_favorite = true;
                             }
@@ -528,17 +521,9 @@ User.prototype.favoriteDescriptors = function (maxResults, callback, allowedOnto
 
                 return callback(err, results);
             });
-
-            return null;
         })
         .catch(err =>
-        {
-            const msg = "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database when fetching favorite descriptors";
-            Logger.log("error", msg);
-            Logger.log("error", err);
-            callback(1, msg);
-            return null;
-        });
+            callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database."));
 };
 
 User.prototype.mostAcceptedFavoriteDescriptorsInMetadataEditor = function (maxResults, callback, allowedOntologies)
