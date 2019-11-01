@@ -33,7 +33,10 @@ function Resource (object = {})
     {
         self.rdf.type = object.rdf.type;
     }
-
+    if (isNull(self.ddr.absoluteUri))
+    {
+        self.ddr.absoluteUri = self.getAbsoluteUri();
+    }
     return self;
 }
 
@@ -1343,7 +1346,7 @@ Resource.prototype.updateDescriptors = function (descriptors, cannotChangeTheseD
         {
             if (descriptor.isAuthorized(cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes))
             {
-                if (descriptor.value === null)
+                if (isNull(descriptor.value))
                 {
                     delete self[descriptor.prefix][descriptor.shortName];
                 }
@@ -1486,8 +1489,7 @@ Resource.prototype.getLiteralPropertiesFromOntologies = function (ontologyURIsAr
                 " FILTER isLiteral(?object) .\n" +
                 filterString +
             "} \n",
-        argumentsArray
-        ,
+        argumentsArray,
         function (err, results)
         {
             if (err)
@@ -3964,6 +3966,117 @@ Resource.prototype.refreshHumanReadableUri = function (callback, customGraphUri)
             }
         }
     );
+};
+
+Resource.prototype.getActiveStorageConfig = function (callback, customGraphUri)
+{
+    const self = this;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+    const StorageConfig = rlequire("dendro", "src/models/storage/storageConfig.js").StorageConfig;
+
+    StorageConfig.findByUri(self.ddr.hasStorageConfig, function (err, config)
+    {
+        if (!isNull(err))
+        {
+            config.deleteAllMyTriples(function (err, result)
+            {
+                callback(err, result);
+            }, graphUri);
+        }
+        else
+        {
+            callback(err, config);
+        }
+    });
+};
+
+Resource.prototype.getActiveStorageConnection = function (callback)
+{
+    const self = this;
+    const StorageB2drop = rlequire("dendro", "src/kb/storage/storageB2Drop.js").StorageB2drop;
+    const StorageGridFs = rlequire("dendro", "src/kb/storage/storageGridFs.js").StorageGridFs;
+    self.getActiveStorageConfig(function (err, config)
+    {
+        if (isNull(err))
+        {
+            if (config.ddr.hasStorageType === "local")
+            {
+                const newStorageLocal = new StorageGridFs(
+                    Config.defaultStorageConfig.username,
+                    Config.defaultStorageConfig.password,
+                    Config.defaultStorageConfig.host,
+                    Config.defaultStorageConfig.port,
+                    Config.defaultStorageConfig.collectionName
+                );
+
+                return callback(null, newStorageLocal);
+            }
+            else if (config.ddr.hasStorageType === "b2drop")
+            {
+                const newStorageB2drop = new StorageB2drop(config.ddr.username, config.ddr.password);
+                return callback(null, newStorageB2drop);
+            }
+
+            return callback(true, "Unknown storage type");
+        }
+
+        return callback(true, "project " + self.uri + " has no storageConfig");
+    });
+};
+
+Resource.prototype.deleteActiveStorageConfig = function (callback, customGraphUri)
+{
+    const self = this;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+    self.getActiveStorageConfig(function (err, config)
+    {
+        if (!isNull(err))
+        {
+            config.deleteAllMyTriples(function (err, result)
+            {
+                callback(err, result);
+            }, graphUri);
+        }
+        else
+        {
+            callback(err, config);
+        }
+    });
+};
+
+Resource.prototype.deleteAllStorageConfigs = function (callback, customGraphUri)
+{
+    const self = this;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+    const StorageConfig = rlequire("dendro", "src/models/storage/storageConfig.js").StorageConfig;
+
+    StorageConfig.findByProject(self.uri, function (err, configs)
+    {
+        if (isNull(err))
+        {
+            async.mapSeries(configs, function (config, callback)
+            {
+                config.deleteAllMyTriples(function (err, result)
+                {
+                    callback(err, result);
+                }, graphUri);
+            }, function (err, result)
+            {
+                callback(err);
+            });
+        }
+        else
+        {
+            callback(err, configs);
+        }
+    });
+};
+
+Resource.prototype.getAbsoluteUri = function ()
+{
+    const self = this;
+    return Config.baseUri + self.uri;
 };
 
 Resource = Class.extend(Resource, Class, "ddr:Resource");

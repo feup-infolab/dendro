@@ -44,7 +44,7 @@ class IO
             {
                 userSession.removeDisconnectedSockets();
                 let numberConnectedSocketsForUser = userSession.getUserSockets().length;
-                Logger.log("info", "user " + userUri + " has " + numberConnectedSocketsForUser + " active sockets!");
+                Logger.log("debug", "user " + userUri + " has " + numberConnectedSocketsForUser + " active sockets!");
                 if (numberConnectedSocketsForUser === 0)
                 {
                     Logger.log("debug", "user " + userUri + " has no more active sockets!");
@@ -69,7 +69,7 @@ class IO
                 }
                 else
                 {
-                    Logger.log("error", "Could not identify user, data.userUri is missing!");
+                    Logger.log("debug", "Could not identify user, data.userUri is missing!");
                 }
             });
 

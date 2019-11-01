@@ -1,0 +1,107 @@
+<div>
+    <div class="form-group" ng-repeat="item in $eval(attr()) track by $index">
+        <div>
+            <b>{{item.label}}</b>
+        </div>
+
+
+        <!--<tr ng-repeat="descriptor in item.array track by $index" >-->
+        <!--<td><input disabled style="width: 150px"-->
+        <!--ng-model="descriptor.descriptor" ng-model-options="{debounce : 500}"> </td>-->
+
+        <!--<td> <input disabled style="width: 150px"-->
+        <!--ng-model="descriptor.name" ng-model-options="{debounce : 500}"></td>-->
+        <!--</tr>-->
+
+        <div class="{{item.id}} form-item" ng-if="item.type === 'dropdown' && item.key === 'descriptor'">
+            <input disabled style="width: 150px"
+                   ng-model="item.descriptor" ng-model-options="{debounce : 500}">
+            <input style="width: 150px"
+                   ng-model="item.name" ng-model-options="{debounce : 500}">
+            <button
+                    class="btn btn-sm fa fa-trash"
+                    ng-click="deleteElement(item.id)"></button>
+        </div>
+
+
+
+        <div class="form-item" ng-if="item.type === 'dropdown' && item.key !== 'descriptor'">
+            <div class="dropdown">
+                <button style="text-align: right" type="button" class="button-search btn btn-primary dropdown-toggle"
+                        data-toggle="dropdown">
+                    {{item.selected}} <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li ng-repeat="iterator in item.value track by $index"><a href="#"
+                                                                              ng-click="item.selected = iterator.name; $eval(update(item.change))">{{iterator.name}}</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="form-item" ng-if="item.list && item.type !== 'dropdown' " class="{{item.type}}"
+            ng-repeat="iterator in item.value track by $index">
+            <label class="label-search" ng-if="item.type !== 'dropdown'">
+                <input ng-model="iterator.value" ng-change="$eval(update(item.change))"
+                       ng-model-options="{debounce : 500}" type="{{item.type}}">
+                {{iterator.name}}
+                <b ng-if="iterator.count">({{iterator.count}})</b>
+            </label>
+        </div>
+
+        <div class="form-item" >
+            <input class="margin-bottom-4" style="width: 174px"
+                   ng-if="!item.list && item.hidden!== true && item.key !== 'descriptor'"
+                   ng-model="item.value" ng-change="$eval(update(item.change))" ng-model-options="{debounce : 500}"
+                   type="{{item.type}}">
+            <input class="margin-bottom-4" style="width: 174px" disabled="disabled"
+                   ng-if="!item.list && item.hidden== true" ng-model="item.value" ng-change="$eval(update(item.change))"
+                   ng-model-options="{debounce : 500}" type="{{item.type}}">
+        </div>
+
+    </div>
+    <div class="form-group sidebar-item">
+        <div class="form-item">
+
+            <input type="text" class="input-search"
+                   ng-model="asyncSelected"
+                   placeholder="Search for descriptor..."
+                   uib-typeahead="result.label for result in get_descriptors_by_text_search_webpage($viewValue)"
+                   typeahead-template-url="/app/views/projects/show/partials/ac_template.html"
+                   typeahead-show-hint="true"
+                   typeahead-min-length="2"
+                   typeahead-loading="loadingDescriptors"
+                   typeahead-wait-ms="400"
+                   typeahead-no-results="noResults"
+                   typeahead-on-select="select_descriptor_from_autocomplete_webpage($item, $model, $label); asyncSelected ='';"
+                   class="form-control autocomplete-width">
+
+            <i ng-show="loadingDescriptors" class="glyphicon glyphicon-refresh">Searching descriptors...</i>
+            <div ng-show="noResults">
+                <i class="glyphicon glyphicon-remove"></i> No Results Found
+            </div>
+
+        </div>
+    </div>
+
+    <div class="form-group sidebar-item">
+
+        <div class="form-item">
+            <b>Deposits per page</b>
+        </div>
+        <div class="form-item">
+            <div class="dropdown">
+                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                    {{search_settings.page}} <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="#" ng-click="search_settings.page = 5; $eval(update())">5</a></li>
+                    <li><a href="#" ng-click="search_settings.page = 10; $eval(update())">10</a></li>
+                    <li><a href="#" ng-click="search_settings.page = 20; $eval(update())">20</a></li>
+                    <li><a href="#" ng-click="search_settings.page = 50; $eval(update())">50</a></li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+</div>

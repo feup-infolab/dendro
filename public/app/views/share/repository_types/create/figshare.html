@@ -18,13 +18,13 @@
             <span ng-show="!new_repository.dcterms.title" class="glyphicon glyphicon-remove form-control-feedback"></span>
         </div>
 
-        <div class="control-group has-feedback" ng-init="new_repository.ddr.hasExternalUrl = new_repository_type.foaf.homepage" ng-class="{'has-success' : new_repository.ddr.hasExternalUrl && valid_url(new_repository.ddr.hasExternalUrl), 'has-warning' : new_repository.ddr.hasExternalUrl && !valid_url(new_repository.ddr.hasExternalUrl)}">
+        <div class="control-group has-feedback" ng-init="new_repository.ddr.hasExternalUri = new_repository_type.foaf.homepage" ng-class="{'has-success' : new_repository.ddr.hasExternalUri && valid_url(new_repository.ddr.hasExternalUri), 'has-warning' : new_repository.ddr.hasExternalUri && !valid_url(new_repository.ddr.hasExternalUri)}">
             <label for="new_figshare_repository_url">External repository address</label>
-            <input type="text" ng-model="new_repository.ddr.hasExternalUrl"  value="" class="form-control" id="new_figshare_repository_url" placeholder="External Repository Address"  required disabled >
+            <input type="text" ng-model="new_repository.ddr.hasExternalUri"  value="" class="form-control" id="new_figshare_repository_url" placeholder="External Repository Address"  required disabled >
             <p class="help-block">The base address of the repository you wish to upload to.</p>
-            <span ng-show="new_repository.ddr.hasExternalUrl && valid_url(new_repository.ddr.hasExternalUrl)" class="glyphicon glyphicon-ok form-control-feedback"></span>
-            <span ng-show="!new_repository.ddr.hasExternalUrl" class="glyphicon glyphicon-remove form-control-feedback"></span>
-            <span ng-show="new_repository.ddr.hasExternalUrl && !valid_url(new_repository.ddr.hasExternalUrl)" class="glyphicon glyphicon-warning-sign form-control-feedback"></span>
+            <span ng-show="new_repository.ddr.hasExternalUri && valid_url(new_repository.ddr.hasExternalUri)" class="glyphicon glyphicon-ok form-control-feedback"></span>
+            <span ng-show="!new_repository.ddr.hasExternalUri" class="glyphicon glyphicon-remove form-control-feedback"></span>
+            <span ng-show="new_repository.ddr.hasExternalUri && !valid_url(new_repository.ddr.hasExternalUri)" class="glyphicon glyphicon-warning-sign form-control-feedback"></span>
         </div>
 
         <div class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.hasConsumerKey}">
@@ -59,8 +59,20 @@
             <span ng-show="!new_repository.ddr.hasAccessTokenSecret" class="glyphicon glyphicon-remove form-control-feedback"></span>
         </div>
 
+
+        <div class="control-group has-feedback">
+            <input type="checkbox" id="privacyStatus" ng-class="new_repository.ddr.privacyStatus" ng-model="new_repository.ddr.privacyStatus">
+            <label for="privacyStatus">Advertise my deposits in the homepage</label>
+            <div class="help-block">
+                By default, a record will be added to the homepage of this website for every deposit you make in this repository, increasing visibility of those deposits. You can change this setting later when you perform each deposit.
+            </div>
+        </div>
+
         <button type="cancel" ng-click="clear_repository_type()" class="btn">Cancel</button>
-        <button type="submit" ng-click="create_new_repository_bookmark(new_repository)" class="btn btn-primary pull-right"><i class="fa fa-bookmark fa-lg"></i>Save new bookmark</button>
+        <button type="submit"
+                ng-click="create_new_repository_bookmark(new_repository)"
+                ng-disabled="disable_save_bookmark_figshare(new_repository)"
+                class="btn btn-primary pull-right"><i class="fa fa-bookmark fa-lg pad-right-4"></i>Save new bookmark</button>
     </div>
     <div class="tab-pane" id="new_repository_figshare_tutorial">
         <div id="carousel-tutorial" class="carousel slide" data-ride="carousel">

@@ -27,7 +27,7 @@
 
         <a ng-repeat="file in shared.folder_contents"
            ng-show="shared.folder_contents != null && (!file.ddr.deleted || shared.showing_deleted_files)"
-           ng-click="clicked_file_explorer_node($index)"
+           ng-click="clicked_file_explorer_node($index, true)"
            nc-blur="clear_selected_files()"
            ng-class="{active: file.selected}"
            context-menu="menuOptions(file)"

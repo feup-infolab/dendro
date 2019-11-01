@@ -26,6 +26,7 @@ const loadAdmins = function (app, callback)
                     const mbox = newAdministrator.mbox;
                     const firstname = newAdministrator.firstname;
                     const surname = newAdministrator.surname;
+                    const affiliation = newAdministrator.affiliation;
 
                     Administrator.findByUsername(username, function (err, administrator)
                     {
@@ -39,7 +40,8 @@ const loadAdmins = function (app, callback)
                             foaf: {
                                 mbox: mbox,
                                 firstName: firstname,
-                                surname: surname
+                                surname: surname,
+                                affiliation: affiliation
                             },
                             ddr: {
                                 username: username,

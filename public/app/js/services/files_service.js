@@ -2,12 +2,12 @@
 
 angular.module("dendroApp.services")
     .service("filesService",
-        ["$http", "$rootScope", "windowService",
-            function ($http, $rootScope, windowService)
+        ["$http", "$rootScope", "windowService", "Utils",
+            function ($http, $rootScope, windowService, Utils)
             {
                 this.get_folder_contents = function (uri, including_deleted_files)
                 {
-                    if (uri == null)
+                    if (Utils.isNull(uri))
                     {
                         uri = windowService.get_current_url() + "?ls";
                     }
@@ -29,7 +29,7 @@ angular.module("dendroApp.services")
                         headers: {Accept: "application/json"}
                     }).then(function (response)
                     {
-                        if (response.data != null && response.data instanceof Object)
+                        if (!Utils.isNull(response.data) && response.data instanceof Object)
                         {
                             return response.data;
                         }
@@ -40,7 +40,7 @@ angular.module("dendroApp.services")
 
                 this.get_stats = function (uri)
                 {
-                    if (uri == null)
+                    if (Utils.isNull(uri))
                     {
                         uri = windowService.get_current_url() + "?stats";
                     }
@@ -68,7 +68,7 @@ angular.module("dendroApp.services")
 
                 this.mkdir = function (newFolderName, parentFolderUri)
                 {
-                    if (newFolderName != null)
+                    if (!Utils.isNull(newFolderName))
                     {
                         var mkdirUrl = parentFolderUri + "?mkdir=" + newFolderName;
 
@@ -84,7 +84,7 @@ angular.module("dendroApp.services")
 
                 this.rename = function (newName, resourceUri)
                 {
-                    if (newName != null)
+                    if (!Utils.isNull(newName))
                     {
                         var renameUrl = resourceUri + "?rename=" + newName;
 
@@ -141,6 +141,19 @@ angular.module("dendroApp.services")
                     if (forever)
                     {
                         uri = uri + "?really_delete=true";
+                    }
+                    var resource = windowService.get_resource_from_URL();
+                    var isDeposit = resource.includes("deposit");
+
+                    if (isDeposit)
+                    {
+                        return $http({
+                            method: "DELETE",
+                            url: resource,
+                            params: {resource: uri},
+                            contentType: "application/json",
+                            headers: {Accept: "application/json"}
+                        });
                     }
 
                     return $http({

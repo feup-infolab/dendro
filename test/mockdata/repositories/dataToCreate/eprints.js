@@ -1,5 +1,5 @@
 /**
- * {"ddr":{"hasExternalUrl":"http://demoprints.eprints.org","username":"nelsonpereira1991","hasPlatform":{"uri":"http://127.0.0.1:3001/repository_platform/eprints","dcterms":{"title":"EPrints"},"foaf":{"nick":"eprints","homepage":"http://www.eprints.org/"},"$$hashKey":"object:145"}},"dcterms":{"title":"eprints export config 1"}}
+ * {"ddr":{"hasExternalUri":"http://demoprints.eprints.org","username":"nelsonpereira1991","hasPlatform":{"uri":"http://127.0.0.1:3001/repository_platform/eprints","dcterms":{"title":"EPrints"},"foaf":{"nick":"eprints","homepage":"http://www.eprints.org/"},"$$hashKey":"object:145"}},"dcterms":{"title":"eprints export config 1"}}
  */
 
 /*

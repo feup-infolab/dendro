@@ -1,6 +1,6 @@
 dev:
   port: 3001
-  host: '127.0.0.1'
+  host: '127.0.0.1:3001'
   crypto:
     secret: >-
       THF4A9JfsMbTaHYefVtquzFbrdNUMSbTHF4A9JfsMbTaHYefVtquzFbrdNUMSbpHeRjKE24Tyk2LqxVa3ERyGAAaP8j7gXArZsJk4bjKj8F4YZnCqAyaw9auPn6ahDwc4scLCrayLX9BsYwqXaMKrfW82WdqD5pYApFaQ9JNCqQ25qb75GKfAZSgvNuzFXKT6mGGw6qk63HqjgGwty4qx4QkYXxNCsbez4jwzeRc58AfSvzXZfEf8asSNWhhfEBWCvCeAJs3BGZFFFuwZ7EAVhmyu7NqqzHpHeRjKE24Tyk2LqxVa3ERyGAAaP8j7gXArZsJk4bjKj8F4YZnCqAyaw9auPn6ahDwc4scLCrayLX9BsYwqXaMKrfW82WdqD5pYApFaQ9JNCqQ25qb75GKfAZSgvNuzFXKT6mGGw6qk63HqjgGwty4qx4QkYXxNCsbez4jwzeRc58AfSvzXZfEf8asSNWhhfEBWCvCeAJs3BGZFFFuwZ7EAVhmyu7NqqzAIAIMARIA
@@ -15,7 +15,7 @@ dev:
   index:
     type: elasticsearch
     solr:
-      connection_log_type: 'DEBUG'
+      connection_log_type: debug
       use_auth: false
       host: 127.0.0.1
       port: '8984'
@@ -153,6 +153,7 @@ dev:
       password: adminteste123
       firstname: Dendro
       surname: Administrator
+      affiliation: Inesc Tec
       mbox: admin@dendro.fe.up.pt
   demo_mode:
     active: true
@@ -161,26 +162,31 @@ dev:
         password: demouserpassword2015
         firstname: Dendro 1
         surname: Demo User 1
+        affiliation: Inesc Tec
         mbox: demouser1@dendro.fe.up.pt
       - username: demouser2
         password: demouserpassword2015
         firstname: Dendro 2
         surname: Demo User 2
+        affiliation: Inesc Tec
         mbox: demouser2@dendro.fe.up.pt
       - username: demouser3
         password: demouserpassword2015
         firstname: Dendro 3
         surname: Demo User 3
+        affiliation: Inesc Tec
         mbox: demouser3@dendro.fe.up.pt
       - username: demouser4
         password: demouserpassword2015
         firstname: Dendro 4
         surname: Demo User 4
+        affiliation: Inesc Tec
         mbox: demouser4@dendro.fe.up.pt
       - username: demouser5
         password: demouserpassword2015
         firstname: Dendro 5
         surname: Demo User 5
+        affiliation: Inesc Tec
         mbox: demouser5@dendro.fe.up.pt
   systemOrHiddenFilesRegexes:
     - __MACOSX
@@ -235,9 +241,9 @@ dev:
       dump_snapshots: false
   startup:
     load_databases: true
-    reload_administrators_on_startup: true
+    reload_administrators_on_startup: false
     reload_demo_users_on_startup: true
-    reload_ontologies_on_startup: false
+    reload_ontologies_on_startup: true
     clear_session_store: true
     log_bootup_actions: true
     destroy_all_graphs: false
@@ -247,7 +253,7 @@ dev:
     destroy_mysql_database: false
   baselines: {}
   logging:
-    level: error
+    level: debug
     app_logs_folder: logs/app
     log_all_requests: true
     do_not_log_requests_to_public_assets: true
@@ -373,6 +379,16 @@ dev:
       max_ngram_size: 3
       number_of_keywords: 30
       language: en
+  jobs:
+    embargoed:
+      disembargo_cron_expression: "0 0 * * *"
+  deposits:
+    datacite:
+      client_id: "dev.infolab"
+      username: "DEV.INFOLAB"
+      password: "8yD5qChSbUSK"
+      doi_prefix: "10.23673"
+      organization: "https://api.test.datacite.org/dois/10.23673"
   notebooks:
     active: true
     jupyter:

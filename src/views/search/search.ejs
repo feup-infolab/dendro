@@ -82,7 +82,16 @@ if(results.length > 0)
                                 <div class="col-lg-2">
                                     User
                                 </div>
+                            <%} else if(resultType === "deposit") { %>
+                            <h4>
+                                <img src="/images/icons/data_chooser.png">
+                                <a href="<%= result.uri %>"><%=result.dcterms.title %></a>
+                            </h4>
+                            <div class="col-lg-2">
+                                Dataset
+                            </div>
                             <%} %>
+
                             <hr>
                     </div>
                 </div>
@@ -109,12 +118,20 @@ if(results.length > 0)
                                             %>
                                                 <div class="row">
                                                     <div class="col-lg-12">
-                                                        <%= descriptorValue %>
+                                                        <% if (typeof descriptorValue === "string" && descriptorValue[0] === "/"){ %>
+                                                            <a href="<%= descriptorValue %>"><%= descriptorValue %></a>
+                                                        <% } else {%>
+                                                            <%= descriptorValue %>
+                                                        <% } %>
                                                     </div>
                                                 </div>
                                             <% } %>
                                         <% } else { %>
-                                            <%= descriptor.value %>
+                                            <% if (typeof descriptor.value === "string" && descriptor.value[0] === "/"){ %>
+                                                <a href="<%= descriptor.value %>"><%= descriptor.value %></a>
+                                            <% } else {%>
+                                                <%= descriptor.value %>
+                                            <% } %>
                                         <% } %>
                                     </div>
 
@@ -149,5 +166,8 @@ if(results.length > 0)
 </h1>
 
 <%}%>
+
+
+
 
 <%- include ../layout/footer.ejs %>

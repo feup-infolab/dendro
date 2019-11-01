@@ -839,6 +839,61 @@ Elements.ontologies.foaf =
  */
 
 Elements.ontologies.ddr = {
+    userAccepted: {
+        type: Elements.types.boolean,
+        control: Controls.input_box,
+        private: true,
+        locked: true
+    },
+    acceptingUser: {
+        type: Elements.types.resource,
+        control: Controls.input_box,
+        private: true,
+        locked: true
+    },
+    dataset: {
+        type: Elements.types.resource,
+        control: Controls.input_box,
+        private: true,
+        locked: true
+    },
+    dateOfAcceptance: {
+        type: Elements.types.date,
+        control: Controls.date_picker,
+        private: true,
+        locked: true
+    },
+    requestDate: {
+        type: Elements.types.date,
+        control: Controls.date_picker,
+        private: true,
+        locked: true
+    },
+    accessTerms: {
+        type: Elements.types.string,
+        control: Controls.markdown_box,
+        private: true,
+        locked: true
+    },
+    embargoedDate:
+        {
+            type: Elements.types.date,
+            control: Controls.date_picker,
+            private: true,
+            locked: true
+        },
+    proposedCitation:
+        {
+            type: Elements.types.string,
+            control: Controls.markdown_box,
+            locked: true
+
+        },
+    DOI:
+        {
+            type: Elements.types.string,
+            control: Controls.input_box
+        },
     taskID:
         {
             type: Elements.types.string,
@@ -1381,12 +1436,54 @@ Elements.ontologies.ddr = {
             api_readable: true
         },
     is_being_imported:
-        {
-            type: Elements.types.boolean,
-            control: Controls.input_box,
-            locked: true,
-            api_readable: true
-        }
+      {
+          type: Elements.types.boolean,
+          control: Controls.input_box,
+          locked: true,
+          api_readable: true
+      },
+    exportedFromProject:
+  {
+      type: Elements.types.resource,
+      control: Controls.url_box,
+      locked_for_projects: true
+  },
+    exportedResource:
+  {
+      type: Elements.types.resource,
+      control: Controls.url_box,
+      locked_for_projects: true
+  },
+    exportedFromFolder:
+  {
+      type: Elements.types.resource,
+      control: Controls.url_box,
+      locked_for_projects: true
+  },
+    exportedToRepository:
+  {
+      type: Elements.types.string,
+      api_readable: true,
+      control: Controls.url_box
+  },
+    exportedToPlatform:
+  {
+      type: Elements.types.string,
+      locked: true,
+      control: Controls.input_box
+  },
+    isAvailable:
+  {
+      type: Elements.types.boolean,
+      locked: true,
+      control: Controls.input_box
+  },
+    lastVerifiedDate:
+  {
+      type: Elements.types.string,
+      locked: true,
+      control: Controls.input_box
+  }
 };
 
 /**
