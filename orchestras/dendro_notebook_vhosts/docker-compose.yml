@@ -2,7 +2,7 @@ version: '3'
 
 services:
   reverse-proxy:
-    image: traefik # The official Traefik docker image
+    image: traefik:v1.7.16 # The official Traefik docker imag
     command: -c /traefik.toml
     ports:
       - "15017:80"     # The HTTP port

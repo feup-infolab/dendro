@@ -55,7 +55,7 @@ let StorageConfig = function (object = {})
 
         if (isNull(self.ddr.host))
         {
-            self.ddr.host = Config.defaultStorageConfig.hostAndPort;
+            self.ddr.host = Config.defaultStorageConfig.host;
         }
 
         if (isNull(self.ddr.port))
