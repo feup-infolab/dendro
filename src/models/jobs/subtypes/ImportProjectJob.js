@@ -115,10 +115,15 @@ class ImportProjectJob extends Job
             const msg = "Imported project Successfully";
             Logger.log("info", msg);
             const Notification = rlequire("dendro", "src/models/notifications/notification.js").Notification;
-            Notification.buildAndSaveFromSystemMessage(msg, job.attrs.data.userAndSessionInfo.user.uri, function (err, info)
-            {
-                Logger.log("info", "Imported project notification sent");
-            }, job.attrs.data.newProject.uri);
+            Notification.buildAndSaveFromSystemMessage(
+                msg,
+                job.attrs.data.userAndSessionInfo.user.uri,
+                job.attrs.data.newProject.uri,
+                Notification.types.SYSTEM,
+                function (err, info)
+                {
+                    Logger.log("info", "Imported project notification sent");
+                });
 
             const parentPath = path.resolve(job.attrs.data.uploadedBackupAbsPath, "..");
             if (!isNull(parentPath))
