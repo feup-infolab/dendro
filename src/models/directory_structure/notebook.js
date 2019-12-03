@@ -15,6 +15,7 @@ const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const Notification = rlequire("dendro", "src/models/notifications/notification.js").Notification;
 const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
 const Upload = rlequire("dendro", "src/models/uploads/upload.js").Upload;
+const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder;
 
 const gfs = Config.getGFSByID();
 
@@ -52,8 +53,7 @@ class Notebook {
 
         self.runningPath = rlequire.absPathInApp("dendro", path.join("temp", "jupyter-notebooks", self.id));
         self.dataFolderPath = path.join(self.runningPath, "data");
-
-        return self;
+        self.lastModified = new Date();
     }
 
     getHost() {
@@ -99,7 +99,8 @@ class Notebook {
 
 
     fileWatcher(notebookID) {
-        var fileLocation = path.join(__dirname.replace("src/models/directory_structure", 'temp/jupyter-notebooks/'), `${notebookID}`);
+        const self = this;
+        let fileLocation = path.join(__dirname.replace("src/models/directory_structure", 'temp/jupyter-notebooks/'), `${notebookID}`);
 
         const watcher = chokidar.watch(["."], {
             ignored: /(^|[\/\\])\../, // ignore dotfiles
@@ -114,7 +115,8 @@ class Notebook {
                 event.notebook = notebookID;
                 event.filepath = path;
                 event.type = 'add';
-
+                self.lastModified = new Date();
+                log(self.lastModified);
                 log(`Notebook ${notebookID}: File ${path} has been added`);
                 q.push(event);
                 console.log(q.getStats());
@@ -123,7 +125,8 @@ class Notebook {
                 event.notebook = notebookID;
                 event.filepath = path;
                 event.type = 'change';
-
+                self.lastModified = new Date();
+                log(self.lastModified);
                 log(`Notebook ${notebookID}: File ${path} has been changed`);
                 q.push(event);
             })
@@ -131,15 +134,13 @@ class Notebook {
                 event.notebook = notebookID;
                 event.filepath = path;
                 event.type = 'delete';
-
+                self.lastModified = new Date();
+                log(self.lastModified);
                 log(`Notebook ${notebookID}: File ${path} has been removed`);
                 q.push(event);
             });
     }
 
-    saveNotebook(callback) {
-
-    }
 
     getFullNotebookUri() {
         const self = this;
@@ -157,6 +158,6 @@ class Notebook {
     }
 }
 
-Notebook = Class.extend(Notebook, File, "ddr:Notebook");
+Notebook = Class.extend(Notebook, Folder, "ddr:Notebook");
 
 module.exports.Notebook = Notebook;
