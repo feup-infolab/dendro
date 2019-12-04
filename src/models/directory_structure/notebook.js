@@ -118,8 +118,12 @@ class Notebook {
                 self.lastModified = new Date();
                 log(self.lastModified);
                 log(`Notebook ${notebookID}: File ${path} has been added`);
+
+                // Folder.prototype.save(function (err, result)
+                // {
+                //     callback(err, result);
+                // });
                 q.push(event);
-                console.log(q.getStats());
             })
             .on('change', path => {
                 event.notebook = notebookID;

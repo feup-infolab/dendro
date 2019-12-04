@@ -17,47 +17,6 @@ class MonitorUnSyncedNotebooksJob extends Job
         const jobDefinitionFunction = function (job, done)
         {
             Logger.log("info", "This is a Notebook monitor job, running at " + new Date().toDateString() + "Hello!!!");
-            Deposit.getDepositsEmbargoed(function (err, result)
-            {
-                if (isNull(err))
-                {
-                    async.mapSeries(result, function (deposit, cb)
-                    {
-                        Deposit.findByUri(deposit.uri, function (err, result)
-                        {
-                            result.ddr.privacyStatus = "public";
-                            delete result.ddr.embargoedDate;
-                            result.save(function (err, result)
-                            {
-                                if (!isNull)
-                                {
-                                    Logger.log("error:", err);
-                                }
-                                cb(err, result);
-                            });
-                        });
-                    }, function (err, result)
-                    {
-                        done();
-                    });
-                }
-                else
-                {
-                    Logger.log("error", "Error at " + name + " , error: " + JSON.stringify(err));
-                    Logger.log("debug", "Will remove " + name + " job");
-                    job.remove(function (err)
-                    {
-                        if (isNull(err))
-                        {
-                            Logger.log("info", "Successfully removed " + name + " job from collection");
-                        }
-                        else
-                        {
-                            Logger.log("error", "Could not remove " + name + " job from collection");
-                        }
-                    });
-                }
-            });
         };
         super.defineJob(name, jobDefinitionFunction);
     }
