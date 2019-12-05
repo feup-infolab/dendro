@@ -122,10 +122,10 @@ class Notebook {
                 log(self.lastModified);
                 log(`Notebook ${notebookID}: File ${path} has been added`);
 
-                Folder.prototype.save(function (err, result)
-                {
-                    callback(err, result);
-                });
+                // Folder.prototype.save(function (err, result)
+                // {
+                //     callback(err, result);
+                // });
                 q.push(event);
             })
             .on('change', path => {
