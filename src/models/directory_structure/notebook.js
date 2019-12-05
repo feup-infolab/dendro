@@ -54,6 +54,9 @@ class Notebook {
         self.runningPath = rlequire.absPathInApp("dendro", path.join("temp", "jupyter-notebooks", self.id));
         self.dataFolderPath = path.join(self.runningPath, "data");
         self.lastModified = new Date();
+        self.nie.title = "Notebook" + self.lastModified.getDate();
+
+        console.log(self.nie.title);
     }
 
     getHost() {
@@ -119,10 +122,10 @@ class Notebook {
                 log(self.lastModified);
                 log(`Notebook ${notebookID}: File ${path} has been added`);
 
-                // Folder.prototype.save(function (err, result)
-                // {
-                //     callback(err, result);
-                // });
+                Folder.prototype.save(function (err, result)
+                {
+                    callback(err, result);
+                });
                 q.push(event);
             })
             .on('change', path => {
@@ -160,6 +163,12 @@ class Notebook {
         }
         return url + relativeUrl;
     }
+
+    getLastNotebookModification(){
+
+    }
+
+
 }
 
 Notebook = Class.extend(Notebook, Folder, "ddr:Notebook");

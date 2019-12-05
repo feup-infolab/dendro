@@ -36,7 +36,6 @@ function Folder (object = {})
     {
         self.nie.title = object.nie.title;
     }
-
     return self;
 }
 
