@@ -34,15 +34,13 @@ const q = new Queue(function (event, cb) {
 
 
 class Notebook {
-    constructor(object = {}) {
+    constructor(arg, object = {}) {
         const self = this;
         self.addURIAndRDFType(object, "notebook", Notebook);
         Notebook.baseConstructor.call(this, object);
 
-        if (!isNull(object.nie)) {
-            self.nie.isLogicalPartOf = object.nie.isLogicalPartOf;
-            self.nie.title = object.nie.title;
-        }
+        self.ddr.fileExtension = "folder";
+        self.ddr.hasFontAwesomeClass = "fa-folder";
 
         if (!isNull(object.id)) {
             self.id = object.id;
@@ -53,10 +51,11 @@ class Notebook {
 
         self.runningPath = rlequire.absPathInApp("dendro", path.join("temp", "jupyter-notebooks", self.id));
         self.dataFolderPath = path.join(self.runningPath, "data");
+
         self.lastModified = new Date();
         self.nie.title = "Notebook" + self.lastModified.getDate();
+        self.nie.isLogicalPartOf = "/r/folder/6c7c1935-3af6-4460-ada8-dde6dc84e8d1";
 
-        console.log(self.nie.title);
     }
 
     getHost() {
@@ -65,7 +64,7 @@ class Notebook {
     }
 
     cypherPassword(plainTextPassword) {
-        // Yes i know i should not store passwords as plain text in the config.yml file.
+        // Yes i know i shouresourceld not store passwords as plain text in the config.yml file.
         // That is a default password that SHOULD be changed by the jupyter user.
         const sha1 = require("sha1");
         return `sha1:${sha1(plainTextPassword)}`;
@@ -89,6 +88,7 @@ class Notebook {
             // console.log(`tini -g -- /usr/local/bin/start-notebook.sh --NotebookApp.base_url=\\"${self.getFullNotebookUri()}\\" --NotebookApp.password=\\"${Config.notebooks.jupyter.default_password}\\" --NotebookApp.custom_display_url=\\"${self.getFullNotebookUri()}\\"`);
 
             DockerManager.startOrchestra("dendro_notebook", function (err, result) {
+
                 callback(err, result);
             }, null, self.runningPath, {
                 DENDRO_NOTEBOOK_GUID: self.id,
@@ -122,10 +122,10 @@ class Notebook {
                 log(self.lastModified);
                 log(`Notebook ${notebookID}: File ${path} has been added`);
 
-                // Folder.prototype.save(function (err, result)
-                // {
-                //     callback(err, result);
-                // });
+                this.save(function (err, result) {
+                    callback(err, result);
+                });
+                console.log("I was saved");
                 q.push(event);
             })
             .on('change', path => {
@@ -164,12 +164,45 @@ class Notebook {
         return url + relativeUrl;
     }
 
-    getLastNotebookModification(){
+    getLastNotebookModification() {
 
     }
 
 
 }
+
+Notebook.prototype.getNotebookFolders = function (callback) {
+    const self = this;
+    let query =
+        "SELECT ?uri, ?last_modified, ?name\n" +
+        "FROM [0] \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   ?uri rdf:type nfo:Folder \n" +
+        "   ?uri ddr:modified ?last_modified. \n" +
+        "} ";
+
+    db.connection.executeViaJDBC(query,
+        [
+            {
+                type: Elements.types.resourceNoEscape,
+                value: db.graphUri
+            },
+            {
+                type: Elements.types.resource,
+                value: self.uri
+            }
+        ],
+        function (err, result) {
+            if (result instanceof Array) {
+                callback(err, result);
+            } else {
+                return callback(true, "Invalid response when getting recursive children of resource : " + self.uri);
+            }
+        }
+    );
+};
+
 
 Notebook = Class.extend(Notebook, Folder, "ddr:Notebook");
 

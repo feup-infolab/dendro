@@ -11,6 +11,7 @@ angular.module("dendroApp.controllers")
         $log,
         $timeout,
         $compile,
+        $window,
         Upload,
         focus,
         preview,
@@ -25,7 +26,8 @@ angular.module("dendroApp.controllers")
         recommendationService,
         usersService,
         ContextMenuEvents,
-        notebookService
+        notebookService,
+        Utils
     )
     {
         $scope.init = function ()
@@ -62,19 +64,58 @@ angular.module("dendroApp.controllers")
 
         $scope.start_notebook = function ()
         {
-            var uri = $scope.get_last_section_of_url($scope.get_calling_uri());
+            var uri = $scope.get_calling_uri();
+                       
 
-            var requestUri = $scope.get_host() + "/notebooks/new/";
-            window.open(requestUri);
+            bootbox.prompt("Please enter the name of the new Notebook", function (newNotebookName)
+            {
+                if (!Utils.isNull(newNotebookName))
+                {
+                    if (!newNotebookName.match(/^[^\\\/:*?"<>|]{1,}$/g))
+                    {
+                        bootbox.alert("Invalid Notebook name specified", function ()
+                        {
+                        });
+                    }
+                    else
+                    {
+                        if (!Utils.isNull(newNotebookName))
+                        {
+                            var notebookUrl = uri + "?create_notebook=" + newNotebookName;
+                            console.log(notebookUrl);
+                            return $http({
+                                method: "POST",
+                                url: notebookUrl,
+                                contentType: "application/json",
+                                headers: {Accept: "application/json"}
+                            }).then(function (response)
+                            {
+                                console.log(response);
+                                $window.location = response.data.new_notebook_url;
+                                //$window.open(response.data.new_notebook_url);
+                                console.log("Returned");
+                                return response;
+                            }).catch(function (error)
+                            {
+                                console.log("error", "Unable to create new Notebook " + JSON.stringify(error));
+                                windowService.show_popup("error", " There was an error creating the new Notebook", "Server returned status code " + status + " and message :\n" + error);
+                            });
+                        }
+                    }
+                }
+            });
 
+
+            // var notebookUrl = uri + "?create_notebook=" + newNotebookName;
+            //
             // return $http({
-            //     method: "GET",
-            //     url: requestUri,
-            //     data: JSON.stringify({}),
+            //     method: "POST",
+            //     url: notebookUrl,
             //     contentType: "application/json",
             //     headers: {Accept: "application/json"}
             // }).then(function (response)
             // {
+            //     window.open(response.data.new_notebook_url);
             //     console.log("Returned");
             //     return response;
             // });

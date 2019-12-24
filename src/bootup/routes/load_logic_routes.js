@@ -90,7 +90,6 @@ const extractUriFromRequest = function (req, res, next)
     {
         req.params.requestedResourceUri = matches[0];
     }
-
     return next(null, req, res);
 };
 
@@ -1202,7 +1201,14 @@ const loadRoutes = function (app, callback)
                         handler: datasets.calculate_ckan_repository_diffs,
                         permissions: modificationPermissionsBranch,
                         authentication_error: "Permission denied : cannot calculate ckan repository diffs because you do not have permissions to edit this project."
+                    },
+                    {
+                        queryKeys: ["create_notebook"],
+                        handler: notebooks.new,
+                        permissions: modificationPermissionsBranch,
+                        authentication_error: "Permission denied : cannot delete resource because you do not have permissions to edit resources inside this project."
                     }
+
                 ],
                 delete: [
                     {
@@ -1635,13 +1641,14 @@ const loadRoutes = function (app, callback)
 
     if (Config.notebooks.active)
     {
+        var notebookregex = getNonHumanReadableRouteRegex("notebooks");
         // TODO fix this activate
-        app.get(`/notebooks/new`,
+        app.get("/notebooks/new",
             async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
             async.apply(DockerManager.requireOrchestras, ["dendro_notebook_vhosts"]),
             notebooks.new);
 
-        var notebookregex = getNonHumanReadableRouteRegex("notebook");
+
         // TODO so far only creator will have access must change
         app.get(notebookregex,
             async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),

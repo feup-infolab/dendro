@@ -102,4 +102,7 @@ class MonitorUnSyncedNotebooksJob extends Job
     }
 }
 
+MonitorUnSyncedNotebooksJob.isSingleton = true;
+MonitorUnSyncedNotebooksJob.cronExpression = Config.jobs.notebooksync.notebook_sync_cron;
+
 module.exports.MonitorUnSyncedNotebooksJob = MonitorUnSyncedNotebooksJob;
