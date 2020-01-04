@@ -16,6 +16,8 @@ const Notification = rlequire("dendro", "src/models/notifications/notification.j
 const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
 const Upload = rlequire("dendro", "src/models/uploads/upload.js").Upload;
 const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder;
+const Elements = rlequire("dendro", "src//models/meta/elements.js").Elements;
+const db = Config.getDBByID();
 
 const gfs = Config.getGFSByID();
 
@@ -171,14 +173,14 @@ class Notebook {
 
 }
 
-Notebook.prototype.getNotebookFolders = function (callback) {
+Notebook.getNotebookFolders = function (callback) {
     const self = this;
     let query =
         "SELECT ?uri, ?last_modified, ?name\n" +
         "FROM [0] \n" +
         "WHERE \n" +
         "{ \n" +
-        "   ?uri rdf:type nfo:Folder \n" +
+        "   ?uri rdf:type nfo:Folder. \n" +
         "   ?uri ddr:modified ?last_modified. \n" +
         "} ";
 
@@ -187,10 +189,6 @@ Notebook.prototype.getNotebookFolders = function (callback) {
             {
                 type: Elements.types.resourceNoEscape,
                 value: db.graphUri
-            },
-            {
-                type: Elements.types.resource,
-                value: self.uri
             }
         ],
         function (err, result) {

@@ -2,7 +2,7 @@ const rlequire = require("rlequire");
 const path = require("path");
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
-const Deposit = rlequire("dendro", "src/models/deposit.js").Deposit;
+const Notebook = rlequire("dendro", "src/models/directory_structure/notebook.js").Notebook;
 
 const Job = rlequire("dendro", "src/models/jobs/Job.js").Job;
 const name = path.parse(__filename).name;
@@ -17,6 +17,30 @@ class MonitorUnSyncedNotebooksJob extends Job
         const jobDefinitionFunction = function (job, done)
         {
             Logger.log("info", "This is a Notebook monitor job, running at " + new Date().toDateString() + "Hello!!!");
+            Notebook.getNotebookFolders(function (err, result)
+            {
+                if (isNull(err))
+                {
+                    console.log(result);
+                }
+                else
+                {
+                    Logger.log("error", "Error at " + name + " , error: " + JSON.stringify(err));
+                    Logger.log("debug", "Will remove " + name + " job");
+                    job.remove(function (err)
+                    {
+                        if (isNull(err))
+                        {
+                            Logger.log("info", "Successfully removed " + name + " job from collection");
+                        }
+                        else
+                        {
+                            Logger.log("error", "Could not remove " + name + " job from collection");
+                        }
+                    });
+                }
+            });
+
         };
         super.defineJob(name, jobDefinitionFunction);
     }

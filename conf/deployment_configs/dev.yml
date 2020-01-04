@@ -383,7 +383,7 @@ dev:
     embargoed:
       disembargo_cron_expression: "0 0 * * *"
     notebooksync:
-      notebook_sync_cron: "*/5 * * * *"
+      notebook_sync_cron: "*/1 * * * *"
   deposits:
     datacite:
       client_id: "dev.infolab"
