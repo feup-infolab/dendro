@@ -56,7 +56,7 @@ class Notebook {
 
         self.lastModified = new Date();
         self.nie.title = "Notebook" + self.lastModified.getDate();
-        self.nie.isLogicalPartOf = "/r/folder/6c7c1935-3af6-4460-ada8-dde6dc84e8d1";
+        self.nie.isLogicalPartOf = arg;
 
     }
 
@@ -127,7 +127,6 @@ class Notebook {
                 this.save(function (err, result) {
                     callback(err, result);
                 });
-                console.log("I was saved");
                 q.push(event);
             })
             .on('change', path => {
@@ -199,6 +198,20 @@ Notebook.getNotebookFolders = function (callback) {
             }
         }
     );
+};
+
+
+Notebook.checkUpdatedNotebooks = function (existingFolders) {
+    const self = this;
+    let current_time = new Date();
+    let updateInterval = 300000;
+
+    for(folder of existingFolders){
+        let time_difference = current_time - new Date(folder.last_modified);
+        if (updateInterval > time_difference){
+            console.log(folder);
+        }
+    }
 };
 
 
