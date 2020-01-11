@@ -2716,6 +2716,10 @@ exports.thumbnail = function (req, res)
                     {
                         exports.get_thumbnail(req, res);
                     }
+                    else if (requestedExtension === "notebook")
+                    {
+                        exports.serve_static(req, res, "/images/icons/jupyter_logo.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+                    }
                     else if (requestedExtension === "" || requestedExtension === "folder")
                     {
                         exports.serve_static(req, res, "/images/icons/folder.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);

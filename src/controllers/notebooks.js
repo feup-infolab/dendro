@@ -8,26 +8,27 @@ const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 let isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
-module.exports.show = function (req, res)
-{
+module.exports.show = function (req, res) {
 };
 
-module.exports.activate = function (req, res)
-{
+module.exports.activate = function (req, res) {
 };
 
 
-module.exports.new = function (req, res)
-{
+module.exports.new = function (req, res) {
     let resourceURI = req.params.requestedResourceUri;
-    const newNotebook = new Notebook(resourceURI);
-
-
+    let notebookTitle = req.query.create_notebook;
+    const newNotebook = new Notebook({
+        nie:{
+            isLogicalPartOf: resourceURI,
+            title : req.query.create_notebook
+            }
+    });
 
 
     newNotebook.spinUp(function (err, result) {
 
-        const notebookUrl = `${Config.baseUri}/notebook_runner/${newNotebook.id}`;
+        const notebookUrl = `${Config.baseUri}/notebook_runner/${newNotebook.ddr.NotebookID}`;
         const notebookProxyUrl = "http://" + Config.notebooks.jupyter.proxy_address;
 
         const rewrittenHost = newNotebook.getHost();
@@ -128,16 +129,23 @@ module.exports.new = function (req, res)
         //     });
         // });
 
+        newNotebook.save(function (err,callback) {
 
-        res.send(
-            {
-                "new_notebook_url": notebookUrl
-            });
+            if(!err){
+                res.send(
+                    {
+                        "new_notebook_url": notebookUrl
+                    });
+                newNotebook.fileWatcher();
+            }
+
+
         });
 
-    newNotebook.fileWatcher(newNotebook.id);
+    });
+
+
 };
 
-module.exports.close= function (req,res)
-{
+module.exports.close = function (req, res) {
 };

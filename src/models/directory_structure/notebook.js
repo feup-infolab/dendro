@@ -36,7 +36,7 @@ const q = new Queue(function (event, cb) {
 
 
 class Notebook {
-    constructor(arg, object = {}) {
+    constructor(object = {}) {
         const self = this;
         self.addURIAndRDFType(object, "notebook", Notebook);
         Notebook.baseConstructor.call(this, object);
@@ -45,24 +45,25 @@ class Notebook {
         self.ddr.hasFontAwesomeClass = "fa-folder";
 
         if (!isNull(object.id)) {
-            self.id = object.id;
+            self.ddr.NotebookID = object.id;
         } else {
             const uuid = require("uuid");
-            self.id = uuid.v4();
+            self.ddr.NotebookID = uuid.v4();
         }
 
-        self.runningPath = rlequire.absPathInApp("dendro", path.join("temp", "jupyter-notebooks", self.id));
-        self.dataFolderPath = path.join(self.runningPath, "data");
-
+        self.ddr.runningPath = rlequire.absPathInApp("dendro", path.join("temp", "jupyter-notebooks", self.ddr.NotebookID));
+        self.ddr.dataFolderPath = path.join(self.ddr.runningPath, "data");
+        
+        
+        
         self.lastModified = new Date();
-        self.nie.title = "Notebook" + self.lastModified.getDate();
-        self.nie.isLogicalPartOf = arg;
+        self.ddr.fileExtension = "notebook";
 
     }
 
     getHost() {
         const self = this;
-        return `jupyter-notebook.${self.id}`;
+        return `jupyter-notebook.${self.ddr.NotebookID}`;
     }
 
     cypherPassword(plainTextPassword) {
@@ -75,11 +76,11 @@ class Notebook {
     spinUp(callback) {
         const self = this;
         const DockerManager = Object.create(rlequire("dendro", "src/utils/docker/docker_manager.js").DockerManager);
-        mkdirp.sync(self.runningPath);
-        mkdirp.sync(self.dataFolderPath);
+        mkdirp.sync(self.ddr.runningPath);
+        mkdirp.sync(self.ddr.dataFolderPath);
 
         const baseOrchestraFile = rlequire.absPathInApp("dendro", "orchestras/dendro_notebook/docker-compose.yml");
-        const cloneOrchestraFile = path.join(self.runningPath, "docker-compose.yml");
+        const cloneOrchestraFile = path.join(self.ddr.runningPath, "docker-compose.yml");
 
         // Async with callbacks:
         fs.copy(baseOrchestraFile, cloneOrchestraFile, err => {
@@ -92,8 +93,8 @@ class Notebook {
             DockerManager.startOrchestra("dendro_notebook", function (err, result) {
 
                 callback(err, result);
-            }, null, self.runningPath, {
-                DENDRO_NOTEBOOK_GUID: self.id,
+            }, null, self.ddr.runningPath, {
+                DENDRO_NOTEBOOK_GUID: self.ddr.NotebookID,
                 DENDRO_NOTEBOOK_VIRTUAL_HOST: self.getHost(),
                 DENDRO_NOTEBOOK_FULL_URL: self.getFullNotebookUri(),
                 DENDRO_NOTEBOOK_DEFAULT_PASSWORD: self.cypherPassword(Config.notebooks.jupyter.default_password),
@@ -103,9 +104,9 @@ class Notebook {
     }
 
 
-    fileWatcher(notebookID) {
+    fileWatcher() {
         const self = this;
-        let fileLocation = path.join(__dirname.replace("src/models/directory_structure", 'temp/jupyter-notebooks/'), `${notebookID}`);
+        let fileLocation = path.join(__dirname.replace("src/models/directory_structure", 'temp/jupyter-notebooks/'), `${self.ddr.NotebookID}`);
 
         const watcher = chokidar.watch(["."], {
             ignored: /(^|[\/\\])\../, // ignore dotfiles
@@ -117,34 +118,30 @@ class Notebook {
         let event = {};
         watcher
             .on('add', path => {
-                event.notebook = notebookID;
+                event.notebook = self.ddr.NotebookID;
                 event.filepath = path;
                 event.type = 'add';
                 self.lastModified = new Date();
                 log(self.lastModified);
-                log(`Notebook ${notebookID}: File ${path} has been added`);
-
-                this.save(function (err, result) {
-                    callback(err, result);
-                });
+                log(`Notebook ${self.ddr.NotebookID}: File ${path} has been added`);
                 q.push(event);
             })
             .on('change', path => {
-                event.notebook = notebookID;
+                event.notebook = self.ddr.NotebookID;
                 event.filepath = path;
                 event.type = 'change';
                 self.lastModified = new Date();
                 log(self.lastModified);
-                log(`Notebook ${notebookID}: File ${path} has been changed`);
+                log(`Notebook ${self.ddr.NotebookID}: File ${path} has been changed`);
                 q.push(event);
             })
             .on('unlink', path => {
-                event.notebook = notebookID;
+                event.notebook = self.ddr.NotebookID;
                 event.filepath = path;
                 event.type = 'delete';
                 self.lastModified = new Date();
                 log(self.lastModified);
-                log(`Notebook ${notebookID}: File ${path} has been removed`);
+                log(`Notebook ${self.ddr.NotebookID}: File ${path} has been removed`);
                 q.push(event);
             });
     }
@@ -152,7 +149,7 @@ class Notebook {
 
     getFullNotebookUri() {
         const self = this;
-        return "/notebook_runner/" + self.id;
+        return "/notebook_runner/" + self.ddr.NotebookID;
     }
 
     rewriteUrl(relativeUrl) {
@@ -175,12 +172,12 @@ class Notebook {
 Notebook.getNotebookFolders = function (callback) {
     const self = this;
     let query =
-        "SELECT ?uri, ?last_modified, ?name\n" +
+        "SELECT ?uri, ?modified, ?name\n" +
         "FROM [0] \n" +
         "WHERE \n" +
         "{ \n" +
-        "   ?uri rdf:type nfo:Folder. \n" +
-        "   ?uri ddr:modified ?last_modified. \n" +
+        "   ?uri rdf:type ddr:Notebook. \n" +
+        "   ?uri ddr:modified ?modified. \n" +
         "} ";
 
     db.connection.executeViaJDBC(query,
@@ -201,8 +198,59 @@ Notebook.getNotebookFolders = function (callback) {
 };
 
 
-Notebook.checkUpdatedNotebooks = function (existingFolders) {
+Notebook.getUnsynced = function (notebookID, modifiedDate, callback) {
     const self = this;
+    let query =
+        "SELECT ?uri \n" +
+        "FROM [0] \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   ?uri rdf:type ddr:Notebook. \n" +
+        "   ?uri ddr:NotebookID [1]. \n" +
+        "   ?uri ddr:modified ?modified. \n" +
+        "   ?modified < [2]. \n"+
+        "} ";
+
+    db.connection.executeViaJDBC(query,
+        [
+            {
+                type: Elements.types.resourceNoEscape,
+                value: db.graphUri
+            },
+            {
+                type: Elements.types.string,
+                value: notebookID
+            },
+            {
+                type: Elements.types.date,
+                value: modifiedDate
+            }
+        ],
+        function (err, result) {
+            if (result instanceof Array && result.length === 1) {
+                Notebook.findByUri(result[0].uri, callback);
+            } else {
+                return callback(true, "Error checking unsynced status of notebook : " + self.uri);
+            }
+        }
+    );
+};
+
+
+Notebook.getUnsyncedNotebooks = function (callback){
+    let allNotebookFolder=
+    async.mapSeries(allNotebookFolders,function (notebookFolderPath,cb) {
+        let mostRecentModification = 1;
+        Notebook.getUnsynced(path.basename(notebookFolderPath), mostRecentModification, cb);
+    },function (err, results) {
+        if (!err){
+            callback(err,results);
+        }
+        else {}
+    })
+};
+
+Notebook.checkUpdatedNotebooks = function (existingFolders) {
     let current_time = new Date();
     let updateInterval = 300000;
 
@@ -214,6 +262,64 @@ Notebook.checkUpdatedNotebooks = function (existingFolders) {
     }
 };
 
+
+Notebook.prototype.save = function (callback)
+{
+    const self = this;
+    Folder.findByUri(self.nie.isLogicalPartOf, function (err, parentFolder)
+    {
+        if (isNull(err) && !isNull(parentFolder))
+        {
+            // save parent folder
+            parentFolder.insertDescriptors([new Descriptor({
+                    prefixedForm: "nie:hasLogicalPart",
+                    value: self.uri
+                })
+                ],
+                function (err, result)
+                {
+                    if (isNull(err))
+                    {
+                        Folder.prototype.save.call(self,function (err, result)
+                        {
+                            if (isNull(err))
+                            {
+                                return callback(null, self);
+                            }
+                            return callback({
+                                statusCode: 500,
+                                error: {
+                                    result: "error",
+                                    message: "error 1 saving new notebook :" + result
+                                }
+                            });
+                        });
+                    }
+                    else
+                    {
+                        return callback({
+                            statusCode: 500,
+                            error: {
+                                result: "error",
+                                message: "error 2 saving new notebook :" + result
+                            }
+                        });
+                    }
+                });
+        }
+        else
+        {
+            return callback({
+                    statusCode: 500,
+                    error: {
+                        result: "error",
+                        message: "error 3 saving new notebook :" + parentFolder
+                    }
+                }
+            );
+        }
+    });
+};
 
 Notebook = Class.extend(Notebook, Folder, "ddr:Notebook");
 

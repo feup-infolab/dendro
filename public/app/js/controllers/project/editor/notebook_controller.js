@@ -91,7 +91,7 @@ angular.module("dendroApp.controllers")
                             }).then(function (response)
                             {
                                 console.log(response);
-                                $window.location = response.data.new_notebook_url;
+                                //$window.location = response.data.new_notebook_url;
                                 //$window.open(response.data.new_notebook_url);
                                 console.log("Returned");
                                 return response;

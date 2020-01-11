@@ -1462,6 +1462,24 @@ Elements.ontologies.ddr = {
             locked: true,
             private: true,
             control: Controls.input_box
+        },
+    runningPath: {
+        type: Elements.types.string,
+        control: Controls.input_box,
+        locked: true,
+        private: true
+    },
+    dataFolderPath: {
+        type: Elements.types.string,
+        control: Controls.input_box,
+        locked: true,
+        private: true
+    },
+    notebookID:
+        {
+            type: Elements.types.string,
+            private: true,
+            locked: true
         }
 };
 

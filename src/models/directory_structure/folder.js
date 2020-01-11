@@ -1819,7 +1819,7 @@ Folder.prototype.save = function (callback)
             {
                 self.autorename();
             }
-            self.baseConstructor.prototype.save.call(self, function (err, result)
+            InformationElement.prototype.save.call(self, function (err, result)
             {
                 if (isNull(err))
                 {

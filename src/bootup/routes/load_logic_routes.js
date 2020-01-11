@@ -878,6 +878,7 @@ const loadRoutes = function (app, callback)
     app.all([
         getNonHumanReadableRouteRegex("folder"),
         getNonHumanReadableRouteRegex("file"),
+        getNonHumanReadableRouteRegex("notebook"),
         /\/project\/([^\/]+)(\/data\/.+\/?)$/
     ],
     extractUriFromRequest,
