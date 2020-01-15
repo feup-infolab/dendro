@@ -151,6 +151,22 @@ class Job
                         }
                     });
                 }
+                else{
+                    singletonJob.start(function (err) {
+                        if (isNull(err))
+                        {
+                            Logger.log("info", "Job " + self.name + " running...");
+                            self.alreadyRunning = true;
+                        }
+                        else
+                        {
+                            self.alreadyRunning = false;
+                            const msg = "Job " + self.name + " failed to start!";
+                            Logger.log("error", msg);
+                            throw new Error(msg);
+                        }
+                    });
+                }
             }
         }
         else

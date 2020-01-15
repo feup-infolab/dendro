@@ -27,6 +27,8 @@ const fs = require("fs-extra");
 const chokidar = require('chokidar');
 const Queue = require("better-queue");
 
+const notebookFolderPath = "temp/jupyter-notebooks";
+
 
 const q = new Queue(function (event, cb) {
     console.log("Added to Queue");
@@ -45,13 +47,13 @@ class Notebook {
         self.ddr.hasFontAwesomeClass = "fa-folder";
 
         if (!isNull(object.id)) {
-            self.ddr.NotebookID = object.id;
+            self.ddr.notebookID = object.id;
         } else {
             const uuid = require("uuid");
-            self.ddr.NotebookID = uuid.v4();
+            self.ddr.notebookID = uuid.v4();
         }
 
-        self.ddr.runningPath = rlequire.absPathInApp("dendro", path.join("temp", "jupyter-notebooks", self.ddr.NotebookID));
+        self.ddr.runningPath = rlequire.absPathInApp("dendro", path.join("temp", "jupyter-notebooks", self.ddr.notebookID));
         self.ddr.dataFolderPath = path.join(self.ddr.runningPath, "data");
         
         
@@ -63,7 +65,7 @@ class Notebook {
 
     getHost() {
         const self = this;
-        return `jupyter-notebook.${self.ddr.NotebookID}`;
+        return `jupyter-notebook.${self.ddr.notebookID}`;
     }
 
     cypherPassword(plainTextPassword) {
@@ -94,7 +96,7 @@ class Notebook {
 
                 callback(err, result);
             }, null, self.ddr.runningPath, {
-                DENDRO_NOTEBOOK_GUID: self.ddr.NotebookID,
+                DENDRO_NOTEBOOK_GUID: self.ddr.notebookID,
                 DENDRO_NOTEBOOK_VIRTUAL_HOST: self.getHost(),
                 DENDRO_NOTEBOOK_FULL_URL: self.getFullNotebookUri(),
                 DENDRO_NOTEBOOK_DEFAULT_PASSWORD: self.cypherPassword(Config.notebooks.jupyter.default_password),
@@ -106,7 +108,7 @@ class Notebook {
 
     fileWatcher() {
         const self = this;
-        let fileLocation = path.join(__dirname.replace("src/models/directory_structure", 'temp/jupyter-notebooks/'), `${self.ddr.NotebookID}`);
+        let fileLocation = path.join(__dirname.replace("src/models/directory_structure", 'temp/jupyter-notebooks/'), `${self.ddr.notebookID}`);
 
         const watcher = chokidar.watch(["."], {
             ignored: /(^|[\/\\])\../, // ignore dotfiles
@@ -118,30 +120,30 @@ class Notebook {
         let event = {};
         watcher
             .on('add', path => {
-                event.notebook = self.ddr.NotebookID;
+                event.notebook = self.ddr.notebookID;
                 event.filepath = path;
                 event.type = 'add';
                 self.lastModified = new Date();
                 log(self.lastModified);
-                log(`Notebook ${self.ddr.NotebookID}: File ${path} has been added`);
+                log(`Notebook ${self.ddr.notebookID}: File ${path} has been added`);
                 q.push(event);
             })
             .on('change', path => {
-                event.notebook = self.ddr.NotebookID;
+                event.notebook = self.ddr.notebookID;
                 event.filepath = path;
                 event.type = 'change';
                 self.lastModified = new Date();
                 log(self.lastModified);
-                log(`Notebook ${self.ddr.NotebookID}: File ${path} has been changed`);
+                log(`Notebook ${self.ddr.notebookID}: File ${path} has been changed`);
                 q.push(event);
             })
             .on('unlink', path => {
-                event.notebook = self.ddr.NotebookID;
+                event.notebook = self.ddr.notebookID;
                 event.filepath = path;
                 event.type = 'delete';
                 self.lastModified = new Date();
                 log(self.lastModified);
-                log(`Notebook ${self.ddr.NotebookID}: File ${path} has been removed`);
+                log(`Notebook ${self.ddr.notebookID}: File ${path} has been removed`);
                 q.push(event);
             });
     }
@@ -149,7 +151,7 @@ class Notebook {
 
     getFullNotebookUri() {
         const self = this;
-        return "/notebook_runner/" + self.ddr.NotebookID;
+        return "/notebook_runner/" + self.ddr.notebookID;
     }
 
     rewriteUrl(relativeUrl) {
@@ -206,7 +208,7 @@ Notebook.getUnsynced = function (notebookID, modifiedDate, callback) {
         "WHERE \n" +
         "{ \n" +
         "   ?uri rdf:type ddr:Notebook. \n" +
-        "   ?uri ddr:NotebookID [1]. \n" +
+        "   ?uri ddr:notebookID [1]. \n" +
         "   ?uri ddr:modified ?modified. \n" +
         "   ?modified < [2]. \n"+
         "} ";
@@ -236,9 +238,72 @@ Notebook.getUnsynced = function (notebookID, modifiedDate, callback) {
     );
 };
 
+Notebook.getActiveNotebooks = function (callback) {
+    const self = this;
+    fs.readdir(notebookFolderPath, function (err, dirs) {
+        
+        dirs = _.map(dirs, function (dir) {
+            return path.join(notebookFolderPath,dir)
+        });
+        
+        if (err) {
+            callback(err, dirs);
+        } else {
+            async.mapSeries(dirs, function(dir, callback){
+                self.getLastUpdate(dir, function(err, lastUpdate){
+                    console.log(lastUpdate);
+                    callback(err, lastUpdate);
+                });
+            }, function(err, allUpdates){
+                if(isNull(err))
+                {
+                    let results = [];
+                    for(let i = 0; i < dirs.length; i++)
+                    {
+                        results.push({
+                            id: path.basename(dirs[i]),
+                            lastModified: allUpdates[i]
+                        });
+                    }
+
+                    callback(err, results);
+                }
+                else
+                {
+                    callback(err, allUpdates);
+                }
+            });
+        }
+    });
+};
+
+
+Notebook.getLastUpdate = function (dir, callback) {
+    const self = this;
+    fs.readdir(dir,function (err,files) {
+        async.mapSeries(files, function (file, callback) {
+            fs.stat(path.join(dir, file), function (err, stat) {
+                if(stat.isDirectory())
+                    self.getLastUpdate(path.join(dir,file),function (err, lastModified) {
+                        callback(null, lastModified)
+                    });
+                else{
+                    callback(null,stat.mtime);
+                }
+            })
+        }, function(err, modificationDates){
+            fs.stat(dir, function (err, statDir) {
+                const fullModificationDates = modificationDates.concat(statDir.mtime);
+                callback(err, _.max(fullModificationDates));
+            });
+        });
+
+    });
+};
 
 Notebook.getUnsyncedNotebooks = function (callback){
-    let allNotebookFolder=
+    let self = this;
+    let allNotebookFolders= self.getActiveNotebooks();
     async.mapSeries(allNotebookFolders,function (notebookFolderPath,cb) {
         let mostRecentModification = 1;
         Notebook.getUnsynced(path.basename(notebookFolderPath), mostRecentModification, cb);
@@ -246,7 +311,6 @@ Notebook.getUnsyncedNotebooks = function (callback){
         if (!err){
             callback(err,results);
         }
-        else {}
     })
 };
 

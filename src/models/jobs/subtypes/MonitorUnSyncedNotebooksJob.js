@@ -17,29 +17,41 @@ class MonitorUnSyncedNotebooksJob extends Job
         const jobDefinitionFunction = function (job, done)
         {
             Logger.log("info", "This is a Notebook monitor job, running at " + new Date().toDateString());
-            Notebook.getNotebookFolders(function (err, result)
-            {
+            Notebook.getActiveNotebooks( function (err) {
                 if (isNull(err))
                 {
-                    Notebook.checkUpdatedNotebooks(result);
+                    Logger.log("No error");
                 }
                 else
                 {
-                    Logger.log("error", "Error at " + name + " , error: " + JSON.stringify(err));
-                    Logger.log("debug", "Will remove " + name + " job");
-                    job.remove(function (err)
-                    {
-                        if (isNull(err))
-                        {
-                            Logger.log("info", "Successfully removed " + name + " job from collection");
-                        }
-                        else
-                        {
-                            Logger.log("error", "Could not remove " + name + " job from collection");
-                        }
-                    });
+                    Logger.log("error", "No active notebooks");
                 }
+
             });
+
+            // Notebook.getNotebookFolders(function (err, result)
+            // {
+            //     if (isNull(err))
+            //     {
+            //         Notebook.checkUpdatedNotebooks(result);
+            //     }
+            //     else
+            //     {
+            //         Logger.log("error", "Error at " + name + " , error: " + JSON.stringify(err));
+            //         Logger.log("debug", "Will remove " + name + " job");
+            //         job.remove(function (err)
+            //         {
+            //             if (isNull(err))
+            //             {
+            //                 Logger.log("info", "Successfully removed " + name + " job from collection");
+            //             }
+            //             else
+            //             {
+            //                 Logger.log("error", "Could not remove " + name + " job from collection");
+            //             }
+            //         });
+            //     }
+            // });
 
         };
         super.defineJob(name, jobDefinitionFunction);
@@ -127,6 +139,6 @@ class MonitorUnSyncedNotebooksJob extends Job
 }
 
 MonitorUnSyncedNotebooksJob.isSingleton = true;
-MonitorUnSyncedNotebooksJob.cronExpression = Config.jobs.notebooksync.notebook_sync_cron;
+//MonitorUnSyncedNotebooksJob.cronExpression = Config.jobs.notebooksync.notebook_sync_cron;
 
 module.exports.MonitorUnSyncedNotebooksJob = MonitorUnSyncedNotebooksJob;

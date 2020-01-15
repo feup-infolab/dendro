@@ -28,7 +28,7 @@ module.exports.new = function (req, res) {
 
     newNotebook.spinUp(function (err, result) {
 
-        const notebookUrl = `${Config.baseUri}/notebook_runner/${newNotebook.ddr.NotebookID}`;
+        const notebookUrl = `${Config.baseUri}/notebook_runner/${newNotebook.ddr.notebookID}`;
         const notebookProxyUrl = "http://" + Config.notebooks.jupyter.proxy_address;
 
         const rewrittenHost = newNotebook.getHost();
