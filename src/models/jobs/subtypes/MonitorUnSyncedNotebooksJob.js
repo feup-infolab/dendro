@@ -17,10 +17,12 @@ class MonitorUnSyncedNotebooksJob extends Job
         const jobDefinitionFunction = function (job, done)
         {
             Logger.log("info", "This is a Notebook monitor job, running at " + new Date().toDateString());
-            Notebook.getActiveNotebooks( function (err) {
+            Notebook.getActiveNotebooks( function (err, existingNotebooks) {
                 if (isNull(err))
                 {
-                    Logger.log("No error");
+                    console.log(existingNotebooks);
+                    Logger.log("Finished searching for Active Notebooks");
+
                 }
                 else
                 {

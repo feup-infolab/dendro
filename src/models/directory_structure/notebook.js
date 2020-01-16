@@ -210,7 +210,7 @@ Notebook.getUnsynced = function (notebookID, modifiedDate, callback) {
         "   ?uri rdf:type ddr:Notebook. \n" +
         "   ?uri ddr:notebookID [1]. \n" +
         "   ?uri ddr:modified ?modified. \n" +
-        "   ?modified < [2]. \n"+
+        "   FILTER (?modified < [2]). \n"+
         "} ";
 
     db.connection.executeViaJDBC(query,
@@ -251,7 +251,6 @@ Notebook.getActiveNotebooks = function (callback) {
         } else {
             async.mapSeries(dirs, function(dir, callback){
                 self.getLastUpdate(dir, function(err, lastUpdate){
-                    console.log(lastUpdate);
                     callback(err, lastUpdate);
                 });
             }, function(err, allUpdates){
@@ -298,8 +297,8 @@ Notebook.getLastUpdate = function (dir, callback) {
             });
         });
 
-    });
-};
+    })
+}
 
 Notebook.getUnsyncedNotebooks = function (callback){
     let self = this;
