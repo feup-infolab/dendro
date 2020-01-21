@@ -1450,15 +1450,10 @@ Folder.prototype.restoreFromFolder = function (absPathOfRootFolder,
 )
 {
     const self = this;
-    let entityLoadingTheMetadataUri;
 
-    if (!isNull(entityLoadingTheMetadata) && entityLoadingTheMetadata instanceof User)
+    if (isNull(entityLoadingTheMetadata) || !(entityLoadingTheMetadata instanceof User))
     {
-        entityLoadingTheMetadataUri = entityLoadingTheMetadata.uri;
-    }
-    else
-    {
-        entityLoadingTheMetadataUri = User.anonymous.uri;
+        entityLoadingTheMetadata  = User.anonymous;
     }
 
     self.loadContentsOfFolderIntoThis(absPathOfRootFolder, replaceExistingFolder, function (err, result)
@@ -1504,7 +1499,7 @@ Folder.prototype.restoreFromFolder = function (absPathOfRootFolder,
                                     return callback(null, "Data and metadata restored successfully. Result : " + result);
                                 }
                                 return callback(1, "Error restoring metadata for node " + self.uri + " : " + result);
-                            }, entityLoadingTheMetadataUri, [Elements.access_types.locked], [Elements.access_types.restorable], restoreIntoTheSameRootFolder, progressReporter);
+                            }, entityLoadingTheMetadata.uri, [Elements.access_types.locked], [Elements.access_types.restorable], restoreIntoTheSameRootFolder, progressReporter);
                         });
                     }
                     else

@@ -20,7 +20,28 @@ class MonitorUnSyncedNotebooksJob extends Job
             Notebook.getActiveNotebooks( function (err, existingNotebooks) {
                 if (isNull(err))
                 {
-                    console.log(existingNotebooks);
+                    async.mapSeries(existingNotebooks, function(notebook, callback){
+                        Notebook.getUnsynced(notebook.id, notebook.lastModified, function(err, updateStatus){
+                            callback(err, updateStatus);
+                        });
+                    },function(err, updateStatus){
+                        if(isNull(err))
+                        {
+                            Notebook.saveNotebookFiles(updateStatus, function (err) {
+                                if(isNull(err)){
+                                    console.log("SavedNotebook");
+                                }
+                                else{
+                                    console.log("DidNotSaveNotebook");
+                                }
+                            });
+                            console.log("this is the callback from getUnsynced " + updateStatus);
+                        }
+                        else
+                        {
+                            Logger.log(err);
+                        }
+                    });
                     Logger.log("Finished searching for Active Notebooks");
 
                 }

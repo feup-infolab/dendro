@@ -298,33 +298,34 @@ Notebook.getLastUpdate = function (dir, callback) {
         });
 
     })
-}
-
-Notebook.getUnsyncedNotebooks = function (callback){
-    let self = this;
-    let allNotebookFolders= self.getActiveNotebooks();
-    async.mapSeries(allNotebookFolders,function (notebookFolderPath,cb) {
-        let mostRecentModification = 1;
-        Notebook.getUnsynced(path.basename(notebookFolderPath), mostRecentModification, cb);
-    },function (err, results) {
-        if (!err){
-            callback(err,results);
-        }
-    })
 };
 
-Notebook.checkUpdatedNotebooks = function (existingFolders) {
-    let current_time = new Date();
-    let updateInterval = 300000;
+Notebook.saveNotebookFiles = function (notebooks, callback){
+    async.mapSeries(notebooks, function (notebook, callback) {
+        const notebookFolder = new Folder(notebook);
+        notebookFolder.restoreFromFolder(notebook.ddr.dataFolderPath, null, false, false, function (err,result) {
+            if(isNull(err)){
+                console.log("success");
 
-    for(folder of existingFolders){
-        let time_difference = current_time - new Date(folder.last_modified);
-        if (updateInterval > time_difference){
-            console.log(folder);
-        }
-    }
+                // now we need to inject the Notebook type into the new folder
+                const notebookTypeDescriptor = new Descriptor({
+                    ontology: "rdf",
+                    shortName:"type",
+                    value: "ddr:Notebook"
+                });
+
+                notebookFolder.insertDescriptors(notebookTypeDescriptor, function(err, result){
+                    callback(err, result);
+                });
+            }
+            else{
+                callback(err, result);
+            }
+        });
+    }, function(err, results){
+        callback(err, results);
+    });
 };
-
 
 Notebook.prototype.save = function (callback)
 {
