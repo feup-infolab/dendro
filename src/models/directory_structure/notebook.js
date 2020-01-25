@@ -17,6 +17,7 @@ const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
 const Upload = rlequire("dendro", "src/models/uploads/upload.js").Upload;
 const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder;
 const Elements = rlequire("dendro", "src//models/meta/elements.js").Elements;
+const DockerManager = rlequire("dendro", "src/utils/docker/docker_manager.js").DockerManager;
 const db = Config.getDBByID();
 
 const gfs = Config.getGFSByID();
@@ -72,7 +73,7 @@ class Notebook
 
     cypherPassword (plainTextPassword)
     {
-        // Yes i know i shouresourceld not store passwords as plain text in the config.yml file.
+        // Yes i know i should not store passwords as plain text in the config.yml file.
         // That is a default password that SHOULD be changed by the jupyter user.
         const sha1 = require("sha1");
         return `sha1:${sha1(plainTextPassword)}`;
@@ -213,7 +214,7 @@ Notebook.getNotebookFolders = function (callback)
     );
 };
 
-Notebook.getUnsynced = function (notebookID, modifiedDate, callback)
+Notebook.prototype.isUnsynced = function (modifiedDate, callback)
 {
     const self = this;
     let query =
@@ -235,7 +236,7 @@ Notebook.getUnsynced = function (notebookID, modifiedDate, callback)
             },
             {
                 type: Elements.types.string,
-                value: notebookID
+                value: self.ddr.notebookID
             },
             {
                 type: Elements.types.date,
@@ -244,61 +245,108 @@ Notebook.getUnsynced = function (notebookID, modifiedDate, callback)
         ],
         function (err, result)
         {
-            if (result instanceof Array && result.length === 1)
+            if (isNull(err))
             {
-                Notebook.findByUri(result[0].uri, callback);
+                if (result instanceof Array && result.length === 1)
+                {
+                    callback(null, true);
+                }
+                else
+                {
+                    callback(null, false);
+                }
             }
             else
             {
-                return callback(true, "Error checking unsynced status of notebook : " + self.uri);
+                return callback(err, "Error checking unsynced status of notebook : " + self.uri);
             }
         }
+    );
+};
+
+Notebook.mapNotebookIDsToObjects = function (notebookIDs, callback)
+{
+    async.mapSeries(notebookIDs,
+        function (notebookID, callback)
+        {
+            Notebook.findByPropertyValue(new Descriptor(
+                {
+                    prefixedForm: "ddr:notebookID",
+                    value: notebookID
+                }
+            ), function (err, notebook)
+            {
+                callback(err, notebook);
+            });
+        },
+        callback
     );
 };
 
 Notebook.getActiveNotebooks = function (callback)
 {
     const self = this;
-    fs.readdir(notebookFolderPath, function (err, dirs)
-    {
-        dirs = _.map(dirs, function (dir)
-        {
-            return path.join(notebookFolderPath, dir);
-        });
 
-        if (err)
+    fs.readdir(notebookFolderPath, function (err, relativeDirs)
+    {
+        DockerManager.fuzzySearchForRunningContainers(relativeDirs, function (err, runningNotebookContainers)
         {
-            callback(err, dirs);
-        }
-        else
-        {
-            async.mapSeries(dirs, function (dir, callback)
+            runningNotebookContainers = _.compact(runningNotebookContainers);
+
+            const absDirs = _.map(relativeDirs, function (dir)
             {
-                self.getLastUpdate(dir, function (err, lastUpdate)
-                {
-                    callback(err, lastUpdate);
-                });
-            }, function (err, allUpdates)
+                return path.join(notebookFolderPath, dir);
+            });
+
+            if (err)
             {
-                if (isNull(err))
+                callback(err, absDirs);
+            }
+            else
+            {
+                async.mapSeries(absDirs, function (dir, callback)
                 {
-                    let results = [];
-                    for (let i = 0; i < dirs.length; i++)
+                    self.getLastUpdate(dir, function (err, lastUpdate)
                     {
-                        results.push({
-                            id: path.basename(dirs[i]),
-                            lastModified: allUpdates[i]
+                        callback(err, lastUpdate);
+                    });
+                }, function (err, allUpdates)
+                {
+                    if (isNull(err))
+                    {
+                        const notebookIDs = _.map(absDirs,
+                            function (absDir)
+                            {
+                                return path.basename(absDir);
+                            });
+
+                        Notebook.mapNotebookIDsToObjects(notebookIDs, function (err, notebookObjects)
+                        {
+                            let results = [];
+                            if (isNull(err))
+                            {
+                                for (let i = 0; i < absDirs.length; i++)
+                                {
+                                    let dirname = path.basename(absDirs[i]);
+                                    results.push({
+                                        notebookObject: notebookObjects[i],
+                                        lastModified: allUpdates[i],
+                                        containerRunning: runningNotebookContainers.includes(dirname),
+                                        runningPath: absDirs[i]
+                                    });
+                                }
+                            }
+
+                            callback(err, results);
                         });
                     }
-
-                    callback(err, results);
-                }
-                else
-                {
-                    callback(err, allUpdates);
-                }
-            });
-        }
+                    else
+                    {
+                        callback(err, allUpdates);
+                    }
+                });
+            }
+        });
     });
 };
 
@@ -334,6 +382,64 @@ Notebook.getLastUpdate = function (dir, callback)
     });
 };
 
+Notebook.stopContainersForNotebooks = function (notebooks, callback)
+{
+    async.mapSeries(_.compact(notebooks), function (notebook, callback)
+    {
+        DockerManager.stopContainer(`${notebook.ddr.notebookID}jupyter-dendro`, callback);
+    }, function (err, results)
+    {
+        callback(err, results);
+    });
+};
+
+Notebook.deleteRunningFolderOfNotebooks = function (notebooks, callback)
+{
+    async.mapSeries(notebooks, function (notebook, callback)
+    {
+        Logger.log("Deleting notebook folder at " + notebook.ddr.runningPath);
+        Folder.deleteOnLocalFileSystem(notebook.ddr.runningPath, function (err)
+        {
+            if (isNull(err))
+            {
+                Logger.log("Deleted notebook folder at " + notebook.ddr.runningPath);
+            }
+            else
+            {
+                Logger.log("[ERROR] Unable to delete notebook folder at " + notebook.ddr.runningPath);
+            }
+
+            callback(err);
+        }, true);
+    }, function (err, results)
+    {
+        callback(err, results);
+    });
+};
+
+Notebook.shutdownAndCleanupNotebooks = function (notebooks, callback)
+{
+    Notebook.stopContainersForNotebooks(notebooks, function (err, result)
+    {
+        if (isNull(err))
+        {
+            Notebook.deleteRunningFolderOfNotebooks(notebooks, function (err, result)
+            {
+                if (!isNull(err))
+                {
+                    Logger.log("Error occurred while deleting folders for notebooks!" + err);
+                }
+                callback(err, result);
+            });
+        }
+        else
+        {
+            Logger.log("Error occurred while shutting down containers for notebooks!" + err);
+            callback(err, result);
+        }
+    });
+};
+
 Notebook.saveNotebookFiles = function (notebooks, callback)
 {
     async.mapSeries(notebooks, function (notebook, callback)
@@ -343,8 +449,9 @@ Notebook.saveNotebookFiles = function (notebooks, callback)
         {
             if (isNull(err))
             {
-                console.log("success");
-                callback(err, result);
+                Logger.log("Notebook " + notebook.uri + " successfully restored from folder " + notebook.ddr.dataFolderPath);
+                notebook.ddr.modified = new Date();
+                notebook.save(callback);
             }
             else
             {

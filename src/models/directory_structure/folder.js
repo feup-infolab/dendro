@@ -1847,8 +1847,13 @@ Folder.prototype.save = function (callback)
     });
 };
 
-Folder.deleteOnLocalFileSystem = function (absPath, callback)
+Folder.deleteOnLocalFileSystem = function (absPath, callback, isRelative)
 {
+    if (isRelative)
+    {
+        absPath = path.resolve(Config.appDir, absPath);
+    }
+
     const isWin = /^win/.test(process.platform);
     const exec = require("child_process").exec;
     let command;

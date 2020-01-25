@@ -10,7 +10,7 @@ angular.module("dendroApp.services")
                     $window.open(url);
                 };
 
-                this.redirectToUri = function(url)
+                this.redirectToUri = function (url)
                 {
                     $window.location.href = url;
                 };

@@ -712,7 +712,8 @@ DockerManager.getContainerIDFromName = function (containerName, callback)
         stdio: [0, 1, 2]
     }, function (err, containerID)
     {
-        callback(err, containerID.trim());
+        containerID = containerID.trim();
+        callback(err, containerID);
     });
 };
 
@@ -734,6 +735,42 @@ DockerManager.commitContainer = function (containerName, committedImageName, cal
                 callback(null, false);
             }
         });
+    });
+};
+
+DockerManager.ps = function (callback)
+{
+    childProcess.exec(`docker ps`, {
+        cwd: rlequire.getRootFolder("dendro"),
+        stdio: [0, 1, 2]
+    }, function (err, result)
+    {
+        callback(err, result);
+    });
+};
+
+DockerManager.fuzzySearchForRunningContainers = function (piecesOfNamesOfContainers, callback)
+{
+    DockerManager.ps(function (err, result)
+    {
+        if (isNull(err))
+        {
+            const containersRunning = _.map(piecesOfNamesOfContainers, function (pieceOfName)
+            {
+                if (result.includes(pieceOfName))
+                {
+                    return pieceOfName;
+                }
+
+                return null;
+            });
+
+            callback(err, containersRunning);
+        }
+        else
+        {
+            callback(err, result);
+        }
     });
 };
 
@@ -778,6 +815,41 @@ DockerManager.runCommandOnContainer = function (containerName, command, callback
         else
         {
             callback(null, result);
+        }
+    });
+};
+
+DockerManager.stopContainer = function (containerName, callback)
+{
+    DockerManager.getContainerIDFromName(containerName, function (err, containerID)
+    {
+        if (isNull(err))
+        {
+            if (isNull(containerID))
+            {
+                callback(null);
+            }
+            else
+            {
+                childProcess.exec(`docker stop ${containerID}`, {
+                    cwd: rlequire.getRootFolder("dendro"),
+                    stdio: [0, 1, 2]
+                }, function (err, result)
+                {
+                    if (isNull(err))
+                    {
+                        callback(null, result);
+                    }
+                    else
+                    {
+                        callback(err, result);
+                    }
+                });
+            }
+        }
+        else
+        {
+            callback(err, containerID);
         }
     });
 };

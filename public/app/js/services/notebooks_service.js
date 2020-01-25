@@ -12,10 +12,8 @@ angular.module("dendroApp.services")
                     {
                         return "No valid uri provided when attempting to start notebook";
                     }
-                    else
-                    {
-                        uri = notebook.uri + "?activate";
-                    }
+
+                    uri = notebook.uri + "?activate";
 
                     return $http({
                         method: "POST",
@@ -29,10 +27,8 @@ angular.module("dendroApp.services")
                         {
                             return response.data;
                         }
-                        else
-                        {
-                            return response;
-                        }
+
+                        return response;
                     });
                 };
                 this.mkdir = function (newFolderName, parentFolderUri)

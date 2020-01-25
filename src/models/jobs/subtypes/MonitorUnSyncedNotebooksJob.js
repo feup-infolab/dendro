@@ -3,11 +3,12 @@ const path = require("path");
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const Notebook = rlequire("dendro", "src/models/directory_structure/notebook.js").Notebook;
+const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder;
 
 const Job = rlequire("dendro", "src/models/jobs/Job.js").Job;
 const name = path.parse(__filename).name;
-const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const async = require("async");
+const _ = require("underscore");
 
 class MonitorUnSyncedNotebooksJob extends Job
 {
@@ -17,32 +18,95 @@ class MonitorUnSyncedNotebooksJob extends Job
         const jobDefinitionFunction = function (job, done)
         {
             Logger.log("info", "This is a Notebook monitor job, running at " + new Date().toDateString());
-            Notebook.getActiveNotebooks(function (err, existingNotebooks)
+            Notebook.getActiveNotebooks(function (err, activeNotebookInformation)
             {
                 if (isNull(err))
                 {
-                    async.mapSeries(existingNotebooks, function (notebook, callback)
+                    async.forEachSeries(activeNotebookInformation, function (notebookInfo, callback)
                     {
-                        Notebook.getUnsynced(notebook.id, notebook.lastModified, function (err, updateStatus)
+                        if (!isNull(notebookInfo) && notebookInfo.notebookObject instanceof Notebook)
                         {
-                            callback(err, updateStatus);
-                        });
-                    }, function (err, updateStatus)
+                            notebookInfo.notebookObject.isUnsynced(
+                                notebookInfo.lastModified,
+                                function (err, notebookIsUnsynced)
+                                {
+                                    notebookInfo.isUnsynced = notebookIsUnsynced;
+                                    callback(err);
+                                });
+                        }
+                        else
+                        {
+                            // if there is no match for the notebook, we clean up the old folder by force
+                            Logger.log("Deleting orphan notebook folder at " + notebookInfo.runningPath);
+                            Folder.deleteOnLocalFileSystem(notebookInfo.runningPath, function (error, stdout, stderror)
+                            {
+                                callback(err, stdout, stderror);
+                            }, true);
+                        }
+                    }, function (err)
                     {
                         if (isNull(err))
                         {
-                            Notebook.saveNotebookFiles(updateStatus, function (err)
+                            const unSyncedNotebooks = _.filter(activeNotebookInformation, function (notebookInfo)
                             {
-                                if (isNull(err))
+                                if (notebookInfo.isUnsynced)
                                 {
-                                    console.log("SavedNotebook");
+                                    return true;
                                 }
-                                else
-                                {
-                                    console.log("DidNotSaveNotebook");
-                                }
+                                return false;
                             });
-                            console.log("this is the callback from getUnsynced " + updateStatus);
+
+                            const syncedNotebooks = _.filter(activeNotebookInformation, function (notebookInfo)
+                            {
+                                if (!notebookInfo.isUnsynced && notebookInfo.notebookObject instanceof Notebook)
+                                {
+                                    return true;
+                                }
+                                return false;
+                            });
+
+                            // se estiver sincronizado
+                            // 1. Fechar Container
+                            // 2. Apagar pasta
+
+                            Notebook.shutdownAndCleanupNotebooks(
+                                _.map(syncedNotebooks, function (notebookInformation)
+                                {
+                                    return notebookInformation.notebookObject;
+                                }),
+                                function (err)
+                                {
+                                    console.log("this is the callback from getSyncedNotebooks " + unSyncedNotebooks);
+                                    if (isNull(err))
+                                    {
+                                        console.log("Cleaned Up Notebook");
+                                    }
+                                    else
+                                    {
+                                        console.log("Did not cleanup notebook");
+                                    }
+                                });
+
+                            // se não estiver sincronizado
+                            // 1. Save notebook files
+
+                            Notebook.saveNotebookFiles(
+                                _.map(unSyncedNotebooks, function (notebookInformation)
+                                {
+                                    return notebookInformation.notebookObject;
+                                }),
+                                function (err)
+                                {
+                                    console.log("this is the callback from getUnsynced " + unSyncedNotebooks);
+                                    if (isNull(err))
+                                    {
+                                        console.log("SavedNotebook");
+                                    }
+                                    else
+                                    {
+                                        console.log("DidNotSaveNotebook");
+                                    }
+                                });
                         }
                         else
                         {

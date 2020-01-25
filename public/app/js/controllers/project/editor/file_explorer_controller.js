@@ -573,11 +573,13 @@ angular.module("dendroApp.controllers")
                     windowService.show_popup("info", "Working...", "Booting up notebook. Please wait.", 700);
 
                     notebookService.activate_notebook(notebook)
-                        .then(function(response){
+                        .then(function (response)
+                        {
                             windowService.show_popup("success", "Notebook ready <a href=\"${response.data.new_notebook_url}\">here</a>", 700);
                             windowService.openInNewWindow(response.data.new_notebook_url);
                         })
-                        .catch(function(response){
+                        .catch(function (response)
+                        {
                             windowService.show_popup("error", "Error starting notebook", response.data.message);
                         });
                 });

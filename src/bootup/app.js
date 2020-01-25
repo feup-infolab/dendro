@@ -24,6 +24,7 @@ let isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const DockerManager = rlequire("dendro", "src/utils/docker/docker_manager.js").DockerManager;
 
 Config.pm2AppName = rlequire("dendro", "package.json").name + "-" + rlequire("dendro", "package.json").version;
+Config.appDir = appDir;
 
 class App
 {
