@@ -107,10 +107,10 @@
                     <a href="#"><img id="show_deleted_files_button" ng-class="{active: shared.showing_deleted_files, 'btn-info': shared.showing_deleted_files}" data-loading-text="Restoring..." ng-click="toggle_show_deleted_files()" src="/images/icons/bin_recycle.png"></a>
                     <a href="#"><img id="toggle_multiple_selection" ng-class="{active: shared.multiple_selection_active, 'btn-info': shared.multiple_selection_active}" ng-click="toggle_multiple_selection()"  src="/images/icons/check_box_list.png"></a>
                     <a href="#"><img id="toggle_select_all" ng-click="toggle_select_all_files()"  src="/images/icons/check_boxes_series.png"></a>
-
                     <a href=""><img id="toggle_multiple_selection" ng-class="{active: shared.multiple_selection_active, 'btn-info': shared.multiple_selection_active}" ng-click="toggle_multiple_selection()"  src="/images/icons/check_box_list.png"></a>
+
                     <div ng-controller="notebookCtrl" class="btn-group">
-                        <button type="button" class="btn btn-default" ng-click="start_notebook()">
+                        <button type="button" class="btn btn-default" ng-hide="showing_project_root()" ng-click="start_notebook()">
                             <img class="icon16" id="notebook_button" data-loading-text="Creating Notebook..." src="/images/icons/jupyter_logo.png"> Create Notebook
                         </button>
                     </div>
@@ -348,5 +348,5 @@
     </div>
 
     <br/>
-
+</div>
     <%- include ../layout/footer.ejs %>

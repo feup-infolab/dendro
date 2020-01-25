@@ -7,6 +7,7 @@ const tmpLocation = Config.tempFilesDir;
 const exec = require("child_process").exec;
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const fs = require("fs");
+const path = require("path");
 
 const deleteOldTempFolders = function (app, callback)
 {
@@ -51,7 +52,9 @@ const deleteOldTempFolders = function (app, callback)
                             else
                             {
                                 resourcesToDelete = stdout;
-                                exec("find " + tmpLocation + " -not -newermt '-24 hours' -mindepth 1 -delete", function (err, stdout, stderr)
+                                exec("find " + tmpLocation + " -not -newermt '-24 hours' -not -path " + path.join(tmpLocation, "jupyter-notebooks/*") +
+                                        " -not -path" + path.join(tmpLocation, "jupyter-notebooks") +
+                                            " -mindepth 1 -delete", function (err, stdout, stderr)
                                 {
                                     if (!isNull(err))
                                     {

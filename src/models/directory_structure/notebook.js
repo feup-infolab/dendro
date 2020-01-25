@@ -302,21 +302,11 @@ Notebook.getLastUpdate = function (dir, callback) {
 
 Notebook.saveNotebookFiles = function (notebooks, callback){
     async.mapSeries(notebooks, function (notebook, callback) {
-        const notebookFolder = new Folder(notebook);
-        notebookFolder.restoreFromFolder(notebook.ddr.dataFolderPath, null, false, false, function (err,result) {
+        // const notebookFolder = new Folder(notebook);
+        notebook.restoreFromFolder(notebook.ddr.dataFolderPath, null, false, false, function (err,result) {
             if(isNull(err)){
                 console.log("success");
-
-                // now we need to inject the Notebook type into the new folder
-                const notebookTypeDescriptor = new Descriptor({
-                    ontology: "rdf",
-                    shortName:"type",
-                    value: "ddr:Notebook"
-                });
-
-                notebookFolder.insertDescriptors(notebookTypeDescriptor, function(err, result){
-                    callback(err, result);
-                });
+                callback(err, result);
             }
             else{
                 callback(err, result);
