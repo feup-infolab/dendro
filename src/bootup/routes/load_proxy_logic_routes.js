@@ -28,7 +28,7 @@ const loadRoutes = function (app, callback)
         proxyOptions.onProxyReqWs = function (proxyReq, req, socket, options, head)
         {
             const match = req.url.match(/\/notebook_runner\/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/);
-            if(!isNull(match) && match instanceof Array)
+            if (!isNull(match) && match instanceof Array)
             {
                 const guid = req.url.match(/\/notebook_runner\/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/)[1];
                 const targetNotebook = new Notebook({id: guid});

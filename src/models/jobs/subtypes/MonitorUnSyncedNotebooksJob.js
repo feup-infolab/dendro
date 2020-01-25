@@ -17,21 +17,28 @@ class MonitorUnSyncedNotebooksJob extends Job
         const jobDefinitionFunction = function (job, done)
         {
             Logger.log("info", "This is a Notebook monitor job, running at " + new Date().toDateString());
-            Notebook.getActiveNotebooks( function (err, existingNotebooks) {
+            Notebook.getActiveNotebooks(function (err, existingNotebooks)
+            {
                 if (isNull(err))
                 {
-                    async.mapSeries(existingNotebooks, function(notebook, callback){
-                        Notebook.getUnsynced(notebook.id, notebook.lastModified, function(err, updateStatus){
+                    async.mapSeries(existingNotebooks, function (notebook, callback)
+                    {
+                        Notebook.getUnsynced(notebook.id, notebook.lastModified, function (err, updateStatus)
+                        {
                             callback(err, updateStatus);
                         });
-                    },function(err, updateStatus){
-                        if(isNull(err))
+                    }, function (err, updateStatus)
+                    {
+                        if (isNull(err))
                         {
-                            Notebook.saveNotebookFiles(updateStatus, function (err) {
-                                if(isNull(err)){
+                            Notebook.saveNotebookFiles(updateStatus, function (err)
+                            {
+                                if (isNull(err))
+                                {
                                     console.log("SavedNotebook");
                                 }
-                                else{
+                                else
+                                {
                                     console.log("DidNotSaveNotebook");
                                 }
                             });
@@ -43,13 +50,11 @@ class MonitorUnSyncedNotebooksJob extends Job
                         }
                     });
                     Logger.log("Finished searching for Active Notebooks");
-
                 }
                 else
                 {
                     Logger.log("error", "No active notebooks");
                 }
-
             });
 
             // Notebook.getNotebookFolders(function (err, result)
@@ -75,7 +80,6 @@ class MonitorUnSyncedNotebooksJob extends Job
             //         });
             //     }
             // });
-
         };
         super.defineJob(name, jobDefinitionFunction);
     }
@@ -162,6 +166,6 @@ class MonitorUnSyncedNotebooksJob extends Job
 }
 
 MonitorUnSyncedNotebooksJob.isSingleton = true;
-//MonitorUnSyncedNotebooksJob.cronExpression = Config.jobs.notebooksync.notebook_sync_cron;
+// MonitorUnSyncedNotebooksJob.cronExpression = Config.jobs.notebooksync.notebook_sync_cron;
 
 module.exports.MonitorUnSyncedNotebooksJob = MonitorUnSyncedNotebooksJob;

@@ -5,20 +5,20 @@ angular.module("dendroApp.services")
         ["$http", "$rootScope", "windowService",
             function ($http, $rootScope, windowService)
             {
-                this.startnotebook = function (uri)
+                this.activate_notebook = function (notebook)
                 {
-                    if (uri == null)
+                    let uri;
+                    if (notebook == null || notebook.uri == null)
                     {
-                        uri = windowService.get_host();
-                        console.log(uri);
+                        return "No valid uri provided when attempting to start notebook";
                     }
                     else
                     {
-                        uri = uri + "?ls";
+                        uri = notebook.uri + "?activate";
                     }
 
                     return $http({
-                        method: "GET",
+                        method: "POST",
                         url: uri,
                         data: JSON.stringify({}),
                         contentType: "application/json",
@@ -29,9 +29,11 @@ angular.module("dendroApp.services")
                         {
                             return response.data;
                         }
-                        return [];
-                    }
-                    );
+                        else
+                        {
+                            return response;
+                        }
+                    });
                 };
                 this.mkdir = function (newFolderName, parentFolderUri)
                 {

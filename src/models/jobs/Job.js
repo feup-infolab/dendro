@@ -151,8 +151,10 @@ class Job
                         }
                     });
                 }
-                else{
-                    singletonJob.start(function (err) {
+                else
+                {
+                    singletonJob.start(function (err)
+                    {
                         if (isNull(err))
                         {
                             Logger.log("info", "Job " + self.name + " running...");

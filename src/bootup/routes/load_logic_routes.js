@@ -1207,9 +1207,16 @@ const loadRoutes = function (app, callback)
                         queryKeys: ["create_notebook"],
                         handler: notebooks.new,
                         permissions: modificationPermissionsBranch,
-                        authentication_error: "Permission denied : cannot delete resource because you do not have permissions to edit resources inside this project."
+                        authentication_error: "Permission denied : cannot create a notebook because you do not have permissions to edit resources inside this project.",
+                        required_orchestras: ["dendro_notebook_vhosts"]
+                    },
+                    {
+                        queryKeys: ["activate"],
+                        handler: notebooks.activate,
+                        permissions: modificationPermissionsBranch,
+                        authentication_error: "Permission denied : cannot activate notebook because you do not have permissions to edit resources inside this project.",
+                        required_orchestras: ["dendro_notebook_vhosts"]
                     }
-
                 ],
                 delete: [
                     {
@@ -1648,7 +1655,6 @@ const loadRoutes = function (app, callback)
             async.apply(Permissions.require, [Permissions.settings.role.in_system.user]),
             async.apply(DockerManager.requireOrchestras, ["dendro_notebook_vhosts"]),
             notebooks.new);
-
 
         // TODO so far only creator will have access must change
         app.get(notebookregex,

@@ -106,7 +106,7 @@ Config.hostAndPort = (
         {
             return host;
         }
-        return host /* + ":" + port*/;
+        return host;
     }
 )();
 

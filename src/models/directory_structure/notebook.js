@@ -24,21 +24,22 @@ const gfs = Config.getGFSByID();
 const async = require("async");
 const mkdirp = require("mkdirp");
 const fs = require("fs-extra");
-const chokidar = require('chokidar');
+const chokidar = require("chokidar");
 const Queue = require("better-queue");
 
 const notebookFolderPath = "temp/jupyter-notebooks";
 
-
-const q = new Queue(function (event, cb) {
+const q = new Queue(function (event, cb)
+{
     console.log("Added to Queue");
     Upload.tester(event);
     cb();
 });
 
-
-class Notebook {
-    constructor(object = {}) {
+class Notebook
+{
+    constructor (object = {})
+    {
         const self = this;
         self.addURIAndRDFType(object, "notebook", Notebook);
         Notebook.baseConstructor.call(this, object);
@@ -46,36 +47,39 @@ class Notebook {
         self.ddr.fileExtension = "folder";
         self.ddr.hasFontAwesomeClass = "fa-folder";
 
-        if (!isNull(object.id)) {
+        if (!isNull(object.id))
+        {
             self.ddr.notebookID = object.id;
-        } else {
+        }
+        else
+        {
             const uuid = require("uuid");
             self.ddr.notebookID = uuid.v4();
         }
 
         self.ddr.runningPath = rlequire.absPathInApp("dendro", path.join("temp", "jupyter-notebooks", self.ddr.notebookID));
         self.ddr.dataFolderPath = path.join(self.ddr.runningPath, "data");
-        
-        
-        
+
         self.lastModified = new Date();
         self.ddr.fileExtension = "notebook";
-
     }
 
-    getHost() {
+    getHost ()
+    {
         const self = this;
         return `jupyter-notebook.${self.ddr.notebookID}`;
     }
 
-    cypherPassword(plainTextPassword) {
+    cypherPassword (plainTextPassword)
+    {
         // Yes i know i shouresourceld not store passwords as plain text in the config.yml file.
         // That is a default password that SHOULD be changed by the jupyter user.
         const sha1 = require("sha1");
         return `sha1:${sha1(plainTextPassword)}`;
     }
 
-    spinUp(callback) {
+    spinUp (callback)
+    {
         const self = this;
         const DockerManager = Object.create(rlequire("dendro", "src/utils/docker/docker_manager.js").DockerManager);
         mkdirp.sync(self.ddr.runningPath);
@@ -85,30 +89,31 @@ class Notebook {
         const cloneOrchestraFile = path.join(self.ddr.runningPath, "docker-compose.yml");
 
         // Async with callbacks:
-        fs.copy(baseOrchestraFile, cloneOrchestraFile, err => {
+        fs.copy(baseOrchestraFile, cloneOrchestraFile, err =>
+        {
             if (err) return console.error(err);
             console.log("success!");
 
             console.log("Starting notebook");
             // console.log(`tini -g -- /usr/local/bin/start-notebook.sh --NotebookApp.base_url=\\"${self.getFullNotebookUri()}\\" --NotebookApp.password=\\"${Config.notebooks.jupyter.default_password}\\" --NotebookApp.custom_display_url=\\"${self.getFullNotebookUri()}\\"`);
 
-            DockerManager.startOrchestra("dendro_notebook", function (err, result) {
-
+            DockerManager.startOrchestra("dendro_notebook", function (err, result)
+            {
                 callback(err, result);
             }, null, self.ddr.runningPath, {
                 DENDRO_NOTEBOOK_GUID: self.ddr.notebookID,
                 DENDRO_NOTEBOOK_VIRTUAL_HOST: self.getHost(),
                 DENDRO_NOTEBOOK_FULL_URL: self.getFullNotebookUri(),
                 DENDRO_NOTEBOOK_DEFAULT_PASSWORD: self.cypherPassword(Config.notebooks.jupyter.default_password),
-                DENDRO_NOTEBOOK_USER_ID: process.geteuid(),
+                DENDRO_NOTEBOOK_USER_ID: process.geteuid()
             });
         });
     }
 
-
-    fileWatcher() {
+    fileWatcher ()
+    {
         const self = this;
-        let fileLocation = path.join(__dirname.replace("src/models/directory_structure", 'temp/jupyter-notebooks/'), `${self.ddr.notebookID}`);
+        let fileLocation = path.join(__dirname.replace("src/models/directory_structure", "temp/jupyter-notebooks/"), `${self.ddr.notebookID}`);
 
         const watcher = chokidar.watch(["."], {
             ignored: /(^|[\/\\])\../, // ignore dotfiles
@@ -119,28 +124,31 @@ class Notebook {
         const log = console.log.bind(console);
         let event = {};
         watcher
-            .on('add', path => {
+            .on("add", path =>
+            {
                 event.notebook = self.ddr.notebookID;
                 event.filepath = path;
-                event.type = 'add';
+                event.type = "add";
                 self.lastModified = new Date();
                 log(self.lastModified);
                 log(`Notebook ${self.ddr.notebookID}: File ${path} has been added`);
                 q.push(event);
             })
-            .on('change', path => {
+            .on("change", path =>
+            {
                 event.notebook = self.ddr.notebookID;
                 event.filepath = path;
-                event.type = 'change';
+                event.type = "change";
                 self.lastModified = new Date();
                 log(self.lastModified);
                 log(`Notebook ${self.ddr.notebookID}: File ${path} has been changed`);
                 q.push(event);
             })
-            .on('unlink', path => {
+            .on("unlink", path =>
+            {
                 event.notebook = self.ddr.notebookID;
                 event.filepath = path;
-                event.type = 'delete';
+                event.type = "delete";
                 self.lastModified = new Date();
                 log(self.lastModified);
                 log(`Notebook ${self.ddr.notebookID}: File ${path} has been removed`);
@@ -148,30 +156,32 @@ class Notebook {
             });
     }
 
-
-    getFullNotebookUri() {
+    getFullNotebookUri ()
+    {
         const self = this;
         return "/notebook_runner/" + self.ddr.notebookID;
     }
 
-    rewriteUrl(relativeUrl) {
+    rewriteUrl (relativeUrl)
+    {
         const self = this;
         const url = self.getFullNotebookUri();
 
-        if (isNull(relativeUrl)) {
+        if (isNull(relativeUrl))
+        {
             return url;
         }
         return url + relativeUrl;
     }
 
-    getLastNotebookModification() {
+    getLastNotebookModification ()
+    {
 
     }
-
-
 }
 
-Notebook.getNotebookFolders = function (callback) {
+Notebook.getNotebookFolders = function (callback)
+{
     const self = this;
     let query =
         "SELECT ?uri, ?modified, ?name\n" +
@@ -189,18 +199,22 @@ Notebook.getNotebookFolders = function (callback) {
                 value: db.graphUri
             }
         ],
-        function (err, result) {
-            if (result instanceof Array) {
+        function (err, result)
+        {
+            if (result instanceof Array)
+            {
                 callback(err, result);
-            } else {
+            }
+            else
+            {
                 return callback(true, "Invalid response when getting recursive children of resource : " + self.uri);
             }
         }
     );
 };
 
-
-Notebook.getUnsynced = function (notebookID, modifiedDate, callback) {
+Notebook.getUnsynced = function (notebookID, modifiedDate, callback)
+{
     const self = this;
     let query =
         "SELECT ?uri \n" +
@@ -210,7 +224,7 @@ Notebook.getUnsynced = function (notebookID, modifiedDate, callback) {
         "   ?uri rdf:type ddr:Notebook. \n" +
         "   ?uri ddr:notebookID [1]. \n" +
         "   ?uri ddr:modified ?modified. \n" +
-        "   FILTER (?modified < [2]). \n"+
+        "   FILTER (?modified < [2]). \n" +
         "} ";
 
     db.connection.executeViaJDBC(query,
@@ -228,36 +242,48 @@ Notebook.getUnsynced = function (notebookID, modifiedDate, callback) {
                 value: modifiedDate
             }
         ],
-        function (err, result) {
-            if (result instanceof Array && result.length === 1) {
+        function (err, result)
+        {
+            if (result instanceof Array && result.length === 1)
+            {
                 Notebook.findByUri(result[0].uri, callback);
-            } else {
+            }
+            else
+            {
                 return callback(true, "Error checking unsynced status of notebook : " + self.uri);
             }
         }
     );
 };
 
-Notebook.getActiveNotebooks = function (callback) {
+Notebook.getActiveNotebooks = function (callback)
+{
     const self = this;
-    fs.readdir(notebookFolderPath, function (err, dirs) {
-        
-        dirs = _.map(dirs, function (dir) {
-            return path.join(notebookFolderPath,dir)
+    fs.readdir(notebookFolderPath, function (err, dirs)
+    {
+        dirs = _.map(dirs, function (dir)
+        {
+            return path.join(notebookFolderPath, dir);
         });
-        
-        if (err) {
+
+        if (err)
+        {
             callback(err, dirs);
-        } else {
-            async.mapSeries(dirs, function(dir, callback){
-                self.getLastUpdate(dir, function(err, lastUpdate){
+        }
+        else
+        {
+            async.mapSeries(dirs, function (dir, callback)
+            {
+                self.getLastUpdate(dir, function (err, lastUpdate)
+                {
                     callback(err, lastUpdate);
                 });
-            }, function(err, allUpdates){
-                if(isNull(err))
+            }, function (err, allUpdates)
+            {
+                if (isNull(err))
                 {
                     let results = [];
-                    for(let i = 0; i < dirs.length; i++)
+                    for (let i = 0; i < dirs.length; i++)
                     {
                         results.push({
                             id: path.basename(dirs[i]),
@@ -276,43 +302,57 @@ Notebook.getActiveNotebooks = function (callback) {
     });
 };
 
-
-Notebook.getLastUpdate = function (dir, callback) {
+Notebook.getLastUpdate = function (dir, callback)
+{
     const self = this;
-    fs.readdir(dir,function (err,files) {
-        async.mapSeries(files, function (file, callback) {
-            fs.stat(path.join(dir, file), function (err, stat) {
-                if(stat.isDirectory())
-                    self.getLastUpdate(path.join(dir,file),function (err, lastModified) {
-                        callback(null, lastModified)
+    fs.readdir(dir, function (err, files)
+    {
+        async.mapSeries(files, function (file, callback)
+        {
+            fs.stat(path.join(dir, file), function (err, stat)
+            {
+                if (stat.isDirectory())
+                {
+                    self.getLastUpdate(path.join(dir, file), function (err, lastModified)
+                    {
+                        callback(null, lastModified);
                     });
-                else{
-                    callback(null,stat.mtime);
                 }
-            })
-        }, function(err, modificationDates){
-            fs.stat(dir, function (err, statDir) {
+                else
+                {
+                    callback(null, stat.mtime);
+                }
+            });
+        }, function (err, modificationDates)
+        {
+            fs.stat(dir, function (err, statDir)
+            {
                 const fullModificationDates = modificationDates.concat(statDir.mtime);
                 callback(err, _.max(fullModificationDates));
             });
         });
-
-    })
+    });
 };
 
-Notebook.saveNotebookFiles = function (notebooks, callback){
-    async.mapSeries(notebooks, function (notebook, callback) {
+Notebook.saveNotebookFiles = function (notebooks, callback)
+{
+    async.mapSeries(notebooks, function (notebook, callback)
+    {
         // const notebookFolder = new Folder(notebook);
-        notebook.restoreFromFolder(notebook.ddr.dataFolderPath, null, false, false, function (err,result) {
-            if(isNull(err)){
+        notebook.restoreFromFolder(notebook.ddr.dataFolderPath, null, false, false, function (err, result)
+        {
+            if (isNull(err))
+            {
                 console.log("success");
                 callback(err, result);
             }
-            else{
+            else
+            {
                 callback(err, result);
             }
         });
-    }, function(err, results){
+    }, function (err, results)
+    {
         callback(err, results);
     });
 };
@@ -326,50 +366,50 @@ Notebook.prototype.save = function (callback)
         {
             // save parent folder
             parentFolder.insertDescriptors([new Descriptor({
-                    prefixedForm: "nie:hasLogicalPart",
-                    value: self.uri
-                })
-                ],
-                function (err, result)
+                prefixedForm: "nie:hasLogicalPart",
+                value: self.uri
+            })
+            ],
+            function (err, result)
+            {
+                if (isNull(err))
                 {
-                    if (isNull(err))
+                    Folder.prototype.save.call(self, function (err, result)
                     {
-                        Folder.prototype.save.call(self,function (err, result)
+                        if (isNull(err))
                         {
-                            if (isNull(err))
-                            {
-                                return callback(null, self);
-                            }
-                            return callback({
-                                statusCode: 500,
-                                error: {
-                                    result: "error",
-                                    message: "error 1 saving new notebook :" + result
-                                }
-                            });
-                        });
-                    }
-                    else
-                    {
+                            return callback(null, self);
+                        }
                         return callback({
                             statusCode: 500,
                             error: {
                                 result: "error",
-                                message: "error 2 saving new notebook :" + result
+                                message: "error 1 saving new notebook :" + result
                             }
                         });
-                    }
-                });
+                    });
+                }
+                else
+                {
+                    return callback({
+                        statusCode: 500,
+                        error: {
+                            result: "error",
+                            message: "error 2 saving new notebook :" + result
+                        }
+                    });
+                }
+            });
         }
         else
         {
             return callback({
-                    statusCode: 500,
-                    error: {
-                        result: "error",
-                        message: "error 3 saving new notebook :" + parentFolder
-                    }
+                statusCode: 500,
+                error: {
+                    result: "error",
+                    message: "error 3 saving new notebook :" + parentFolder
                 }
+            }
             );
         }
     });

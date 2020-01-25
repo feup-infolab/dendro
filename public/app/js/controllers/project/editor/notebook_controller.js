@@ -62,10 +62,9 @@ angular.module("dendroApp.controllers")
             return false;
         };
 
-        $scope.start_notebook = function ()
+        $scope.create_notebook = function ()
         {
             var uri = $scope.get_calling_uri();
-                       
 
             bootbox.prompt("Please enter the name of the new Notebook", function (newNotebookName)
             {
@@ -73,9 +72,7 @@ angular.module("dendroApp.controllers")
                 {
                     if (!newNotebookName.match(/^[^\\\/:*?"<>|]{1,}$/g))
                     {
-                        bootbox.alert("Invalid Notebook name specified", function ()
-                        {
-                        });
+                        windowService.show_popup("error", " Error", "Invalid Notebook name specified");
                     }
                     else
                     {
@@ -91,8 +88,8 @@ angular.module("dendroApp.controllers")
                             }).then(function (response)
                             {
                                 console.log(response);
-                                //$window.location = response.data.new_notebook_url;
-                                //$window.open(response.data.new_notebook_url);
+                                windowService.redirectToUri(response.data.new_notebook_url);
+                                $scope.load_folder_contents();
                                 console.log("Returned");
                                 return response;
                             }).catch(function (error)
@@ -104,7 +101,6 @@ angular.module("dendroApp.controllers")
                     }
                 }
             });
-
 
             // var notebookUrl = uri + "?create_notebook=" + newNotebookName;
             //

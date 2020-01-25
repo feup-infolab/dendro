@@ -1453,7 +1453,7 @@ Folder.prototype.restoreFromFolder = function (absPathOfRootFolder,
 
     if (isNull(entityLoadingTheMetadata) || !(entityLoadingTheMetadata instanceof User))
     {
-        entityLoadingTheMetadata  = User.anonymous;
+        entityLoadingTheMetadata = User.anonymous;
     }
 
     self.loadContentsOfFolderIntoThis(absPathOfRootFolder, replaceExistingFolder, function (err, result)

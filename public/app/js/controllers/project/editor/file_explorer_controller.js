@@ -24,6 +24,7 @@ angular.module("dendroApp.controllers")
         storageService,
         recommendationService,
         usersService,
+        notebookService,
         ContextMenuEvents,
         Utils
     )
@@ -132,6 +133,21 @@ angular.module("dendroApp.controllers")
                 },
                 children: null
             });
+
+            if (item && item.ddr.fileExtension === "notebook")
+            {
+                items.push({
+                    click: function ($itemScope, $event, modelValue, text, $li)
+                    {
+                        $scope.activate_notebook();
+                    },
+                    html: function ()
+                    {
+                        return "<a href=\"#\"><img class=\"icon16\" src=\"/images/icons/control_play.png\">&nbsp;Open Notebook</a>";
+                    },
+                    children: null
+                });
+            }
 
             if ($scope.file_explorer_selected_something())
             {
@@ -543,6 +559,32 @@ angular.module("dendroApp.controllers")
             else
             {
                 windowService.show_popup("warning", "Nothing selected", "Please select the files before cutting", 1000);
+            }
+        };
+
+        $scope.activate_notebook = function ()
+        {
+            if ($scope.get_selected_files().length > 0)
+            {
+                let notebooks = $scope.get_selected_files();
+
+                _.map(notebooks, function (notebook)
+                {
+                    windowService.show_popup("info", "Working...", "Booting up notebook. Please wait.", 700);
+
+                    notebookService.activate_notebook(notebook)
+                        .then(function(response){
+                            windowService.show_popup("success", "Notebook ready <a href=\"${response.data.new_notebook_url}\">here</a>", 700);
+                            windowService.openInNewWindow(response.data.new_notebook_url);
+                        })
+                        .catch(function(response){
+                            windowService.show_popup("error", "Error starting notebook", response.data.message);
+                        });
+                });
+            }
+            else
+            {
+                windowService.show_popup("warning", "Nothing selected", "Select a notebook to boot", 1000);
             }
         };
 

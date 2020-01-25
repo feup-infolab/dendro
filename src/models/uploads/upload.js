@@ -202,13 +202,13 @@ Upload.prototype.get_temp_file_size = function (callback)
     return callback(null, stat.size);
 };
 
-
 Upload.tester = function (object)
 {
     console.log(`${object.filepath} entered test`);
-     setTimeout(function(){
-         console.log(`${object.filepath} was added to the queue`);
-     },5000);
+    setTimeout(function ()
+    {
+        console.log(`${object.filepath} was added to the queue`);
+    }, 5000);
 };
 
 Upload = Class.extend(Upload, Class, true, "ddr:Upload");
