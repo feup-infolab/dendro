@@ -14,6 +14,7 @@ module.exports.show = function (req, res)
 
 module.exports.activate = function (req, res)
 {
+    console.log("starting activation");
 };
 
 module.exports.new = function (req, res)

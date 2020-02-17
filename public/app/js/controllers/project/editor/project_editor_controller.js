@@ -226,7 +226,7 @@ angular.module("dendroApp.controllers")
                 if (!Utils.isNull($scope.shared.selected_file))
                 {
                     if ($scope.shared.selected_file.rdf.type instanceof Array && _.contains($scope.shared.selected_file.rdf.type, "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#FileDataObject"))
-                    {
+                    {showing_project_root
                         return true;
                     }
 
@@ -243,6 +243,28 @@ angular.module("dendroApp.controllers")
                 if (files.length === 1)
                 {
                     if (files[0].ddr.fileExtension !== "folder")
+                    {
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                return false;
+            }
+
+            return false;
+        };
+
+        $scope.showing_a_notebook = function ()
+        {
+            if (!Utils.isNull($scope.get_selected_files()))
+            {
+                var files = $scope.get_selected_files();
+
+                if (files.length === 1)
+                {
+                    if (files[0].ddr.fileExtension === "notebook")
                     {
                         return true;
                     }
