@@ -15,6 +15,80 @@ module.exports.show = function (req, res)
 module.exports.activate = function (req, res)
 {
     console.log("starting activation");
+    let resourceURI = req.params.requestedResourceUri;
+    Notebook.findByUri(resourceURI, function (err, notebook) {
+        if(isNull(err))
+        {
+            if(isNull(notebook)){
+                res.status(500).json(
+                    {
+                        result: "error",
+                        message: "there was an error processing this Notebook request"
+                    });
+            }
+            else
+                {
+                    notebook.isRunning(function (err, notebookStatus) {
+                        if(isNull(err))
+                        {
+                            if(notebookStatus.active)
+                            {
+                                if(notebookStatus.folder){
+                                    res.send(
+                                        {
+                                            new_notebook_url: `${Config.baseUri}/notebook_runner/${notebook.ddr.notebookID}`
+                                        });
+                                }
+                                else
+                                    {
+
+                                    }
+                            }
+                            else
+                                {
+                                   if(notebookStatus.folder){
+                                       notebook.spinUp(function (err, result) {
+                                           if(isNull(err)){
+                                               res.send(
+                                                   {
+                                                       new_notebook_url: `${Config.baseUri}/notebook_runner/${notebook.ddr.notebookID}`
+                                                   });
+                                           }
+                                           else
+                                               {
+                                                   res.status(500).json(
+                                                       {
+                                                           result: "error",
+                                                           message: "there was an error spinning up the notbook"
+                                                       });
+                                               }
+
+                                       });
+
+                                   }
+                                   else
+                                       {
+
+                                       }
+                            }
+
+                        }
+                    });
+                }
+        }
+        else
+        {
+            res.status(500).json(
+                {
+                    result: "error",
+                    message: "resource with uri : " + requestedResourceUri + " is not a notebook."
+                }
+            );
+        }
+
+    });
+    console.log(resourceURI)
+
 };
 
 module.exports.new = function (req, res)

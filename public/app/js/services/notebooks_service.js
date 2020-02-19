@@ -25,9 +25,14 @@ angular.module("dendroApp.services")
                     {
                         if (response.data != null && response.data instanceof Object)
                         {
-                            return response.data;
+                            windowService.redirectToUri(response.data.new_notebook_url);
+                            $scope.load_folder_contents();
+                            console.log("Returned");
+                            return response;
                         }
-
+                        else{
+                            windowService.show_popup("error", " There was an error starting the new Notebook");
+                        }
                         return response;
                     });
                 };

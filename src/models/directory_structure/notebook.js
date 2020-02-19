@@ -283,6 +283,35 @@ Notebook.mapNotebookIDsToObjects = function (notebookIDs, callback)
     );
 };
 
+Notebook.prototype.isRunning = function (callback) {
+    const self = this;
+
+    fs.readdir(notebookFolderPath, function (err, relativeDirs) {
+        DockerManager.fuzzySearchForRunningContainers(relativeDirs, function (err, runningNotebookContainers) {
+            runningNotebookContainers = _.compact(runningNotebookContainers);
+
+            let notebookStatus = {folder: false, active: false};
+
+
+            const absDirs = _.map(relativeDirs, function (dir) {
+                return path.join(notebookFolderPath, dir);
+            });
+
+            if (runningNotebookContainers.includes(self.ddr.notebookID)) {
+                notebookStatus.active = true;
+            }
+
+            if (absDirs.includes(path.join("temp", "jupyter-notebooks", self.ddr.notebookID))) {
+                notebookStatus.folder = true;
+
+            }
+
+            callback(err, notebookStatus);
+        });
+    });
+
+};
+
 Notebook.getActiveNotebooks = function (callback)
 {
     const self = this;

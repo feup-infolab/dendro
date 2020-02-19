@@ -92,7 +92,6 @@ angular.module("dendroApp.controllers")
                                 console.log(response);
                                 windowService.redirectToUri(response.data.new_notebook_url);
                                 $scope.load_folder_contents();
-                                console.log("Returned");
                                 return response;
                             }).catch(function (error)
                             {
@@ -107,13 +106,9 @@ angular.module("dendroApp.controllers")
 
 
         $scope.start_notebook = function () {
-            var uri = $scope.get_calling_uri();
-
-            console.log(uri);
-
-            var notebookUrl = uri + "?activate";
+            let uri = $scope.get_calling_uri();
+            let notebookUrl = uri + "?activate";
             $scope.activate_notebook();
-            console.log(notebookUrl);
         };
     });
 
