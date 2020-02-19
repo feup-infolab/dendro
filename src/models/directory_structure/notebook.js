@@ -58,7 +58,7 @@ class Notebook
             self.ddr.notebookID = uuid.v4();
         }
 
-        self.ddr.runningPath = rlequire.absPathInApp("dendro", path.join("temp", "jupyter-notebooks", self.ddr.notebookID));
+        self.ddr.runningPath = path.join("temp", "jupyter-notebooks", self.ddr.notebookID);
         self.ddr.dataFolderPath = path.join(self.ddr.runningPath, "data");
 
         self.lastModified = new Date();
@@ -83,11 +83,11 @@ class Notebook
     {
         const self = this;
         const DockerManager = Object.create(rlequire("dendro", "src/utils/docker/docker_manager.js").DockerManager);
-        mkdirp.sync(self.ddr.runningPath);
-        mkdirp.sync(self.ddr.dataFolderPath);
+        mkdirp.sync(rlequire.absPathInApp("dendro", self.ddr.runningPath));
+        mkdirp.sync(rlequire.absPathInApp("dendro", self.ddr.dataFolderPath));
 
         const baseOrchestraFile = rlequire.absPathInApp("dendro", "orchestras/dendro_notebook/docker-compose.yml");
-        const cloneOrchestraFile = path.join(self.ddr.runningPath, "docker-compose.yml");
+        const cloneOrchestraFile = rlequire.absPathInApp("dendro", path.join(self.ddr.runningPath, "docker-compose.yml"));
 
         // Async with callbacks:
         fs.copy(baseOrchestraFile, cloneOrchestraFile, err =>
@@ -101,7 +101,7 @@ class Notebook
             DockerManager.startOrchestra("dendro_notebook", function (err, result)
             {
                 callback(err, result);
-            }, null, self.ddr.runningPath, {
+            }, null, rlequire.absPathInApp("dendro", self.ddr.dataFolderPath), {
                 DENDRO_NOTEBOOK_GUID: self.ddr.notebookID,
                 DENDRO_NOTEBOOK_VIRTUAL_HOST: self.getHost(),
                 DENDRO_NOTEBOOK_FULL_URL: self.getFullNotebookUri(),
@@ -163,21 +163,20 @@ class Notebook
         return "/notebook_runner/" + self.ddr.notebookID;
     }
 
-    rewriteUrl (relativeUrl)
+    dumpNotebooktoTemp (callback)
     {
         const self = this;
-        const url = self.getFullNotebookUri();
-
-        if (isNull(relativeUrl))
+        self.saveIntoFolder(rlequire.absPathInApp("dendro", self.ddr.runningPath), false, false, false, function (err, result)
         {
-            return url;
-        }
-        return url + relativeUrl;
-    }
+            if (isNull(err))
+            {
 
-    getLastNotebookModification ()
-    {
+            }
+            else
+            {
 
+            }
+        });
     }
 }
 
@@ -283,33 +282,36 @@ Notebook.mapNotebookIDsToObjects = function (notebookIDs, callback)
     );
 };
 
-Notebook.prototype.isRunning = function (callback) {
+Notebook.prototype.isRunning = function (callback)
+{
     const self = this;
 
-    fs.readdir(notebookFolderPath, function (err, relativeDirs) {
-        DockerManager.fuzzySearchForRunningContainers(relativeDirs, function (err, runningNotebookContainers) {
+    fs.readdir(notebookFolderPath, function (err, relativeDirs)
+    {
+        DockerManager.fuzzySearchForRunningContainers(relativeDirs, function (err, runningNotebookContainers)
+        {
             runningNotebookContainers = _.compact(runningNotebookContainers);
 
             let notebookStatus = {folder: false, active: false};
 
-
-            const absDirs = _.map(relativeDirs, function (dir) {
+            const absDirs = _.map(relativeDirs, function (dir)
+            {
                 return path.join(notebookFolderPath, dir);
             });
 
-            if (runningNotebookContainers.includes(self.ddr.notebookID)) {
+            if (runningNotebookContainers.includes(self.ddr.notebookID))
+            {
                 notebookStatus.active = true;
             }
 
-            if (absDirs.includes(path.join("temp", "jupyter-notebooks", self.ddr.notebookID))) {
+            if (absDirs.includes(path.join("temp", "jupyter-notebooks", self.ddr.notebookID)))
+            {
                 notebookStatus.folder = true;
-
             }
 
             callback(err, notebookStatus);
         });
     });
-
 };
 
 Notebook.getActiveNotebooks = function (callback)
@@ -427,7 +429,7 @@ Notebook.deleteRunningFolderOfNotebooks = function (notebooks, callback)
     async.mapSeries(notebooks, function (notebook, callback)
     {
         Logger.log("Deleting notebook folder at " + notebook.ddr.runningPath);
-        Folder.deleteOnLocalFileSystem(notebook.ddr.runningPath, function (err)
+        Folder.deleteOnLocalFileSystem(rlequire.absPathInApp("dendro", notebook.ddr.runningPath), function (err)
         {
             if (isNull(err))
             {
@@ -474,7 +476,7 @@ Notebook.saveNotebookFiles = function (notebooks, callback)
     async.mapSeries(notebooks, function (notebook, callback)
     {
         // const notebookFolder = new Folder(notebook);
-        notebook.restoreFromFolder(notebook.ddr.dataFolderPath, null, false, false, function (err, result)
+        notebook.restoreFromFolder(rlequire.absPathInApp("dendro", notebook.ddr.runningPath), null, false, false, function (err, result)
         {
             if (isNull(err))
             {

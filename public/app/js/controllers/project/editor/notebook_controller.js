@@ -104,8 +104,8 @@ angular.module("dendroApp.controllers")
             });
         };
 
-
-        $scope.start_notebook = function () {
+        $scope.start_notebook = function ()
+        {
             let uri = $scope.get_calling_uri();
             let notebookUrl = uri + "?activate";
             $scope.activate_notebook();

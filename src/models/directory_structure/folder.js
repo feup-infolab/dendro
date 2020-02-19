@@ -91,9 +91,9 @@ Folder.prototype.saveIntoFolder = function (
                     return callback(1, error);
                 });
         }
-        else if (node instanceof Folder)
+        else if (node.isA(Folder, true))
         {
-            const destinationFolder = destinationFolderAbsPath + "/" + node.nie.title;
+            const destinationFolder = destinationFolderAbsPath + path.separator + node.nie.title;
 
             // mode = 0777, recursive = true
             nfs.mkdir(destinationFolder, Config.tempFilesCreationMode, true, function (err)
@@ -2054,7 +2054,7 @@ Folder.prototype.getHumanReadableUri = function (callback)
                         {
                             callback(null, parentResource.ddr.humanReadableURI + "/data");
                         }
-                        else if (parentResource.isA(Folder))
+                        else if (parentResource.isA(Folder, true))
                         {
                             callback(null, parentResource.ddr.humanReadableURI + "/" + self.nie.title);
                         }

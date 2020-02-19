@@ -3728,7 +3728,7 @@ Resource.prototype.addURIAndRDFType = function (object, resourceTypeSection, cla
     return self;
 };
 
-Resource.prototype.isA = function (prototype)
+Resource.prototype.isA = function (prototype, considerSubclasses)
 {
     let self = this;
 
@@ -3776,7 +3776,7 @@ Resource.prototype.isA = function (prototype)
             }
             else if (objectRDFType instanceof Array && myRDFType instanceof Array)
             {
-                if (objectRDFType.length !== myRDFType.length)
+                if (!considerSubclasses && (objectRDFType.length !== myRDFType.length))
                 {
                     return false;
                 }
@@ -3784,7 +3784,13 @@ Resource.prototype.isA = function (prototype)
                 const myRDFTypeSorted = _.uniq(myRDFType.sort(), true);
                 const objectRDFTypeSorted = _.uniq(objectRDFType.sort(), true);
 
-                return _.isEqual(myRDFTypeSorted, objectRDFTypeSorted);
+                if (isNull(considerSubclasses) || !considerSubclasses)
+                {
+                    return _.isEqual(myRDFTypeSorted, objectRDFTypeSorted);
+                }
+
+                const subclasses = _.difference(myRDFTypeSorted, objectRDFTypeSorted);
+                return (_.isEqual(myRDFTypeSorted, objectRDFTypeSorted) || subclasses.length > 0);
             }
 
             return false;

@@ -226,7 +226,8 @@ angular.module("dendroApp.controllers")
                 if (!Utils.isNull($scope.shared.selected_file))
                 {
                     if ($scope.shared.selected_file.rdf.type instanceof Array && _.contains($scope.shared.selected_file.rdf.type, "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#FileDataObject"))
-                    {showing_project_root
+                    {
+                        showing_project_root;
                         return true;
                     }
 

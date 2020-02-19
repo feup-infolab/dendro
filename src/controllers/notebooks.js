@@ -8,18 +8,16 @@ const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 let isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
-module.exports.show = function (req, res)
-{
-};
-
 module.exports.activate = function (req, res)
 {
     console.log("starting activation");
     let resourceURI = req.params.requestedResourceUri;
-    Notebook.findByUri(resourceURI, function (err, notebook) {
-        if(isNull(err))
+    Notebook.findByUri(resourceURI, function (err, notebook)
+    {
+        if (isNull(err))
         {
-            if(isNull(notebook)){
+            if (isNull(notebook))
+            {
                 res.status(500).json(
                     {
                         result: "error",
@@ -27,54 +25,107 @@ module.exports.activate = function (req, res)
                     });
             }
             else
+            {
+                notebook.isRunning(function (err, notebookStatus)
                 {
-                    notebook.isRunning(function (err, notebookStatus) {
-                        if(isNull(err))
+                    if (isNull(err))
+                    {
+                        const notebookUrl = `${Config.baseUri}/notebook_runner/${notebook.ddr.notebookID}`;
+                        if (notebookStatus.active)
                         {
-                            if(notebookStatus.active)
+                            if (notebookStatus.folder)
                             {
-                                if(notebookStatus.folder){
-                                    res.send(
-                                        {
-                                            new_notebook_url: `${Config.baseUri}/notebook_runner/${notebook.ddr.notebookID}`
-                                        });
-                                }
-                                else
+                                res.send(
                                     {
-
-                                    }
+                                        new_notebook_url: notebookUrl
+                                    });
                             }
                             else
+                            {
+                                notebook.stopContainersForNotebooks(notebook, function (err, results)
                                 {
-                                   if(notebookStatus.folder){
-                                       notebook.spinUp(function (err, result) {
-                                           if(isNull(err)){
-                                               res.send(
-                                                   {
-                                                       new_notebook_url: `${Config.baseUri}/notebook_runner/${notebook.ddr.notebookID}`
-                                                   });
-                                           }
-                                           else
-                                               {
-                                                   res.status(500).json(
-                                                       {
-                                                           result: "error",
-                                                           message: "there was an error spinning up the notbook"
-                                                       });
-                                               }
-
-                                       });
-
-                                   }
-                                   else
-                                       {
-
-                                       }
+                                    if (isNull(err))
+                                    {
+                                        notebook.dumpNotebooktoTemp(function (err, result)
+                                        {
+                                            if (isNull(err))
+                                            {
+                                                res.send(
+                                                    {
+                                                        new_notebook_url: notebookUrl
+                                                    });
+                                            }
+                                            else
+                                            {
+                                                res.status(500).json(
+                                                    {
+                                                        result: "error",
+                                                        message: "there was an error restoring the notbook"
+                                                    });
+                                            }
+                                        });
+                                    }
+                                    else
+                                    {
+                                        callback(err, results);
+                                    }
+                                });
                             }
-
                         }
-                    });
-                }
+                        else
+                        {
+                            if (notebookStatus.folder)
+                            {
+                                notebook.spinUp(function (err, result)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        res.send(
+                                            {
+                                                new_notebook_url: notebookUrl
+                                            });
+                                    }
+                                    else
+                                    {
+                                        res.status(500).json(
+                                            {
+                                                result: "error",
+                                                message: "there was an error spinning up the notbook"
+                                            });
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                notebook.dumpNotebooktoTemp(function (err, result)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        notebook.spinUp(function (err, result)
+                                        {
+                                            if (isNull(err))
+                                            {
+                                                res.send(
+                                                    {
+                                                        new_notebook_url: notebookUrl
+                                                    });
+                                            }
+                                            else
+                                            {
+                                                res.status(500).json(
+                                                    {
+                                                        result: "error",
+                                                        message: "there was an error spinning up the notbook"
+                                                    });
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
+            }
         }
         else
         {
@@ -85,10 +136,8 @@ module.exports.activate = function (req, res)
                 }
             );
         }
-
     });
-    console.log(resourceURI)
-
+    console.log(resourceURI);
 };
 
 module.exports.new = function (req, res)

@@ -30,9 +30,9 @@ angular.module("dendroApp.services")
                             console.log("Returned");
                             return response;
                         }
-                        else{
-                            windowService.show_popup("error", " There was an error starting the new Notebook");
-                        }
+
+                        windowService.show_popup("error", " There was an error starting the new Notebook");
+
                         return response;
                     });
                 };
