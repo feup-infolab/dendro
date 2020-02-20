@@ -101,22 +101,15 @@
                             <li ng-click="backup_folder()" ><a href="#" ng-hide="showing_project_root() || showing_a_file()"><img class="icon16" id="backup_button" data-loading-text="Preparing Package..." src="/images/icons/folder_vertical_zipper.png">Backup</a></li>
                             <li role="separator" class="divider" ng-hide="showing_project_root() || showing_a_file()"></li>
                             <li ng-click="toggle_restore_area()" ><a href="#" ng-hide="showing_project_root() || showing_a_file()"><img class="icon16" id="restore_button" data-loading-text="Restoring..." src="/images/icons/site_backup_and_restore.png">Restore from backup</a></li>
+                            <li role="separator" class="divider" ng-hide="showing_project_root() || showing_a_file()"></li>
+                            <li ng-click="create_notebook()" ng-hide="showing_project_root() || showing_a_notebook()"><a href="#"><img class="icon16" id="notebook_button_create" data-loading-text="Preparing Notebook..." src="/images/icons/jupyter_logo.png">Create Notebook</a></li>
+                            <li ng-click="start_notebook()" ng-hide="!showing_a_notebook()"><a href="#"><img class="icon16" id="notebook_button_create" data-loading-text="Preparing Notebook..." src="/images/icons/jupyter_logo.png">Start Notebook</a></li>
                         </ul>
                     </div>
 
                     <a href="#"><img id="show_deleted_files_button" ng-class="{active: shared.showing_deleted_files, 'btn-info': shared.showing_deleted_files}" data-loading-text="Restoring..." ng-click="toggle_show_deleted_files()" src="/images/icons/bin_recycle.png"></a>
                     <a href="#"><img id="toggle_multiple_selection" ng-class="{active: shared.multiple_selection_active, 'btn-info': shared.multiple_selection_active}" ng-click="toggle_multiple_selection()"  src="/images/icons/check_box_list.png"></a>
                     <a href="#"><img id="toggle_select_all" ng-click="toggle_select_all_files()"  src="/images/icons/check_boxes_series.png"></a>
-                    <a href=""><img id="toggle_multiple_selection" ng-class="{active: shared.multiple_selection_active, 'btn-info': shared.multiple_selection_active}" ng-click="toggle_multiple_selection()"  src="/images/icons/check_box_list.png"></a>
-
-                    <div ng-controller="notebookCtrl" class="btn-group">
-                        <button type="button" class="btn btn-default" ng-hide="showing_project_root()" ng-click="create_notebook()">
-                            <img class="icon16" id="notebook_button_create" data-loading-text="Creating Notebook..." src="/images/icons/jupyter_logo.png"> Create Notebook
-                        </button>
-                        <button type="button" class="btn btn-default" ng-hide="!showing_a_notebook()" ng-click="start_notebook()">
-                            <img class="icon16" id="notebook_button_start" data-loading-text="Starting Notebook..." src="/images/icons/jupyter_logo.png"> Start Notebook
-                        </button>
-                    </div>
 
                     <div class="ng-hide"
                          id="file_upload_area">

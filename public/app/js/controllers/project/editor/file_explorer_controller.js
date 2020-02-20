@@ -143,7 +143,7 @@ angular.module("dendroApp.controllers")
                     },
                     html: function ()
                     {
-                        return "<a href=\"#\"><img class=\"icon16\" src=\"/images/icons/control_play.png\">&nbsp;Open Notebook</a>";
+                        return "<a href=\"#\"><img class=\"icon16\" src=\"/images/icons/jupyter_logo.png\">&nbsp;Start Notebook</a>";
                     },
                     children: null
                 });
