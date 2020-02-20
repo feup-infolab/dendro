@@ -102,8 +102,8 @@
                             <li role="separator" class="divider" ng-hide="showing_project_root() || showing_a_file()"></li>
                             <li ng-click="toggle_restore_area()" ><a href="#" ng-hide="showing_project_root() || showing_a_file()"><img class="icon16" id="restore_button" data-loading-text="Restoring..." src="/images/icons/site_backup_and_restore.png">Restore from backup</a></li>
                             <li role="separator" class="divider" ng-hide="showing_project_root() || showing_a_file()"></li>
-                            <li ng-click="create_notebook()" ng-hide="showing_project_root() || showing_a_notebook()"><a href="#"><img class="icon16" id="notebook_button_create" data-loading-text="Preparing Notebook..." src="/images/icons/jupyter_logo.png">Create Notebook</a></li>
-                            <li ng-click="start_notebook()" ng-hide="!showing_a_notebook()"><a href="#"><img class="icon16" id="notebook_button_create" data-loading-text="Preparing Notebook..." src="/images/icons/jupyter_logo.png">Start Notebook</a></li>
+                            <li ng-controller="notebookCtrl" ng-click="create_notebook()" ng-hide="showing_project_root() || showing_a_notebook()"><a href="#"><img class="icon16" id="notebook_button_create" data-loading-text="Preparing Notebook..." src="/images/icons/jupyter_logo.png">Create Notebook</a></li>
+                            <li ng-controller="notebookCtrl" ng-click="start_notebook()" ng-hide="!showing_a_notebook()"><a href="#"><img class="icon16" id="notebook_button_create" data-loading-text="Preparing Notebook..." src="/images/icons/jupyter_logo.png">Start Notebook</a></li>
                         </ul>
                     </div>
 

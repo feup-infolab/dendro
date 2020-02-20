@@ -261,7 +261,6 @@ module.exports.new = function (req, res)
                     {
                         new_notebook_url: notebookUrl
                     });
-                newNotebook.fileWatcher();
             }
             else
             {
