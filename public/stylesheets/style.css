@@ -244,7 +244,7 @@ textarea {
   height: 150px;
   resize: none;
 }
-textarea div#instructions {
+div#instructions {
   max-width: 960px;
   font-size: 2em;
   color: #aaa;
