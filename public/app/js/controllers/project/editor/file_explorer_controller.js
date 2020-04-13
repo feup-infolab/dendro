@@ -133,6 +133,21 @@ angular.module("dendroApp.controllers")
                 },
                 children: null
             });
+            if (item && item.ddr.fileExtension != "notebook" && item.ddr.fileExtension === "folder")
+            {
+                items.push({
+                    click: function ($itemScope, $event, modelValue, text, $li)
+                    {
+                        $scope.create_notebook();
+                    },
+                    html: function ()
+                    {
+                        return "<a href=\"#\"><img class=\"icon16\" src=\"/images/icons/jupyter_logo.png\">&nbsp;Create Notebook</a>";
+                    },
+                    children: null
+                });
+            }
+
 
             if (item && item.ddr.fileExtension === "notebook")
             {

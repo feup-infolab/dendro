@@ -476,7 +476,7 @@ Notebook.saveNotebookFiles = function (notebooks, callback)
     async.mapSeries(notebooks, function (notebook, callback)
     {
         // const notebookFolder = new Folder(notebook);
-        notebook.restoreFromFolder(rlequire.absPathInApp("dendro", notebook.ddr.runningPath), null, false, false, function (err, result)
+        notebook.restoreFromFolder(rlequire.absPathInApp("dendro", notebook.ddr.dataFolderPath), null, false, false, function (err, result)
         {
             if (isNull(err))
             {
