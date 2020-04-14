@@ -3,29 +3,7 @@ angular.module("dendroApp.controllers")
     *  Notebook controller
     */
     .controller("notebookViewCtrl", function (
-        $scope,
-        $rootScope,
-        $http,
-        $filter,
-        $q,
-        $log,
-        $timeout,
-        $compile,
-        Upload,
-        focus,
-        preview,
-        $localStorage,
-        metadataService,
-        windowService,
-        cacheService,
-        filesService,
-        interactionsService,
-        ontologiesService,
-        storageService,
-        recommendationService,
-        usersService,
-        ContextMenuEvents,
-        notebookService
+        $scope
     )
     {
         $scope.init = function ()
@@ -111,13 +89,10 @@ angular.module("dendroApp.controllers")
                                 doc.appendChild(tg);
                             }
 
-                            // hide rendered notebook iff
-                            //  1) it's the first one loaded, or
-                            //  2) it's the same one as already showed (refresh)
                             if (!(fs.getElementsByTagName('option').length == 0 ||
                                 fs.value == fn.name))
                                 tg.style.display = 'none';
-                            // populate the <select>
+                            //adding notebooks to selector
                             if (fs.querySelector('option[value="' + fn.name + '"]') === null) {
                                 var op = d.createElement('option');
                                 op.textContent = fn.name;

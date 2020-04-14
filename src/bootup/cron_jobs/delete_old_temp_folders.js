@@ -53,7 +53,7 @@ const deleteOldTempFolders = function (app, callback)
                             {
                                 resourcesToDelete = stdout;
                                 exec("find " + tmpLocation + " -not -newermt '-24 hours' -not -path " + path.join(tmpLocation, "jupyter-notebooks/*") +
-                                        " -not -path" + path.join(tmpLocation, "jupyter-notebooks") +
+                                        " -not -path " + path.join(tmpLocation, "jupyter-notebooks") +
                                             " -mindepth 1 -delete", function (err, stdout, stderr)
                                 {
                                     if (!isNull(err))
