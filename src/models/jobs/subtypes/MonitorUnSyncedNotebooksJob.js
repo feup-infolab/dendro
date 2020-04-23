@@ -120,30 +120,6 @@ class MonitorUnSyncedNotebooksJob extends Job
                     Logger.log("error", "No active notebooks");
                 }
             });
-
-            // Notebook.getNotebookFolders(function (err, result)
-            // {
-            //     if (isNull(err))
-            //     {
-            //         Notebook.checkUpdatedNotebooks(result);
-            //     }
-            //     else
-            //     {
-            //         Logger.log("error", "Error at " + name + " , error: " + JSON.stringify(err));
-            //         Logger.log("debug", "Will remove " + name + " job");
-            //         job.remove(function (err)
-            //         {
-            //             if (isNull(err))
-            //             {
-            //                 Logger.log("info", "Successfully removed " + name + " job from collection");
-            //             }
-            //             else
-            //             {
-            //                 Logger.log("error", "Could not remove " + name + " job from collection");
-            //             }
-            //         });
-            //     }
-            // });
         };
         super.defineJob(name, jobDefinitionFunction);
     }
