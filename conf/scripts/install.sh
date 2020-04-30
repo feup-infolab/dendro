@@ -67,6 +67,7 @@ then
     if [[ "$(uname)" == "Darwin" ]]; then
         brew tap caskroom/versions
         brew cask install java8
+        export JAVA_HOME=`/usr/libexec/java_home -v 1.8`
     # In Ubuntu
     elif [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]]; then
         echo "Installing Java 8 JDK. This will take a few minutes."
