@@ -464,6 +464,9 @@ class App
             {
                 rlequire("dendro", "src/bootup/cron_jobs/delete_old_temp_folders.js").deleteOldTempFolders(self.app, callback);
             },
+            function (callback) {
+                rlequire("dendro", "src/bootup/cron_jobs/notebookMonitorJob.js").notebookMonitorJob(self.app, callback);
+            },
             function (callback)
             {
                 Logger.log("info", "Now initializing Agenda!");
