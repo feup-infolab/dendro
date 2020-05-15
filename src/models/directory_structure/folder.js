@@ -93,7 +93,13 @@ Folder.prototype.saveIntoFolder = function (
         }
         else if (node.isA(Folder, true))
         {
-            const destinationFolder = destinationFolderAbsPath + path.separator + node.nie.title;
+            let destinationFolder;
+            if (!isNull(node.ddr.notebookID)){
+                destinationFolder = destinationFolderAbsPath;
+            }
+            else{
+                destinationFolder = destinationFolderAbsPath + path.separator + node.nie.title;
+            }
 
             // mode = 0777, recursive = true
             nfs.mkdir(destinationFolder, Config.tempFilesCreationMode, true, function (err)
