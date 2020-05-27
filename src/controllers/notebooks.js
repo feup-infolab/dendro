@@ -10,7 +10,6 @@ let isNull = rlequire("dendro", "src/utils/null.js").isNull;
 
 module.exports.activate = function (req, res)
 {
-    console.log("starting activation");
     let resourceURI = req.params.requestedResourceUri;
     Notebook.findByUri(resourceURI, function (err, notebook)
     {
@@ -137,7 +136,6 @@ module.exports.activate = function (req, res)
             );
         }
     });
-    console.log(resourceURI);
 };
 
 module.exports.new = function (req, res)
