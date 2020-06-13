@@ -94,10 +94,12 @@ Folder.prototype.saveIntoFolder = function (
         else if (node.isA(Folder, true))
         {
             let destinationFolder;
-            if (!isNull(node.ddr.notebookID)){
+            if (!isNull(node.ddr.notebookID))
+            {
                 destinationFolder = destinationFolderAbsPath;
             }
-            else{
+            else
+            {
                 destinationFolder = destinationFolderAbsPath + path.separator + node.nie.title;
             }
 

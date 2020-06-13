@@ -15,112 +15,112 @@ const name = path.parse(__filename).name;
 const async = require("async");
 const _ = require("underscore");
 
-
 const notebookMonitorJob = function (app, callback)
 {
     Logger.log("info", "Notebook Monitor Job has launched");
-    const monitorJobStart = function (cb){
-    Notebook.getActiveNotebooks(function (err, activeNotebookInformation)
+    const monitorJobStart = function (cb)
     {
-        if (isNull(err))
+        Notebook.getActiveNotebooks(function (err, activeNotebookInformation)
         {
-            async.forEachSeries(activeNotebookInformation, function (notebookInfo, callback)
+            if (isNull(err))
             {
-                if (!isNull(notebookInfo) && notebookInfo.notebookObject instanceof Notebook)
+                async.forEachSeries(activeNotebookInformation, function (notebookInfo, callback)
                 {
-                    notebookInfo.notebookObject.isUnsynced(
-                        notebookInfo.lastModified,
-                        function (err, notebookIsUnsynced)
-                        {
-                            notebookInfo.isUnsynced = notebookIsUnsynced;
-                            callback(err);
-                        });
-                }
-                else
-                {
+                    if (!isNull(notebookInfo) && notebookInfo.notebookObject instanceof Notebook)
+                    {
+                        notebookInfo.notebookObject.isUnsynced(
+                            notebookInfo.lastModified,
+                            function (err, notebookIsUnsynced)
+                            {
+                                notebookInfo.isUnsynced = notebookIsUnsynced;
+                                callback(err);
+                            });
+                    }
+                    else
+                    {
                     // if there is no match for the notebook, we clean up the old folder by force
-                    Logger.log("Deleting orphan notebook folder at " + notebookInfo.runningPath);
-                    Folder.deleteOnLocalFileSystem(notebookInfo.runningPath, function (error, stdout, stderror)
+                        Logger.log("Deleting orphan notebook folder at " + notebookInfo.runningPath);
+                        Folder.deleteOnLocalFileSystem(notebookInfo.runningPath, function (error, stdout, stderror)
+                        {
+                            callback(err, stdout, stderror);
+                        }, true);
+                    }
+                }, function (err)
+                {
+                    if (isNull(err))
                     {
-                        callback(err, stdout, stderror);
-                    }, true);
-                }
-            }, function (err)
+                        const unSyncedNotebooks = _.filter(activeNotebookInformation, function (notebookInfo)
+                        {
+                            if (notebookInfo.isUnsynced)
+                            {
+                                return true;
+                            }
+                            return false;
+                        });
+
+                        const syncedNotebooks = _.filter(activeNotebookInformation, function (notebookInfo)
+                        {
+                            if (!notebookInfo.isUnsynced && notebookInfo.notebookObject instanceof Notebook)
+                            {
+                                return true;
+                            }
+                            return false;
+                        });
+
+                        // se estiver sincronizado
+                        // 1. Fechar Container
+                        // 2. Apagar pasta
+
+                        Notebook.shutdownAndCleanupNotebooks(
+                            _.map(syncedNotebooks, function (notebookInformation)
+                            {
+                                return notebookInformation.notebookObject;
+                            }),
+                            function (err)
+                            {
+                                if (isNull(err))
+                                {
+                                    console.log("Notebooks were shut down successfully!");
+                                }
+                                else
+                                {
+                                    console.log("Notebook shut down failed!");
+                                }
+                            });
+
+                        // se não estiver sincronizado
+                        // 1. Save notebook files
+
+                        Notebook.saveNotebookFiles(
+                            _.map(unSyncedNotebooks, function (notebookInformation)
+                            {
+                                return notebookInformation.notebookObject;
+                            }),
+                            function (err)
+                            {
+                                if (isNull(err))
+                                {
+                                    console.log("Notebooks were Synced Successfully!");
+                                }
+                                else
+                                {
+                                    console.log("Notebook Sync has Failed!");
+                                }
+                            });
+                    }
+                    else
+                    {
+                        Logger.log(err);
+                    }
+                });
+                Logger.log("Finished searching for Active Notebooks");
+            }
+            else
             {
-                if (isNull(err))
-                {
-                    const unSyncedNotebooks = _.filter(activeNotebookInformation, function (notebookInfo)
-                    {
-                        if (notebookInfo.isUnsynced)
-                        {
-                            return true;
-                        }
-                        return false;
-                    });
-
-                    const syncedNotebooks = _.filter(activeNotebookInformation, function (notebookInfo)
-                    {
-                        if (!notebookInfo.isUnsynced && notebookInfo.notebookObject instanceof Notebook)
-                        {
-                            return true;
-                        }
-                        return false;
-                    });
-
-                    // se estiver sincronizado
-                    // 1. Fechar Container
-                    // 2. Apagar pasta
-
-                    Notebook.shutdownAndCleanupNotebooks(
-                        _.map(syncedNotebooks, function (notebookInformation)
-                        {
-                            return notebookInformation.notebookObject;
-                        }),
-                        function (err)
-                        {
-                            if (isNull(err))
-                            {
-                                console.log("Notebooks were shut down successfully!");
-                            }
-                            else
-                            {
-                                console.log("Notebook shut down failed!");
-                            }
-                        });
-
-                    // se não estiver sincronizado
-                    // 1. Save notebook files
-
-                    Notebook.saveNotebookFiles(
-                        _.map(unSyncedNotebooks, function (notebookInformation)
-                        {
-                            return notebookInformation.notebookObject;
-                        }),
-                        function (err)
-                        {
-                            if (isNull(err))
-                            {
-                                console.log("Notebooks were Synced Successfully!");
-                            }
-                            else
-                            {
-                                console.log("Notebook Sync has Failed!");
-                            }
-                        });
-                }
-                else
-                {
-                    Logger.log(err);
-                }
-            });
-            Logger.log("Finished searching for Active Notebooks");
-        }
-        else
-        {
-            Logger.log("error", "No active notebooks");
-        }
-    });
-};
+                Logger.log("error", "No active notebooks");
+            }
+        });
+    };
     try
     {
         // Every hour
@@ -138,10 +138,10 @@ const notebookMonitorJob = function (app, callback)
                 }
             });
         }, null, true, "America/Los_Angeles");
-            job.start();
-            const jobMsg = "Notebook Monitor job started";
-            Logger.log("info", jobMsg);
-            callback(null, null);
+        job.start();
+        const jobMsg = "Notebook Monitor job started";
+        Logger.log("info", jobMsg);
+        callback(null, null);
     }
     catch (ex)
     {

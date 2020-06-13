@@ -166,7 +166,7 @@ class Notebook
     dumpNotebooktoTemp (callback)
     {
         const self = this;
-        self.saveIntoFolder(rlequire.absPathInApp("dendro", self.ddr.runningPath)+ "/" + "data", false, false, false, function (err, result)
+        self.saveIntoFolder(rlequire.absPathInApp("dendro", self.ddr.runningPath) + "/" + "data", false, false, false, function (err, result)
         {
             if (isNull(err))
             {

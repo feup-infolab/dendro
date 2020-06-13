@@ -210,7 +210,7 @@ Deposit.createDeposit = function (data, callback)
                     },
                     function (citation, callback)
                     {
-                        if(typeof DOI !== "string" || typeof citation !== "string")
+                        if (typeof DOI !== "string" || typeof citation !== "string")
                         {
                             callback(1, "Invalid request received from DOI provider");
                         }

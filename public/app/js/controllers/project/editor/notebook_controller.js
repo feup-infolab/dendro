@@ -66,7 +66,6 @@ angular.module("dendroApp.controllers")
         {
             var uri = $scope.get_calling_uri();
 
-
             bootbox.prompt("Please enter the name of the new Notebook", function (newNotebookName)
             {
                 if (!Utils.isNull(newNotebookName))
@@ -108,7 +107,5 @@ angular.module("dendroApp.controllers")
             let uri = $scope.get_calling_uri();
             $scope.activate_notebook();
         };
-
-
     });
 

@@ -148,7 +148,6 @@ angular.module("dendroApp.controllers")
                 });
             }
 
-
             if (item && item.ddr.fileExtension === "notebook")
             {
                 items.push({
