@@ -4094,7 +4094,7 @@ Elements.ontologies.mibbiup =
 /**
  * Elements of the imgdata
  */
-Elements.imgdata =
+Elements.ontologies.imgdata =
     {
         amostra:
             {

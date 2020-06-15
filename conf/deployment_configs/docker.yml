@@ -292,6 +292,7 @@ docker:
     # - p0
     - chm
     - mibbiup
+    - imgdata
   authentication:
     default:
       enabled: true
