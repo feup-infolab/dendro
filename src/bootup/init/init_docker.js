@@ -3,6 +3,7 @@ const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 const DockerManager = rlequire("dendro", "src/utils/docker/docker_manager.js").DockerManager;
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
+const async = require("async");
 
 const initDockerContainers = function (app, callback)
 {
@@ -10,17 +11,23 @@ const initDockerContainers = function (app, callback)
     {
         try
         {
-            DockerManager.fetchAllOrchestras(function (err, result)
-            {
-                if (isNull(err))
+            async.series([
+                function (callback)
+                {
+                    if (Config.docker.pull_all_orchestras_at_start)
+                    {
+                        DockerManager.fetchAllOrchestras(callback, true);
+                    }
+                    else
+                    {
+                        callback(null);
+                    }
+                },
+                function (callback)
                 {
                     DockerManager.startAllContainers(callback);
                 }
-                else
-                {
-                    callback(err, result);
-                }
-            }, true);
+            ], callback);
         }
         catch (e)
         {

@@ -286,7 +286,7 @@ DockerManager.forAllOrchestrasDo = function (lambda, callback)
         "dir",
         function (err, subdirs)
         {
-            async.map(subdirs, function (subdir, singleLambdaCallback)
+            async.mapSeries(subdirs, function (subdir, singleLambdaCallback)
             {
                 const orchestraName = path.basename(subdir);
                 lambda(subdir, singleLambdaCallback, orchestraName);

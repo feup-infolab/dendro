@@ -4091,6 +4091,87 @@ Elements.ontologies.mibbiup =
             }
     };
 
+/**
+ * Elements of the imgdata
+ */
+Elements.imgdata =
+    {
+        amostra:
+            {
+                type: Elements.string,
+                control: Controls.markdown_box
+            },
+        autor:
+            {
+                type: Elements.string,
+                control: Controls.input_box
+            },
+        coberturaEspacial:
+            {
+                type: Elements.string,
+                control: Controls.input_box
+            },
+        data:
+            {
+                type: Elements.string,
+                control: Controls.input_box
+            },
+        descricao:
+            {
+                type: Elements.string,
+                control: Controls.markdown_box
+            },
+        direitosUtilizacao:
+            {
+                type: Elements.string,
+                control: Controls.input_box
+            },
+        escala:
+            {
+                type: Elements.string,
+                control: Controls.input_box
+            },
+        fonte:
+            {
+                type: Elements.string,
+                control: Controls.input_box
+            },
+        formato:
+            {
+                type: Elements.string,
+                control: Controls.input_box
+            },
+        instrumento:
+            {
+                type: Elements.string,
+                control: Controls.input_box
+            },
+        metodologia:
+            {
+                type: Elements.string,
+                control: Controls.markdown_box
+            },
+        periodoTemporal:
+            {
+                type: Elements.string,
+                control: Controls.input_box
+            },
+        qualidade:
+            {
+                type: Elements.string,
+                control: Controls.markdown_box
+            },
+        tipo: {
+            type: Elements.string,
+            control: Controls.input_box
+        },
+        titulo:
+            {
+                type: Elements.string,
+                control: Controls.input_box
+            }
+    };
+
 Elements.setAllElements = function (loadedElements)
 {
     for (let i = 0; i < loadedElements.length; i++)

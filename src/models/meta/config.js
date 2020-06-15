@@ -657,6 +657,15 @@ Config.enabledOntologies = {
         description: "Vocabulary for the description of data resulting from experiments in the biology/biomedical domains: samples used, methods, etc...",
         domain: "Biology",
         domain_specific: true
+    },
+    imgdata: {
+        prefix: "imgdata",
+        uri: "http://www.semanticweb.org/migue/ontologies/2020/4/imgdata#",
+        elements: Elements.ontologies.imgdata,
+        label: "Imagetic Data",
+        description: "Vocabulary for imagetic descriptions",
+        domain: "Generic",
+        domain_specific: false
     }
 };
 

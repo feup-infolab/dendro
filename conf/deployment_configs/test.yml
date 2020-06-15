@@ -353,6 +353,7 @@ test:
     active: true
     reuse_checkpoints: true # this will stop containers as needed, do NOT stop_containers_automatically!!
     create_checkpoints: true
+    pull_all_orchestras_at_start: true
     destroy_existing_images_at_start: true
     restart_all_orchestras_at_start: true
     stop_containers_automatically: false
