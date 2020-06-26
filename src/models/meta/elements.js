@@ -61,6 +61,10 @@ Elements.getInvalidTypeErrorMessageForDescriptor = function (currentDescriptor)
     errorMessagesForTypes[Elements.types.long_string] = msgStart + "a 'String'";
     errorMessagesForTypes[Elements.types.stringNoEscape] = msgStart + "a 'String'";
 
+    if (isNull(errorMessagesForTypes[currentDescriptor.type]))
+    {
+        return "Unknown error validating type of descriptor " + currentDescriptor.uri;
+    }
     return errorMessagesForTypes[currentDescriptor.type];
 };
 
