@@ -25,5 +25,5 @@ WantedBy=multi-user.target
 
 sudo chmod 664 "$SERVICE_FILE" && \
 sudo systemctl enable "$SERVICE_NAME" && \
-sudo service start "$SERVICE_NAME"
+sudo service "$SERVICE_NAME" start
 
