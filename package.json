@@ -11,6 +11,7 @@
     "npm": "5.6.0"
   },
   "scripts": {
+    "make-systemd-startup-item": "./conf/scripts/make_startup_item.sh",
     "stop": "node src/app.js --stop",
     "start": "node src/app.js",
     "restart": "npm run stop && npm start",
