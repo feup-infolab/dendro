@@ -4,7 +4,7 @@ const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const fileUtils = rlequire("dendro", "test/utils/file/fileUtils.js");
 
 const projectData = {
-    creator: "http://" + Config.host + "/user/demouser1",
+    creator: "http://" + Config.hostAndPort + "/user/demouser1",
     title: "This is a metadata only test project with handle " + metadataProjectHandle + " and created by demouser1",
     description: "This is a test project description for a metadata-only project type",
     publisher: "UP",
@@ -19,7 +19,7 @@ const projectData = {
     storageConfig: {
         hasStorageType: "local"
     },
-    uri: "http://" + Config.host + "/" + metadataProjectHandle,
+    uri: "http://" + Config.hostAndPort + "/" + metadataProjectHandle,
     backup_path: fileUtils.getFilePath("/mockdata/projects/projectBackups/metadataonlyprojectcreatedbydemouser1.zip"),
     searchTerms: metadataProjectHandle
 };

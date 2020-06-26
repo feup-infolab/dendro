@@ -27,6 +27,12 @@
 <link rel='stylesheet' type="text/css" href='/stylesheets/tooltip.css' />
 <link rel='stylesheet' type="text/css" href='/stylesheets/social-dendro.css' />
 
+<!-- notebook -->
+
+<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/themes/prism.min.css'/>
+
+
+
 <!--jQuery -->
 <script type="text/javascript" src="/bower_components/jquery/dist/jquery.js"></script>
 
@@ -133,6 +139,8 @@
     <script type="text/javascript" src="/app/js/controllers/project/admin/project_tree_viewer_controller.js"></script>
     <script type="text/javascript" src="/app/js/controllers/project/editor/descriptor_list_controller.js"></script>
     <script type="text/javascript" src="/app/js/controllers/project/editor/file_explorer_controller.js"></script>
+    <script type="text/javascript" src="/app/js/controllers/project/editor/notebook_controller.js"></script>
+    <script type="text/javascript" src="/app/js/controllers/project/editor/notebook_view_controller.js"></script>
     <script type="text/javascript" src="/app/js/controllers/project/editor/metadata_editor_controller.js"></script>
     <script type="text/javascript" src="/app/js/controllers/uploads/uploads_controller.js"></script>
     <script type="text/javascript" src="/app/js/controllers/project/editor/project_editor_controller.js"></script>
@@ -178,7 +186,7 @@
 
 
     <script type="text/javascript" src="/app/js/services/projects_service.js"></script>
-
+    <script type="text/javascript" src="/app/js/services/notebooks_service.js"></script>
 
     <!-- directives -->
 
@@ -196,3 +204,15 @@
 
 <!-- /angular App -->
 
+
+
+<!-- notebook -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/prism.min.js" data-manual></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/components/prism-python.min.js" data-manual></script>
+
+
+
+<!-- nbviewer.js -->
+<script src="/js/nbv.js"></script>

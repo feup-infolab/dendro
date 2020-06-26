@@ -24,6 +24,7 @@ let isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const DockerManager = rlequire("dendro", "src/utils/docker/docker_manager.js").DockerManager;
 
 Config.pm2AppName = rlequire("dendro", "package.json").name + "-" + rlequire("dendro", "package.json").version;
+Config.appDir = appDir;
 
 class App
 {
@@ -389,6 +390,10 @@ class App
                 },
                 function (callback)
                 {
+                    rlequire("dendro", "src/bootup/routes/load_proxy_logic_routes.js").loadRoutes(self.app, callback);
+                },
+                function (callback)
+                {
                     rlequire("dendro", "src/bootup/routes/load_plugins_routes.js").loadRoutes(self.app, callback);
                 },
                 function (callback)
@@ -458,6 +463,10 @@ class App
             function (callback)
             {
                 rlequire("dendro", "src/bootup/cron_jobs/delete_old_temp_folders.js").deleteOldTempFolders(self.app, callback);
+            },
+            function (callback)
+            {
+                rlequire("dendro", "src/bootup/cron_jobs/notebookMonitorJob.js").notebookMonitorJob(self.app, callback);
             },
             function (callback)
             {

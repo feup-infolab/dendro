@@ -36,7 +36,6 @@ function Folder (object = {})
     {
         self.nie.title = object.nie.title;
     }
-
     return self;
 }
 
@@ -92,9 +91,17 @@ Folder.prototype.saveIntoFolder = function (
                     return callback(1, error);
                 });
         }
-        else if (node instanceof Folder)
+        else if (node.isA(Folder, true))
         {
-            const destinationFolder = destinationFolderAbsPath + "/" + node.nie.title;
+            let destinationFolder;
+            if (!isNull(node.ddr.notebookID))
+            {
+                destinationFolder = destinationFolderAbsPath;
+            }
+            else
+            {
+                destinationFolder = destinationFolderAbsPath + path.separator + node.nie.title;
+            }
 
             // mode = 0777, recursive = true
             nfs.mkdir(destinationFolder, Config.tempFilesCreationMode, true, function (err)
@@ -1451,15 +1458,10 @@ Folder.prototype.restoreFromFolder = function (absPathOfRootFolder,
 )
 {
     const self = this;
-    let entityLoadingTheMetadataUri;
 
-    if (!isNull(entityLoadingTheMetadata) && entityLoadingTheMetadata instanceof User)
+    if (isNull(entityLoadingTheMetadata) || !(entityLoadingTheMetadata instanceof User))
     {
-        entityLoadingTheMetadataUri = entityLoadingTheMetadata.uri;
-    }
-    else
-    {
-        entityLoadingTheMetadataUri = User.anonymous.uri;
+        entityLoadingTheMetadata = User.anonymous;
     }
 
     self.loadContentsOfFolderIntoThis(absPathOfRootFolder, replaceExistingFolder, function (err, result)
@@ -1505,7 +1507,7 @@ Folder.prototype.restoreFromFolder = function (absPathOfRootFolder,
                                     return callback(null, "Data and metadata restored successfully. Result : " + result);
                                 }
                                 return callback(1, "Error restoring metadata for node " + self.uri + " : " + result);
-                            }, entityLoadingTheMetadataUri, [Elements.access_types.locked], [Elements.access_types.restorable], restoreIntoTheSameRootFolder, progressReporter);
+                            }, entityLoadingTheMetadata.uri, [Elements.access_types.locked], [Elements.access_types.restorable], restoreIntoTheSameRootFolder, progressReporter);
                         });
                     }
                     else
@@ -1820,7 +1822,7 @@ Folder.prototype.save = function (callback)
             {
                 self.autorename();
             }
-            self.baseConstructor.prototype.save.call(self, function (err, result)
+            InformationElement.prototype.save.call(self, function (err, result)
             {
                 if (isNull(err))
                 {
@@ -1853,8 +1855,13 @@ Folder.prototype.save = function (callback)
     });
 };
 
-Folder.deleteOnLocalFileSystem = function (absPath, callback)
+Folder.deleteOnLocalFileSystem = function (absPath, callback, isRelative)
 {
+    if (isRelative)
+    {
+        absPath = path.resolve(Config.appDir, absPath);
+    }
+
     const isWin = /^win/.test(process.platform);
     const exec = require("child_process").exec;
     let command;
@@ -2055,7 +2062,7 @@ Folder.prototype.getHumanReadableUri = function (callback)
                         {
                             callback(null, parentResource.ddr.humanReadableURI + "/data");
                         }
-                        else if (parentResource.isA(Folder))
+                        else if (parentResource.isA(Folder, true))
                         {
                             callback(null, parentResource.ddr.humanReadableURI + "/" + self.nie.title);
                         }

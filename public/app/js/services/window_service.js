@@ -2,9 +2,19 @@
 
 angular.module("dendroApp.services")
     .service("windowService",
-        ["$http", "Utils",
-            function ($http, Utils)
+        ["$http", "Utils", "$window",
+            function ($http, Utils, $window)
             {
+                this.openInNewWindow = function (url)
+                {
+                    $window.open(url);
+                };
+
+                this.redirectToUri = function (url)
+                {
+                    $window.location.href = url;
+                };
+
                 this.init = function ()
                 {
                     Utils.fade_messages();

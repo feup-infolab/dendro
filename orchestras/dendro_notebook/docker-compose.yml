@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+  jupyter_notebook:
+    container_name: ${DENDRO_NOTEBOOK_GUID}jupyter-dendro
+    image:  jupyter/scipy-notebook:17aba6048f44
+    tty: true
+    environment:
+      - VIRTUAL_HOST=${DENDRO_NOTEBOOK_VIRTUAL_HOST}
+      - VIRTUAL_PORT=8888
+      - NB_UID=${DENDRO_NOTEBOOK_USER_ID}
+      #- JAVA_XMX=3g
+    volumes:
+      - ./data:/home/jovyan
+    entrypoint:
+      - /opt/conda/bin/tini
+    command:
+    #  - -g /usr/local/bin/start-notebook.sh -- --NotebookApp.base_url=${DENDRO_NOTEBOOK_FULL_URL} --NotebookApp.password=${DENDRO_NOTEBOOK_DEFAULT_PASSWORD} --NotebookApp.custom_display_url=${DENDRO_NOTEBOOK_FULL_URL}"
+      - -g
+      - /usr/local/bin/start-notebook.sh
+      - --
+      - --NotebookApp.base_url=${DENDRO_NOTEBOOK_FULL_URL}
+      # - --NotebookApp.password=${DENDRO_NOTEBOOK_DEFAULT_PASSWORD}
+      - --NotebookApp.token=''
+      - --NotebookApp.allow_origin='*'
+      # - --NotebookApp.custom_display_url=${DENDRO_NOTEBOOK_FULL_URL}
+    networks:
+      - traefikweb
+    expose:
+      - 8888
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=machine-ws"
+      - "traefik.docker.network=traefik_default"
+      - "traefik.frontend.entryPoints=http,https"
+      - "traefik.ws.protocol=http"
+      - "traefik.wss.protocol=http"
+      - "traefik.frontend.passHostHeader=true"
+
+networks:
+  traefikweb:
+    external:
+      name: dendro_notebook_vhosts_traefikweb
+
+#networks:
+#      net:
+#        name: notebooknet
+#        driver: bridge

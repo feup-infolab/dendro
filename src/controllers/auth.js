@@ -199,7 +199,7 @@ module.exports.register = function (req, res)
         res.status(405).json(
             {
                 result: "error",
-                message: "This function is not yet available via the JSON API. You need to register at " + Config.host + " ."
+                message: "This function is not yet available via the JSON API. You need to register at " + Config.hostAndPort + " ."
             }
         );
     }

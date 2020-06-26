@@ -286,7 +286,7 @@ DockerManager.forAllOrchestrasDo = function (lambda, callback)
         "dir",
         function (err, subdirs)
         {
-            async.map(subdirs, function (subdir, singleLambdaCallback)
+            async.mapSeries(subdirs, function (subdir, singleLambdaCallback)
             {
                 const orchestraName = path.basename(subdir);
                 lambda(subdir, singleLambdaCallback, orchestraName);
@@ -434,7 +434,7 @@ DockerManager.requireOrchestras = function (orchestraName, req, res, next)
     });
 };
 
-DockerManager.startOrchestra = function (orchestraName, callback, imagesSuffix)
+DockerManager.startOrchestra = function (orchestraName, callback, imagesSuffix, pathToRunOn, envVarsToInject)
 {
     if (Config.docker && Config.docker.active)
     {
@@ -474,11 +474,12 @@ DockerManager.startOrchestra = function (orchestraName, callback, imagesSuffix)
             Logger.log("info", "PLEASE WAIT! If after 10 minutes without heavy CPU activity please press Ctrl+C and try again.");
 
             let dockerSubProcess;
-            if (isNull(DockerManager.runningOrchestras[orchestraName]))
-            {
-                const dockerComposeFolder = path.resolve(rlequire.getRootFolder("dendro"), "./orchestras/" + orchestraName);
 
+            const startOrchestra = function (dockerComposeFolder, callback)
+            {
                 let copyOfEnv = JSON.parse(JSON.stringify(process.env));
+
+                _.extend(copyOfEnv, envVarsToInject);
 
                 if (!isNull(imagesSuffix))
                 {
@@ -503,11 +504,6 @@ DockerManager.startOrchestra = function (orchestraName, callback, imagesSuffix)
 
                             if (!isNull(matchName) && matchName.length > 0)
                             {
-                                DockerManager.runningOrchestras[orchestraName] = {
-                                    id: orchestraName,
-                                    dockerComposeFolder: dockerComposeFolder
-                                };
-
                                 // TODO we ignore errors because in many cases a container with that name is already running.
                                 // TODO Need a way to detect and manage containers witht the same names...
 
@@ -532,10 +528,6 @@ DockerManager.startOrchestra = function (orchestraName, callback, imagesSuffix)
                     }
                     else
                     {
-                        DockerManager.runningOrchestras[orchestraName] = {
-                            id: orchestraName,
-                            dockerComposeFolder: dockerComposeFolder
-                        };
                         if (!isNull(imagesSuffix))
                         {
                             callback(null, imagesSuffix);
@@ -547,11 +539,33 @@ DockerManager.startOrchestra = function (orchestraName, callback, imagesSuffix)
                     }
                 });
                 logEverythingFromChildProcess(dockerSubProcess);
+            };
+
+            if (!isNull(pathToRunOn))
+            {
+                startOrchestra(pathToRunOn, callback);
             }
             else
             {
-                Logger.log("debug", "Containers in orchestra " + orchestraName + " are already running.");
-                callback(null, null);
+                if (isNull(DockerManager.runningOrchestras[orchestraName]))
+                {
+                    const dockerComposeFolder = path.resolve(rlequire.getRootFolder("dendro"), "./orchestras/" + orchestraName);
+
+                    startOrchestra(dockerComposeFolder, function (err, result)
+                    {
+                        DockerManager.runningOrchestras[orchestraName] = {
+                            id: orchestraName,
+                            dockerComposeFolder: dockerComposeFolder
+                        };
+
+                        callback(err, result);
+                    });
+                }
+                else
+                {
+                    Logger.log("debug", "Containers in orchestra " + orchestraName + " are already running.");
+                    callback(null, null);
+                }
             }
         }
     }
@@ -698,7 +712,8 @@ DockerManager.getContainerIDFromName = function (containerName, callback)
         stdio: [0, 1, 2]
     }, function (err, containerID)
     {
-        callback(err, containerID.trim());
+        containerID = containerID.trim();
+        callback(err, containerID);
     });
 };
 
@@ -720,6 +735,42 @@ DockerManager.commitContainer = function (containerName, committedImageName, cal
                 callback(null, false);
             }
         });
+    });
+};
+
+DockerManager.ps = function (callback)
+{
+    childProcess.exec(`docker ps`, {
+        cwd: rlequire.getRootFolder("dendro"),
+        stdio: [0, 1, 2]
+    }, function (err, result)
+    {
+        callback(err, result);
+    });
+};
+
+DockerManager.fuzzySearchForRunningContainers = function (piecesOfNamesOfContainers, callback)
+{
+    DockerManager.ps(function (err, result)
+    {
+        if (isNull(err))
+        {
+            const containersRunning = _.map(piecesOfNamesOfContainers, function (pieceOfName)
+            {
+                if (result.includes(pieceOfName))
+                {
+                    return pieceOfName;
+                }
+
+                return null;
+            });
+
+            callback(err, containersRunning);
+        }
+        else
+        {
+            callback(err, result);
+        }
     });
 };
 
@@ -764,6 +815,41 @@ DockerManager.runCommandOnContainer = function (containerName, command, callback
         else
         {
             callback(null, result);
+        }
+    });
+};
+
+DockerManager.stopContainer = function (containerName, callback)
+{
+    DockerManager.getContainerIDFromName(containerName, function (err, containerID)
+    {
+        if (isNull(err))
+        {
+            if (isNull(containerID))
+            {
+                callback(null);
+            }
+            else
+            {
+                childProcess.exec(`docker stop ${containerID}`, {
+                    cwd: rlequire.getRootFolder("dendro"),
+                    stdio: [0, 1, 2]
+                }, function (err, result)
+                {
+                    if (isNull(err))
+                    {
+                        callback(null, result);
+                    }
+                    else
+                    {
+                        callback(err, result);
+                    }
+                });
+            }
+        }
+        else
+        {
+            callback(err, containerID);
         }
     });
 };

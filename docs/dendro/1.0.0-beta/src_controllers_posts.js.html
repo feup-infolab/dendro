@@ -28,15 +28,15 @@
 </nav>
 
 <div id="main">
-    
+
     <h1 class="page-title">src/controllers/posts.js</h1>
-    
-
-    
 
 
 
-    
+
+
+
+
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>const rlequire = require("rlequire");
@@ -2027,7 +2027,7 @@ exports.post = function (req, res)
     const acceptsHTML = req.accepts("html");
     const acceptsJSON = req.accepts("json");
     const currentUser = req.user;
-    // const postUri = "http://" + Config.host + req.url;
+    // const postUri = "http://" + Config.hostAndPort + req.url;
     const postUri = req.url;
 
     const getCommentsForAPost = function (post, cb)

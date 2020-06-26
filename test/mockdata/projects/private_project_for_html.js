@@ -5,7 +5,7 @@ const fileUtils = rlequire("dendro", "test/utils/file/fileUtils.js");
 const privateProjectHandle = "privateprojecthtmlcreatedbydemouser1";
 
 const projectData = {
-    creator: "http://" + Config.host + "/user/demouser1",
+    creator: "http://" + Config.hostAndPort + "/user/demouser1",
     title: "This is a private test project with handle " + privateProjectHandle + " and created by demouser1",
     description: "This is a test project description",
     publisher: "UP",

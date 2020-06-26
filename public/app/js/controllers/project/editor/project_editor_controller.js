@@ -256,6 +256,28 @@ angular.module("dendroApp.controllers")
             return false;
         };
 
+        $scope.showing_a_notebook = function ()
+        {
+            if (!Utils.isNull($scope.get_selected_files()))
+            {
+                var files = $scope.get_selected_files();
+
+                if (files.length === 1)
+                {
+                    if (files[0].ddr.fileExtension === "notebook")
+                    {
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                return false;
+            }
+
+            return false;
+        };
+
         $scope.showing_descriptor_selection_area = function ()
         {
             return $scope.edit_mode && !$scope.showing_project_root();

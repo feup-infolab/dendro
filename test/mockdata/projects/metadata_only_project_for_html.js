@@ -5,7 +5,7 @@ const fileUtils = rlequire("dendro", "test/utils/file/fileUtils.js");
 const metadataProjectHandle = "metadataonlyhtmlprojectcreatedbydemouser1";
 
 const projectData = {
-    creator: "http://" + Config.host + "/user/demouser1",
+    creator: "http://" + Config.hostAndPort + "/user/demouser1",
     title: "This is a metadata only test project with handle " + metadataProjectHandle + " and created by demouser1",
     description: "This is a test project description",
     publisher: "UP",

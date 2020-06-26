@@ -5,6 +5,7 @@ const Logger = rlequire("dendro", "src/utils/logger.js").Logger;
 
 const isNull = rlequire("dendro", "src/utils/null.js").isNull;
 const Permissions = Object.create(rlequire("dendro", "src/models/meta/permissions.js").Permissions);
+const DockerManager = rlequire("dendro", "src/utils/docker/docker_manager.js").DockerManager;
 
 const QueryBasedRouter = function ()
 {
@@ -37,7 +38,7 @@ QueryBasedRouter.applyRoutes = function (routes, req, res, next, validateExisten
                 }
                 else
                 {
-                    callback(500, exists);
+                    callback(500, false);
                 }
             });
         }
@@ -149,6 +150,18 @@ QueryBasedRouter.applyRoutes = function (routes, req, res, next, validateExisten
         }
     }
 
+    function startRequiredOrchestras (requiredOrchestras, callback)
+    {
+        if (!isNull(matchingRoute.required_orchestras) && matchingRoute.required_orchestras instanceof Array)
+        {
+            async.mapSeries(matchingRoute.required_orchestras, DockerManager.startOrchestra, callback);
+        }
+        else
+        {
+            callback(null);
+        }
+    }
+
     async.series([
         function (callback)
         {
@@ -180,7 +193,17 @@ QueryBasedRouter.applyRoutes = function (routes, req, res, next, validateExisten
 
                 if (!isNull(matchingRoute))
                 {
-                    passRequestToRoute(matchingRoute);
+                    startRequiredOrchestras(matchingRoute.required_orchestras, function (err, results)
+                    {
+                        if (isNull(err))
+                        {
+                            passRequestToRoute(matchingRoute);
+                        }
+                        else
+                        {
+                            next(err, results);
+                        }
+                    });
                 }
                 else
                 {
@@ -189,12 +212,22 @@ QueryBasedRouter.applyRoutes = function (routes, req, res, next, validateExisten
             }
             else
             {
-                // try all
+                // try all methods
                 matchingRoute = getMatchingRoute(routes.all);
 
                 if (!isNull(matchingRoute))
                 {
-                    passRequestToRoute(matchingRoute);
+                    startRequiredOrchestras(matchingRoute.required_orchestras, function (err, results)
+                    {
+                        if (isNull(err))
+                        {
+                            passRequestToRoute(matchingRoute);
+                        }
+                        else
+                        {
+                            next(err, results);
+                        }
+                    });
                 }
                 else
                 {

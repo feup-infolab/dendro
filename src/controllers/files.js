@@ -10,6 +10,7 @@ const Deposit = rlequire("dendro", "src/models/deposit.js").Deposit;
 const InformationElement = rlequire("dendro", "src/models/directory_structure/information_element.js").InformationElement;
 const Folder = rlequire("dendro", "src/models/directory_structure/folder.js").Folder;
 const File = rlequire("dendro", "src/models/directory_structure/file.js").File;
+const Notebook = rlequire("dendro", "src/models/directory_structure/notebook.js").Notebook;
 const Descriptor = rlequire("dendro", "src/models/meta/descriptor.js").Descriptor;
 const User = rlequire("dendro", "src/models/user.js").User;
 const FileSystemPost = rlequire("dendro", "src/models/social/fileSystemPost.js").FileSystemPost;
@@ -340,7 +341,7 @@ exports.download = function (req, res)
                     {
                         downloadFile(requestedResourceURI, res);
                     }
-                    else if (ie.isA(Folder))
+                    else if (ie.isA(Folder) || ie.isA(Notebook))
                     {
                         downloadFolder(requestedResourceURI, res);
                     }
@@ -576,7 +577,7 @@ exports.serve = function (req, res)
                             }
                         });
                     }
-                    else if (ie.isA(Folder))
+                    else if (ie.isA(Folder) || ie.isA(Notebook))
                     {
                         downloadFolder(requestedResourceURI, res);
                     }
@@ -2715,6 +2716,10 @@ exports.thumbnail = function (req, res)
                     else if (!isNull(requestedExtension) && !isNull(Config.thumbnailableExtensions[requestedExtension]))
                     {
                         exports.get_thumbnail(req, res);
+                    }
+                    else if (requestedExtension === "notebook")
+                    {
+                        exports.serve_static(req, res, "/images/icons/jupyter_logo.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
                     }
                     else if (requestedExtension === "" || requestedExtension === "folder")
                     {

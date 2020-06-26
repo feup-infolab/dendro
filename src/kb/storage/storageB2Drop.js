@@ -24,7 +24,7 @@ class StorageB2Drop extends Storage
         self.username = username;
         self.password = password;
 
-        let dendroInstanceDataFolder = Config.host;
+        let dendroInstanceDataFolder = Config.hostAndPort;
 
         if (Config.port)
         {

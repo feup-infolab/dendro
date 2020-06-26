@@ -99,12 +99,12 @@ Cache.initConnections = function (callback)
                                 {
                                     if (err)
                                     {
-                                        Logger.log("error", "[ERROR] Unable to connect to MongoDB instance with ID: " + mongoCacheConfig.id + " running on " + mongoCacheConfig.host + ":" + mongoCacheConfig.port + " : " + err);
+                                        Logger.log("error", "[ERROR] Unable to connect to MongoDB instance with ID: " + mongoCacheConfig.id + " running on " + mongoCacheConfig.hostAndPort + ":" + mongoCacheConfig.port + " : " + err);
                                         Logger.log("error", newMongoCacheConnection);
                                     }
                                     else
                                     {
-                                        Logger.log("Connected to MongoDB instance with ID: " + mongoCacheConfig.id + " running on " + mongoCacheConfig.host + ":" + mongoCacheConfig.port);
+                                        Logger.log("Connected to MongoDB instance with ID: " + mongoCacheConfig.id + " running on " + mongoCacheConfig.hostAndPort + ":" + mongoCacheConfig.port);
                                     }
                                     return callback(err, newMongoCacheConnection);
                                 });
@@ -122,7 +122,7 @@ Cache.initConnections = function (callback)
                                 {
                                     if (!isNull(err))
                                     {
-                                        throw new Error("[ERROR] Unable to connect to Redis instance with ID: " + redisCacheConfig.id + " running on " + redisCacheConfig.host + ":" + redisCacheConfig.port + " : " + err.message);
+                                        throw new Error("[ERROR] Unable to connect to Redis instance with ID: " + redisCacheConfig.id + " running on " + redisCacheConfig.hostAndPort + ":" + redisCacheConfig.port + " : " + err.message);
                                     }
                                     else
                                     {

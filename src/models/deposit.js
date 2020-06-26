@@ -210,21 +210,28 @@ Deposit.createDeposit = function (data, callback)
                     },
                     function (citation, callback)
                     {
-                        newDeposit.ddr.DOI = DOI;
-                        newDeposit.ddr.proposedCitation = citation;
-                        newDeposit.dcterms.identifier = DOI;
-
-                        newDeposit.save(function (err, newDeposit)
+                        if (typeof DOI !== "string" || typeof citation !== "string")
                         {
-                            if (!err)
+                            callback(1, "Invalid request received from DOI provider");
+                        }
+                        else
+                        {
+                            newDeposit.ddr.DOI = DOI;
+                            newDeposit.ddr.proposedCitation = citation;
+                            newDeposit.dcterms.identifier = DOI;
+
+                            newDeposit.save(function (err, newDeposit)
                             {
-                                callback(err, newDeposit);
-                            }
-                            else
-                            {
-                                callback(err, "not good");
-                            }
-                        });
+                                if (!err)
+                                {
+                                    callback(err, newDeposit);
+                                }
+                                else
+                                {
+                                    callback(err, "Unable to save new deposit");
+                                }
+                            });
+                        }
                     }], function (err, newDeposit)
                     {
                         if (isNull(err))

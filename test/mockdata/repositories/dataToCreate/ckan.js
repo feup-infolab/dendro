@@ -18,7 +18,7 @@ const Config = rlequire("dendro", "src/models/meta/config.js").Config;
         hasAPIKey: "6a50a8d3-44ce-4825-b3c7-9bca1c57165f",
         hasPlatform: {
             //uri: "http://127.0.0.1:3001/repository_platform/ckan",
-            uri: "http://" + Config.host + "/repository_platform/ckan",
+            uri: "http://" + Config.hostAndPort + "/repository_platform/ckan",
             dcterms: {title: "CKAN"},
             foaf: {nick: "ckan", homepage: "http://192.168.33.60:5000"},
             $$hashKey: "object:143"
@@ -48,7 +48,7 @@ const Config = rlequire("dendro", "src/models/meta/config.js").Config;
                 handle:"ckan",
                 created:"2017-10-02T12:17:04.105Z",
                 modified:"2017-10-02T12:17:04.106Z",
-                humanReadableURI:"http://" + Config.host +"/repository_platform/ckan"
+                humanReadableURI:"http://" + Config.hostAndPort +"/repository_platform/ckan"
             },
             rdf:{
                 type:[

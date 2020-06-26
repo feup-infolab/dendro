@@ -4,7 +4,7 @@ const Config = rlequire("dendro", "src/models/meta/config.js").Config;
 const fileUtils = rlequire("dendro", "test/utils/file/fileUtils.js");
 
 const projectData = {
-    creator: "http://" + Config.host + "/user/demouser3",
+    creator: "http://" + Config.hostAndPort + "/user/demouser3",
     title: "This is a private test project with handle " + privateProjectHandle + " and created by demouser3",
     description: "This is a test project description for a private project type",
     publisher: "UP",
@@ -19,7 +19,7 @@ const projectData = {
     storageConfig: {
         hasStorageType: "local"
     },
-    uri: "http://" + Config.host + "/" + privateProjectHandle,
+    uri: "http://" + Config.hostAndPort + "/" + privateProjectHandle,
     backup_path: fileUtils.getFilePath("/mockdata/projects/projectBackups/privateprojectcreatedbydemouser3.zip"),
     searchTerms: privateProjectHandle
 };
