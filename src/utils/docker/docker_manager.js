@@ -411,7 +411,19 @@ DockerManager.fetchAllOrchestras = function (callback, onlyOnce)
         {
             const dockerSubProcess = childProcess.exec("docker-compose pull", {
                 cwd: subdir
-            }, callback);
+            }, function (err, result)
+            {
+                if (isNull(err))
+                {
+                    Logger.log("Orchestra pulled successfully");
+                }
+                else
+                {
+                    Logger.log("error", "Error pulling orchestra!");
+                }
+
+                callback(err, result);
+            });
 
             logEverythingFromChildProcess(dockerSubProcess);
         }, function ()

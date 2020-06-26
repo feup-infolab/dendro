@@ -4098,76 +4098,76 @@ Elements.ontologies.imgdata =
     {
         amostra:
             {
-                type: Elements.string,
+                type: Elements.types.string,
                 control: Controls.markdown_box
             },
         autor:
             {
-                type: Elements.string,
+                type: Elements.types.string,
                 control: Controls.input_box
             },
         coberturaEspacial:
             {
-                type: Elements.string,
+                type: Elements.types.string,
                 control: Controls.input_box
             },
         data:
             {
-                type: Elements.string,
+                type: Elements.types.string,
                 control: Controls.input_box
             },
         descricao:
             {
-                type: Elements.string,
+                type: Elements.types.string,
                 control: Controls.markdown_box
             },
         direitosUtilizacao:
             {
-                type: Elements.string,
+                type: Elements.types.string,
                 control: Controls.input_box
             },
         escala:
             {
-                type: Elements.string,
+                type: Elements.types.string,
                 control: Controls.input_box
             },
         fonte:
             {
-                type: Elements.string,
+                type: Elements.types.string,
                 control: Controls.input_box
             },
         formato:
             {
-                type: Elements.string,
+                type: Elements.types.string,
                 control: Controls.input_box
             },
         instrumento:
             {
-                type: Elements.string,
+                type: Elements.types.string,
                 control: Controls.input_box
             },
         metodologia:
             {
-                type: Elements.string,
+                type: Elements.types.string,
                 control: Controls.markdown_box
             },
         periodoTemporal:
             {
-                type: Elements.string,
+                type: Elements.types.string,
                 control: Controls.input_box
             },
         qualidade:
             {
-                type: Elements.string,
+                type: Elements.types.string,
                 control: Controls.markdown_box
             },
         tipo: {
-            type: Elements.string,
+            type: Elements.types.string,
             control: Controls.input_box
         },
         titulo:
             {
-                type: Elements.string,
+                type: Elements.types.string,
                 control: Controls.input_box
             }
     };
