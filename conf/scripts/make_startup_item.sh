@@ -23,8 +23,7 @@ PIDFile=$(pwd)/running.pid
 WantedBy=multi-user.target
 " | sudo tee "$SERVICE_FILE"
 
-sudo chmod 664 "$SERVICE_FILE"
-
-sudo systemctl enable "$SERVICE_NAME"
-sudo systemctl start "$SERVICE_NAME"
+sudo chmod 664 "$SERVICE_FILE" && \
+sudo systemctl enable "$SERVICE_NAME" && \
+sudo service start "$SERVICE_NAME"
 
