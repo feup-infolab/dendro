@@ -4,7 +4,7 @@ SERVICE_NAME="dendro"
 SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME.service"
 sudo rm -rf "$SERVICE_FILE"
 
-printf "
+sudo printf "
 [Unit]
 Description=Dendro
 Requires=docker
