@@ -383,3 +383,13 @@ test:
       password: "8yD5qChSbUSK"
       doi_prefix: "10.23673"
       organization: "https://api.test.datacite.org/dois/10.23673"
+  notebooks:
+    active: false
+    jupyter:
+      active: true
+      server_address: 'http://localhost:8888'
+      proxy_address: '127.0.0.1:15017'
+      default_password: 'jupyter'
+    nginx:
+      active: true
+      server_address: 'http://localhost:80'
