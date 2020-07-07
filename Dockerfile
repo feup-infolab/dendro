@@ -1,5 +1,5 @@
 ############################################
-FROM "ubuntu:19.04" as base
+FROM "ubuntu:20.04" as base
 ############################################
 
 ######    BUILD ARGUMENTS    ######
@@ -34,6 +34,7 @@ FROM base AS dependencies
 
 # Install preliminary dependencies
 RUN apt-get -qq update
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata
 RUN apt-get -y -f -qq install sudo unzip devscripts autoconf automake libtool flex bison gperf gawk m4 make libssl-dev imagemagick subversion zip wget curl git rsync --fix-missing
 RUN apt-get -y -qq install apt-utils --no-install-recommends
 
