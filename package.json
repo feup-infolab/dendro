@@ -193,7 +193,7 @@
     "tmp": "^0.0.33",
     "ui-router": "^1.0.0-alpha0",
     "umzug": "^2.1.0",
-    "underscore": "1.8.3",
+    "underscore": "1.12.1",
     "uuid": "^3.3.2",
     "valid-url": "^1.0.9",
     "validate-node-version": "^1.1.1",
