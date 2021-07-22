@@ -206,7 +206,7 @@
     "winston-daily-rotate-file": "^3.0.0",
     "xls-to-json-lc": "^0.3.4",
     "xlsjs": "1.0.1",
-    "xlsx": "^0.12.6",
+    "xlsx": "^0.17.0",
     "xml-writer": "^1.7.0",
     "xml2js": "^0.4.19",
     "xmlhttprequest": "^1.8.0",
