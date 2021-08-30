@@ -148,7 +148,7 @@
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
     "passport-orcid": "0.0.3",
-    "passport-saml": "^0.33.0",
+    "passport-saml": "^3.1.0",
     "pm2": "^2.9.1",
     "pretty-data": "^0.40.0",
     "prettysize": "^1.1.0",
