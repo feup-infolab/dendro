@@ -197,7 +197,7 @@
     "uuid": "^3.3.2",
     "valid-url": "^1.0.9",
     "validate-node-version": "^1.1.1",
-    "validator": "^9.1.1",
+    "validator": "^13.7.0",
     "vhost": "^3.0.2",
     "virtualbox": "git+https://github.com/Node-Virtualization/node-virtualbox.git",
     "webworker-threads": "^0.7.13",
