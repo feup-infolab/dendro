@@ -120,7 +120,7 @@
     "jsonpath": "^1.0.0",
     "karma-coverage": "^1.1.1",
     "line-reader": "^0.4.0",
-    "log4js": "^4.1.0",
+    "log4js": "^6.4.0",
     "md5": "*",
     "md5-file": "^3.2.3",
     "memcached": "^2.2.2",
