@@ -116,7 +116,7 @@
     "it-optional": "^0.1.0",
     "jdbc": "^0.6.2",
     "js-yaml": "^3.12.2",
-    "jsdom": "^11.3.0",
+    "jsdom": "^16.5.0",
     "jsonpath": "^1.0.0",
     "karma-coverage": "^1.1.1",
     "line-reader": "^0.4.0",
